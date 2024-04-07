@@ -49,7 +49,7 @@ def simple_crawler(url: str | Path, logger=None) -> (int, dict):
 
     date_str = re.findall(r"\d{4}-\d{2}-\d{2}", result['publish_time'])
     if date_str:
-        result['publish_time'] = date_str[0]
+        result['publish_time'] = date_str[0].replace("-", "")
     else:
         date_str = re.findall(r"\d{4}\d{2}\d{2}", result['publish_time'])
         if date_str:

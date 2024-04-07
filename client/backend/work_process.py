@@ -8,6 +8,7 @@ from scrapers.general_scraper import general_scraper
 from pb_api import PbTalker
 from urllib.parse import urlparse
 from get_insight import get_insight
+from general_utils import is_chinese
 from tranlsation_volcengine import text_translate
 import concurrent.futures
 
@@ -49,9 +50,6 @@ class ServiceProcesser:
         # 从pb数据库中读取所有文章url
         # 这里publish_time用int格式，综合考虑下这个是最容易操作的模式，虽然糙了点
         existing_articles = self.pb.read(collection_name='articles', fields=['id', 'title', 'url'], filter=f'publish_time>{expiration_str}')
-        if not existing_articles:
-            self.logger.warning(f'no articles in database, maybe you should check your database.')
-
         all_title = {}
         existings = []
         for article in existing_articles:
@@ -119,6 +117,8 @@ class ServiceProcesser:
                         self.logger.warning(f'get article {article_id} failed, skipping')
                         continue
                     if raw_article[0]['translation_result']:
+                        continue
+                    if is_chinese(raw_article[0]['title']):
                         continue
                     translate_text = text_translate([raw_article[0]['title'], raw_article[0]['abstract']], target_language='zh', logger=self.logger)
                     if translate_text:

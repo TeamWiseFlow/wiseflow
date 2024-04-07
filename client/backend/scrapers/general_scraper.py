@@ -6,19 +6,13 @@ import json
 import requests
 from bs4 import BeautifulSoup
 from bs4.element import Comment
-from ..llms.dashscope_wrapper import dashscope_llm
+from llms.dashscope_wrapper import dashscope_llm
 from datetime import datetime, date
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options as ChromeOptions
-from selenium.webdriver.common.by import By
-# from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.wait import WebDriverWait
-from sys import platform
 from requests.compat import urljoin
 
 
-user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/604.1 Edg/112.0.100.0'
+header = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/604.1 Edg/112.0.100.0'}
 
 
 def tag_visible(element: Comment) -> bool:
@@ -45,9 +39,9 @@ def parse_html_content(out: str) -> dict:
     dict_str = dict_str.replace("\n", "").replace("\t", "")
     # 先正则解析出{}中的内容
     dict_str = re.findall(r'{(.*?)}', dict_str)
-    dict_str = dict_str[0].replace("'", '"')
+    # dict_str = dict_str[0].replace("'", '"') #会误伤
     # json loads 要求双引号, 且需要把\n等转译
-    dct = json.loads('{' + dict_str + '}')
+    dct = json.loads('{' + dict_str[0] + '}')
     date_str = re.findall(r"\d{4}-\d{2}-\d{2}", dct['publish_time'])
     if date_str:
         dct['publish_time'] = date_str[0].replace("-", "")
@@ -60,9 +54,9 @@ def parse_html_content(out: str) -> dict:
     return dct
 
 
-sys_info = """给你一段从网页html文件中提取的所有文本，请尝试输出其标题、摘要、内容、作者和发布日期。
+sys_info = """给你一段从网页html文件中提取的所有文本，请尝试输出其标题、摘要、内容和发布日期。
 发布日期的格式为：XXXX-XX-XX，如果找不到则为空。内容不要包含标题、作者和发布日期。
-输出格式为Python字典，key分别为：title、abstract、content、author和publish_time。
+输出格式为Python字典，key分别为：title、abstract、content和publish_time。
 如果你识别出给定文本大部分既不是中文也不是英文，那么请输出：无法解析。
 """
 
@@ -91,11 +85,13 @@ def llm_crawler(url: str | Path, logger=None) -> (int, dict):
         else:
             print(f"cannot connect {url}")
         return -7, {}
-
+    # todo llm_crawler和simple_crawler这里都需要加个判断，对于乱码和总字符量很少的网页需要排除掉
     # 使用 BeautifulSoup 解析 HTML 内容
     soup = BeautifulSoup(response.text, "html.parser")
     html_text = text_from_soup(soup)
-    html_text = html_text.strip()
+    html_lines = html_text.split('\n')
+    html_lines = [line.strip() for line in html_lines if line.strip()]
+    html_text = "\n".join(html_lines)
     if not html_text or html_text.startswith('服务器错误') or html_text.startswith('您访问的页面') or html_text.startswith('403'):
         if logger:
             logger.warning(f"can not get {url} from the Internet")
@@ -141,43 +137,35 @@ def llm_crawler(url: str | Path, logger=None) -> (int, dict):
     else:
         info["author"] = ""
 
+    if not info['abstract']:
+        meta_description = soup.find("meta", {"name": "description"})
+        if meta_description:
+            info['abstract'] = meta_description["content"]
+        else:
+            info['abstract'] = ''
+
     return 11, info
 
 
 def general_scraper(site: str, expiration: date, existing: list[str], logger=None) -> list[dict]:
-    # 使用selenium 模拟HTTP请求网页内容
-    # 基于selenium模拟用户浏览器行为，缺点是速度会比较慢，另外二者被封的概率是一样的
-    """Scrape text from a website using selenium
+    try:
+        response = requests.get(site, header, timeout=60)
+    except:
+        if logger:
+            logger.error(f"cannot connect {site}")
+        else:
+            print(f"cannot connect {site}")
+        return []
 
-    learned from https://github.com/hustzhangwenfeng/gpt-researcher
-    """
+    if response.status_code != 200:
+        if logger:
+            logger.error(f"cannot connect {site}")
+        else:
+            print(f"cannot connect {site}")
+        return []
 
-    options = ChromeOptions()
-    options.add_argument(f"user-agent={user_agent}")
-    options.add_argument("--headless")
-    options.add_argument("--enable-javascript")
-
-    if platform == "linux" or platform == "linux2":
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--remote-debugging-port=9222")
-    options.add_argument("--no-sandbox")
-    options.add_experimental_option("prefs", {"download_restrictions": 3})
-    driver = webdriver.Chrome(options=options)
-
-    if logger:
-        logger.debug(f"scraping url {site}... with chrome option and agent: {user_agent}")
-
-    driver.get(site)
-
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.TAG_NAME, "body"))
-    )
-
-    # Get the HTML content directly from the browser's DOM
-    page_source = driver.execute_script("return document.body.outerHTML;")
+    page_source = response.text
     soup = BeautifulSoup(page_source, "html.parser")
-
-    driver.quit()  # 其实后面提取文章也可以继续用……根据实际情况再看吧
     # 解析出全部超链接网址
     parsed_url = urlparse(site)
     base_url = parsed_url.scheme + '://' + parsed_url.netloc
@@ -196,8 +184,8 @@ def general_scraper(site: str, expiration: date, existing: list[str], logger=Non
             flag, result = llm_crawler(site, logger=logger)
             if flag != 11:
                 return []
-
-        if datetime.strptime(result['publish_time'], '%Y%m%d') < expiration:
+        publish_date = datetime.strptime(result['publish_time'], '%Y%m%d')
+        if publish_date.date() < expiration:
             if logger:
                 logger.warning(f"{site} is too old, skip it")
             else:
@@ -214,18 +202,19 @@ def general_scraper(site: str, expiration: date, existing: list[str], logger=Non
             else:
                 print(f"{url} has been crawled before, skip it")
             continue
+        existing.append(url)
         flag, result = simple_crawler(url, logger=logger)
         if flag != 11:
             flag, result = llm_crawler(url, logger=logger)
             if flag != 11:
                 continue
-        if datetime.strptime(result['publish_time'], '%Y%m%d') < expiration:
+        publish_date = datetime.strptime(result['publish_time'], '%Y%m%d')
+        if publish_date.date() < expiration:
             if logger:
                 logger.warning(f"{url} is too old, skip it")
             else:
                 print(f"{url} is too old, skip it")
         else:
             articles.append(result)
-        existing.append(url)
 
     return articles

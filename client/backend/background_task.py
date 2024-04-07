@@ -7,7 +7,7 @@ from work_process import ServiceProcesser
 import configparser
 
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read('../config.ini')
 
 if config.has_section('sites'):
     web_pages = config['sites']

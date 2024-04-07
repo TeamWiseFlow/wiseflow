@@ -1,7 +1,7 @@
 # 这是后端服务的fastapi框架程序
 from fastapi import FastAPI
 from pydantic import BaseModel
-from . import BackendService
+from __init__ import BackendService
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import HTTPException
 
