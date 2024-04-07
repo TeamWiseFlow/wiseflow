@@ -1,0 +1,13 @@
+#**for local llmp server**
+export DASHSCOPE_API_KEY=''
+export VOLC_KEY='AK|SK'
+
+#**for embeddig model**
+export EMBEDDING_MODEL_PATH=''
+export RERANKER_MODEL_PATH=''
+export DEVICE=''
+
+#**for processer**
+export PROJECT_DIR=""
+export WS_LOG="verbose"
+export PB_API_AUTH='email|password'
