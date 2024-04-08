@@ -1,7 +1,7 @@
 # 使用aliyun dashscope的api封装
 # 非流式接口
 # 为了兼容性，输入输出都使用message格式（与openai SDK格式一致）
-
+import time
 from http import HTTPStatus
 import dashscope
 import random
@@ -62,7 +62,6 @@ def dashscope_llm(messages: list,
 
 
 if __name__ == '__main__':
-    import time
     from pprint import pprint
 
     # logging.basicConfig(level=logging.DEBUG)

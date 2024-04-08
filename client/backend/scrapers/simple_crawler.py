@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from pathlib import Path
 import re
+import chardet
 
 
 extractor = GeneralNewsExtractor()
@@ -31,13 +32,37 @@ def simple_crawler(url: str | Path, logger=None) -> (int, dict):
             print(f"cannot connect {url}")
         return -7, {}
 
-    text = response.text
+    rawdata = response.content
+    encoding = chardet.detect(rawdata)['encoding']
+    if encoding is not None and encoding.lower() == 'utf-8':
+        try:
+            text = rawdata.decode(encoding)
+        except:
+            if logger:
+                logger.error(f"{url} decode error, aborting")
+            else:
+                print(f"{url} decode error, aborting")
+            return 0, {}
+    else:
+        if logger:
+            logger.error(f"{url} undetected coding, aborting")
+        else:
+            print(f"{url} undetected coding, aborting")
+        return 0, {}
+
     result = extractor.extract(text)
-    if not result or not result['title'] or not result['content']:
+    if not result:
         if logger:
             logger.error(f"gne cannot extract {url}")
         else:
             print(f"gne cannot extract {url}")
+        return 0, {}
+
+    if len(result['title']) < 5 or len(result['content']) < 24:
+        if logger:
+            logger.warning(f"{result} not valid")
+        else:
+            print(f"{result} not valid")
         return 0, {}
 
     if result['title'].startswith('服务器错误') or result['title'].startswith('您访问的页面') or result['title'].startswith('403'):
@@ -51,11 +76,15 @@ def simple_crawler(url: str | Path, logger=None) -> (int, dict):
     if date_str:
         result['publish_time'] = date_str[0].replace("-", "")
     else:
-        date_str = re.findall(r"\d{4}\d{2}\d{2}", result['publish_time'])
+        date_str = re.findall(r"\d{4}\.\d{2}\.\d{2}", result['publish_time'])
         if date_str:
-            result['publish_time'] = date_str[0]
+            result['publish_time'] = date_str[0].replace(".", "")
         else:
-            result['publish_time'] = datetime.strftime(datetime.today(), "%Y%m%d")
+            date_str = re.findall(r"\d{4}\d{2}\d{2}", result['publish_time'])
+            if date_str:
+                result['publish_time'] = date_str[0]
+            else:
+                result['publish_time'] = datetime.strftime(datetime.today(), "%Y%m%d")
 
     soup = BeautifulSoup(text, "html.parser")
     try:

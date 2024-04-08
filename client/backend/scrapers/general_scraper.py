@@ -9,6 +9,7 @@ from bs4.element import Comment
 from llms.dashscope_wrapper import dashscope_llm
 from datetime import datetime, date
 from requests.compat import urljoin
+import chardet
 
 
 header = {
@@ -35,6 +36,9 @@ def text_from_soup(soup: BeautifulSoup) -> str:
 
 def parse_html_content(out: str) -> dict:
     # 发现llm出来的结果有时会在键值或者内容的引号外面出现\n \t安全起见全部去除，反正后续分析时llm也不看内容的换行这些
+    pattern = re.compile(r'\"\"\"(.*?)\"\"\"', re.DOTALL)
+    result = pattern.findall(out)
+    out = result[0]
     dict_str = out.strip("```").strip("python").strip("json").strip()
     dict_str = dict_str.replace("\n", "").replace("\t", "")
     # 先正则解析出{}中的内容
@@ -46,19 +50,24 @@ def parse_html_content(out: str) -> dict:
     if date_str:
         dct['publish_time'] = date_str[0].replace("-", "")
     else:
-        date_str = re.findall(r"\d{4}\d{2}\d{2}", dct['publish_time'])
+        date_str = re.findall(r"\d{4}\.\d{2}\.\d{2}", dct['publish_time'])
         if date_str:
-            dct['publish_time'] = date_str[0]
+            dct['publish_time'] = date_str[0].replace(".", "")
         else:
-            dct['publish_time'] = datetime.strftime(datetime.today(), "%Y%m%d")
+            date_str = re.findall(r"\d{4}\d{2}\d{2}", dct['publish_time'])
+            if date_str:
+                dct['publish_time'] = date_str[0]
+            else:
+                dct['publish_time'] = datetime.strftime(datetime.today(), "%Y%m%d")
     return dct
 
 
-sys_info = """给你一段从网页html文件中提取的所有文本，请尝试输出其标题、摘要、内容和发布日期。
+sys_info = '''你是一个html网页解析器，你将接收一段用户从网页html文件中提取的文本，请解析出其标题、摘要、内容和发布日期。
 发布日期的格式为：XXXX-XX-XX，如果找不到则为空。内容不要包含标题、作者和发布日期。
-输出格式为Python字典，key分别为：title、abstract、content和publish_time。
-如果你识别出给定文本大部分既不是中文也不是英文，那么请输出：无法解析。
+请务必按照Python字典的格式输出，key和value使用双引号包裹，key分别为：title、abstract、content和publish_time。输出结果请整体用三引号包裹，如下所示：
 """
+{"title": "解析出的标题", "abstract": "解析出的摘要", "content": "解析出的内容", "publish_time": "解析出的发布日期XXXX-XX-XX"}
+"""'''
 
 
 def llm_crawler(url: str | Path, logger=None) -> (int, dict):
@@ -85,13 +94,38 @@ def llm_crawler(url: str | Path, logger=None) -> (int, dict):
         else:
             print(f"cannot connect {url}")
         return -7, {}
-    # todo llm_crawler和simple_crawler这里都需要加个判断，对于乱码和总字符量很少的网页需要排除掉
+
+    rawdata = response.content
+    encoding = chardet.detect(rawdata)['encoding']
+    if encoding is not None and encoding.lower() == 'utf-8':
+        try:
+            text = rawdata.decode(encoding)
+        except:
+            if logger:
+                logger.error(f"{url} decode error, aborting")
+            else:
+                print(f"{url} decode error, aborting")
+            return 0, {}
+    else:
+        if logger:
+            logger.error(f"{url} undetected coding, aborting")
+        else:
+            print(f"{url} undetected coding, aborting")
+        return 0, {}
+
     # 使用 BeautifulSoup 解析 HTML 内容
-    soup = BeautifulSoup(response.text, "html.parser")
+    soup = BeautifulSoup(text, "html.parser")
     html_text = text_from_soup(soup)
     html_lines = html_text.split('\n')
     html_lines = [line.strip() for line in html_lines if line.strip()]
     html_text = "\n".join(html_lines)
+    if len(html_text) > 29999:
+        if logger:
+            logger.warning(f"{url} content too long for llm parsing")
+        else:
+            print(f"{url} content too long for llm parsing")
+        return 0, {}
+
     if not html_text or html_text.startswith('服务器错误') or html_text.startswith('您访问的页面') or html_text.startswith('403'):
         if logger:
             logger.warning(f"can not get {url} from the Internet")
@@ -114,10 +148,14 @@ def llm_crawler(url: str | Path, logger=None) -> (int, dict):
             print(msg)
         return 0, {}
 
-    info["url"] = str(url)
-    if not info["title"] or not info["content"]:
+    if len(info['title']) < 5 or len(info['content']) < 24:
+        if logger:
+            logger.warning(f"{info} not valid")
+        else:
+            print(f"{info} not valid")
         return 0, {}
 
+    info["url"] = str(url)
     # 提取图片链接，提取不到就空着
     image_links = []
     images = soup.find_all("img")

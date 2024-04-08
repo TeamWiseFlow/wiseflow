@@ -16,8 +16,9 @@ else:
     urls = []
 
 sp = ServiceProcesser()
+sp(sites=urls)
 
-
+'''
 def task():
     sp(sites=urls)
 
@@ -28,3 +29,6 @@ schedule.every().day.at("01:17").do(task)
 while True:
     schedule.run_pending()
     time.sleep(60)
+site1 = https://www.welivesecurity.com/en/
+site2 = https://www.scmagazine.com/
+'''

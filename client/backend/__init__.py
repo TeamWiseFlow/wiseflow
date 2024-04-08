@@ -178,16 +178,16 @@ class BackendService:
             return self.build_out(-2, 'insight not found')
 
         article_ids = insight[0]['articles']
-        if not article_ids:
-            self.logger.error(f'insight {insight_id} has no articles')
-            return self.build_out(-2, 'can not find articles for insight')
+        if article_ids:
+            article_list = [self.pb.read('articles', fields=['url'], filter=f'id="{_id}"') for _id in article_ids]
+            url_list = [_article[0]['url'] for _article in article_list if _article]
+        else:
+            url_list = []
 
-        article_list = [self.pb.read('articles', fields=['url'], filter=f'id="{_id}"') for _id in article_ids]
-        url_list = [_article[0]['url'] for _article in article_list if _article]
         flag, search_result = search_insight(insight[0]['content'], url_list, logger=self.logger)
         if flag <= 0:
             self.logger.debug('no search result, nothing happen')
-            return self.build_out(flag, '')
+            return self.build_out(flag, 'search engine error or no result')
 
         for item in search_result:
             new_article_id = self.pb.add(collection_name='articles', body=item)

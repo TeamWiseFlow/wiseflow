@@ -76,8 +76,6 @@ class ServiceProcesser:
         for value in new_articles:
             if not value:
                 continue
-            if not value['title'] or not value['content']:
-                continue
             from_site = urlparse(value['url']).netloc
             from_site = from_site.replace('www.', '')
             from_site = from_site.split('.')[0]
@@ -137,7 +135,10 @@ class ServiceProcesser:
                 self.logger.info('generate_insights-warning: no insights and no more than 25 articles so use article title as insights')
                 for key, value in cache.items():
                     if value['title']:
-                        text_for_insight = text_translate([value['title']], logger=self.logger)
+                        if is_chinese(value['title']):
+                            text_for_insight = value['title']
+                        else:
+                            text_for_insight = text_translate([value['title']], logger=self.logger)
                         if text_for_insight:
                             insight_id = self.pb.add(collection_name='insights',
                                                      body={'content': text_for_insight[0], 'articles': [key]})
