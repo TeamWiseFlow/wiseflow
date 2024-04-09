@@ -1,90 +1,54 @@
 from gne import GeneralNewsExtractor
-import requests
+import httpx
 from bs4 import BeautifulSoup
 from datetime import datetime
 from pathlib import Path
-import re
+from general_utils import extract_and_convert_dates
 import chardet
-
+from get_logger import get_logger
+import os
 
 extractor = GeneralNewsExtractor()
 header = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/604.1 Edg/112.0.100.0'}
 
+project_dir = os.environ.get("PROJECT_DIR", "")
+logger = get_logger(name='simple_crawler', file=os.path.join(project_dir, f'simple_crawler.log'))
 
-def simple_crawler(url: str | Path, logger=None) -> (int, dict):
+
+def simple_crawler(url: str | Path) -> (int, dict):
     """
     返回文章信息dict和flag，负数为报错，0为没有结果，11为成功
     """
     try:
-        response = requests.get(url, header, timeout=60)
-    except:
-        if logger:
-            logger.error(f"cannot connect {url}")
-        else:
-            print(f"cannot connect {url}")
-        return -7, {}
-
-    if response.status_code != 200:
-        if logger:
-            logger.error(f"cannot connect {url}")
-        else:
-            print(f"cannot connect {url}")
-        return -7, {}
-
-    rawdata = response.content
-    encoding = chardet.detect(rawdata)['encoding']
-    if encoding is not None and encoding.lower() == 'utf-8':
-        try:
+        with httpx.Client() as client:
+            response = client.get(url, headers=header, timeout=30)
+            rawdata = response.content
+            encoding = chardet.detect(rawdata)['encoding']
             text = rawdata.decode(encoding)
-        except:
-            if logger:
-                logger.error(f"{url} decode error, aborting")
-            else:
-                print(f"{url} decode error, aborting")
-            return 0, {}
-    else:
-        if logger:
-            logger.error(f"{url} undetected coding, aborting")
-        else:
-            print(f"{url} undetected coding, aborting")
-        return 0, {}
+    except Exception as e:
+        logger.error(e)
+        return -7, {}
 
     result = extractor.extract(text)
     if not result:
-        if logger:
-            logger.error(f"gne cannot extract {url}")
-        else:
-            print(f"gne cannot extract {url}")
+        logger.error(f"gne cannot extract {url}")
         return 0, {}
 
-    if len(result['title']) < 5 or len(result['content']) < 24:
-        if logger:
-            logger.warning(f"{result} not valid")
-        else:
-            print(f"{result} not valid")
+    if len(result['title']) < 4 or len(result['content']) < 24:
+        logger.info(f"{result} not valid")
         return 0, {}
 
-    if result['title'].startswith('服务器错误') or result['title'].startswith('您访问的页面') or result['title'].startswith('403'):
-        if logger:
-            logger.warning(f"can not get {url} from the Internet")
-        else:
-            print(f"can not get {url} from the Internet")
+    if result['title'].startswith('服务器错误') or result['title'].startswith('您访问的页面') or result['title'].startswith('403')\
+            or result['content'].startswith('This website uses cookies') or result['title'].startswith('出错了'):
+        logger.warning(f"can not get {url} from the Internet")
         return -7, {}
 
-    date_str = re.findall(r"\d{4}-\d{2}-\d{2}", result['publish_time'])
+    date_str = extract_and_convert_dates(result['publish_time'])
     if date_str:
-        result['publish_time'] = date_str[0].replace("-", "")
+        result['publish_time'] = date_str
     else:
-        date_str = re.findall(r"\d{4}\.\d{2}\.\d{2}", result['publish_time'])
-        if date_str:
-            result['publish_time'] = date_str[0].replace(".", "")
-        else:
-            date_str = re.findall(r"\d{4}\d{2}\d{2}", result['publish_time'])
-            if date_str:
-                result['publish_time'] = date_str[0]
-            else:
-                result['publish_time'] = datetime.strftime(datetime.today(), "%Y%m%d")
+        result['publish_time'] = datetime.strftime(datetime.today(), "%Y%m%d")
 
     soup = BeautifulSoup(text, "html.parser")
     try:
@@ -93,7 +57,7 @@ def simple_crawler(url: str | Path, logger=None) -> (int, dict):
             result['abstract'] = meta_description["content"]
         else:
             result['abstract'] = ''
-    except:
+    except Exception:
         result['abstract'] = ''
 
     result['url'] = str(url)

@@ -85,7 +85,7 @@ def search_insight(keyword: str, exist_urls: list[Union[str, Path]], knowledge: 
         if url in exist_urls:
             continue
         exist_urls.append(url)
-        flag, value = simple_crawler(url, logger)
+        flag, value = simple_crawler(url)
         if flag != 11:
             continue
         from_site = urlparse(url).netloc
