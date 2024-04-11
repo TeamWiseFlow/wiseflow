@@ -27,7 +27,7 @@ function ArticlesScreen({}) {
   })
 
   function trans() {
-    mut.mutate({ article_ids: query.data.map((d) => d.id) })
+    mut.mutate({ article_ids: query.data.filter((d) => !d.translation_result).map((d) => d.id) })
   }
 
   return (
