@@ -55,18 +55,19 @@ function ReportScreen({}) {
   }
 
   return (
-    <>
+    <div className='text-left'>
       <div>
+        <h2 className='max-w-screen-md'>报告生成</h2>
         <h3 className='my-4'>已选择分析结果:</h3>
-        {query.data && <div className='bg-slate-100 px-4 py-2 mb-4 text-slate-600 max-w-96 mx-auto'>{query.data.content}</div>}
+        {query.data && <div className='bg-slate-100 px-4 py-2 mb-4 text-slate-600 max-w-screen-md'>{query.data.content}</div>}
       </div>
       <div className='grid gap-1.5'>
         <h3 className='my-4'>报告大纲:</h3>
-        <Textarea placeholder='' id='outline' rows='10' value={toc.join("\n")} onChange={changeToc} className='max-w-96 mx-auto' />
+        <Textarea placeholder='' id='outline' rows='10' value={toc.join("\n")} onChange={changeToc} className='max-w-screen-md ' />
         <small>首行输入标题,每个纲目或章节单独一行. 首行空白自动生成标题. </small>
-        {query.data?.docx && <Input placeholder='修改意见' className='mt-6 max-w-96 mx-auto' value={comment} onChange={changeComment} />}
+        {query.data?.docx && <Input placeholder='修改意见' className='mt-6 max-w-screen-md ' value={comment} onChange={changeComment} />}
       </div>
-      <div className='my-6 flex flex-col gap-4 w-max mx-auto'>
+      <div className='my-6 flex flex-col gap-4 w-max '>
         {(mut.isPending && <ButtonLoading />) || (
           <Button disabled={toc.length <= 0} onClick={submit}>
             {query.data?.docx ? "再次生成" : "生成"}
@@ -79,7 +80,7 @@ function ReportScreen({}) {
         )}
       </div>
       {!mut.isPending && query.data?.docx && (
-        <div className='grid gap-1.5 max-w-96 border rounded px-4 py-2 pb-6 mx-auto'>
+        <div className='grid gap-1.5 max-w-screen-md border rounded px-4 py-2 pb-6 '>
           <p className='my-4'>报告已生成,点击下载</p>
           <p className='bg-slate-100 px-4 py-2 hover:underline flex gap-2 items-center overflow-hidden'>
             <FileDown className='h-4 w-4 text-slate-400' />
@@ -91,7 +92,7 @@ function ReportScreen({}) {
       )}
       {query.isError && <p className='text-red-500 my-4'>{query.error.message}</p>}
       {mut.isError && <p className='text-red-500 my-4'>{mut.error.message}</p>}
-    </>
+    </div>
   )
 }
 

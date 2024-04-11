@@ -77,6 +77,6 @@
 
 @layer components {
   h2 {
-    @apply scroll-m-20 text-2xl font-semibold tracking-tight mb-4;
+    @apply scroll-m-20 text-2xl font-semibold tracking-tight mb-4 text-left;
   }
 }
