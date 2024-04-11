@@ -43,7 +43,7 @@ routerAdd(
       })
     )
 
-    $app.dao().db().newQuery("SELECT DISTINCT DATE(created) as created FROM insights").all(result)
+    $app.dao().db().newQuery("SELECT DISTINCT DATE(created, 'localtime') as created FROM insights").all(result)
 
     return c.json(
       200,
