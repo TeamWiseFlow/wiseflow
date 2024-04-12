@@ -66,11 +66,11 @@ function InsightsScreen({}) {
   const [, navigate] = useLocation()
   const queryClient = useQueryClient()
   const mut = useMutation({
-    mutationFn: (data) => {
-      if (data && selectInsight && data.find((insight) => insight.id == selectedInsight).expand.articles.length == 1) {
+    mutationFn: (params) => {
+      if (params && selectedInsight && data.find((insight) => insight.id == selectedInsight).expand.articles.length == 1) {
         throw new Error("不能删除最后一篇文章")
       }
-      return unlinkArticle(data)
+      return unlinkArticle(params)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["insights", currentDate] })

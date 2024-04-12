@@ -9,7 +9,7 @@ import { persist } from "zustand/middleware"
 import axios from "axios"
 import { nanoid } from "nanoid"
 
-import { formatDate } from "./lib/utils"
+import { formatDate, LOCAL_TIME_OFFSITE } from "./lib/utils"
 
 const DAYS_RANGE = [1, 14]
 
@@ -211,7 +211,9 @@ export function getArticles(date) {
   if (!date) return []
 
   const from = formatDate(date)
-  const to = formatDate(new Date(new Date(date).getTime() + 60 * 60 * 24 * 1000))
+  //const to = formatDate(new Date(new Date(date + "T00:00:00" + LOCAL_TIME_OFFSITE).getTime() + 60 * 60 * 24 * 1000))
+  const to = formatDate(new Date(new Date(date + "T00:00:00").getTime() + 60 * 60 * 24 * 1000))
+  console.log("from/to", from, to)
   return pb.collection("articles").getFullList({
     sort: "-created",
     expand: "translation_result",
@@ -224,15 +226,15 @@ export function getInsight(id) {
 }
 
 export function getInsights(date) {
-  if (!date) return null
+  if (!date) return []
 
   const from = formatDate(date)
+  //const to = formatDate(new Date(new Date(date + "T00:00:00" + LOCAL_TIME_OFFSITE).getTime() + 60 * 60 * 24 * 1000))
   const to = formatDate(new Date(new Date(date + "T00:00:00").getTime() + 60 * 60 * 24 * 1000))
   //  console.log("from/to", from, to)
 
   const f = 'created >= "' + from + '" && created < "' + to + '"'
-  console.log(f)
-
+  // console.log(f)
   return pb.collection("insights").getFullList({
     sort: "-created",
     expand: "articles, articles.translation_result",
@@ -250,7 +252,7 @@ export async function getInsightDates() {
       Authorization: "Bearer " + pb.authStore?.token,
     },
   })
-  // return data.map((d) => new Date(d + "T00:00:00Z").toLocaleDateString().split("/").join("-"))
+  //return data.map((d) => new Date(d + "T00:00:00" + LOCAL_TIME_OFFSITE).toISOString().slice(0, 10))
   return data
 }
 
@@ -263,6 +265,7 @@ export async function getArticleDates() {
       Authorization: "Bearer " + pb.authStore?.token,
     },
   })
+  //return data.map((d) => new Date(d + "T00:00:00" + LOCAL_TIME_OFFSITE).toISOString().slice(0, 10))
   return data
 }
 
