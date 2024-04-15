@@ -13,4 +13,4 @@ langsmith==0.0.77
 faiss-cpu # for cpu-only environment
 pocketbase==0.10.0
 gne
-selenium
+chardet
