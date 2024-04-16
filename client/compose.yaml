@@ -17,6 +17,6 @@ services:
     ports:
       - 7777:7777
     volumes:
-      #- ./${PROJECT_DIR}:/app/${PROJECT_DIR}
+      - ./${PROJECT_DIR}:/app/${PROJECT_DIR}
       - ${EMBEDDING_MODEL_PATH}:${EMBEDDING_MODEL_PATH}
       - ${RERANKER_MODEL_PATH}:${RERANKER_MODEL_PATH}
