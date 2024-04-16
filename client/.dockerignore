@@ -11,4 +11,4 @@ docker-compose.yaml
 Dockerfile
 README.md
 backend/__pycache__
-backend/AWtest
+backend/WStest

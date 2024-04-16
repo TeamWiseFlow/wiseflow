@@ -15,7 +15,6 @@
 输入：
 - expiration： datetime的date.date()对象，爬虫应该只抓取这之后（含这一天）的文章
 - existings：[str], 数据库已有文章的url列表，爬虫应该忽略这个列表里面的url
-- logger：主流程的logger对象，如果爬虫需要单独logger，这个logger接收了可以不用
 
 输出：
 - [dict]，返回结果列表，每个dict代表一个文章，格式如下：

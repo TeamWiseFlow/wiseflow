@@ -4,22 +4,13 @@
 import schedule
 import time
 from work_process import ServiceProcesser
-import configparser
-
-config = configparser.ConfigParser()
-config.read('../config.ini')
-
-if config.has_section('sites'):
-    web_pages = config['sites']
-    urls = [value for key, value in web_pages.items()]
-else:
-    urls = []
 
 sp = ServiceProcesser()
-sp(sites=urls)
 
-'''
+
 def task():
+    with open('../sites.txt', 'r', encoding='utf-8') as f:
+        urls = [line.strip() for line in f.readlines() if line.strip()]
     sp(sites=urls)
 
 
@@ -29,6 +20,3 @@ schedule.every().day.at("01:17").do(task)
 while True:
     schedule.run_pending()
     time.sleep(60)
-site1 = https://www.welivesecurity.com/en/
-site2 = https://www.scmagazine.com/
-'''

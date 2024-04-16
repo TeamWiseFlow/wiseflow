@@ -125,6 +125,25 @@ def is_chinese(string):
     return (non_chinese_count/len(string)) < 0.68
 
 
+def extract_and_convert_dates(input_string):
+    # 定义匹配不同日期格式的正则表达式
+    patterns = [
+        r'(\d{4})-(\d{2})-(\d{2})',  # 匹配YYYY-MM-DD格式
+        r'(\d{4})/(\d{2})/(\d{2})',  # 匹配YYYY/MM/DD格式
+        r'(\d{4})\.(\d{2})\.(\d{2})',  # 匹配YYYY.MM.DD格式
+        r'(\d{4})\\(\d{2})\\(\d{2})',  # 匹配YYYY\MM\DD格式
+        r'(\d{4})(\d{2})(\d{2})'  # 匹配YYYYMMDD格式
+    ]
+
+    matches = []
+    for pattern in patterns:
+        matches = re.findall(pattern, input_string)
+        if matches:
+            break
+    if matches:
+        return ''.join(matches[0])
+    return None
+
 """
 # from InternLM/huixiangdou 
 # another awsome work

@@ -59,13 +59,13 @@ class ServiceProcesser:
         # 定义扫描源列表，如果不指定就默认遍历scraper_map, 另外这里还要考虑指定的source不在scraper_map的情况，这时应该使用通用爬虫
         sources = sites if sites else list(scraper_map.keys())
         new_articles = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
             futures = []
             for site in sources:
                 if site in scraper_map:
-                    futures.append(executor.submit(scraper_map[site], expiration, existings, self.logger))
+                    futures.append(executor.submit(scraper_map[site], expiration, existings))
                 else:
-                    futures.append(executor.submit(general_scraper, site, expiration, existings, self.logger))
+                    futures.append(executor.submit(general_scraper, site, expiration, existings))
             concurrent.futures.wait(futures)
             for future in futures:
                 try:
