@@ -18,7 +18,8 @@
 - character 以什么身份挖掘线索（这决定了llm的关注点和立场）
 - focus 关注什么方面的线索
 - focus_type 线索类型
-- good_samples 你希望llm给出的线索描述模式（给两个sample）
+- good_samples1 你希望llm给出的线索描述模式（给两个sample）
+- good_samples2 你希望llm给出的线索描述模式（给两个sample）
 - bad_samples 规避的线索描述模式
 - report_type 报告类型
 
