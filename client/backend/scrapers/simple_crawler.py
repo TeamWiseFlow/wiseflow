@@ -55,7 +55,7 @@ def simple_crawler(url: str | Path) -> (int, dict):
     try:
         meta_description = soup.find("meta", {"name": "description"})
         if meta_description:
-            result['abstract'] = meta_description["content"]
+            result['abstract'] = meta_description["content"].strip()
         else:
             result['abstract'] = ''
     except Exception:

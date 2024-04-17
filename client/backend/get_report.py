@@ -23,14 +23,14 @@ else:
     character, report_type = '', ''
 
 if not character:
-    character = input('请为首席情报官指定角色设定（eg. 来自中国的网络安全情报专家）：\n')
+    character = input('\033[0;32m 请为首席情报官指定角色设定（eg. 来自中国的网络安全情报专家）：\033[0m\n')
     _role_config_id = pb.add(collection_name='roleplays', body={'character': character, 'activated': True})
 
 if not _role_config_id:
     raise Exception('pls check pb data无法获取角色设定')
 
 if not report_type:
-    report_type = input('请为首席情报官指定报告类型（eg. 网络安全情报）：\n')
+    report_type = input('\033[0;32m 请为首席情报官指定报告类型（eg. 网络安全情报）：\033[0m\n')
     _ = pb.update(collection_name='roleplays', id=_role_config_id, body={'report_type': report_type})
 
 

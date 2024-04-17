@@ -28,18 +28,18 @@ else:
     character, good_sample1, focus, focus_type, good_sample2, bad_sample = '', '', '', '', '', ''
 
 if not character:
-    character = input('请为首席情报官指定角色设定（eg. 来自中国的网络安全情报专家）：\n')
+    character = input('\033[0;32m 请为首席情报官指定角色设定（eg. 来自中国的网络安全情报专家）：\033[0m\n')
     _role_config_id = pb.add(collection_name='roleplays', body={'character': character, 'activated': True})
 
 if not _role_config_id:
     raise Exception('pls check pb data, 无法获取角色设定')
 
 if not (focus and focus_type and good_sample1 and good_sample2 and bad_sample):
-    focus = input('请为首席情报官指定关注点（eg. 中国关注的网络安全新闻）：\n')
-    focus_type = input('请为首席情报官指定关注点类型（eg. 网络安全新闻）：\n')
-    good_sample1 = input('请给出一个你期望的情报描述示例（eg. 黑客组织Rhysida声称已入侵中国国有能源公司）: \n')
-    good_sample2 = input('请再给出一个理想示例（eg. 差不多一百万份包含未成年人数据（包括家庭地址和照片）的文件对互联网上的任何人都开放，对孩子构成威胁）: \n')
-    bad_sample = input('请给出一个你不期望的情报描述示例（eg. 黑客组织活动最近频发）: \n')
+    focus = input('\033[0;32m 请为首席情报官指定关注点（eg. 中国关注的网络安全新闻）：\033[0m\n')
+    focus_type = input('\033[0;32m 请为首席情报官指定关注点类型（eg. 网络安全新闻）：\033[0m\n')
+    good_sample1 = input('\033[0;32m 请给出一个你期望的情报描述示例（eg. 黑客组织Rhysida声称已入侵中国国有能源公司）: \033[0m\n')
+    good_sample2 = input('\033[0;32m 请再给出一个理想示例（eg. 差不多一百万份包含未成年人数据（包括家庭地址和照片）的文件对互联网上的任何人都开放，对孩子构成威胁）: \033[0m\n')
+    bad_sample = input('\033[0;32m 请给出一个你不期望的情报描述示例（eg. 黑客组织活动最近频发）: \033[0m\n')
     _ = pb.update(collection_name='roleplays', id=_role_config_id, body={'focus': focus, 'focus_type': focus_type, 'good_sample1': good_sample1, 'good_sample2': good_sample2, 'bad_sample': bad_sample})
 
 # 实践证明，如果强调让llm挖掘我国值得关注的线索，则挖掘效果不好（容易被新闻内容误导，错把别的国家当成我国，可能这时新闻内有我国这样的表述）

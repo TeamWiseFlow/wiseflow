@@ -21,6 +21,8 @@ def task():
         if counter % site['per_hours'] == 0:
             urls.append(site['url'])
     counter += 1
+    print(f'\033[0;32mtask execute loop {counter}\033[0m')
+    print(urls)
     if urls:
         sp(sites=urls)
     else:
@@ -28,7 +30,7 @@ def task():
             sp()
 
 
-schedule.every().hour.do(task)
+schedule.every().hour.at(":38").do(task)
 
 while True:
     schedule.run_pending()
