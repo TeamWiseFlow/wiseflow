@@ -1,0 +1,14 @@
+.git
+.vscode
+.dockerignore
+.gitignore
+.env
+config
+build
+web/dist
+web/node_modules
+docker-compose.yaml
+Dockerfile
+README.md
+backend/__pycache__
+backend/WStest

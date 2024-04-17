@@ -7,14 +7,31 @@ from docx.shared import Pt, RGBColor
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from datetime import datetime
 from general_utils import isChinesePunctuation
-import configparser
+from pb_api import pb
 
 # qwen-72b-chat支持最大30k输入，考虑prompt其他部分，content不应超过30000字符长度
 # 如果换qwen-max（最大输入6k),这里就要换成6000,但这样很多文章不能分析了
 # 本地部署模型（qwen-14b这里可能仅支持4k输入，可能根本这套模式就行不通）
 max_input_tokens = 30000
-config = configparser.ConfigParser()
-config.read('../config.ini')
+role_config = pb.read(collection_name='roleplays', filter=f'activated=True')
+_role_config_id = ''
+if role_config:
+    character = role_config[0]['character']
+    report_type = role_config[0]['report_type']
+    _role_config_id = role_config[0]['id']
+else:
+    character, report_type = '', ''
+
+if not character:
+    character = input('\033[0;32m 请为首席情报官指定角色设定（eg. 来自中国的网络安全情报专家）：\033[0m\n')
+    _role_config_id = pb.add(collection_name='roleplays', body={'character': character, 'activated': True})
+
+if not _role_config_id:
+    raise Exception('pls check pb data无法获取角色设定')
+
+if not report_type:
+    report_type = input('\033[0;32m 请为首席情报官指定报告类型（eg. 网络安全情报）：\033[0m\n')
+    _ = pb.update(collection_name='roleplays', id=_role_config_id, body={'report_type': report_type})
 
 
 def get_report(insigt: str, articles: list[dict], memory: str, topics: list[str], comment: str, docx_file: str, logger=None) -> (bool, str):
@@ -44,7 +61,7 @@ def get_report(insigt: str, articles: list[dict], memory: str, topics: list[str]
         paragraphs = re.findall("、(.*?)】", memory)
         if set(topics) <= set(paragraphs):
             logger.debug("no change in Topics, need modified the report")
-            system_prompt = f'''你是一名{config['prompts']['character']}，你近日向上级提交了一份{config['prompts']['report_type']}报告，如下是报告原文。接下来你将收到来自上级部门的修改意见，请据此修改你的报告：
+            system_prompt = f'''你是一名{character}，你近日向上级提交了一份{report_type}报告，如下是报告原文。接下来你将收到来自上级部门的修改意见，请据此修改你的报告：
 报告原文： 
 """{memory}"""
 '''
@@ -66,7 +83,7 @@ def get_report(insigt: str, articles: list[dict], memory: str, topics: list[str]
                 break
 
         logger.debug(f"articles context length: {len(texts)}")
-        system_prompt = f'''你是一名{config['prompts']['character']}，在近期的工作中我们从所关注的网站中发现了一条重要的{config['prompts']['report_type']}线索，线索和相关文章（用XML标签分隔）如下：
+        system_prompt = f'''你是一名{character}，在近期的工作中我们从所关注的网站中发现了一条重要的{report_type}线索，线索和相关文章（用XML标签分隔）如下：
 情报线索： """{insigt} """
 相关文章：
 {texts}
