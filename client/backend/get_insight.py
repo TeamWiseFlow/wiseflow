@@ -8,37 +8,63 @@ from general_utils import isChinesePunctuation, is_chinese
 from tranlsation_volcengine import text_translate
 import time
 import re
-import configparser
+from pb_api import pb
+
 
 max_tokens = 4000
 relation_theshold = 0.525
 
-config = configparser.ConfigParser()
-config.read('../config.ini')
+role_config = pb.read(collection_name='roleplays', filter=f'activated=True')
+_role_config_id = ''
+if role_config:
+    character = role_config[0]['character']
+    focus = role_config[0]['focus']
+    focus_type = role_config[0]['focus_type']
+    good_sample1 = role_config[0]['good_sample1']
+    good_sample2 = role_config[0]['good_sample2']
+    bad_sample = role_config[0]['bad_sample']
+    _role_config_id = role_config[0]['id']
+else:
+    character, good_sample1, focus, focus_type, good_sample2, bad_sample = '', '', '', '', '', ''
+
+if not character:
+    character = input('请为首席情报官指定角色设定（eg. 来自中国的网络安全情报专家）：\n')
+    _role_config_id = pb.add(collection_name='roleplays', body={'character': character, 'activated': True})
+
+if not _role_config_id:
+    raise Exception('pls check pb data, 无法获取角色设定')
+
+if not (focus and focus_type and good_sample1 and good_sample2 and bad_sample):
+    focus = input('请为首席情报官指定关注点（eg. 中国关注的网络安全新闻）：\n')
+    focus_type = input('请为首席情报官指定关注点类型（eg. 网络安全新闻）：\n')
+    good_sample1 = input('请给出一个你期望的情报描述示例（eg. 黑客组织Rhysida声称已入侵中国国有能源公司）: \n')
+    good_sample2 = input('请再给出一个理想示例（eg. 差不多一百万份包含未成年人数据（包括家庭地址和照片）的文件对互联网上的任何人都开放，对孩子构成威胁）: \n')
+    bad_sample = input('请给出一个你不期望的情报描述示例（eg. 黑客组织活动最近频发）: \n')
+    _ = pb.update(collection_name='roleplays', id=_role_config_id, body={'focus': focus, 'focus_type': focus_type, 'good_sample1': good_sample1, 'good_sample2': good_sample2, 'bad_sample': bad_sample})
 
 # 实践证明，如果强调让llm挖掘我国值得关注的线索，则挖掘效果不好（容易被新闻内容误导，错把别的国家当成我国，可能这时新闻内有我国这样的表述）
 # step by step 如果是内心独白方式，输出格式包含两种，难度增加了，qwen-max不能很好的适应，也许可以改成两步，第一步先输出线索列表，第二步再会去找对应的新闻编号
 # 但从实践来看，这样做的性价比并不高，且会引入新的不确定性。
-_first_stage_prompt = f'''你是一名{config['prompts']['character']}，你将被给到一个新闻列表，新闻文章用XML标签分隔。请对此进行分析，挖掘出特别值得{config['prompts']['focus']}线索。你给出的线索应该足够具体，而不是同类型新闻的归类描述，好的例子如：
-"""{config['prompts']['good_sample1']}"""
+_first_stage_prompt = f'''你是一名{character}，你将被给到一个新闻列表，新闻文章用XML标签分隔。请对此进行分析，挖掘出特别值得{focus}线索。你给出的线索应该足够具体，而不是同类型新闻的归类描述，好的例子如：
+"""{good_sample1}"""
 不好的例子如：
-"""{config['prompts']['bad_sample']}"""
+"""{bad_sample}"""
 
 请从头到尾仔细阅读每一条新闻的内容，不要遗漏，然后列出值得关注的线索，每条线索都用一句话进行描述，最终按一条一行的格式输出，并整体用三引号包裹，如下所示：
 """
-{config['prompts']['good_sample1']}
-{config['prompts']['good_sample2']}
+{good_sample1}
+{good_sample2}
 """
 
 不管新闻列表是何种语言，请仅用中文输出分析结果。'''
 
-_rewrite_insight_prompt = f'''你是一名{config['prompts']['character']}，你将被给到一个新闻列表，新闻文章用 XML 标签分隔。请对此进行分析，从中挖掘出一条最值得关注的{config['prompts']['focus_type']}线索。你给出的线索应该足够具体，而不是同类型新闻的归类描述，好的例子如：
-"""{config['prompts']['good_sample1']}"""
+_rewrite_insight_prompt = f'''你是一名{character}，你将被给到一个新闻列表，新闻文章用XML标签分隔。请对此进行分析，从中挖掘出一条最值得关注的{focus_type}线索。你给出的线索应该足够具体，而不是同类型新闻的归类描述，好的例子如：
+"""{good_sample1}"""
 不好的例子如：
-"""{config['prompts']['bad_sample']}"""
+"""{bad_sample}"""
 
 请保证只输出一条最值得关注的线索，线索请用一句话描述，并用三引号包裹输出，如下所示：
-"""{config['prompts']['good_sample1']}"""
+"""{good_sample1}"""
 
 不管新闻列表是何种语言，请仅用中文输出分析结果。'''
 

@@ -17,6 +17,7 @@ import os
 header = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/604.1 Edg/112.0.100.0'}
 project_dir = os.environ.get("PROJECT_DIR", "")
+os.makedirs(project_dir, exist_ok=True)
 logger = get_logger(name='general_scraper', file=os.path.join(project_dir, f'general_scraper.log'))
 
 

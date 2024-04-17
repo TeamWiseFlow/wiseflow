@@ -3,7 +3,7 @@ import time
 import json
 import uuid
 from get_logger import get_logger
-from pb_api import PbTalker
+from pb_api import pb
 from get_report import get_report
 from get_search import search_insight
 from tranlsation_volcengine import text_translate
@@ -20,7 +20,6 @@ class BackendService:
 
         # 2. load the llm
         # self.llm = LocalLlmWrapper()
-        self.pb = PbTalker(self.logger)
         self.memory = {}
         # self.scholar = Scholar(initial_file_dir=os.path.join(self.project_dir, "files"), use_gpu=use_gpu)
         self.logger.info(f'{self.name} init success.')
@@ -33,7 +32,7 @@ class BackendService:
         :return: 成功的话返回更新后的insight_id（其实跟原id一样）, 不成功返回空字符
         """
         self.logger.debug(f'got new report request insight_id {insight_id}')
-        insight = self.pb.read('insights', filter=f'id="{insight_id}"')
+        insight = pb.read('insights', filter=f'id="{insight_id}"')
         if not insight:
             self.logger.error(f'insight {insight_id} not found')
             return self.build_out(-2, 'insight not found')
@@ -43,8 +42,7 @@ class BackendService:
             self.logger.error(f'insight {insight_id} has no articles')
             return self.build_out(-2, 'can not find articles for insight')
 
-        article_list = [self.pb.read('articles',
-                                     fields=['title', 'abstract', 'content', 'url', 'publish_time'], filter=f'id="{_id}"')
+        article_list = [pb.read('articles', fields=['title', 'abstract', 'content', 'url', 'publish_time'], filter=f'id="{_id}"')
                         for _id in article_ids]
         article_list = [_article[0] for _article in article_list if _article]
 
@@ -66,7 +64,7 @@ class BackendService:
 
         if flag:
             file = open(docx_file, 'rb')
-            message = self.pb.upload('insights', insight_id, 'docx', f'{insight_id}.docx', file)
+            message = pb.upload('insights', insight_id, 'docx', f'{insight_id}.docx', file)
             file.close()
             if message:
                 self.logger.debug(f'report success finish and update to pb-{message}')
@@ -96,8 +94,7 @@ class BackendService:
         en_texts = []
         k = 1
         for article_id in article_ids:
-            raw_article = self.pb.read(collection_name='articles', fields=['abstract', 'title', 'translation_result'],
-                                       filter=f'id="{article_id}"')
+            raw_article = pb.read(collection_name='articles', fields=['abstract', 'title', 'translation_result'], filter=f'id="{article_id}"')
             if not raw_article or not raw_article[0]:
                 self.logger.warning(f'get article {article_id} failed, skipping')
                 flag = -2
@@ -118,14 +115,11 @@ class BackendService:
             translate_result = text_translate(en_texts, logger=self.logger)
             if translate_result and len(translate_result) == 2*len(key_cache):
                 for i in range(0, len(translate_result), 2):
-                    related_id = self.pb.add(collection_name='article_translation',
-                                             body={'title': translate_result[i], 'abstract': translate_result[i+1],
-                                                   'raw': key_cache[int(i/2)]})
+                    related_id = pb.add(collection_name='article_translation', body={'title': translate_result[i], 'abstract': translate_result[i+1], 'raw': key_cache[int(i/2)]})
                     if not related_id:
                         self.logger.warning(f'write article_translation {key_cache[int(i/2)]} failed')
                     else:
-                        _ = self.pb.update(collection_name='articles', id=key_cache[int(i/2)],
-                                           body={'translation_result': related_id})
+                        _ = pb.update(collection_name='articles', id=key_cache[int(i/2)], body={'translation_result': related_id})
                         if not _:
                             self.logger.warning(f'update article {key_cache[int(i/2)]} failed')
                 self.logger.debug('done')
@@ -148,14 +142,11 @@ class BackendService:
             translate_result = text_translate(en_texts, logger=self.logger)
             if translate_result and len(translate_result) == 2*len(key_cache):
                 for i in range(0, len(translate_result), 2):
-                    related_id = self.pb.add(collection_name='article_translation',
-                                             body={'title': translate_result[i], 'abstract': translate_result[i+1],
-                                                   'raw': key_cache[int(i/2)]})
+                    related_id = pb.add(collection_name='article_translation', body={'title': translate_result[i], 'abstract': translate_result[i+1], 'raw': key_cache[int(i/2)]})
                     if not related_id:
                         self.logger.warning(f'write article_translation {key_cache[int(i/2)]} failed')
                     else:
-                        _ = self.pb.update(collection_name='articles', id=key_cache[int(i/2)],
-                                           body={'translation_result': related_id})
+                        _ = pb.update(collection_name='articles', id=key_cache[int(i/2)], body={'translation_result': related_id})
                         if not _:
                             self.logger.warning(f'update article {key_cache[int(i/2)]} failed')
                 self.logger.debug('done')
@@ -172,14 +163,14 @@ class BackendService:
         :return: 成功的话返回更新后的insight_id（其实跟原id一样）, 不成功返回空字符
         """
         self.logger.debug(f'got search request for insight： {insight_id}')
-        insight = self.pb.read('insights', filter=f'id="{insight_id}"')
+        insight = pb.read('insights', filter=f'id="{insight_id}"')
         if not insight:
             self.logger.error(f'insight {insight_id} not found')
             return self.build_out(-2, 'insight not found')
 
         article_ids = insight[0]['articles']
         if article_ids:
-            article_list = [self.pb.read('articles', fields=['url'], filter=f'id="{_id}"') for _id in article_ids]
+            article_list = [pb.read('articles', fields=['url'], filter=f'id="{_id}"') for _id in article_ids]
             url_list = [_article[0]['url'] for _article in article_list if _article]
         else:
             url_list = []
@@ -190,7 +181,7 @@ class BackendService:
             return self.build_out(flag, 'search engine error or no result')
 
         for item in search_result:
-            new_article_id = self.pb.add(collection_name='articles', body=item)
+            new_article_id = pb.add(collection_name='articles', body=item)
             if new_article_id:
                 article_ids.append(new_article_id)
             else:
@@ -198,7 +189,7 @@ class BackendService:
                 with open(os.path.join(self.cache_url, 'cache_articles.json'), 'a', encoding='utf-8') as f:
                     json.dump(item, f, ensure_ascii=False, indent=4)
 
-        message = self.pb.update(collection_name='insights', id=insight_id, body={'articles': article_ids})
+        message = pb.update(collection_name='insights', id=insight_id, body={'articles': article_ids})
         if message:
             self.logger.debug(f'insight search success finish and update to pb-{message}')
             return self.build_out(11, insight_id)

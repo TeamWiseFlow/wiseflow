@@ -13,6 +13,7 @@ header = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/604.1 Edg/112.0.100.0'}
 
 project_dir = os.environ.get("PROJECT_DIR", "")
+os.makedirs(project_dir, exist_ok=True)
 logger = get_logger(name='simple_crawler', file=os.path.join(project_dir, f'simple_crawler.log'))
 
 
@@ -26,11 +27,11 @@ def simple_crawler(url: str | Path) -> (int, dict):
             rawdata = response.content
             encoding = chardet.detect(rawdata)['encoding']
             text = rawdata.decode(encoding)
+        result = extractor.extract(text)
     except Exception as e:
-        logger.error(e)
+        logger.warning(f"cannot get content from {url}\n{e}")
         return -7, {}
 
-    result = extractor.extract(text)
     if not result:
         logger.error(f"gne cannot extract {url}")
         return 0, {}
