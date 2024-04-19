@@ -42,3 +42,13 @@ cd wiseflow/client
 **wiseflow架构图**
 
 ![wiseflow架构图](asset/wiseflow_arch.png)
+
+# Citation
+
+如果您在相关工作中参考或引用了本项目的部分或全部，请注明如下信息：
+
+```
+Author：Wiseflow Team
+https://openi.pcl.ac.cn/wiseflow/wiseflow
+Licensed under Apache2.0
+```
