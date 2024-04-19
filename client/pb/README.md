@@ -8,5 +8,6 @@
 
 ```bash
 cd pb
+./pocketbase --dev admin create test@example.com 123467890 #如果没有初始账号，请用这个命令创建
 ./pocketbase serve
 ```

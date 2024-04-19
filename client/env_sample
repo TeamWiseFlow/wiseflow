@@ -10,4 +10,5 @@ export DEVICE=''
 #**for processer**
 export PROJECT_DIR=""
 export WS_LOG="verbose"
-export PB_API_AUTH='email|password'
+export PB_API_AUTH='test@example.com|123467890'
+export PB_API_BASE='web:8090'  ##可以参考https://stackoverflow.com/questions/70151702/how-to-network-2-separate-docker-containers-to-communicate-with-eachother
