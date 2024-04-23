@@ -14,3 +14,4 @@ faiss-cpu # for cpu-only environment
 pocketbase==0.10.0
 gne
 chardet
+schedule

@@ -21,6 +21,9 @@
 
 ### 2、强烈建议普通用户
 
+- cd client 
+- 启动项目: docker compose up -d
+- 关闭项目：docker compose down
 
 ### 3、管理配置页面 —— http://127.0.0.1:8090/_/
 
