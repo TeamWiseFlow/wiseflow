@@ -18,7 +18,7 @@ Email：35252986@qq.com
 
 **产品介绍视频：**
 
-![wiseflow](/asset/demo.mp4)
+
 
 ## getting started
 
@@ -27,7 +27,7 @@ Email：35252986@qq.com
 1、克隆代码仓
 
 ```commandline
-git clone git@openi.pcl.ac.cn:wiseflow/wiseflow.git
+git clone git@github.com:TeamWiseFlow/wiseflow.git
 cd wiseflow/client
 ```
 

@@ -23,7 +23,7 @@
 ### 2、使用docker build image并启动（强烈推荐！）
 
 ```commandline
-git clone git@openi.pcl.ac.cn:wiseflow/wiseflow.git
+git clone git@github.com:TeamWiseFlow/wiseflow.git
 cd wiseflow/client
 # 创建.env后
 # 首次使用，先想好邮箱和密码，提前填入PB_API_AUTH，注意一定是邮箱，可以是虚构的邮箱
