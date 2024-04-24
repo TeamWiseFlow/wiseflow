@@ -21,6 +21,7 @@
 
 ### 2、强烈建议普通用户
 
+如何启动项目
 - cd client 
 - 启动项目: docker compose up -d
 - 关闭项目：docker compose down
