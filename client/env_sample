@@ -1,14 +1,13 @@
-#**for local llmp server**
 export DASHSCOPE_API_KEY=""
 export VOLC_KEY="AK|SK"
 
 #**for embeddig model**
-export EMBEDDING_MODEL_PATH="bce-embedding-base_v1"
-export RERANKER_MODEL_PATH="bce-reranker-base_v1"
-export DEVICE="cpu"
+export EMBEDDING_MODEL_PATH="" ##填写完整的绝对路径
+export RERANKER_MODEL_PATH="" ##填写完整的绝对路径
+export DEVICE="cpu" ##cuda用户填写 "cuda:0"
 
 #**for processer**
 export PROJECT_DIR="work_dir"
-export WS_LOG="verbose"
 export PB_API_AUTH="test@example.com|123467890"
 export PB_API_BASE="web:8090"  ##可以参考https://stackoverflow.com/questions/70151702/how-to-network-2-separate-docker-containers-to-communicate-with-eachother
+export WS_LOG="verbose" ##如果需要详细的log，观察系统的每一步动作填写此项，正常使用无需
