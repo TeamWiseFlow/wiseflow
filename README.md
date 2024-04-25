@@ -18,7 +18,11 @@ Email：35252986@qq.com
 
 **产品介绍视频：**
 
-<iframe width="1280" height="670" src="https://www.youtube.com/embed/80KqYgE8utE" title="wiseflow repo demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+[![wiseflow repo demo](https://res.cloudinary.com/marcomontalbano/image/upload/v1714005731/video_to_markdown/images/youtube--80KqYgE8utE-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://www.youtube.com/watch?v=80KqYgE8utE "wiseflow repo demo")
+
+for 国内用户（b站视频）
+
+{% include iframe.html src="https://www.bilibili.com/video/BV17F4m1w7Ed/?share_source=copy_web&vd_source=5ad458dc9dae823257e82e48e0751e25" %}
 
 ## getting started
 
