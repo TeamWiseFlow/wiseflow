@@ -18,7 +18,7 @@ Email：35252986@qq.com
 
 **产品介绍视频：**
 
-
+<iframe width="1280" height="670" src="https://www.youtube.com/embed/80KqYgE8utE" title="wiseflow repo demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ## getting started
 
