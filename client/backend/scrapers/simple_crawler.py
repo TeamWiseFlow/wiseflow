@@ -5,19 +5,14 @@ from datetime import datetime
 from pathlib import Path
 from general_utils import extract_and_convert_dates
 import chardet
-from get_logger import get_logger
-import os
+
 
 extractor = GeneralNewsExtractor()
 header = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/604.1 Edg/112.0.100.0'}
 
-project_dir = os.environ.get("PROJECT_DIR", "")
-os.makedirs(project_dir, exist_ok=True)
-logger = get_logger(name='simple_crawler', file=os.path.join(project_dir, f'simple_crawler.log'))
 
-
-def simple_crawler(url: str | Path) -> (int, dict):
+def simple_crawler(url: str | Path, logger) -> (int, dict):
     """
     返回文章信息dict和flag，负数为报错，0为没有结果，11为成功
     """

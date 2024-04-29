@@ -10,15 +10,10 @@ from datetime import datetime, date
 from requests.compat import urljoin
 import chardet
 from general_utils import extract_and_convert_dates
-from get_logger import get_logger
-import os
 
 
 header = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/604.1 Edg/112.0.100.0'}
-project_dir = os.environ.get("PROJECT_DIR", "")
-os.makedirs(project_dir, exist_ok=True)
-logger = get_logger(name='general_scraper', file=os.path.join(project_dir, f'general_scraper.log'))
 
 
 def tag_visible(element: Comment) -> bool:
@@ -75,7 +70,7 @@ sys_info = '''你是一个html网页解析器，你将接收一段用户从网�
 '''
 
 
-def llm_crawler(url: str | Path) -> (int, dict):
+def llm_crawler(url: str | Path, logger) -> (int, dict):
     """
     返回文章信息dict和flag，负数为报错，0为没有结果，11为成功
     参考：https://mp.weixin.qq.com/s/4J-kofsfFDiV1FxGlTJLfA
@@ -152,7 +147,7 @@ def llm_crawler(url: str | Path) -> (int, dict):
     return 11, info
 
 
-def general_scraper(site: str, expiration: date, existing: list[str]) -> list[dict]:
+def general_scraper(site: str, expiration: date, existing: list[str], logger) -> list[dict]:
     try:
         with httpx.Client() as client:
             response = client.get(site, headers=header, timeout=30)
@@ -171,9 +166,9 @@ def general_scraper(site: str, expiration: date, existing: list[str]) -> list[di
         if site in existing:
             logger.debug(f"{site} has been crawled before, skip it")
             return []
-        flag, result = simple_crawler(site)
+        flag, result = simple_crawler(site, logger)
         if flag != 11:
-            flag, result = llm_crawler(site)
+            flag, result = llm_crawler(site, logger)
             if flag != 11:
                 return []
         publish_date = datetime.strptime(result['publish_time'], '%Y%m%d')
@@ -189,9 +184,9 @@ def general_scraper(site: str, expiration: date, existing: list[str]) -> list[di
             logger.debug(f"{url} has been crawled before, skip it")
             continue
         existing.append(url)
-        flag, result = simple_crawler(url)
+        flag, result = simple_crawler(url, logger)
         if flag != 11:
-            flag, result = llm_crawler(url)
+            flag, result = llm_crawler(url, logger)
             if flag != 11:
                 continue
         publish_date = datetime.strptime(result['publish_time'], '%Y%m%d')

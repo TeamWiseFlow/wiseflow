@@ -1,11 +1,9 @@
 import os
 import json
 import requests
-from get_logger import get_logger
 from datetime import datetime, timedelta, date
 from scrapers import scraper_map
 from scrapers.general_scraper import general_scraper
-from pb_api import pb
 from urllib.parse import urlparse
 from get_insight import get_insight
 from general_utils import is_chinese
@@ -20,14 +18,13 @@ expiration_str = expiration_date.strftime("%Y%m%d")
 
 
 class ServiceProcesser:
-    def __init__(self, name: str = 'Work_Processor', record_snapshot: bool = False):
-        self.name = name
+    def __init__(self, pb, logger, record_snapshot: bool = False):
         self.project_dir = os.environ.get("PROJECT_DIR", "")
         # 1. base initialization
-        self.cache_url = os.path.join(self.project_dir, name)
+        self.cache_url = os.path.join(self.project_dir, 'scanning_task')
         os.makedirs(self.cache_url, exist_ok=True)
-        self.logger = get_logger(name=self.name, file=os.path.join(self.project_dir, f'{self.name}.log'))
-
+        self.pb = pb
+        self.logger = logger
         # 2. load the llm
         # self.llm = LocalLlmWrapper() # if you use the local-llm
 
@@ -39,7 +36,7 @@ class ServiceProcesser:
         else:
             self.snap_short_server = None
 
-        self.logger.info(f'{self.name} init success.')
+        self.logger.info('scanning task init success.')
 
     def __call__(self, expiration: date = expiration_date, sites: list[str] = None):
         # 先清空一下cache
@@ -48,7 +45,7 @@ class ServiceProcesser:
         self.logger.debug(f'clear cache -- {cache}')
         # 从pb数据库中读取所有文章url
         # 这里publish_time用int格式，综合考虑下这个是最容易操作的模式，虽然糙了点
-        existing_articles = pb.read(collection_name='articles', fields=['id', 'title', 'url'], filter=f'publish_time>{expiration_str}')
+        existing_articles = self.pb.read(collection_name='articles', fields=['id', 'title', 'url'], filter=f'publish_time>{expiration_str}')
         all_title = {}
         existings = []
         for article in existing_articles:
@@ -64,7 +61,7 @@ class ServiceProcesser:
                 if site in scraper_map:
                     futures.append(executor.submit(scraper_map[site], expiration, existings))
                 else:
-                    futures.append(executor.submit(general_scraper, site, expiration, existings))
+                    futures.append(executor.submit(general_scraper, site, expiration, existings, self.logger))
             concurrent.futures.wait(futures)
             for future in futures:
                 try:
@@ -83,7 +80,7 @@ class ServiceProcesser:
             value['content'] = f"({from_site} 报道){value['content']}"
             value['images'] = json.dumps(value['images'])
 
-            article_id = pb.add(collection_name='articles', body=value)
+            article_id = self.pb.add(collection_name='articles', body=value)
 
             if article_id:
                 cache[article_id] = value
@@ -103,13 +100,13 @@ class ServiceProcesser:
             for insight in new_insights:
                 if not insight['content']:
                     continue
-                insight_id = pb.add(collection_name='insights', body=insight)
+                insight_id = self.pb.add(collection_name='insights', body=insight)
                 if not insight_id:
                     self.logger.warning(f'write insight {insight} to pb failed, writing to cache_file')
                     with open(os.path.join(self.cache_url, 'cache_insights.json'), 'a', encoding='utf-8') as f:
                         json.dump(insight, f, ensure_ascii=False, indent=4)
                 for article_id in insight['articles']:
-                    raw_article = pb.read(collection_name='articles', fields=['abstract', 'title', 'translation_result'], filter=f'id="{article_id}"')
+                    raw_article = self.pb.read(collection_name='articles', fields=['abstract', 'title', 'translation_result'], filter=f'id="{article_id}"')
                     if not raw_article or not raw_article[0]:
                         self.logger.warning(f'get article {article_id} failed, skipping')
                         continue
@@ -119,11 +116,11 @@ class ServiceProcesser:
                         continue
                     translate_text = text_translate([raw_article[0]['title'], raw_article[0]['abstract']], target_language='zh', logger=self.logger)
                     if translate_text:
-                        related_id = pb.add(collection_name='article_translation', body={'title': translate_text[0], 'abstract': translate_text[1], 'raw': article_id})
+                        related_id = self.pb.add(collection_name='article_translation', body={'title': translate_text[0], 'abstract': translate_text[1], 'raw': article_id})
                         if not related_id:
                             self.logger.warning(f'write article_translation {article_id} failed')
                         else:
-                            _ = pb.update(collection_name='articles', id=article_id, body={'translation_result': related_id})
+                            _ = self.pb.update(collection_name='articles', id=article_id, body={'translation_result': related_id})
                             if not _:
                                 self.logger.warning(f'update article {article_id} failed')
                     else:
@@ -139,7 +136,7 @@ class ServiceProcesser:
                         else:
                             text_for_insight = text_translate([value['title']], logger=self.logger)
                         if text_for_insight:
-                            insight_id = pb.add(collection_name='insights', body={'content': text_for_insight[0], 'articles': [key]})
+                            insight_id = self.pb.add(collection_name='insights', body={'content': text_for_insight[0], 'articles': [key]})
                             if not insight_id:
                                 self.logger.warning(f'write insight {text_for_insight[0]} to pb failed, writing to cache_file')
                                 with open(os.path.join(self.cache_url, 'cache_insights.json'), 'a',
@@ -156,7 +153,7 @@ class ServiceProcesser:
                     try:
                         snapshot = requests.get(f"{self.snap_short_server}/zip", {'url': value['url']}, timeout=60)
                         file = open(snapshot.text, 'rb')
-                        _ = pb.upload('articles', key, 'snapshot', key, file)
+                        _ = self.pb.upload('articles', key, 'snapshot', key, file)
                         file.close()
                     except Exception as e:
                         self.logger.warning(f'error when snapshot {value["url"]}, {e}')

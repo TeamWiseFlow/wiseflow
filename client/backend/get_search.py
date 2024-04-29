@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 # 国内的应用场景，sogou搜索应该不错了，还支持weixin、百科搜索
 # 海外的应用场景可以考虑使用duckduckgo或者google_search的sdk
 # 尽量还是不要自己host一个搜索引擎吧，虽然有类似https://github.com/StractOrg/stract/tree/main的开源方案，但毕竟这是两套工程
-def search_insight(keyword: str, exist_urls: list[Union[str, Path]], knowledge: bool = False, logger=None) -> (int, list):
+def search_insight(keyword: str, logger, exist_urls: list[Union[str, Path]], knowledge: bool = False) -> (int, list):
     """
     搜索网页
     :param keyword: 要搜索的主题
@@ -48,10 +48,8 @@ def search_insight(keyword: str, exist_urls: list[Union[str, Path]], knowledge: 
             if href_f not in exist_urls:
                 relist.append(href_f)
     except Exception as e:
-        if logger:
-            logger.error(f"search {url} error: {e}")
-        else:
-            print(f"search {url} error: {e}")
+        logger.error(f"search {url} error: {e}")
+
     if not knowledge:
         url = f"https://www.sogou.com/sogou?ie=utf8&p=40230447&interation=1728053249&interV=&pid=sogou-wsse-7050094b04fd9aa3&query={keyword}"
         try:
@@ -71,10 +69,7 @@ def search_insight(keyword: str, exist_urls: list[Union[str, Path]], knowledge: 
                 if href_f not in exist_urls:
                     relist.append(href_f)
         except Exception as e:
-            if logger:
-                logger.error(f"search {url} error: {e}")
-            else:
-                print(f"search {url} error: {e}")
+            logger.error(f"search {url} error: {e}")
 
     if not relist:
         return -7, []
@@ -85,7 +80,7 @@ def search_insight(keyword: str, exist_urls: list[Union[str, Path]], knowledge: 
         if url in exist_urls:
             continue
         exist_urls.append(url)
-        flag, value = simple_crawler(url)
+        flag, value = simple_crawler(url, logger)
         if flag != 11:
             continue
         from_site = urlparse(url).netloc

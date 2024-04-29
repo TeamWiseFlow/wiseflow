@@ -2,16 +2,13 @@ import os
 from pocketbase import PocketBase  # Client also works the same
 from pocketbase.client import FileUpload
 from typing import BinaryIO
-from get_logger import get_logger
 
 
 class PbTalker:
-    def __init__(self) -> None:
-        self.project_dir = os.environ.get("PROJECT_DIR", "")
+    def __init__(self, logger) -> None:
         # 1. base initialization
-        os.makedirs(self.project_dir, exist_ok=True)
-        self.logger = get_logger(name='pb_talker', file=os.path.join(self.project_dir, 'pb_talker.log'))
         url = f"http://{os.environ.get('PB_API_BASE', '127.0.0.1:8090')}"
+        self.logger = logger
         self.logger.debug(f"initializing pocketbase client: {url}")
         self.client = PocketBase(url)
         auth = os.environ.get('PB_API_AUTH', '')
@@ -82,6 +79,3 @@ class PbTalker:
             self.logger.error(f"pocketbase update failed: {e}")
             return ''
         return res.id
-
-
-pb = PbTalker()

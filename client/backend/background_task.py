@@ -3,10 +3,27 @@
 """
 import schedule
 import time
+import os
 from work_process import ServiceProcesser
-from pb_api import pb
+from general_utils import get_logger_level
+from loguru import logger
+from pb_api import PbTalker
 
-sp = ServiceProcesser()
+project_dir = os.environ.get("PROJECT_DIR", "")
+os.makedirs(project_dir, exist_ok=True)
+logger_file = os.path.join(project_dir, 'scanning_task.log')
+dsw_log = get_logger_level()
+
+logger.add(
+    logger_file,
+    level=dsw_log,
+    backtrace=True,
+    diagnose=True,
+    rotation="50 MB"
+)
+pb = PbTalker(logger)
+
+sp = ServiceProcesser(pb=pb, logger=logger)
 counter = 0
 
 
@@ -31,8 +48,10 @@ def task():
             print('\033[0;33mno work for this loop\033[0m')
     counter += 1
 
+
 schedule.every().hour.at(":38").do(task)
 
+task()
 while True:
     schedule.run_pending()
     time.sleep(60)
