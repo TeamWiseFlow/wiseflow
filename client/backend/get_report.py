@@ -1,5 +1,6 @@
 import random
 import re
+import os
 from llms.dashscope_wrapper import dashscope_llm
 from docx import Document
 from docx.oxml.ns import qn
@@ -7,7 +8,23 @@ from docx.shared import Pt, RGBColor
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from datetime import datetime
 from general_utils import isChinesePunctuation
-from pb_api import pb
+from general_utils import get_logger_level
+from loguru import logger
+from pb_api import PbTalker
+
+project_dir = os.environ.get("PROJECT_DIR", "")
+os.makedirs(project_dir, exist_ok=True)
+logger_file = os.path.join(project_dir, 'backend_service.log')
+dsw_log = get_logger_level()
+
+logger.add(
+    logger_file,
+    level=dsw_log,
+    backtrace=True,
+    diagnose=True,
+    rotation="50 MB"
+)
+pb = PbTalker(logger)
 
 # qwen-72b-chat支持最大30k输入，考虑prompt其他部分，content不应超过30000字符长度
 # 如果换qwen-max（最大输入6k),这里就要换成6000,但这样很多文章不能分析了
@@ -34,7 +51,7 @@ if not report_type:
     _ = pb.update(collection_name='roleplays', id=_role_config_id, body={'report_type': report_type})
 
 
-def get_report(insigt: str, articles: list[dict], memory: str, topics: list[str], comment: str, docx_file: str, logger=None) -> (bool, str):
+def get_report(insigt: str, articles: list[dict], memory: str, topics: list[str], comment: str, docx_file: str) -> (bool, str):
     zh_index = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二']
 
     if isChinesePunctuation(insigt[-1]):

@@ -3,25 +3,9 @@ import time
 import json
 import uuid
 from pb_api import PbTalker
-from get_report import get_report
+from get_report import get_report, logger, pb
 from get_search import search_insight
 from tranlsation_volcengine import text_translate
-from general_utils import get_logger_level
-from loguru import logger
-
-project_dir = os.environ.get("PROJECT_DIR", "")
-os.makedirs(project_dir, exist_ok=True)
-logger_file = os.path.join(project_dir, 'backend_service.log')
-dsw_log = get_logger_level()
-
-logger.add(
-    logger_file,
-    level=dsw_log,
-    backtrace=True,
-    diagnose=True,
-    rotation="50 MB"
-)
-pb = PbTalker(logger)
 
 
 class BackendService:
@@ -72,7 +56,7 @@ class BackendService:
             memory = ''
 
         docx_file = os.path.join(self.cache_url, f'{insight_id}_{uuid.uuid4()}.docx')
-        flag, memory = get_report(content, article_list, memory, topics, comment, docx_file, logger=logger)
+        flag, memory = get_report(content, article_list, memory, topics, comment, docx_file)
         self.memory[insight_id] = memory
 
         if flag:
@@ -80,7 +64,7 @@ class BackendService:
             message = pb.upload('insights', insight_id, 'docx', f'{insight_id}.docx', file)
             file.close()
             if message:
-                logger.debug(f'report success finish and update to pb-{message}')
+                logger.debug(f'report success finish and update to: {message}')
                 return self.build_out(11, message)
             else:
                 logger.error(f'{insight_id} report generate successfully, however failed to update to pb.')
@@ -204,7 +188,7 @@ class BackendService:
 
         message = pb.update(collection_name='insights', id=insight_id, body={'articles': article_ids})
         if message:
-            logger.debug(f'insight search success finish and update to pb-{message}')
+            logger.debug(f'insight search success finish and update to: {message}')
             return self.build_out(11, insight_id)
         else:
             logger.error(f'{insight_id} search success, however failed to update to pb.')

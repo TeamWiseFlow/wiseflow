@@ -3,27 +3,11 @@
 """
 import schedule
 import time
-import os
+from get_insight import pb, logger
 from work_process import ServiceProcesser
-from general_utils import get_logger_level
-from loguru import logger
-from pb_api import PbTalker
 
-project_dir = os.environ.get("PROJECT_DIR", "")
-os.makedirs(project_dir, exist_ok=True)
-logger_file = os.path.join(project_dir, 'scanning_task.log')
-dsw_log = get_logger_level()
 
-logger.add(
-    logger_file,
-    level=dsw_log,
-    backtrace=True,
-    diagnose=True,
-    rotation="50 MB"
-)
-pb = PbTalker(logger)
-
-sp = ServiceProcesser(pb=pb, logger=logger)
+sp = ServiceProcesser()
 counter = 0
 
 
@@ -37,8 +21,8 @@ def task():
             continue
         if counter % site['per_hours'] == 0:
             urls.append(site['url'])
-    print(f'\033[0;32m task execute loop {counter}\033[0m')
-    print(urls)
+    logger.info(f'\033[0;32m task execute loop {counter}\033[0m')
+    logger.info(urls)
     if urls:
         sp(sites=urls)
     else:

@@ -8,7 +8,24 @@ from general_utils import isChinesePunctuation, is_chinese
 from tranlsation_volcengine import text_translate
 import time
 import re
-from pb_api import pb
+import os
+from general_utils import get_logger_level
+from loguru import logger
+from pb_api import PbTalker
+
+project_dir = os.environ.get("PROJECT_DIR", "")
+os.makedirs(project_dir, exist_ok=True)
+logger_file = os.path.join(project_dir, 'scanning_task.log')
+dsw_log = get_logger_level()
+
+logger.add(
+    logger_file,
+    level=dsw_log,
+    backtrace=True,
+    diagnose=True,
+    rotation="50 MB"
+)
+pb = PbTalker(logger)
 
 
 max_tokens = 4000
@@ -69,7 +86,7 @@ _rewrite_insight_prompt = f'''你是一名{character}，你将被给到一个新
 不管新闻列表是何种语言，请仅用中文输出分析结果。'''
 
 
-def _parse_insight(article_text: str, cache: dict, logger=None) -> (bool, dict):
+def _parse_insight(article_text: str, cache: dict) -> (bool, dict):
     input_length = len(cache)
     result = dashscope_llm([{'role': 'system', 'content': _first_stage_prompt}, {'role': 'user', 'content': article_text}],
                            'qwen1.5-72b-chat', logger=logger)
@@ -116,7 +133,7 @@ def _parse_insight(article_text: str, cache: dict, logger=None) -> (bool, dict):
     return False, cache
 
 
-def _rewrite_insight(context: str, logger=None) -> (bool, str):
+def _rewrite_insight(context: str) -> (bool, str):
     result = dashscope_llm([{'role': 'system', 'content': _rewrite_insight_prompt}, {'role': 'user', 'content': context}],
                            'qwen1.5-72b-chat', logger=logger)
     if result:
@@ -142,7 +159,7 @@ def _rewrite_insight(context: str, logger=None) -> (bool, str):
     return False, text
 
 
-def get_insight(articles: dict, titles: dict, logger=None) -> list:
+def get_insight(articles: dict, titles: dict) -> list:
     context = ''
     cache = {}
     for value in articles.values():
@@ -162,7 +179,7 @@ def get_insight(articles: dict, titles: dict, logger=None) -> list:
         if len(context) < max_tokens:
             continue
 
-        flag, cache = _parse_insight(context, cache, logger)
+        flag, cache = _parse_insight(context, cache)
         if flag:
             logger.warning(f'following articles may not be completely analyzed: \n{context}')
 
@@ -170,7 +187,7 @@ def get_insight(articles: dict, titles: dict, logger=None) -> list:
         # 据说频繁调用会引发性能下降，每次调用后休息1s。现在轮替调用qwen-72b和max，所以不必了。
         time.sleep(1)
     if context:
-        flag, cache = _parse_insight(context, cache, logger)
+        flag, cache = _parse_insight(context, cache)
         if flag:
             logger.warning(f'following articles may not be completely analyzed: \n{context}')
 
@@ -230,7 +247,7 @@ def get_insight(articles: dict, titles: dict, logger=None) -> list:
             if not context:
                 continue
 
-            flag, new_insight = _rewrite_insight(context, logger)
+            flag, new_insight = _rewrite_insight(context)
             if flag:
                 logger.warning(f'insight {key} may contain wrong')
                 cache[key] = value
