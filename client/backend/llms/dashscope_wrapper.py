@@ -5,37 +5,32 @@ import time
 from http import HTTPStatus
 import dashscope
 import random
+import os
 
 
-def dashscope_llm(messages: list,
-                  model: str,
-                  seed: int = 1234,
-                  max_tokens: int = 2000,
-                  temperature: float = 1,
-                  stop: list = None,
-                  enable_search: bool = False,
-                  logger=None) -> str:
+DASHSCOPE_KEY = os.getenv("LLM_API_KEY")
+if not DASHSCOPE_KEY:
+    raise ValueError("请指定LLM_API_KEY的环境变量")
+dashscope.api_key = DASHSCOPE_KEY
+
+
+def dashscope_llm(messages: list, model: str, logger=None, **kwargs) -> str:
 
     if logger:
         logger.debug(f'messages:\n {messages}')
-        logger.debug(f'params:\n model: {model}, max_tokens: {max_tokens}, temperature: {temperature}, stop: {stop},'
-                     f'enable_search: {enable_search}, seed: {seed}')
+        logger.debug(f'model: {model}')
+        logger.debug(f'kwargs:\n {kwargs}')
 
-    for i in range(3):
-        response = dashscope.Generation.call(
-            model=model,
-            messages=messages,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            stop=stop,
-            enable_search=enable_search,
-            seed=seed,
-            result_format='message',  # set the result to be "message" format.
-        )
+    response = dashscope.Generation.call(
+        messages=messages,
+        model=model,
+        result_format='message',  # set the result to be "message" format.
+        **kwargs
+    )
 
+    for i in range(2):
         if response.status_code == HTTPStatus.OK:
             break
-
         if response.message == "Input data may contain inappropriate content.":
             break
 
@@ -45,7 +40,13 @@ def dashscope_llm(messages: list,
             print(f"request failed. code: {response.code}, message:{response.message}\nretrying...")
 
         time.sleep(1 + i*30)
-        seed = random.randint(1, 10000)
+        kwargs['seed'] = random.randint(1, 10000)
+        response = dashscope.Generation.call(
+            messages=messages,
+            model=model,
+            result_format='message',  # set the result to be "message" format.
+            **kwargs
+        )
 
     if response.status_code != HTTPStatus.OK:
         if logger:

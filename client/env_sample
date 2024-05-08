@@ -1,4 +1,5 @@
-export DASHSCOPE_API_KEY=""
+export LLM_API_KEY=""
+export LLM_API_BASE="" ##使用本地模型服务或者使用openai_wrapper调用非openai服务时用
 export VOLC_KEY="AK|SK"
 
 #**for embeddig model**

@@ -16,11 +16,19 @@ Email：35252986@qq.com
 - 数据库管理
 - 支持针对特定站点的自定义爬虫集成，并提供本地定时扫描任务……
 
+## change log
+
+【2024.5.8】增加对openai SDK的支持，现在可以通过调用llms.openai_wrapper使用所有兼容openai SDK的大模型服务，具体见 [client/backend/llms/README.md](client/backend/llms/README.md)
+
 **产品介绍视频：**
 
 [![wiseflow repo demo](https://res.cloudinary.com/marcomontalbano/image/upload/v1714005731/video_to_markdown/images/youtube--80KqYgE8utE-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://www.bilibili.com/video/BV17F4m1w7Ed/?share_source=copy_web&vd_source=5ad458dc9dae823257e82e48e0751e25 "wiseflow repo demo")
 
-打不开看这里：https://www.bilibili.com/video/BV17F4m1w7Ed/?share_source=copy_web&vd_source=5ad458dc9dae823257e82e48e0751e25
+**打不开看这里**
+
+Youtube：https://www.youtube.com/watch?v=80KqYgE8utE&t=8s
+
+b站：https://www.bilibili.com/video/BV17F4m1w7Ed/?share_source=copy_web&vd_source=5ad458dc9dae823257e82e48e0751e25
 
 ## getting started
 

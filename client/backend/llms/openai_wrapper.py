@@ -1,48 +1,60 @@
+'''
+除了openai外，很多大模型提供商也都使用openai的SDK，对于这一类可以统一使用本wrapper
+这里演示使用deepseek提供的DeepSeek-V2
+'''
+
+import random
 import os
-
-from zhipuai import ZhipuAI
-
-zhipu_token = os.environ.get('ZHIPUAI_API_KEY', "")
-if not zhipu_token:
-    raise ValueError('请设置环境变量ZHIPUAI_API_KEY')
-
-client = ZhipuAI(api_key=zhipu_token)  # 填写您自己的APIKey
+from openai import OpenAI
+import time
 
 
-def zhipuai_llm(messages: list,
-                  model: str,
-                  seed: int = 1234,
-                  max_tokens: int = 2000,
-                  temperature: float = 0.8,
-                  stop: list = None,
-                  enable_search: bool = False,
-                  logger=None) -> str:
+token = os.environ.get('LLM_API_KEY', "")
+if not token:
+    raise ValueError('请设置环境变量LLM_API_KEY')
+
+base_url = os.environ.get('LLM_API_BASE', "")
+
+client = OpenAI(api_key=token, base_url=base_url)
+
+
+def openai_llm(messages: list, model: str, logger=None, **kwargs) -> str:
 
     if logger:
         logger.debug(f'messages:\n {messages}')
-        logger.debug(f'params:\n model: {model}, max_tokens: {max_tokens}, temperature: {temperature}, stop: {stop},'
-                     f'enable_search: {enable_search}, seed: {seed}')
+        logger.debug(f'model: {model}')
+        logger.debug(f'kwargs:\n {kwargs}')
 
-    for i in range(3):
-        try:
-            response = client.chat.completions.create(
-                model="glm-4",  # 填写需要调用的模型名称
-                seed=seed,
-                messages=messages,
-                temperature=temperature,
-                max_tokens=max_tokens,
-            )
-            if response and response.choices:
-                break
-        except Exception as e:
-            if logger:
-                logger.error(f'error:\n {e}')
-            else:
-                print(e)
-            continue
+    response = client.chat.completions.create(messages=messages, model=model, **kwargs)
+
+    for i in range(2):
+        if response and response.choices:
+            break
+
+        if logger:
+            logger.warning(f"request failed. code: {response}\nretrying...")
+        else:
+            print(f"request failed. code: {response}\nretrying...")
+
+        time.sleep(1 + i * 30)
+        kwargs['seed'] = random.randint(1, 10000)
+        response = client.chat.completions.create(
+            messages=messages,
+            model=model,
+            **kwargs
+        )
+
+    if not response or not response.choices:
+        if logger:
+            logger.warning(
+                f"request failed. code: {response}\nabort after multiple retries...")
+        else:
+            print(
+                f"request failed. code: {response}\naborted after multiple retries...")
+        return ''
 
     if logger:
-        logger.debug(f'result:\n {response}')
+        logger.debug(f'result:\n {response.choices[0]}')
         logger.debug(f'usage:\n {response.usage}')
 
     return response.choices[0].message.content
@@ -76,5 +88,5 @@ Hackers that breached Las Vegas casinos rely on violent threats, research shows'
 
     data = [{'role': 'user', 'content': user_content}]
     start_time = time.time()
-    pprint(zhipuai_llm(data, 'glm-4'))
+    pprint(openai_llm(data, "deepseek-chat"))
     print(f'time cost: {time.time() - start_time}')

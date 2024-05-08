@@ -1,6 +1,8 @@
-## 使用阿里灵积提供的API接口服务
+## 考虑到很多LLM提供商都兼容openai SDK，所以本项目目前提供dashscope和openai两种wrapper，不管使用哪个都请提前设定
 
-export DASHSCOPE_API_KEY=
+export LLM_API_KEY=
+
+二者的用法也是完全一样的
 
 ```python
 from llms.dashscope_wrapper import dashscope_llm
@@ -9,14 +11,15 @@ result = dashscope_llm([{'role': 'system', 'content': '''}, {'role': 'user', 'co
                        logger=logger)
 ```
 
-## 使用智谱提供的API接口服务（暂时只支持glm4）
+*若要使用openai wrapper调用非openai服务，请提前设定
 
-export ZHIPUAI_API_KEY=
+export LLM_API_BASE=
 
 ```python
-from llms.zhipu_wrapper import zhipuai_llm
+from llms.openai_wrapper import openai_llm
 
-result = zhipuai_llm([{'role': 'system', 'content': ''}, {'role': 'user', 'content': ''}], logger=logger)
+result = openai_llm([{'role': 'system', 'content': '''}, {'role': 'user', 'content': '''}], 'deepseek-chat',
+                       logger=logger)
 ```
 
 ## 对于本地部署模型的支持
