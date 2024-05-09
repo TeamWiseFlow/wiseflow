@@ -8,8 +8,8 @@
 
 - PROJECT_DIR="xxxx" #项目缓存文件夹（相对于client文件夹的路径），如果不设定就直接放在repo下面了
 - WS_LOG="verbose"  #设定是否开始debug观察，调试阶段建议开始，尤其可以观察到每一步接口调用的原始请求和返回
-- LLM_API_BASE： #使用本地大模型推理服务使用（本地加载大模型）的 host:port, 不配置默认走http://localhost:8000
-- DASHSCOPE_API_KEY="YOUR_DASHSCOPE_API_KEY" #使用阿里灵积大模型推理服务使用
+- LLM_API_BASE： #使用兼容openaiSDK的LLM服务或者本地大模型推理使用（不配置默认走http://localhost:8000）
+- LLM_API_KEY="YOUR_DASHSCOPE_API_KEY" #大模型推理服务API KEY(注册参考最下)
 - ZHIPUAI_API_KEY= #使用智谱大模型接口使用（目前只会调用glm4，model参数没有意义）
 - VOLC_KEY='AK|SK' #使用火山云翻译api使用，格式为AK|SK
 - EMBEDDING_MODEL_PATH='' #embedding模型的地址，注意需要填写完整的绝对路径

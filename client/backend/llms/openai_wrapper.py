@@ -1,12 +1,10 @@
-'''
+"""
 除了openai外，很多大模型提供商也都使用openai的SDK，对于这一类可以统一使用本wrapper
 这里演示使用deepseek提供的DeepSeek-V2
-'''
+"""
 
-import random
 import os
 from openai import OpenAI
-import time
 
 
 token = os.environ.get('LLM_API_KEY', "")
@@ -25,32 +23,12 @@ def openai_llm(messages: list, model: str, logger=None, **kwargs) -> str:
         logger.debug(f'model: {model}')
         logger.debug(f'kwargs:\n {kwargs}')
 
-    response = client.chat.completions.create(messages=messages, model=model, **kwargs)
+    try:
+        response = client.chat.completions.create(messages=messages, model=model, **kwargs)
 
-    for i in range(2):
-        if response and response.choices:
-            break
-
+    except Exception as e:
         if logger:
-            logger.warning(f"request failed. code: {response}\nretrying...")
-        else:
-            print(f"request failed. code: {response}\nretrying...")
-
-        time.sleep(1 + i * 30)
-        kwargs['seed'] = random.randint(1, 10000)
-        response = client.chat.completions.create(
-            messages=messages,
-            model=model,
-            **kwargs
-        )
-
-    if not response or not response.choices:
-        if logger:
-            logger.warning(
-                f"request failed. code: {response}\nabort after multiple retries...")
-        else:
-            print(
-                f"request failed. code: {response}\naborted after multiple retries...")
+            logger.error(f'openai_llm error: {e}')
         return ''
 
     if logger:
