@@ -4,3 +4,7 @@
 .DS_Store
 .idea/
 __pycache__
+.env
+.venv/
+core/pb/pb_data/
+core/WStest/
