@@ -2,9 +2,9 @@ from gne import GeneralNewsExtractor
 import httpx
 from bs4 import BeautifulSoup
 from datetime import datetime
-from pathlib import Path
-from utils.general_utils import extract_and_convert_dates
+from ..utils.general_utils import extract_and_convert_dates
 import chardet
+from urllib.parse import urlparse
 
 
 extractor = GeneralNewsExtractor()
@@ -12,9 +12,9 @@ header = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/604.1 Edg/112.0.100.0'}
 
 
-def simple_crawler(url: str | Path, logger) -> (int, dict):
+def simple_crawler(url: str, logger) -> (int, dict):
     """
-    返回文章信息dict和flag，负数为报错，0为没有结果，11为成功
+    Return article information dict and flag, negative number is error, 0 is no result, 11 is success
     """
     try:
         with httpx.Client() as client:
@@ -46,15 +46,20 @@ def simple_crawler(url: str | Path, logger) -> (int, dict):
     else:
         result['publish_time'] = datetime.strftime(datetime.today(), "%Y%m%d")
 
+    from_site = urlparse(url).netloc
+    from_site = from_site.replace('www.', '')
+    from_site = from_site.split('.')[0]
+    result['content'] = f"[from {from_site}] {result['content']}"
+
     soup = BeautifulSoup(text, "html.parser")
     try:
         meta_description = soup.find("meta", {"name": "description"})
         if meta_description:
-            result['abstract'] = meta_description["content"].strip()
+            result['abstract'] = f"[from {from_site}] {meta_description['content'].strip()}"
         else:
             result['abstract'] = ''
     except Exception:
         result['abstract'] = ''
 
-    result['url'] = str(url)
+    result['url'] = url
     return 11, result

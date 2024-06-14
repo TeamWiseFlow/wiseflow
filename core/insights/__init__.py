@@ -1,7 +1,6 @@
-from scrapers import *
-from utils.general_utils import extract_urls, compare_phrase_with_list
-from insights.get_info import get_info, pb, project_dir, logger
-from insights.rewrite import info_rewrite
+from ..scrapers import *
+from ..utils.general_utils import extract_urls, compare_phrase_with_list
+from .get_info import get_info, pb, project_dir, logger, info_rewrite
 import os
 import json
 from datetime import datetime, timedelta
@@ -10,7 +9,7 @@ import re
 import time
 
 
-# 用正则不用xml解析方案是因为公众号消息提取出来的xml代码存在异常字符
+# The XML parsing scheme is not used because there are abnormal characters in the XML code extracted from the weixin public_msg
 item_pattern = re.compile(r'<item>(.*?)</item>', re.DOTALL)
 url_pattern = re.compile(r'<url><!\[CDATA\[(.*?)]]></url>')
 summary_pattern = re.compile(r'<summary><!\[CDATA\[(.*?)]]></summary>', re.DOTALL)
@@ -26,14 +25,14 @@ def pipeline(_input: dict):
 
     if _input['type'] == 'publicMsg':
         items = item_pattern.findall(_input["content"])
-        # 遍历所有<item>内容，提取<url>和<summary>
+        # Iterate through all < item > content, extracting < url > and < summary >
         for item in items:
             url_match = url_pattern.search(item)
             url = url_match.group(1) if url_match else None
             if not url:
                 logger.warning(f"can not find url in \n{item}")
                 continue
-            # url处理，http换成https, 去掉chksm之后的部分
+            # URL processing, http is replaced by https, and the part after chksm is removed.
             url = url.replace('http://', 'https://')
             cut_off_point = url.find('chksm=')
             if cut_off_point != -1:
@@ -60,17 +59,15 @@ def pipeline(_input: dict):
     global existing_urls
 
     for url in urls:
-        # 0、先检查是否已经爬取过
         if url in existing_urls:
             logger.debug(f"{url} has been crawled, skip")
             continue
 
         logger.debug(f"fetching {url}")
-        # 1、选择合适的爬虫fetch article信息
         if url.startswith('https://mp.weixin.qq.com') or url.startswith('http://mp.weixin.qq.com'):
             flag, article = mp_crawler(url, logger)
             if flag == -7:
-                # 对于mp爬虫，-7 的大概率是被微信限制了，等待1min即可
+                # For mp crawlers, the high probability of -7 is limited by WeChat, just wait 1min.
                 logger.info(f"fetch {url} failed, try to wait 1min and try again")
                 time.sleep(60)
                 flag, article = mp_crawler(url, logger)
@@ -83,7 +80,7 @@ def pipeline(_input: dict):
                 flag, article = simple_crawler(url, logger)
 
         if flag == -7:
-            # -7 代表网络不同，用其他爬虫也没有效果
+            #  -7 means that the network is different, and other crawlers have no effect.
             logger.info(f"cannot fetch {url}")
             continue
 
@@ -94,7 +91,6 @@ def pipeline(_input: dict):
                 logger.info(f"{url} failed with llm_crawler")
                 continue
 
-        # 2、判断是否早于 当日- expiration_days ，如果是的话，舍弃
         expiration_date = datetime.now() - timedelta(days=expiration_days)
         expiration_date = expiration_date.strftime('%Y-%m-%d')
         article_date = int(article['publish_time'])
@@ -106,11 +102,8 @@ def pipeline(_input: dict):
         if cache[url]:
             article['abstract'] = cache[url]
 
-        # 3、使用content从中提炼信息
-        insights = get_info(f"标题：{article['title']}\n\n内容：{article['content']}")
-        # 提炼info失败的article不入库，不然在existing里面后面就再也不会处理了，但提炼成功没有insight的article需要入库，后面不再分析。
+        insights = get_info(f"title: {article['title']}\n\ncontent: {article['content']}")
 
-        # 4、article入库
         try:
             article_id = pb.add(collection_name='articles', body=article)
         except Exception as e:
@@ -123,25 +116,23 @@ def pipeline(_input: dict):
 
         if not insights:
             continue
-        # insight 比对去重与合并, article打标签，insight入库
         article_tags = set()
-        # 从数据库中读取过去expiration_days的insight记录，避免重复
         old_insights = pb.read(collection_name='insights', filter=f"updated>'{expiration_date}'", fields=['id', 'tag', 'content', 'articles'])
         for insight in insights:
             article_tags.add(insight['tag'])
             insight['articles'] = [article_id]
-            # 从old_insights 中挑出相同tag的insight，组成 content: id 的反查字典
             old_insight_dict = {i['content']: i for i in old_insights if i['tag'] == insight['tag']}
-            # 因为要比较的是抽取出来的信息短语是否讲的是一个事情，用向量模型计算相似度未必适合且过重
-            # 因此这里使用一个简化的方案，直接使用jieba分词器，计算两个短语之间重叠的词语是否超过90%
+            # Because what you want to compare is whether the extracted information phrases are talking about the same thing,
+            # it may not be suitable and too heavy to calculate the similarity with a vector model
+            # Therefore, a simplified solution is used here, directly using the jieba particifier, to calculate whether the overlap between the two phrases exceeds.
             similar_insights = compare_phrase_with_list(insight['content'], list(old_insight_dict.keys()), 0.65)
             if similar_insights:
                 to_rewrite = similar_insights + [insight['content']]
-                new_info_content = info_rewrite(to_rewrite, logger)
+                new_info_content = info_rewrite(to_rewrite)
                 if not new_info_content:
                     continue
                 insight['content'] = new_info_content
-                # 合并关联article、删除旧insight
+                # Merge related articles and delete old insights
                 for old_insight in similar_insights:
                     insight['articles'].extend(old_insight_dict[old_insight]['articles'])
                     pb.delete(collection_name='insights', id=old_insight_dict[old_insight]['id'])

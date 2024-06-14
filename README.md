@@ -74,3 +74,8 @@ https://openi.pcl.ac.cn/wiseflow/wiseflow
 https://github.com/TeamWiseFlow/wiseflow
 Licensed under Apache2.0
 ```
+# After many comparisons, we recommend the following model for the two tasks of this project (combining effectiveness, speed, and cost performance).
+# At the same time, we recommend the siliconflow platform, which can provide online reasoning services for the following two models at a more favorable price
+# The siliconflow platform is compatible with openai sdk, which makes the program simple
+# Therefore, unless you have experimented and found that there are better options for your data, it is not recommended to change the following two parameters
+#  (although you have the right to make any changes at any time).

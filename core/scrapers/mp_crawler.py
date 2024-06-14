@@ -57,8 +57,8 @@ def mp_crawler(url: str, logger) -> (int, dict):
 
     # Parse text and image links within the content interval
     # Todo This scheme is compatible with picture sharing MP articles, but the pictures of the content cannot be obtained,
-    #  because the structure of this part is completely different, and a separate analysis scheme needs to be written
-    #  (but the proportion of this type of article is not high).
+    # because the structure of this part is completely different, and a separate analysis scheme needs to be written
+    # (but the proportion of this type of article is not high).
     texts = []
     images = set()
     content_area = soup.find('div', id='js_content')
@@ -79,11 +79,11 @@ def mp_crawler(url: str, logger) -> (int, dict):
         logger.warning(f"failed to analysis contents {url}")
         return 0, {}
     if content:
-        content = f"({profile_nickname} 文章){content}"
+        content = f"[from {profile_nickname}]{content}"
     else:
         # If the content does not have it, but the summary has it, it means that it is an mp of the picture sharing type.
         # At this time, you can use the summary as the content.
-        content = f"({profile_nickname} 文章){summary}"
+        content = f"[from {profile_nickname}]{summary}"
 
     # Get links to images in meta property = "og: image" and meta property = "twitter: image"
     og_image = soup.find('meta', property='og:image')
@@ -96,7 +96,7 @@ def mp_crawler(url: str, logger) -> (int, dict):
     if rich_media_title == summary or not summary:
         abstract = ''
     else:
-        abstract = f"({profile_nickname} 文章){rich_media_title}——{summary}"
+        abstract = f"[from {profile_nickname}]{rich_media_title}——{summary}"
 
     return 11, {
         'title': rich_media_title,

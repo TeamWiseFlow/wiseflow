@@ -1,21 +1,19 @@
-from pathlib import Path
+import os
 from urllib.parse import urlparse
 import re
 from .simple_crawler import simple_crawler
 import httpx
 from bs4 import BeautifulSoup
 from bs4.element import Comment
-from llms.dashscope_wrapper import dashscope_llm
-# from llms.openai_wrapper import openai_llm
-# from llms.siliconflow_wrapper import sfa_llm
+from ..llms.openai_wrapper import openai_llm
+# from ..llms.siliconflow_wrapper import sfa_llm
 from datetime import datetime, date
 from requests.compat import urljoin
 import chardet
-from utils.general_utils import extract_and_convert_dates
+from ..utils.general_utils import extract_and_convert_dates
 
 
-model = "qwen-long"
-# model = "deepseek-chat"
+model = os.environ.get('HTML_PARSE_MODEL', 'gpt-3.5-turbo')
 header = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/604.1 Edg/112.0.100.0'}
 
@@ -65,21 +63,15 @@ def parse_html_content(out: str) -> dict:
     return dct
 
 
-# qwen1.5-72b解析json格式太容易出错，网页上的情况太多，比如经常直接使用英文的"，这样后面json.loads就容易出错……
-sys_info = '''你是一个html解析器，你将接收一段html代码，请解析出其标题、摘要、内容和发布日期，发布日期格式为YYYY-MM-DD。
-结果请按照以下格式返回（整体用三引号包裹）：
+
+sys_info = '''As an HTML parser, you'll receive a block of HTML code. Your task is to extract its title, summary, content, and publication date, with the date formatted as YYYY-MM-DD. Return the results in the following format (enclosed within triple quotes):
 """
-标题||摘要||内容||发布日期XXXX-XX-XX
+Title||Summary||Content||Release Date YYYY-MM-DD
 """
 '''
 
 
-def llm_crawler(url: str | Path, logger) -> (int, dict):
-    """
-    返回文章信息dict和flag，负数为报错，0为没有结果，11为成功
-    参考：https://mp.weixin.qq.com/s/4J-kofsfFDiV1FxGlTJLfA
-    """
-    # 发送 HTTP 请求获取网页内容
+def llm_crawler(url: str, logger) -> (int, dict):
     try:
         with httpx.Client() as client:
             response = client.get(url, headers=header, timeout=30)
@@ -90,7 +82,6 @@ def llm_crawler(url: str | Path, logger) -> (int, dict):
         logger.error(e)
         return -7, {}
 
-    # 使用 BeautifulSoup 解析 HTML 内容
     soup = BeautifulSoup(text, "html.parser")
     html_text = text_from_soup(soup)
     html_lines = html_text.split('\n')
@@ -109,8 +100,7 @@ def llm_crawler(url: str | Path, logger) -> (int, dict):
         {"role": "system", "content": sys_info},
         {"role": "user", "content": html_text}
     ]
-    llm_output = dashscope_llm(messages, model=model, logger=logger)
-    # llm_output = openai_llm(messages, model=model, logger=logger)
+    llm_output = openai_llm(messages, model=model, logger=logger)
     try:
         info = parse_html_content(llm_output)
     except Exception:
@@ -122,30 +112,34 @@ def llm_crawler(url: str | Path, logger) -> (int, dict):
         logger.debug(f"{info} not valid")
         return 0, {}
 
-    info["url"] = str(url)
-    # 提取图片链接，提取不到就空着
+    info["url"] = url
+    # Extract the picture link, it will be empty if it cannot be extracted.
     image_links = []
     images = soup.find_all("img")
 
     for img in images:
         try:
-            # 不是所有网站都是这个结构，比如公众号文章的就不行。
             image_links.append(img["src"])
         except KeyError:
             continue
     info["images"] = image_links
 
-    # 提取作者信息，提取不到就空着
+    # Extract the author information, if it cannot be extracted, it will be empty.
     author_element = soup.find("meta", {"name": "author"})
     if author_element:
         info["author"] = author_element["content"]
     else:
         info["author"] = ""
 
+    from_site = urlparse(url).netloc
+    from_site = from_site.replace('www.', '')
+    from_site = from_site.split('.')[0]
+    info['content'] = f"[from {from_site}] {info['content']}"
+
     if not info['abstract']:
         meta_description = soup.find("meta", {"name": "description"})
         if meta_description:
-            info['abstract'] = meta_description["content"]
+            info['abstract'] = f"[from {from_site}] {meta_description['content'].strip()}"
         else:
             info['abstract'] = ''
 
@@ -162,11 +156,12 @@ def general_scraper(site: str, expiration: date, existing: list[str], logger) ->
 
     page_source = response.text
     soup = BeautifulSoup(page_source, "html.parser")
-    # 解析出全部超链接网址
+    # Parse all URLs
     parsed_url = urlparse(site)
     base_url = parsed_url.scheme + '://' + parsed_url.netloc
     urls = [urljoin(base_url, link["href"]) for link in soup.find_all("a", href=True)]
     if not urls:
+        # maybe it's an article site
         logger.warning(f"can not find any link from {site}, maybe it's an article site...")
         if site in existing:
             logger.debug(f"{site} has been crawled before, skip it")
@@ -182,7 +177,7 @@ def general_scraper(site: str, expiration: date, existing: list[str], logger) ->
             return []
         else:
             return [result]
-    # 再逐步解析文章，依然是先使用simple_crawler, 不行再用llm_crawler
+    # Then gradually analyze the article, still use simple_crawler first, no use llm_crawler
     articles = []
     for url in urls:
         if url in existing:

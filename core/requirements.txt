@@ -1,0 +1,8 @@
+openai
+loguru
+urllib
+gne
+jieba
+httpx
+chardet
+websockets
