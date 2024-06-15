@@ -1,7 +1,7 @@
 import random
 import re
 import os
-from backend.llms.dashscope_wrapper import dashscope_llm
+from core.backend import dashscope_llm
 from docx import Document
 from docx.oxml.ns import qn
 from docx.shared import Pt, RGBColor

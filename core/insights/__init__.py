@@ -1,12 +1,13 @@
-from ..scrapers import *
-from ..utils.general_utils import extract_urls, compare_phrase_with_list
+# -*- coding: utf-8 -*-
+
+from scrapers import *
+from utils.general_utils import extract_urls, compare_phrase_with_list
 from .get_info import get_info, pb, project_dir, logger, info_rewrite
 import os
 import json
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
 import re
-import time
 
 
 # The XML parsing scheme is not used because there are abnormal characters in the XML code extracted from the weixin public_msg
@@ -18,10 +19,48 @@ expiration_days = 3
 existing_urls = [url['url'] for url in pb.read(collection_name='articles', fields=['url']) if url['url']]
 
 
-def pipeline(_input: dict):
+async def get_articles(urls: list[str], expiration: datetime, cache: dict = {}) -> list[dict]:
+    articles = []
+    for url in urls:
+        logger.debug(f"fetching {url}")
+
+        if url.startswith('https://mp.weixin.qq.com') or url.startswith('http://mp.weixin.qq.com'):
+            flag, result = await mp_crawler(url, logger)
+        else:
+            flag, result = await simple_crawler(url, logger)
+
+        if flag == -7:
+            #  -7 means cannot fetch the html, and other crawlers have no effect.
+            continue
+
+        if flag != 11:
+            flag, result = await llm_crawler(url, logger)
+            if flag != 11:
+                continue
+
+        expiration_date = expiration.strftime('%Y-%m-%d')
+        article_date = int(result['publish_time'])
+        if article_date < int(expiration_date.replace('-', '')):
+            logger.info(f"publish date is {article_date}, too old, skip")
+            continue
+
+        if url in cache:
+            for k, v in cache[url].items():
+                if v:
+                    result[k] = v
+
+        articles.append(result)
+
+    return articles
+
+
+async def pipeline(_input: dict):
     cache = {}
     source = _input['user_id'].split('@')[-1]
     logger.debug(f"received new task, user: {source}, MsgSvrID: {_input['addition']}")
+
+    global existing_urls
+    expiration_date = datetime.now() - timedelta(days=expiration_days)
 
     if _input['type'] == 'publicMsg':
         items = item_pattern.findall(_input["content"])
@@ -37,73 +76,57 @@ def pipeline(_input: dict):
             cut_off_point = url.find('chksm=')
             if cut_off_point != -1:
                 url = url[:cut_off_point-1]
+            if url in existing_urls:
+                logger.debug(f"{url} has been crawled, skip")
+                continue
             if url in cache:
                 logger.debug(f"{url} already find in item")
                 continue
             summary_match = summary_pattern.search(item)
             summary = summary_match.group(1) if summary_match else None
-            cache[url] = summary
-        urls = list(cache.keys())
+            cache[url] = {'source': source, 'abstract': summary}
+        articles = await get_articles(list(cache.keys()), expiration_date, cache)
+
+    elif _input['type'] == 'site':
+        # for the site url, Usually an article list page or a website homepage
+        # need to get the article list page
+        # You can use a general scraper, or you can customize a site-specific crawler, see scrapers/README_CN.md
+        urls = extract_urls(_input['content'])
+        if not urls:
+            logger.debug(f"can not find any url in\n{_input['content']}")
+            return
+        articles = []
+        for url in urls:
+            parsed_url = urlparse(url)
+            domain = parsed_url.netloc
+            if domain in scraper_map:
+                result = scraper_map[domain](url, logger)
+            else:
+                result = await general_scraper(url, expiration_date.date(), existing_urls, logger)
+            articles.extend(result)
 
     elif _input['type'] == 'text':
         urls = extract_urls(_input['content'])
         if not urls:
             logger.debug(f"can not find any url in\n{_input['content']}\npass...")
             return
+        articles = await get_articles(urls, expiration_date)
+
     elif _input['type'] == 'url':
-        urls = []
-        pass
+        # this is remained for wechat shared mp_article_card
+        # todo will do it in project awada (need finish the generalMsg api first)
+        articles = []
     else:
         return
 
-    global existing_urls
-
-    for url in urls:
-        if url in existing_urls:
-            logger.debug(f"{url} has been crawled, skip")
+    for article in articles:
+        if article['url'] in existing_urls:
+            # For the case of entering multiple sites at the same time,
+            # there is indeed a situation where duplicate articles are mixed into the same batch
+            logger.debug(f"{article['url']} duplicated, skip")
             continue
-
-        logger.debug(f"fetching {url}")
-        if url.startswith('https://mp.weixin.qq.com') or url.startswith('http://mp.weixin.qq.com'):
-            flag, article = mp_crawler(url, logger)
-            if flag == -7:
-                # For mp crawlers, the high probability of -7 is limited by WeChat, just wait 1min.
-                logger.info(f"fetch {url} failed, try to wait 1min and try again")
-                time.sleep(60)
-                flag, article = mp_crawler(url, logger)
-        else:
-            parsed_url = urlparse(url)
-            domain = parsed_url.netloc
-            if domain in scraper_map:
-                flag, article = scraper_map[domain](url, logger)
-            else:
-                flag, article = simple_crawler(url, logger)
-
-        if flag == -7:
-            #  -7 means that the network is different, and other crawlers have no effect.
-            logger.info(f"cannot fetch {url}")
-            continue
-
-        if flag != 11:
-            logger.info(f"{url} failed with mp_crawler and simple_crawler")
-            flag, article = llm_crawler(url, logger)
-            if flag != 11:
-                logger.info(f"{url} failed with llm_crawler")
-                continue
-
-        expiration_date = datetime.now() - timedelta(days=expiration_days)
-        expiration_date = expiration_date.strftime('%Y-%m-%d')
-        article_date = int(article['publish_time'])
-        if article_date < int(expiration_date.replace('-', '')):
-            logger.info(f"publish date is {article_date}, too old, skip")
-            continue
-
-        article['source'] = source
-        if cache[url]:
-            article['abstract'] = cache[url]
 
         insights = get_info(f"title: {article['title']}\n\ncontent: {article['content']}")
-
         try:
             article_id = pb.add(collection_name='articles', body=article)
         except Exception as e:
@@ -112,7 +135,7 @@ def pipeline(_input: dict):
                 json.dump(article, f, ensure_ascii=False, indent=4)
             continue
 
-        existing_urls.append(url)
+        existing_urls.append(article['url'])
 
         if not insights:
             continue

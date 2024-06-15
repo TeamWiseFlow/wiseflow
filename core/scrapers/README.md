@@ -1,33 +1,33 @@
-**这个文件夹下可以放置对应特定信源的爬虫，注意这里的爬虫应该是可以解析信源文章列表url并返回文章详情dict的**
-
-# 专有爬虫配置
-
-写好爬虫后，将爬虫程序放在这个文件夹，并在__init__.py下的scraper_map中注册爬虫，类似：
-
-```python
-{'www.securityaffairs.com': securityaffairs_scraper}
-```
-
-其中key就是信源地址，value是函数名
-
-爬虫应该写为函数形式，出入参约定为：
-
-输入：
-- expiration： datetime的date.date()对象，爬虫应该只抓取这之后（含这一天）的文章
-- existings：[str], 数据库已有文章的url列表，爬虫应该忽略这个列表里面的url
-
-输出：
-- [dict]，返回结果列表，每个dict代表一个文章，格式如下：
-`[{'url': str, 'title':  str, 'author':  str,  'publish_time':  str, 'content':  str, 'abstract':  str, 'images': [Path]}, {...},  ...]`
-
-注意：publish_time格式为`"%Y%m%d"`， 如果爬虫抓不到可以用当天日期
-
-另外，title和content是必须要有的
-
-# 通用页面解析器
-
-我们这里提供了一个通用页面解析器，该解析器可以智能获取信源文章列表，接下来对于每一个文章url，会先尝试使用 gne 进行解析，如果失败的话，再尝试使用llm进行解析。
-
-通过这个方案，可以实现对大多数普通新闻类、门户类信源的扫描和信息提取。
-
-**然而我们依然强烈建议用户自行写专有爬虫或者直接订阅我们的数据服务，以实现更加理想且更加高效的扫描。**
+> **This folder is intended for placing crawlers specific to particular sources. Note that the crawlers here should be able to parse the article list URL of the source and return a dictionary of article details.**
+> 
+> # Custom Crawler Configuration
+> 
+> After writing the crawler, place the crawler program in this folder and register it in the scraper_map in `__init__.py`, similar to:
+> 
+> ```python
+> {'www.securityaffairs.com': securityaffairs_scraper}
+> ```
+> 
+> Here, the key is the source URL, and the value is the function name.
+> 
+> The crawler should be written in the form of a function with the following input and output specifications:
+> 
+> Input:
+> - expiration: A `datetime.date` object, the crawler should only fetch articles on or after this date.
+> - existings: [str], a list of URLs of articles already in the database. The crawler should ignore the URLs in this list.
+> 
+> Output:
+> - [dict], a list of result dictionaries, each representing an article, formatted as follows:
+> `[{'url': str, 'title': str, 'author': str, 'publish_time': str, 'content': str, 'abstract': str, 'images': [Path]}, {...}, ...]`
+> 
+> Note: The format of `publish_time` should be `"%Y%m%d"`. If the crawler cannot fetch it, the current date can be used.
+> 
+> Additionally, `title` and `content` are mandatory fields.
+> 
+> # Generic Page Parser
+> 
+> We provide a generic page parser here, which can intelligently fetch article lists from the source. For each article URL, it will first attempt to parse using gne. If it fails, it will then attempt to parse using llm.
+> 
+> Through this solution, it is possible to scan and extract information from most general news and portal sources.
+> 
+> **However, we still strongly recommend that users write custom crawlers themselves or directly subscribe to our data service for more ideal and efficient scanning.**

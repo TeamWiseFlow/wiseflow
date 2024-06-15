@@ -7,7 +7,7 @@ from typing import BinaryIO
 class PbTalker:
     def __init__(self, logger) -> None:
         # 1. base initialization
-        url = "http://127.0.0.1:5882"
+        url = os.environ.get('PB_API_BASE', "http://127.0.0.1:8090")
         self.logger = logger
         self.logger.debug(f"initializing pocketbase client: {url}")
         self.client = PocketBase(url)
@@ -82,7 +82,7 @@ class PbTalker:
 
     def view(self, collection_name: str, item_id: str, fields: list[str] = None) -> dict:
         try:
-            res = self.client.collection(collection_name).get_one(item_id,{"fields": ','.join(fields) if fields else ''})
+            res = self.client.collection(collection_name).get_one(item_id, {"fields": ','.join(fields) if fields else ''})
             return vars(res)
         except Exception as e:
             self.logger.error(f"pocketbase view item failed: {e}")

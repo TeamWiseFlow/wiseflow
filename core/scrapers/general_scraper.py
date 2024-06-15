@@ -1,16 +1,20 @@
+# -*- coding: utf-8 -*-
+
 import os
 from urllib.parse import urlparse
 import re
 from .simple_crawler import simple_crawler
+from .mp_crawler import mp_crawler
 import httpx
 from bs4 import BeautifulSoup
 from bs4.element import Comment
-from ..llms.openai_wrapper import openai_llm
-# from ..llms.siliconflow_wrapper import sfa_llm
+from llms.openai_wrapper import openai_llm
+# from llms.siliconflow_wrapper import sfa_llm
 from datetime import datetime, date
 from requests.compat import urljoin
 import chardet
-from ..utils.general_utils import extract_and_convert_dates
+from utils.general_utils import extract_and_convert_dates
+import asyncio
 
 
 model = os.environ.get('HTML_PARSE_MODEL', 'gpt-3.5-turbo')
@@ -63,7 +67,6 @@ def parse_html_content(out: str) -> dict:
     return dct
 
 
-
 sys_info = '''As an HTML parser, you'll receive a block of HTML code. Your task is to extract its title, summary, content, and publication date, with the date formatted as YYYY-MM-DD. Return the results in the following format (enclosed within triple quotes):
 """
 Title||Summary||Content||Release Date YYYY-MM-DD
@@ -71,30 +74,38 @@ Title||Summary||Content||Release Date YYYY-MM-DD
 '''
 
 
-def llm_crawler(url: str, logger) -> (int, dict):
-    try:
-        with httpx.Client() as client:
-            response = client.get(url, headers=header, timeout=30)
-            rawdata = response.content
-            encoding = chardet.detect(rawdata)['encoding']
-            text = rawdata.decode(encoding)
-    except Exception as e:
-        logger.error(e)
-        return -7, {}
+async def llm_crawler(url: str, logger) -> (int, dict):
+    async with httpx.AsyncClient() as client:
+        for retry in range(2):
+            try:
+                response = await client.get(url, headers=header, timeout=30)
+                response.raise_for_status()
+                break
+            except Exception as e:
+                if retry < 1:
+                    logger.info(f"request {url} got error {e}\nwaiting 1min")
+                    await asyncio.sleep(60)
+                else:
+                    logger.warning(f"request {url} got error {e}")
+                    return -7, {}
 
-    soup = BeautifulSoup(text, "html.parser")
-    html_text = text_from_soup(soup)
-    html_lines = html_text.split('\n')
-    html_lines = [line.strip() for line in html_lines if line.strip()]
-    html_text = "\n".join(html_lines)
-    if len(html_text) > 29999:
-        logger.warning(f"{url} content too long for llm parsing")
-        return 0, {}
+        rawdata = response.content
+        encoding = chardet.detect(rawdata)['encoding']
+        text = rawdata.decode(encoding, errors='replace')
+        soup = BeautifulSoup(text, "html.parser")
+        html_text = text_from_soup(soup)
+        html_lines = html_text.split('\n')
+        html_lines = [line.strip() for line in html_lines if line.strip()]
+        html_text = "\n".join(html_lines)
+        if len(html_text) > 29999:
+            logger.warning(f"{url} content too long for llm parsing")
+            return 0, {}
 
-    if not html_text or html_text.startswith('服务器错误') or html_text.startswith('您访问的页面') or html_text.startswith('403')\
-            or html_text.startswith('出错了'):
-        logger.warning(f"can not get {url} from the Internet")
-        return -7, {}
+        if not html_text or html_text.startswith('服务器错误') or html_text.startswith(
+                '您访问的页面') or html_text.startswith('403') \
+                or html_text.startswith('出错了'):
+            logger.warning(f"can not get {url} from the Internet")
+            return -7, {}
 
     messages = [
         {"role": "system", "content": sys_info},
@@ -103,7 +114,7 @@ def llm_crawler(url: str, logger) -> (int, dict):
     llm_output = openai_llm(messages, model=model, logger=logger)
     try:
         info = parse_html_content(llm_output)
-    except Exception:
+    except:
         msg = f"can not parse {llm_output}"
         logger.debug(msg)
         return 0, {}
@@ -146,31 +157,49 @@ def llm_crawler(url: str, logger) -> (int, dict):
     return 11, info
 
 
-def general_scraper(site: str, expiration: date, existing: list[str], logger) -> list[dict]:
-    try:
-        with httpx.Client() as client:
-            response = client.get(site, headers=header, timeout=30)
-    except Exception as e:
-        logger.error(e)
-        return []
+async def general_scraper(site: str, expiration: date, existing: list[str], logger) -> list[dict]:
+    async with httpx.AsyncClient() as client:
+        for retry in range(2):
+            try:
+                response = await client.get(site, headers=header, timeout=30)
+                response.raise_for_status()
+                break
+            except Exception as e:
+                if retry < 1:
+                    logger.info(f"request {site} got error {e}\nwaiting 1min")
+                    await asyncio.sleep(60)
+                else:
+                    logger.warning(f"request {site} got error {e}")
+                    return []
 
-    page_source = response.text
-    soup = BeautifulSoup(page_source, "html.parser")
-    # Parse all URLs
-    parsed_url = urlparse(site)
-    base_url = parsed_url.scheme + '://' + parsed_url.netloc
-    urls = [urljoin(base_url, link["href"]) for link in soup.find_all("a", href=True)]
+        page_source = response.text
+        soup = BeautifulSoup(page_source, "html.parser")
+        # Parse all URLs
+        parsed_url = urlparse(site)
+        base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+        urls = [urljoin(base_url, link["href"]) for link in soup.find_all("a", href=True)]
+
     if not urls:
         # maybe it's an article site
         logger.warning(f"can not find any link from {site}, maybe it's an article site...")
         if site in existing:
             logger.debug(f"{site} has been crawled before, skip it")
             return []
-        flag, result = simple_crawler(site, logger)
+
+        if site.startswith('https://mp.weixin.qq.com') or site.startswith('http://mp.weixin.qq.com'):
+            flag, result = await mp_crawler(site, logger)
+        else:
+            flag, result = await simple_crawler(site, logger)
+
+        if flag == -7:
+            #  -7 means cannot fetch the html, and other crawlers have no effect.
+            return []
+
         if flag != 11:
-            flag, result = llm_crawler(site, logger)
+            flag, result = await llm_crawler(site, logger)
             if flag != 11:
                 return []
+
         publish_date = datetime.strptime(result['publish_time'], '%Y%m%d')
         if publish_date.date() < expiration:
             logger.debug(f"{site} is too old, skip it")
@@ -183,12 +212,23 @@ def general_scraper(site: str, expiration: date, existing: list[str], logger) ->
         if url in existing:
             logger.debug(f"{url} has been crawled before, skip it")
             continue
+
         existing.append(url)
-        flag, result = simple_crawler(url, logger)
+
+        if url.startswith('https://mp.weixin.qq.com') or url.startswith('http://mp.weixin.qq.com'):
+            flag, result = await mp_crawler(url, logger)
+        else:
+            flag, result = await simple_crawler(url, logger)
+
+        if flag == -7:
+            #  -7 means cannot fetch the html, and other crawlers have no effect.
+            continue
+
         if flag != 11:
-            flag, result = llm_crawler(url, logger)
+            flag, result = await llm_crawler(url, logger)
             if flag != 11:
                 continue
+
         publish_date = datetime.strptime(result['publish_time'], '%Y%m%d')
         if publish_date.date() < expiration:
             logger.debug(f"{url} is too old, skip it")
