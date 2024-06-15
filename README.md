@@ -1,34 +1,92 @@
-# 首席情报官
+# 📈 首席情报官（Wiseflow）
 
-**欢迎使用首席情报官**
+**首席情报官**（Wiseflow）是一个敏捷的信息挖掘工具，可以从社交平台消息、微信公众号、群聊等各种信息源中提炼简洁的讯息，自动做标签归类并上传数据库。让你轻松应对信息过载，精准掌握你最关心的内容。
 
-首席情报官（wiseflow）是一个完备的领域（行业）信息情报采集与分析系统，该系统面向用户开源免费，同时我们提供更加专业的行业情报信息订阅服务【支持社交网络平台信息获取】，欢迎联系我们获取更多信息。
+## 🌟 功能特色
 
-Email：35252986@qq.com 
+- 🚀 **原生 LLM 应用**  
+  我们精心选择了最适合的 7B~9B 开源模型，最大化降低使用成本，且利于数据敏感用户随时切换到本地部署模式。
 
-**首席情报官目前版本主要功能点：**
+- 🌱 **轻量化设计**  
+  没有使用任何向量模型，系统开销很小，无需 GPU，适合任何硬件环境。
 
-- 每日关注简报列表
-- 入库文章列表、详情，支持一键翻译（简体中文）
-- 关注点一键搜索（使用搜狗引擎）
-- 关注点一键报告生成（直接生成word文档）
-- 行业情报信息订阅【支持指定信源，包括微信公众号、小红书等社交网络平台】（邮件35252986@qq.com联系开通）
-- 数据库管理
-- 支持针对特定站点的自定义爬虫集成，并提供本地定时扫描任务……
+- 🗃️ **智能信息提取和分类**  
+  从各种信息源中自动提取信息，并根据用户关注点进行标签化和分类管理。
+
+- 🌍 **实时动态知识库**  
+  能够与现有的 RAG 类项目整合，作为动态知识库提升知识管理效率。
+
+- 📦 **流行的 Pocketbase 数据库**  
+  数据库和界面使用 Pocketbase，不管是直接用 Web 阅读，还是通过 Go 工具读取，都很方便。
+
+## 🔄 对比分析
+
+| 特点           | 首席情报官（Wiseflow）  | Markdown_crawler  | firecrawler | RAG 类项目       |
+| -------------- | ----------------------- | ----------------- | ----------- | ---------------- |
+| **信息提取**   | ✅ 高效                 | ❌ 限制于 Markdown | ❌ 仅网页   | ⚠️ 提取后处理    |
+| **信息分类**   | ✅ 自动                 | ❌ 手动           | ❌ 手动     | ⚠️ 依赖外部工具  |
+| **模型依赖**   | ✅ 7B~9B 开源模型       | ❌ 无模型         | ❌ 无模型   | ✅ 向量模型      |
+| **硬件需求**   | ✅ 无需 GPU             | ✅ 无需 GPU       | ✅ 无需 GPU | ⚠️ 视具体实现而定 |
+| **可整合性**   | ✅ 动态知识库           | ❌ 低             | ❌ 低       | ✅ 高            |
+
+## 📥 安装与使用
+
+1. **克隆代码仓库**
+
+    ```bash
+    git clone https://github.com/your-username/wiseflow.git
+    cd wiseflow
+    ```
+
+2. **安装依赖**
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3. **配置**
+
+    在 `config.yaml` 中配置你的信息源和关注点。
+
+4. **启动服务**
+
+    ```bash
+    python main.py
+    ```
+
+5. **访问 Web 界面**
+
+    打开浏览器，访问 `http://localhost:8000`。
+
+## 📚 文档与支持
+
+- [使用文档](docs/usage.md)
+- [开发者指南](docs/developer.md)
+- [常见问题](docs/faq.md)
+
+## 🤝 贡献指南
+
+欢迎对项目进行贡献！请阅读 [贡献指南](CONTRIBUTING.md) 以了解详细信息。
+
+## 🛡️ 许可协议
+
+本项目基于 [Apach2.0](LICENSE) 开源。
+
+商用以及定制合作，请联系 Email：35252986@qq.com 
+
+（商用客户请联系我们报备登记，产品承诺永远免费。）
+
+（对于定制客户，我们会针对您的信源和数据情况，提供专有解析器开发、信息提取和分类策略优化、llm模型微调以及私有化部署服务）
+
+## 📬 联系方式
+
+有任何问题或建议，欢迎通过 [issue](https://github.com/your-username/wiseflow/issues) 与我们联系。
+
 
 ## change log
 
 【2024.5.8】增加对openai SDK的支持，现在可以通过调用llms.openai_wrapper使用所有兼容openai SDK的大模型服务，具体见 [client/backend/llms/README.md](client/backend/llms/README.md)
 
-**产品介绍视频：**
-
-[![wiseflow repo demo](https://res.cloudinary.com/marcomontalbano/image/upload/v1714005731/video_to_markdown/images/youtube--80KqYgE8utE-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://www.bilibili.com/video/BV17F4m1w7Ed/?share_source=copy_web&vd_source=5ad458dc9dae823257e82e48e0751e25 "wiseflow repo demo")
-
-**打不开看这里**
-
-Youtube：https://www.youtube.com/watch?v=80KqYgE8utE&t=8s
-
-b站：https://www.bilibili.com/video/BV17F4m1w7Ed/?share_source=copy_web&vd_source=5ad458dc9dae823257e82e48e0751e25
 
 ## getting started
 
@@ -41,28 +99,10 @@ git clone git@github.com:TeamWiseFlow/wiseflow.git
 cd wiseflow/client
 ```
 
-2、申请开通火山翻译、阿里云dashscope（也支持本地LLM部署）等服务；
-
-3、申请网易有道BCE模型（免费、开源）；
-
 4、参考  /client/env_sample 编辑.env文件;
 
 5、运行 `docker compose up -d` 启动（第一次需要build image，时间较长）
 
-
-详情参考 [client/README.md](client/README.md)
-
-## SDK & API （coming soon）
-
-我们将很快提供local SDK和subscribe service API服务。
-
-通过local sdk，用户可以无需客户端进行订阅数据同步，并在本地通过python api将数据集成至任何系统，**特别适合各类RAG项目**（欢迎合作，邮件联系 35252986@qq.com）！
-
-而subscribe service将使用户可以将订阅数据查询和推送服务嫁接到自己的微信公众号、微信客服、网站以及各类GPTs bot平台上（我们也会发布各平台的插件）。
-
-### wiseflow架构图
-
-![wiseflow架构图](asset/wiseflow_arch.png)
 
 # Citation
 

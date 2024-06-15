@@ -14,6 +14,7 @@ from requests.compat import urljoin
 import chardet
 from utils.general_utils import extract_and_convert_dates
 import asyncio
+import json_repair
 
 
 model = os.environ.get('HTML_PARSE_MODEL', 'gpt-3.5-turbo')
@@ -39,47 +40,18 @@ def text_from_soup(soup: BeautifulSoup) -> str:
     return text.strip()
 
 
-def parse_html_content(out: str) -> dict:
-    dct = {'title': '', 'abstract': '', 'content': '', 'publish_time': ''}
-    if '"""' in out:
-        semaget = out.split('"""')
-        if len(semaget) > 1:
-            result = semaget[1].strip()
-        else:
-            result = semaget[0].strip()
-    else:
-        result = out.strip()
+sys_info = '''Your role is to function as an HTML parser, tasked with analyzing a segment of HTML code. Extract the following metadata from the given HTML snippet: the document's title, summary or abstract, main content, and the publication date. Ensure that your response adheres to the JSON format outlined below, encapsulating the extracted information accurately:
 
-    while result.endswith('"'):
-        result = result[:-1]
-        result = result.strip()
+```json
+{
+  "title": "The Document's Title",
+  "abstract": "A concise overview or summary of the content",
+  "content": "The primary textual content of the article",
+  "publish_date": "The publication date in YYYY-MM-DD format"
+}
+```
 
-    dict_strs = result.split('||')
-    if not dict_strs:
-        dict_strs = result.split('|||')
-        if not dict_strs:
-            return dct
-    if len(dict_strs) == 3:
-        dct['title'] = dict_strs[0].strip()
-        dct['content'] = dict_strs[1].strip()
-    elif len(dict_strs) == 4:
-        dct['title'] = dict_strs[0].strip()
-        dct['content'] = dict_strs[2].strip()
-        dct['abstract'] = dict_strs[1].strip()
-    else:
-        return dct
-    date_str = extract_and_convert_dates(dict_strs[-1])
-    if date_str:
-        dct['publish_time'] = date_str
-    else:
-        dct['publish_time'] = datetime.strftime(datetime.today(), "%Y%m%d")
-    return dct
-
-
-sys_info = '''As an HTML parser, you'll receive a block of HTML code. Your task is to extract its title, summary, content, and publication date, with the date formatted as YYYY-MM-DD. Return the results in the following format:
-"""
-Title||Summary||Content||Release Date YYYY-MM-DD
-"""
+Please structure your output precisely as demonstrated, with each field populated correspondingly to the details found within the HTML code.
 '''
 
 
@@ -121,16 +93,24 @@ async def llm_crawler(url: str, logger) -> (int, dict):
         {"role": "user", "content": html_text}
     ]
     llm_output = openai_llm(messages, model=model, logger=logger)
-    try:
-        info = parse_html_content(llm_output)
-    except:
-        msg = f"can not parse {llm_output}"
-        logger.debug(msg)
+    decoded_object = json_repair.repair_json(llm_output, return_objects=True)
+    logger.debug(f"decoded_object: {decoded_object}")
+    if not isinstance(decoded_object, dict):
+        logger.debug("failed to parse")
         return 0, {}
 
-    if len(info['title']) < 4 or len(info['content']) < 24:
-        logger.debug(f"{info} not valid")
-        return 0, {}
+    for key in ['title', 'abstract', 'content']:
+        if key not in decoded_object:
+            logger.debug(f"{key} not in decoded_object")
+            return 0, {}
+
+    info = {'title': decoded_object['title'], 'abstract': decoded_object['abstract'], 'content': decoded_object['content']}
+    date_str = decoded_object.get('publish_date', '')
+
+    if date_str:
+        info['publish_time'] = extract_and_convert_dates(date_str)
+    else:
+        info['publish_time'] = datetime.strftime(datetime.today(), "%Y%m%d")
 
     info["url"] = url
     # Extract the picture link, it will be empty if it cannot be extracted.

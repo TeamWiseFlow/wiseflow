@@ -8,3 +8,4 @@ chardet
 pocketbase
 pydantic
 uvicorn
+json_repair==0.*

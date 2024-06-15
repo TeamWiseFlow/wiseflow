@@ -39,7 +39,7 @@ async def simple_crawler(url: str, logger) -> (int, dict):
         try:
             result = extractor.extract(text)
         except Exception as e:
-            logger.info(f"gne extracct error: {e}")
+            logger.info(f"gne extract error: {e}")
             return 0, {}
 
         if not result:
