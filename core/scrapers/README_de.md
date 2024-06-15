@@ -1,5 +1,4 @@
-
-> **In diesem Ordner können Crawlers für spezifische Quellen abgelegt werden. Beachten Sie, dass die Crawlers hier in der Lage sein sollten, die URL der Artikelliste der Quelle zu analysieren und ein Wörterbuch mit Artikeldetails zurückzugeben.**
+**In diesem Ordner können Crawlers für spezifische Quellen abgelegt werden. Beachten Sie, dass die Crawlers hier in der Lage sein sollten, die URL der Artikelliste der Quelle zu analysieren und ein Wörterbuch mit Artikeldetails zurückzugeben.**
 > 
 > # Konfiguration des benutzerdefinierten Crawlers
 > 

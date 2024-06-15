@@ -23,7 +23,6 @@ async def get_articles(urls: list[str], expiration: datetime, cache: dict = {}) 
     articles = []
     for url in urls:
         logger.debug(f"fetching {url}")
-
         if url.startswith('https://mp.weixin.qq.com') or url.startswith('http://mp.weixin.qq.com'):
             flag, result = await mp_crawler(url, logger)
         else:
@@ -37,7 +36,7 @@ async def get_articles(urls: list[str], expiration: datetime, cache: dict = {}) 
             flag, result = await llm_crawler(url, logger)
             if flag != 11:
                 continue
-
+        existing_urls.append(url)
         expiration_date = expiration.strftime('%Y-%m-%d')
         article_date = int(result['publish_time'])
         if article_date < int(expiration_date.replace('-', '')):
@@ -48,7 +47,6 @@ async def get_articles(urls: list[str], expiration: datetime, cache: dict = {}) 
             for k, v in cache[url].items():
                 if v:
                     result[k] = v
-
         articles.append(result)
 
     return articles
@@ -57,7 +55,7 @@ async def get_articles(urls: list[str], expiration: datetime, cache: dict = {}) 
 async def pipeline(_input: dict):
     cache = {}
     source = _input['user_id'].split('@')[-1]
-    logger.debug(f"received new task, user: {source}, MsgSvrID: {_input['addition']}")
+    logger.debug(f"received new task, user: {source}, Addition info: {_input['addition']}")
 
     global existing_urls
     expiration_date = datetime.now() - timedelta(days=expiration_days)
@@ -100,7 +98,7 @@ async def pipeline(_input: dict):
             parsed_url = urlparse(url)
             domain = parsed_url.netloc
             if domain in scraper_map:
-                result = scraper_map[domain](url, logger)
+                result = scraper_map[domain](url, expiration_date.date(), existing_urls, logger)
             else:
                 result = await general_scraper(url, expiration_date.date(), existing_urls, logger)
             articles.extend(result)
@@ -120,12 +118,7 @@ async def pipeline(_input: dict):
         return
 
     for article in articles:
-        if article['url'] in existing_urls:
-            # For the case of entering multiple sites at the same time,
-            # there is indeed a situation where duplicate articles are mixed into the same batch
-            logger.debug(f"{article['url']} duplicated, skip")
-            continue
-
+        logger.debug(f"article: {article['title']}")
         insights = get_info(f"title: {article['title']}\n\ncontent: {article['content']}")
         try:
             article_id = pb.add(collection_name='articles', body=article)
@@ -134,8 +127,6 @@ async def pipeline(_input: dict):
             with open(os.path.join(project_dir, 'cache_articles.json'), 'a', encoding='utf-8') as f:
                 json.dump(article, f, ensure_ascii=False, indent=4)
             continue
-
-        existing_urls.append(article['url'])
 
         if not insights:
             continue

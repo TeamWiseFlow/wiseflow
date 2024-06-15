@@ -7,4 +7,4 @@ __pycache__
 .env
 .venv/
 core/pb/pb_data/
-core/WStest/
+core/work_dir/

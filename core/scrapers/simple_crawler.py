@@ -36,7 +36,12 @@ async def simple_crawler(url: str, logger) -> (int, dict):
         rawdata = response.content
         encoding = chardet.detect(rawdata)['encoding']
         text = rawdata.decode(encoding, errors='replace')
-        result = extractor.extract(text)
+        try:
+            result = extractor.extract(text)
+        except Exception as e:
+            logger.info(f"gne extracct error: {e}")
+            return 0, {}
+
         if not result:
             logger.error(f"gne cannot extract {url}")
             return 0, {}

@@ -1,4 +1,4 @@
-> **This folder is intended for placing crawlers specific to particular sources. Note that the crawlers here should be able to parse the article list URL of the source and return a dictionary of article details.**
+**This folder is intended for placing crawlers specific to particular sources. Note that the crawlers here should be able to parse the article list URL of the source and return a dictionary of article details.**
 > 
 > # Custom Crawler Configuration
 > 

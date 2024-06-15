@@ -1,5 +1,4 @@
-
-> **Ce dossier est destiné à accueillir des crawlers spécifiques à des sources particulières. Notez que les crawlers ici doivent être capables de parser l'URL de la liste des articles de la source et de retourner un dictionnaire de détails des articles.**
+**Ce dossier est destiné à accueillir des crawlers spécifiques à des sources particulières. Notez que les crawlers ici doivent être capables de parser l'URL de la liste des articles de la source et de retourner un dictionnaire de détails des articles.**
 > 
 > # Configuration du Crawler Personnalisé
 > 

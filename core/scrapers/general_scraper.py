@@ -2,7 +2,6 @@
 
 import os
 from urllib.parse import urlparse
-import re
 from .simple_crawler import simple_crawler
 from .mp_crawler import mp_crawler
 import httpx
@@ -42,9 +41,19 @@ def text_from_soup(soup: BeautifulSoup) -> str:
 
 def parse_html_content(out: str) -> dict:
     dct = {'title': '', 'abstract': '', 'content': '', 'publish_time': ''}
-    pattern = re.compile(r'\"\"\"(.*?)\"\"\"', re.DOTALL)
-    result = pattern.findall(out)
-    result = result[0].strip()
+    if '"""' in out:
+        semaget = out.split('"""')
+        if len(semaget) > 1:
+            result = semaget[1].strip()
+        else:
+            result = semaget[0].strip()
+    else:
+        result = out.strip()
+
+    while result.endswith('"'):
+        result = result[:-1]
+        result = result.strip()
+
     dict_strs = result.split('||')
     if not dict_strs:
         dict_strs = result.split('|||')
@@ -67,7 +76,7 @@ def parse_html_content(out: str) -> dict:
     return dct
 
 
-sys_info = '''As an HTML parser, you'll receive a block of HTML code. Your task is to extract its title, summary, content, and publication date, with the date formatted as YYYY-MM-DD. Return the results in the following format (enclosed within triple quotes):
+sys_info = '''As an HTML parser, you'll receive a block of HTML code. Your task is to extract its title, summary, content, and publication date, with the date formatted as YYYY-MM-DD. Return the results in the following format:
 """
 Title||Summary||Content||Release Date YYYY-MM-DD
 """
@@ -98,7 +107,7 @@ async def llm_crawler(url: str, logger) -> (int, dict):
         html_lines = [line.strip() for line in html_lines if line.strip()]
         html_text = "\n".join(html_lines)
         if len(html_text) > 29999:
-            logger.warning(f"{url} content too long for llm parsing")
+            logger.info(f"{url} content too long for llm parsing")
             return 0, {}
 
         if not html_text or html_text.startswith('服务器错误') or html_text.startswith(
@@ -177,11 +186,15 @@ async def general_scraper(site: str, expiration: date, existing: list[str], logg
         # Parse all URLs
         parsed_url = urlparse(site)
         base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
-        urls = [urljoin(base_url, link["href"]) for link in soup.find_all("a", href=True)]
+        urls = []
+        for link in soup.find_all("a", href=True):
+            absolute_url = urljoin(base_url, link["href"])
+            if urlparse(absolute_url).netloc == parsed_url.netloc:
+                urls.append(absolute_url)
 
     if not urls:
         # maybe it's an article site
-        logger.warning(f"can not find any link from {site}, maybe it's an article site...")
+        logger.info(f"can not find any link from {site}, maybe it's an article site...")
         if site in existing:
             logger.debug(f"{site} has been crawled before, skip it")
             return []
