@@ -8,6 +8,8 @@
 
 チーフインテリジェンスオフィサーがどのようにして時間を節約し、無関係な情報をフィルタリングし、注目すべきポイントを整理するのかをご覧ください！
 
+https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6-c072d8ddfb16
+
 <img alt="sample.png" src="asset/sample.png" width="1024"/>
 
 ## 🔥 V0.3.0 重要なアップデート
