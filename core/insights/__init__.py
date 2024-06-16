@@ -26,16 +26,11 @@ async def get_articles(urls: list[str], expiration: datetime, cache: dict = {}) 
         if url.startswith('https://mp.weixin.qq.com') or url.startswith('http://mp.weixin.qq.com'):
             flag, result = await mp_crawler(url, logger)
         else:
-            flag, result = await simple_crawler(url, logger)
-
-        if flag == -7:
-            #  -7 means cannot fetch the html, and other crawlers have no effect.
-            continue
+            flag, result = await general_crawler(url, logger)
 
         if flag != 11:
-            flag, result = await llm_crawler(url, logger)
-            if flag != 11:
-                continue
+            continue
+
         existing_urls.append(url)
         expiration_date = expiration.strftime('%Y-%m-%d')
         article_date = int(result['publish_time'])
@@ -59,6 +54,9 @@ async def pipeline(_input: dict):
 
     global existing_urls
     expiration_date = datetime.now() - timedelta(days=expiration_days)
+
+    # If you can get the url list of the articles from the input content, then use the get_articles function here directly;
+    # otherwise, you should use a proprietary site scaper (here we provide a general scraper to ensure the basic effect)
 
     if _input['type'] == 'publicMsg':
         items = item_pattern.findall(_input["content"])
@@ -136,9 +134,11 @@ async def pipeline(_input: dict):
             article_tags.add(insight['tag'])
             insight['articles'] = [article_id]
             old_insight_dict = {i['content']: i for i in old_insights if i['tag'] == insight['tag']}
+
             # Because what you want to compare is whether the extracted information phrases are talking about the same thing,
             # it may not be suitable and too heavy to calculate the similarity with a vector model
             # Therefore, a simplified solution is used here, directly using the jieba particifier, to calculate whether the overlap between the two phrases exceeds.
+
             similar_insights = compare_phrase_with_list(insight['content'], list(old_insight_dict.keys()), 0.65)
             if similar_insights:
                 to_rewrite = similar_insights + [insight['content']]

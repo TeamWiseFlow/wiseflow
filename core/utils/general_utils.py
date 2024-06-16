@@ -40,6 +40,9 @@ def is_chinese(string):
 
 def extract_and_convert_dates(input_string):
     # 定义匹配不同日期格式的正则表达式
+    if not isinstance(input_string, str):
+        return None
+
     patterns = [
         r'(\d{4})-(\d{2})-(\d{2})',  # YYYY-MM-DD
         r'(\d{4})/(\d{2})/(\d{2})',  # YYYY/MM/DD
