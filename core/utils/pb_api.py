@@ -62,15 +62,15 @@ class PbTalker:
             return ''
         return res.id
 
-    def delete(self, collection_name: str, id: str) -> str:
+    def delete(self, collection_name: str, id: str) -> bool:
         try:
             res = self.client.collection(collection_name).delete(id)
         except Exception as e:
             self.logger.error(f"pocketbase update failed: {e}")
-            return 'failed'
+            return False
         if res:
-            return 'success'
-        return 'failed'
+            return True
+        return False
 
     def upload(self, collection_name: str, id: str, key: str, file_name: str, file: BinaryIO) -> str:
         try:

@@ -118,16 +118,20 @@ async def pipeline(_input: dict):
     for article in articles:
         logger.debug(f"article: {article['title']}")
         insights = get_info(f"title: {article['title']}\n\ncontent: {article['content']}")
-        try:
+
+        article_id = pb.add(collection_name='articles', body=article)
+        if not article_id:
+            # do again
             article_id = pb.add(collection_name='articles', body=article)
-        except Exception as e:
-            logger.error(f'add article failed, writing to cache_file - {e}')
-            with open(os.path.join(project_dir, 'cache_articles.json'), 'a', encoding='utf-8') as f:
-                json.dump(article, f, ensure_ascii=False, indent=4)
-            continue
+            if not article_id:
+                logger.error('add article failed, writing to cache_file')
+                with open(os.path.join(project_dir, 'cache_articles.json'), 'a', encoding='utf-8') as f:
+                    json.dump(article, f, ensure_ascii=False, indent=4)
+                continue
 
         if not insights:
             continue
+
         article_tags = set()
         old_insights = pb.read(collection_name='insights', filter=f"updated>'{expiration_date}'", fields=['id', 'tag', 'content', 'articles'])
         for insight in insights:
@@ -149,21 +153,27 @@ async def pipeline(_input: dict):
                 # Merge related articles and delete old insights
                 for old_insight in similar_insights:
                     insight['articles'].extend(old_insight_dict[old_insight]['articles'])
-                    pb.delete(collection_name='insights', id=old_insight_dict[old_insight]['id'])
+                    if not pb.delete(collection_name='insights', id=old_insight_dict[old_insight]['id']):
+                        # do again
+                        if not pb.delete(collection_name='insights', id=old_insight_dict[old_insight]['id']):
+                            logger.error('delete insight failed')
                     old_insights.remove(old_insight_dict[old_insight])
 
-            try:
+            insight['id'] = pb.add(collection_name='insights', body=insight)
+            if not insight['id']:
+                # do again
                 insight['id'] = pb.add(collection_name='insights', body=insight)
-                # old_insights.append(insight)
-            except Exception as e:
-                logger.error(f'add insight failed, writing to cache_file - {e}')
-                with open(os.path.join(project_dir, 'cache_insights.json'), 'a', encoding='utf-8') as f:
-                    json.dump(insight, f, ensure_ascii=False, indent=4)
+                if not insight['id']:
+                    logger.error('add insight failed, writing to cache_file')
+                    with open(os.path.join(project_dir, 'cache_insights.json'), 'a', encoding='utf-8') as f:
+                        json.dump(insight, f, ensure_ascii=False, indent=4)
 
-        try:
-            pb.update(collection_name='articles', id=article_id, body={'tag': list(article_tags)})
-        except Exception as e:
-            logger.error(f'update article failed - article_id: {article_id}\n{e}')
-            article['tag'] = list(article_tags)
-            with open(os.path.join(project_dir, 'cache_articles.json'), 'a', encoding='utf-8') as f:
-                json.dump(article, f, ensure_ascii=False, indent=4)
+        _ = pb.update(collection_name='articles', id=article_id, body={'tag': list(article_tags)})
+        if not _:
+            # do again
+            _ = pb.update(collection_name='articles', id=article_id, body={'tag': list(article_tags)})
+            if not _:
+                logger.error(f'update article failed - article_id: {article_id}')
+                article['tag'] = list(article_tags)
+                with open(os.path.join(project_dir, 'cache_articles.json'), 'a', encoding='utf-8') as f:
+                    json.dump(article, f, ensure_ascii=False, indent=4)
