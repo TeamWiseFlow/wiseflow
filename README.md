@@ -8,6 +8,8 @@ We are not short of information; what we need is to filter out the noise from th
 
 See how WiseFlow helps you save time, filter out irrelevant information, and organize key points of interest!
 
+https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6-c072d8ddfb16
+
 <img alt="sample.png" src="asset/sample.png" width="1024"/>
 
 ## 🔥 Major Update V0.3.0

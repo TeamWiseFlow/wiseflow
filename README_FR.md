@@ -8,6 +8,8 @@ Nous ne manquons pas d'informations, mais nous avons besoin de filtrer le bruit 
 
 Voyez comment WiseFlow vous aide à gagner du temps, à filtrer les informations non pertinentes, et à organiser les points d'intérêt !
 
+https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6-c072d8ddfb16
+
 <img alt="sample.png" src="asset/sample.png" width="1024"/>
 
 ## 🔥 Mise à Jour Majeure V0.3.0
