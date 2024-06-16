@@ -4,7 +4,9 @@
 
 **Wiseflow** est un outil agile de fouille d'informations capable d'extraire des messages concis à partir de diverses sources telles que des sites web, des comptes officiels WeChat, des plateformes sociales, etc. Il classe automatiquement les informations par étiquettes et les télécharge dans une base de données.
 
-Nous ne manquons pas d'informations, mais nous avons besoin de filtrer le bruit pour faire ressortir les informations de valeur ! Voyez comment Chef Intelligence Officer vous aide à gagner du temps, à filtrer les informations non pertinentes, et à organiser les points d'intérêt !
+Nous ne manquons pas d'informations, mais nous avons besoin de filtrer le bruit pour faire ressortir les informations de valeur ! 
+
+Voyez comment WiseFlow vous aide à gagner du temps, à filtrer les informations non pertinentes, et à organiser les points d'intérêt !
 
 <img alt="sample.png" src="asset/sample.png" width="1024"/>
 
@@ -88,9 +90,9 @@ WiseFlow n'a pratiquement aucune exigence matérielle, avec une empreinte systè
 
     Ces modèles s'adaptent bien au projet, avec une adhésion stable aux commandes et d'excellents effets de génération. Les prompts liés à ce projet sont également optimisés pour ces trois modèles. (**HTML_PARSE_MODEL** peut également utiliser **"01-ai/Yi-1.5-9B-Chat"**, qui performe également très bien dans les tests)
 
-    ⚠️ Nous recommandons vivement d'utiliser le service d'inférence en ligne **SiliconFlow** pour des coûts plus bas, des vitesses plus rapides, et des quotas gratuits plus élevés ! ⚠️
+⚠️ Nous recommandons vivement d'utiliser le service d'inférence en ligne **SiliconFlow** pour des coûts plus bas, des vitesses plus rapides, et des quotas gratuits plus élevés ! ⚠️
 
-    Le service d'inférence en ligne SiliconFlow est compatible avec le SDK OpenAI et fournit des services open-source pour les trois modèles ci-dessus. Il suffit de configurer LLM_API_BASE comme "https://api.siliconflow.cn/v1" et de configurer LLM_API_KEY pour l'utiliser.
+Le service d'inférence en ligne SiliconFlow est compatible avec le SDK OpenAI et fournit des services open-source pour les trois modèles ci-dessus. Il suffit de configurer LLM_API_BASE comme "https://api.siliconflow.cn/v1" et de configurer LLM_API_KEY pour l'utiliser.
 
 
 4. **Déploiement Local**

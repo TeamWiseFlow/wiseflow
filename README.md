@@ -4,7 +4,9 @@
 
 **Wiseflow** is an agile information mining tool that extracts concise messages from various sources such as websites, WeChat official accounts, social platforms, etc. It automatically categorizes and uploads them to the database.
 
-We are not short of information; what we need is to filter out the noise from the vast amount of information so that valuable information stands out! See how Chief Intelligence Officer helps you save time, filter out irrelevant information, and organize key points of interest!
+We are not short of information; what we need is to filter out the noise from the vast amount of information so that valuable information stands out! 
+
+See how WiseFlow helps you save time, filter out irrelevant information, and organize key points of interest!
 
 <img alt="sample.png" src="asset/sample.png" width="1024"/>
 
@@ -87,9 +89,9 @@ WiseFlow has virtually no hardware requirements, with minimal system overhead, a
 
     These models fit the project well, with stable command adherence and excellent generation effects. The related prompts for this project are also optimized for these three models. (**HTML_PARSE_MODEL** can also use **"01-ai/Yi-1.5-9B-Chat"**, which also performs excellently in tests)
 
-    ⚠️ We strongly recommend using **SiliconFlow**'s online inference service for lower costs, faster speeds, and higher free quotas! ⚠️
+⚠️ We strongly recommend using **SiliconFlow**'s online inference service for lower costs, faster speeds, and higher free quotas! ⚠️
 
-    SiliconFlow online inference service is compatible with the OpenAI SDK and provides open-source services for the above three models. Just configure LLM_API_BASE as "https://api.siliconflow.cn/v1" and set up LLM_API_KEY to use it.
+SiliconFlow online inference service is compatible with the OpenAI SDK and provides open-source services for the above three models. Just configure LLM_API_BASE as "https://api.siliconflow.cn/v1" and set up LLM_API_KEY to use it.
 
 
 4. **Local Deployment**

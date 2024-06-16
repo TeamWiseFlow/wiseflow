@@ -4,7 +4,9 @@
 
 **Wiseflow** ist ein agiles Information-Mining-Tool, das in der Lage ist, prägnante Nachrichten aus verschiedenen Quellen wie Webseiten, offiziellen WeChat-Konten, sozialen Plattformen usw. zu extrahieren. Es kategorisiert die Informationen automatisch mit Tags und lädt sie in eine Datenbank hoch.
 
-Es mangelt uns nicht an Informationen, sondern wir müssen den Lärm herausfiltern, um wertvolle Informationen hervorzuheben! Sehen Sie, wie Chief Intelligence Officer Ihnen hilft, Zeit zu sparen, irrelevante Informationen zu filtern und interessante Punkte zu organisieren!
+Es mangelt uns nicht an Informationen, sondern wir müssen den Lärm herausfiltern, um wertvolle Informationen hervorzuheben! 
+
+Sehen Sie, wie WiseFlow Ihnen hilft, Zeit zu sparen, irrelevante Informationen zu filtern und interessante Punkte zu organisieren!
 
 <img alt="sample.png" src="asset/sample.png" width="1024"/>
 
@@ -85,9 +87,9 @@ WiseFlow hat fast keine Hardwareanforderungen, minimale Systemlast und benötigt
 
     Diese Modelle passen gut zum Projekt, sind in der Befolgung von Anweisungen stabil und haben hervorragende Generierungseffekte. Die zugehörigen Prompts für dieses Projekt sind ebenfalls für diese drei Modelle optimiert. (**HTML_PARSE_MODEL** kann auch **"01-ai/Yi-1.5-9B-Chat"** verwenden, das in den Tests ebenfalls sehr gut abgeschnitten hat)
 
-    ⚠️ Wir empfehlen dringend, den **SiliconFlow** Online-Inference-Service für niedrigere Kosten, schnellere Geschwindigkeiten und höhere kostenlose Quoten zu verwenden! ⚠️
+⚠️ Wir empfehlen dringend, den **SiliconFlow** Online-Inference-Service für niedrigere Kosten, schnellere Geschwindigkeiten und höhere kostenlose Quoten zu verwenden! ⚠️
 
-    Der SiliconFlow Online-Inference-Service ist mit dem OpenAI SDK kompatibel und bietet Open-Service für die oben genannten drei Modelle. Konfiguriere LLM_API_BASE als "https://api.siliconflow.cn/v1" und LLM_API_KEY, um es zu verwenden.
+Der SiliconFlow Online-Inference-Service ist mit dem OpenAI SDK kompatibel und bietet Open-Service für die oben genannten drei Modelle. Konfiguriere LLM_API_BASE als "https://api.siliconflow.cn/v1" und LLM_API_KEY, um es zu verwenden.
 
 
 4. **Lokale Bereitstellung**
