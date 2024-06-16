@@ -6,7 +6,9 @@
 
 Es mangelt uns nicht an Informationen, sondern wir müssen den Lärm herausfiltern, um wertvolle Informationen hervorzuheben! 
 
-Sehen Sie, wie WiseFlow Ihnen hilft, Zeit zu sparen, irrelevante Informationen zu filtern und interessante Punkte zu organisieren!
+Sehen Siewie WiseFlow Ihnen hilft, Zeit zu sparen, irrelevante Informationen zu filtern und interessante Punkte zu organisieren!
+
+https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6-c072d8ddfb16
 
 <img alt="sample.png" src="asset/sample.png" width="1024"/>
 
