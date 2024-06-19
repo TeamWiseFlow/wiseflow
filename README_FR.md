@@ -96,6 +96,8 @@ WiseFlow n'a pratiquement aucune exigence matérielle, avec une empreinte systè
 
 Le service d'inférence en ligne SiliconFlow est compatible avec le SDK OpenAI et fournit des services open-source pour les trois modèles ci-dessus. Il suffit de configurer LLM_API_BASE comme "https://api.siliconflow.cn/v1" et de configurer LLM_API_KEY pour l'utiliser.
 
+😄 Ou peut-être préférez-vous utiliser mon [lien d'invitation](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92), afin que je puisse également obtenir plus de récompenses en tokens 😄
+
 
 4. **Déploiement Local**
 

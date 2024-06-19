@@ -1,0 +1,16 @@
+services:
+  core:
+    build:
+      dockerfile: Dockerfile
+    image: WiseFlow/core
+    tty: true
+    stdin_open: true
+    entrypoint: bash docker_entrypoint.sh
+    env_file:
+      - .env
+    ports:
+      - 8090:8090
+      - 8077:8077
+    volumes:
+      - ./core/pb/pb_data:/pb/pb_data
+      - ./${PROJECT_DIR}:/app/${PROJECT_DIR}
