@@ -136,7 +136,7 @@ Für kommerzielle Nutzung und maßgeschneiderte Kooperationen kontaktieren Sie u
 
 - Kommerzielle Kunden, bitte registrieren Sie sich bei uns. Das Produkt verspricht für immer kostenlos zu sein.
 - Für maßgeschneiderte Kunden bieten wir folgende Dienstleistungen basierend auf Ihren Quellen und geschäftlichen Anforderungen:
-  - Benutzerdefinierte proprietäre Parser
+  - Dedizierter Crawler und Parser für Kunden-Geschäftsszenario-Quellen
   - Angepasste Strategien zur Informationsextraktion und -klassifizierung
   - Zielgerichtete LLM-Empfehlungen oder sogar Feinabstimmungsdienste
   - Dienstleistungen für private Bereitstellungen

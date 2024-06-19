@@ -26,10 +26,10 @@ async def mp_crawler(url: str, logger) -> (int, dict):
                 break
             except Exception as e:
                 if retry < 1:
-                    logger.info(f"request {url} got error {e}\nwaiting 1min")
+                    logger.info(f"{e}\nwaiting 1min")
                     await asyncio.sleep(60)
                 else:
-                    logger.warning(f"request {url} got error {e}")
+                    logger.warning(e)
                     return -7, {}
 
         soup = BeautifulSoup(response.text, 'html.parser')

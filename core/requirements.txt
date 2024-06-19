@@ -4,7 +4,6 @@ urllib
 gne
 jieba
 httpx
-chardet
 pocketbase
 pydantic
 uvicorn

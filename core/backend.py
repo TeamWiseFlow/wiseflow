@@ -2,7 +2,7 @@ from fastapi import FastAPI, BackgroundTasks
 from pydantic import BaseModel
 from typing import Literal, Optional
 from fastapi.middleware.cors import CORSMiddleware
-from insights import pipeline
+from insights import message_manager
 
 
 class Request(BaseModel):
@@ -41,5 +41,5 @@ def read_root():
 
 @app.post("/feed")
 async def call_to_feed(background_tasks: BackgroundTasks, request: Request):
-    background_tasks.add_task(pipeline, _input=request.model_dump())
+    background_tasks.add_task(message_manager, _input=request.model_dump())
     return {"msg": "received well"}

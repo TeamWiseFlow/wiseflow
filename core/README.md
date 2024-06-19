@@ -32,9 +32,10 @@ see more (when backend started) http://127.0.0.1:7777/docs
 ```
 wiseflow
 |- dockerfiles
-|- tasks.py
-|- backend.py
+|- ...
 |- core
+    |- tasks.py
+    |- backend.py
     |- insights
         |- __init__.py  # main process
         |- get_info.py  # module use llm to get a summary of information and match tags
@@ -48,6 +49,6 @@ wiseflow
    |- utils # tools
 ```
 
-Although the two general-purpose page parsers included in wiseflow can be applied to the parsing of most static pages, for actual business, we still recommend that customers subscribe to our professional information service (supporting designated sources), or write their own proprietary crawlers.
+Although the general_scraper included in wiseflow can be applied to the parsing of most static pages, for actual business, we still recommend that customers to write their own crawlers aiming the actual info source.
 
 See core/scrapers/README.md for integration instructions for proprietary crawlers
