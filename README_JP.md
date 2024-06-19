@@ -93,6 +93,8 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
 
 SiliconFlow のオンライン推論サービスはOpenAI SDKと互換性があり、上記の三つのモデルのオープンサービスも提供しています。LLM_API_BASE を "https://api.siliconflow.cn/v1" に設定し、LLM_API_KEY を設定するだけで使用できます。
 
+😄 もしよろしければ、私の[招待リンク](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92)を使ってください。私もトークン報酬をさらに受け取ることができます 😄
+
 
 4. **ローカルデプロイメント**
 

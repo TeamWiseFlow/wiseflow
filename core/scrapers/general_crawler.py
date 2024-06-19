@@ -113,17 +113,19 @@ async def general_crawler(url: str, logger) -> tuple[int, Union[list, dict]]:
                     return -7, {}
 
         soup = BeautifulSoup(text, "html.parser")
+        # Note: The scheme used here is very crude, and it is recommended to write a separate parser for specific business scenarios
         # Parse all URLs
-        base_url = f"{parsed_url.scheme}://{domain}"
-        urls = set()
-        for link in soup.find_all("a", href=True):
-            absolute_url = urljoin(base_url, link["href"])
-            if urlparse(absolute_url).netloc == domain and absolute_url != url:
-                urls.add(absolute_url)
+        if len(url) < 50:
+            base_url = f"{parsed_url.scheme}://{domain}"
+            urls = set()
+            for link in soup.find_all("a", href=True):
+                absolute_url = urljoin(base_url, link["href"])
+                if urlparse(absolute_url).netloc == domain and absolute_url != url:
+                    urls.add(absolute_url)
 
-        if len(urls) > 21:
-            logger.info(f"{url} is more like an article list page, find {len(urls)} urls with the same netloc")
-            return 1, list(urls)
+            if len(urls) > 30:
+                logger.info(f"{url} is more like an article list page, find {len(urls)} urls with the same netloc")
+                return 1, list(urls)
 
     # 3. try to use gne to extract the information
     try:

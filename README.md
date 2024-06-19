@@ -95,6 +95,8 @@ WiseFlow has virtually no hardware requirements, with minimal system overhead, a
 
 SiliconFlow online inference service is compatible with the OpenAI SDK and provides open-source services for the above three models. Just configure LLM_API_BASE as "https://api.siliconflow.cn/v1" and set up LLM_API_KEY to use it.
 
+😄 Or you may prefer to use my [invitation link](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92), so I can also get more token rewards 😄
+
 
 4. **Local Deployment**
 
