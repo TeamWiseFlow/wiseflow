@@ -62,7 +62,7 @@ Important guidelines to follow: 1) Adhere strictly to the original news content,
 def get_info(article_content: str) -> list[dict]:
     # logger.debug(f'receive new article_content:\n{article_content}')
     result = openai_llm([{'role': 'system', 'content': system_prompt}, {'role': 'user', 'content': article_content}],
-                        model=get_info_model, logger=logger)
+                        model=get_info_model, logger=logger, temperature=0.1)
 
     # results = pattern.findall(result)
     texts = result.split('<tag>')

@@ -1,33 +1,56 @@
-**This folder is intended for placing crawlers specific to particular sources. Note that the crawlers here should be able to parse the article list URL of the source and return a dictionary of article details.**
-> 
-> # Custom Crawler Configuration
-> 
-> After writing the crawler, place the crawler program in this folder and register it in the scraper_map in `__init__.py`, similar to:
-> 
-> ```python
-> {'www.securityaffairs.com': securityaffairs_scraper}
-> ```
-> 
-> Here, the key is the source URL, and the value is the function name.
-> 
-> The crawler should be written in the form of a function with the following input and output specifications:
-> 
-> Input:
-> - expiration: A `datetime.date` object, the crawler should only fetch articles on or after this date.
-> - existings: [str], a list of URLs of articles already in the database. The crawler should ignore the URLs in this list.
-> 
-> Output:
-> - [dict], a list of result dictionaries, each representing an article, formatted as follows:
-> `[{'url': str, 'title': str, 'author': str, 'publish_time': str, 'content': str, 'abstract': str, 'images': [Path]}, {...}, ...]`
-> 
-> Note: The format of `publish_time` should be `"%Y%m%d"`. If the crawler cannot fetch it, the current date can be used.
-> 
-> Additionally, `title` and `content` are mandatory fields.
-> 
-> # Generic Page Parser
-> 
-> We provide a generic page parser here, which can intelligently fetch article lists from the source. For each article URL, it will first attempt to parse using gne. If it fails, it will then attempt to parse using llm.
-> 
-> Through this solution, it is possible to scan and extract information from most general news and portal sources.
-> 
-> **However, we still strongly recommend that users write custom crawlers themselves or directly subscribe to our data service for more ideal and efficient scanning.**
+We provide a general page parser that can intelligently retrieve article lists from sources. For each article URL, it first attempts to use `gne` for parsing, and if that fails, it will try using `llm`.
+
+This solution allows scanning and extracting information from most general news and portal sources.
+
+**However, we strongly recommend that users develop custom parsers for specific sources tailored to their actual business scenarios for more ideal and efficient scanning.**
+
+We also provide a parser specifically for WeChat public articles (mp.weixin.qq.com).
+
+**If you are willing to contribute your custom source-specific parsers to this repository, we would greatly appreciate it!**
+
+## Custom Source Parser Development Specifications
+
+### Specifications
+
+**Remember It should be an asynchronous function**
+
+1. **The parser should be able to intelligently distinguish between article list pages and article detail pages.**
+2. **The parser's input parameters should only include `url` and `logger`:**
+   - `url` is the complete address of the source (type `str`).
+   - `logger` is the logging object (please do not configure a separate logger for your custom source parser).
+3. **The parser's output should include `flag` and `result`, formatted as `tuple[int, Union[list, dict]]`:**
+   - If the `url` is an article list page, `flag` returns `1`, and `result` returns a list of all article page URLs (`list`).
+   - If the `url` is an article page, `flag` returns `11`, and `result` returns all article details (`dict`), in the following format:
+
+     ```python
+     {'url': str, 'title': str, 'author': str, 'publish_time': str, 'content': str, 'abstract': str, 'images': [str]}
+     ```
+
+     _Note: `title` and `content` cannot be empty._
+
+     **Note: `publish_time` should be in the format `"%Y%m%d"` (date only, no `-`). If the scraper cannot fetch it, use the current date.**
+
+   - If parsing fails, `flag` returns `0`, and `result` returns an empty dictionary `{}`.
+
+     _`pipeline` will try other parsing solutions (if any) upon receiving `flag` 0._
+
+   - If page retrieval fails (e.g., network issues), `flag` returns `-7`, and `result` returns an empty dictionary `{}`.
+
+     _`pipeline` will not attempt to parse again in the same process upon receiving `flag` -7._
+
+### Registration
+
+After writing your scraper, place the scraper program in this folder and register the scraper in `scraper_map` under `__init__.py`, similar to:
+
+```python
+{'domain': 'crawler def name'}
+```
+
+It is recommended to use urllib.parse to get the domain:
+
+```python
+from urllib.parse import urlparse
+
+parsed_url = urlparse("site's url")
+domain = parsed_url.netloc
+```

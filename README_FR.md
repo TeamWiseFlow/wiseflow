@@ -139,7 +139,7 @@ Pour une utilisation commerciale et des coopérations de personnalisation, veuil
 
 - Clients commerciaux, veuillez vous inscrire auprès de nous. Le produit promet d'être gratuit pour toujours.
 - Pour les clients ayant des besoins spécifiques, nous offrons les services suivants en fonction de vos sources et besoins commerciaux :
-  - Parseurs propriétaires personnalisés
+  - Crawler et analyseur dédiés pour les sources de scénarios commerciaux des clients
   - Stratégies d'extraction et de classification de l'information sur mesure
   - Recommandations LLM ciblées ou même services de fine-tuning
   - Services de déploiement privé

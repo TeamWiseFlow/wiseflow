@@ -9,13 +9,7 @@ async def process_site(site, counter):
         return
     if counter % site['per_hours'] == 0:
         logger.info(f"applying {site['url']}")
-        request_input = {
-            "user_id": "schedule_tasks",
-            "type": "site",
-            "content": site['url'],
-            "addition": f"task execute loop {counter + 1}"
-        }
-        await pipeline(request_input)
+        await pipeline(site['url'])
 
 
 async def schedule_pipeline(interval):

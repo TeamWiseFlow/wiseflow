@@ -138,7 +138,7 @@ For commercial use and customization cooperation, please contact **Email: 352529
 
 - Commercial customers, please register with us. The product promises to be free forever.
 - For customized customers, we provide the following services according to your sources and business needs:
-  - Custom proprietary parsers
+  - Dedicated crawler and parser for customer business scenario sources
   - Customized information extraction and classification strategies
   - Targeted LLM recommendations or even fine-tuning services
   - Private deployment services

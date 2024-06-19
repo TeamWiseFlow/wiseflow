@@ -1,33 +1,56 @@
-**In diesem Ordner können Crawlers für spezifische Quellen abgelegt werden. Beachten Sie, dass die Crawlers hier in der Lage sein sollten, die URL der Artikelliste der Quelle zu analysieren und ein Wörterbuch mit Artikeldetails zurückzugeben.**
-> 
-> # Konfiguration des benutzerdefinierten Crawlers
-> 
-> Nachdem Sie den Crawler geschrieben haben, platzieren Sie das Crawler-Programm in diesem Ordner und registrieren Sie es in scraper_map in `__init__.py`, ähnlich wie:
-> 
-> ```python
-> {'www.securityaffairs.com': securityaffairs_scraper}
-> ```
-> 
-> Hier ist der Schlüssel die URL der Quelle und der Wert der Funktionsname.
-> 
-> Der Crawler sollte in Form einer Funktion geschrieben werden, mit den folgenden Eingabe- und Ausgabeparametern:
-> 
-> Eingabe:
-> - expiration: Ein `datetime.date` Objekt, der Crawler sollte nur Artikel ab diesem Datum (einschließlich) abrufen.
-> - existings: [str], eine Liste von URLs von Artikeln, die bereits in der Datenbank vorhanden sind. Der Crawler sollte die URLs in dieser Liste ignorieren.
-> 
-> Ausgabe:
-> - [dict], eine Liste von Ergebnis-Wörterbüchern, wobei jedes Wörterbuch einen Artikel darstellt, formatiert wie folgt:
-> `[{'url': str, 'title': str, 'author': str, 'publish_time': str, 'content': str, 'abstract': str, 'images': [Path]}, {...}, ...]`
-> 
-> Hinweis: Das Format von `publish_time` sollte `"%Y%m%d"` sein. Wenn der Crawler es nicht abrufen kann, kann das aktuelle Datum verwendet werden.
-> 
-> Darüber hinaus sind `title` und `content` Pflichtfelder.
-> 
-> # Generischer Seitenparser
-> 
-> Wir bieten hier einen generischen Seitenparser an, der intelligent Artikellisten von der Quelle abrufen kann. Für jede Artikel-URL wird zunächst versucht, mit gne zu parsen. Scheitert dies, wird versucht, mit llm zu parsen.
-> 
-> Durch diese Lösung ist es möglich, die meisten allgemeinen Nachrichtenquellen und Portale zu scannen und Informationen zu extrahieren.
-> 
-> **Wir empfehlen jedoch dringend, dass Benutzer eigene benutzerdefinierte Crawlers schreiben oder direkt unseren Datenservice abonnieren, um eine idealere und effizientere Erfassung zu erreichen.**
+Wir bieten einen allgemeinen Seitenparser an, der intelligent Artikellisten von Quellen abrufen kann. Für jede Artikel-URL wird zuerst versucht, `gne` zur Analyse zu verwenden. Falls dies fehlschlägt, wird `llm` als Alternative genutzt.
+
+Diese Lösung ermöglicht das Scannen und Extrahieren von Informationen aus den meisten allgemeinen Nachrichtenquellen und Portalen.
+
+**Wir empfehlen jedoch dringend, benutzerdefinierte Parser für spezifische Quellen zu entwickeln, die auf Ihre tatsächlichen Geschäftsszenarien abgestimmt sind, um eine idealere und effizientere Erfassung zu erreichen.**
+
+Wir stellen auch einen speziellen Parser für WeChat-Artikel (mp.weixin.qq.com) bereit.
+
+**Falls Sie bereit sind, Ihre speziell entwickelten Parser für bestimmte Quellen zu diesem Code-Repository beizutragen, wären wir Ihnen sehr dankbar!**
+
+## Entwicklungsspezifikationen für benutzerdefinierte Quellparser
+
+### Spezifikationen
+
+**Denken Sie daran: Es sollte eine asynchrone Funktion sein**
+
+1. **Der Parser sollte in der Lage sein, intelligent zwischen Artikel-Listen-Seiten und Artikel-Detailseiten zu unterscheiden.**
+2. **Die Eingabeparameter des Parsers sollten nur `url` und `logger` umfassen:**
+   - `url` ist die vollständige Adresse der Quelle (Typ `str`).
+   - `logger` ist das Protokollierungsobjekt (bitte konfigurieren Sie keinen separaten Logger für Ihren benutzerdefinierten Quellparser).
+3. **Die Ausgabe des Parsers sollte `flag` und `result` umfassen, im Format `tuple[int, Union[list, dict]]`:**
+   - Wenn die `url` eine Artikellisten-Seite ist, gibt `flag` `1` zurück, und `result` gibt eine Liste aller Artikel-URLs (`list`) zurück.
+   - Wenn die `url` eine Artikelseite ist, gibt `flag` `11` zurück, und `result` gibt alle Artikeldetails (`dict`) zurück, im folgenden Format:
+
+     ```python
+     {'url': str, 'title': str, 'author': str, 'publish_time': str, 'content': str, 'abstract': str, 'images': [str]}
+     ```
+
+     _Hinweis: `title` und `content` dürfen nicht leer sein._
+
+     **Hinweis: Das `publish_time`-Format muss `"%Y%m%d"` (nur Datum, ohne `-`) sein. Wenn der Scraper es nicht erfassen kann, verwenden Sie das aktuelle Datum.**
+
+   - Wenn die Analyse fehlschlägt, gibt `flag` `0` zurück, und `result` gibt ein leeres Wörterbuch `{}` zurück.
+
+     _Der `pipeline` versucht andere Analysemethoden (falls vorhanden), wenn `flag` 0 zurückgegeben wird._
+
+   - Wenn das Abrufen der Seite fehlschlägt (z. B. aufgrund von Netzwerkproblemen), gibt `flag` `-7` zurück, und `result` gibt ein leeres Wörterbuch `{}` zurück.
+
+     _Der `pipeline` wird im gleichen Prozess keine weiteren Versuche zur Analyse unternehmen, wenn `flag` -7 zurückgegeben wird._
+
+### Registrierung
+
+Nach dem Schreiben Ihres Scrapers platzieren Sie das Scraper-Programm in diesem Ordner und registrieren den Scraper in `scraper_map` in `__init__.py`, wie folgt:
+
+```python
+{'domain': 'Crawler-Funktionsname'}
+```
+
+Es wird empfohlen, urllib.parse zur Ermittlung der domain zu verwenden:
+
+```python
+from urllib.parse import urlparse
+
+parsed_url = urlparse("l'URL du site")
+domain = parsed_url.netloc
+```

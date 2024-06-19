@@ -2,6 +2,8 @@
 # when you use this general crawler, remember followings
 # When you receive flag -7, it means that the problem occurs in the HTML fetch process.
 # When you receive flag 0, it means that the problem occurred during the content parsing process.
+# when you receive flag 1, the result would be a list, means that the input url is possible a article_list page and the list contains the url of the articles.
+# when you receive flag 11, you will get the dict contains the title, content, url, date, and the source of the article.
 
 from gne import GeneralNewsExtractor
 import httpx
@@ -11,11 +13,13 @@ from urllib.parse import urlparse
 from llms.openai_wrapper import openai_llm
 # from llms.siliconflow_wrapper import sfa_llm
 from bs4.element import Comment
-import chardet
 from utils.general_utils import extract_and_convert_dates
 import asyncio
 import json_repair
 import os
+from typing import Union
+from requests.compat import urljoin
+from scrapers import scraper_map
 
 
 model = os.environ.get('HTML_PARSE_MODEL', 'gpt-3.5-turbo')
@@ -42,30 +46,44 @@ def text_from_soup(soup: BeautifulSoup) -> str:
     return text.strip()
 
 
-sys_info = '''Your role is to function as an HTML parser, tasked with analyzing a segment of HTML code. Extract the following metadata from the given HTML snippet: the document's title, summary or abstract, main content, and the publication date. Ensure that your response adheres to the JSON format outlined below, encapsulating the extracted information accurately:
+sys_info = '''Your task is to operate as an HTML content extractor, focusing on parsing a provided HTML segment. Your objective is to retrieve the following details directly from the raw text within the HTML, without summarizing or altering the content:
+
+- The document's title
+- The complete main content, as it appears in the HTML, comprising all textual elements considered part of the core article body
+- The publication time in its original format found within the HTML
+
+Ensure your response fits the following JSON structure, accurately reflecting the extracted data without modification:
 
 ```json
 {
-  "title": "The Document's Title",
-  "abstract": "A concise overview or summary of the content",
-  "content": "The primary textual content of the article",
-  "publish_date": "The publication date in YYYY-MM-DD format"
+  "title": "The Document's Exact Title",
+  "content": "All the unaltered primary text content from the article",
+  "publish_time": "Original Publication Time as per HTML"
 }
 ```
 
-Please structure your output precisely as demonstrated, with each field populated correspondingly to the details found within the HTML code.
-'''
+It is essential that your output adheres strictly to this format, with each field filled based on the untouched information extracted directly from the HTML source.'''
 
 
-async def general_crawler(url: str, logger) -> (int, dict):
+async def general_crawler(url: str, logger) -> tuple[int, Union[list, dict]]:
     """
-    Return article information dict and flag, negative number is error, 0 is no result, 11 is success
+    Return article information dict and flag, negative number is error, 0 is no result, 1 is for article_list page, 11 is success
 
     main work flow:
+    (for weixin public account artilces, which startswith mp.weixin.qq use mp_crawler)
     first get the content with httpx
+    then judge is article list (return all article url and flag 1) or article detail page
     then try to use gne to extract the information
     when fail, try to use a llm to analysis the html
     """
+
+    # 0. if there's a scraper for this domain, use it (such as mp.weixin.qq.com)
+    parsed_url = urlparse(url)
+    domain = parsed_url.netloc
+    if domain in scraper_map:
+        return await scraper_map[domain](url, logger)
+
+    # 1. get the content with httpx
     async with httpx.AsyncClient() as client:
         for retry in range(2):
             try:
@@ -74,37 +92,58 @@ async def general_crawler(url: str, logger) -> (int, dict):
                 break
             except Exception as e:
                 if retry < 1:
-                    logger.info(f"request {url} got error {e}\nwaiting 1min")
+                    logger.info(f"can not reach\n{e}\nwaiting 1min")
                     await asyncio.sleep(60)
                 else:
-                    logger.warning(f"request {url} got error {e}")
+                    logger.error(e)
                     return -7, {}
 
-        rawdata = response.content
-        encoding = chardet.detect(rawdata)['encoding']
-        text = rawdata.decode(encoding, errors='replace')
-        soup = BeautifulSoup(text, "html.parser")
+    # 2. judge is article list (return all article url and flag 1) or article detail page
+        page_source = response.text
+        if page_source:
+            text = page_source
+        else:
+            try:
+                text = response.content.decode('utf-8')
+            except UnicodeDecodeError:
+                try:
+                    text = response.content.decode('gbk')
+                except Exception as e:
+                    logger.error(f"can not decode html {e}")
+                    return -7, {}
 
+        soup = BeautifulSoup(text, "html.parser")
+        # Parse all URLs
+        base_url = f"{parsed_url.scheme}://{domain}"
+        urls = set()
+        for link in soup.find_all("a", href=True):
+            absolute_url = urljoin(base_url, link["href"])
+            if urlparse(absolute_url).netloc == domain and absolute_url != url:
+                urls.add(absolute_url)
+
+        if len(urls) > 21:
+            logger.info(f"{url} is more like an article list page, find {len(urls)} urls with the same netloc")
+            return 1, list(urls)
+
+    # 3. try to use gne to extract the information
     try:
         result = extractor.extract(text)
+
+        if result['title'].startswith('服务器错误') or result['title'].startswith('您访问的页面') or result[
+            'title'].startswith('403') \
+                or result['content'].startswith('This website uses cookies') or result['title'].startswith('出错了'):
+            logger.warning(f"can not get {url} from the Internet")
+            return -7, {}
+
+        if len(result['title']) < 4 or len(result['content']) < 24:
+            logger.info(f"gne extract not good: {result}")
+            result = None
     except Exception as e:
         logger.info(f"gne extract error: {e}")
         result = None
 
-    if result['title'].startswith('服务器错误') or result['title'].startswith('您访问的页面') or result[
-        'title'].startswith('403') \
-            or result['content'].startswith('This website uses cookies') or result['title'].startswith('出错了'):
-        logger.warning(f"can not get {url} from the Internet")
-        return -7, {}
-
-    if len(result['title']) < 4 or len(result['content']) < 24:
-        logger.info(f"gne extract not good: {result}")
-        result = None
-
-    if result:
-        info = result
-        abstract = ''
-    else:
+    # 4. try to use a llm to analysis the html
+    if not result:
         html_text = text_from_soup(soup)
         html_lines = html_text.split('\n')
         html_lines = [line.strip() for line in html_lines if line.strip()]
@@ -123,65 +162,54 @@ async def general_crawler(url: str, logger) -> (int, dict):
             {"role": "system", "content": sys_info},
             {"role": "user", "content": html_text}
         ]
-        llm_output = openai_llm(messages, model=model, logger=logger)
-        decoded_object = json_repair.repair_json(llm_output, return_objects=True)
-        logger.debug(f"decoded_object: {decoded_object}")
+        llm_output = openai_llm(messages, model=model, logger=logger, temperature=0.01)
+        result = json_repair.repair_json(llm_output, return_objects=True)
+        logger.debug(f"decoded_object: {result}")
 
-        if not isinstance(decoded_object, dict):
+        if not isinstance(result, dict):
             logger.debug("failed to parse from llm output")
             return 0, {}
 
-        if 'title' not in decoded_object or 'content' not in decoded_object:
+        if 'title' not in result or 'content' not in result:
             logger.debug("llm parsed result not good")
             return 0, {}
-
-        info = {'title': decoded_object['title'], 'content': decoded_object['content']}
-        abstract = decoded_object.get('abstract', '')
-        info['publish_time'] = decoded_object.get('publish_date', '')
 
         # Extract the picture link, it will be empty if it cannot be extracted.
         image_links = []
         images = soup.find_all("img")
-
         for img in images:
             try:
                 image_links.append(img["src"])
             except KeyError:
                 continue
-        info["images"] = image_links
+        result["images"] = image_links
 
         # Extract the author information, if it cannot be extracted, it will be empty.
         author_element = soup.find("meta", {"name": "author"})
         if author_element:
-            info["author"] = author_element["content"]
+            result["author"] = author_element["content"]
         else:
-            info["author"] = ""
+            result["author"] = ""
 
-    date_str = extract_and_convert_dates(info['publish_time'])
+    # 5. post process
+    date_str = extract_and_convert_dates(result['publish_time'])
     if date_str:
-        info['publish_time'] = date_str
+        result['publish_time'] = date_str
     else:
-        info['publish_time'] = datetime.strftime(datetime.today(), "%Y%m%d")
+        result['publish_time'] = datetime.strftime(datetime.today(), "%Y%m%d")
 
-    from_site = urlparse(url).netloc
-    from_site = from_site.replace('www.', '')
+    from_site = domain.replace('www.', '')
     from_site = from_site.split('.')[0]
-    info['content'] = f"[from {from_site}] {info['content']}"
+    result['content'] = f"[from {from_site}] {result['content']}"
 
     try:
         meta_description = soup.find("meta", {"name": "description"})
         if meta_description:
-            info['abstract'] = f"[from {from_site}] {meta_description['content'].strip()}"
+            result['abstract'] = f"[from {from_site}] {meta_description['content'].strip()}"
         else:
-            if abstract:
-                info['abstract'] = f"[from {from_site}] {abstract.strip()}"
-            else:
-                info['abstract'] = ''
+            result['abstract'] = ''
     except Exception:
-        if abstract:
-            info['abstract'] = f"[from {from_site}] {abstract.strip()}"
-        else:
-            info['abstract'] = ''
+        result['abstract'] = ''
 
-    info['url'] = url
-    return 11, info
+    result['url'] = url
+    return 11,  result
