@@ -14,7 +14,7 @@ rewrite_model = os.environ.get("REWRITE_MODEL", "gpt-3.5-turbo")
 project_dir = os.environ.get("PROJECT_DIR", "")
 if project_dir:
     os.makedirs(project_dir, exist_ok=True)
-logger_file = os.path.join(project_dir, 'insights.log')
+logger_file = os.path.join(project_dir, 'wiseflow.log')
 dsw_log = get_logger_level()
 logger.add(
     logger_file,

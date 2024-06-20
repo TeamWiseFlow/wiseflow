@@ -31,6 +31,7 @@ async def pipeline(url: str, cache: dict = {}):
         if flag == 1:
             logger.info('get new url list, add to work list')
             to_add = [u for u in result if u not in existing_urls and u not in working_list]
+            existing_urls.append(url)
             working_list.extend(to_add)
             continue
         elif flag <= 0:

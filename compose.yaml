@@ -2,7 +2,12 @@ services:
   core:
     build:
       dockerfile: Dockerfile
-    image: WiseFlow/core
+    image: wiseflow:latest
+    # set following as you need
+    # environment:
+      # - TZ=Asia/Shanghai
+      # - LANG=zh_CN.UTF-8
+      # - LC_CTYPE=zh_CN.UTF-8
     tty: true
     stdin_open: true
     entrypoint: bash docker_entrypoint.sh
@@ -12,5 +17,5 @@ services:
       - 8090:8090
       - 8077:8077
     volumes:
-      - ./core/pb/pb_data:/pb/pb_data
+      - ./${PROJECT_DIR}/pb_data:/app/pb/pb_data
       - ./${PROJECT_DIR}:/app/${PROJECT_DIR}
