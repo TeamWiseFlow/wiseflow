@@ -12,3 +12,9 @@ Dockerfile
 README.md
 core/__pycache__
 core/work_dir
+env_sample
+core/pb/pb_data
+core/pb/CHANGELOG.md
+core/pb/LICENSE.md
+core/pb/pocketbase
+work_dir

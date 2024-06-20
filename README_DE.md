@@ -65,7 +65,27 @@ WiseFlow hat fast keine Hardwareanforderungen, minimale Systemlast und benötigt
     ```bash
     git clone https://github.com/TeamWiseFlow/wiseflow.git
     cd wiseflow
+   
+    conda create -n wiseflow python=3.10
+    conda activate wiseflow
+    cd core
+    pip install -r requirement.txt
     ```
+
+Sie können `pb`, `task` und `backend` mit den Skripten im Verzeichnis `core/scripts` starten (verschieben Sie die Skriptdateien in das Verzeichnis `core`).
+
+**Hinweis:**
+- Starten Sie immer zuerst `pb`. `task` und `backend` sind unabhängige Prozesse und können in beliebiger Reihenfolge gestartet werden, oder es kann nur einer von ihnen nach Bedarf gestartet werden.
+- Laden Sie zuerst den PocketBase-Client, der Ihrem Gerät entspricht, von [hier](https://pocketbase.io/docs/) herunter und platzieren Sie ihn im Verzeichnis `/core/pb`.
+- Bei Problemen mit dem Betrieb von `pb` (einschließlich Fehler beim ersten Start usw.), siehe [`core/pb/README.md`](/core/pb/README.md).
+- Erstellen und bearbeiten Sie vor der Verwendung die `.env`-Datei und platzieren Sie sie im Stammverzeichnis des wiseflow-Code-Repositories (eine Ebene über dem Verzeichnis `core`). Die `.env`-Datei kann auf `env_sample` verweisen. Detaillierte Konfigurationsanweisungen sind unten aufgeführt.
+- Es wird dringend empfohlen, den Docker-Ansatz zu verwenden. Siehe den fünften Punkt unten.
+
+📚 Für Entwickler siehe [/core/README.md](/core/README.md) für weitere Informationen.
+
+Zugriff auf die erfassten Daten über PocketBase:
+- http://127.0.0.1:8090/_/ - Admin-Dashboard-Interface
+- http://127.0.0.1:8090/api/ - REST-API
 
 
 2. **Konfiguration**
@@ -78,8 +98,8 @@ WiseFlow hat fast keine Hardwareanforderungen, minimale Systemlast und benötigt
    - GET_INFO_MODEL # Modell für Informations-Extraktions- und Tagging-Aufgaben, standardmäßig gpt-3.5-turbo
    - REWRITE_MODEL # Modell für Aufgaben der Konsolidierung und Umschreibung von nahegelegenen Informationen, standardmäßig gpt-3.5-turbo
    - HTML_PARSE_MODEL # Modell für Web-Parsing (intelligent aktiviert, wenn der GNE-Algorithmus unzureichend ist), standardmäßig gpt-3.5-turbo
-   - PROJECT_DIR # Speicherort für Cache- und Log-Dateien, relativ zum Code-Repository; standardmäßig das Code-Repository selbst, wenn nicht angegeben
-   - PB_API_AUTH='email|password' # Admin-E-Mail und Passwort für die pb-Datenbank (verwende eine gültige E-Mail-Adresse für die erste Verwendung, sie kann fiktiv sein, muss aber eine E-Mail-Adresse sein)
+   - PROJECT_DIR # Speicherort für Data- Cache- und Log-Dateien, relativ zum Code-Repository; standardmäßig das Code-Repository selbst, wenn nicht angegeben
+   - PB_API_AUTH='email|password' # Admin-E-Mail und Passwort für die pb-Datenbank (**sie kann fiktiv sein, muss aber eine E-Mail-Adresse sein**)
    - PB_API_BASE  # Nicht erforderlich für den normalen Gebrauch, nur notwendig, wenn du nicht die standardmäßige PocketBase-Local-Interface (Port 8090) verwendest.
 
 
@@ -105,30 +125,39 @@ Der SiliconFlow Online-Inference-Service ist mit dem OpenAI SDK kompatibel und b
 
 5. **Programm ausführen**
 
-    **Für reguläre Benutzer wird dringend empfohlen, Docker zu verwenden, um Chief Intelligence Officer auszuführen.**
+    ```bash
+    docker compose up
+    ```
 
-    📚 Für Entwickler siehe [/core/README.md](/core/README.md) für weitere Informationen.
+    **Hinweis:**
+   - Führen Sie die obigen Befehle im Stammverzeichnis des wiseflow-Code-Repositories aus.
+   - Erstellen und bearbeiten Sie vor dem Ausführen die `.env`-Datei im selben Verzeichnis wie die Dockerfile (Stammverzeichnis des wiseflow-Code-Repositories). Die `.env`-Datei kann sich auf `env_sample` beziehen.
+   - Beim ersten Ausführen des Docker-Containers können Fehler auftreten. Dies ist normal, da Sie noch kein Admin-Konto für das `pb`-Repository erstellt haben.
 
-    Zugriff auf die erfassten Daten über PocketBase:
-
-    - http://127.0.0.1:8090/_/ - Admin-Dashboard-Interface
-    - http://127.0.0.1:8090/api/ - REST-API
-    - https://pocketbase.io/docs/ für mehr Informationen
+    Lassen Sie den Container in diesem Fall weiterlaufen, öffnen Sie `http://127.0.0.1:8090/_/` in Ihrem Browser und folgen Sie den Anweisungen, um ein Admin-Konto zu erstellen (verwenden Sie unbedingt eine E-Mail). Füllen Sie dann die erstellte Admin-E-Mail (nochmals, verwenden Sie unbedingt eine E-Mail) und das Passwort in die `.env`-Datei ein und starten Sie den Container neu.
 
 
 6. **Geplanten Quellen-Scan hinzufügen**
 
-    Nachdem das Programm gestartet wurde, öffne das Admin-Dashboard-Interface von PocketBase (http://127.0.0.1:8090/_/)
+    Nach dem Start des Programms öffnen Sie die PocketBase Admin-Dashboard-UI unter [http://127.0.0.1:8090/_/](http://127.0.0.1:8090/_/).
 
-    Öffne das Formular **sites**.
+    6.1 Öffnen Sie das **tags-Formular**
 
-    Über dieses Formular kannst du benutzerdefinierte Quellen angeben, und das System wird Hintergrundaufgaben starten, um die Quellen lokal zu scannen, zu parsen und zu analysieren.
+    Dieses Formular ermöglicht es Ihnen, Ihre Interessenschwerpunkte anzugeben. Das LLM wird die Informationen entsprechend verfeinern, filtern und kategorisieren.
 
-    Felderbeschreibung des Formulars sites:
+    **Beschreibung des Tags-Felds:**
+    - `name`: Beschreibung des Interessenschwerpunkts. **Hinweis: Seien Sie spezifisch**. Ein gutes Beispiel ist `Trends im Wettbewerb zwischen den USA und China`; ein schlechtes Beispiel ist `Internationale Situation`.
+    - `activated`: Gibt an, ob der Tag aktiviert ist. Wenn deaktiviert, wird dieser Interessenschwerpunkt ignoriert. Das Ein- und Ausschalten erfordert keinen Neustart des Docker-Containers und wird beim nächsten geplanten Task aktualisiert.
 
-   - url: Die URL der Quelle. Die Quelle muss nicht die spezifische Artikelseite angeben, nur die Artikelliste-Seite. Der Wiseflow-Client enthält zwei allgemeine Seitenparser, die effizient mehr als 90% der statischen Nachrichtenwebseiten erfassen und parsen können.
+    6.2 Öffnen Sie das **sites-Formular**
+
+    Dieses Formular ermöglicht es Ihnen, benutzerdefinierte Informationsquellen anzugeben. Das System wird geplante Hintergrundaufgaben starten, um diese Quellen lokal zu scannen, zu analysieren und zu verarbeiten.
+
+    **Felderbeschreibung des Formulars sites:**
+   - url: Die URL der Quelle. Die Quelle muss nicht die spezifische Artikelseite angeben, nur die Artikelliste-Seite.
    - per_hours: Häufigkeit des Scannens, in Stunden, ganzzahlig (Bereich 1~24; wir empfehlen eine Scanfrequenz von einmal pro Tag, also auf 24 eingestellt).
    - activated: Ob aktiviert. Wenn deaktiviert, wird die Quelle ignoriert; sie kann später wieder aktiviert werden.
+
 
 ## 🛡️ Lizenz
 

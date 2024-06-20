@@ -67,7 +67,28 @@ WiseFlow has virtually no hardware requirements, with minimal system overhead, a
     ```bash
     git clone https://github.com/TeamWiseFlow/wiseflow.git
     cd wiseflow
+   
+    conda create -n wiseflow python=3.10
+    conda activate wiseflow
+    cd core
+    pip install -r requirement.txt
     ```
+   
+   You can start `pb`, `task`, and `backend` using the scripts in the `core/scripts` directory (move the script files to the `core` directory).
+
+**Note:**
+- Always start `pb` first. `task` and `backend` are independent processes and can be started in any order or only one of them can be started as needed.
+- First, download the PocketBase client corresponding to your device from [here](https://pocketbase.io/docs/) and place it in the `/core/pb` directory.
+- For issues with running `pb` (including errors on the first run, etc.), refer to [`core/pb/README.md`](/core/pb/README.md).
+- Before using, create and edit the `.env` file and place it in the root directory of the wiseflow code repository (one level above the `core` directory). The `.env` file can reference `env_sample`. Detailed configuration instructions are below.
+- It is highly recommended to use the Docker approach, see the fifth point below.
+
+
+📚 For developers, see [/core/README.md](/core/README.md) for more.
+
+Access data obtained via PocketBase:
+- http://127.0.0.1:8090/_/ - Admin dashboard UI
+- http://127.0.0.1:8090/api/ - REST API
 
 
 2. **Configuration**
@@ -80,8 +101,8 @@ WiseFlow has virtually no hardware requirements, with minimal system overhead, a
    - GET_INFO_MODEL # Model for information extraction and tagging tasks, default is gpt-3.5-turbo
    - REWRITE_MODEL # Model for near-duplicate information merging and rewriting tasks, default is gpt-3.5-turbo
    - HTML_PARSE_MODEL # Web page parsing model (smartly enabled when GNE algorithm performs poorly), default is gpt-3.5-turbo
-   - PROJECT_DIR # Location for storing cache and log files, relative to the code repository; default is the code repository itself if not specified
-   - PB_API_AUTH='email|password' # Admin email and password for the pb database (use a valid email for the first use, it can be a fictitious one but must be an email)
+   - PROJECT_DIR # Location for storing data, cache and log files, relative to the code repository; default is the code repository itself if not specified
+   - PB_API_AUTH='email|password' # Admin email and password for the pb database (**it can be a fictitious one but must be an email**)
    - PB_API_BASE  # Not required for normal use, only needed if not using the default local PocketBase interface (port 8090)
 
 
@@ -107,30 +128,38 @@ SiliconFlow online inference service is compatible with the OpenAI SDK and provi
 
 5. **Run the Program**
 
-    **For regular users, it is strongly recommended to use Docker to run the Chief Intelligence Officer.**
+    ```bash
+    docker compose up
+    ```
+    **Note:**
+   - Run the above commands in the root directory of the wiseflow code repository.
+   - Before running, create and edit the `.env` file in the same directory as the Dockerfile (root directory of the wiseflow code repository). The `.env` file can reference `env_sample`.
+   - You may encounter errors when running the Docker container for the first time. This is normal because you have not yet created an admin account for the `pb` repository.
 
-    📚 For developers, see [/core/README.md](/core/README.md) for more.
-
-    Access data obtained via PocketBase:
-
-    - http://127.0.0.1:8090/_/ - Admin dashboard UI
-    - http://127.0.0.1:8090/api/ - REST API
-    - https://pocketbase.io/docs/ check more
+    At this point, keep the container running, open `http://127.0.0.1:8090/_/` in your browser, and follow the instructions to create an admin account (make sure to use an email). Then, fill in the created admin email (again, make sure to use an email) and password in the `.env` file, and restart the container.
 
 
 6. **Adding Scheduled Source Scanning**
 
-    After starting the program, open the PocketBase Admin dashboard UI (http://127.0.0.1:8090/_/)
+    After starting the program, open the PocketBase Admin dashboard UI at [http://127.0.0.1:8090/_/](http://127.0.0.1:8090/_/)
 
-    Open the **sites** form.
+    6.1 Open the **tags form**
 
-    Through this form, you can specify custom sources, and the system will start background tasks to scan, parse, and analyze the sources locally.
+    This form allows you to specify your points of interest. The LLM will refine, filter, and categorize information accordingly.
 
-    Description of the sites fields:
+    **Tags field description:**
+    - `name`: Description of the point of interest. **Note: Be specific**. A good example is `Trends in US-China competition`; a poor example is `International situation`.
+    - `activated`: Whether the tag is activated. If deactivated, this point of interest will be ignored. It can be toggled on and off without restarting the Docker container; updates will be applied at the next scheduled task.
 
-   - url: The URL of the source. The source does not need to specify the specific article page, just the article list page. Wiseflow client includes two general page parsers that can effectively acquire and parse over 90% of news-type static web pages.
+    6.2 Open the **sites form**
+
+    This form allows you to specify custom information sources. The system will start background scheduled tasks to scan, parse, and analyze these sources locally.
+
+    **Sites field description:**
+   - url: The URL of the source. The source does not need to specify the specific article page, just the article list page.
    - per_hours: Scanning frequency, in hours, integer type (range 1~24; we recommend a scanning frequency of no more than once per day, i.e., set to 24).
    - activated: Whether to activate. If turned off, the source will be ignored; it can be turned on again later. Turning on and off does not require restarting the Docker container and will be updated at the next scheduled task.
+
 
 ## 🛡️ License
 

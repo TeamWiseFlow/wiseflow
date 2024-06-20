@@ -16,9 +16,7 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
 
 - ✅ 全新改写的通用网页内容解析器，综合使用统计学习（依赖开源项目GNE）和LLM，适配90%以上的新闻页面；
 
-
 - ✅ 全新的异步任务架构；
-
 
 - ✅ 全新的信息提取和标签分类策略，更精准、更细腻，且只需使用9B大小的LLM就可完美执行任务！
 
@@ -67,9 +65,30 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
     ```bash
     git clone https://github.com/TeamWiseFlow/wiseflow.git
     cd wiseflow
+   
+    conda create -n wiseflow python=3.10
+    conda activate wiseflow
+    cd core
+    pip install -r requirement.txt
     ```
+   
+    之后可以通过core/scrips 中的脚本分别启动pb、task和backend （将脚本文件移动到core目录下）
     
+    注意：
+    - 一定要先启动pb，task和backend是独立进程，先后顺序无所谓，也可以按需求只启动其中一个；
+    - 需要先去这里 https://pocketbase.io/docs/ 下载对应自己设备的pocketbase客户端，并放置在 /core/pb 目录下
+    - pb运行问题（包括首次运行报错等）参考 [core/pb/README.md](/core/pb/README.md) 
+    - 使用前请创建并编辑.env文件放置在wiseflow代码仓根目录（core目录的上级），.evn文件可以参考env_sample，详细配置说明见下
+    - 更加推荐使用docker方案，见下第五条。
     
+📚 for developer， see [/core/README.md](/core/README.md) for more
+    
+通过 pocketbase 访问获取的数据：
+
+- http://127.0.0.1:8090/_/ - Admin dashboard UI
+- http://127.0.0.1:8090/api/ - REST API
+    
+
 2. **配置**
 
     复制目录下的env_sample，并改名为.env, 参考如下 填入你的配置信息（LLM服务token等）
@@ -80,8 +99,8 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
    - GET_INFO_MODEL # 信息提炼与标签匹配任务模型，默认为 gpt-3.5-turbo
    - REWRITE_MODEL # 近似信息合并改写任务模型，默认为 gpt-3.5-turbo
    - HTML_PARSE_MODEL # 网页解析模型（GNE算法效果不佳时智能启用），默认为 gpt-3.5-turbo
-   - PROJECT_DIR # 缓存以及日志文件存储位置，相对于代码仓的相对路径，默认不填就在代码仓
-   - PB_API_AUTH='email|password' # pb数据库admin的邮箱和密码（<span style="color: red; font-weight: bold;">首次使用，先想好邮箱和密码，提前填入这里，注意一定是邮箱，可以是虚构的邮箱</span>）
+   - PROJECT_DIR # 数据、缓存以及日志文件存储位置，相对于代码仓的相对路径，默认不填就在代码仓
+   - PB_API_AUTH='email|password' # pb数据库admin的邮箱和密码（注意一定是邮箱，可以是虚构的邮箱）
    - PB_API_BASE  # 正常使用无需这一项，只有当你不使用默认的pocketbase本地接口（8090）时才需要
     
     
@@ -106,30 +125,39 @@ SiliconFlow 在线推理服务兼容openai SDK，并同时提供上述三个模�
     请保证您的本地化部署LLM服务兼容openai SDK，并配置 LLM_API_BASE 即可
 
 
-5. **启动程序**
-
-    **对于普通用户，强烈推荐使用Docker运行首席情报官。**
-
-    📚 for developer， see [/core/README.md](/core/README.md) for more
+5. **docker部署**
     
-    通过 pocketbase 访问获取的数据：
+    ```bash
+    docker compose up
+    ```
+    注意：
+    - 在wiseflow代码仓根目录下运行上述命令；
+    - 运行前先创建并编辑.env文件放置在Dockerfile同级目录（wiseflow代码仓根目录），.env文件可以参考env_sample
+    - 第一次运行docker container时会遇到报错，这其实是正常现象，因为你尚未为pb仓库创建admin账号。
+    
+    此时请保持container不关闭状态，浏览器打开`http://127.0.0.1:8090/_/ `，按提示创建admin账号（一定要使用邮箱），然后将创建的admin邮箱（再次强调，一定要用邮箱）和密码填入.env文件，重启container即可。
 
-    - http://127.0.0.1:8090/_/ - Admin dashboard UI
-    - http://127.0.0.1:8090/api/ - REST API
-    - https://pocketbase.io/docs/ check more
 
-
-6. **定时扫描信源添加**
+6. **关注点和定时扫描信源添加**
     
     启动程序后，打开pocketbase Admin dashboard UI (http://127.0.0.1:8090/_/)
     
-    打开 **sites表单**
+    6.1 打开 **tags表单**
+
+    通过这个表单可以指定你的关注点，LLM会按此提炼、过滤并分类信息。
+    
+    tags 字段说明：
+
+   - name, 关注点描述，**注意：要具体一些**，好的例子是：`中美竞争动向`，不好的例子是：`国际局势`。
+   - activated, 是否激活。如果关闭则会忽略该关注点，关闭后可再次开启。开启和关闭无需重启docker容器，会在下一次定时任务时更新。
+
+    6.2 打开 **sites表单**
 
     通过这个表单可以指定自定义信源，系统会启动后台定时任务，在本地执行信源扫描、解析和分析。
 
     sites 字段说明：
 
-   - url, 信源的url，信源无需给定具体文章页面，给文章列表页面即可，wiseflow client中包含两个通用页面解析器，90%以上的新闻类静态网页都可以很好的获取和解析。
+   - url, 信源的url，信源无需给定具体文章页面，给文章列表页面即可。
    - per_hours, 扫描频率，单位为小时，类型为整数（1~24范围，我们建议扫描频次不要超过一天一次，即设定为24）
    - activated, 是否激活。如果关闭则会忽略该信源，关闭后可再次开启。开启和关闭无需重启docker容器，会在下一次定时任务时更新。
 

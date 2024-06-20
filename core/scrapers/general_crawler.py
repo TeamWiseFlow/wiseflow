@@ -130,6 +130,8 @@ async def general_crawler(url: str, logger) -> tuple[int, Union[list, dict]]:
     # 3. try to use gne to extract the information
     try:
         result = extractor.extract(text)
+        if 'meta' in result:
+            del result['meta']
 
         if result['title'].startswith('服务器错误') or result['title'].startswith('您访问的页面') or result[
             'title'].startswith('403') \

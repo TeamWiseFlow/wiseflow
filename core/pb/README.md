@@ -1,5 +1,3 @@
-# for developer
-
 download https://pocketbase.io/docs/
 
 ```bash

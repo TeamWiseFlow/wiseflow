@@ -7,4 +7,8 @@ __pycache__
 .env
 .venv/
 core/pb/pb_data/
+core/pb/CHANGELOG.md
+core/pb/LICENSE.md
+core/pb/pocketbase
 core/work_dir/
+/work_dir

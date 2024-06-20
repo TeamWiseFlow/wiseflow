@@ -1,7 +1,4 @@
 #!/bin/bash
-set -o allexport
-source ../.env
-set +o allexport
-exec pb/pocketbase serve &
+exec pb/pocketbase serve --http=0.0.0.0:8090 &
 exec python tasks.py &
-exec uvicorn backend:app --reload --host localhost --port 8077
+exec uvicorn backend:app --reload --host 0.0.0.0 --port 8077
