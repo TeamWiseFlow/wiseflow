@@ -2,7 +2,7 @@
 
 **[中文](README_CN.md) | [日本語](README_JP.md) | [Français](README_FR.md) | [Deutsch](README_DE.md)**
 
-**Wiseflow** is an agile information mining tool that extracts concise messages from various sources such as websites, WeChat official accounts, social platforms, etc. It automatically categorizes and uploads them to the database.
+**Wiseflow** is an agile information extraction tool that can refine information from various sources such as websites, WeChat Public Accounts, and social media platforms based on predefined focus points, automatically categorize tags, and upload to the database.
 
 We are not short of information; what we need is to filter out the noise from the vast amount of information so that valuable information stands out! 
 
@@ -38,127 +38,142 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
   😄 **Wiseflow is particularly good at extracting information from WeChat official account articles**; for this, we have configured a dedicated mp article parser!
 
 
-- 🌍 **Can be Integrated into Any RAG Project**  
-  Can serve as a dynamic knowledge base for any RAG project, without needing to understand the code of Wiseflow, just operate through database reads!
+- 🌍 **Can be Integrated into Any Agent Project**  
+  Can serve as a dynamic knowledge base for any Agent project, without needing to understand the code of Wiseflow, just operate through database reads!
 
 
 - 📦 **Popular Pocketbase Database**  
-  The database and interface use PocketBase. Besides the web interface, APIs for Go/Javascript/Python languages are available.
+  The database and interface use PocketBase. Besides the web interface, SDK for Go/Javascript/Python languages are available.
     
     - Go: https://pocketbase.io/docs/go-overview/
     - Javascript: https://pocketbase.io/docs/js-overview/
     - Python: https://github.com/vaphes/pocketbase
 
-## 🔄 What are the Differences and Connections between Wiseflow and Common Crawlers, RAG Projects?
+## 🔄 What are the Differences and Connections between Wiseflow and Common Crawlers, LLM-Agent Projects?
 
-| Feature         | Wiseflow | Crawler / Scraper                        | RAG Projects             |
-|-----------------|--------------------------------------|------------------------------------------|--------------------------|
-| **Main Problem Solved** | Data processing (filtering, extraction, labeling) | Raw data acquisition                      | Downstream applications  |
+| Feature         | Wiseflow | Crawler / Scraper                        | LLM-Agent                                          |
+|-----------------|--------------------------------------|------------------------------------------|----------------------------------------------------|
+| **Main Problem Solved** | Data processing (filtering, extraction, labeling) | Raw data acquisition                      | Downstream applications                            |
 | **Connection**  |                                      | Can be integrated into Wiseflow for more powerful raw data acquisition | Can integrate Wiseflow as a dynamic knowledge base |
 
 ## 📥 Installation and Usage
 
-WiseFlow has virtually no hardware requirements, with minimal system overhead, and does not need a discrete GPU or CUDA (when using online LLM services).
+WiseFlow has virtually no hardware requirements, with minimal system overhead, and does not need GPU or CUDA (when using online LLM services).
 
-1. **Clone the Code Repository**
+1. **Clone the Repository**
 
-     😄 Liking and forking is a good habit
+     😄 Starring and forking are good habits
 
     ```bash
     git clone https://github.com/TeamWiseFlow/wiseflow.git
     cd wiseflow
-   
+    ```
+
+2. **Highly Recommended: Use Docker**
+
+    **For users in China, please configure your network properly or specify a Docker Hub mirror**
+
+    ```bash
+    docker compose up
+    ```
+   You may modify `compose.yaml` as needed.
+
+    **Note:**
+    - Run the above command in the root directory of the wiseflow repository.
+    - Before running, create and edit a `.env` file in the same directory as the Dockerfile (root directory of the wiseflow repository). Refer to `env_sample` for the `.env` file.
+    - The first time you run the Docker container, an error might occur because you haven't created an admin account for the pb repository.
+
+    At this point, keep the container running, open `http://127.0.0.1:8090/_/` in your browser, and follow the instructions to create an admin account (make sure to use an email). Then enter the created admin email (again, make sure it's an email) and password into the `.env` file, and restart the container.
+
+    _If you want to change the container's timezone and language [which will determine the prompt language, but has little effect on the results], run the image with the following command_
+
+    ```bash
+    docker run -e LANG=zh_CN.UTF-8 -e LC_CTYPE=zh_CN.UTF-8 your_image
+    ```
+
+3. **[Alternative] Run Directly with Python**
+
+    ```bash
     conda create -n wiseflow python=3.10
     conda activate wiseflow
     cd core
     pip install -r requirement.txt
     ```
-   
-   You can start `pb`, `task`, and `backend` using the scripts in the `core/scripts` directory (move the script files to the `core` directory).
 
-**Note:**
-- Always start `pb` first. `task` and `backend` are independent processes and can be started in any order or only one of them can be started as needed.
-- First, download the PocketBase client corresponding to your device from [here](https://pocketbase.io/docs/) and place it in the `/core/pb` directory.
-- For issues with running `pb` (including errors on the first run, etc.), refer to [`core/pb/README.md`](/core/pb/README.md).
-- Before using, create and edit the `.env` file and place it in the root directory of the wiseflow code repository (one level above the `core` directory). The `.env` file can reference `env_sample`. Detailed configuration instructions are below.
-- It is highly recommended to use the Docker approach, see the fifth point below.
+    You can then start pb, task, and backend individually using the scripts in core/scripts (move the script files to the core directory).
 
-
-📚 For developers, see [/core/README.md](/core/README.md) for more.
-
-Access data obtained via PocketBase:
-- http://127.0.0.1:8090/_/ - Admin dashboard UI
-- http://127.0.0.1:8090/api/ - REST API
+    Note:
+    - Start pb first; task and backend are independent processes, and the order doesn't matter. You can start any one of them as needed.
+    - Download the pocketbase client suitable for your device from https://pocketbase.io/docs/ and place it in the /core/pb directory.
+    - For issues with pb (including first-run errors), refer to [core/pb/README.md](/core/pb/README.md).
+    - Before use, create and edit a `.env` file and place it in the root directory of the wiseflow repository (the directory above core). Refer to `env_sample` for the `.env` file, and see below for detailed configuration.
 
 
-2. **Configuration**
+    📚 For developers, see [/core/README.md](/core/README.md) for more information.
 
-    Copy `env_sample` in the directory and rename it to `.env`, then fill in your configuration information (such as LLM service tokens) as follows:
-
-   - LLM_API_KEY # API key for large model inference service (if using OpenAI service, you can omit this by deleting this entry)
-   - LLM_API_BASE # Base URL for the OpenAI-compatible model service (omit this if using OpenAI service)
-   - WS_LOG="verbose"  # Enable debug logging, delete if not needed
-   - GET_INFO_MODEL # Model for information extraction and tagging tasks, default is gpt-3.5-turbo
-   - REWRITE_MODEL # Model for near-duplicate information merging and rewriting tasks, default is gpt-3.5-turbo
-   - HTML_PARSE_MODEL # Web page parsing model (smartly enabled when GNE algorithm performs poorly), default is gpt-3.5-turbo
-   - PROJECT_DIR # Location for storing data, cache and log files, relative to the code repository; default is the code repository itself if not specified
-   - PB_API_AUTH='email|password' # Admin email and password for the pb database (**it can be a fictitious one but must be an email**)
-   - PB_API_BASE  # Not required for normal use, only needed if not using the default local PocketBase interface (port 8090)
+    Access data via pocketbase:
+    - http://127.0.0.1:8090/_/ - Admin dashboard UI
+    - http://127.0.0.1:8090/api/ - REST API
 
 
-3. **Model Recommendation**
+4. **Configuration**
 
-    After extensive testing (in both Chinese and English tasks), for comprehensive effect and cost, we recommend the following for **GET_INFO_MODEL**, **REWRITE_MODEL**, and **HTML_PARSE_MODEL**: **"zhipuai/glm4-9B-chat"**, **"alibaba/Qwen2-7B-Instruct"**, **"alibaba/Qwen2-7B-Instruct"**.
+    Copy `env_sample` from the directory and rename it to `.env`, then fill in your configuration information (such as LLM service tokens) as follows:
 
-    These models fit the project well, with stable command adherence and excellent generation effects. The related prompts for this project are also optimized for these three models. (**HTML_PARSE_MODEL** can also use **"01-ai/Yi-1.5-9B-Chat"**, which also performs excellently in tests)
-
-⚠️ We strongly recommend using **SiliconFlow**'s online inference service for lower costs, faster speeds, and higher free quotas! ⚠️
-
-SiliconFlow online inference service is compatible with the OpenAI SDK and provides open-source services for the above three models. Just configure LLM_API_BASE as "https://api.siliconflow.cn/v1" and set up LLM_API_KEY to use it.
-
-😄 Or you may prefer to use my [invitation link](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92), so I can also get more token rewards 😄
-
-
-4. **Local Deployment**
-
-    As you can see, this project uses 7B/9B LLMs and does not require any vector models, which means you can fully deploy this project locally with just an RTX 3090 (24GB VRAM).
-
-    Ensure your local LLM service is compatible with the OpenAI SDK, and configure LLM_API_BASE accordingly.
+   - LLM_API_KEY # API key for large language model inference services
+   - LLM_API_BASE # This project relies on the OpenAI SDK. Configure this if your model service supports OpenAI's API. If using OpenAI's service, you can omit this.
+   - WS_LOG="verbose"  # Set to enable debug observation. Delete if not needed.
+   - GET_INFO_MODEL # Model for information extraction and tag matching tasks, default is gpt-3.5-turbo
+   - REWRITE_MODEL # Model for approximate information merging and rewriting tasks, default is gpt-3.5-turbo
+   - HTML_PARSE_MODEL # Model for web page parsing (intelligently enabled if the GNE algorithm performs poorly), default is gpt-3.5-turbo
+   - PROJECT_DIR # Storage location for data, cache, and log files, relative to the repository. Default is within the repository.
+   - PB_API_AUTH='email|password' # Email and password for the pb database admin (must be an email, can be a fictitious one)
+   - PB_API_BASE  # Typically unnecessary. Only configure if you're not using the default local pocketbase interface (8090).
 
 
-5. **Run the Program**
+5. **Model Recommendations**
 
-    ```bash
-    docker compose up
-    ```
-    **Note:**
-   - Run the above commands in the root directory of the wiseflow code repository.
-   - Before running, create and edit the `.env` file in the same directory as the Dockerfile (root directory of the wiseflow code repository). The `.env` file can reference `env_sample`.
-   - You may encounter errors when running the Docker container for the first time. This is normal because you have not yet created an admin account for the `pb` repository.
+    Based on extensive testing (for both Chinese and English tasks), we recommend **"zhipuai/glm4-9B-chat"** for **GET_INFO_MODEL**, **"alibaba/Qwen2-7B-Instruct"** for **REWRITE_MODEL**, and **"alibaba/Qwen2-7B-Instruct"** for **HTML_PARSE_MODEL**.
 
-    At this point, keep the container running, open `http://127.0.0.1:8090/_/` in your browser, and follow the instructions to create an admin account (make sure to use an email). Then, fill in the created admin email (again, make sure to use an email) and password in the `.env` file, and restart the container.
+    These models are well-suited for this project, with stable adherence to instructions and excellent generation quality. The project's prompts have been optimized for these three models. (**HTML_PARSE_MODEL** can also use **"01-ai/Yi-1.5-9B-Chat"**, which has been tested to perform excellently.)
 
 
-6. **Adding Scheduled Source Scanning**
+    ⚠️ We highly recommend using **SiliconFlow**'s online inference service for lower costs, faster speeds, and higher free quotas! ⚠️
 
-    After starting the program, open the PocketBase Admin dashboard UI at [http://127.0.0.1:8090/_/](http://127.0.0.1:8090/_/)
+    SiliconFlow's online inference service is compatible with the OpenAI SDK and provides open-source services for the above three models. Simply configure `LLM_API_BASE` to "https://api.siliconflow.cn/v1" and set `LLM_API_KEY` to use it.
 
-    6.1 Open the **tags form**
+    😄 Alternatively, you can use my [invitation link](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92), which also rewards me with more tokens 😄
 
-    This form allows you to specify your points of interest. The LLM will refine, filter, and categorize information accordingly.
 
-    **Tags field description:**
-    - `name`: Description of the point of interest. **Note: Be specific**. A good example is `Trends in US-China competition`; a poor example is `International situation`.
-    - `activated`: Whether the tag is activated. If deactivated, this point of interest will be ignored. It can be toggled on and off without restarting the Docker container; updates will be applied at the next scheduled task.
+6. **Focus Points and Scheduled Source Scanning**
 
-    6.2 Open the **sites form**
+    After starting the program, open the pocketbase Admin dashboard UI (http://127.0.0.1:8090/_/)
 
-    This form allows you to specify custom information sources. The system will start background scheduled tasks to scan, parse, and analyze these sources locally.
+        6.1 Open the **tags form**
 
-    **Sites field description:**
-   - url: The URL of the source. The source does not need to specify the specific article page, just the article list page.
-   - per_hours: Scanning frequency, in hours, integer type (range 1~24; we recommend a scanning frequency of no more than once per day, i.e., set to 24).
-   - activated: Whether to activate. If turned off, the source will be ignored; it can be turned on again later. Turning on and off does not require restarting the Docker container and will be updated at the next scheduled task.
+        Use this form to specify your focus points. The LLM will extract, filter, and classify information based on these.
+
+        Tags field description:
+
+        - name, Description of the focus point. **Note: Be specific.** Good example: `Trends in US-China competition`. Bad example: `International situation`.
+        - activated, Whether activated. If deactivated, the focus point will be ignored. It can be reactivated later. Activation and deactivation don't require a Docker container restart and will update in the next scheduled task.
+
+        6.2 Open the **sites form**
+
+        Use this form to specify custom sources. The system will start background tasks to scan, parse, and analyze these sources locally.
+
+        Sites field description:
+
+        - url, URL of the source. Provide a URL to the list page rather than a specific article page.
+        - per_hours, Scan frequency in hours, as an integer (range 1-24; we recommend no more than once a day, i.e., set to 24).
+        - activated, Whether activated. If deactivated, the source will be ignored. It can be reactivated later. Activation and deactivation don't require a Docker container restart and will update in the next scheduled task.
+
+
+7. **Local Deployment**
+
+    As you can see, this project uses 7B/9B LLMs and does not require any vector models, which means you only need a single RTX 3090 (24GB VRAM) to fully deploy this project locally.
+
+    Ensure your local LLM service is compatible with the OpenAI SDK and configure `LLM_API_BASE` accordingly.
 
 
 ## 🛡️ License

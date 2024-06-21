@@ -20,7 +20,7 @@ class Request(BaseModel):
 app = FastAPI(
     title="WiseFlow Union Backend",
     description="From Wiseflow Team.",
-    version="0.1.1",
+    version="0.3.0",
     openapi_url="/openapi.json"
 )
 
@@ -35,7 +35,7 @@ app.add_middleware(
 
 @app.get("/")
 def read_root():
-    msg = "Hello, this is Wise Union Backend, version 0.1.1"
+    msg = "Hello, this is Wise Union Backend, version 0.3.0"
     return {"msg": msg}
 
 

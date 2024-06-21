@@ -1,7 +1,7 @@
 import asyncio
 from insights import pipeline, pb, logger
 
-counter = 0
+counter = 1
 
 
 async def process_site(site, counter):
@@ -16,7 +16,7 @@ async def schedule_pipeline(interval):
     global counter
     while True:
         sites = pb.read('sites', filter='activated=True')
-        logger.info(f'task execute loop {counter + 1}')
+        logger.info(f'task execute loop {counter}')
         await asyncio.gather(*[process_site(site, counter) for site in sites])
 
         counter += 1
