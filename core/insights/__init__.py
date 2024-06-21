@@ -20,6 +20,7 @@ existing_urls = [url['url'] for url in pb.read(collection_name='articles', field
 
 
 async def pipeline(url: str, cache: dict = {}):
+    url = url.rstrip('/')
     working_list = [url]
     while working_list:
         url = working_list[0]
@@ -53,8 +54,6 @@ async def pipeline(url: str, cache: dict = {}):
 
         # get info process
         logger.debug(f"article: {result['title']}")
-        insights = get_info(f"title: {result['title']}\n\ncontent: {result['content']}")
-
         article_id = pb.add(collection_name='articles', body=result)
         if not article_id:
             await asyncio.sleep(1)
@@ -66,6 +65,7 @@ async def pipeline(url: str, cache: dict = {}):
                     json.dump(result, f, ensure_ascii=False, indent=4)
                 continue
 
+        insights = get_info(f"title: {result['title']}\n\ncontent: {result['content']}")
         if not insights:
             continue
 
