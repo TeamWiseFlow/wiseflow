@@ -119,7 +119,7 @@ async def general_crawler(url: str, logger) -> tuple[int, Union[list, dict]]:
             base_url = f"{parsed_url.scheme}://{domain}"
             urls = set()
             for link in soup.find_all("a", href=True):
-                absolute_url = urljoin(base_url, link["href"])
+                absolute_url = urljoin(base_url, link["href"]).rstrip('/')
                 if urlparse(absolute_url).netloc == domain and absolute_url != url:
                     urls.add(absolute_url)
 
