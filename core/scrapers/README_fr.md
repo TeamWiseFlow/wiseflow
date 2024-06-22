@@ -18,8 +18,8 @@ Nous fournissons également un analyseur spécialement conçu pour les articles 
 2. **Les paramètres d'entrée de l'analyseur doivent uniquement inclure `url` et `logger` :**
    - `url` est l'adresse complète de la source (type `str`).
    - `logger` est l'objet de journalisation (ne configurez pas de logger séparé pour votre analyseur spécifique).
-3. **Les paramètres de sortie de l'analyseur doivent inclure `flag` et `result`, formatés comme `tuple[int, Union[list, dict]]` :**
-   - Si l'URL est une page de liste d'articles, `flag` renvoie `1` et `result` renvoie la liste de toutes les URL des pages d'articles (`list`).
+3. **Les paramètres de sortie de l'analyseur doivent inclure `flag` et `result`, formatés comme `tuple[int, Union[set, dict]]` :**
+   - Si l'URL est une page de liste d'articles, `flag` renvoie `1` et `result` renvoie la set de toutes les URL des pages d'articles (`set`).
    - Si l'URL est une page d'article, `flag` renvoie `11` et `result` renvoie tous les détails de l'article (`dict`), au format suivant :
 
      ```python

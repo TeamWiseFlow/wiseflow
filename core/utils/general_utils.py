@@ -5,17 +5,31 @@ import jieba
 
 
 def isURL(string):
+    if string.startswith("www."):
+        string = f"https://{string}"
     result = urlparse(string)
     return result.scheme != '' and result.netloc != ''
 
 
 def extract_urls(text):
-    url_pattern = re.compile(r'https?://[-A-Za-z0-9+&@#/%?=~_|!:.;]+[-A-Za-z0-9+&@#/%=~_|]')
+    # Regular expression to match http, https, and www URLs
+    url_pattern = re.compile(r'((?:https?://|www\.)[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|])')
     urls = re.findall(url_pattern, text)
-
-    # Filter out those cases that only match to'www. 'without subsequent content,
-    # and try to add the default http protocol prefix to each URL for easy parsing
-    cleaned_urls = [url for url in urls if isURL(url)]
+    # urls = {quote(url.rstrip('/'), safe='/:?=&') for url in urls}
+    cleaned_urls = set()
+    for url in urls:
+        if url.startswith("www."):
+            url = f"https://{url}"
+        parsed_url = urlparse(url)
+        if not parsed_url.netloc:
+            continue
+        # remove hash fragment
+        if not parsed_url.scheme:
+            # just try https
+            cleaned_urls.add(f"https://{parsed_url.netloc}{parsed_url.path}{parsed_url.params}{parsed_url.query}")
+        else:
+            cleaned_urls.add(
+                f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}{parsed_url.params}{parsed_url.query}")
     return cleaned_urls
 
 

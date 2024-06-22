@@ -18,8 +18,8 @@ Wir stellen auch einen speziellen Parser für WeChat-Artikel (mp.weixin.qq.com) 
 2. **Die Eingabeparameter des Parsers sollten nur `url` und `logger` umfassen:**
    - `url` ist die vollständige Adresse der Quelle (Typ `str`).
    - `logger` ist das Protokollierungsobjekt (bitte konfigurieren Sie keinen separaten Logger für Ihren benutzerdefinierten Quellparser).
-3. **Die Ausgabe des Parsers sollte `flag` und `result` umfassen, im Format `tuple[int, Union[list, dict]]`:**
-   - Wenn die `url` eine Artikellisten-Seite ist, gibt `flag` `1` zurück, und `result` gibt eine Liste aller Artikel-URLs (`list`) zurück.
+3. **Die Ausgabe des Parsers sollte `flag` und `result` umfassen, im Format `tuple[int, Union[set, dict]]`:**
+   - Wenn die `url` eine Artikellisten-Seite ist, gibt `flag` `1` zurück, und `result` gibt eine satz aller Artikel-URLs (`set`) zurück.
    - Wenn die `url` eine Artikelseite ist, gibt `flag` `11` zurück, und `result` gibt alle Artikeldetails (`dict`) zurück, im folgenden Format:
 
      ```python

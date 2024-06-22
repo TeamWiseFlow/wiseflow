@@ -2,7 +2,8 @@
 # when you use this general crawler, remember followings
 # When you receive flag -7, it means that the problem occurs in the HTML fetch process.
 # When you receive flag 0, it means that the problem occurred during the content parsing process.
-# when you receive flag 1, the result would be a list, means that the input url is possible a article_list page and the list contains the url of the articles.
+# when you receive flag 1, the result would be a tuple, means that the input url is possible a article_list page
+# and the set contains the url of the articles.
 # when you receive flag 11, you will get the dict contains the title, content, url, date, and the source of the article.
 
 from gne import GeneralNewsExtractor
@@ -65,12 +66,13 @@ Ensure your response fits the following JSON structure, accurately reflecting th
 It is essential that your output adheres strictly to this format, with each field filled based on the untouched information extracted directly from the HTML source.'''
 
 
-async def general_crawler(url: str, logger) -> tuple[int, Union[list, dict]]:
+async def general_crawler(url: str, logger) -> tuple[int, Union[set, dict]]:
     """
-    Return article information dict and flag, negative number is error, 0 is no result, 1 is for article_list page, 11 is success
+    Return article information dict and flag, negative number is error, 0 is no result, 1 is for article_list page,
+    11 is success
 
     main work flow:
-    (for weixin public account artilces, which startswith mp.weixin.qq use mp_crawler)
+    (for weixin public account articles, which startswith mp.weixin.qq use mp_crawler)
     first get the content with httpx
     then judge is article list (return all article url and flag 1) or article detail page
     then try to use gne to extract the information
@@ -80,6 +82,7 @@ async def general_crawler(url: str, logger) -> tuple[int, Union[list, dict]]:
     # 0. if there's a scraper for this domain, use it (such as mp.weixin.qq.com)
     parsed_url = urlparse(url)
     domain = parsed_url.netloc
+    base_url = f"{parsed_url.scheme}://{domain}"
     if domain in scraper_map:
         return await scraper_map[domain](url, logger)
 
@@ -113,19 +116,25 @@ async def general_crawler(url: str, logger) -> tuple[int, Union[list, dict]]:
                     return -7, {}
 
         soup = BeautifulSoup(text, "html.parser")
-        # Note: The scheme used here is very crude, and it is recommended to write a separate parser for specific business scenarios
+        # Note: The scheme used here is very crude,
+        # it is recommended to write a separate parser for specific business scenarios
         # Parse all URLs
         if len(url) < 50:
-            base_url = f"{parsed_url.scheme}://{domain}"
             urls = set()
             for link in soup.find_all("a", href=True):
-                absolute_url = urljoin(base_url, link["href"]).rstrip('/')
-                if urlparse(absolute_url).netloc == domain and absolute_url != url:
+                absolute_url = urljoin(base_url, link["href"])
+                format_url = urlparse(absolute_url)
+                # only record same domain links
+                if not format_url.netloc or format_url.netloc != domain:
+                    continue
+                # remove hash fragment
+                absolute_url = f"{format_url.scheme}://{format_url.netloc}{format_url.path}{format_url.params}{format_url.query}"
+                if absolute_url != url:
                     urls.add(absolute_url)
 
-            if len(urls) > 30:
+            if len(urls) > 24:
                 logger.info(f"{url} is more like an article list page, find {len(urls)} urls with the same netloc")
-                return 1, list(urls)
+                return 1, urls
 
     # 3. try to use gne to extract the information
     try:
@@ -183,7 +192,7 @@ async def general_crawler(url: str, logger) -> tuple[int, Union[list, dict]]:
         images = soup.find_all("img")
         for img in images:
             try:
-                image_links.append(img["src"])
+                image_links.append(urljoin(base_url, img["src"]))
             except KeyError:
                 continue
         result["images"] = image_links
