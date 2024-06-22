@@ -9,7 +9,7 @@ async def process_site(site, counter):
         return
     if counter % site['per_hours'] == 0:
         logger.info(f"applying {site['url']}")
-        await pipeline(site['url'])
+        await pipeline(site['url'].rstrip('/'))
 
 
 async def schedule_pipeline(interval):

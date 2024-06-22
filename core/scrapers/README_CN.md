@@ -18,8 +18,8 @@
 2. **解析器入参只包括 `url` 和 `logger` 两项：**
    - `url` 是信源完整地址（`str` 类型）
    - `logger` 是日志对象（请勿为您的专有信源解析器单独配置 `logger`）
-3. **解析器出参包括 `flag` 和 `result` 两项，格式为 `tuple[int, Union[list, dict]]`：**
-   - 如果 `url` 是文章列表页面，`flag` 返回 `1`，`result` 返回解析出的全部文章页面 URL 列表（`list`）。
+3. **解析器出参包括 `flag` 和 `result` 两项，格式为 `tuple[int, Union[set, dict]]`：**
+   - 如果 `url` 是文章列表页面，`flag` 返回 `1`，`result` 返回解析出的全部文章页面 URL 集合（`set`）。
    - 如果 `url` 是文章页面，`flag` 返回 `11`，`result` 返回解析出的全部文章详情（`dict`），格式如下：
 
      ```python
