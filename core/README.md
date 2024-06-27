@@ -17,15 +17,15 @@ pip install -r requirements.txt
 - body :
 
 ```python
-{'user_id': str, 'type': str, 'content':str， 'addition': Optional[str]}
+{'user_id': str, 'type': str, 'content':str, 'addition': Optional[str]}
 # Type is one of "text", "publicMsg", "site" and "url"；
 # user_id: str
 type: Literal["text", "publicMsg", "file", "image", "video", "location", "chathistory", "site", "attachment", "url"]
 content: str
-addition: Optional[str] = None`
+addition: Optional[str] = None
 ```
 
-see more (when backend started) http://127.0.0.1:7777/docs 
+see more (when backend started) http://127.0.0.1:8077/docs 
 
 ### WiseFlow Repo File Structure
 
