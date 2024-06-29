@@ -4,6 +4,8 @@
 
 **首席情报官**（Wiseflow）是一个敏捷的信息挖掘工具，可以从网站、微信公众号、社交平台等各种信息源中按设定的关注点提炼讯息，自动做标签归类并上传数据库。
 
+🔥 **SiliconFlow官宣Qwen2-7B-Instruct、glm-4-9b-chat等数款LLM在线推理服务即日起免费，这意味着您可以“零成本”使用首席情报官进行信息挖掘啦！** 🔥
+
 我们缺的其实不是信息，我们需要的是从海量信息中过滤噪音，从而让有价值的信息显露出来！
 
 看看首席情报官是如何帮您节省时间，过滤无关信息，并整理关注要点的吧！
@@ -12,7 +14,7 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
 
 <img alt="sample.png" src="asset/sample.png" width="1024"/>
 
-## 🔥 V0.3.0 重大更新
+## V0.3.0 重大更新
 
 - ✅ 全新改写的通用网页内容解析器，综合使用统计学习（依赖开源项目GNE）和LLM，适配90%以上的新闻页面；
 
@@ -140,7 +142,7 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
 
     ⚠️ 同时强烈推荐使用 **SiliconFlow** 的在线推理服务，更低的价格、更快的速度、更高的免费额度！⚠️ 
 
-    SiliconFlow 在线推理服务兼容openai SDK，并同时提供上述三个模型的开源服务，仅需配置 LLM_API_BASE 为 "https://api.siliconflow.cn/v1" ， 并配置 LLM_API_KEY 即可使用。
+    SiliconFlow 在线推理服务兼容openai SDK，并同时提供上述三个模型的开源服务，仅需配置 LLM_API_BASE 为 "https://api.siliconflow.cn/v1" ，并配置 LLM_API_KEY 即可使用。
 
     😄 或者您愿意使用我的[邀请链接](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92)，这样我也可以获得更多token奖励  😄
 
