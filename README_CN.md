@@ -4,7 +4,11 @@
 
 **首席情报官**（Wiseflow）是一个敏捷的信息挖掘工具，可以从网站、微信公众号、社交平台等各种信息源中按设定的关注点提炼讯息，自动做标签归类并上传数据库。
 
-🔥 **SiliconFlow官宣Qwen2-7B-Instruct、glm-4-9b-chat等数款LLM在线推理服务即日起免费，这意味着您可以“零成本”使用首席情报官进行信息挖掘啦！** 🔥
+---
+
+ SiliconFlow官宣Qwen2-7B-Instruct、glm-4-9b-chat等数款LLM在线推理服务即日起免费，这意味着您可以“零成本”使用首席情报官进行信息挖掘啦！
+
+---
 
 我们缺的其实不是信息，我们需要的是从海量信息中过滤噪音，从而让有价值的信息显露出来！
 
@@ -14,7 +18,7 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
 
 <img alt="sample.png" src="asset/sample.png" width="1024"/>
 
-## V0.3.0 重大更新
+## 🔥 V0.3.0 重大更新
 
 - ✅ 全新改写的通用网页内容解析器，综合使用统计学习（依赖开源项目GNE）和LLM，适配90%以上的新闻页面；
 
