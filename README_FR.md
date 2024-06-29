@@ -4,7 +4,11 @@
 
 **Wiseflow** est un outil agile d'extraction d'informations qui peut extraire des informations à partir de diverses sources telles que des sites Web, des comptes officiels WeChat et des plateformes de médias sociaux, en fonction des points d'intérêt prédéfinis, catégoriser automatiquement les tags et les télécharger dans la base de données.
 
-🔥 **SiliconFlow a officiellement annoncé que plusieurs services d'inférence en ligne de LLM, tels que Qwen2-7B-Instruct et glm-4-9b-chat, sont désormais gratuits à partir d'aujourd'hui. Cela signifie que vous pouvez effectuer des recherches d'information avec le wiseflow à "zéro coût" !** 🔥
+---
+
+SiliconFlow a officiellement annoncé que plusieurs services d'inférence en ligne de LLM, tels que Qwen2-7B-Instruct et glm-4-9b-chat, seront gratuits à partir du 25 juin 2024. Cela signifie que vous pouvez effectuer des recherches d'information avec wiseflow à "zéro coût" !
+
+---
 
 Nous ne manquons pas d'informations, mais nous avons besoin de filtrer le bruit pour faire ressortir les informations de valeur ! 
 
@@ -14,7 +18,7 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
 
 <img alt="sample.png" src="asset/sample.png" width="1024"/>
 
-## Mise à Jour Majeure V0.3.0
+## 🔥 Mise à Jour Majeure V0.3.0
 
 - ✅ Nouveau parseur de contenu web réécrit, utilisant une combinaison de l'apprentissage statistique (en se basant sur le projet open-source GNE) et de LLM, adapté à plus de 90% des pages de nouvelles ;
 
