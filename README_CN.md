@@ -102,7 +102,7 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
     conda create -n wiseflow python=3.10
     conda activate wiseflow
     cd core
-    pip install -r requirement.txt
+    pip install -r requirements.txt
     ```
 
     之后可以通过core/scrips 中的脚本分别启动pb、task和backend （将脚本文件移动到core目录下）

@@ -101,7 +101,7 @@ WiseFlow n'a pratiquement aucune exigence matérielle, avec une empreinte systè
     conda create -n wiseflow python=3.10
     conda activate wiseflow
     cd core
-    pip install -r requirement.txt
+    pip install -r requirements.txt
     ```
 
     Vous pouvez ensuite démarrer pb, task, et backend individuellement en utilisant les scripts dans core/scripts (déplacez les fichiers de script dans le répertoire core).
