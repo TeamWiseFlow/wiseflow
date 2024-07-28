@@ -2,7 +2,7 @@
 
 **[中文](README_CN.md) | [日本語](README_JP.md) | [Français](README_FR.md) | [Deutsch](README_DE.md)**
 
-**Wiseflow** is an agile information extraction tool that can refine information from various sources such as websites, WeChat Public Accounts, and social media platforms based on predefined focus points, automatically categorize tags, and upload to the database.
+**Wiseflow** is an agile information extraction tool that can refine information from various sources such as websites, WeChat Public Accounts, and social media platforms based on predefined focus points, automatically categorize tags, and upload to the database!
 
 ---
 
