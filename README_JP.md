@@ -99,7 +99,7 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
     conda create -n wiseflow python=3.10
     conda activate wiseflow
     cd core
-    pip install -r requirement.txt
+    pip install -r requirements.txt
     ```
 
     その後、core/scriptsにあるスクリプトでpb、task、backendを個別に起動できます（スクリプトファイルをcoreディレクトリに移動）。
