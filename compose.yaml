@@ -10,7 +10,7 @@ services:
       # - LC_ALL=zh_CN.UTF-8
     tty: true
     stdin_open: true
-    entrypoint: bash ./core/docker_entrypoint.sh
+    entrypoint: bash /core/docker_entrypoint.sh
     env_file:
       - .env
     ports:
