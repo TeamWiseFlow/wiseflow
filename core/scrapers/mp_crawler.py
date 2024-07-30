@@ -48,14 +48,12 @@ async def mp_crawler(url: str, logger) -> (int, dict):
         try:
             meta_description = soup.find('meta', attrs={'name': 'description'})
             summary = meta_description['content'].strip() if meta_description else ''
-            card_info = soup.find('div', id='img-content')
+            # card_info = soup.find('div', id='img-content')
             # Parse the required content from the < div > tag
             rich_media_title = soup.find('h1', id='activity-name').text.strip() \
                 if soup.find('h1', id='activity-name') \
                 else soup.find('h1', class_='rich_media_title').text.strip()
-            profile_nickname = card_info.find('strong', class_='profile_nickname').text.strip() \
-                if card_info \
-                else soup.find('div', class_='wx_follow_nickname').text.strip()
+            profile_nickname = soup.find('div', class_='wx_follow_nickname').text.strip()
         except Exception as e:
             logger.warning(f"not mp format: {url}\n{e}")
             # For mp.weixin.qq.com types, mp_crawler won't work, and most likely neither will the other two

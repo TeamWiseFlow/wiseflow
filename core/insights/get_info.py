@@ -80,8 +80,9 @@ def get_info(article_content: str) -> list[dict]:
             if tag not in focus_list:
                 logger.info(f'tag not in focus_list: {tag}, aborting')
                 continue
-            info = ''.join(strings[1:])
-            info = info.strip()
+            info = strings[1]
+            info = info.split('\n\n')
+            info = info[0].strip()
         except Exception as e:
             logger.info(f'parse error: {e}')
             tag = ''
