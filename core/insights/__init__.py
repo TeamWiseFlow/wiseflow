@@ -103,7 +103,7 @@ async def pipeline(url: str, cache: Dict[str, str] = {}):
 
 
 async def message_manager(_input: dict):
-    source = _input['user_id'].split('@')[-1]
+    source = _input['user_id']
     logger.debug(f"received new task, user: {source}, Addition info: {_input['addition']}")
     if _input['type'] == 'publicMsg':
         items = item_pattern.findall(_input["content"])
@@ -148,6 +148,9 @@ async def message_manager(_input: dict):
                     logger.warning(f"cannot find url in \n{_input['content']}")
                     return
         extract_url = item.group(1).replace('amp;', '')
-        await pipeline(extract_url)
+        summary_match = re.search(r'<des>(.*?)</des>', _input["content"], re.DOTALL)
+        summary = summary_match.group(1) if summary_match else None
+        cache = {'source': source, 'abstract': summary}
+        await pipeline(extract_url, cache)
     else:
         return
