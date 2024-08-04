@@ -102,7 +102,7 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
     pip install -r requirements.txt
     ```
 
-    その後、core/scriptsにあるスクリプトでpb、task、backendを個別に起動できます（スクリプトファイルをcoreディレクトリに移動）。
+    その後、core/scripts のスクリプトを参照して、pb、task、backend をそれぞれ起動することができます（スクリプトファイルを core ディレクトリに移動してください）。
 
     注意:
     - pbを最初に起動してください。taskとbackendは独立したプロセスなので、順番は問いません。また、必要に応じてどれか一つだけを起動することもできます。
@@ -119,6 +119,8 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
 
 
 4. **設定**
+
+    Windows ユーザーは、「スタート - 設定 - システム - バージョン情報 - システムの詳細設定 - 環境変数」で以下の項目を直接設定できます。設定後、変更を有効にするには端末を再起動する必要があります。
 
     `env_sample`をコピーし、`.env`に名前を変更してから、以下のように設定情報（LLMサービスのトークンなど）を記入します。
 

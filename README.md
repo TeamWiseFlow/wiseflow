@@ -106,7 +106,7 @@ WiseFlow has virtually no hardware requirements, with minimal system overhead, a
     pip install -r requirements.txt
     ```
 
-    You can then start pb, task, and backend individually using the scripts in core/scripts (move the script files to the core directory).
+    Afterward, you can refer to the scripts in core/scripts to start pb, task, and backend respectively (move the script files to the core directory).
 
     Note:
     - Start pb first; task and backend are independent processes, and the order doesn't matter. You can start any one of them as needed.
@@ -123,6 +123,8 @@ WiseFlow has virtually no hardware requirements, with minimal system overhead, a
 
 
 4. **Configuration**
+    
+    Windows users can set the following items directly in "Start - Settings - System - About - Advanced System Settings - Environment Variables". After setting, a terminal restart is required for the changes to take effect.
 
     Copy `env_sample` from the directory and rename it to `.env`, then fill in your configuration information (such as LLM service tokens) as follows:
 

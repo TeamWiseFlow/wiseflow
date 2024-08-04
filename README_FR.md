@@ -104,14 +104,13 @@ WiseFlow n'a pratiquement aucune exigence matérielle, avec une empreinte systè
     pip install -r requirements.txt
     ```
 
-    Vous pouvez ensuite démarrer pb, task, et backend individuellement en utilisant les scripts dans core/scripts (déplacez les fichiers de script dans le répertoire core).
+    Ensuite, vous pouvez vous référer aux scripts dans core/scripts pour démarrer pb, task et backend respectivement (déplacez les fichiers de script dans le répertoire core).
 
     Remarque :
     - Commencez par démarrer pb ; task et backend sont des processus indépendants, et l'ordre n'a pas d'importance. Vous pouvez démarrer l'un d'entre eux selon vos besoins.
     - Téléchargez le client pocketbase adapté à votre appareil depuis https://pocketbase.io/docs/ et placez-le dans le répertoire /core/pb.
     - Pour les problèmes avec pb (y compris les erreurs au premier démarrage), référez-vous à [core/pb/README.md](/core/pb/README.md).
     - Avant utilisation, créez et éditez un fichier `.env` et placez-le dans le répertoire racine du dépôt wiseflow (le répertoire supérieur à core). Référez-vous à `env_sample` pour le fichier `.env`, et consultez ci-dessous pour une configuration détaillée.
-
 
     📚 Pour les développeurs, consultez [/core/README.md](/core/README.md) pour plus d'informations.
 
@@ -121,6 +120,8 @@ WiseFlow n'a pratiquement aucune exigence matérielle, avec une empreinte systè
 
 
 4. **Configuration**
+    
+    Les utilisateurs de Windows peuvent définir les éléments suivants directement dans "Démarrer - Paramètres - Système - À propos de - Paramètres système avancés - Variables d'environnement". Après avoir effectué les réglages, un redémarrage du terminal est nécessaire pour que les modifications prennent effet.
 
     Copiez `env_sample` du répertoire et renommez-le en `.env`, puis remplissez vos informations de configuration (comme les tokens de service LLM) comme suit :
 
