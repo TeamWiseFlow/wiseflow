@@ -102,7 +102,7 @@ WiseFlow hat fast keine Hardwareanforderungen, minimale Systemlast und benötigt
     pip install -r requirements.txt
     ```
 
-    Sie können dann pb, task und backend einzeln mit den Skripten im core/scripts-Verzeichnis starten (verschieben Sie die Skriptdateien in das core-Verzeichnis).
+    Danach können Sie die Skripte in core/scripts verwenden, um pb, task und backend jeweils zu starten (verschieben Sie die Skriptdateien in das Core-Verzeichnis).
 
     Hinweis:
     - Starten Sie zuerst pb; task und backend sind unabhängige Prozesse und die Reihenfolge spielt keine Rolle. Sie können auch nur einen der beiden nach Bedarf starten.
@@ -119,6 +119,8 @@ WiseFlow hat fast keine Hardwareanforderungen, minimale Systemlast und benötigt
 
 
 4. **Konfiguration**
+
+    Windows-Benutzer können die folgenden Elemente direkt unter "Start - Einstellungen - System - Über - Erweiterte Systemeinstellungen - Umgebungsvariablen" festlegen. Nach dem Festlegen ist ein Neustart des Terminals erforderlich, damit die Änderungen wirksam werden.
 
     Kopieren Sie `env_sample` aus dem Verzeichnis und benennen Sie es in `.env` um, füllen Sie dann Ihre Konfigurationsinformationen (wie LLM-Dienst-Token) wie folgt aus:
 

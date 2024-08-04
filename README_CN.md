@@ -105,7 +105,7 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
     pip install -r requirements.txt
     ```
 
-    之后可以通过core/scrips 中的脚本分别启动pb、task和backend （将脚本文件移动到core目录下）
+    之后可以参考core/scrips 中的脚本分别启动pb、task和backend （将脚本文件移动到core目录下）
     
     注意：
     - 一定要先启动pb，task和backend是独立进程，先后顺序无所谓，也可以按需求只启动其中一个；
@@ -125,6 +125,8 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
 4. **配置**
 
     复制目录下的env_sample，并改名为.env, 参考如下 填入你的配置信息（LLM服务token等）
+    
+    **windows用户可以直接在 “开始 - 设置 - 系统 - 关于 - 高级系统设置 - 环境变量“ 中设置如下项目，设置后需要重启终端生效**
 
    - LLM_API_KEY # 大模型推理服务API KEY
    - LLM_API_BASE # 本项目依赖openai sdk，只要模型服务支持openai接口，就可以通过配置该项正常使用，如使用openai服务，删除这一项即可
