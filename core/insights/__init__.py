@@ -137,7 +137,17 @@ async def message_manager(_input: dict):
 
     elif _input['type'] == 'url':
         # this is remained for wechat shared mp_article_card
-        # todo will do it in project awada (need finish the generalMsg api first)
-        return
+        item = re.search(r'<shareUrlOpen>(.*?);chksm=', _input["content"], re.DOTALL)
+        if not item:
+            logger.debug("shareUrlOpen not find")
+            item = re.search(r'<shareUrlOriginal>(.*?);chksm=', _input["content"], re.DOTALL)
+            if not item:
+                logger.debug("shareUrlOriginal not find")
+                item = re.search(r'<url>(.*?);chksm=', _input["content"], re.DOTALL)
+                if not item:
+                    logger.warning(f"cannot find url in \n{_input['content']}")
+                    return
+        extract_url = item.group(1)
+        await pipeline(extract_url)
     else:
         return
