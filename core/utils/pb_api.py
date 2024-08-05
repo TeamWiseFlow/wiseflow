@@ -1,7 +1,7 @@
 import os
 from pocketbase import PocketBase  # Client also works the same
 from pocketbase.client import FileUpload
-from typing import BinaryIO
+from typing import BinaryIO, Optional, List, Dict
 
 
 class PbTalker:
@@ -13,7 +13,7 @@ class PbTalker:
         self.client = PocketBase(url)
         auth = os.environ.get('PB_API_AUTH', '')
         if not auth or "|" not in auth:
-            self.logger.warnning("invalid email|password found, will handle with not auth, make sure you have set the collection rule by anyone")
+            self.logger.warning("invalid email|password found, will handle with not auth, make sure you have set the collection rule by anyone")
         else:
             email, password = auth.split('|')
             try:
@@ -27,7 +27,7 @@ class PbTalker:
                 else:
                     raise Exception("pocketbase auth failed")
 
-    def read(self, collection_name: str, fields: list[str] = None, filter: str = '', skiptotal: bool = True) -> list:
+    def read(self, collection_name: str, fields: Optional[List[str]] = None, filter: str = '', skiptotal: bool = True) -> list:
         results = []
         for i in range(1, 10):
             try:
@@ -46,7 +46,7 @@ class PbTalker:
                 results.append(attributes)
         return results
 
-    def add(self, collection_name: str, body: dict) -> str:
+    def add(self, collection_name: str, body: Dict) -> str:
         try:
             res = self.client.collection(collection_name).create(body)
         except Exception as e:
@@ -54,7 +54,7 @@ class PbTalker:
             return ''
         return res.id
 
-    def update(self, collection_name: str, id: str, body: dict) -> str:
+    def update(self, collection_name: str, id: str, body: Dict) -> str:
         try:
             res = self.client.collection(collection_name).update(id, body)
         except Exception as e:
@@ -80,7 +80,7 @@ class PbTalker:
             return ''
         return res.id
 
-    def view(self, collection_name: str, item_id: str, fields: list[str] = None) -> dict:
+    def view(self, collection_name: str, item_id: str, fields: Optional[List[str]] = None) -> Dict:
         try:
             res = self.client.collection(collection_name).get_one(item_id, {"fields": ','.join(fields) if fields else ''})
             return vars(res)
