@@ -105,13 +105,13 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
     pip install -r requirements.txt
     ```
 
-    之后可以参考core/scrips 中的脚本分别启动pb、task和backend （将脚本文件移动到core目录下）
+    之后可以参考core/scripts 中的脚本分别启动pb、task和backend （将脚本文件移动到core目录下）
     
     注意：
     - 一定要先启动pb，task和backend是独立进程，先后顺序无所谓，也可以按需求只启动其中一个；
     - 需要先去这里 https://pocketbase.io/docs/ 下载对应自己设备的pocketbase客户端，并放置在 /core/pb 目录下
     - pb运行问题（包括首次运行报错等）参考 [core/pb/README.md](/core/pb/README.md) 
-    - 使用前请创建并编辑.env文件，放置在wiseflow代码仓根目录（core目录的上级），.evn文件可以参考env_sample，详细配置说明见下
+    - 使用前请创建并编辑.env文件，放置在wiseflow代码仓根目录（core目录的上级），.env文件可以参考env_sample，详细配置说明见下
     
 
     📚 for developer， see [/core/README.md](/core/README.md) for more
