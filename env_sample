@@ -6,5 +6,5 @@ export REWRITE_MODEL="alibaba/Qwen2-7B-Instruct"
 export HTML_PARSE_MODEL="alibaba/Qwen2-7B-Instruct" ##or"01-ai/Yi-1.5-9B-Chat"
 export PROJECT_DIR="work_dir"
 export PB_API_AUTH="test@example.com|1234567890"
-export "PB_API_BASE"="" ##only use if your pb not run on 127.0.0.1:8090
+# export "PB_API_BASE"="" ##only use if your pb not run on 127.0.0.1:8090
 export WS_LOG="verbose" ##for detail log info. If not need, just delete this item.
