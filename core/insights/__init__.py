@@ -37,69 +37,78 @@ async def pipeline(url: str, cache: Dict[str, str] = {}):
         elif flag <= 0:
             logger.error("got article failed, pipeline abort")
             continue
-
-        expiration = datetime.now() - timedelta(days=expiration_days)
-        expiration_date = expiration.strftime('%Y-%m-%d')
-        article_date = int(result['publish_time'])
-        if article_date < int(expiration_date.replace('-', '')):
-            logger.info(f"publish date is {article_date}, too old, skip")
+        elif flag == 11:
+            add_new(cache, result)
+            continue
+        elif flag == 111:
+            for item in result:
+                add_new(cache, item)
             continue
 
-        for k, v in cache.items():
-            if v:
-                result[k] = v
+def add_new(cache, result):
+    expiration = datetime.now() - timedelta(days=expiration_days)
+    expiration_date = expiration.strftime('%Y-%m-%d')
+    article_date = int(result['publish_time'])
+    if article_date < int(expiration_date.replace('-', '')):
+        logger.info(f"publish date is {article_date}, too old, skip")
+        return
+
+    for k, v in cache.items():
+        if v:
+            result[k] = v
 
         # get info process
-        logger.debug(f"article: {result['title']}")
-        article_id = pb.add(collection_name='articles', body=result)
-        if not article_id:
-            logger.error('add article failed, writing to cache_file')
-            with open(os.path.join(project_dir, 'cache_articles.json'), 'a', encoding='utf-8') as f:
-                json.dump(result, f, ensure_ascii=False, indent=4)
-            continue
+    logger.debug(f"article: {result['title']}")
+    article_id = pb.add(collection_name='articles', body=result)
+    if not article_id:
+        logger.error('add article failed, writing to cache_file')
+        with open(os.path.join(project_dir, 'cache_articles.json'), 'a', encoding='utf-8') as f:
+            json.dump(result, f, ensure_ascii=False, indent=4)
+        return
+        
 
-        insights = get_info(f"title: {result['title']}\n\ncontent: {result['content']}")
-        if not insights:
-            continue
+    insights = get_info(f"title: {result['title']}\n\ncontent: {result['content']}")
+    if not insights:
+        return
 
         # post process
-        article_tags = set()
-        old_insights = pb.read(collection_name='insights', filter=f"updated>'{expiration_date}'",
+    article_tags = set()
+    old_insights = pb.read(collection_name='insights', filter=f"updated>'{expiration_date}'",
                                fields=['id', 'tag', 'content', 'articles'])
-        for insight in insights:
-            article_tags.add(insight['tag'])
-            insight['articles'] = [article_id]
-            old_insight_dict = {i['content']: i for i in old_insights if i['tag'] == insight['tag']}
+    for insight in insights:
+        article_tags.add(insight['tag'])
+        insight['articles'] = [article_id]
+        old_insight_dict = {i['content']: i for i in old_insights if i['tag'] == insight['tag']}
 
             # the result wanted is whether the extracted information phrases are talking about the same thing,
             # it may not be suitable and too heavy to calculate the similarity with a vector model
             # Therefore, a simplified solution is used here, directly using jieba to calculate whether the overlap between the two phrases exceeds.
-            similar_insights = compare_phrase_with_list(insight['content'], list(old_insight_dict.keys()), 0.65)
-            if similar_insights:
-                to_rewrite = similar_insights + [insight['content']]
-                new_info_content = info_rewrite(to_rewrite)
-                if not new_info_content:
-                    continue
-                insight['content'] = new_info_content
+        similar_insights = compare_phrase_with_list(insight['content'], list(old_insight_dict.keys()), 0.65)
+        if similar_insights:
+            to_rewrite = similar_insights + [insight['content']]
+            new_info_content = info_rewrite(to_rewrite)
+            if not new_info_content:
+                continue
+            insight['content'] = new_info_content
                 # Merge related articles and delete old insights
-                for old_insight in similar_insights:
-                    insight['articles'].extend(old_insight_dict[old_insight]['articles'])
-                    if not pb.delete(collection_name='insights', id=old_insight_dict[old_insight]['id']):
-                        logger.error('delete insight failed')
-                    old_insights.remove(old_insight_dict[old_insight])
+            for old_insight in similar_insights:
+                insight['articles'].extend(old_insight_dict[old_insight]['articles'])
+                if not pb.delete(collection_name='insights', id=old_insight_dict[old_insight]['id']):
+                    logger.error('delete insight failed')
+                old_insights.remove(old_insight_dict[old_insight])
 
-            insight['id'] = pb.add(collection_name='insights', body=insight)
-            if not insight['id']:
-                logger.error('add insight failed, writing to cache_file')
-                with open(os.path.join(project_dir, 'cache_insights.json'), 'a', encoding='utf-8') as f:
-                    json.dump(insight, f, ensure_ascii=False, indent=4)
+        insight['id'] = pb.add(collection_name='insights', body=insight)
+        if not insight['id']:
+            logger.error('add insight failed, writing to cache_file')
+            with open(os.path.join(project_dir, 'cache_insights.json'), 'a', encoding='utf-8') as f:
+                json.dump(insight, f, ensure_ascii=False, indent=4)
 
-        _ = pb.update(collection_name='articles', id=article_id, body={'tag': list(article_tags)})
-        if not _:
-            logger.error(f'update article failed - article_id: {article_id}')
-            result['tag'] = list(article_tags)
-            with open(os.path.join(project_dir, 'cache_articles.json'), 'a', encoding='utf-8') as f:
-                json.dump(result, f, ensure_ascii=False, indent=4)
+    _ = pb.update(collection_name='articles', id=article_id, body={'tag': list(article_tags)})
+    if not _:
+        logger.error(f'update article failed - article_id: {article_id}')
+        result['tag'] = list(article_tags)
+        with open(os.path.join(project_dir, 'cache_articles.json'), 'a', encoding='utf-8') as f:
+            json.dump(result, f, ensure_ascii=False, indent=4)
 
 
 async def message_manager(_input: dict):
