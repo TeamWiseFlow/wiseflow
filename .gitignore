@@ -14,3 +14,7 @@ core/work_dir/
 /work_dir
 .vscode/launch.json
 .gitignore
+core/pb/pb_migrations/1723602975_created_roleplays.js
+core/pb/pb_migrations/1723603124_updated_roleplays.js
+dashboard/work_dir/backend_service/tg2cxvy9p8jqxrc_a537b1bc-11c7-48d8-88b7-bdcef8c76ace.docx
+dashboard/work_dir/backend_service.log

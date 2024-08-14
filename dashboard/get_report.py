@@ -1,7 +1,10 @@
 import random
 import re
 import os
-from core.backend import dashscope_llm
+import sys
+sys.path.append('../')
+# from core.backend import dashscope_llm
+from core.llms.openai_wrapper import openai_llm
 from docx import Document
 from docx.oxml.ns import qn
 from docx.shared import Pt, RGBColor
@@ -10,12 +13,17 @@ from datetime import datetime
 from general_utils import isChinesePunctuation
 from general_utils import get_logger_level
 from loguru import logger
-from pb_api import PbTalker
+# from pb_api import PbTalker
+from core.utils.pb_api import PbTalker
+
 
 project_dir = os.environ.get("PROJECT_DIR", "")
 os.makedirs(project_dir, exist_ok=True)
 logger_file = os.path.join(project_dir, 'backend_service.log')
 dsw_log = get_logger_level()
+
+get_info_model = os.environ.get("GET_INFO_MODEL", "gpt-3.5-turbo")
+rewrite_model = os.environ.get("REWRITE_MODEL", "gpt-3.5-turbo")
 
 logger.add(
     logger_file,
@@ -121,8 +129,8 @@ def get_report(insigt: str, articles: list[dict], memory: str, topics: list[str]
     check_list = [_[1:] for _ in check_list if _.startswith('【')]
     result = ''
     for i in range(2):
-        result = dashscope_llm([{'role': 'system', 'content': system_prompt}, {'role': 'user', 'content': user_prompt}],
-                               'qwen1.5-72b-chat', seed=random.randint(1, 10000), logger=logger)
+        result = openai_llm([{'role': 'system', 'content': system_prompt}, {'role': 'user', 'content': user_prompt}],
+                               model=get_info_model, logger=logger, temperature=0.1)
         logger.debug(f"raw result:\n{result}")
         if len(result) > 50:
             check_flag = True

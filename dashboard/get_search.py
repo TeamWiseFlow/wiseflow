@@ -1,5 +1,5 @@
-from .simple_crawler import simple_crawler
-from .mp_crawler import mp_crawler
+# from .simple_crawler import simple_crawler
+# from .mp_crawler import mp_crawler
 from typing import Union
 from pathlib import Path
 import requests
