@@ -187,7 +187,7 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
 
 ## 🛡️ 许可协议
 
-本项目基于 [Apach2.0](LICENSE) 开源。
+本项目基于 [Apache2.0](LICENSE) 开源。
 
 商用以及定制合作，请联系 **Email：35252986@qq.com** 
 
