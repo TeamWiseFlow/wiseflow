@@ -15,7 +15,10 @@ from typing import Dict
 item_pattern = re.compile(r'<item>(.*?)</item>', re.DOTALL)
 url_pattern = re.compile(r'<url><!\[CDATA\[(.*?)]]></url>')
 summary_pattern = re.compile(r'<summary><!\[CDATA\[(.*?)]]></summary>', re.DOTALL)
-
+extensions = ('.pdf', '.docx', '.xlsx', '.doc', '.ppt', '.pptx', '.xls', '.txt', '.jpg', '.jpeg', '.png', '.gif', '.bmp',
+              '.tiff', '.mp4', '.avi', '.wmv', '.mkv', '.flv', '.wav', '.mp3', '.avi', '.mov', '.wmv', '.mpeg', '.mpg',
+              '.3gp', '.ogg', '.webm', '.m4a', '.aac', '.flac', '.wma', '.amr', '.ogg', '.m4v', '.m3u8', '.m3u', '.ts',
+              '.mts')
 expiration_days = 3
 existing_urls = {url['url'] for url in pb.read(collection_name='articles', fields=['url']) if url['url']}
 
@@ -24,7 +27,9 @@ async def pipeline(url: str, cache: Dict[str, str] = {}):
     working_list = {url}
     while working_list:
         url = working_list.pop()
-        existing_urls.add(url)
+        if any(url.endswith(ext) for ext in extensions):
+            logger.info(f"{url} is a file, skip")
+            continue
         logger.debug(f"start processing {url}")
 
         # get article process

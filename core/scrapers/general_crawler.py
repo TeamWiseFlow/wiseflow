@@ -205,7 +205,7 @@ async def general_crawler(url: str, logger) -> tuple[int, Union[set, dict]]:
             result["author"] = ""
 
     # 5. post process
-    date_str = extract_and_convert_dates(result['publish_time'])
+    date_str = extract_and_convert_dates(result.get('publish_time', ''))
     if date_str:
         result['publish_time'] = date_str
     else:
