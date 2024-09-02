@@ -1,11 +1,10 @@
 from llms.openai_wrapper import openai_llm
 # from llms.siliconflow_wrapper import sfa_llm
 import re
-from utils.general_utils import get_logger_level
+from utils.general_utils import get_logger_level, is_chinese
 from loguru import logger
 from utils.pb_api import PbTalker
 import os
-import locale
 
 
 get_info_model = os.environ.get("GET_INFO_MODEL", "gpt-3.5-turbo")
@@ -27,34 +26,58 @@ logger.add(
 pb = PbTalker(logger)
 
 focus_data = pb.read(collection_name='tags', filter=f'activated=True')
+if not focus_data:
+    logger.error('no activated tag found, please set at least one')
+    exit(1)
+
 focus_list = [item["name"] for item in focus_data if item["name"]]
 focus_dict = {item["name"]: item["id"] for item in focus_data if item["name"]}
+lang_term = ''.join([f'{item["name"]}{item["explaination"]}' for item in focus_data if item["name"]])
+focus_statement = '\n'.join([f'<tag>{item["name"]}</tag>{item["explaination"]}' for item in focus_data if item["name"] and item["explaination"]])
 
-sys_language, _ = locale.getdefaultlocale()
-
-if sys_language == 'zh_CN':
-
-    system_prompt = f'''请仔细阅读用户输入的新闻内容，并根据所提供的类型列表进行分析。类型列表如下：
+if is_chinese(lang_term):
+    if focus_statement:
+        system_prompt = f'''请仔细阅读用户输入的新闻内容，并根据所提供的类型标签列表进行分析。类型标签列表如下：
 {focus_list}
 
-如果新闻中包含上述任何类型的信息，请使用以下格式标记信息的类型，并提供仅包含时间、地点、人物和事件的一句话信息摘要：
+各标签的含义如下：
+{focus_statement}
+
+如果新闻中包含上述任何类型的信息，请使用以下格式标记信息的类型标签，并提供仅包含时间、地点、人物和事件的一句话信息摘要：
 <tag>类型名称</tag>仅包含时间、地点、人物和事件的一句话信息摘要
 
-如果新闻中包含多个信息，请逐一分析并按一条一行的格式输出，如果新闻不涉及任何类型的信息，则直接输出：无。
-务必注意：1、严格忠于新闻原文，不得提供原文中不包含的信息；2、对于同一事件，仅选择一个最贴合的tag，不要重复输出；3、仅用一句话做信息摘要，且仅包含时间、地点、人物和事件；4、严格遵循给定的格式输出。'''
+务必注意：1、严格忠于新闻原文，不得提供原文中不包含的信息；2、对于同一事件，仅选择一个最贴合的标签，不要重复输出；3、如果新闻中包含多个信息，请逐一分析并按一条一行的格式输出，如果新闻不涉及任何类型的信息，则直接输出：无。'''
+    else:
+        system_prompt = f'''请仔细阅读用户输入的新闻内容，并根据所提供的类型标签列表进行分析。类型标签列表如下：
+{focus_list}
+
+如果新闻中包含上述任何类型的信息，请使用以下格式标记信息的类型标签，并提供仅包含时间、地点、人物和事件的一句话信息摘要：
+<tag>类型名称</tag>仅包含时间、地点、人物和事件的一句话信息摘要
+
+务必注意：1、严格忠于新闻原文，不得提供原文中不包含的信息；2、对于同一事件，仅选择一个最贴合的标签，不要重复输出；3、如果新闻中包含多个信息，请逐一分析并按一条一行的格式输出，如果新闻不涉及任何类型的信息，则直接输出：无。'''
 
     rewrite_prompt = '''请综合给到的内容，提炼总结为一个新闻摘要。给到的内容会用XML标签分隔。请仅输出总结出的摘要，不要输出其他的信息。'''
 
 else:
-
-    system_prompt = f'''Please carefully read the user-inputted news content and analyze it based on the provided list of categories:
+    if focus_statement:
+        system_prompt = f'''Please carefully read the news content provided by the user and analyze it according to the list of type labels given below:
 {focus_list}
 
-If the news contains any information related to the above categories, mark the type of information using the following format and provide a one-sentence summary containing only the time, location, who involved, and the event:
-<tag>Category Name</tag> One-sentence summary including only time, location, who, and event.
+The meanings of each label are as follows:
+{focus_statement}
 
-If the news includes multiple pieces of information, analyze each one separately and output them in a line-by-line format. If the news does not involve any of the listed categories, simply output: N/A.
-Important guidelines to follow: 1) Adhere strictly to the original news content, do not provide information not contained in the original text; 2) For the same event, select only the most fitting tag, avoiding duplicate outputs; 3) Summarize using just one sentence, and limit it to time, location, who, and event only; 4) Strictly comply with the given output format.'''
+If the news contains any information of the aforementioned types, please mark the type label of the information using the following format and provide a one-sentence summary containing only the time, location, people involved, and event:
+<tag>TypeLabel</tag>A one-sentence summary containing only the time, location, people involved, and event
+
+Please be sure to: 1. Strictly adhere to the original text and do not provide information not contained in the original; 2. For the same event, choose only one most appropriate label and do not repeat the output; 3. If the news contains multiple pieces of information, analyze them one by one and output them in a one-line-per-item format. If the news does not involve any of the types of information, simply output: None.'''
+    else:
+        system_prompt = f'''Please carefully read the news content provided by the user and analyze it according to the list of type labels given below:
+{focus_list}
+
+If the news contains any information of the aforementioned types, please mark the type label of the information using the following format and provide a one-sentence summary containing only the time, location, people involved, and event:
+<tag>TypeLabel</tag>A one-sentence summary containing only the time, location, people involved, and event
+
+Please be sure to: 1. Strictly adhere to the original text and do not provide information not contained in the original; 2. For the same event, choose only one most appropriate label and do not repeat the output; 3. If the news contains multiple pieces of information, analyze them one by one and output them in a one-line-per-item format. If the news does not involve any of the types of information, simply output: None.'''
 
     rewrite_prompt = "Please synthesize the content provided, which will be segmented by XML tags, into a news summary. Output only the summarized abstract without including any additional information."
 
@@ -68,7 +91,7 @@ def get_info(article_content: str) -> list[dict]:
     texts = result.split('<tag>')
     texts = [_.strip() for _ in texts if '</tag>' in _.strip()]
     if not texts:
-        logger.info(f'can not find info, llm result:\n{result}')
+        logger.debug(f'can not find info, llm result:\n{result}')
         return []
 
     cache = []
