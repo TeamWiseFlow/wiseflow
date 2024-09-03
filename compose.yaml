@@ -3,11 +3,6 @@ services:
     build:
       dockerfile: Dockerfile
     image: wiseflow:latest
-    # set following as you need
-    # environment:
-      # - TZ=Asia/Shanghai
-      # - LANG=zh_CN.UTF-8
-      # - LC_ALL=zh_CN.UTF-8
     tty: true
     stdin_open: true
     entrypoint: bash docker_entrypoint.sh

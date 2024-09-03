@@ -35,7 +35,7 @@ app.add_middleware(
 
 @app.get("/")
 def read_root():
-    msg = "Hello, this is Wise Union Backend, version 0.3.0"
+    msg = "Hello, this is Wise Union Backend, version 0.3.1"
     return {"msg": msg}
 
 

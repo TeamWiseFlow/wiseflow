@@ -38,7 +38,13 @@ async def mp_crawler(url: str, logger) -> tuple[int, Union[set, dict]]:
         if url.startswith('https://mp.weixin.qq.com/mp/appmsgalbum'):
             # 文章目录
             urls = {li.attrs['data-link'].replace("http://", "https://", 1) for li in soup.find_all('li', class_='album__list-item')}
-            return 1, set(urls)
+            simple_urls = set()
+            for url in urls:
+                cut_off_point = url.find('chksm=')
+                if cut_off_point != -1:
+                    url = url[:cut_off_point - 1]
+                simple_urls.add(url)
+            return 1, simple_urls
 
         # Get the original release date first
         pattern = r"var createTime = '(\d{4}-\d{2}-\d{2}) \d{2}:\d{2}'"
