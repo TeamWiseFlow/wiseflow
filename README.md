@@ -1,6 +1,6 @@
 # 首席情报官（Wiseflow）
 
-**[English](README.md) | [日本語](README_JP.md) | [Français](README_FR.md) | [Deutsch](README_DE.md)**
+**[English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md)**
 
 🚀 **首席情报官**（Wiseflow）是一个敏捷的信息挖掘工具，可以从网站、微信公众号、社交平台等各种信息源中按设定的关注点提炼讯息，自动做标签归类并上传数据库。
 
@@ -19,19 +19,19 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
 
 ## 🔥 V0.3.1 更新
     
-虽然部分9b大小的LLM（THUDM/glm-4-9b-chat）已经可以实现稳定的信息提取输出，但是我们发现对于复杂含义的tag（比如“党建”）或者需要特指的tag（比如仅需采集“居民区活动”，而不希望包括诸如演唱会这样的大型活动信息），
+👏 虽然部分9b大小的LLM（THUDM/glm-4-9b-chat）已经可以实现稳定的信息提取输出，但是我们发现对于复杂含义的tag（比如“党建”）或者需要特指的tag（比如仅需采集“居民区活动”，而不希望包括诸如演唱会这样的大型活动信息），
 使用目前的prompt还是不能进行准确的提取，因此我们在这一版本中为每个tag增加了explaination字段，可以通过输入该字段进行更加清晰的tag指定。
 
-   _注：复杂explaination需要更大规模的模型才能准确理解，具体见 [模型推荐 2024-09-03](#model_suggestion)_
+   _注：复杂explaination需要更大规模的模型才能准确理解，具体见 [模型推荐 2024-09-03](###-4. 模型推荐 [2024-09-03])_
 
-另外针对上一版本prompt语言选择的问题（虽然这并不影响输出结果），我们在目前版本中进一步简化了方案，用户无需指定系统语言（这在docker中并不那么直观），系统会根据tag以及tag的explaination判断选择何种语言的
+👏  另外针对上一版本prompt语言选择的问题（虽然这并不影响输出结果），我们在目前版本中进一步简化了方案，用户无需指定系统语言（这在docker中并不那么直观），系统会根据tag以及tag的explaination判断选择何种语言的
 prompt（也就决定了info的输出语言），这进一步简化了wiseflow的部署和使用。【不过目前wiseflow仅支持简体中文和英文两种语言，其他语言的需求可以通过更改 core/insights/get_info.py 中的prompt实现】
     
 🌹另外本次更新合并了过去两个月的PR，本次新增contributor如下：
 
 @wwz223 @madizm @GuanYixuan @xnp2020 @JimmyMa99
 
-感谢大家的贡献！🌹
+🌹 感谢大家的贡献！
 
 ## 🌟 如何在您的应用中整合wiseflow
 
@@ -40,10 +40,9 @@ wiseflow 是一个原生的LLM应用，仅需7B~9B大小LLM就可以很好的执
 wiseflow 将挖掘出的信息存储于自带的Pocketbase数据库中，这意味着整合无需深入了解wiseflow的代码，只需要对数据库进行读取操作即可！
 
 PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 等语言的SDK。
-    
-    - Go : https://pocketbase.io/docs/go-overview/
-    - Javascript : https://pocketbase.io/docs/js-overview/
-    - python : https://github.com/vaphes/pocketbase
+   - Go : https://pocketbase.io/docs/go-overview/
+   - Javascript : https://pocketbase.io/docs/js-overview/
+   - python : https://github.com/vaphes/pocketbase
 
 ## 🔄 wiseflow 与常见的爬虫工具、LLM-Agent类项目有何不同与关联？
 
@@ -126,7 +125,7 @@ pip install -r requirements.txt
    - PB_API_BASE  # 正常使用无需这一项，只有当你不使用默认的pocketbase本地接口（8090）时才需要
     
     
-### 4. 模型推荐 [2024-09-03]{#model_suggestion}
+### 4. 模型推荐 [2024-09-03]
 
 经过反复测试（中英文任务）**GET_INFO_MODEL**、**REWRITE_MODEL**、**HTML_PARSE_MODEL** 三项最小可用模型分别为：**"THUDM/glm-4-9b-chat"**、**"Qwen/Qwen2-7B-Instruct"**、**"Qwen/Qwen2-7B-Instruct"**
     
@@ -136,7 +135,7 @@ pip install -r requirements.txt
 
 ⚠️ **V0.3.1更新**
       
-如果您使用带explaination的复杂tag，那么glm-4-9b-chat规模的模型是无法保证准确理解的，目前测试下来针对该类型任务效果比较好的模型为 **"Qwen/Qwen2-72B-Instruct"** 和 **gpt-4o-mini-2024-07-18** 。
+如果您使用带explaination的复杂tag，那么glm-4-9b-chat规模的模型是无法保证准确理解的，目前测试下来针对该类型任务效果比较好的模型为 **Qwen/Qwen2-72B-Instruct** 和 **gpt-4o-mini-2024-07-18** 。
    
 针对有需求使用 `gpt-4o-mini-2024-07-18` 的用户，可以尝试第三方代理 **AiHubMix**，支持国内网络环境直连、支付宝充值（实际费率相当于官网86折）
 
@@ -197,7 +196,7 @@ sites 字段说明：
 - json_repair（Repair invalid JSON documents ） https://github.com/josdejong/jsonrepair/tree/main 
 - python-pocketbase (pocketBase client SDK for python) https://github.com/vaphes/pocketbase
 
-# Citation
+## Citation
 
 如果您在相关工作中参考或引用了本项目的部分或全部，请注明如下信息：
 

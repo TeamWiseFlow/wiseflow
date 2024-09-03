@@ -1,220 +1,208 @@
-# WiseFlow
+# Chief Intelligence Officer (Wiseflow)
 
-**[中文](README_CN.md) | [日本語](README_JP.md) | [Français](README_FR.md) | [Deutsch](README_DE.md)**
+**[中文](README.md) | [日本語](README_JP.md) | [한국어](README_KR.md)**
 
-**Wiseflow** is an agile information extraction tool that can refine information from various sources such as websites, WeChat Public Accounts, and social media platforms based on predefined focus points, automatically categorize tags, and upload to the database.
+🚀 **Chief Intelligence Officer** (Wiseflow) is an agile information mining tool that can extract information from various sources such as websites, WeChat official accounts, social platforms, etc., based on set focus points, automatically categorize with labels, and upload to a database.
 
----
+**What we lack is not information, but the ability to filter out noise from the vast amount of information to reveal valuable information.**
 
-SiliconFlow has officially announced that several LLM online inference services, such as Qwen2-7B-Instruct and glm-4-9b-chat, will be free starting from June 25, 2024. This means you can perform information mining with wiseflow at “zero cost”!
+🌱 See how Chief Intelligence Officer helps you save time, filter out irrelevant information, and organize key points of interest! 🌱
 
----
-
-We are not short of information; what we need is to filter out the noise from the vast amount of information so that valuable information stands out! 
-
-See how WiseFlow helps you save time, filter out irrelevant information, and organize key points of interest!
+- ✅ Universal web content parser, comprehensively using statistical learning (dependent on the open-source project GNE) and LLM, suitable for over 90% of news pages;
+  (**Wiseflow excels in extracting information from WeChat official account articles**, for which we have configured a dedicated mp article parser!)
+- ✅ Asynchronous task architecture;
+- ✅ Information extraction and label classification using LLM (only requires an LLM of 9B size to perfectly execute tasks)!
 
 https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6-c072d8ddfb16
 
 <img alt="sample.png" src="asset/sample.png" width="1024"/>
 
-## 🔥 Major Update V0.3.0
+## 🔥 V0.3.1 Update
 
-- ✅ Completely rewritten general web content parser, using a combination of statistical learning (relying on the open-source project GNE) and LLM, adapted to over 90% of news pages;
+👏 Although some 9B-sized LLMs (THUDM/glm-4-9b-chat) can already achieve stable information extraction output, we found that for complex meaning tags (like "Party Building") or tags that require specific collection (like only collecting "community activities" without including large events like concerts),
+the current prompts cannot perform accurate extraction. Therefore, in this version, we have added an explanation field for each tag, which allows for clearer tag specification through input.
 
+   _Note: Complex explanations require a larger model to understand accurately, see [Model Recommendations 2024-09-03](###-4. Model Recommendations [2024-09-03])_
 
-- ✅ Brand new asynchronous task architecture;
+👏 Additionally, addressing the issue of prompt language selection in the previous version (which does not affect the output results), we have further simplified the solution in the current version. Users no longer need to specify the system language (which is not so intuitive in Docker), the system will determine the language of the prompt (and thus the output language of the info) based on the tag and its explanation, further simplifying the deployment and use of wiseflow. **However, currently wiseflow only supports Simplified Chinese and English, other language needs can be achieved by changing the prompt in core/insights/get_info.py**
 
+🌹 Also, this update merges PRs from the past two months, with the following new contributors:
 
-- ✅ New information extraction and labeling strategy, more accurate, more refined, and can perform tasks perfectly with only a 9B LLM!
+@wwz223 @madizm @GuanYixuan @xnp2020 @JimmyMa99
 
-## 🌟 Key Features
+🌹 Thank you all for your contributions!
 
-- 🚀 **Native LLM Application**  
-  We carefully selected the most suitable 7B~9B open-source models to minimize usage costs and allow data-sensitive users to switch to local deployment at any time.
+## 🌟 How to Integrate wiseflow into Your Application
 
+wiseflow is a native LLM application, requiring only a 7B~9B size LLM to perform information mining, filtering, and classification tasks well, and does not require a vector model, making it suitable for various hardware environments for local and private deployment.
 
-- 🌱 **Lightweight Design**  
-  Without using any vector models, the system has minimal overhead and does not require a GPU, making it suitable for any hardware environment.
+wiseflow stores the mined information in its built-in Pocketbase database, meaning integration does not require in-depth understanding of wiseflow's code, just read operations on the database!
 
+PocketBase, as a popular lightweight database, currently has SDKs for Go/Javascript/Python languages.
+   - Go : https://pocketbase.io/docs/go-overview/
+   - Javascript : https://pocketbase.io/docs/js-overview/
+   - python : https://github.com/vaphes/pocketbase
 
-- 🗃️ **Intelligent Information Extraction and Classification**  
-  Automatically extracts information from various sources and tags and classifies it according to user interests.
+## 🔄 How is wiseflow Different and Related to Common Crawler Tools and LLM-Agent Projects?
 
-  😄 **Wiseflow is particularly good at extracting information from WeChat official account articles**; for this, we have configured a dedicated mp article parser!
-
-
-- 🌍 **Can be Integrated into Any Agent Project**  
-  Can serve as a dynamic knowledge base for any Agent project, without needing to understand the code of Wiseflow, just operate through database reads!
-
-
-- 📦 **Popular Pocketbase Database**  
-  The database and interface use PocketBase. Besides the web interface, SDK for Go/Javascript/Python languages are available.
-    
-    - Go: https://pocketbase.io/docs/go-overview/
-    - Javascript: https://pocketbase.io/docs/js-overview/
-    - Python: https://github.com/vaphes/pocketbase
-
-## 🔄 What are the Differences and Connections between Wiseflow and Common Crawlers, LLM-Agent Projects?
-
-| Feature         | Wiseflow | Crawler / Scraper                        | LLM-Agent                                          |
-|-----------------|--------------------------------------|------------------------------------------|----------------------------------------------------|
-| **Main Problem Solved** | Data processing (filtering, extraction, labeling) | Raw data acquisition                      | Downstream applications                            |
-| **Connection**  |                                      | Can be integrated into Wiseflow for more powerful raw data acquisition | Can integrate Wiseflow as a dynamic knowledge base |
+| Characteristic | Chief Intelligence Officer (Wiseflow) | Crawler / Scraper | LLM-Agent |
+|----------------|--------------------------------------|-------------------|-----------|
+| **Main Problem Solved** | Data Processing (Filtering, Refining, Tagging) | Raw Data Acquisition | Downstream Applications |
+| **Relation** | | Can be integrated into WiseFlow, giving wiseflow stronger raw data acquisition capabilities | Can integrate WiseFlow as a dynamic knowledge base |
 
 ## 📥 Installation and Usage
 
-WiseFlow has virtually no hardware requirements, with minimal system overhead, and does not need GPU or CUDA (when using online LLM services).
+### 1. Clone the Repository
 
-1. **Clone the Repository**
+🌹 Starring and forking are good habits 🌹
 
-     😄 Starring and forking are good habits
+```bash
+git clone https://github.com/TeamWiseFlow/wiseflow.git
+cd wiseflow
+```
 
-    ```bash
-    git clone https://github.com/TeamWiseFlow/wiseflow.git
-    cd wiseflow
-    ```
+### 2. Recommended to Run Using Docker
 
-2. **Highly Recommended: Use Docker**
+```bash
+docker compose up
+```
 
-    **For users in China, please configure your network properly or specify a Docker Hub mirror**
+Note:
+  - Run the above command in the root directory of the wiseflow code repository;
+  - Create and edit the .env file before running, place it in the same directory as the Dockerfile (root directory of the wiseflow code repository), the .env file can refer to env_sample;
+  - The first time you run the docker container, you may encounter an error, which is normal because you have not yet created an admin account for the pb repository. 
 
-    ```bash
-    docker compose up
-    ```
-   You may modify `compose.yaml` as needed.
+At this point, keep the container running, open your browser to http://127.0.0.1:8090/_/, and follow the prompts to create an admin account (must use an email), then fill in the created admin email (again, must be an email) and password into the .env file, and restart the container.
 
-    **Note:**
-    - Run the above command in the root directory of the wiseflow repository.
-    - Before running, create and edit a `.env` file in the same directory as the Dockerfile (root directory of the wiseflow repository). Refer to `env_sample` for the `.env` file.
-    - The first time you run the Docker container, an error might occur because you haven't created an admin account for the pb repository.
+_If you want to change the container's timezone and language, run the image with the following command_
 
-    At this point, keep the container running, open `http://127.0.0.1:8090/_/` in your browser, and follow the instructions to create an admin account (make sure to use an email). Then enter the created admin email (again, make sure it's an email) and password into the `.env` file, and restart the container.
+```bash
+docker run -e LANG=zh_CN.UTF-8 -e LC_CTYPE=zh_CN.UTF-8 your_image
+```
 
-    _If you want to change the container's timezone and language [which will determine the prompt language, but has little effect on the results], run the image with the following command_
+### 2. [Alternative] Run Directly Using Python
 
-    ```bash
-    docker run -e LANG=zh_CN.UTF-8 -e LC_CTYPE=zh_CN.UTF-8 your_image
-    ```
+```bash
+conda create -n wiseflow python=3.10
+conda activate wiseflow
+cd core
+pip install -r requirements.txt
+```
 
-3. **[Alternative] Run Directly with Python**
+Then refer to the scripts in core/scripts to start pb, task, and backend separately (move the script files to the core directory)
 
-    ```bash
-    conda create -n wiseflow python=3.10
-    conda activate wiseflow
-    cd core
-    pip install -r requirements.txt
-    ```
+Note:
+- Be sure to start pb first, task and backend are independent processes, the order of startup does not matter, you can also start only one of them as needed;
+- Download the pocketbase client for your device from https://pocketbase.io/docs/ and place it in the /core/pb directory;
+- For pb runtime issues (including first-time run errors), refer to core/pb/README.md;
+- Create and edit the .env file before use, place it in the root directory of the wiseflow code repository (parent directory of the core directory), the .env file can refer to env_sample, detailed configuration instructions below;
 
-    Afterward, you can refer to the scripts in core/scripts to start pb, task, and backend respectively (move the script files to the core directory).
+📚 For developers, see /core/README.md for more
 
-    Note:
-    - Start pb first; task and backend are independent processes, and the order doesn't matter. You can start any one of them as needed.
-    - Download the pocketbase client suitable for your device from https://pocketbase.io/docs/ and place it in the /core/pb directory.
-    - For issues with pb (including first-run errors), refer to [core/pb/README.md](/core/pb/README.md).
-    - Before use, create and edit a `.env` file and place it in the root directory of the wiseflow repository (the directory above core). Refer to `env_sample` for the `.env` file, and see below for detailed configuration.
+Access data through pocketbase:
 
+http://127.0.0.1:8090/_/ - Admin dashboard UI
 
-    📚 For developers, see [/core/README.md](/core/README.md) for more information.
+http://127.0.0.1:8090/api/ - REST API
 
-    Access data via pocketbase:
-    - http://127.0.0.1:8090/_/ - Admin dashboard UI
-    - http://127.0.0.1:8090/api/ - REST API
+### 3. Configuration
 
+Copy the env_sample in the directory and rename it to .env, fill in your configuration information (such as LLM service token) as follows:
 
-4. **Configuration**
-    
-    Windows users can set the following items directly in "Start - Settings - System - About - Advanced System Settings - Environment Variables". After setting, a terminal restart is required for the changes to take effect.
+Windows users who choose to run the python program directly can set the following items in "Start - Settings - System - About - Advanced System Settings - Environment Variables", and restart the terminal to take effect
 
-    Copy `env_sample` from the directory and rename it to `.env`, then fill in your configuration information (such as LLM service tokens) as follows:
+- LLM_API_KEY # API KEY for large model inference service
 
-   - LLM_API_KEY # API key for large language model inference services
-   - LLM_API_BASE # This project relies on the OpenAI SDK. Configure this if your model service supports OpenAI's API. If using OpenAI's service, you can omit this.
-   - WS_LOG="verbose"  # Set to enable debug observation. Delete if not needed.
-   - GET_INFO_MODEL # Model for information extraction and tag matching tasks, default is gpt-3.5-turbo
-   - REWRITE_MODEL # Model for approximate information merging and rewriting tasks, default is gpt-3.5-turbo
-   - HTML_PARSE_MODEL # Model for web page parsing (intelligently enabled if the GNE algorithm performs poorly), default is gpt-3.5-turbo
-   - PROJECT_DIR # Storage location for data, cache, and log files, relative to the repository. Default is within the repository.
-   - PB_API_AUTH='email|password' # Email and password for the pb database admin (must be an email, can be a fictitious one)
-   - PB_API_BASE  # Typically unnecessary. Only configure if you're not using the default local pocketbase interface (8090).
+- LLM_API_BASE # This project relies on the openai sdk, as long as the model service supports the openai interface, it can be used normally by configuring this item, if using openai service, delete this item
 
+- WS_LOG="verbose" # Set whether to start debug observation, if not needed, delete it
 
-5. **Model Recommendations**
+- GET_INFO_MODEL # Model for information extraction and label matching tasks, default is gpt-4o-mini-2024-07-18
 
-    Based on extensive testing (for both Chinese and English tasks), we recommend **"zhipuai/glm4-9B-chat"** for **GET_INFO_MODEL**, **"alibaba/Qwen2-7B-Instruct"** for **REWRITE_MODEL**, and **"alibaba/Qwen2-7B-Instruct"** for **HTML_PARSE_MODEL**.
+- REWRITE_MODEL # Model for merging and rewriting similar information tasks, default is gpt-4o-mini-2024-07-18
 
-    These models are well-suited for this project, with stable adherence to instructions and excellent generation quality. The project's prompts have been optimized for these three models. (**HTML_PARSE_MODEL** can also use **"01-ai/Yi-1.5-9B-Chat"**, which has been tested to perform excellently.)
+- HTML_PARSE_MODEL # Web page parsing model (smart enabled when GNE algorithm is not effective), default is gpt-4o-mini-2024-07-18
 
+- PROJECT_DIR # Location for storing data, cache, and log files, relative path to the code repository, default is the code repository if not filled
 
-    ⚠️ We highly recommend using **SiliconFlow**'s online inference service for lower costs, faster speeds, and higher free quotas! ⚠️
+- PB_API_AUTH='email|password' # Email and password for pb database admin (note that it must be an email, can be a fictional email)
 
-    SiliconFlow's online inference service is compatible with the OpenAI SDK and provides open-source services for the above three models. Simply configure `LLM_API_BASE` to "https://api.siliconflow.cn/v1" and set `LLM_API_KEY` to use it.
+- PB_API_BASE # This item is not needed for normal use, only when you do not use the default pocketbase local interface (8090)
 
-    😄 Alternatively, you can use my [invitation link](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92), which also rewards me with more tokens 😄
+### 4. Model Recommendations [2024-09-03]
 
+After repeated testing (Chinese and English tasks), the minimum usable models for `GET_INFO_MODEL`, `REWRITE_MODEL`, and `HTML_PARSE_MODEL` are: `"THUDM/glm-4-9b-chat"`, `"Qwen/Qwen2-7B-Instruct"`, and `"Qwen/Qwen2-7B-Instruct"`
 
-6. **Focus Points and Scheduled Source Scanning**
+Currently, SiliconFlow has officially announced that the `Qwen2-7B-Instruct` and `glm-4-9b-chat` online inference services are free, which means you can use wiseflow "at zero cost"!
 
-    After starting the program, open the pocketbase Admin dashboard UI (http://127.0.0.1:8090/_/)
+😄 If you are willing, you can use my [siliconflow invitation link](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92), so I can also get more token rewards 😄
 
-        6.1 Open the **tags form**
+⚠️ V0.3.1 Update
 
-        Use this form to specify your focus points. The LLM will extract, filter, and classify information based on these.
+If you use complex tags with explanations, the glm-4-9b-chat model size cannot guarantee accurate understanding. The models that have been tested to perform well for this type of task are `Qwen/Qwen2-72B-Instruct` and `gpt-4o-mini-2024-07-18`.
 
-        Tags field description:
+### 5. Adding Focus Points and Scheduled Scanning of Sources
 
-        - name, Description of the focus point. **Note: Be specific.** Good example: `Trends in US-China competition`. Bad example: `International situation`.
-        - activated, Whether activated. If deactivated, the focus point will be ignored. It can be reactivated later. Activation and deactivation don't require a Docker container restart and will update in the next scheduled task.
+After starting the program, open the pocketbase Admin dashboard UI (http://127.0.0.1:8090/_/)
 
-        6.2 Open the **sites form**
+#### 5.1 Open the tags Form
 
-        Use this form to specify custom sources. The system will start background tasks to scan, parse, and analyze these sources locally.
+Through this form, you can specify your focus points, and the LLM will refine, filter, and categorize information accordingly.
 
-        Sites field description:
+tags Field Explanation:
 
-        - url, URL of the source. Provide a URL to the list page rather than a specific article page.
-        - per_hours, Scan frequency in hours, as an integer (range 1-24; we recommend no more than once a day, i.e., set to 24).
-        - activated, Whether activated. If deactivated, the source will be ignored. It can be reactivated later. Activation and deactivation don't require a Docker container restart and will update in the next scheduled task.
+- name, Focus point name
 
+- explaination, Detailed explanation or specific agreement of the focus point, such as "Only official information released by Shanghai regarding junior high school enrollment" (tag name is Shanghai Junior High School Enrollment Information)
 
-7. **Local Deployment**
+- activated, Whether to activate. If turned off, this focus point will be ignored, and can be turned back on later. Activating and deactivating does not require restarting the Docker container, it will update at the next scheduled task.
 
-    As you can see, this project uses 7B/9B LLMs and does not require any vector models, which means you only need a single RTX 3090 (24GB VRAM) to fully deploy this project locally.
+#### 5.2 Open the sites Form
 
-    Ensure your local LLM service is compatible with the OpenAI SDK and configure `LLM_API_BASE` accordingly.
+Through this form, you can specify custom sources, the system will start background scheduled tasks to perform source scanning, parsing, and analysis locally.
 
+sites Field Explanation:
 
-## 🛡️ License
+- url, URL of the source, the source does not need to be given a specific article page, just the article list page.
 
-This project is open-source under the [Apache 2.0](LICENSE) license.
+- per_hours, Scan frequency, in hours, type is integer (1~24 range, we recommend not exceeding once a day, i.e., set to 24)
 
-For commercial use and customization cooperation, please contact **Email: 35252986@qq.com**.
+- activated, Whether to activate. If turned off, this source will be ignored, and can be turned back on later. Activating and deactivating does not require restarting the Docker container, it will update at the next scheduled task.
 
-- Commercial customers, please register with us. The product promises to be free forever.
-- For customized customers, we provide the following services according to your sources and business needs:
-  - Dedicated crawler and parser for customer business scenario sources
-  - Customized information extraction and classification strategies
-  - Targeted LLM recommendations or even fine-tuning services
-  - Private deployment services
-  - UI interface customization
+### 6. Local Deployment
 
-## 📬 Contact Information
+As you can see, this project only requires a 7B\9B size LLM and does not require any vector model, which means that just one 3090RTX (24G VRAM) is enough to fully deploy this project locally.
 
-If you have any questions or suggestions, feel free to contact us through [issue](https://github.com/TeamWiseFlow/wiseflow/issues).
+Ensure that your local LLM service is compatible with the openai SDK and configure LLM_API_BASE.
 
-## 🤝 This Project is Based on the Following Excellent Open-source Projects:
+Note: To enable a 7B~9B size LLM to accurately understand tag explanations, it is recommended to use dspy for prompt optimization, but this requires about 50 manually labeled data. See [DSPy](https://dspy-docs.vercel.app/) for details.
+
+## 🛡️ License Agreement
+
+This project is open source under the Apache2.0.
+
+For commercial and custom cooperation, please contact Email: 35252986@qq.com
+
+Commercial customers, please contact us for registration, the product promises to be forever free.
+
+## 📬 Contact
+For any questions or suggestions, feel free to contact us via issue.
+
+## 🤝 This project is based on the following excellent open-source projects:
 
 - GeneralNewsExtractor (General Extractor of News Web Page Body Based on Statistical Learning) https://github.com/GeneralNewsExtractor/GeneralNewsExtractor
-- json_repair (Repair invalid JSON documents) https://github.com/josdejong/jsonrepair/tree/main 
-- python-pocketbase (PocketBase client SDK for Python) https://github.com/vaphes/pocketbase
 
-# Citation
+- json_repair (Repair invalid JSON documents) https://github.com/josdejong/jsonrepair/tree/main
 
-If you refer to or cite part or all of this project in related work, please indicate the following information:
+- python-pocketbase (pocketBase client SDK for python) https://github.com/vaphes/pocketbase
+
+## Citation
+
+If you reference or cite part or all of this project in your related work, please cite as follows:
 
 ```
-Author: Wiseflow Team
-https://openi.pcl.ac.cn/wiseflow/wiseflow
+Author：Wiseflow Team
 https://github.com/TeamWiseFlow/wiseflow
 Licensed under Apache2.0
 ```
+
