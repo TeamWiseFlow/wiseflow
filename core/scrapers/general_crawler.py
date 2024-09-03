@@ -23,7 +23,7 @@ from requests.compat import urljoin
 from scrapers import scraper_map
 
 
-model = os.environ.get('HTML_PARSE_MODEL', 'gpt-3.5-turbo')
+model = os.environ.get('HTML_PARSE_MODEL', 'gpt-4o-mini-2024-07-18')
 header = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/604.1 Edg/112.0.100.0'}
 extractor = GeneralNewsExtractor()

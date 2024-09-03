@@ -27,6 +27,7 @@ async def pipeline(url: str, cache: Dict[str, str] = {}):
     working_list = {url}
     while working_list:
         url = working_list.pop()
+        existing_urls.add(url)
         if any(url.endswith(ext) for ext in extensions):
             logger.info(f"{url} is a file, skip")
             continue
