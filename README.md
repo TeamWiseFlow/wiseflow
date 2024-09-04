@@ -9,7 +9,8 @@
 🌱看看首席情报官是如何帮您节省时间，过滤无关信息，并整理关注要点的吧！🌱
 
 - ✅ 通用网页内容解析器，综合使用统计学习（依赖开源项目GNE）和LLM，适配90%以上的新闻页面；
-（**WiseFlow尤其擅长从微信公众号文章中提取信息**，为此我们配置了mp article专属解析器！）
+
+    WiseFlow内置微信公号文章专属解析器，但实时获取公众号文章推送需要搭配wxbot，详见示例 [awada](https://github.com/TeamWiseFlow/awada)）
 - ✅ 异步任务架构；
 - ✅ 使用LLM进行信息提取和标签分类（最低只需使用9B大小的LLM就可完美执行任务）！
 
@@ -33,23 +34,29 @@ prompt（也就决定了info的输出语言），这进一步简化了wiseflow�
 
 🌹 感谢大家的贡献！
 
-## 🌟 如何在您的应用中整合wiseflow
-
-wiseflow 是一个原生的LLM应用，仅需7B~9B大小LLM就可以很好的执行信息挖掘、过滤与分类任务，且无需向量模型，系统开销很小，适合各种硬件环境下的本地化以及私有化部署。
-
-wiseflow 将挖掘出的信息存储于自带的Pocketbase数据库中，这意味着整合无需深入了解wiseflow的代码，只需要对数据库进行读取操作即可！
-
-PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 等语言的SDK。
-   - Go : https://pocketbase.io/docs/go-overview/
-   - Javascript : https://pocketbase.io/docs/js-overview/
-   - python : https://github.com/vaphes/pocketbase
-
 ## 🔄 wiseflow 与常见的爬虫工具、LLM-Agent类项目有何不同与关联？
 
 | 特点          | 首席情报官（Wiseflow） | Crawler / Scraper                     | LLM-Agent            |
 |-------------|-----------------|---------------------------------------|----------------------|
 | **主要解决的问题** | 数据处理（筛选、提炼、贴标签） | 原始数据获取                                | 下游应用                 |
 | **关联**      |                 | 可以集成至WiseFlow，使wiseflow具有更强大的原始数据获取能力 | 可以集成WiseFlow，作为动态知识库 |
+
+## 🌟 如何在您的应用中整合wiseflow
+
+wiseflow是一个原生的LLM应用，仅需7B~9B大小LLM就可以很好的执行信息挖掘、过滤与分类任务，且无需向量模型，系统开销很小，适合各种硬件环境下的本地化以及私有化部署。
+
+### ✋如果您的应用只需要使用wiseflow挖掘出的数据，即您的应用作为wiseflow的下游任务
+
+wiseflow将挖掘出的信息存储于自带的Pocketbase数据库中，这意味着这种情况下您无需了解wiseflow的代码，只需要对数据库进行读取操作即可！
+
+PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 等语言的SDK。
+   - Go : https://pocketbase.io/docs/go-overview/
+   - Javascript : https://pocketbase.io/docs/js-overview/
+   - python : https://github.com/vaphes/pocketbase
+
+### ✋如果您想将wiseflow作为实时的信息处理工具，即wiseflow作为您应用的下游任务
+
+可以参考我们的一个示例项目 —— 基于微信的可在线自主学习的个人AI助理（也可能是行业专家）[awada](https://github.com/TeamWiseFlow/awada)
 
 ## 📥 安装与使用
 

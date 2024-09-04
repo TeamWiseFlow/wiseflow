@@ -9,7 +9,8 @@
 🌱 수석 정보 책임자가 어떻게 당신의 시간을 절약하고, 관련 없는 정보를 필터링하며, 주목할 만한 요점을 정리하는지 살펴보세요! 🌱
 
 - ✅ 범용 웹 콘텐츠 파서, 통계 학습(오픈 소스 프로젝트 GNE에 의존)과 LLM을 포괄적으로 사용하여 90% 이상의 뉴스 페이지에 적합;
-  (**Wiseflow는 위챗 공식 계정 기사에서 정보를 추출하는 데 특히 뛰어나며**, 이를 위해 전용 mp 기사 파서를 구성했습니다!)
+  
+  WiseFlow에는 WeChat 공식 계정 기사 전용 파서가 내장되어 있지만 공식 계정 기사 푸시에 대한 실시간 액세스는 wxbot과 일치해야 합니다. 자세한 내용은 예를 참조하십시오 [awada](https://github.com/TeamWiseFlow/awada)
 - ✅ 비동기 작업 아키텍처;
 - ✅ LLM을 사용한 정보 추출 및 라벨 분류 (9B 크기의 LLM으로 작업을 완벽하게 수행할 수 있습니다)!
 
@@ -32,23 +33,29 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
 
 🌹 여러분의 기여에 감사드립니다!
 
-## 🌟 애플리케이션에 wiseflow를 통합하는 방법
-
-wiseflow는 네이티브 LLM 애플리케이션으로, 7B~9B 크기의 LLM만으로 정보 마이닝, 필터링 및 분류 작업을 잘 수행할 수 있으며, 벡터 모델이 필요하지 않아 다양한 하드웨어 환경에서의 로컬 및 프라이빗 배포에 적합합니다.
-
-wiseflow는 마이닝된 정보를 내장된 Pocketbase 데이터베이스에 저장하므로, wiseflow의 코드를 깊이 이해할 필요 없이 데이터베이스 읽기 작업만으로 통합이 가능합니다!
-
-PocketBase는 인기 있는 경량 데이터베이스로, 현재 Go/Javascript/Python 등의 언어 SDK가 있습니다.
-   - Go : https://pocketbase.io/docs/go-overview/
-   - Javascript : https://pocketbase.io/docs/js-overview/
-   - python : https://github.com/vaphes/pocketbase
-
 ## 🔄 wiseflow와 일반적인 크롤러 도구, LLM-Agent 프로젝트의 차이점과 연관성
 
 | 특징 | 수석 정보 책임자 (Wiseflow) | 크롤러 / 스크래퍼 | LLM-Agent |
 |----------------|--------------------------------------|-------------------|-----------|
 | **주요 해결 문제** | 데이터 처리 (필터링, 정제, 라벨링) | 원시 데이터 획득 | 하류 애플리케이션 |
 | **연관성** | | WiseFlow에 통합 가능, wiseflow에 더 강력한 원시 데이터 획득 능력을 부여 | WiseFlow를 동적 지식 기반으로 통합 가능 |
+
+## 🌟 애플리케이션에 wiseflow를 통합하는 방법
+
+wiseflow는 네이티브 LLM 애플리케이션으로, 7B~9B 크기의 LLM만으로도 정보 마이닝, 필터링, 분류 작업을 효과적으로 수행할 수 있으며, 벡터 모델이 필요하지 않습니다. 시스템 오버헤드가 매우 작기 때문에 다양한 하드웨어 환경에서의 로컬 및 프라이빗 배포에 적합합니다.
+
+### ✋ 당신의 애플리케이션이 wiseflow가 마이닝한 데이터만 사용하는 경우, 즉 당신의 애플리케이션이 wiseflow의 다운스트림 작업인 경우
+
+wiseflow는 마이닝된 정보를 내장된 Pocketbase 데이터베이스에 저장하므로, 이 시나리오에서는 wiseflow 코드를 이해할 필요가 없으며, 데이터베이스에 대해 읽기 작업만 수행하면 됩니다!
+
+PocketBase는 인기 있는 경량 데이터베이스로, 현재 Go/Javascript/Python 등의 언어 SDK가 있습니다.
+   - Go : https://pocketbase.io/docs/go-overview/
+   - Javascript : https://pocketbase.io/docs/js-overview/
+   - python : https://github.com/vaphes/pocketbase
+
+### ✋ wiseflow를 실시간 정보 처리 도구로 사용하려는 경우, 즉 wiseflow를 당신의 애플리케이션의 다운스트림 작업으로 사용하려는 경우
+
+우리의 예제 프로젝트를 참조하세요 — 온라인에서 자율 학습이 가능한 WeChat 기반 개인 AI 어시스턴트 (또는 업계 전문가) [awada](https://github.com/TeamWiseFlow/awada)
 
 ## 📥 설치 및 사용 방법
 
