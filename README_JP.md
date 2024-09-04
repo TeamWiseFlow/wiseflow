@@ -9,7 +9,8 @@
 🌱 最高情報責任者がどのようにあなたの時間を節約し、無関係な情報をフィルタリングし、注目すべきポイントを整理するかを見てみましょう！ 🌱
 
 - ✅ 汎用ウェブコンテンツパーサー、統計学習（オープンソースプロジェクトGNEに依存）とLLMを包括的に使用し、90%以上のニュースページに適合;
-  （**WiseflowはWeChat公式アカウントの記事から情報を抽出することに特に優れており**、専用のmp記事パーサーを設定しています！）
+
+  WiseFlowにはWeChat公式アカウント記事専用パーサーが組み込まれていますが、公式アカウント記事のプッシュをリアルタイムで取得するにはwxbotが必要です。詳しくは例を参照してください [awada](https://github.com/TeamWiseFlow/awada)
 - ✅ 非同期タスクアーキテクチャ;
 - ✅ LLMを使用した情報抽出とラベル分類（9BサイズのLLMで完璧にタスクを実行できます）！
 
@@ -32,23 +33,28 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
 
 🌹 皆さんの貢献に感謝します！
 
-## 🌟 アプリケーションにwiseflowを統合する方法
-
-wiseflowはネイティブLLMアプリケーションで、7B〜9BサイズのLLMで情報マイニング、フィルタリング、分類タスクをうまく実行でき、ベクトルモデルを必要とせず、さまざまなハードウェア環境でのローカルおよびプライベート展開に適しています。
-
-wiseflowはマイニングされた情報を組み込みのPocketbaseデータベースに保存します。つまり、wiseflowのコードを深く理解する必要はなく、データベースの読み取り操作だけで統合が可能です！
-
-PocketBaseは人気のある軽量データベースで、現在Go/Javascript/Pythonなどの言語のSDKがあります。
-   - Go : https://pocketbase.io/docs/go-overview/
-   - Javascript : https://pocketbase.io/docs/js-overview/
-   - python : https://github.com/vaphes/pocketbase
-
 ## 🔄 wiseflowと一般的なクローラーツール、LLM-Agentプロジェクトの違いと関連性
 
 | 特徴 | 最高情報責任者（Wiseflow） | クローラー / スクレイパー | LLM-Agent |
 |----------------|--------------------------------------|-------------------|-----------|
 | **主な解決課題** | データ処理（フィルタリング、精製、ラベリング） | 生データ取得 | 下流アプリケーション |
 | **関連性** | | WiseFlowに統合可能、wiseflowにより強力な生データ取得能力を与える | WiseFlowを動的知識ベースとして統合可能 |
+
+## 🌟 wiseflowをあなたのアプリケーションに統合する方法
+
+wiseflowはネイティブのLLMアプリケーションで、7B〜9BサイズのLLMだけで情報のマイニング、フィルタリング、分類を効果的に行うことができ、ベクトルモデルは不要です。システムオーバーヘッドが非常に小さいため、さまざまなハードウェア環境でのローカルおよびプライベート展開に適しています。
+
+### ✋ あなたのアプリケーションがwiseflowがマイニングしたデータのみを使用する場合、つまりあなたのアプリケーションがwiseflowのダウンストリームタスクである場合
+
+wiseflowはマイニングされた情報を内蔵のPocketbaseデータベースに保存します。つまり、このシナリオではwiseflowのコードを理解する必要はなく、データベースに対して読み取り操作を行うだけです！
+
+PocketBaseは人気のある軽量データベースで、現在Go/Javascript/Pythonなどの言語のSDKがあります。
+   - Go : https://pocketbase.io/docs/go-overview/
+   - Javascript : https://pocketbase.io/docs/js-overview/
+   - python : https://github.com/vaphes/pocketbase
+
+### ✋ wiseflowをリアルタイムの情報処理ツールとして使用したい場合、つまりwiseflowをあなたのアプリケーションのダウンストリームタスクとして使用したい場合
+私たちのサンプルプロジェクトを参照してください — オンラインで自主学習可能なWeChatベースの個人AIアシスタント（または業界の専門家）[awada](https://github.com/TeamWiseFlow/awada)
 
 ## 📥 インストールと使用方法
 

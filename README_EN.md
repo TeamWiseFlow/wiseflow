@@ -9,7 +9,8 @@
 🌱 See how Chief Intelligence Officer helps you save time, filter out irrelevant information, and organize key points of interest! 🌱
 
 - ✅ Universal web content parser, comprehensively using statistical learning (dependent on the open-source project GNE) and LLM, suitable for over 90% of news pages;
-  (**Wiseflow excels in extracting information from WeChat official account articles**, for which we have configured a dedicated mp article parser!)
+
+    WiseFlow has a built-in WeChat official account article exclusive parser, but real-time access to official account article push needs to be matched with wxbot, see the example for details [awada](https://github.com/TeamWiseFlow/awada)
 - ✅ Asynchronous task architecture;
 - ✅ Information extraction and label classification using LLM (only requires an LLM of 9B size to perfectly execute tasks)!
 
@@ -32,23 +33,29 @@ the current prompts cannot perform accurate extraction. Therefore, in this versi
 
 🌹 Thank you all for your contributions!
 
-## 🌟 How to Integrate wiseflow into Your Application
-
-wiseflow is a native LLM application, requiring only a 7B~9B size LLM to perform information mining, filtering, and classification tasks well, and does not require a vector model, making it suitable for various hardware environments for local and private deployment.
-
-wiseflow stores the mined information in its built-in Pocketbase database, meaning integration does not require in-depth understanding of wiseflow's code, just read operations on the database!
-
-PocketBase, as a popular lightweight database, currently has SDKs for Go/Javascript/Python languages.
-   - Go : https://pocketbase.io/docs/go-overview/
-   - Javascript : https://pocketbase.io/docs/js-overview/
-   - python : https://github.com/vaphes/pocketbase
-
 ## 🔄 How is wiseflow Different and Related to Common Crawler Tools and LLM-Agent Projects?
 
 | Characteristic | Chief Intelligence Officer (Wiseflow) | Crawler / Scraper | LLM-Agent |
 |----------------|--------------------------------------|-------------------|-----------|
 | **Main Problem Solved** | Data Processing (Filtering, Refining, Tagging) | Raw Data Acquisition | Downstream Applications |
 | **Relation** | | Can be integrated into WiseFlow, giving wiseflow stronger raw data acquisition capabilities | Can integrate WiseFlow as a dynamic knowledge base |
+
+##  How to Integrate wiseflow into Your Application
+
+wiseflow is a native LLM application that can effectively perform information mining, filtering, and classification tasks with only a 7B-9B LLM. It does not require vector models and has a very small system overhead, making it suitable for localization and private deployment in various hardware environments.
+
+### ✋ If Your Application Only Needs to Use the Data Mined by wiseflow (i.e., Your Application as a Downstream Task of wiseflow)
+wiseflow stores the mined information in its built-in Pocketbase database. This means that in this case, you do not need to understand the wiseflow code, and you only need to perform read operations on the database!
+
+PocketBase, as a popular lightweight database, currently has SDKs for Go/Javascript/Python languages.
+   - Go : https://pocketbase.io/docs/go-overview/
+   - Javascript : https://pocketbase.io/docs/js-overview/
+   - python : https://github.com/vaphes/pocketbase
+
+### ✋If you want to use wiseflow as a real-time information processing tool, i.e., wiseflow as the downstream task of your application
+
+You can refer to one of our example projects — a WeChat-based personal AI assistant (or possibly an industry expert) for online autonomous learning [awada](https://github.com/TeamWiseFlow/awada)
+
 
 ## 📥 Installation and Usage
 
