@@ -29,8 +29,10 @@ def openai_llm(messages: list, model: str, logger=None, **kwargs) -> str:
         logger.warning(f'{e}\nRetrying in 60 second...')
         time.sleep(60)
         response = client.chat.completions.create(messages=messages, model=model, **kwargs)
-        if 'choices' not in response:
-            logger.warning(f'openai_llm warning: {response}')
+        if response and response.choices:
+            return response.choices[0].message.content
+        else:
+            logger.error(f'after many try, llm error: {response}')
             return ""
     except Exception as e:
         if logger:
