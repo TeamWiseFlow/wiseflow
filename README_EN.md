@@ -9,8 +9,6 @@
 🌱 See how Chief Intelligence Officer helps you save time, filter out irrelevant information, and organize key points of interest! 🌱
 
 - ✅ Universal web content parser, comprehensively using statistical learning (dependent on the open-source project GNE) and LLM, suitable for over 90% of news pages;
-
-    WiseFlow has a built-in WeChat official account article exclusive parser, but real-time access to official account article push needs to be matched with wxbot, see the example for details [awada](https://github.com/TeamWiseFlow/awada)
 - ✅ Asynchronous task architecture;
 - ✅ Information extraction and label classification using LLM (only requires an LLM of 9B size to perfectly execute tasks)!
 
@@ -18,7 +16,17 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
 
 <img alt="sample.png" src="asset/sample.png" width="1024"/>
 
-## 🔥 V0.3.1 Update
+## 🔥 Highly Recommended Downstream Application Project [awada](https://github.com/TeamWiseFlow/awada) 1.x with Full RAG Capabilities Integrated
+
+Awada is an intelligent agent for team knowledge within the WeChat ecosystem. It can autonomously learn online from sources such as group chats, official accounts, websites, and also accepts manual document uploads, creating a private knowledge base for the team. It provides services such as Q&A, material search, and writing (Word) for team members.
+
+If your focus is not on the information list but on downstream applications based on information, then awada is a good choice.
+
+Awada integrates the online learning capabilities of wiseflow and the RAG capabilities of [Qanything](https://github.com/netease-youdao/QAnything). **If you are more concerned with information collection within the WeChat ecosystem (such as official account articles), please also refer to the awada project**.
+
+## V0.3.1 Update
+
+The dashboard part has been removed. If you have a dashboard requirement, please download the [V0.2.1 version](https://github.com/TeamWiseFlow/wiseflow/releases/tag/V0.2.1).
 
 👏 Although some 9B-sized LLMs (THUDM/glm-4-9b-chat) can already achieve stable information extraction output, we found that for complex meaning tags (like "Party Building") or tags that require specific collection (like only collecting "community activities" without including large events like concerts),
 the current prompts cannot perform accurate extraction. Therefore, in this version, we have added an explanation field for each tag, which allows for clearer tag specification through input.

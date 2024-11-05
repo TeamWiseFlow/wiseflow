@@ -9,8 +9,6 @@
 🌱看看首席情报官是如何帮您节省时间，过滤无关信息，并整理关注要点的吧！🌱
 
 - ✅ 通用网页内容解析器，综合使用统计学习（依赖开源项目GNE）和LLM，适配90%以上的新闻页面；
-
-    WiseFlow内置微信公号文章专属解析器，但实时获取公众号文章推送需要搭配wxbot，详见示例 [awada](https://github.com/TeamWiseFlow/awada)）
 - ✅ 异步任务架构；
 - ✅ 使用LLM进行信息提取和标签分类（最低只需使用9B大小的LLM就可完美执行任务）！
 
@@ -18,7 +16,18 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
 
 <img alt="sample.png" src="asset/sample.png" width="1024"/>
 
-## 🔥 V0.3.1 更新
+## 🔥 隆重推荐整合了完整RAG能力的 wiseflow 下游应用项目 [awada](https://github.com/TeamWiseFlow/awada) 1.x
+
+Awada 是一个基于微信生态的团队内知识助理智能体。它可以从群聊、公众号、网站等来源中进行在线自主学习（同时也接受自主文档上传），打造团队私域知识库，并为团队成员提供问答、资料查找以及写作（Word）服务。
+
+如果你的关注点并不是信息列表，而是基于信息的下游应用，那么 awada 将是一个不错的选择。
+
+Awada 整合了 wiseflow 的在线学习能力和 [Qanything](https://github.com/netease-youdao/QAnything) 的 RAG 能力，**如果你更加关注基于微信生态的信息搜集（比如公众号文章），也请参考 awada项目**
+
+## V0.3.1 更新
+
+dashboard 部分已经删除，如果您有dashboard需求，请下载 [V0.2.1版本](https://github.com/TeamWiseFlow/wiseflow/releases/tag/V0.2.1)
+
     
 👏 虽然部分9b大小的LLM（THUDM/glm-4-9b-chat）已经可以实现稳定的信息提取输出，但是我们发现对于复杂含义的tag（比如“党建”）或者需要特指的tag（比如仅需采集“居民区活动”，而不希望包括诸如演唱会这样的大型活动信息），
 使用目前的prompt还是不能进行准确的提取，因此我们在这一版本中为每个tag增加了explaination字段，可以通过输入该字段进行更加清晰的tag指定。
