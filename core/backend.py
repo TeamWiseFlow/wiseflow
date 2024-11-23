@@ -20,7 +20,7 @@ class Request(BaseModel):
 app = FastAPI(
     title="WiseFlow Union Backend",
     description="From Wiseflow Team.",
-    version="0.3.0",
+    version="0.3.1",
     openapi_url="/openapi.json"
 )
 
