@@ -4,9 +4,29 @@
 
 🚀 **Chief Intelligence Officer** (Wiseflow) is an agile information mining tool that can extract information from various sources such as websites, WeChat official accounts, social platforms, etc., based on set focus points, automatically categorize with labels, and upload to a database.
 
-**What we lack is not information, but the ability to filter out noise from the vast amount of information to reveal valuable information.**
+**We lack not information, but the ability to filter out noise from vast amounts of information, thereby revealing valuable information.**
 
-🌱 See how Chief Intelligence Officer helps you save time, filter out irrelevant information, and organize key points of interest! 🌱
+## 🔥 V0.3.8 Version Preview
+
+wiseflow is expected to officially upgrade to version 0.3.8 by the end of December 2024, which will be the final version under the V0.3.x architecture (unless there are enough minor modifications, there will be no V0.3.9 version).
+
+Planned upgrade content includes:
+
+- Significantly upgrade general_crawler (introducing many latest open-source technology solutions), further improving page adaptation coverage and achieving full local CPU computing (meaning no need to configure LLM options for this);
+- Improve general_crawler's ability to extract URLs from list pages, as well as the distinction between list pages and ordinary article pages;
+- Attempt to introduce a new mp_crawler, eliminating the need for wxbot in monitoring WeChat official account articles;
+- Test and recommend new information extraction llm models, and fine-tune extraction strategies.
+
+Features that may be added depending on the situation:
+
+- Introduce support for RSS information sources;
+- Introduce support for social platforms (initially this will be very rudimentary, so don't expect too much).
+
+The above content will be gradually released to the dev branch in advance, welcome to switch and try it out, and actively provide feedback on issues.
+
+-----------------------------
+
+🌱 See how wiseflow helps you save time, filter out irrelevant information, and organize key points of interest! 🌱
 
 - ✅ Universal web content parser, comprehensively using statistical learning (dependent on the open-source project GNE) and LLM, suitable for over 90% of news pages;
 - ✅ Asynchronous task architecture;
@@ -16,15 +36,19 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
 
 <img alt="sample.png" src="asset/sample.png" width="1024"/>
 
-## 🔥 Highly Recommended Downstream Application Project [awada](https://github.com/TeamWiseFlow/awada) 1.x with Full RAG Capabilities Integrated
+## ✋ How is wiseflow Different from Common Web Crawling Tools, AI Search, and Knowledge Base (RAG) Projects?
 
-Awada is an intelligent agent for team knowledge within the WeChat ecosystem. It can autonomously learn online from sources such as group chats, official accounts, websites, and also accepts manual document uploads, creating a private knowledge base for the team. It provides services such as Q&A, material search, and writing (Word) for team members.
+Thanks to everyone's love, wiseflow has received extensive attention from the open-source community since the release of version V0.3.0 at the end of June 2024, and has even attracted active reports from many self-media. We would like to express our gratitude first!
 
-If your focus is not on the information list but on downstream applications based on information, then awada is a good choice.
+However, we have also noticed that some followers have some misunderstandings about the functional positioning of wiseflow. To avoid confusion, we have created the following table to clearly show the comparison between wiseflow and web crawling tools, AI search, and knowledge base (RAG) projects:
 
-Awada integrates the online learning capabilities of wiseflow and the RAG capabilities of [Qanything](https://github.com/netease-youdao/QAnything). **If you are more concerned with information collection within the WeChat ecosystem (such as official account articles), please also refer to the awada project**.
+|          | **Chief Intelligence Officer (Wiseflow)** | 
+|-------------|-----------------|
+| **Web Crawling Tools** | wiseflow integrates many excellent open-source web crawling tools and adds automated information filtering, screening, and classification capabilities based on LLM, so it can be simply considered that wiseflow = web crawling tool + AI |
+| **AI Search** | AI search's main application scenario is **instant question answering for specific issues**, for example: "Who is the founder of XX company" or "Where can I buy the xx product under the xx brand"; wiseflow's main application scenario is **continuous collection of information in a certain aspect**, such as tracking related information of XX company, continuous tracking of market behavior of XX brand... In these scenarios, users can only provide focus points (a company, a brand), but cannot pose specific search questions, and it is not a one-time search, but requires continuous tracking, or automated related tracking. You can simply understand wiseflow as a "smart agent" that can automatically conduct AI searches continuously, i.e., an "AI intelligence officer" | 
+| **Knowledge Base (RAG) Projects** | Knowledge base (RAG) projects are generally downstream tasks based on existing information and usually face private knowledge (such as operation manuals, product manuals within enterprises, government documents, etc.); wiseflow currently does not integrate downstream tasks and faces public information on the internet |
 
-## V0.3.1 Update
+##  🔄 V0.3.1 Update
 
 The dashboard part has been removed. If you have a dashboard requirement, please download the [V0.2.1 version](https://github.com/TeamWiseFlow/wiseflow/releases/tag/V0.2.1).
 
@@ -35,35 +59,16 @@ the current prompts cannot perform accurate extraction. Therefore, in this versi
 
 👏 Additionally, addressing the issue of prompt language selection in the previous version (which does not affect the output results), we have further simplified the solution in the current version. Users no longer need to specify the system language (which is not so intuitive in Docker), the system will determine the language of the prompt (and thus the output language of the info) based on the tag and its explanation, further simplifying the deployment and use of wiseflow. **However, currently wiseflow only supports Simplified Chinese and English, other language needs can be achieved by changing the prompt in core/insights/get_info.py**
 
-🌹 Also, this update merges PRs from the past two months, with the following new contributors:
-
-@wwz223 @madizm @GuanYixuan @xnp2020 @JimmyMa99
-
-🌹 Thank you all for your contributions!
-
-## 🔄 How is wiseflow Different and Related to Common Crawler Tools and LLM-Agent Projects?
-
-| Characteristic | Chief Intelligence Officer (Wiseflow) | Crawler / Scraper | LLM-Agent |
-|----------------|--------------------------------------|-------------------|-----------|
-| **Main Problem Solved** | Data Processing (Filtering, Refining, Tagging) | Raw Data Acquisition | Downstream Applications |
-| **Relation** | | Can be integrated into WiseFlow, giving wiseflow stronger raw data acquisition capabilities | Can integrate WiseFlow as a dynamic knowledge base |
-
-##  How to Integrate wiseflow into Your Application
+## 🌟 How to Integrate wiseflow into Your Application
 
 wiseflow is a native LLM application that can effectively perform information mining, filtering, and classification tasks with only a 7B-9B LLM. It does not require vector models and has a very small system overhead, making it suitable for localization and private deployment in various hardware environments.
 
-### ✋ If Your Application Only Needs to Use the Data Mined by wiseflow (i.e., Your Application as a Downstream Task of wiseflow)
 wiseflow stores the mined information in its built-in Pocketbase database. This means that in this case, you do not need to understand the wiseflow code, and you only need to perform read operations on the database!
 
 PocketBase, as a popular lightweight database, currently has SDKs for Go/Javascript/Python languages.
    - Go : https://pocketbase.io/docs/go-overview/
    - Javascript : https://pocketbase.io/docs/js-overview/
    - python : https://github.com/vaphes/pocketbase
-
-### ✋If you want to use wiseflow as a real-time information processing tool, i.e., wiseflow as the downstream task of your application
-
-You can refer to one of our example projects — a WeChat-based personal AI assistant (or possibly an industry expert) for online autonomous learning [awada](https://github.com/TeamWiseFlow/awada)
-
 
 ## 📥 Installation and Usage
 

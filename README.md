@@ -4,7 +4,27 @@
 
 🚀 **首席情报官**（Wiseflow）是一个敏捷的信息挖掘工具，可以从网站、微信公众号、社交平台等各种信息源中按设定的关注点提炼讯息，自动做标签归类并上传数据库。
 
-**我们缺的其实不是信息，我们需要的是从海量信息中过滤噪音，从而让有价值的信息显露出来**
+**我们缺的不是信息，而是从海量信息中过滤噪音，从而让有价值的信息显露出来**
+
+## 🔥 V0.3.8版本预告
+
+wiseflow 预计将在2024.12月底前正式升级到0.3.8版本，这也将是 V0.3.x 架构下的最终版本（除非有足够多的小修改，否则不会有 V0.3.9版本）
+
+计划中的升级内容包括：
+
+- 大幅升级 general_crawler（引入诸多最新开源技术方案）, 进一步提升页面适配覆盖度以及实现完全的本地 CPU 计算（意味着无需再为此配置 LLM 选项）；
+- 改进general_crawler 从列表页面提取 url 的能力，以及列表页面与普通文章页面的区分能力；
+- 尝试引入新的 mp_crawler, 公众号文章监控无需wxbot；
+- 测试并推荐新的信息提取 llm model，并微调提取策略。
+
+视情况可能添加的特性：
+
+- 引入对 RSS 信息源的支持；
+- 引入对社交平台的支持（初期这一块会十分简陋，请不要太多期待）
+
+上述内容会逐步提前释放到 dev 分支，欢迎切换尝鲜，并积极反馈 issue。
+
+-----------------------------
 
 🌱看看首席情报官是如何帮您节省时间，过滤无关信息，并整理关注要点的吧！🌱
 
@@ -16,18 +36,21 @@ https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6
 
 <img alt="sample.png" src="asset/sample.png" width="1024"/>
 
-## 🔥 隆重推荐整合了完整RAG能力的 wiseflow 下游应用项目 [awada](https://github.com/TeamWiseFlow/awada) 1.x
+## ✋ wiseflow 与常见的爬虫工具、AI搜索、知识库（RAG）项目有何不同？
 
-Awada 是一个基于微信生态的团队内知识助理智能体。它可以从群聊、公众号、网站等来源中进行在线自主学习（同时也接受自主文档上传），打造团队私域知识库，并为团队成员提供问答、资料查找以及写作（Word）服务。
+承蒙大家的厚爱，wiseflow自2024年6月底发布 V0.3.0版本来受到了开源社区的广泛关注，甚至吸引了不少自媒体的主动报道，在此首先表示感谢！
 
-如果你的关注点并不是信息列表，而是基于信息的下游应用，那么 awada 将是一个不错的选择。
+但我们也注意到部分关注者对 wiseflow 的功能定位存在一些理解偏差，为免误会，我们制作了如下表格，清晰展示 wiseflow 与爬虫、AI搜索、知识库（RAG）类项目的对比： 
 
-Awada 整合了 wiseflow 的在线学习能力和 [Qanything](https://github.com/netease-youdao/QAnything) 的 RAG 能力，**如果你更加关注基于微信生态的信息搜集（比如公众号文章），也请参考 awada项目**
+|          | **首席情报官（Wiseflow）** | 
+|-------------|-----------------|
+| **爬虫类工具** | wiseflow 集成了很多优秀的开源爬虫工具，并增加了基于 LLM 的自动化信息过滤、筛选与分类能力，所以可以简单认为 wiseflow = 爬虫工具 + AI |
+| **AI搜索** |  AI搜索主要的应用场景是**具体问题的即时问答**，举例：”XX公司的创始人是谁“、“xx品牌下的xx产品哪里有售” ；wiseflow主要的应用场景是**某一方面信息的持续采集**，比如XX公司的关联信息追踪，XX品牌市场行为的持续追踪……在这些场景下，用户只能提供关注点（某公司、某品牌），但无法提出具体搜索问题，且并不是一次检索，而是需要持续追踪，或者自动化进行关联追踪，您可以简单的把wiseflow理解为一个可持续自动进行 ai 搜索的“智能体”，即 “AI 情报官” | 
+| **知识库（RAG）类项目** | 知识库（RAG）类项目一般是基于已有信息的下游任务，并且一般面向的是私有知识（比如企业内的操作手册、产品手册、政府部门的文件等）；wiseflow 目前并未整合下游任务，同时面向的是互联网上的公开信息 |
 
-## V0.3.1 更新
+## 🔄 V0.3.1 更新
 
 dashboard 部分已经删除，如果您有dashboard需求，请下载 [V0.2.1版本](https://github.com/TeamWiseFlow/wiseflow/releases/tag/V0.2.1)
-
     
 👏 虽然部分9b大小的LLM（THUDM/glm-4-9b-chat）已经可以实现稳定的信息提取输出，但是我们发现对于复杂含义的tag（比如“党建”）或者需要特指的tag（比如仅需采集“居民区活动”，而不希望包括诸如演唱会这样的大型活动信息），
 使用目前的prompt还是不能进行准确的提取，因此我们在这一版本中为每个tag增加了explaination字段，可以通过输入该字段进行更加清晰的tag指定。
@@ -36,25 +59,10 @@ dashboard 部分已经删除，如果您有dashboard需求，请下载 [V0.2.1�
 
 👏  另外针对上一版本prompt语言选择的问题（虽然这并不影响输出结果），我们在目前版本中进一步简化了方案，用户无需指定系统语言（这在docker中并不那么直观），系统会根据tag以及tag的explaination判断选择何种语言的
 prompt（也就决定了info的输出语言），这进一步简化了wiseflow的部署和使用。【不过目前wiseflow仅支持简体中文和英文两种语言，其他语言的需求可以通过更改 core/insights/get_info.py 中的prompt实现】
-    
-🌹另外本次更新合并了过去两个月的PR，本次新增contributor如下：
-
-@wwz223 @madizm @GuanYixuan @xnp2020 @JimmyMa99
-
-🌹 感谢大家的贡献！
-
-## 🔄 wiseflow 与常见的爬虫工具、LLM-Agent类项目有何不同与关联？
-
-| 特点          | 首席情报官（Wiseflow） | Crawler / Scraper                     | LLM-Agent            |
-|-------------|-----------------|---------------------------------------|----------------------|
-| **主要解决的问题** | 数据处理（筛选、提炼、贴标签） | 原始数据获取                                | 下游应用                 |
-| **关联**      |                 | 可以集成至WiseFlow，使wiseflow具有更强大的原始数据获取能力 | 可以集成WiseFlow，作为动态知识库 |
 
 ## 🌟 如何在您的应用中整合wiseflow
 
 wiseflow是一个原生的LLM应用，仅需7B~9B大小LLM就可以很好的执行信息挖掘、过滤与分类任务，且无需向量模型，系统开销很小，适合各种硬件环境下的本地化以及私有化部署。
-
-### ✋如果您的应用只需要使用wiseflow挖掘出的数据，即您的应用作为wiseflow的下游任务
 
 wiseflow将挖掘出的信息存储于自带的Pocketbase数据库中，这意味着这种情况下您无需了解wiseflow的代码，只需要对数据库进行读取操作即可！
 
@@ -62,10 +70,6 @@ PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 
    - Go : https://pocketbase.io/docs/go-overview/
    - Javascript : https://pocketbase.io/docs/js-overview/
    - python : https://github.com/vaphes/pocketbase
-
-### ✋如果您想将wiseflow作为实时的信息处理工具，即wiseflow作为您应用的下游任务
-
-可以参考我们的一个示例项目 —— 基于微信的可在线自主学习的个人AI助理（也可能是行业专家）[awada](https://github.com/TeamWiseFlow/awada)
 
 ## 📥 安装与使用
 
@@ -115,7 +119,6 @@ pip install -r requirements.txt
    - 需要先去这里 https://pocketbase.io/docs/ 下载对应自己设备的pocketbase客户端，并放置在 /core/pb 目录下
    - pb运行问题（包括首次运行报错等）参考 [core/pb/README.md](/core/pb/README.md)
    - 使用前请创建并编辑.env文件，放置在wiseflow代码仓根目录（core目录的上级），.env文件可以参考env_sample，详细配置说明见下
-    
 
 📚 for developer， see [/core/README.md](/core/README.md) for more
     
