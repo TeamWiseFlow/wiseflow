@@ -22,7 +22,7 @@ class BackendService:
 
     def report(self, insight_id: str, topics: list[str], comment: str) -> dict:
         logger.debug(f'got new report request insight_id {insight_id}')
-        insight = pb.read('insights', filter=f'id="{insight_id}"')
+        insight = pb.read('agents', filter=f'id="{insight_id}"')
         if not insight:
             logger.error(f'insight {insight_id} not found')
             return self.build_out(-2, 'insight not found')
@@ -52,7 +52,7 @@ class BackendService:
 
         if flag:
             file = open(docx_file, 'rb')
-            message = pb.upload('insights', insight_id, 'docx', f'{insight_id}.docx', file)
+            message = pb.upload('agents', insight_id, 'docx', f'{insight_id}.docx', file)
             file.close()
             if message:
                 logger.debug(f'report success finish and update to: {message}')
@@ -143,7 +143,7 @@ class BackendService:
 
     def more_search(self, insight_id: str) -> dict:
         logger.debug(f'got search request for insight： {insight_id}')
-        insight = pb.read('insights', filter=f'id="{insight_id}"')
+        insight = pb.read('agents', filter=f'id="{insight_id}"')
         if not insight:
             logger.error(f'insight {insight_id} not found')
             return self.build_out(-2, 'insight not found')
@@ -169,7 +169,7 @@ class BackendService:
                 with open(os.path.join(self.cache_url, 'cache_articles.json'), 'a', encoding='utf-8') as f:
                     json.dump(item, f, ensure_ascii=False, indent=4)
 
-        message = pb.update(collection_name='insights', id=insight_id, body={'articles': article_ids})
+        message = pb.update(collection_name='agents', id=insight_id, body={'articles': article_ids})
         if message:
             logger.debug(f'insight search success finish and update to: {message}')
             return self.build_out(11, insight_id)
