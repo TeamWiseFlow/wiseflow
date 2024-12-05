@@ -1,5 +1,5 @@
 import asyncio
-from insights import pipeline, pb, logger
+from agents import pipeline, pb, logger
 
 counter = 1
 

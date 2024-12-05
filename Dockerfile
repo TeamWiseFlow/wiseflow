@@ -1,21 +1,19 @@
 FROM python:3.10-slim
 
 RUN apt-get update && \
-    apt-get install -yq tzdata build-essential unzip && \
-    apt-get clean
+    apt-get install -y tzdata build-essential unzip
+
+COPY core/requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 WORKDIR /app
 
-COPY core/requirements.txt requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY core .
-
 # download and unzip PocketBase
-ADD https://github.com/pocketbase/pocketbase/releases/download/v0.22.13/pocketbase_0.22.13_linux_amd64.zip /tmp/pb.zip
+ADD https://github.com/pocketbase/pocketbase/releases/download/v0.23.4/pocketbase_0.23.4_linux_amd64.zip /tmp/pb.zip
 # for arm device
-# ADD https://github.com/pocketbase/pocketbase/releases/download/v0.22.13/pocketbase_0.22.13_linux_arm64.zip /tmp/pb.zip
+# ADD https://github.com/pocketbase/pocketbase/releases/download/v0.23.4/pocketbase_0.23.4_linux_arm64.zip /tmp/pb.zip
 RUN unzip /tmp/pb.zip -d /app/pb/
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 8090
 EXPOSE 8077
