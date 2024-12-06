@@ -72,8 +72,8 @@ def extract_and_convert_dates(input_string):
         if matches:
             break
     if matches:
-        return ''.join(matches[0])
-    return ''
+        return '-'.join(matches[0])
+    return None
 
 
 def get_logger(logger_name: str, logger_file_path: str):

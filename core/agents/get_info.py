@@ -1,11 +1,10 @@
 from core.llms.openai_wrapper import openai_llm as llm
 # from core.llms.siliconflow_wrapper import sfa_llm
-import re
 from core.utils.general_utils import is_chinese, extract_and_convert_dates, extract_urls
 from loguru import logger
 from core.utils.pb_api import PbTalker
 import os
-from datetime import datetime, date
+from datetime import datetime
 from urllib.parse import urlparse
 import json_repair
 
@@ -27,7 +26,7 @@ class GeneralInfoExtractor:
             focus_data.append({"name": focus, "explaination": explanation,
                                "id": pb.add('focus_points', {"focuspoint": focus, "explanation": explanation})})
 
-        self.focus_list = [item["focuspoint"] for item in focus_data]
+        # self.focus_list = [item["focuspoint"] for item in focus_data]
         self.focus_dict = {item["focuspoint"]: item["id"] for item in focus_data}
         focus_statement = ''
         for item in focus_data:
@@ -80,6 +79,8 @@ If the webpage text does not contain any information related to points of intere
             self.get_more_link_suffix =  "Please analyze the above text: URL pairs. First, output your analysis basis, and then give the conclusion on whether to select it. If you decide to select this item, then copy and output the URL of this item following the conclusion; otherwise, proceed directly to the analysis of the next item. Analyze one by one, do not miss any one."
 
     async def get_author_and_publish_date(self, text: str) -> tuple[str, str]:
+        if not text:
+            return "NA", "NA"
         system_prompt = "As an information extraction assistant, your task is to accurately extract the source (or author) and publication date from the given webpage text. It is important to adhere to extracting the information directly from the original text. If the original text does not contain a particular piece of information, please replace it with NA"
         suffix = '''Please output the extracted information in the following JSON format:
 {"source": source or article author (use "NA" if this information cannot be extracted), "publish_date": extracted publication date (keep only the year, month, and day; use "NA" if this information cannot be extracted)}'''
@@ -94,13 +95,13 @@ If the webpage text does not contain any information related to points of intere
         result = json_repair.repair_json(llm_output, return_objects=True)
         self.logger.debug(f"decoded_object: {result}")
         if not isinstance(result, dict):
-            self.logger.debug("failed to parse from llm output")
+            self.logger.warning("failed to parse from llm output")
             return '', ''
         if 'source' not in result or 'publish_date' not in result:
-            self.logger.debug("failed to parse from llm output")
+            self.logger.warning("failed to parse from llm output")
             return '', ''
 
-        return result['source'], result['publish_date']
+        return result['source'], extract_and_convert_dates(result['publish_date'])
 
     async def get_more_related_urls(self, link_dict: dict) -> set[str]:
         if not link_dict:
@@ -116,80 +117,79 @@ If the webpage text does not contain any information related to points of intere
         raw_urls = list(link_dict.values())
         for url in urls:
             if url not in raw_urls:
-                self.logger.debug(f"{url} not in link_dict, it's model's Hallucination")
+                self.logger.warning(f"{url} not in link_dict, it's model's Hallucination")
                 urls.remove(url)
         return urls
 
-    async def get_info(self, text: str, domain: str) -> list[dict]:
-        # logger.debug(f'receive new article_content:\n{article_content}')
+    async def get_info(self, text: str, info_pre_fix: str) -> list[dict]:
+        if not text:
+            return []
         content = f'<text>\n{text}\n</text>\n\n{self.get_info_suffix}'
         result = await llm([{'role': 'system', 'content': self.get_info_prompt}, {'role': 'user', 'content': content}],
                            model=self.model, temperature=0.1, response_format={"type": "json_object"})
+        self.logger.debug(f'get_info llm output:\n{result}')
+        if not result:
+            return []
 
+        result = json_repair.repair_json(result, return_objects=True)
+        if not isinstance(result, list):
+            self.logger.warning("failed to parse from llm output")
+            return []
+        if not result:
+            self.logger.info("no info found")
+            return []
 
+        system = '''判断给定的信息是否与网页文本相符。信息将用标签<info></info>包裹，网页文本则用<text></text>包裹。请遵循如下工作流程:
+1、尝试找出网页文本中所有与信息对应的文本片段（可能有多处）；
+2、基于这些片段给出是否相符的最终结论，最终结论仅为“是”或“否”'''
+        suffix = '先输出找到的所有文本片段，再输出最终结论（仅为是或否）'
 
-
-
-
-
-
-
-
-
-
-
-domain = urlparse(url).netloc
-
-def get_info(article_content: str) -> list[dict]:
-    # logger.debug(f'receive new article_content:\n{article_content}')
-    result = openai_llm([{'role': 'system', 'content': system_prompt}, {'role': 'user', 'content': article_content}],
-                        model=get_info_model, logger=logger, temperature=0.1)
-
-    # results = pattern.findall(result)
-    texts = result.split('<tag>')
-    texts = [_.strip() for _ in texts if '</tag>' in _.strip()]
-    if not texts:
-        logger.debug(f'can not find info, llm result:\n{result}')
-        return []
-
-    cache = []
-    for text in texts:
-        try:
-            strings = text.split('</tag>')
-            tag = strings[0]
-            tag = tag.strip()
-            if tag not in focus_list:
-                logger.info(f'tag not in focus_list: {tag}, aborting')
+        final = []
+        for item in result:
+            if 'focus' not in item or 'content' not in item:
+                self.logger.warning(f"not quality item: {item}, it's model's Hallucination")
                 continue
-            info = strings[1]
-            info = info.split('\n\n')
-            info = info[0].strip()
-        except Exception as e:
-            logger.info(f'parse error: {e}')
-            tag = ''
-            info = ''
+            if item['focus'] not in self.focus_dict:
+                self.logger.warning(f"{item['focus']} not in focus_list, it's model's Hallucination")
+                continue
+            judge = await llm([{'role': 'system', 'content': system},
+                               {'role': 'user', 'content': f'<info>\n{item["content"]}\n</info>\n\n<text>\n{text}\n</text>\n\n{suffix}'}],
+                               model=self.secondary_model, temperature=0.1)
+            self.logger.debug(f'judge llm output:\n{judge}')
+            if not judge:
+                self.logger.warning("failed to parse from llm output, skip checking")
+                final.append({'tag': self.focus_dict[item['focus']], 'content': f"{info_pre_fix}{item['content']}"})
+                continue
 
-        if not info or not tag:
-            logger.info(f'parse failed-{text}')
-            continue
+            to_save = False
+            for i in range(min(7, len(judge))):
+                char = judge[-1 - i]
+                if char == '是':
+                    to_save = True
+                    break
+                elif char == '否':
+                    break
+            if not to_save:
+                self.logger.info(f"secondary model judge {item} not faithful to article text, aborting")
+                continue
+            final.append({'tag': self.focus_dict[item['focus']], 'content': f"{info_pre_fix}{item['content']}"})
 
-        if len(info) < 7:
-            logger.info(f'info too short, possible invalid: {info}')
-            continue
+        if not final:
+            self.logger.info("no quality result from llm output")
+        return final
 
-        if info.startswith('无相关信息') or info.startswith('该新闻未提及') or info.startswith('未提及'):
-            logger.info(f'no relevant info: {text}')
-            continue
+    async def __call__(self, text: str, link_dict: dict, base_url: str, author: str = None, publish_date: str = None) -> tuple[list, set, str, str]:
+        if not author and not publish_date and text:
+            author, publish_date = await self.get_author_and_publish_date(text)
 
-        while info.endswith('"'):
-            info = info[:-1]
-            info = info.strip()
+        if not author or author.lower() == 'na':
+            author = urlparse(base_url).netloc
 
-        # 拼接下来源信息
-        sources = re.findall(r'\[from (.*?)]', article_content)
-        if sources and sources[0]:
-            info = f"[from {sources[0]}] {info}"
+        if not publish_date or publish_date.lower() == 'na':
+            publish_date = datetime.now().strftime('%Y-%m-%d')
 
-        cache.append({'content': info, 'tag': focus_dict[tag]})
+        related_urls = await self.get_more_related_urls(link_dict)
+        info_prefix = f"//{author} {publish_date}//"
+        infos = await self.get_info(text, info_prefix)
 
-    return cache
+        return infos, related_urls, author, publish_date

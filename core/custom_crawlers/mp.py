@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 # warining: the mp_crawler will be deprecated in future version, we try to use general_process handle mp articles
 
-from core.agents import get_info
 import httpx
 from bs4 import BeautifulSoup
-from datetime import datetime, date
+from datetime import datetime
 import re
 import asyncio
 
@@ -13,10 +12,10 @@ header = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/604.1 Edg/112.0.100.0'}
 
 
-async def mp_crawler(url: str, logger) -> tuple[dict, list, set]:
+async def mp_crawler(url: str, logger) -> tuple[dict, dict]:
     if not url.startswith('https://mp.weixin.qq.com') and not url.startswith('http://mp.weixin.qq.com'):
         logger.warning(f'{url} is not a mp url, you should not use this function')
-        return {}, [], set()
+        return {}, {}
 
     url = url.replace("http://", "https://", 1)
 
@@ -32,30 +31,31 @@ async def mp_crawler(url: str, logger) -> tuple[dict, list, set]:
                     await asyncio.sleep(60)
                 else:
                     logger.warning(e)
-                    return {}, [], set()
+                    return {}, {}
 
         soup = BeautifulSoup(response.text, 'html.parser')
 
         if url.startswith('https://mp.weixin.qq.com/mp/appmsgalbum'):
             # 文章目录
-            urls = {li.attrs['data-link'].replace("http://", "https://", 1) for li in soup.find_all('li', class_='album__list-item')}
-            simple_urls = set()
-            for url in urls:
-                cut_off_point = url.find('chksm=')
+            links = soup.find_all('li', class_='album__list-item')
+            link_dict = {}
+            for li in links:
+                u = li.attrs['data-link'].replace("http://", "https://", 1)
+                t = li.text.strip()
+                cut_off_point = u.find('chksm=')
                 if cut_off_point != -1:
-                    url = url[:cut_off_point - 1]
-                simple_urls.add(url)
-            return {}, [], simple_urls
+                    u = u[:cut_off_point - 1]
+                if t and u:
+                    link_dict[t] = u
+            return {}, link_dict
 
         # Get the original release date first
         pattern = r"var createTime = '(\d{4}-\d{2}-\d{2}) \d{2}:\d{2}'"
         match = re.search(pattern, response.text)
-
         if match:
-            date_only = match.group(1)
-            publish_time = datetime.strptime(date_only, "%Y-%m-%d")
+            publish_time = match.group(1)
         else:
-            publish_time = date.today()
+            publish_time = datetime.strftime(datetime.today(), "%Y-%m-%d")
 
         # Get description content from < meta > tag
         try:
@@ -70,14 +70,13 @@ async def mp_crawler(url: str, logger) -> tuple[dict, list, set]:
         except Exception as e:
             logger.warning(f"not mp format: {url}\n{e}")
             # For mp.weixin.qq.com types, mp_crawler won't work, and most likely neither will the other two
-            return {}, [], set()
+            return {}, {}
 
         if not rich_media_title or not profile_nickname:
             logger.warning(f"failed to analysis {url}, no title or profile_nickname")
-            return {}, [], set()
+            return {}, {}
 
         # Parse text and image links within the content interval
-        # Todo This scheme is compatible with picture sharing MP articles, but the pictures of the content cannot be obtained,
         # because the structure of this part is completely different, and a separate analysis scheme needs to be written
         # (but the proportion of this type of article is not high).
         texts = []
@@ -92,18 +91,18 @@ async def mp_crawler(url: str, logger) -> tuple[dict, list, set]:
             content = '\n'.join(cleaned_texts)
         else:
             logger.warning(f"failed to analysis contents {url}")
-            return {}, [], set()
+            return {}, {}
         if content:
             content = f"[from {profile_nickname}]{content}"
         else:
-            # If the content does not have it, but the summary has it, it means that it is an mp of the picture sharing type.
+            # If the content does not have it, but the summary has it, it means that it is a mp of the picture sharing type.
             # At this time, you can use the summary as the content.
             content = f"[from {profile_nickname}]{summary}"
 
-        infos = get_info(content, logger)
         article = {'url': url,
                    'title': rich_media_title,
                    'author': profile_nickname,
-                   'publish_date': publish_time}
+                   'publish_date': publish_time,
+                   'content': content}
 
-    return article, infos, set()
+    return article, {}
