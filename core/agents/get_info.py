@@ -81,6 +81,10 @@ If the webpage text does not contain any information related to points of intere
     async def get_author_and_publish_date(self, text: str) -> tuple[str, str]:
         if not text:
             return "NA", "NA"
+
+        if len(text) > 1024:
+            text = f'{text[:500]}......{text[-500:]}'
+
         system_prompt = "As an information extraction assistant, your task is to accurately extract the source (or author) and publication date from the given webpage text. It is important to adhere to extracting the information directly from the original text. If the original text does not contain a particular piece of information, please replace it with NA"
         suffix = '''Please output the extracted information in the following JSON format:
 {"source": source or article author (use "NA" if this information cannot be extracted), "publish_date": extracted publication date (keep only the year, month, and day; use "NA" if this information cannot be extracted)}'''
@@ -106,14 +110,26 @@ If the webpage text does not contain any information related to points of intere
     async def get_more_related_urls(self, link_dict: dict) -> set[str]:
         if not link_dict:
             return set()
+
+        urls = set()
         content = ''
         for key, value in link_dict.items():
             content = f"{content}{key}: {value}\n"
-        result = await llm([{'role': 'system', 'content': self.get_more_link_prompt}, {'role': 'user', 'content': f'{content}\n{self.get_more_link_suffix}'}],
-                           model=self.secondary_model, temperature=0.1)
+            if len(content) > 512:
+                result = await llm([{'role': 'system', 'content': self.get_more_link_prompt},
+                                    {'role': 'user', 'content': f'{content}\n{self.get_more_link_suffix}'}],
+                                   model=self.secondary_model, temperature=0.1)
+                self.logger.debug(f'get_more_related_urls llm output:\n{result}')
+                urls.update(extract_urls(result))
+                content = ''
 
-        self.logger.debug(f'get_more_related_urls llm output:\n{result}')
-        urls = extract_urls(result)
+        if content:
+            result = await llm([{'role': 'system', 'content': self.get_more_link_prompt},
+                                {'role': 'user', 'content': f'{content}\n{self.get_more_link_suffix}'}],
+                               model=self.secondary_model, temperature=0.1)
+            self.logger.debug(f'get_more_related_urls llm output:\n{result}')
+            urls.update(extract_urls(result))
+
         raw_urls = list(link_dict.values())
         for url in urls:
             if url not in raw_urls:
@@ -121,9 +137,10 @@ If the webpage text does not contain any information related to points of intere
                 urls.remove(url)
         return urls
 
-    async def get_info(self, text: str, info_pre_fix: str) -> list[dict]:
+    async def get_info(self, text: str, info_pre_fix: str, link_dict: dict) -> list[dict]:
         if not text:
             return []
+
         content = f'<text>\n{text}\n</text>\n\n{self.get_info_suffix}'
         result = await llm([{'role': 'system', 'content': self.get_info_prompt}, {'role': 'user', 'content': content}],
                            model=self.model, temperature=0.1, response_format={"type": "json_object"})
@@ -152,6 +169,10 @@ If the webpage text does not contain any information related to points of intere
             if item['focus'] not in self.focus_dict:
                 self.logger.warning(f"{item['focus']} not in focus_list, it's model's Hallucination")
                 continue
+            if item['content'] in link_dict:
+                self.logger.debug(f"{item['content']} in link_dict, aborting")
+                continue
+
             judge = await llm([{'role': 'system', 'content': system},
                                {'role': 'user', 'content': f'<info>\n{item["content"]}\n</info>\n\n<text>\n{text}\n</text>\n\n{suffix}'}],
                                model=self.secondary_model, temperature=0.1)
@@ -189,7 +210,17 @@ If the webpage text does not contain any information related to points of intere
             publish_date = datetime.now().strftime('%Y-%m-%d')
 
         related_urls = await self.get_more_related_urls(link_dict)
+
         info_prefix = f"//{author} {publish_date}//"
-        infos = await self.get_info(text, info_prefix)
+        lines = text.split('\n')
+        text = ''
+        infos = []
+        for line in lines:
+            text = f'{text}{line}'
+            if len(text) > 2048:
+                infos.extend(await self.get_info(text, info_prefix, link_dict))
+                text = ''
+        if text:
+            infos.extend(await self.get_info(text, info_prefix, link_dict))
 
         return infos, related_urls, author, publish_date
