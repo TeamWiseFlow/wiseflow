@@ -1,10 +1,10 @@
 export LLM_API_KEY=""
-export LLM_API_BASE="https://api.siliconflow.cn/v1" ##for local model services or calling non-OpenAI services with openai_wrapper
-##strongly recommended to use the following model provided by siliconflow (consider both effect and price)
-export GET_INFO_MODEL="THUDM/glm-4-9b-chat" ##
-export REWRITE_MODEL="Qwen/Qwen2-7B-Instruct"
-export HTML_PARSE_MODEL="aQwen/Qwen2-7B-Instruct"
+export LLM_API_BASE="https://api.siliconflow.cn/v1"
+export PB_API_AUTH="test@example.com|1234567890" ##your pb superuser account and password
+export VERBOSE="true" ##for detail log info. If not need, remove this item.
+
+##belowing is optional, go as you need
+#export PRIMARY_MODEL="Qwen/Qwen2.5-14B-Instruct"
+#export SECONDARY_MODEL="THUDM/glm-4-9b-chat"
 export PROJECT_DIR="work_dir"
-export PB_API_AUTH="test@example.com|1234567890"
-# export "PB_API_BASE"="" ##only use if your pb not run on 127.0.0.1:8090
-export WS_LOG="verbose" ##for detail log info. If not need, just delete this item.
+#export "PB_API_BASE"="" ##only use if your pb not run on 127.0.0.1:8090

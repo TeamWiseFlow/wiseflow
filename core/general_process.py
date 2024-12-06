@@ -23,10 +23,6 @@ wiseflow_logger = get_logger('general_process', f'{project_dir}/general_process.
 pb = PbTalker(wiseflow_logger)
 gie = GeneralInfoExtractor(pb, wiseflow_logger)
 
-# Global variables
-working_list = set()
-existing_urls = {url['url'] for url in pb.read(collection_name='articles', fields=['url']) if url['url']}
-lock = asyncio.Lock()
 
 async def save_to_pb(article: dict, infos: list):
     # saving to pb process
@@ -57,7 +53,9 @@ async def save_to_pb(article: dict, infos: list):
 
 
 async def pipeline(url: str):
-    global working_list, existing_urls
+    working_list = set()
+    existing_urls = {url['url'] for url in pb.read(collection_name='articles', fields=['url']) if url['url']}
+    lock = asyncio.Lock()
     working_list.add(url)
     crawler = PlaywrightCrawler(
         # Limit the crawl to max requests. Remove or increase it for crawling all links.
@@ -179,6 +177,9 @@ async def pipeline(url: str):
 
 
 if __name__ == '__main__':
-    import asyncio
+    sites = pb.read('sites', filter='activated=True')
+    wiseflow_logger.info('execute all sites one time')
+    async def run_all_sites():
+        await asyncio.gather(*[pipeline(site['url'].rstrip('/')) for site in sites])
 
-    asyncio.run(pipeline())
+    asyncio.run(run_all_sites())
