@@ -1,8 +1,8 @@
-from core.llms.openai_wrapper import openai_llm as llm
+from llms.openai_wrapper import openai_llm as llm
 # from core.llms.siliconflow_wrapper import sfa_llm
-from core.utils.general_utils import is_chinese, extract_and_convert_dates, extract_urls
+from utils.general_utils import is_chinese, extract_and_convert_dates, extract_urls
 from loguru import logger
-from core.utils.pb_api import PbTalker
+from utils.pb_api import PbTalker
 import os
 from datetime import datetime
 from urllib.parse import urlparse
@@ -30,8 +30,8 @@ class GeneralInfoExtractor:
         self.focus_dict = {item["focuspoint"]: item["id"] for item in focus_data}
         focus_statement = ''
         for item in focus_data:
-            tag = item["name"]
-            expl = item["explaination"]
+            tag = item["focuspoint"]
+            expl = item["explanation"]
             focus_statement = f"{focus_statement}#{tag}\n"
             if expl:
                 focus_statement = f"{focus_statement}解释：{expl}\n"
@@ -56,7 +56,7 @@ class GeneralInfoExtractor:
 
 如果网页文本中不包含任何与兴趣点相关的信息，请仅输出：[]。'''
             self.get_more_link_prompt = f"作为一位高效的信息筛选助手，你的任务是根据给定的兴趣点，从给定的文本及其对应的URL中挑选出最值得关注的URL。兴趣点及其解释如下：\n\n{focus_statement}"
-            self.get_more_link_suffix = "请逐条分析上述 文本：url 对。首先输出你的分析依据，然后给出是否挑选它的结论，如果决定挑选该条，在结论后复制输出该条的 url，否则的话直接进入下一条的分析。请一条一条的分析，不要漏掉任何一条。"
+            self.get_more_link_suffix = "请逐条分析：对于每一条，首先复制文本，然后给出分析依据，最后给出结论。如果决定挑选该条，在结论后复制对应的url，否则的话直接进入下一条的分析。请一条一条的分析，不要漏掉任何一条。"
         else:
             self.get_info_prompt = f'''As an information extraction assistant, your task is to extract content related to the following user focus points from the given web page text. The list of focus points and their explanations is as follows:
 
@@ -76,7 +76,7 @@ Example:
 
 If the webpage text does not contain any information related to points of interest, please output only: []'''
             self.get_more_link_prompt = f"As an efficient information filtering assistant, your task is to select the most noteworthy URLs from a set of texts and their corresponding URLs based on the given focus points. The focus points and their explanations are as follows:\n\n{focus_statement}"
-            self.get_more_link_suffix =  "Please analyze the above text: URL pairs. First, output your analysis basis, and then give the conclusion on whether to select it. If you decide to select this item, then copy and output the URL of this item following the conclusion; otherwise, proceed directly to the analysis of the next item. Analyze one by one, do not miss any one."
+            self.get_more_link_suffix = "Please analyze each item one by one: For each item, first copy the text, then provide the analysis basis, and finally give the conclusion. If the decision is to select the item, copy the corresponding URL after the conclusion; otherwise, proceed directly to the analysis of the next item. Analyze each item one by one, without missing any."
 
     async def get_author_and_publish_date(self, text: str) -> tuple[str, str]:
         if not text:
@@ -218,9 +218,11 @@ If the webpage text does not contain any information related to points of intere
         for line in lines:
             text = f'{text}{line}'
             if len(text) > 2048:
-                infos.extend(await self.get_info(text, info_prefix, link_dict))
+                cache = await self.get_info(text, info_prefix, link_dict)
+                infos.extend(cache)
                 text = ''
         if text:
-            infos.extend(await self.get_info(text, info_prefix, link_dict))
+            cache = await self.get_info(text, info_prefix, link_dict)
+            infos.extend(cache)
 
         return infos, related_urls, author, publish_date

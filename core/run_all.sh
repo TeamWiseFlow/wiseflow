@@ -1,9 +1,8 @@
 #!/bin/bash
 
-# 从 .env 文件中加载环境变量
-if [ -f .env ]; then
-    export $(grep -v '^#' .env | xargs)
-fi
+set -o allexport
+source .env
+set +o allexport
 
 # 启动 PocketBase
 pb/pocketbase serve --http=0.0.0.0:8090 &

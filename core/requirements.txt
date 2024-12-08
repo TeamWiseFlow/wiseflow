@@ -1,6 +1,5 @@
 openai
 loguru
-httpx
 pocketbase
 pydantic
 json_repair==0.*
