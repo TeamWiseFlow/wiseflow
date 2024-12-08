@@ -3,18 +3,37 @@
 from bs4 import BeautifulSoup
 from datetime import datetime
 import os, re
-from utils.general_utils import get_logger
+import logging
 
 
 project_dir = os.environ.get("PROJECT_DIR", "")
 if project_dir:
     os.makedirs(project_dir, exist_ok=True)
 
-mp_logger = get_logger('mp_scraper', project_dir)
+log_formatter = logging.Formatter(fmt='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+# create logger and set level to debug
+logger = logging.getLogger('mp_scraper')
+logger.handlers = []
+logger.setLevel('DEBUG')
+logger.propagate = False
+
+# create file handler and set level to debug
+file = os.path.join(project_dir, 'mp_scraper.log')
+file_handler = logging.FileHandler(file, 'a', encoding='utf-8')
+file_handler.setLevel('INFO')
+file_handler.setFormatter(log_formatter)
+logger.addHandler(file_handler)
+
+# create console handler and set level to info
+console_handler = logging.StreamHandler()
+console_handler.setLevel('DEBUG')
+console_handler.setFormatter(log_formatter)
+logger.addHandler(console_handler)
 
 async def mp_scraper(html: str, url: str) -> tuple[dict, set, list]:
     if not url.startswith('https://mp.weixin.qq.com') and not url.startswith('http://mp.weixin.qq.com'):
-        mp_logger.warning(f'{url} is not a mp url, you should not use this function')
+        logger.warning(f'{url} is not a mp url, you should not use this function')
         return {}, set(), []
 
     url = url.replace("http://", "https://", 1)
@@ -50,12 +69,12 @@ async def mp_scraper(html: str, url: str) -> tuple[dict, set, list]:
             else soup.find('h1', class_='rich_media_title').text.strip()
         profile_nickname = soup.find('div', class_='wx_follow_nickname').text.strip()
     except Exception as e:
-        mp_logger.warning(f"not mp format: {url}\n{e}")
+        logger.warning(f"not mp format: {url}\n{e}")
         # For mp.weixin.qq.com types, mp_crawler won't work, and most likely neither will the other two
         return {}, set(), []
 
     if not rich_media_title or not profile_nickname:
-        mp_logger.warning(f"failed to analysis {url}, no title or profile_nickname")
+        logger.warning(f"failed to analysis {url}, no title or profile_nickname")
         return {}, set(), []
 
     # Parse text and image links within the content interval
@@ -72,7 +91,7 @@ async def mp_scraper(html: str, url: str) -> tuple[dict, set, list]:
         cleaned_texts = [t for t in texts if t.strip()]
         content = '\n'.join(cleaned_texts)
     else:
-        mp_logger.warning(f"failed to analysis contents {url}")
+        logger.warning(f"failed to analysis contents {url}")
         return {}, set(), []
     if content:
         content = f"[from {profile_nickname}]{content}"
