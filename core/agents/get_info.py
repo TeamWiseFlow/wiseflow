@@ -3,7 +3,7 @@ from llms.openai_wrapper import openai_llm as llm
 from utils.general_utils import is_chinese, extract_and_convert_dates, extract_urls
 from loguru import logger
 from utils.pb_api import PbTalker
-import os
+import os, re
 from datetime import datetime
 from urllib.parse import urlparse
 import json_repair
@@ -56,7 +56,12 @@ class GeneralInfoExtractor:
 
 如果网页文本中不包含任何与兴趣点相关的信息，请仅输出：[]。'''
             self.get_more_link_prompt = f"作为一位高效的信息筛选助手，你的任务是根据给定的兴趣点，从给定的文本及其对应的URL中挑选出最值得关注的URL。兴趣点及其解释如下：\n\n{focus_statement}"
-            self.get_more_link_suffix = "请逐条分析：对于每一条，首先复制文本，然后给出分析依据，最后给出结论。如果决定挑选该条，在结论后复制对应的url，否则的话直接进入下一条的分析。请一条一条的分析，不要漏掉任何一条。"
+            self.get_more_link_suffix = '''请逐条分析，先逐一给出分析依据，最终将挑选出的 url 按一行一条的格式输出，最终输出的 url 列表整体用三引号包裹，三引号内不要有其他内容，如下是输出格式示例：
+"""
+url1
+url2
+...
+"""'''
         else:
             self.get_info_prompt = f'''As an information extraction assistant, your task is to extract content related to the following user focus points from the given web page text. The list of focus points and their explanations is as follows:
 
@@ -76,7 +81,12 @@ Example:
 
 If the webpage text does not contain any information related to points of interest, please output only: []'''
             self.get_more_link_prompt = f"As an efficient information filtering assistant, your task is to select the most noteworthy URLs from a set of texts and their corresponding URLs based on the given focus points. The focus points and their explanations are as follows:\n\n{focus_statement}"
-            self.get_more_link_suffix = "Please analyze each item one by one: For each item, first copy the text, then provide the analysis basis, and finally give the conclusion. If the decision is to select the item, copy the corresponding URL after the conclusion; otherwise, proceed directly to the analysis of the next item. Analyze each item one by one, without missing any."
+            self.get_more_link_suffix = '''Please analyze one by one, first give the analysis basis one by one, and finally output the selected URLs in a row-by-row format. The final output URL list is wrapped in three quotes as a whole, and there should be no other content in the three quotes. Here is an example of the output format:
+"""
+url1
+url2
+...
+"""'''
 
     async def get_author_and_publish_date(self, text: str) -> tuple[str, str]:
         if not text:
@@ -107,10 +117,10 @@ If the webpage text does not contain any information related to points of intere
 
         return result['source'], extract_and_convert_dates(result['publish_date'])
 
-    async def get_more_related_urls(self, link_dict: dict) -> set[str]:
+    async def get_more_related_urls(self, link_dict: dict, og_url: str) -> set[str]:
         if not link_dict:
             return set()
-
+        self.logger.debug(f'{len(link_dict)} items to analyze')
         urls = set()
         content = ''
         for key, value in link_dict.items():
@@ -118,24 +128,33 @@ If the webpage text does not contain any information related to points of intere
             if len(content) > 512:
                 result = await llm([{'role': 'system', 'content': self.get_more_link_prompt},
                                     {'role': 'user', 'content': f'{content}\n{self.get_more_link_suffix}'}],
-                                   model=self.secondary_model, temperature=0.1)
+                                   model=self.model, temperature=0.1)
                 self.logger.debug(f'get_more_related_urls llm output:\n{result}')
-                urls.update(extract_urls(result))
+                result = re.findall(r'"""(.*?)"""', result, re.DOTALL)
+                if result:
+                    result = result[0].strip()
+                    self.logger.debug(f"cleaned output: {result}")
+                    urls.update(extract_urls(result))
                 content = ''
 
         if content:
             result = await llm([{'role': 'system', 'content': self.get_more_link_prompt},
                                 {'role': 'user', 'content': f'{content}\n{self.get_more_link_suffix}'}],
-                               model=self.secondary_model, temperature=0.1)
+                               model=self.model, temperature=0.1)
             self.logger.debug(f'get_more_related_urls llm output:\n{result}')
-            urls.update(extract_urls(result))
+            result = re.findall(r'"""(.*?)"""', result, re.DOTALL)
+            if result:
+                result = result[0].strip()
+                self.logger.debug(f"cleaned output: {result}")
+                urls.update(extract_urls(result))
 
-        raw_urls = list(link_dict.values())
-        for url in urls:
-            if url not in raw_urls:
-                self.logger.warning(f"{url} not in link_dict, it's model's Hallucination")
-                urls.remove(url)
-        return urls
+        raw_urls = set(link_dict.values())
+        urls.discard(og_url)
+        hallucination_urls = urls - raw_urls
+        if hallucination_urls:
+            self.logger.warning(f"{hallucination_urls} not in link_dict, it's model's Hallucination")
+
+        return urls & raw_urls 
 
     async def get_info(self, text: str, info_pre_fix: str, link_dict: dict) -> list[dict]:
         if not text:
@@ -153,7 +172,7 @@ If the webpage text does not contain any information related to points of intere
             self.logger.warning("failed to parse from llm output")
             return []
         if not result:
-            self.logger.info("no info found")
+            self.logger.debug("no info found")
             return []
 
         system = '''判断给定的信息是否与网页文本相符。信息将用标签<info></info>包裹，网页文本则用<text></text>包裹。请遵循如下工作流程:
@@ -209,7 +228,7 @@ If the webpage text does not contain any information related to points of intere
         if not publish_date or publish_date.lower() == 'na':
             publish_date = datetime.now().strftime('%Y-%m-%d')
 
-        related_urls = await self.get_more_related_urls(link_dict)
+        related_urls = await self.get_more_related_urls(link_dict, base_url)
 
         info_prefix = f"//{author} {publish_date}//"
         lines = text.split('\n')

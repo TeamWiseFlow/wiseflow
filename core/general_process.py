@@ -10,7 +10,7 @@ from custom_scraper import custom_scraper_map
 from urllib.parse import urlparse, urljoin
 import hashlib
 from crawlee.playwright_crawler import PlaywrightCrawler, PlaywrightCrawlingContext
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 project_dir = os.environ.get("PROJECT_DIR", "")
@@ -55,6 +55,8 @@ async def save_to_pb(article: dict, infos: list):
 crawler = PlaywrightCrawler(
     # Limit the crawl to max requests. Remove or increase it for crawling all links.
     # max_requests_per_crawl=1,
+    max_request_retries=2,
+    request_handler_timeout=timedelta(minutes=5),
     headless=False if os.environ.get("VERBOSE", "").lower() in ["true", "1"] else True
 )
 @crawler.router.default_handler
@@ -85,8 +87,8 @@ async def request_handler(context: PlaywrightCrawlingContext) -> None:
             wiseflow_logger.warning(f'{parsed_url} handled by customer scraper, bot got nothing')
             return
 
-        title = article.get('title', "")
-        link_dict = more_urls if isinstance(more_urls, dict) else None
+        #title = article.get('title', "")
+        link_dict = more_urls if isinstance(more_urls, dict) else {}
         related_urls = more_urls if isinstance(more_urls, set) else set()
         if not infos and not related_urls:
             text = article.pop('content') if 'content' in article else None
@@ -127,7 +129,7 @@ async def request_handler(context: PlaywrightCrawlingContext) -> None:
             author = soup.find('div', class_='source').get_text(strip=True) if soup.find('div', class_='source') else None
         # get infos by llm
         infos, related_urls, author, publish_date = await gie(text, link_dict, base_url, author, publish_date)
-        title = await context.page.title()
+        # title = await context.page.title()
 
     screenshot_file_name = f"{hashlib.sha256(context.request.url.encode()).hexdigest()}.png"
     await context.page.screenshot(path=os.path.join(screenshot_dir, screenshot_file_name), full_page=True)
@@ -136,7 +138,7 @@ async def request_handler(context: PlaywrightCrawlingContext) -> None:
     if infos:
         article = {
             'url': context.request.url,
-            'title': title,
+            # 'title': title,
             'author': author,
             'publish_date': publish_date,
             'screenshot': os.path.join(screenshot_dir, screenshot_file_name),
