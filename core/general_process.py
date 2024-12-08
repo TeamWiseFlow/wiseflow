@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 import os
 import json
 import asyncio
-from custom_crawlers import customer_crawler_map
+from custom_scraper import custom_scraper_map
 from urllib.parse import urlparse, urljoin
 import hashlib
 from crawlee.playwright_crawler import PlaywrightCrawler, PlaywrightCrawlingContext
@@ -19,7 +19,7 @@ if project_dir:
 
 os.environ['CRAWLEE_STORAGE_DIR'] = os.path.join(project_dir, 'crawlee_storage')
 screenshot_dir = os.path.join(project_dir, 'crawlee_storage', 'screenshots')
-wiseflow_logger = get_logger('general_process', f'{project_dir}/general_process.log')
+wiseflow_logger = get_logger('general_process', project_dir)
 pb = PbTalker(wiseflow_logger)
 gie = GeneralInfoExtractor(pb, wiseflow_logger)
 
@@ -52,31 +52,64 @@ async def save_to_pb(article: dict, infos: list):
                 json.dump(info, f, ensure_ascii=False, indent=4)
 
 
-async def pipeline(url: str):
-    working_list = set()
-    existing_urls = {url['url'] for url in pb.read(collection_name='articles', fields=['url']) if url['url']}
-    lock = asyncio.Lock()
-    working_list.add(url)
-    crawler = PlaywrightCrawler(
-        # Limit the crawl to max requests. Remove or increase it for crawling all links.
-        max_requests_per_crawl=100,
-    )
-    # Define the default request handler, which will be called for every request.
-    @crawler.router.default_handler
-    async def request_handler(context: PlaywrightCrawlingContext) -> None:
-        context.log.info(f'Processing {context.request.url} ...')
-        # Handle dialogs (alerts, confirms, prompts)
-        async def handle_dialog(dialog):
-            context.log.info(f'Closing dialog: {dialog.message}')
-            await dialog.accept()
+crawler = PlaywrightCrawler(
+    # Limit the crawl to max requests. Remove or increase it for crawling all links.
+    # max_requests_per_crawl=1,
+    headless=False if os.environ.get("VERBOSE", "").lower() in ["true", "1"] else True
+)
+@crawler.router.default_handler
+async def request_handler(context: PlaywrightCrawlingContext) -> None:
+    context.log.info(f'Processing {context.request.url} ...')
+    # Handle dialogs (alerts, confirms, prompts)
+    async def handle_dialog(dialog):
+        context.log.info(f'Closing dialog: {dialog.message}')
+        await dialog.accept()
 
-        context.page.on('dialog', handle_dialog)
+    context.page.on('dialog', handle_dialog)
+    await context.page.wait_for_load_state('networkidle')
+    html = await context.page.inner_html('body')
+    context.log.info('successfully finish fetching')
 
+    parsed_url = urlparse(context.request.url)
+    domain = parsed_url.netloc
+    if domain in custom_scraper_map:
+        context.log.info(f'routed to customer scraper for {domain}')
+        try:
+            article, more_urls, infos = await custom_scraper_map[domain](html, context.request.url)
+        except Exception as e:
+            context.log.error(f'error occurred: {e}')
+            wiseflow_logger.warning(f'handle {parsed_url} failed by customer scraper, this url will be skipped')
+            return
+
+        if not article and not infos and not more_urls:
+            wiseflow_logger.warning(f'{parsed_url} handled by customer scraper, bot got nothing')
+            return
+
+        title = article.get('title', "")
+        link_dict = more_urls if isinstance(more_urls, dict) else None
+        related_urls = more_urls if isinstance(more_urls, set) else set()
+        if not infos and not related_urls:
+            text = article.pop('content') if 'content' in article else None
+            if not text:
+                wiseflow_logger.warning(f'no content found in {parsed_url} by customer scraper, cannot use llm GIE')
+                author, publish_date = '', ''
+            else:
+                author = article.get('author', '')
+                publish_date = article.get('publish_date', '')
+                # get infos by llm
+                try:
+                    infos, related_urls, author, publish_date = await gie(text, link_dict, context.request.url, author, publish_date)
+                except Exception as e:
+                    wiseflow_logger.error(f'gie error occurred in processing: {e}')
+                    infos = []
+                    author, publish_date = '', ''
+        else:
+            author = article.get('author', '')
+            publish_date = article.get('publish_date', '')
+    else:
         # Extract data from the page.
         # future work: try to use a visual-llm do all the job...
         text = await context.page.inner_text('body')
-        wiseflow_logger.debug(f"got text: {text}")
-        html = await context.page.inner_html('body')
         soup = BeautifulSoup(html, 'html.parser')
         links = soup.find_all('a', href=True)
         base_url = context.request.url
@@ -86,100 +119,40 @@ async def pipeline(url: str):
             t = a.text.strip()
             if new_url and t:
                 link_dict[t] = urljoin(base_url, new_url)
-        wiseflow_logger.debug(f'found {len(link_dict)} more links')
-
         publish_date = soup.find('div', class_='date').get_text(strip=True) if soup.find('div', class_='date') else None
         if publish_date:
             publish_date = extract_and_convert_dates(publish_date)
         author = soup.find('div', class_='author').get_text(strip=True) if soup.find('div', class_='author') else None
         if not author:
-            author = soup.find('div', class_='source').get_text(strip=True) if soup.find('div',
-                                                                                         class_='source') else None
-
-        screenshot_file_name = f"{hashlib.sha256(context.request.url.encode()).hexdigest()}.png"
-        await context.page.screenshot(path=os.path.join(screenshot_dir, screenshot_file_name), full_page=True)
-        wiseflow_logger.debug(f'screenshot saved to {screenshot_file_name}')
-
+            author = soup.find('div', class_='source').get_text(strip=True) if soup.find('div', class_='source') else None
         # get infos by llm
         infos, related_urls, author, publish_date = await gie(text, link_dict, base_url, author, publish_date)
-        if infos:
-            article = {
-                'url': context.request.url,
-                'title': await context.page.title(),
-                'author': author,
-                'publish_date': publish_date,
-                'screenshot': os.path.join(screenshot_dir, screenshot_file_name),
-                'tags': [info['tag'] for info in infos]
-            }
-            await save_to_pb(article, infos)
+        title = await context.page.title()
 
-        if related_urls:
-            async with lock:
-                new_urls = related_urls - existing_urls
-                working_list.update(new_urls)
+    screenshot_file_name = f"{hashlib.sha256(context.request.url.encode()).hexdigest()}.png"
+    await context.page.screenshot(path=os.path.join(screenshot_dir, screenshot_file_name), full_page=True)
+    wiseflow_logger.debug(f'screenshot saved to {screenshot_file_name}')
 
-        # todo: use llm to determine next action
+    if infos:
+        article = {
+            'url': context.request.url,
+            'title': title,
+            'author': author,
+            'publish_date': publish_date,
+            'screenshot': os.path.join(screenshot_dir, screenshot_file_name),
+            'tags': [info['tag'] for info in infos]
+        }
+        await save_to_pb(article, infos)
 
-    while working_list:
-        async with lock:
-            if not working_list:
-                break
-            url = working_list.pop()
-            existing_urls.add(url)
-        parsed_url = urlparse(url)
-        domain = parsed_url.netloc
-        if domain in customer_crawler_map:
-            wiseflow_logger.info(f'routed to customer crawler for {domain}')
-            try:
-                article, more_urls = await customer_crawler_map[domain](url, wiseflow_logger)
-            except Exception as e:
-                wiseflow_logger.error(f'error occurred in crawling {url}: {e}')
-                continue
+    if related_urls:
+        await context.add_requests(list(related_urls))
 
-            if not article and not more_urls:
-                wiseflow_logger.info(f'no content found in {url} by customer crawler')
-                continue
-
-            text = article.pop('content') if 'content' in article else None
-            author = article.get('author', None)
-            publish_date = article.get('publish_date', None)
-            title = article.get('title', "")
-            screenshot = article.get('screenshot', '')
-
-            # get infos by llm
-            try:
-                infos, related_urls, author, publish_date = await gie(text, more_urls, url, author, publish_date)
-            except Exception as e:
-                wiseflow_logger.error(f'gie error occurred in processing {article}: {e}')
-                continue
-
-            if infos:
-                article = {
-                    'url': url,
-                    'title': title,
-                    'author': author,
-                    'publish_date': publish_date,
-                    'screenshot': screenshot,
-                    'tags': [info['tag'] for info in infos]
-                }
-                await save_to_pb(article, infos)
-
-            if related_urls:
-                async with lock:
-                    new_urls = related_urls - existing_urls
-                    working_list.update(new_urls)
-            continue
-
-        try:
-            await crawler.run([url])
-        except Exception as e:
-            wiseflow_logger.error(f'error occurred in crawling {url}: {e}')
-
+    # todo: use llm to determine next action
 
 if __name__ == '__main__':
     sites = pb.read('sites', filter='activated=True')
     wiseflow_logger.info('execute all sites one time')
     async def run_all_sites():
-        await asyncio.gather(*[pipeline(site['url'].rstrip('/')) for site in sites])
+        await crawler.run([site['url'].rstrip('/') for site in sites])
 
     asyncio.run(run_all_sites())

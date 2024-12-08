@@ -1,7 +1,7 @@
 # V0.3.2
 - 引入 Crawlee(playwrigt模块)，大幅提升通用爬取能力，适配实际项目场景；
   
-  Introduce Crawlee (playwright module), significantly enhancing general crawling capabilities and adapting to practical project scenarios;
+  Introduce Crawlee (playwright module), significantly enhancing general crawling capabilities and adapting to real-world task;
 
 - 完全重写了信息提取模块，引入“爬-查一体”策略，你关注的才是你想要的；
 
