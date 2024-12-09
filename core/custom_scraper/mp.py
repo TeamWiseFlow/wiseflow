@@ -100,10 +100,8 @@ async def mp_scraper(html: str, url: str) -> tuple[dict, set, list]:
         # At this time, you can use the summary as the content.
         content = f"[from {profile_nickname}]{summary}"
 
-    article = {'url': url,
-                'title': rich_media_title,
-                'author': profile_nickname,
-                'publish_date': publish_time,
-                'content': content}
+    article = {'author': profile_nickname,
+               'publish_date': publish_time,
+               'content': content}
 
     return article, set(), []

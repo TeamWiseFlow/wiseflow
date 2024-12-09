@@ -21,22 +21,20 @@ Scraper 应该是一个函数（而不是类）。
 Scraper 出参限定为三个：
 
 #### 3.1 `article`
-解析出的页面详情，类型为 `dict`，格式如下（**注意，'content' 是必须的，其他可以没有，额外的键值信息会被忽略**）：
+解析出的页面详情，类型为 `dict`，格式如下：
 
 ```python
 {
-    'url': ..., 
     'author': ..., 
     'publish_date': ..., 
-    'screenshot': ..., 
-    'content': ...(not empty)
+    'content': ...
 }
 ```
 
-- 上述值的类型都要求为 `str`，日期格式为 `YYYY-MM-DD`，screenshot 为**文件路径**，可以是相对于 core 目录的相对路径也可以是绝对路径，文件类型为 `png`。
+- 上述值的类型都要求为 `str`，日期格式为 `YYYY-MM-DD`。
 
 **注意：**
-1. `'content'` 要有且不为空，不然无法触发后续的提取，文章也会被舍弃。这是唯一要求不为空的项；
+1. `'content'` 要有且不为空，不然无法触发后续的提取；
 2. `'author'` 和 `'publish_date'` 尽量有，不然 wiseflow 会自动用域名对应 demain 和 当日日期代替。
 
 #### 3.2 `links`

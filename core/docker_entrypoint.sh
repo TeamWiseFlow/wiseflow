@@ -5,7 +5,7 @@ source .env
 set +o allexport
 
 # 启动 PocketBase
-pb/pocketbase serve --http=0.0.0.0:8090 &
+/pb/pocketbase serve --http=0.0.0.0:8090 &
 pocketbase_pid=$!
 
 # 启动 Python 任务
