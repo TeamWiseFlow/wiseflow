@@ -5,9 +5,9 @@ services:
     image: wiseflow:latest
     tty: true
     stdin_open: true
-    entrypoint: ["bash", "/app/run_all.sh"]
+    entrypoint: ["bash", "/app/docker_entrypoint.sh"]
     ports:
       - 8090:8090
-      - 8077:8077
     volumes:
       - ./core:/app
+      - ./pb/pb_data:/pb/pb_data

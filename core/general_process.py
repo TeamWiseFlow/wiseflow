@@ -9,7 +9,7 @@ import asyncio
 from custom_scraper import custom_scraper_map
 from urllib.parse import urlparse, urljoin
 import hashlib
-from crawlee.playwright_crawler import PlaywrightCrawler, PlaywrightCrawlingContext
+from crawlee.playwright_crawler import PlaywrightCrawler, PlaywrightCrawlingContext, PlaywrightPreNavigationContext
 from datetime import datetime, timedelta
 
 
@@ -22,6 +22,7 @@ screenshot_dir = os.path.join(project_dir, 'crawlee_storage', 'screenshots')
 wiseflow_logger = get_logger('general_process', project_dir)
 pb = PbTalker(wiseflow_logger)
 gie = GeneralInfoExtractor(pb, wiseflow_logger)
+existing_urls = {url['url'] for url in pb.read(collection_name='articles', fields=['url']) if url['url']}
 
 
 async def save_to_pb(article: dict, infos: list):
@@ -59,9 +60,14 @@ crawler = PlaywrightCrawler(
     request_handler_timeout=timedelta(minutes=5),
     headless=False if os.environ.get("VERBOSE", "").lower() in ["true", "1"] else True
 )
+
+@crawler.pre_navigation_hook
+async def log_navigation_url(context: PlaywrightPreNavigationContext) -> None:
+    context.log.info(f'Navigating to {context.request.url} ...')
+
 @crawler.router.default_handler
 async def request_handler(context: PlaywrightCrawlingContext) -> None:
-    context.log.info(f'Processing {context.request.url} ...')
+    # context.log.info(f'Processing {context.request.url} ...')
     # Handle dialogs (alerts, confirms, prompts)
     async def handle_dialog(dialog):
         context.log.info(f'Closing dialog: {dialog.message}')
@@ -114,13 +120,17 @@ async def request_handler(context: PlaywrightCrawlingContext) -> None:
         text = await context.page.inner_text('body')
         soup = BeautifulSoup(html, 'html.parser')
         links = soup.find_all('a', href=True)
-        base_url = context.request.url
+        parsed_url = urlparse(context.request.url)
+        domain = parsed_url.netloc
+        base_url = f"{parsed_url.scheme}://{domain}"
+
         link_dict = {}
         for a in links:
             new_url = a.get('href')
             t = a.text.strip()
-            if new_url and t:
+            if new_url and t and new_url != base_url and new_url not in existing_urls:
                 link_dict[t] = urljoin(base_url, new_url)
+                existing_urls.add(new_url)
         publish_date = soup.find('div', class_='date').get_text(strip=True) if soup.find('div', class_='date') else None
         if publish_date:
             publish_date = extract_and_convert_dates(publish_date)

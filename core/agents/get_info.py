@@ -133,7 +133,7 @@ url2
                 result = re.findall(r'"""(.*?)"""', result, re.DOTALL)
                 if result:
                     result = result[0].strip()
-                    self.logger.debug(f"cleaned output: {result}")
+                    # self.logger.debug(f"cleaned output: {result}")
                     urls.update(extract_urls(result))
                 content = ''
 
@@ -145,7 +145,7 @@ url2
             result = re.findall(r'"""(.*?)"""', result, re.DOTALL)
             if result:
                 result = result[0].strip()
-                self.logger.debug(f"cleaned output: {result}")
+                # self.logger.debug(f"cleaned output: {result}")
                 urls.update(extract_urls(result))
 
         raw_urls = set(link_dict.values())

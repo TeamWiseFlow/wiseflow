@@ -21,22 +21,20 @@ The function receives two input parameters (passed by the wiseflow framework):
 The Scraper output is limited to three:
 
 #### 3.1 `article`
-The parsed page details, of type `dict`, with the following format (**note that 'content' is mandatory, others can be omitted, and extra key-value information will be ignored**):
+The parsed page details, of type `dict`, with the following format:
 
 ```python
 {
-    'url': ..., 
     'author': ..., 
     'publish_date': ..., 
-    'screenshot': ..., 
-    'content': ...(not empty)
+    'content': ...
 }
 ```
 
 - The types of the above values are all required to be `str`, with the date format being `YYYY-MM-DD`, and the screenshot being a **file path**, which can be a relative path to the core directory or an absolute path, with the file type being `png`.
 
 **Note:**
-1. `'content'` must be present and not empty, otherwise subsequent extraction cannot be triggered, and the article will be discarded. This is the only non-empty requirement;
+1. `'content'` must be present and not empty, otherwise subsequent extraction cannot be triggered;
 2. `'author'` and `'publish_date'` should be included if possible, otherwise wiseflow will automatically use the domain corresponding to the demain and the current date.
 
 #### 3.2 `links`

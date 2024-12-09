@@ -15,6 +15,10 @@
   
   Rewrote the PocketBase form structure;
 
+- llm wrapper引入异步架构、自定义页面提取器规范优化（含 微信公众号文章提取优化）；
+
+  llm wrapper introduces asynchronous architecture, customized page extractor specifications optimization (including WeChat official account article extraction optimization);
+
 - 进一步简化部署操作步骤。
 
   Further simplified deployment steps.
