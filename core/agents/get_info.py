@@ -23,7 +23,7 @@ class GeneralInfoExtractor:
             focus = input('It seems you have not set any focus point, WiseFlow need the specific focus point to guide the following info extract job.'
                           'so please input one now. describe what info you care about shortly: ')
             explanation = input('Please provide more explanation for the focus point (if not necessary, pls just type enter: ')
-            focus_data.append({"name": focus, "explanation": explanation,
+            focus_data.append({"focuspoint": focus, "explanation": explanation,
                                "id": pb.add('focus_points', {"focuspoint": focus, "explanation": explanation})})
 
         # self.focus_list = [item["focuspoint"] for item in focus_data]
@@ -188,6 +188,9 @@ url2
             if item['focus'] not in self.focus_dict:
                 self.logger.warning(f"{item['focus']} not in focus_list, it's model's Hallucination")
                 continue
+            if not item['content']:
+                continue
+            
             if item['content'] in link_dict:
                 self.logger.debug(f"{item['content']} in link_dict, aborting")
                 continue

@@ -11,3 +11,4 @@ services:
     volumes:
       - ./core:/app
       - ./pb/pb_data:/pb/pb_data
+      - ./pb/pb_migrations:/pb/pb_migrations
