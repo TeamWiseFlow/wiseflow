@@ -46,19 +46,6 @@ migrate((app) => {
         "type": "relation"
       },
       {
-        "cascadeDelete": false,
-        "collectionId": "pbc_4287850865",
-        "hidden": false,
-        "id": "relation3218944360",
-        "maxSelect": 999,
-        "minSelect": 0,
-        "name": "articles",
-        "presentable": false,
-        "required": false,
-        "system": false,
-        "type": "relation"
-      },
-      {
         "hidden": false,
         "id": "file3291445124",
         "maxSelect": 1,

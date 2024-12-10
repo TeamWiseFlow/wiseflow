@@ -15,4 +15,4 @@ else
     echo "PocketBase is already running."
 fi
 
-python general_process.py
+python tasks.py

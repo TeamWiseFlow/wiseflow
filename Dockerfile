@@ -14,7 +14,6 @@ ADD https://github.com/pocketbase/pocketbase/releases/download/v0.23.4/pocketbas
 # for arm device
 # ADD https://github.com/pocketbase/pocketbase/releases/download/v0.23.4/pocketbase_0.23.4_linux_arm64.zip /tmp/pb.zip
 RUN unzip /tmp/pb.zip -d /pb/
-COPY pb/pb_migrations /pb/pb_migrations
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 8090
