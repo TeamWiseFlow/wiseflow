@@ -1,7 +1,8 @@
 from urllib.parse import urlparse
 import os
 import re
-import jieba
+# import jieba
+from loguru import logger
 
 
 def isURL(string):
@@ -71,36 +72,28 @@ def extract_and_convert_dates(input_string):
         if matches:
             break
     if matches:
-        return ''.join(matches[0])
+        return '-'.join(matches[0])
     return None
 
 
-def get_logger_level() -> str:
-    level_map = {
-        'silly': 'CRITICAL',
-        'verbose': 'DEBUG',
-        'info': 'INFO',
-        'warn': 'WARNING',
-        'error': 'ERROR',
-    }
-    level: str = os.environ.get('WS_LOG', 'info').lower()
-    if level not in level_map:
-        raise ValueError(
-            'WiseFlow LOG should support the values of `silly`, '
-            '`verbose`, `info`, `warn`, `error`'
-        )
-    return level_map.get(level, 'info')
+def get_logger(logger_name: str, logger_file_path: str):
+    level = 'DEBUG' if os.environ.get("VERBOSE", "").lower() in ["true", "1"] else 'INFO'
+    logger_file = os.path.join(logger_file_path, f"{logger_name}.log")
+    if not os.path.exists(logger_file_path):
+        os.makedirs(logger_file_path)
+    logger.add(logger_file, level=level, backtrace=True, diagnose=True, rotation="50 MB")
+    return logger
 
-
+"""
 def compare_phrase_with_list(target_phrase, phrase_list, threshold):
-    """
+
     Compare the similarity of a target phrase to each phrase in the phrase list.
 
     : Param target_phrase: target phrase (str)
     : Param phrase_list: list of str
     : param threshold: similarity threshold (float)
     : Return: list of phrases that satisfy the similarity condition (list of str)
-    """
+
     if not target_phrase:
         return []  # The target phrase is empty, and the empty list is returned directly.
 
@@ -112,3 +105,4 @@ def compare_phrase_with_list(target_phrase, phrase_list, threshold):
                        if len(target_tokens & tokens) / min(len(target_tokens), len(tokens)) > threshold]
 
     return similar_phrases
+"""

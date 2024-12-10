@@ -6,70 +6,38 @@
 
 **我们缺的不是信息，而是从海量信息中过滤噪音，从而让有价值的信息显露出来**
 
-## 🔥 V0.3.8版本预告
-
-wiseflow 预计将在2024.12月底前正式升级到0.3.8版本，这也将是 V0.3.x 架构下的最终版本（除非有足够多的小修改，否则不会有 V0.3.9版本）
-
-计划中的升级内容包括：
-
-- 大幅升级 general_crawler（引入诸多最新开源技术方案）, 进一步提升页面适配覆盖度以及实现完全的本地 CPU 计算（意味着无需再为此配置 LLM 选项）；
-- 改进general_crawler 从列表页面提取 url 的能力，以及列表页面与普通文章页面的区分能力；
-- 尝试引入新的 mp_crawler, 公众号文章监控无需wxbot；
-- 测试并推荐新的信息提取 llm model，并微调提取策略。
-
-视情况可能添加的特性：
-
-- 引入对 RSS 信息源的支持；
-- 引入对社交平台的支持（初期这一块会十分简陋，请不要太多期待）
-
-上述内容会逐步提前释放到 dev 分支，欢迎切换尝鲜，并积极反馈 issue。
-
------------------------------
-
 🌱看看首席情报官是如何帮您节省时间，过滤无关信息，并整理关注要点的吧！🌱
 
-- ✅ 通用网页内容解析器，综合使用统计学习（依赖开源项目GNE）和LLM，适配90%以上的新闻页面；
-- ✅ 异步任务架构；
-- ✅ 使用LLM进行信息提取和标签分类（最低只需使用9B大小的LLM就可完美执行任务）！
 
-https://github.com/TeamWiseFlow/wiseflow/assets/96130569/bd4b2091-c02d-4457-9ec6-c072d8ddfb16
 
-<img alt="sample.png" src="asset/sample.png" width="1024"/>
+## 🔥 隆重介绍 V0.3.5 版本
 
-## ✋ wiseflow 与常见的爬虫工具、AI搜索、知识库（RAG）项目有何不同？
+在充分听取社区反馈意见基础之上，我们重新提炼了 wiseflow 的产品定位，新定位更加聚焦，V0.3.5版本即是该定位下的全新架构版本：
 
-承蒙大家的厚爱，wiseflow自2024年6月底发布 V0.3.0版本来受到了开源社区的广泛关注，甚至吸引了不少自媒体的主动报道，在此首先表示感谢！
+- 引入 [Crawlee](https://github.com/apify/crawlee-python) 作为基础爬虫和任务管理框架，大幅提升页面获取能力。实测之前获取不到（包括获取为乱码的）页面目前都可以很好的获取了，后续大家碰到不能很好获取的页面，欢迎在 [issue #136](https://github.com/TeamWiseFlow/wiseflow/issues/136) 中进行反馈；
+- 新产品定位下全新的信息提取策略——“爬查一体”，放弃文章详细提取，爬取过程中即使用 llm 直接提取用户感兴趣的信息（infos），同时自动判断值得跟进爬取的链接，**你关注的才是你需要的**；
+- 适配最新版本（v0.23.4）的 Pocketbase，同时更新表单配置。另外新架构已经无需 GNE 等模块，requirement 依赖项目降低到8个；
+- 新架构部署方案也更加简便，docker 模式支持代码仓热更新，这意味着后续升级就无需再重复docker build了。
+- 更多细节，参考 [CHANGELOG](CHANGELOG.md)
 
-但我们也注意到部分关注者对 wiseflow 的功能定位存在一些理解偏差，为免误会，我们制作了如下表格，清晰展示 wiseflow 与爬虫、AI搜索、知识库（RAG）类项目的对比： 
+🌟 **V0.3.x 后续计划**
 
-|          | **首席情报官（Wiseflow）** | 
+- 引入 [SeeAct](https://github.com/OSU-NLP-Group/SeeAct) 方案，通过视觉大模型指导复杂页面的操作，如滚动、点击后出现信息等情况（V0.3.6）；
+- 尝试支持微信公众号免wxbot订阅（V0.3.7）；
+- 引入对 RSS 信息源的支持（V0.3.8）;
+- 尝试引入 LLM 驱动的轻量级知识图谱，帮助用户从 infos 中建立洞察（V0.3.9）。
+
+## ✋ wiseflow 与传统的爬虫工具、AI搜索、知识库（RAG）项目有何不同？
+
+wiseflow自2024年6月底发布 V0.3.0版本来受到了开源社区的广泛关注，甚至吸引了不少自媒体的主动报道，在此首先表示感谢！
+
+但我们也注意到部分关注者对 wiseflow 的功能定位存在一些理解偏差，如下表格通过与传统爬虫工具、AI搜索、知识库（RAG）类项目的对比，代表了我们目前对于 wiseflow 产品最新定位思考。
+
+|          | 与 **首席情报官（Wiseflow）** 的比较说明| 
 |-------------|-----------------|
-| **爬虫类工具** | wiseflow 集成了很多优秀的开源爬虫工具，并增加了基于 LLM 的自动化信息过滤、筛选与分类能力，所以可以简单认为 wiseflow = 爬虫工具 + AI |
-| **AI搜索** |  AI搜索主要的应用场景是**具体问题的即时问答**，举例：”XX公司的创始人是谁“、“xx品牌下的xx产品哪里有售” ；wiseflow主要的应用场景是**某一方面信息的持续采集**，比如XX公司的关联信息追踪，XX品牌市场行为的持续追踪……在这些场景下，用户只能提供关注点（某公司、某品牌），但无法提出具体搜索问题，且并不是一次检索，而是需要持续追踪，或者自动化进行关联追踪，您可以简单的把wiseflow理解为一个可持续自动进行 ai 搜索的“智能体”，即 “AI 情报官” | 
-| **知识库（RAG）类项目** | 知识库（RAG）类项目一般是基于已有信息的下游任务，并且一般面向的是私有知识（比如企业内的操作手册、产品手册、政府部门的文件等）；wiseflow 目前并未整合下游任务，同时面向的是互联网上的公开信息 |
-
-## 🔄 V0.3.1 更新
-
-dashboard 部分已经删除，如果您有dashboard需求，请下载 [V0.2.1版本](https://github.com/TeamWiseFlow/wiseflow/releases/tag/V0.2.1)
-    
-👏 虽然部分9b大小的LLM（THUDM/glm-4-9b-chat）已经可以实现稳定的信息提取输出，但是我们发现对于复杂含义的tag（比如“党建”）或者需要特指的tag（比如仅需采集“居民区活动”，而不希望包括诸如演唱会这样的大型活动信息），
-使用目前的prompt还是不能进行准确的提取，因此我们在这一版本中为每个tag增加了explaination字段，可以通过输入该字段进行更加清晰的tag指定。
-
-   _注：复杂explaination需要更大规模的模型才能准确理解，具体见 [模型推荐 2024-09-03](###-4. 模型推荐 [2024-09-03])_
-
-👏  另外针对上一版本prompt语言选择的问题（虽然这并不影响输出结果），我们在目前版本中进一步简化了方案，用户无需指定系统语言（这在docker中并不那么直观），系统会根据tag以及tag的explaination判断选择何种语言的
-prompt（也就决定了info的输出语言），这进一步简化了wiseflow的部署和使用。【不过目前wiseflow仅支持简体中文和英文两种语言，其他语言的需求可以通过更改 core/insights/get_info.py 中的prompt实现】
-
-## 🌟 如何在您的应用中整合wiseflow
-
-wiseflow是一个原生的LLM应用，仅需7B~9B大小LLM就可以很好的执行信息挖掘、过滤与分类任务，且无需向量模型，系统开销很小，适合各种硬件环境下的本地化以及私有化部署。
-
-wiseflow将挖掘出的信息存储于自带的Pocketbase数据库中，这意味着这种情况下您无需了解wiseflow的代码，只需要对数据库进行读取操作即可！
-
-PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 等语言的SDK。
-   - Go : https://pocketbase.io/docs/go-overview/
-   - Javascript : https://pocketbase.io/docs/js-overview/
-   - python : https://github.com/vaphes/pocketbase
+| **爬虫类工具** | 首先 wiseflow 是基于爬虫工具的项目（以目前版本而言，我们基于爬虫框架 Crawlee），但传统的爬虫工具在信息提取方面需要人工的介入，提供明确的 Xpath 等信息……这不仅阻挡了普通用户，同时也毫无通用性可言，对于不同网站（包括已有网站升级后）都需要人工重做分析，并更新提取代码。wiseflow致力于使用 LLM 自动化网页的分析和提取工作，用户只要告诉程序他的关注点即可，从这个角度来说，可以简单理解 wiseflow 为 “能自动使用爬虫工具的 AI 智能体” |
+| **AI搜索** |  AI搜索主要的应用场景是**具体问题的即时问答**，举例：”XX公司的创始人是谁“、“xx品牌下的xx产品哪里有售” ，用户要的是**一个答案**；wiseflow主要的应用场景是**某一方面信息的持续采集**，比如XX公司的关联信息追踪，XX品牌市场行为的持续追踪……在这些场景下，用户能提供关注点（某公司、某品牌）、甚至能提供信源（站点 url 等），但无法提出具体搜索问题，用户要的是**一系列相关信息**| 
+| **知识库（RAG）类项目** | 知识库（RAG）类项目一般是基于已有信息的下游任务，并且一般面向的是私有知识（比如企业内的操作手册、产品手册、政府部门的文件等）；wiseflow 目前并未整合下游任务，同时面向的是互联网上的公开信息，如果从“智能体”的角度来看，二者属于为不同目的而构建的智能体，RAG 类项目是“（内部）知识助理智能体”，而 wiseflow 则是“（外部）信息采集智能体”|
 
 ## 📥 安装与使用
 
@@ -79,121 +47,156 @@ PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 
 
 ```bash
 git clone https://github.com/TeamWiseFlow/wiseflow.git
-cd wiseflow
 ```
 
-### 2. 推荐使用docker运行
+### 2. 参考 env_sample 配置 .env 文件放置在 core 目录下
 
-**中国区用户使用前请合理配置网络，或者指定docker hub镜像**
+🌟 **这里与之前版本不同**，V0.3.5开始需要把 .env 放置在 core文件夹中。
+
+另外 V0.3.5 起，env 配置也大幅简化了，必须的配置项目只有三项，具体如下：
+
+- LLM_API_KEY=""
+
+    大模型服务key，这是必须的
+
+- LLM_API_BASE="https://api.siliconflow.cn/v1" 
+
+    服务接口地址，任何支持 openai sdk 的服务商都可以，如果直接使用openai 的服务，这一项也可以不填
+
+- PB_API_AUTH="test@example.com|1234567890" 
+
+  pocketbase 数据库的 superuser 用户名和密码，记得用 | 分隔
+
+下面的都是可选配置：
+- #VERBOSE="true" 
+
+  是否开启观测模式，开启的话，不仅会把 debug log信息记录在 logger 文件上（默认仅输出在 console 上），同时会开启 playwright 的浏览器窗口，方便观察抓取过程；
+
+- #PRIMARY_MODEL="Qwen/Qwen2.5-7B-Instruct"
+
+    主模型选择，在使用 siliconflow 服务的情况下，这一项不填就会默认调用Qwen2.5-7B-Instruct，实测基本也够用，但我更加**推荐 Qwen2.5-14B-Instruct**
+
+- #SECONDARY_MODEL="THUDM/glm-4-9b-chat" 
+
+    副模型选择，在使用 siliconflow 服务的情况下，这一项不填就会默认调用glm-4-9b-chat。
+
+- #PROJECT_DIR="work_dir" 
+
+    项目运行数据目录，不配置的话，默认在  `core/work_dir` ，注意：目前整个 core 目录是挂载到 container 下的，所以意味着你可以直接访问这里。
+
+- #PB_API_BASE="" 
+
+  只有当你的 pocketbase 不运行在默认ip 或端口下才需要配置，默认情况下忽略就行。
+
+### 3.1 使用docker运行
+
+✋ V0.3.5版本架构和依赖与之前版本有较大不同，请务必重新拉取代码，删除旧版本镜像（包括外挂的 pb_data 文件夹），重新build！
+
+对于国内用户，可以先配置镜像源：
+
+最新可用 docker 镜像加速地址参考：[参考1](https://github.com/dongyubin/DockerHub) [参考2](https://www.coderjia.cn/archives/dba3f94c-a021-468a-8ac6-e840f85867ea) 
+
+**三方镜像，风险自担。**
+
+之后
 
 ```bash
+cd wiseflow
 docker compose up
 ```
 
 **注意：**
-   - 在wiseflow代码仓根目录下运行上述命令；
-   - 运行前先创建并编辑.env文件放置在Dockerfile同级目录（wiseflow代码仓根目录），.env文件可以参考env_sample
-   - 第一次运行docker container时会遇到报错，这其实是正常现象，因为你尚未为pb仓库创建admin账号。
-    
-此时请保持container不关闭状态，浏览器打开`http://127.0.0.1:8090/_/ `，按提示创建admin账号（一定要使用邮箱），然后将创建的admin邮箱（再次强调，一定要用邮箱）和密码填入.env文件，重启container即可。
 
-_如您想更改container的时区和语言，请仿照如下命令运行image_
+第一次运行docker container时程序可能会报错，这是正常现象，请按屏幕提示创建 super user 账号（一定要使用邮箱），然后将创建的用户名密码填入.env文件，重启container即可。
 
-```bash
-docker run -e LANG=zh_CN.UTF-8 -e LC_CTYPE=zh_CN.UTF-8 your_image
-```
+🌟 docker方案默认运行 task.py ，即会周期性执行爬取-提取任务（启动时会立即先执行一次，之后每隔一小时启动一次）
 
-### 2.【备选】直接使用python运行
+### 3.2 使用python环境运行
+
+✋ V0.3.5版本架构和依赖与之前版本有较大不同，请务必重新拉取代码，删除（或重建）pb_data
+
+推荐使用 conda 构建虚拟环境
 
 ```bash
+cd wiseflow
 conda create -n wiseflow python=3.10
 conda activate wiseflow
 cd core
 pip install -r requirements.txt
 ```
 
-之后可以参考core/scripts 中的脚本分别启动pb、task和backend （将脚本文件移动到core目录下）
-    
-**注意：**
-   - 一定要先启动pb，至于task和backend是独立进程，先后顺序无所谓，也可以按需求只启动其中一个；
-   - 需要先去这里 https://pocketbase.io/docs/ 下载对应自己设备的pocketbase客户端，并放置在 /core/pb 目录下
-   - pb运行问题（包括首次运行报错等）参考 [core/pb/README.md](/core/pb/README.md)
-   - 使用前请创建并编辑.env文件，放置在wiseflow代码仓根目录（core目录的上级），.env文件可以参考env_sample，详细配置说明见下
+之后去这里 [下载](https://pocketbase.io/docs/) 对应的 pocketbase 客户端，放置到 [/pb](/pb) 目录下。然后
 
-📚 for developer， see [/core/README.md](/core/README.md) for more
-    
-通过 pocketbase 访问获取的数据：
-   - http://127.0.0.1:8090/_/ - Admin dashboard UI
-   - http://127.0.0.1:8090/api/ - REST API
-    
+```bash
+chmod +x run.sh
+./run_task.sh # if you just want to scan sites one-time (no loop), use ./run.sh
+```
 
-### 3. 配置
+这个脚本会自动判断 pocketbase 是否已经在运行，如果未运行，会自动拉起。但是请注意，当你 ctrl+c 或者 ctrl+z 终止进程时，pocketbase 进程不会被终止，直到你关闭terminal。
 
-复制目录下的env_sample，并改名为.env, 参考如下 填入你的配置信息（LLM服务token等）
-    
-**windows用户如果选择直接运行python程序，可以直接在 “开始 - 设置 - 系统 - 关于 - 高级系统设置 - 环境变量“ 中设置如下项目，设置后需要重启终端生效**
+另外与 docker 部署一样，第一次运行时可能会出现报错，请按屏幕提示创建 super user 账号（一定要使用邮箱），然后将创建的用户名密码填入.env文件，再次运行即可。
 
-   - LLM_API_KEY # 大模型推理服务API KEY
-   - LLM_API_BASE # 本项目依赖openai sdk，只要模型服务支持openai接口，就可以通过配置该项正常使用，如使用openai服务，删除这一项即可
-   - WS_LOG="verbose"  # 设定是否开始debug观察，如无需要，删除即可
-   - GET_INFO_MODEL # 信息提炼与标签匹配任务模型，默认为 gpt-4o-mini-2024-07-18
-   - REWRITE_MODEL # 近似信息合并改写任务模型，默认为 gpt-4o-mini-2024-07-18
-   - HTML_PARSE_MODEL # 网页解析模型（GNE算法效果不佳时智能启用），默认为 gpt-4o-mini-2024-07-18
-   - PROJECT_DIR # 数据、缓存以及日志文件存储位置，相对于代码仓的相对路径，默认不填就在代码仓
-   - PB_API_AUTH='email|password' # pb数据库admin的邮箱和密码（注意一定是邮箱，可以是虚构的邮箱）
-   - PB_API_BASE  # 正常使用无需这一项，只有当你不使用默认的pocketbase本地接口（8090）时才需要
-    
-    
-### 4. 模型推荐 [2024-09-03]
+当然你也可以在另一个 terminal 提前运行并设定 pocketbase（这会避免第一次的报错），具体可以参考 [pb/README.md](/pb/README.md)
 
-经过反复测试（中英文任务）**GET_INFO_MODEL**、**REWRITE_MODEL**、**HTML_PARSE_MODEL** 三项最小可用模型分别为：**"THUDM/glm-4-9b-chat"**、**"Qwen/Qwen2-7B-Instruct"**、**"Qwen/Qwen2-7B-Instruct"**
-    
-目前，SiliconFlow已经官宣Qwen2-7B-Instruct、glm-4-9b-chat在线推理服务免费，这意味着您可以“零成本”使用wiseflow啦！
+### 4. 模型推荐 [2024-12-09]
+
+虽然参数量越大的模型意味着更佳的性能，但经过实测，**使用 Qwen2.5-7b-Instruct 和 glm-4-9b-chat 模型，即可以达到基本的效果**。不过综合考虑成本、速度和效果，我更加推荐主模型
+**（PRIMARY_MODEL）使用Qwen2.5-14B-Instruct**。
+
+这里依然强烈推荐使用 siliconflow（硅基流动）的 MaaS 服务，提供多个主流开源模型的服务，量大管饱，Qwen2.5-7b-Instruct 和 glm-4-9b-chat 目前提供免费服务。（主模型使用Qwen2.5-14B-Instruct情况下，爬取374个网页，有效抽取43条 info，总耗费￥3.07）
       
-😄 如果您愿意，可以使用我的[siliconflow邀请链接](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92)，这样我也可以获得更多token奖励 😄
+😄 如果您愿意，可以使用我的[siliconflow邀请链接](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92)，这样我也可以获得更多token奖励 🌹
 
-⚠️ **V0.3.1更新**
-      
-如果您使用带explaination的复杂tag，那么glm-4-9b-chat规模的模型是无法保证准确理解的，目前测试下来针对该类型任务效果比较好的模型为 **Qwen/Qwen2-72B-Instruct** 和 **gpt-4o-mini-2024-07-18** 。
+**如果您的信源多为非中文页面，且也不要求提取出的 info 为中文，那么更推荐您使用 openai 或者 claude 等海外厂家的模型。**
    
-针对有需求使用 `gpt-4o-mini-2024-07-18` 的用户，可以尝试第三方代理 **AiHubMix**，支持国内网络环境直连、支付宝充值（实际费率相当于官网86折）
+您可以尝试第三方代理 **AiHubMix**，支持国内网络环境直连、支付宝便捷支付，免去封号风险；
 
-🌹 欢迎使用如下邀请链接 [AiHubMix邀请链接](https://aihubmix.com?aff=Gp54) 注册 🌹
+😄 欢迎使用如下邀请链接 [AiHubMix邀请链接](https://aihubmix.com?aff=Gp54) 注册 🌹
 
-🌍 上述两个平台的在线推理服务均兼容openai SDK，配置`.env `的`LLM_API_BASE`和`LLM_API_KEY`后即可使用。
+🌟 **请注意 wiseflow 本身并不限定任何模型服务，只要服务兼容 openAI SDK 即可，包括本地部署的 ollama、Xinference 等服务**
 
 
 ### 5. **关注点和定时扫描信源添加**
     
 启动程序后，打开pocketbase Admin dashboard UI (http://127.0.0.1:8090/_/)
     
-#### 5.1 打开 tags表单
+#### 5.1 打开 focus_point 表单
 
 通过这个表单可以指定你的关注点，LLM会按此提炼、过滤并分类信息。
     
-tags 字段说明：
-   - name, 关注点名称
-   - explaination，关注点的详细解释或具体约定，如 “仅限上海市官方发布的初中升学信息”（tag name为 上海初中升学信息）
-   - activated, 是否激活。如果关闭则会忽略该关注点，关闭后可再次开启。开启和关闭无需重启docker容器，会在下一次定时任务时更新。
+字段说明：
+- focuspoint, 关注点描述（必填），如”上海小升初信息“、”加密货币价格“
+- explanation，关注点的详细解释或具体约定，如 “仅限上海市官方发布的初中升学信息”、“BTC、ETH 的现价、涨跌幅数据“等
+- activated, 是否激活。如果关闭则会忽略该关注点，关闭后可再次开启。
+
+注意：focus_point 更新设定（包括 activated 调整）后，**需要重启程序才会生效。**
 
 #### 5.2 打开 sites表单
 
 通过这个表单可以指定自定义信源，系统会启动后台定时任务，在本地执行信源扫描、解析和分析。
 
 sites 字段说明：
-   - url, 信源的url，信源无需给定具体文章页面，给文章列表页面即可。
-   - per_hours, 扫描频率，单位为小时，类型为整数（1~24范围，我们建议扫描频次不要超过一天一次，即设定为24）
-   - activated, 是否激活。如果关闭则会忽略该信源，关闭后可再次开启。开启和关闭无需重启docker容器，会在下一次定时任务时更新。
+- url, 信源的url，信源无需给定具体文章页面，给文章列表页面即可。
+- per_hours, 扫描频率，单位为小时，类型为整数（1~24范围，我们建议扫描频次不要超过一天一次，即设定为24）
+- activated, 是否激活。如果关闭则会忽略该信源，关闭后可再次开启。
+
+**sites 的设定调整，无需重启程序。**
 
 
-### 6. 本地部署
+## 📚 如何在您自己的程序中使用 wiseflow 抓取出的数据
 
-如您所见，本项目最低仅需使用7b\9b大小的LLM，且无需任何向量模型，这就意味着仅仅需要一块3090RTX（24G显存）就可以完全的对本项目进行本地化部署。
-    
-请保证您的本地化部署LLM服务兼容openai SDK，并配置 LLM_API_BASE 即可。
+1、参考 [dashbord](dashboard) 部分源码二次开发。
 
-注：若需让7b~9b规模的LLM可以实现对tag explaination的准确理解，推荐使用dspy进行prompt优化，但这需要累积约50条人工标记数据。详见 [DSPy](https://dspy-docs.vercel.app/)
+注意 wiseflow 的 core 部分并不需要 dashboard，目前产品也未集成 dashboard，如果您有dashboard需求，请下载 [V0.2.1版本](https://github.com/TeamWiseFlow/wiseflow/releases/tag/V0.2.1)
 
+2、直接从 Pocketbase 中获取数据
+
+wiseflow 所有抓取数据都会即时存入 pocketbase，因此您可以直接操作 pocketbase 数据库来获取数据。
+
+PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 等语言的SDK。
+   - Go : https://pocketbase.io/docs/go-overview/
+   - Javascript : https://pocketbase.io/docs/js-overview/
+   - python : https://github.com/vaphes/pocketbase
 
 ## 🛡️ 许可协议
 
@@ -201,19 +204,22 @@ sites 字段说明：
 
 商用以及定制合作，请联系 **Email：35252986@qq.com**
 
-   - 商用客户请联系我们报备登记，产品承诺永远免费。
+- 商用客户请联系我们报备登记，产品承诺永远免费。
 
 
 ## 📬 联系方式
 
-有任何问题或建议，欢迎通过 [issue](https://github.com/TeamWiseFlow/wiseflow/issues) 与我们联系。
+有任何问题或建议，欢迎通过 [issue](https://github.com/TeamWiseFlow/wiseflow/issues) 留言。
 
 
 ## 🤝 本项目基于如下优秀的开源项目：
 
-- GeneralNewsExtractor （ General Extractor of News Web Page Body Based on Statistical Learning） https://github.com/GeneralNewsExtractor/GeneralNewsExtractor
+- crawlee-python （A web scraping and browser automation library for Python to build reliable crawlers. Works with BeautifulSoup, Playwright, and raw HTTP. Both headful and headless mode. With proxy rotation.） https://github.com/apify/crawlee-python
 - json_repair（Repair invalid JSON documents ） https://github.com/josdejong/jsonrepair/tree/main 
 - python-pocketbase (pocketBase client SDK for python) https://github.com/vaphes/pocketbase
+- SeeAct（a system for generalist web agents that autonomously carry out tasks on any given website, with a focus on large multimodal models (LMMs) such as GPT-4Vision.） https://github.com/OSU-NLP-Group/SeeAct
+
+同时受 [GNE](https://github.com/GeneralNewsExtractor/GeneralNewsExtractor)、[AutoCrawler](https://github.com/kingname/AutoCrawler) 启发。
 
 ## Citation
 
