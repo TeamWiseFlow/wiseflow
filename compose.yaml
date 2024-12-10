@@ -5,12 +5,10 @@ services:
     image: wiseflow:latest
     tty: true
     stdin_open: true
-    entrypoint: bash docker_entrypoint.sh
-    env_file:
-      - .env
+    entrypoint: ["bash", "/app/docker_entrypoint.sh"]
     ports:
       - 8090:8090
-      - 8077:8077
     volumes:
-      - ./${PROJECT_DIR}/pb_data:/app/pb/pb_data
-      - ./${PROJECT_DIR}:/app/${PROJECT_DIR}
+      - ./core:/app
+      - ./pb/pb_data:/pb/pb_data
+      - ./pb/pb_migrations:/pb/pb_migrations

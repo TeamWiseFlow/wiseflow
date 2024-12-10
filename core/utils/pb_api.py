@@ -29,7 +29,8 @@ class PbTalker:
 
     def read(self, collection_name: str, fields: Optional[List[str]] = None, filter: str = '', skiptotal: bool = True) -> list:
         results = []
-        for i in range(1, 10):
+        i = 1
+        while True:
             try:
                 res = self.client.collection(collection_name).get_list(i, 500,
                                                                        {"filter": filter,
@@ -44,6 +45,7 @@ class PbTalker:
             for _res in res.items:
                 attributes = vars(_res)
                 results.append(attributes)
+            i += 1
         return results
 
     def add(self, collection_name: str, body: Dict) -> str:

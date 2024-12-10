@@ -117,7 +117,7 @@ pip install -r requirements.txt
 **주의:**
    - 반드시 pb를 먼저 시작해야 하며, task와 backend는 독립적인 프로세스이므로 순서는 상관없고, 필요에 따라 하나만 시작해도 됩니다.
    - 먼저 여기를 방문하여 https://pocketbase.io/docs/ 본인의 장치에 맞는 pocketbase 클라이언트를 다운로드하고 /core/pb 디렉토리에 배치해야 합니다.
-   - pb 실행 문제(처음 실행 시 오류 포함)에 대해서는 [core/pb/README.md](/core/pb/README.md)를 참조하십시오.
+   - pb 실행 문제(처음 실행 시 오류 포함)에 대해서는 [core/pb/README.md](/pb/README.md)를 참조하십시오.
    - 사용 전에 .env 파일을 생성하고 편집하여 wiseflow 코드 저장소의 루트 디렉토리(core 디렉토리의 상위)에 배치하십시오. .env 파일은 env_sample을 참고하고, 자세한 설정 설명은 아래를 참조하십시오.
 
 📚 개발자를 위한 더 많은 정보는 [/core/README.md](/core/README.md)를 참조하십시오.
