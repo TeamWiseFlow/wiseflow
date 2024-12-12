@@ -125,7 +125,15 @@ cd core
 pip install -r requirements.txt
 ```
 
-之后去这里 [下载](https://pocketbase.io/docs/) 对应的 pocketbase 客户端，放置到 [/pb](/pb) 目录下。然后
+之后去这里 [下载](https://pocketbase.io/docs/) 对应的 pocketbase 客户端，放置到 [/pb](/pb) 目录下。
+> ⚠️ 或者执行根目录下的 install_pocketbase.sh 脚本，会自动下载并配置 pocketbase。
+> ```bash
+> chmod +x install_pocketbase.sh
+> ./install_pocketbase.sh
+> ```
+
+
+然后
 
 ```bash
 chmod +x run.sh
