@@ -107,6 +107,12 @@ The first time you run the Docker container, the program may report an error, wh
 
 ✋ The V0.3.5 version architecture and dependencies are significantly different from previous versions. Please make sure to re-pull the code, delete (or rebuild) pb_data
 
+> ⚠️ Alternatively, execute the install_pocketbase.sh script in the root directory, which will automatically download and configure pocketbase.
+> ```bash
+> chmod +x install_pocketbase.sh
+> ./install_pocketbase.sh
+> ```
+
 It is recommended to use conda to build a virtual environment
 
 ```bash
