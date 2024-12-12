@@ -92,6 +92,11 @@ git clone https://github.com/TeamWiseFlow/wiseflow.git
 
 ✋ V0.3.5 버전의 아키텍처 및 종속성은 이전 버전과 크게 다릅니다. 반드시 코드를 다시 가져와 이전 버전 이미지 (pb_data 폴더 포함)를 삭제하고 다시 build하세요!
 
+> ⚠️ 대신 루트 디렉토리의 install_pocketbase.sh 스크립트를 실행하십시오. 이 스크립트는 자동으로 pocketbase를 다운로드하고 구성합니다.
+> ```bash
+> chmod +x install_pocketbase.sh
+> ./install_pocketbase.sh
+> ```
 
 ```bash
 cd wiseflow

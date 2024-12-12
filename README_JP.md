@@ -92,6 +92,12 @@ git clone https://github.com/TeamWiseFlow/wiseflow.git
 
 ✋ V0.3.5バージョンのアーキテクチャと依存関係は以前のバージョンと大きく異なるため、必ずコードを再取得し、古いバージョンのイメージ（pb_dataフォルダを含む）を削除し、再構築してください！
 
+> ⚠️ または、ルートディレクトリにあるinstall_pocketbase.shスクリプトを実行してください。これにより、pocketbaseが自動的にダウンロードされ、設定されます。
+> ```bash
+> chmod +x install_pocketbase.sh
+> ./install_pocketbase.sh
+> ```
+
 
 ```bash
 cd wiseflow
