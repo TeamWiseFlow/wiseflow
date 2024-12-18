@@ -1,3 +1,8 @@
+# V0.3.6
+- 引入视觉大模型，大幅提升页面获取能力；
+  
+- 改进 pocketbase 的前期下载以及用户名密码配置方案，感谢 @ourines 贡献了 install_pocketbase.sh 脚本；
+
 # V0.3.5
 - 引入 Crawlee(playwrigt模块)，大幅提升通用爬取能力，适配实际项目场景；
   
