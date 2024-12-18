@@ -14,7 +14,7 @@ class GeneralInfoExtractor:
         self.pb = pb
         self.logger = _logger
         self.model = os.environ.get("PRIMARY_MODEL", "Qwen/Qwen2.5-7B-Instruct") # better to use "Qwen/Qwen2.5-14B-Instruct"
-        self.secondary_model = os.environ.get("SECONDARY_MODEL", "THUDM/glm-4-9b-chat")
+        self.secondary_model = os.environ.get("SECONDARY_MODEL", 'Qwen/Qwen2.5-7B-Instruct') # better to use ''
 
         # collect tags user set in pb database and determin the system prompt language based on tags
         focus_data = pb.read(collection_name='focus_points', filter=f'activated=True')
@@ -45,7 +45,6 @@ class GeneralInfoExtractor:
 - 理解每个兴趣点的含义，确保提取的内容与之相关。
 - 如果兴趣点有进一步的解释，确保提取的内容符合这些解释的范围。
 - 忠于原文，你的任务是从网页文本中识别和提取与各个兴趣点相关的信息，并不是总结和提炼。
-- 不管给定的原文是何种语言，请保证使用中文输出你的提取结果。
 
 另外请注意给定的网页文本是通过爬虫程序从html代码中提取出来的，所以请忽略里面不必要的空格、换行符等。'''
             self.get_info_suffix = '''如果上述网页文本中包含兴趣点相关的内容，请按照以下json格式输出提取的信息（文本中可能包含多条有用信息，请不要遗漏）：
@@ -118,6 +117,7 @@ url2
         return result['source'], extract_and_convert_dates(result['publish_date'])
 
     async def get_more_related_urls(self, link_dict: dict, og_url: str) -> set[str]:
+        """
         if not link_dict:
             return set()
         self.logger.debug(f'{len(link_dict)} items to analyze')
@@ -130,7 +130,7 @@ url2
                                     {'role': 'user', 'content': f'{content}\n{self.get_more_link_suffix}'}],
                                    model=self.model, temperature=0.1)
                 self.logger.debug(f'get_more_related_urls llm output:\n{result}')
-                result = re.findall(r'"""(.*?)"""', result, re.DOTALL)
+                result = re.findall(r'\"\"\"(.*?)\"\"\"', result, re.DOTALL)
                 if result:
                     result = result[0].strip()
                     # self.logger.debug(f"cleaned output: {result}")
@@ -142,7 +142,7 @@ url2
                                 {'role': 'user', 'content': f'{content}\n{self.get_more_link_suffix}'}],
                                model=self.model, temperature=0.1)
             self.logger.debug(f'get_more_related_urls llm output:\n{result}')
-            result = re.findall(r'"""(.*?)"""', result, re.DOTALL)
+            result = re.findall(r'\"\"\"(.*?)\"\"\"', result, re.DOTALL)
             if result:
                 result = result[0].strip()
                 # self.logger.debug(f"cleaned output: {result}")
@@ -154,7 +154,9 @@ url2
         if hallucination_urls:
             self.logger.warning(f"{hallucination_urls} not in link_dict, it's model's Hallucination")
 
-        return urls & raw_urls 
+        return urls & raw_urls
+        """
+        return set()
 
     async def get_info(self, text: str, info_pre_fix: str, link_dict: dict) -> list[dict]:
         if not text:

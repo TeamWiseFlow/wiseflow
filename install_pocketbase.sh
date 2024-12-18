@@ -225,7 +225,7 @@ configure_admin() {
 configure_env() {
     # Create .env if it doesn't exist
     if [ ! -f "./core/.env" ]; then
-        mkdir -p ./core
+        # mkdir -p ./core
         cp env_sample ./core/.env
         echo "Created new .env file from template"
     else

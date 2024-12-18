@@ -1,0 +1,1361 @@
+focus statement: #大模型技术突破与创新
+解释：包括新算法与模型，新的研究成果
+#AI应用市场规模与增长预测
+解释：提供AI市场的最新统计数据、增长趋势和未来预测，帮助读者了解行业发展方向的信息
+#大模型落地行业应用趋势
+解释：分析大模型在各个行业（如医疗、金融、制造、教育）的应用现状和发展前景，展示AI在实际业务中的价值。
+#大模型企业应用案例
+解释：分享企业如何利用大模型提升效率、降低成本或创新产品的具体案例，展示AI的实际效益。
+#大模型创业故事
+解释：介绍大模型初创公司的发展历程、融资情况和成功经验，激励创业者和投资者。
+#好用的AI工具及其适用的范围，和同类型工具的对比
+
+
+raw materials: 9c76f8
+
+llm model: Qwen/Qwen2.5-7B-Instruct
+hallucination times: 5
+total analysis time: 3.216700792312622
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+
+more urls: 
+
+
+************
+
+llm model: THUDM/glm-4-9b-chat
+hallucination times: 1
+total analysis time: 21.37568473815918
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+#大模型技术突破与创新: InsightFace not using GPU [closed] I am building a face recognition system. I have Nvidia 1660 6GB super installed. I have written all the code. But it is not using GPU. On CPU, it is very slow. I have tried multiple versions of Nvidia ... deep-learning cuda artificial-intelligence face-recognition onnxruntime Khawar Ali1 asked 22 hours ago
+#AI应用市场规模与增长预测: None
+#大模型落地行业应用趋势: None
+#大模型企业应用案例: None
+#大模型创业故事: None
+好用的AI工具及其适用的范围，和同类型工具的对比: How to use chatgpt for reviewing and analizing my Oracle database [closed] I frequently use ChatGPT for various tasks such as writing documents, developing SQL queries, programming functions, and more. However, I would like to utilize ChatGPT specifically to analyze some ... artificial-intelligence chatgpt-apichat-gpt-4 Delmonte403 asked 20 hours ago
+大模型技术突破与创新: How to Improve CNN Model Performance for Image Classification in PyTorch? I am working on an image classification project using PyTorch and have implemented a Convolutional Neural Network (CNN) model. While the model is functional, I am looking for ways to improve its ...
+大模型技术突破与创新: Contrastive Loss from ScratchI am trying to implement/learn how to implement contrastive loss. Currently my gradients are exploding into infinity and I think I must have misimplemented something. I was wondering if someone could ...
+大模型技术突破与创新: Where can I find datasets for medical document analysis and disease diagnosis using NLP? I'm working on a healthcare-related project where I need to analyze medical documents, extract specific values (e.g., creatinine, glucose levels, etc.), and generate personalized paragraphs for ...
+大模型技术突破与创新: Error: "Vectors must have the same length as the number of dimensions" when adding documents to FAISS vector store in LangChain
+大模型技术突破与创新: I'm trying to embed and store documents in a FAISS vector store using LangChain, but I'm encountering the error: Vectors must have the same length as the number of dimensions I'm using a locally ...
+AI应用市场规模与增长预测: None
+大模型落地行业应用趋势: None
+大模型企业应用案例: None
+大模型创业故事: None
+好用的AI工具及其适用的范围，和同类型工具的对比: I'm trying to find a way to classify images based on their aptitude to be printed on clothing, ideally using a python library. The main thing I'm trying to do is find text size and color and general ...
+好用的AI工具及其适用的范围，和同类型工具的对比: VS code extension that uses OpenAI API doens't workI want to write a simple VS Code extension that calls OpenAI API and tells the user the day in Danish. I cannot find the extension when searching for it in the Extension Development Host window (after ...
+#大模型技术突破与创新: The Overflow BlogAI agents that help doctors get paidLegal advice from an AI is illegalFeatured on MetaThe December 2024 Community Asks Sprint has been moved to March 2025 (and...Stack Overflow Jobs is expanding to more countries
+more urls: 
+computer-vision
+Blog
+langchain
+tensorflow
+c#
+Why are languages commonly structured as trees?
+Twitter
+a-star
+No module named 'ppaquette_gym_doom'
+CC BY-SA
+Science
+large-language-model
+About the company
+InsightFace not using GPU [closed]
+Contrastive Loss from Scratch
+minimax
+AI agents that help doctors get paid
+Data
+search
+Newest artificial-intelligence questions feed
+keras
+chatbot
+Delmonte
+genetic-algorithm
+Prove that the entanglement definition of AME implies the error correction definition of AME
+unity-game-engine
+Facebook
+Legal advice from an AI is illegal
+Life & arts
+How to use chatgpt for reviewing and analizing my Oracle database [closed]
+rag
+heuristics
+python
+nlp
+Visit the blog
+image-processing
+python-3.x
+llamacpp
+conv-neural-network
+OverflowAI
+Is SQL Injection possible if we're using only the IN keyword (no equals = operator) and we handle the single quote
+LinkedIn
+dataset
+Khawar Ali
+Business
+c++
+java
+Professional
+self-supervised-learning
+machine-learning
+Instagram
+algorithm
+API
+
+************
+
+llm model: deepseek-ai/DeepSeek-V2.5
+hallucination times: 5
+total analysis time: 34.291126012802124
+
+author and publish time(not formated): {'source': 'Stack Exchange Inc', 'publish_date': '2024.12.17'}
+infos(not formated): 
+
+more urls: 
+computer-vision
+chat-gpt-4
+face-recognition
+langchain
+tensorflow
+c#
+artificial-intelligence
+a-star
+No module named 'ppaquette_gym_doom'
+large-language-model
+InsightFace not using GPU [closed]
+Contrastive Loss from Scratch
+Where can I find datasets for medical document analysis and disease diagnosis using NLP? [closed]
+cuda
+AI agents that help doctors get paid
+minimax
+Error: "Vectors must have the same length as the number of dimensions" when adding documents to FAISS vector store in LangChain [closed]
+search
+chatgpt-api
+Newest artificial-intelligence questions feed
+keras
+chatbot
+Delmonte
+genetic-algorithm
+onnxruntime
+unity-game-engine
+Legal advice from an AI is illegal
+deep-learning
+How to use chatgpt for reviewing and analizing my Oracle database [closed]
+rag
+heuristics
+python
+Classify images based on line thickness,, text size, and background color [closed]
+nlp
+image-processing
+python-3.x
+llamacpp
+Which representation of the Softmax function is correct? [closed]
+OverflowAI
+conv-neural-network
+dataset
+Khawar Ali
+How to Improve CNN Model Performance for Image Classification in PyTorch? [closed]
+c++
+java
+self-supervised-learning
+machine-learning
+algorithm
+
+************
+
+llm model: Qwen/QwQ-32B-Preview
+hallucination times: 0
+total analysis time: 1120.614347934723
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+大模型技术突破与创新: 包括新算法与模型，新的研究成果
+AI应用市场规模与增长预测: 提供AI市场的最新统计数据、增长趋势和未来预测，帮助读者了解行业发展方向的信息
+大模型落地行业应用趋势: 分析大模型在各个行业（如医疗、金融、制造、教育）的应用现状和发展前景，展示AI在实际业务中的价值
+大模型企业应用案例: 分享企业如何利用大模型提升效率、降低成本或创新产品的具体案例，展示AI的实际效益
+大模型创业故事: 介绍大模型初创公司的发展历程、融资情况和成功经验，激励创业者和投资者
+好用的AI工具及其适用的范围，和同类型工具的对比: 提供有关实用AI工具的信息，包括它们的适用范围以及与同类工具的比较
+大模型技术突破与创新: I am working on an image classification project using PyTorch and have implemented a Convolutional Neural Network (CNN) model. While the model is functional, I am looking for ways to improve its ...
+大模型技术突破与创新: I have a task where I need to implement an R_max algorithm with modified policy iteration over the frozen lake problem. I first tried to just implement a regular modified policy iteration and it ...
+大模型技术突破与创新: I'm training a model using Hugging Face's Trainer with DeepSpeed integration, and I'm encountering an error related to mismatched tensor sizes: The size of tensor a (50) must match the size of tensor ...
+大模型技术突破与创新: I am trying to implement/learn how to implement contrastive loss. Currently my gradients are exploding into infinity and I think I must have misimplemented something. I was wondering if someone could ...
+大模型技术突破与创新: I'm working on a healthcare-related project where I need to analyze medical documents, extract specific values (e.g., creatinine, glucose levels, etc.), and generate personalized paragraphs for ...
+大模型技术突破与创新: I'm trying to embed and store documents in a FAISS vector store using LangChain, but I'm encountering the error: Vectors must have the same length as the number of dimensions I'm using a locally ...
+大模型技术突破与创新: I came across the formula for the Softmax function: Softmax formula However, I've found two very different visual representations of the Softmax function, and I'm confused about which one is correct: ...
+大模型企业应用案例: I want to write a simple VS Code extension that calls OpenAI API and tells the user the day in Danish. I cannot find the extension when searching for it in the Extension Development Host window (after ...
+大模型技术突破与创新: In the field of generalized planning, for a classical planning problem, we can only use classical planners (such as Fast Downward) to derive an action sequence, which is essentially a plan. However, I ...
+大模型技术突破与创新: With ChatGPT we have the option: “How would you like ChatGPT to respond?” Where we can give indications on how we expect it to respond. Is the same feature available in GitHub Copilot(GC) or are there ...
+大模型技术突破与创新: intellij-idea artificial-intelligence github-copilot akuma84,641 asked Dec 11 at 0:32 153050 per page 12345…597 Next The Overflow Blog AI agents that help doctors get paid Legal advice from an AI is illegal Featured on Meta The December 2024 Community Asks Sprint has been moved to March 2025 (and... Stack Overflow Jobs is expanding to more countries Related Tags python × 2550 machine-learning × 2102 neural-network × 1153 algorithm × 886 tensorflow × 706 deep-learning × 589 java × 561 nlp × 414 c# × 356 keras × 341 more related tags Hot Network Questions Why no 
+AI应用市场规模与增长预测: intellij-idea artificial-intelligence github-copilot akuma84,641 asked Dec 11 at 0:32 153050 per page 12345…597 Next The Overflow Blog AI agents that help doctors get paid Legal advice from an AI is illegal Featured on Meta The December 2024 Community Asks Sprint has been moved to March 2025 (and... Stack Overflow Jobs is expanding to more countries Related Tags python × 2550 machine-learning × 2102 neural-network × 1153 algorithm × 886 tensorflow × 706 deep-learning × 589 java × 561 nlp × 414 c# × 356 keras × 341 more related tags Hot Network Questions Why no 
+大模型落地行业应用趋势: intellij-idea artificial-intelligence github-copilot akuma84,641 asked Dec 11 at 0:32 153050 per page 12345…597 Next The Overflow Blog AI agents that help doctors get paid Legal advice from an AI is illegal Featured on Meta The December 2024 Community Asks Sprint has been moved to March 2025 (and... Stack Overflow Jobs is expanding to more countries Related Tags python × 2550 machine-learning × 2102 neural-network × 1153 algorithm × 886 tensorflow × 706 deep-learning × 589 java × 561 nlp × 414 c# × 356 keras × 341 more related tags Hot Network Questions Why no 
+大模型企业应用案例: intellij-idea artificial-intelligence github-copilot akuma84,641 asked Dec 11 at 0:32 153050 per page 12345…597 Next The Overflow Blog AI agents that help doctors get paid Legal advice from an AI is illegal Featured on Meta The December 2024 Community Asks Sprint has been moved to March 2025 (and... Stack Overflow Jobs is expanding to more countries Related Tags python × 2550 machine-learning × 2102 neural-network × 1153 algorithm × 886 tensorflow × 706 deep-learning × 589 java × 561 nlp × 414 c# × 356 keras × 341 more related tags Hot Network Questions Why no 
+大模型创业故事: intellij-idea artificial-intelligence github-copilot akuma84,641 asked Dec 11 at 0:32 153050 per page 12345…597 Next The Overflow Blog AI agents that help doctors get paid Legal advice from an AI is illegal Featured on Meta The December 2024 Community Asks Sprint has been moved to March 2025 (and... Stack Overflow Jobs is expanding to more countries Related Tags python × 2550 machine-learning × 2102 neural-network × 1153 algorithm × 886 tensorflow × 706 deep-learning × 589 java × 561 nlp × 414 c# × 356 keras × 341 more related tags Hot Network Questions Why no 
+好用的AI工具及其适用的范围，和同类型工具的对比: intellij-idea artificial-intelligence github-copilot akuma84,641 asked Dec 11 at 0:32 153050 per page 12345…597 Next The Overflow Blog AI agents that help doctors get paid Legal advice from an AI is illegal Featured on Meta The December 2024 Community Asks Sprint has been moved to March 2025 (and... Stack Overflow Jobs is expanding to more countries Related Tags python × 2550 machine-learning × 2102 neural-network × 1153 algorithm × 886 tensorflow × 706 deep-learning × 589 java × 561 nlp × 414 c# × 356 keras × 341 more related tags Hot Network Questions Why no 
+大模型技术突破与创新: 包括新算法与模型，新的研究成果
+AI应用市场规模与增长预测: 提供AI市场的最新统计数据、增长趋势和未来预测，帮助读者了解行业发展方向的信息
+大模型落地行业应用趋势: 分析大模型在各个行业（如医疗、金融、制造、教育）的应用现状和发展前景，展示AI在实际业务中的价值
+大模型企业应用案例: 分享企业如何利用大模型提升效率、降低成本或创新产品的具体案例，展示AI的实际效益
+大模型创业故事: 介绍大模型初创公司的发展历程、融资情况和成功经验，激励创业者和投资者
+好用的AI工具及其适用的范围，和同类型工具的对比: 提供实用的AI工具推荐，说明其适用范围，并与同类工具进行比较
+more urls: 
+planning
+About the company
+Legal advice from an AI is illegal
+policy
+neural-network
+Where can I find datasets for medical document analysis and disease diagnosis using NLP? [closed]
+AI agents that help doctors get paid
+heuristics
+search
+activation-function
+keras
+self-supervised-learning
+tensorflow
+Visit the blog
+pddl
+a-star
+company blog
+conv-neural-network
+
+************
+
+llm model: Qwen/Qwen2.5-Coder-32B-Instruct
+hallucination times: 5
+total analysis time: 4.941272258758545
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+
+more urls: 
+keras
+chatbot
+tensorflow
+AI agents that help doctors get paid
+conv-neural-network
+
+************
+
+llm model: Qwen/Qwen2.5-32B-Instruct
+hallucination times: 5
+total analysis time: 5.811862945556641
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+
+more urls: 
+AI agents that help doctors get paid
+R_max algorithm doesn't converge to the right policy
+Contrastive Loss from Scratch
+Where can I find datasets for medical document analysis and disease diagnosis using NLP? [closed]
+
+************
+
+llm model: Qwen/Qwen2.5-14B-Instruct
+hallucination times: 5
+total analysis time: 7.778684854507446
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+
+more urls: 
+
+
+************
+
+llm model: Qwen/Qwen2.5-Coder-7B-Instruct
+hallucination times: 5
+total analysis time: 4.300045013427734
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+
+more urls: 
+unity-game-engine
+algorithm
+Contrastive Loss from Scratch
+Prove that the entanglement definition of AME implies the error correction definition of AME
+AI agents that help doctors get paid
+How to use chatgpt for reviewing and analizing my Oracle database [closed]
+heuristics
+have someone to do something
+Newest artificial-intelligence questions feed
+chatbot
+tensorflow
+Why are languages commonly structured as trees?
+genetic-algorithm
+a-star
+python-3.x
+conv-neural-network
+Expressing an assumption that all variables are mutually distinct and come from a specified set
+
+************
+
+llm model: 01-ai/Yi-1.5-34B-Chat-16K
+hallucination times: 10
+total analysis time: 26.213049173355103
+
+author and publish time(not formated): {'source': 'Stack Overflow', 'publish_date': 'NA'}
+infos(not formated): 
+大模型技术突破与创新: I frequently use ChatGPT for various tasks such as writing documents, developing SQL queries, programming functions, and more. However, I would like to utilize ChatGPT specifically to analyze some ...
+大模型技术突破与创新: Convolutional Neural Network (CNN) model implementation
+AI应用市场规模与增长预测: The size of tensor a (50) must match the size of tensor b (100)
+大模型落地行业应用趋势: I'm encountering an error related to mismatched tensor sizes
+大模型企业应用案例: I'm training a model using Hugging Face's Trainer with DeepSpeed integration
+大模型创业故事: I was wondering if someone could help me
+好用的AI工具及其适用的范围，和同类型工具对比: I need to analyze medical documents, extract specific values (e.g., creatinine, glucose levels, etc.), and generate personalized paragraphs
+大模型技术突破与创新: I'm trying to embed and store documents in a FAISS vector store using LangChain, but I'm encountering the error: Vectors must have the same length as the number of dimensions I'm using a locally ...
+AI应用市场规模与增长预测: I'm trying to find a way to classify images based on their aptitude to be printed on clothing, ideally using a python library. The main thing I'm trying to do is find text size and color and general ...
+大模型落地行业应用趋势: However, I've found two very different visual representations of the Softmax function, and I'm confused about which one is correct: ...
+大模型企业应用案例: I want to write a simple VS Code extension that calls OpenAI API and tells the user the day in Danish. I cannot find the extension when searching for it in the Extension Development Host window (after ...
+大模型创业故事: However, I've found two very different visual representations of the Softmax function, and I'm confused about which one is correct: ...
+好用的AI工具及其适用的范围，和同类型工具对比: With ChatGPT we have the option: “How would you like ChatGPT to respond?” Where we can give indications on how we expect it to respond. Is the same feature available in GitHub Copilot(GC) or are there ...
+大模型技术突破与创新: intellij-ideaartificial-intelligencegithub-copilotakuma84,641asked Dec 11 at 0:32153050per page12345…597NextThe Overflow BlogAI agents that help doctors get paidLegal advice from an AI is illegalFeatured on MetaThe December 2024 Community Asks Sprint has been moved to March 2025 (and...Stack Overflow Jobs is expanding to more countriesRelated Tags
+AI应用市场规模与增长预测: STACK EXCHANGE NETWORK
+大模型落地行业应用趋势: TechnologyCulture & recreationLife & artsScienceProfessionalBusinessAPI
+大模型企业应用案例: DataBlog
+大模型创业故事: FacebookTwitterLinkedInInstagram
+好用的AI工具及其适用的范围，和同类型工具对比: Site design / logo © 2024 Stack Exchange Inc; user contributions licensed under CC BY-SA . rev 2024.12.17.20550
+more urls: 
+AI agents that help doctors get paid
+How to determine what is opening tmp files when I invoke a subshell with ksh
+a-star
+Does the double origin plane have a cut point?
+Newest artificial-intelligence questions feed
+keras
+tensorflow
+What is the meaning of the second line of the piecewise output of SeriesCoefficient[]?
+genetic-algorithm
+algorithm
+Is SQL Injection possible if we're using only the IN keyword (no equals = operator) and we handle the single quote
+conv-neural-network
+
+************
+
+raw materials: e8c97c
+
+llm model: Qwen/Qwen2.5-7B-Instruct
+hallucination times: 1
+total analysis time: 3.069563150405884
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': '2024-01-17'}
+infos(not formated): 
+大模型技术突破与创新: 赌上一切的李彦宏可能真要赢？大模型企业到了见真章的时候，赌上一切的李彦宏可能真要赢？
+AI应用市场规模与增长预测: 半月暴涨3万亿，资金正疯狂涌入又一个黑科技即将爆发？
+more urls: 
+谷歌发了个新模型，顺手证明Sora才是最菜的
+
+************
+
+llm model: THUDM/glm-4-9b-chat
+hallucination times: 1
+total analysis time: 11.059188842773438
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+#大模型技术突破与创新: 科技谷歌发了个新模型，顺手证明Sora才是最菜的看来，在这场AI战争中，还有的是逆转的好戏。
+#大模型技术突破与创新: 赌上一切的李彦宏可能真要赢？大模型企业到了见真章的时候，赌上一切的李彦宏可能真要赢？
+#AI应用市场规模与增长预测: 半年狂赚46亿，富二代创业拿捏中产，“最和睦富豪家族”正有序接班？这个地方真的“盛产霸总”。
+#大模型落地行业应用趋势: 74亿，阿里巴巴出售银泰百货银泰百货缩水近百亿。
+#大模型企业应用案例: 24万“AI民工”血汗，哺出一个95后亿万富豪华人AI数据标注独角兽陷用工争议。
+#大模型创业故事: 半年狂赚46亿，富二代创业拿捏中产，“最和睦富豪家族”正有序接班？这个地方真的“盛产霸总”。
+#好用的AI工具及其适用的范围，和同类型工具的对比: ChatGPT搜索，全球免费，Her动嘴实时搜，暴打谷歌边聊边搜ChatGPT搜索功能，全球免费用户可用了！更令人惊喜的是，搜索将集成到Her中，可以让我们实时通话进行搜索。
+#好用的AI工具及其适用的范围，和同类型工具的对比: AI+玩偶：是儿童市场的新风口，还是智能硬件的老泡沫？门槛不高、玩家众多，尚有广阔空白市场。
+more urls: 
+24万“AI民工”血汗，哺出一个95后亿万富豪
+谷歌发了个新模型，顺手证明Sora才是最菜的
+「先享后付」暗藏陷阱，线下消费该如何避坑？
+智能车参考
+学校新来的AI体育老师，量身定制每天1小时最合理运动计划
+谁为AI事故负责？
+赌上一切的李彦宏可能真要赢？
+谈谈人工智能时代的数据战略
+AI+玩偶：是儿童市场的新风口，还是智能硬件的老泡沫？
+氪星晚报 | 贵州茅台：回购股份前期工作即将完成；蚂蚁集团1亿在上海成立科技公司，含多项AI业务；蜜雪冰城回应多个城市门店涨价：运营成本变化
+人工智能·AI
+出海速递｜特朗普会见TikTok CEO周受资/中国短剧出海刺激日本龙头入局
+大疆自动驾驶，获中国销量TOP 2车企同时入股
+特斯拉新车遭遇重大自动驾驶系统问题，极氪7X登陆欧洲市场｜海外日报
+
+************
+
+llm model: deepseek-ai/DeepSeek-V2.5
+hallucination times: 1
+total analysis time: 35.50351810455322
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': '2024-12-17'}
+infos(not formated): 
+#大模型技术突破与创新: 谷歌发了个新模型，顺手证明Sora才是最菜的看来，在这场AI战争中，还有的是逆转的好戏。
+#大模型技术突破与创新: ChatGPT搜索功能，全球免费用户可用了！更令人惊喜的是，搜索将集成到Her中，可以让我们实时通话进行搜索。
+#大模型企业应用案例: 赌上一切的李彦宏可能真要赢？大模型企业到了见真章的时候，赌上一切的李彦宏可能真要赢？
+#大模型技术突破与创新: 学校新来的AI体育老师，量身定制每天1小时最合理运动计划宇视科技AI文教体：为孩子、为明天、为未来。
+#大模型技术突破与创新: AI+玩偶：是儿童市场的新风口，还是智能硬件的老泡沫？门槛不高、玩家众多，尚有广阔空白市场。
+#大模型技术突破与创新: 半月暴涨3万亿，资金正疯狂涌入又一个黑科技即将爆发？
+#大模型技术突破与创新: 谁为AI事故负责？AI时代，侵权责任制度往何处去？
+more urls: 
+24万“AI民工”血汗，哺出一个95后亿万富豪
+谷歌发了个新模型，顺手证明Sora才是最菜的
+半年狂赚46亿，富二代创业拿捏中产，“最和睦富豪家族”正有序接班？
+学校新来的AI体育老师，量身定制每天1小时最合理运动计划
+谁为AI事故负责？
+赌上一切的李彦宏可能真要赢？
+谈谈人工智能时代的数据战略
+探秘虚拟消费：2024游戏及网络服务行业营销趋势洞察
+HiEV
+凤凰网科技
+AI+玩偶：是儿童市场的新风口，还是智能硬件的老泡沫？
+腾讯研究院
+ChatGPT搜索，全球免费，Her动嘴实时搜，暴打谷歌边聊边搜
+
+************
+
+llm model: Qwen/QwQ-32B-Preview
+hallucination times: 0
+total analysis time: 207.32083296775818
+
+author and publish time(not formated): {'source': '36氪', 'publish_date': '2024-01-17'}
+infos(not formated): 
+大模型技术突破与创新: 谷歌发了个新模型，顺手证明Sora才是最菜的。看来，在这场AI战争中，还有的是逆转的好戏。
+大模型技术突破与创新: 大疆自动驾驶，获中国销量TOP 2车企同时入股“量产10万级智能车”。
+大模型技术突破与创新: ChatGPT搜索，全球免费，Her动嘴实时搜，暴打谷歌边聊边搜ChatGPT搜索功能，全球免费用户可用了！更令人惊喜的是，搜索将集成到Her中，可以让我们实时通话进行搜索。
+大模型技术突破与创新: 谈谈人工智能时代的数据战略。
+大模型技术突破与创新: 赌上一切的李彦宏可能真要赢？大模型企业到了见真章的时候，赌上一切的李彦宏可能真要赢？
+大模型技术突破与创新: AI+玩偶：是儿童市场的新风口，还是智能硬件的老泡沫？门槛不高、玩家众多，尚有广阔空白市场。
+大模型技术突破与创新: 半月暴涨3万亿，资金正疯狂涌入又一个黑科技即将爆发？
+大模型落地行业应用趋势: 美团医美：屠龙少年还是恶龙？
+大模型落地行业应用趋势: 极越CEO夏一平发长文道歉，随后又悄悄删掉……百度、吉利为老车主兜底。
+大模型落地行业应用趋势: 迈凯伦又被卖了，这次出手的是蔚来第一大股东。
+大模型落地行业应用趋势: 增程2.0时代：小米、小鹏入场，谁能领跑增程下半场？头部车企集体拥抱增程。
+大模型落地行业应用趋势: 学校新来的AI体育老师，量身定制每天1小时最合理运动计划。
+大模型企业应用案例: 美团医美：屠龙少年还是恶龙？
+大模型企业应用案例: 极越CEO夏一平发长文道歉，随后又悄悄删掉……百度、吉利为老车主兜底。
+大模型企业应用案例: 迈凯伦又被卖了，这次出手的是蔚来第一大股东。
+大模型企业应用案例: 增程2.0时代：小米、小鹏入场，谁能领跑增程下半场？头部车企集体拥抱增程。
+大模型企业应用案例: 学校新来的AI体育老师，量身定制每天1小时最合理运动计划。
+大模型创业故事: 24万“AI民工”血汗，哺出一个95后亿万富豪华人AI数据标注独角兽陷用工争议。
+大模型创业故事: 74亿，阿里巴巴出售银泰百货银泰百货缩水近百亿。
+大模型创业故事: 半年狂赚46亿，富二代创业拿捏中产，“最和睦富豪家族”正有序接班？这个地方真的“盛产霸总”。
+大模型创业故事: 茶饮界的「小镇王者」，再战港交所茶饮新贵上市潮要来了？
+大模型技术突破与创新: 特斯拉新车遭遇重大自动驾驶系统问题，极氪7X登陆欧洲市场
+AI应用市场规模与增长预测: 12月17日EV Focus海外日报
+大模型落地行业应用趋势: 科技狂砸8000亿的“烧钱巨兽”，在全球整容成功烧钱巨兽，彻底赚回脸面
+大模型企业应用案例: 这一轮地铁建设，谁是赢家郑州苏州，增量明显
+more urls: 
+AI+玩偶：是儿童市场的新风口，还是智能硬件的老泡沫？
+学校新来的AI体育老师，量身定制每天1小时最合理运动计划
+
+************
+
+llm model: Qwen/Qwen2.5-Coder-32B-Instruct
+hallucination times: 1
+total analysis time: 6.860621213912964
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+大模型技术突破与创新: 谷歌发了个新模型，顺手证明Sora才是最菜的看来，在这场AI战争中，还有的是逆转的好戏。
+大模型技术突破与创新: ChatGPT搜索，全球免费，Her动嘴实时搜，暴打谷歌边聊边搜ChatGPT搜索功能，全球免费用户可用了！更令人惊喜的是，搜索将集成到Her中，可以让我们实时通话进行搜索。
+大模型企业应用案例: 赌上一切的李彦宏可能真要赢？大模型企业到了见真章的时候，赌上一切的李彦宏可能真要赢？
+大模型企业应用案例: 学校新来的AI体育老师，量身定制每天1小时最合理运动计划宇视科技AI文教体：为孩子、为明天、为未来。
+大模型企业应用案例: AI+玩偶：是儿童市场的新风口，还是智能硬件的老泡沫？门槛不高、玩家众多，尚有广阔空白市场。
+more urls: 
+AI+玩偶：是儿童市场的新风口，还是智能硬件的老泡沫？
+学校新来的AI体育老师，量身定制每天1小时最合理运动计划
+谷歌发了个新模型，顺手证明Sora才是最菜的
+谈谈人工智能时代的数据战略
+
+************
+
+llm model: Qwen/Qwen2.5-32B-Instruct
+hallucination times: 1
+total analysis time: 9.577956914901733
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+大模型技术突破与创新: 谷歌发了个新模型，顺手证明Sora才是最菜的看来，在这场AI战争中，还有的是逆转的好戏。
+大模型技术突破与创新: ChatGPT搜索，全球免费，Her动嘴实时搜，暴打谷歌边聊边搜ChatGPT搜索功能，全球免费用户可用了！更令人惊喜的是，搜索将集成到Her中，可以让我们实时通话进行搜索。
+大模型企业应用案例: 赌上一切的李彦宏可能真要赢？大模型企业到了见真章的时候，赌上一切的李彦宏可能真要赢？
+more urls: 
+AI+玩偶：是儿童市场的新风口，还是智能硬件的老泡沫？
+谷歌发了个新模型，顺手证明Sora才是最菜的
+特斯拉新车遭遇重大自动驾驶系统问题，极氪7X登陆欧洲市场｜海外日报
+学校新来的AI体育老师，量身定制每天1小时最合理运动计划
+谁为AI事故负责？
+谈谈人工智能时代的数据战略
+
+************
+
+llm model: Qwen/Qwen2.5-14B-Instruct
+hallucination times: 2
+total analysis time: 2.992058038711548
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+
+more urls: 
+谷歌发了个新模型，顺手证明Sora才是最菜的
+
+************
+
+llm model: Qwen/Qwen2.5-Coder-7B-Instruct
+hallucination times: 2
+total analysis time: 2.6526970863342285
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+
+more urls: 
+半年狂赚46亿，富二代创业拿捏中产，“最和睦富豪家族”正有序接班？
+谷歌发了个新模型，顺手证明Sora才是最菜的
+24万“AI民工”血汗，哺出一个95后亿万富豪
+大疆自动驾驶，获中国销量TOP 2车企同时入股
+迈凯伦又被卖了，这次出手的是蔚来第一大股东
+8万元买个“碗”，有年轻人，靠“修仙”暴富了？
+
+************
+
+llm model: 01-ai/Yi-1.5-34B-Chat-16K
+hallucination times: 0
+total analysis time: 9.193757772445679
+
+author and publish time(not formated): {'source': '王兴与美团|互联网江湖', 'publish_date': '2023-04-24'}
+infos(not formated): 
+#AI应用市场规模与增长预测: 全球免费用户可用了！更令人惊喜的是，搜索将集成到Her中，可以让我们实时通话进行搜索。
+#大模型落地行业应用趋势: 头部车企集体拥抱增程。
+#大模型企业应用案例: 百度、吉利为老车主兜底。
+#大模型创业故事: 华人AI数据标注独角兽陷用工争议。
+#好用的AI工具及其适用的范围，和同类型工具对比: 边聊边搜ChatGPT搜索功能，全球免费用户可用了！
+大模型技术突破与创新: 特斯拉新车遭遇重大自动驾驶系统问题
+AI应用市场规模与增长预测: 极氪7X登陆欧洲市场
+大模型落地行业应用趋势: 海外日报
+大模型企业应用案例: 科技狂砸8000亿的“烧钱巨兽”，在全球整容成功
+好用的AI工具及其适用的范围，和同类型工具对比: 查看更多推荐
+more urls: 
+谷歌发了个新模型，顺手证明Sora才是最菜的
+特斯拉新车遭遇重大自动驾驶系统问题，极氪7X登陆欧洲市场｜海外日报
+谁为AI事故负责？
+谈谈人工智能时代的数据战略
+探秘虚拟消费：2024游戏及网络服务行业营销趋势洞察
+
+************
+
+raw materials: 29229b
+
+llm model: Qwen/Qwen2.5-7B-Instruct
+hallucination times: 1
+total analysis time: 1.2605299949645996
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+
+more urls: 
+
+
+************
+
+llm model: THUDM/glm-4-9b-chat
+hallucination times: 0
+total analysis time: 8.097972869873047
+
+author and publish time(not formated): {'source': 'u/MetaKnowing', 'publish_date': 'NA'}
+infos(not formated): 
+大模型技术突破与创新: Llama 3.3 better than 4o, o1I have started myself to shift from ChatGPT models because now they have started to go out of context for no reason. You ask them to make a summary of what we have discussed on this chat so far and it fails to note the important points. And if the chat is pretty lengthy, it just dismisses and gets bizarre info out of it. I think I smell the commercialness of it spreading across the room. I have had better output from the recent Microsoft's phi-4 model compared to 4o.u/HoodyPrivacy
+大模型技术突破与创新: Hoody AI: anonymous access to the best AI model providers from a privacy-first unified dashboard.hoody.comView More
+more urls: 
+Comedy Movies & Series
+Adobe AI
+Hugging Face
+Character.AI
+Stability AI
+More Communities
+Adventure Games
+About Reddit
+Google AI
+Esports
+OpenAI
+Suno AI
+Time 100 AI List 2024
+Subreddit Update
+r/OpenAI
+Gaming Consoles & Gear
+Action Movies & Series
+Figure AI
+ElevenLabs
+Funny
+Reddit, Inc. © 2024. All rights reserved.
+Crime, Mystery, & Thriller Movies & Series
+Amazon AWS
+Mobile Games
+Forbes AI 50 List 2024
+Mistral AI
+Midjourney
+Wholesome & Heartwarming
+Other Games
+Computers & Hardware
+Perplexity
+Cringe & Facepalm
+Animals & Pets
+Anthropic
+Animated Movies & Series
+AI space blog
+Oddly Satisfying
+Reddit Meta
+Gaming News & Discussion
+r/ChatGPT
+r/ClaudeAI
+Fortune 50 AI List 2024
+Virtual & Augmented Reality
+Wiki
+Meta AI
+Artificial Intelligence & Machine Learning
+Memes
+Apple ML
+IBM AI
+Software & Apps
+Runway
+Microsoft AI
+NVIDIA DL
+Action Games
+Interesting
+Amazing
+
+************
+
+llm model: deepseek-ai/DeepSeek-V2.5
+hallucination times: 1
+total analysis time: 268.38720703125
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+
+more urls: 
+Anthropic
+Adobe AI
+Hugging Face
+Character.AI
+Stability AI
+Fortune 50 AI List 2024
+Google AI
+OpenAI
+Suno AI
+Time 100 AI List 2024
+Meta AI
+Artificial Intelligence & Machine Learning
+Figure AI
+ElevenLabs
+Apple ML
+IBM AI
+Amazon AWS
+Runway
+Mistral AI
+Midjourney
+Microsoft AI
+Perplexity
+NVIDIA DL
+
+************
+
+llm model: Qwen/QwQ-32B-Preview
+hallucination times: 0
+total analysis time: 156.68537187576294
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+大模型技术突破与创新: Llama 3.3 better than 4o, o1I have started myself to shift from ChatGPT models because now they have started to go out of context for no reason. You ask them to make a summary of what we have discussed on this chat so far and it fails to note the important points. And if the chat is pretty lengthy, it just dismisses and gets bizarre info out of it. I think I smell the commercialness of it spreading across the room. I have had better output from the recent Microsoft's phi-4 model compared to 4o.
+大模型落地行业应用趋势: I have started myself to shift from ChatGPT models because now they have started to go out of context for no reason. You ask them to make a summary of what we have discussed on this chat so far and it fails to note the important points. And if the chat is pretty lengthy, it just dismisses and gets bizarre info out of it.
+大模型企业应用案例: I have had better output from the recent Microsoft's phi-4 model compared to 4o.
+more urls: 
+
+
+************
+
+llm model: Qwen/Qwen2.5-Coder-32B-Instruct
+hallucination times: 1
+total analysis time: 2.6813371181488037
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+
+more urls: 
+Hugging Face
+Apple ML
+IBM AI
+Amazon AWS
+Software & Apps
+Tech News & Discussion
+Microsoft AI
+Computers & Hardware
+Programming
+Fortune 50 AI List 2024
+Google AI
+NVIDIA DL
+OpenAI
+Time 100 AI List 2024
+Meta AI
+Artificial Intelligence & Machine Learning
+
+************
+
+llm model: Qwen/Qwen2.5-32B-Instruct
+hallucination times: 1
+total analysis time: 1.6181750297546387
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+
+more urls: 
+Artificial Intelligence & Machine Learning
+
+************
+
+llm model: Qwen/Qwen2.5-14B-Instruct
+hallucination times: 1
+total analysis time: 6.041625022888184
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+
+more urls: 
+Anthropic
+Adobe AI
+Hugging Face
+Character.AI
+Stability AI
+Google AI
+OpenAI
+Suno AI
+Meta AI
+Figure AI
+ElevenLabs
+Apple ML
+IBM AI
+Amazon AWS
+Forbes AI 50 List 2024
+Runway
+Mistral AI
+Midjourney
+Microsoft AI
+Perplexity
+NVIDIA DL
+
+************
+
+llm model: Qwen/Qwen2.5-Coder-7B-Instruct
+hallucination times: 1
+total analysis time: 2.6163320541381836
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+
+more urls: 
+Anthropic
+Adobe AI
+Hugging Face
+AI space blog
+Character.AI
+Stability AI
+r/ChatGPT
+r/ClaudeAI
+Fortune 50 AI List 2024
+Google AI
+OpenAI
+Suno AI
+Time 100 AI List 2024
+Subreddit Update
+Wiki
+r/OpenAI
+Meta AI
+Artificial Intelligence & Machine Learning
+Figure AI
+ElevenLabs
+Apple ML
+IBM AI
+Amazon AWS
+Forbes AI 50 List 2024
+Runway
+Mistral AI
+Midjourney
+Microsoft AI
+Tech News & Discussion
+Perplexity
+NVIDIA DL
+
+************
+
+llm model: 01-ai/Yi-1.5-34B-Chat-16K
+hallucination times: 0
+total analysis time: 6.707098007202148
+
+author and publish time(not formated): {'source': 'u/socialmeai', 'publish_date': 'NA'}
+infos(not formated): 
+大模型技术突破与创新: Llama 3.3 better than 4o
+大模型落地行业应用趋势: Hoody AI: anonymous access to the best AI model providers from a privacy-first unified dashboard
+大模型创业故事: Microsoft's phi-4 model
+好用的AI工具及其适用的范围，和同类型工具对比: Llama 3.3 better than 4o
+more urls: 
+Anthropic
+Adobe AI
+Hugging Face
+AI space blog
+Character.AI
+Stability AI
+Google AI
+OpenAI
+Suno AI
+TV News & Discussion
+Meta AI
+Artificial Intelligence & Machine Learning
+Figure AI
+ElevenLabs
+Apple ML
+IBM AI
+Amazon AWS
+Software & Apps
+Runway
+Mistral AI
+Midjourney
+Microsoft AI
+Tech News & Discussion
+Movie News & Discussion
+Perplexity
+NVIDIA DL
+
+************
+
+raw materials: ae77d4
+
+llm model: Qwen/Qwen2.5-7B-Instruct
+hallucination times: 4
+total analysis time: 7.368144989013672
+
+author and publish time(not formated): {}
+infos(not formated): 
+
+more urls: 
+Google Gemini 2.0: Could this be the beginning of truly autonomous AI?
+Scaling AI: Platform best practices
+OpenAI’s o1 model doesn’t show its thinking, giving open source an advantage
+Cohere’s smallest, fastest R-series model excels at RAG, reasoning in 23 languages
+Sapient debuts with new AI architectures, aiming to beat Transformers’ reasoning with recurrent neural networks
+Google debuts new AI video generator Veo 2 claiming better audience scores than Sora
+Gemini 2.0 Flash ushers in a new era of real-time multimodal AI
+Google’s new Trillium AI chip delivers 4x speed and powers Gemini 2.0
+Microsoft’s smaller AI model beats the big guys: Meet Phi-4, the efficiency king
+New LLM optimization technique slashes memory costs up to 75%
+ServiceNow open sources Fast-LLM in a bid to help enterprises train AI models 20% quicker
+OpenAI updates ChatGPT Search with voice queries, faster results, mobile maps integration
+Nvidia unveils next-gen AI and industrial digitalization capabilities at Microsoft Ignite
+See how Google Gemini 2.0 Flash can perform hours of business analysis in minutes
+OpenAI rolls out ChatGPT for iPhone in landmark AI integration with Apple
+
+************
+
+llm model: THUDM/glm-4-9b-chat
+hallucination times: 0
+total analysis time: 24.262537956237793
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+#AI应用市场规模与增长预测: No specific market size and growth predictions found
+#大模型落地行业应用趋势: No specific industry application trends found
+#大模型企业应用案例: No specific case studies found
+#大模型创业故事: No specific startup stories found
+#好用的AI工具及其适用的范围，和同类型工具的对比: No specific AI tools comparison found
+more urls: 
+Data Management
+Cloud and Data Storage Security
+2017
+Data Security and Privacy
+Synthetic Data
+Text-to-Speech
+Computer Hardware Security
+Industrial Automation
+New LLM optimization technique slashes memory costs up to 75%
+Test Management
+Microsoft’s smaller AI model beats the big guys: Meet Phi-4, the efficiency king
+Google’s new Trillium AI chip delivers 4x speed and powers Gemini 2.0
+We’ve come a long way from RPA: How AI agents are revolutionizing automation
+Solos launches AirGo Vision — ChatGPT-enabled AI smart glasses with a camera
+Artificial Intelligence
+OpenAI updates ChatGPT Search with voice queries, faster results, mobile maps integration
+AI, ML and Deep Learning
+Big Data and Analytics
+Realtime AI video analysis app Lloyd will offer developer kit after passing 50,000 users
+2014
+OpenAI rolls out ChatGPT for iPhone in landmark AI integration with Apple
+OpenAI launches ChatGPT Projects, letting you organize files, chats in groups
+Business Process Automation
+Synthetic data has its limits — why human-sourced data can help prevent AI model collapse
+Follow us on Facebook
+How RapidCanvas automates 70% of data tasks for gen AI projects
+ServiceNow open sources Fast-LLM in a bid to help enterprises train AI models 20% quicker
+Follow us on RSS
+Automation
+See how Google Gemini 2.0 Flash can perform hours of business analysis in minutes
+Development Languages
+Data Networks
+Development Automation
+Network Security and Privacy
+NLP
+Data Labelling
+Google Gemini 2.0: Could this be the beginning of truly autonomous AI?
+Defending SOCs Under Siege: Battling Adversarial AI Attacks
+Press Releases
+OpenAI expands ChatGPT Canvas to all users
+2016
+VentureBeat
+Privacy Policy
+Contribute to DataDecisionMakers
+Contact Us
+Pin thinks AI can fix recruitment’s biggest problems — and it has the numbers to prove it
+Follow us on X
+Nvidia unveils next-gen AI and industrial digitalization capabilities at Microsoft Ignite
+Virtual Reality Collaboration
+Google unveils AI coding assistant ‘Jules,’ promising autonomous bug fixes and faster development cycles
+Software Security
+Virtual Employee Experience
+OpenAI’s o1 model doesn’t show its thinking, giving open source an advantage
+Cohere’s smallest, fastest R-series model excels at RAG, reasoning in 23 languages
+Sapient debuts with new AI architectures, aiming to beat Transformers’ reasoning with recurrent neural networks
+Data Storage and Cloud
+Google debuts new AI video generator Veo 2 claiming better audience scores than Sora
+Gemini 2.0 Flash ushers in a new era of real-time multimodal AI
+Anthropic’s fastest model, Claude 3.5 Haiku, now generally available
+Follow us on LinkedIn
+Conversational AI
+Lam Research launches collaborative robots to optimize critical maintenance in chip factories
+Product Development
+Programming & Development
+Auto ML
+Shutterstock pioneers ‘research license’ model with Lightricks, lowering barriers to AI training data
+Data Science
+Terms of Service
+Data Infrastructure
+2015
+Application Development
+Advertise
+
+************
+
+llm model: deepseek-ai/DeepSeek-V2.5
+hallucination times: 1
+total analysis time: 113.66382002830505
+
+author and publish time(not formated): {'source': 'Dean Takahashi', 'publish_date': '2024-12-16'}
+infos(not formated): 
+大模型技术突破与创新: sapient debuts with new AI architectures, aiming to beat Transformers’ reasoning with recurrent neural networks
+more urls: 
+Data Management
+Cloud and Data Storage Security
+Data Security and Privacy
+Synthetic Data
+Text-to-Speech
+Computer Hardware Security
+Industrial Automation
+New LLM optimization technique slashes memory costs up to 75%
+Microsoft’s smaller AI model beats the big guys: Meet Phi-4, the efficiency king
+Google’s new Trillium AI chip delivers 4x speed and powers Gemini 2.0
+Solos launches AirGo Vision — ChatGPT-enabled AI smart glasses with a camera
+Artificial Intelligence
+OpenAI updates ChatGPT Search with voice queries, faster results, mobile maps integration
+AI, ML and Deep Learning
+Big Data and Analytics
+Slack’s AI agents promise to reshape productivity with contextual power
+Business Process Automation
+ServiceNow open sources Fast-LLM in a bid to help enterprises train AI models 20% quicker
+Automation
+Security
+Data Networks
+NLP
+Development Automation
+Network Security and Privacy
+Data Labelling
+Google Gemini 2.0: Could this be the beginning of truly autonomous AI?
+MidJourney adds Pinterest-like ‘moodboards’ and support for multiple custom AI image models
+Lambda launches ‘inference-as-a-service’ API claiming lowest costs in AI industry
+Nvidia unveils next-gen AI and industrial digitalization capabilities at Microsoft Ignite
+Google unveils AI coding assistant ‘Jules,’ promising autonomous bug fixes and faster development cycles
+Software Security
+OpenAI’s o1 model doesn’t show its thinking, giving open source an advantage
+Taryn Plumb
+Cohere’s smallest, fastest R-series model excels at RAG, reasoning in 23 languages
+Sapient debuts with new AI architectures, aiming to beat Transformers’ reasoning with recurrent neural networks
+Data Storage and Cloud
+Gemini 2.0 Flash ushers in a new era of real-time multimodal AI
+Anthropic’s fastest model, Claude 3.5 Haiku, now generally available
+Conversational AI
+Auto ML
+Data Science
+Data Infrastructure
+
+************
+
+llm model: Qwen/QwQ-32B-Preview
+hallucination times: 0
+total analysis time: 1346.5701479911804
+
+author and publish time(not formated): {'source': 'Dean Takahashi', 'publish_date': '2024-12-16'}
+infos(not formated): 
+#AI应用市场规模与增长预测: Artificial IntelligenceSecurityData InfrastructureAutomationEnterprise AnalyticsMore
+#大模型落地行业应用趋势: Dean Takahashi December 16, 2024 9:00 PM
+more urls: 
+IP Copilot wants to use AI to turn your Slack messages into patents
+Pika 2.0 launches in wake of Sora, integrating your own characters, objects, scenes in new AI videos
+Google’s new Trillium AI chip delivers 4x speed and powers Gemini 2.0
+Microsoft’s smaller AI model beats the big guys: Meet Phi-4, the efficiency king
+Solos launches AirGo Vision — ChatGPT-enabled AI smart glasses with a camera
+Test Management
+Team Collaboration
+We’ve come a long way from RPA: How AI agents are revolutionizing automation
+‘Not there yet’: Sora rollout receives mixed response from AI filmmakers citing inconsistent results, content restrictions
+Realtime AI video analysis app Lloyd will offer developer kit after passing 50,000 users
+OpenAI rolls out ChatGPT for iPhone in landmark AI integration with Apple
+OpenAI launches ChatGPT Projects, letting you organize files, chats in groups
+Synthetic data has its limits — why human-sourced data can help prevent AI model collapse
+ServiceNow open sources Fast-LLM in a bid to help enterprises train AI models 20% quicker
+See how Google Gemini 2.0 Flash can perform hours of business analysis in minutes
+Development Languages
+Test Automation
+Google Gemini 2.0: Could this be the beginning of truly autonomous AI?
+Defending SOCs Under Siege: Battling Adversarial AI Attacks
+Disaster Recovery Business Continuity
+Robotic Process Automation
+Lambda launches ‘inference-as-a-service’ API claiming lowest costs in AI industry
+Pin thinks AI can fix recruitment’s biggest problems — and it has the numbers to prove it
+Virtual Communication
+Nvidia unveils next-gen AI and industrial digitalization capabilities at Microsoft Ignite
+Business Intelligence
+Virtual Reality Collaboration
+Google unveils AI coding assistant ‘Jules,’ promising autonomous bug fixes and faster development cycles
+Virtual Employee Experience
+Cohere’s smallest, fastest R-series model excels at RAG, reasoning in 23 languages
+Gemini 2.0 Flash ushers in a new era of real-time multimodal AI
+Anthropic’s fastest model, Claude 3.5 Haiku, now generally available
+Statistical Analysis
+Product Development
+Programming & Development
+Enterprise Analytics
+Predictive Analysis
+Shutterstock pioneers ‘research license’ model with Lightricks, lowering barriers to AI training data
+NotebookLM updates Business to Plus with more audio, lets all users interact with AI hosts
+Midjourney is launching a multiplayer collaborative worldbuilding tool called ‘Patchwork’
+UCaaS
+Lam Research launches collaborative robots to optimize critical maintenance in chip factories
+Application Development
+Data Decision Makers
+
+************
+
+llm model: Qwen/Qwen2.5-Coder-32B-Instruct
+hallucination times: 1
+total analysis time: 13.77305293083191
+
+author and publish time(not formated): {'source': 'Dean Takahashi', 'publish_date': '2024-12-16'}
+infos(not formated): 
+
+more urls: 
+IP Copilot wants to use AI to turn your Slack messages into patents
+Google Gemini 2.0: Could this be the beginning of truly autonomous AI?
+Google unveils AI coding assistant ‘Jules,’ promising autonomous bug fixes and faster development cycles
+Slack’s AI agents promise to reshape productivity with contextual power
+Cohere’s smallest, fastest R-series model excels at RAG, reasoning in 23 languages
+Sapient debuts with new AI architectures, aiming to beat Transformers’ reasoning with recurrent neural networks
+Google debuts new AI video generator Veo 2 claiming better audience scores than Sora
+Gemini 2.0 Flash ushers in a new era of real-time multimodal AI
+Anthropic’s fastest model, Claude 3.5 Haiku, now generally available
+New LLM optimization technique slashes memory costs up to 75%
+Microsoft’s smaller AI model beats the big guys: Meet Phi-4, the efficiency king
+Google’s new Trillium AI chip delivers 4x speed and powers Gemini 2.0
+ServiceNow open sources Fast-LLM in a bid to help enterprises train AI models 20% quicker
+OpenAI updates ChatGPT Search with voice queries, faster results, mobile maps integration
+AI, ML and Deep Learning
+Pin thinks AI can fix recruitment’s biggest problems — and it has the numbers to prove it
+Nvidia unveils next-gen AI and industrial digitalization capabilities at Microsoft Ignite
+
+************
+
+llm model: Qwen/Qwen2.5-32B-Instruct
+hallucination times: 0
+total analysis time: 25.689688682556152
+
+author and publish time(not formated): {'source': 'Dean Takahashi', 'publish_date': '2024-12-16'}
+infos(not formated): 
+
+more urls: 
+Google Gemini 2.0: Could this be the beginning of truly autonomous AI?
+MidJourney adds Pinterest-like ‘moodboards’ and support for multiple custom AI image models
+Google’s new Trillium AI chip delivers 4x speed and powers Gemini 2.0
+New LLM optimization technique slashes memory costs up to 75%
+Microsoft’s smaller AI model beats the big guys: Meet Phi-4, the efficiency king
+We’ve come a long way from RPA: How AI agents are revolutionizing automation
+OpenAI updates ChatGPT Search with voice queries, faster results, mobile maps integration
+Pin thinks AI can fix recruitment’s biggest problems — and it has the numbers to prove it
+Nvidia unveils next-gen AI and industrial digitalization capabilities at Microsoft Ignite
+The future of AI regulation is up in the air: What’s your next move?
+OpenAI launches ChatGPT Projects, letting you organize files, chats in groups
+OpenAI’s o1 model doesn’t show its thinking, giving open source an advantage
+Cohere’s smallest, fastest R-series model excels at RAG, reasoning in 23 languages
+Sapient debuts with new AI architectures, aiming to beat Transformers’ reasoning with recurrent neural networks
+Google debuts new AI video generator Veo 2 claiming better audience scores than Sora
+Gemini 2.0 Flash ushers in a new era of real-time multimodal AI
+Anthropic’s fastest model, Claude 3.5 Haiku, now generally available
+ServiceNow open sources Fast-LLM in a bid to help enterprises train AI models 20% quicker
+Lam Research launches collaborative robots to optimize critical maintenance in chip factories
+See how Google Gemini 2.0 Flash can perform hours of business analysis in minutes
+
+************
+
+llm model: Qwen/Qwen2.5-14B-Instruct
+hallucination times: 2
+total analysis time: 17.918839931488037
+
+author and publish time(not formated): {'source': 'Dean Takahashi', 'publish_date': '2024-12-16'}
+infos(not formated): 
+
+more urls: 
+Google Gemini 2.0: Could this be the beginning of truly autonomous AI?
+Synthetic data has its limits — why human-sourced data can help prevent AI model collapse
+Taryn Plumb
+Cohere’s smallest, fastest R-series model excels at RAG, reasoning in 23 languages
+Sapient debuts with new AI architectures, aiming to beat Transformers’ reasoning with recurrent neural networks
+Rick Song, Persona
+Google’s new Trillium AI chip delivers 4x speed and powers Gemini 2.0
+Anthropic’s fastest model, Claude 3.5 Haiku, now generally available
+Microsoft’s smaller AI model beats the big guys: Meet Phi-4, the efficiency king
+New LLM optimization technique slashes memory costs up to 75%
+ServiceNow open sources Fast-LLM in a bid to help enterprises train AI models 20% quicker
+Lam Research launches collaborative robots to optimize critical maintenance in chip factories
+Solos launches AirGo Vision — ChatGPT-enabled AI smart glasses with a camera
+Pin thinks AI can fix recruitment’s biggest problems — and it has the numbers to prove it
+Realtime AI video analysis app Lloyd will offer developer kit after passing 50,000 users
+
+************
+
+llm model: Qwen/Qwen2.5-Coder-7B-Instruct
+hallucination times: 3
+total analysis time: 7.104852914810181
+
+author and publish time(not formated): {'source': 'Dean Takahashi', 'publish_date': '2024-12-16'}
+infos(not formated): 
+
+more urls: 
+Data Management
+Cloud and Data Storage Security
+Data Security and Privacy
+Synthetic Data
+Text-to-Speech
+Computer Hardware Security
+Industrial Automation
+New LLM optimization technique slashes memory costs up to 75%
+Microsoft’s smaller AI model beats the big guys: Meet Phi-4, the efficiency king
+Google’s new Trillium AI chip delivers 4x speed and powers Gemini 2.0
+Solos launches AirGo Vision — ChatGPT-enabled AI smart glasses with a camera
+We’ve come a long way from RPA: How AI agents are revolutionizing automation
+Artificial Intelligence
+AI, ML and Deep Learning
+Big Data and Analytics
+OpenAI rolls out ChatGPT for iPhone in landmark AI integration with Apple
+OpenAI launches ChatGPT Projects, letting you organize files, chats in groups
+Business Process Automation
+Synthetic data has its limits — why human-sourced data can help prevent AI model collapse
+ServiceNow open sources Fast-LLM in a bid to help enterprises train AI models 20% quicker
+Automation
+See how Google Gemini 2.0 Flash can perform hours of business analysis in minutes
+Security
+Data Networks
+NLP
+Development Automation
+Network Security and Privacy
+Data Labelling
+Google Gemini 2.0: Could this be the beginning of truly autonomous AI?
+Nvidia unveils next-gen AI and industrial digitalization capabilities at Microsoft Ignite
+Google unveils AI coding assistant ‘Jules,’ promising autonomous bug fixes and faster development cycles
+Software Security
+OpenAI’s o1 model doesn’t show its thinking, giving open source an advantage
+Cohere’s smallest, fastest R-series model excels at RAG, reasoning in 23 languages
+Sapient debuts with new AI architectures, aiming to beat Transformers’ reasoning with recurrent neural networks
+Data Storage and Cloud
+Gemini 2.0 Flash ushers in a new era of real-time multimodal AI
+Anthropic’s fastest model, Claude 3.5 Haiku, now generally available
+Conversational AI
+Auto ML
+Data Science
+Data Infrastructure
+
+************
+
+llm model: 01-ai/Yi-1.5-34B-Chat-16K
+hallucination times: 1
+total analysis time: 19.41735577583313
+
+author and publish time(not formated): {}
+infos(not formated): 
+大模型技术突破与创新: OpenAI扩展了ChatGPT Canvas的使用范围，ServiceNow开源了Fast-LLM以帮助企业更快地训练AI模型
+AI应用市场规模与增长预测: 无相关信息
+大模型落地行业应用趋势: Solos推出AirGo Vision智能眼镜，结合了ChatGPT技术，用于行业应用
+大模型企业应用案例: 无相关信息
+大模型创业故事: 无相关信息
+好用的AI工具及其适用的范围，和同类型工具对比: 无相关信息
+more urls: 
+Data Management
+Google Gemini 2.0: Could this be the beginning of truly autonomous AI?
+Google’s new Trillium AI chip delivers 4x speed and powers Gemini 2.0
+New LLM optimization technique slashes memory costs up to 75%
+Microsoft’s smaller AI model beats the big guys: Meet Phi-4, the efficiency king
+Solos launches AirGo Vision — ChatGPT-enabled AI smart glasses with a camera
+OpenAI updates ChatGPT Search with voice queries, faster results, mobile maps integration
+Big Data and Analytics
+Nvidia unveils next-gen AI and industrial digitalization capabilities at Microsoft Ignite
+Google unveils AI coding assistant ‘Jules,’ promising autonomous bug fixes and faster development cycles
+OpenAI launches ChatGPT Projects, letting you organize files, chats in groups
+OpenAI’s o1 model doesn’t show its thinking, giving open source an advantage
+Cohere’s smallest, fastest R-series model excels at RAG, reasoning in 23 languages
+Sapient debuts with new AI architectures, aiming to beat Transformers’ reasoning with recurrent neural networks
+Data Storage and Cloud
+Gemini 2.0 Flash ushers in a new era of real-time multimodal AI
+Anthropic’s fastest model, Claude 3.5 Haiku, now generally available
+ServiceNow open sources Fast-LLM in a bid to help enterprises train AI models 20% quicker
+Lam Research launches collaborative robots to optimize critical maintenance in chip factories
+Data Science
+
+************
+
+raw materials: 3958ab
+
+llm model: Qwen/Qwen2.5-7B-Instruct
+hallucination times: 1
+total analysis time: 0.7024776935577393
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+
+more urls: 
+
+
+************
+
+llm model: THUDM/glm-4-9b-chat
+hallucination times: 0
+total analysis time: 3.489488124847412
+
+author and publish time(not formated): {'source': 'MIT Technology Review', 'publish_date': 'NA'}
+infos(not formated): 
+大模型技术突破与创新: The latest advances in the quest to build machines that can reason, learn, and act intelligently.
+大模型技术突破与创新: The latest iteration of a legacy Founded at the Massachusetts Institute of Technology in 1899, MIT Technology Review is a world-renowned, independent media company whose insight, analysis, reviews, interviews and live events explain the newest technologies and their commercial, social and political impact.
+more urls: 
+Featured
+Topics
+READ ABOUT OUR HISTORY
+My subscription
+ADVERTISE WITH US
+Privacy policy
+Contact us
+MIT Alumni News
+Privacy Policy
+Subscribe
+MIT Technology Review
+Editorial guidelines
+International Editions
+Custom content
+Republishing
+Careers
+Advertise with us
+Audio
+Sign in
+Events
+Terms of Service
+Write for us
+Help & FAQ
+Newsletters
+
+************
+
+llm model: deepseek-ai/DeepSeek-V2.5
+hallucination times: 1
+total analysis time: 3.308987855911255
+
+author and publish time(not formated): {'source': 'MIT Technology Review', 'publish_date': 'NA'}
+infos(not formated): 
+
+more urls: 
+
+
+************
+
+llm model: Qwen/QwQ-32B-Preview
+hallucination times: 0
+total analysis time: 59.053231954574585
+
+author and publish time(not formated): {'source': 'MIT Technology Review', 'publish_date': 'NA'}
+infos(not formated): 
+大模型技术突破与创新: The latest advances in the quest to build machines that can reason, learn, and act intelligently.
+AI应用市场规模与增长预测: MIT Technology Review is a world-renowned, independent media company whose insight, analysis, reviews, interviews and live events explain the newest technologies and their commercial, social and political impact.
+大模型落地行业应用趋势: From event sponsorships to custom content to visually arresting video storytelling, advertising with MIT Technology Review creates opportunities for your brand to resonate with an unmatched audience of technology and business elite.
+大模型企业应用案例: Elevate your brand to the forefront of conversation around emerging technologies that are radically transforming business.
+大模型创业故事: Founded at the Massachusetts Institute of Technology in 1899, MIT Technology Review is a world-renowned, independent media company whose insight, analysis, reviews, interviews and live events explain the newest technologies and their commercial, social and political impact.
+好用的AI工具及其适用的范围，和同类型工具的对比: The AlgorithmA weekly newsletter that helps demystify artificial intelligence.
+more urls: 
+
+
+************
+
+llm model: Qwen/Qwen2.5-Coder-32B-Instruct
+hallucination times: 1
+total analysis time: 0.7454960346221924
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+
+more urls: 
+
+
+************
+
+llm model: Qwen/Qwen2.5-32B-Instruct
+hallucination times: 1
+total analysis time: 1.29982590675354
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+
+more urls: 
+
+
+************
+
+llm model: Qwen/Qwen2.5-14B-Instruct
+hallucination times: 1
+total analysis time: 1.0227909088134766
+
+author and publish time(not formated): {'source': 'MIT Technology Review', 'publish_date': 'NA'}
+infos(not formated): 
+
+more urls: 
+
+
+************
+
+llm model: Qwen/Qwen2.5-Coder-7B-Instruct
+hallucination times: 1
+total analysis time: 0.6058359146118164
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+
+more urls: 
+
+
+************
+
+llm model: 01-ai/Yi-1.5-34B-Chat-16K
+hallucination times: 0
+total analysis time: 1.6967651844024658
+
+author and publish time(not formated): {'source': 'MIT Technology Review', 'publish_date': 'NA'}
+infos(not formated): 
+大模型技术突破与创新: The latest advances in the quest to build machines that can reason, learn, and act intelligently.
+more urls: 
+
+
+************
+
