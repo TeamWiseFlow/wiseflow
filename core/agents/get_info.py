@@ -117,7 +117,6 @@ url2
         return result['source'], extract_and_convert_dates(result['publish_date'])
 
     async def get_more_related_urls(self, link_dict: dict, og_url: str) -> set[str]:
-        """
         if not link_dict:
             return set()
         self.logger.debug(f'{len(link_dict)} items to analyze')
@@ -155,8 +154,6 @@ url2
             self.logger.warning(f"{hallucination_urls} not in link_dict, it's model's Hallucination")
 
         return urls & raw_urls
-        """
-        return set()
 
     async def get_info(self, text: str, info_pre_fix: str, link_dict: dict) -> list[dict]:
         if not text:
