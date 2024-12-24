@@ -10,22 +10,32 @@
 
 https://github.com/user-attachments/assets/f6fec29f-2b4b-40f8-8676-8433abb086a7
 
-## 🔥 V0.3.5 버전 소개
+## 🔥 테스트 스크립트 및 테스트 보고서 발표
 
-커뮤니티 피드백을 충분히 수렴한 후, 우리는 wiseflow의 제품 위치를 재정립하였으며, 새로운 위치는 더욱 집중되어 있습니다. V0.3.5 버전은 이 새로운 위치에 기반한 완전히 새로운 아키텍처 버전입니다.
+siliconflow에서 제공하는 deepseekV2.5, Qwen2.5-32B-Instruct, Qwen2.5-14B-Instruct, Qwen2.5-coder-7B-Instruct 모델의 성능을 4개의 실제 사례 작업과 총 10개의 실제 웹페이지 샘플에서 수평적으로 테스트하고 비교했습니다.
+테스트 결과는 [report](./test/reports/wiseflow_report_20241223_bigbrother666/README.md)를 참조하세요.
 
-- [Crawlee](https://github.com/apify/crawlee-python)를 기본 크롤러 및 작업 관리 프레임워크로 도입하여 페이지 획득 능력을 크게 향상시켰습니다. 이전에 획득할 수 없었던 (또는 코드가 깨진) 페이지를 현재는 잘 획득할 수 있습니다. 향후 획득이 잘 되지 않는 페이지가 있다면, [issue #136](https://github.com/TeamWiseFlow/wiseflow/issues/136)에 피드백을 주시기 바랍니다.
-- 새로운 제품 위치에 따른 새로운 정보 추출 전략 — "크롤링과 조사 통합"을 도입하였습니다. 기사 상세 추출을 포기하고, 크롤링 과정에서 llm을 사용하여 사용자가 관심 있는 정보(infos)를 직접 추출하며, 추가로 크롤링할 가치가 있는 링크를 자동으로 판단합니다. **당신이 관심 있는 것이 당신이 필요한 것입니다.**
-- 최신 버전(v0.23.4)의 Pocketbase에 적합하며, 폼 구성을 업데이트하였습니다. 또한 새로운 아키텍처는 GNE 등의 모듈이 더 이상 필요하지 않으며, requirement 종속 항목이 8개로 줄었습니다.
-- 새로운 아키텍처의 배포 방식도 더욱 간편해졌으며, docker 모드는 코드 저장소 핫 업데이트를 지원합니다. 이는 향후 업그레이드 시 docker build를 다시 수행할 필요가 없음을 의미합니다.
-- 더 많은 세부 사항은 [CHANGELOG](CHANGELOG.md)를 참조하세요.
+또한 테스트 스크립트도 오픈소스로 공개했으니, 더 많은 테스트 결과를 적극적으로 제출해 주시기 바랍니다. wiseflow는 오픈소스 프로젝트이며, 모두의 공동 기여를 통해 "누구나 사용할 수 있는 정보 수집 도구"를 만들고자 합니다!
 
-🌟 **V0.3.x 향후 계획**
+자세한 내용은 [test/README_EN.md](./test/README_EN.md)를 참조하세요.
 
-- [SeeAct](https://github.com/OSU-NLP-Group/SeeAct) 방식을 도입하여, 시각 대형 모델을 통해 복잡한 페이지의 작업을 지원합니다. 예를 들어, 스크롤, 클릭 후 정보 표시 등 (V0.3.6).
-- 위챗 공중 계정 무료 구독 지원 시도 (V0.3.7).
-- RSS 정보 소스 지원 도입 (V0.3.8).
-- LLM 기반의 경량 지식 그래프 도입 시도, 사용자가 infos에서 통찰력을 구축하는 데 도움을 줍니다 (V0.3.9).
+현 단계에서는 **테스트 결과 제출이 프로젝트 코드 제출과 동일하게 취급**되며, contributor로 인정받을 수 있고, 심지어 상업화 프로젝트에 초대될 수도 있습니다!
+
+또한 pocketbase의 다운로드 및 사용자 이름/비밀번호 구성 방안을 개선했으며, @ourines가 기여한 install_pocketbase.sh 스크립트에 감사드립니다.
+
+(docker 실행 방안은 일시적으로 제거되었습니다. 사용하기에 그다지 편리하지 않다고 느껴져서...)
+
+🌟 **V0.3.6 버전 예고**
+
+V0.3.6 버전은 2024년 12월 30일 이전에 출시될 예정이며, 이 버전은 v0.3.5의 성능 최적화 버전입니다. 정보 추출 품질이 크게 향상될 것이며, 시각적 대형 모델도 도입하여 웹페이지 정보가 부족할 때 페이지 이미지 정보를 보완 자료로 추출할 예정입니다.
+
+**V0.3.x 계획**
+
+- 위챗 공중 계정 wxbot 없이 구독 지원 시도 (V0.3.7)
+- RSS 정보 소스 지원 도입 (V0.3.8)
+- LLM 기반의 경량 지식 그래프 도입 시도, 사용자가 infos에서 통찰력을 구축하도록 지원 (V0.3.9)
+
+V0.3.5 버전부터 wiseflow는 완전히 새로운 아키텍처를 사용하며, [Crawlee](https://github.com/apify/crawlee-python)를 기본 크롤러 및 작업 관리 프레임워크로 도입하여 페이지 획득 능력을 크게 향상시켰습니다. 앞으로도 wiseflow의 페이지 획득 능력을 지속적으로 향상시킬 예정이며, 잘 획득되지 않는 페이지가 있다면 [issue #136](https://github.com/TeamWiseFlow/wiseflow/issues/136)에서 피드백을 주시기 바랍니다.
 
 ## ✋ wiseflow는 전통적인 크롤러 도구, AI 검색, 지식 베이스(RAG) 프로젝트와 어떻게 다를까요?
 
@@ -49,108 +59,106 @@ wiseflow는 2024년 6월 말 V0.3.0 버전 출시 이후 오픈소스 커뮤니�
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-### 2. env_sample 참조하여 .env 파일 구성하고 core 디렉토리에 배치
+### 2. 루트 디렉토리에서 install_pocketbase.sh 스크립트 실행
 
-🌟 **이전 버전과 다릅니다** V0.3.5부터 .env 파일을 core 폴더에 배치해야 합니다.
+이 스크립트는 pocketbase(버전 0.23.4)의 다운로드 및 구성을 안내하고 core 디렉토리 아래에 .env 파일을 생성합니다.
 
-또한 V0.3.5부터 env 구성이 크게 단순화되었으며, 필수 구성 항목은 세 가지뿐입니다. 구체적인 내용은 다음과 같습니다:
+```bash
+chmod +x install_pocketbase.sh
+./install_pocketbase.sh
+```
 
-- LLM_API_KEY=""
+Wiseflow 0.3.x는 데이터베이스로 pocketbase를 사용합니다. pocketbase 클라이언트를 수동으로 다운로드할 수도 있습니다(버전 0.23.4를 다운로드하여 [pb](./pb) 디렉토리에 배치하는 것을 잊지 마세요). 그리고 수퍼유저를 수동으로 생성할 수 있습니다(.env 파일에 저장하는 것을 잊지 마세요).
 
-    대형 모델 서비스 키, 이는 필수입니다.
+자세한 내용은 [pb/README.md](/pb/README.md)를 참조하세요.
 
-- LLM_API_BASE="https://api.siliconflow.cn/v1" 
+### 3. core/.env 파일 구성 계속하기
 
-    서비스 인터페이스 주소, openai sdk를 지원하는 모든 서비스 제공자를 사용할 수 있습니다. openai 서비스를 직접 사용하는 경우, 이 항목은 비워둘 수 있습니다.
+🌟 **이전 버전과 다릅니다** - V0.3.5부터 .env 파일은 [core](./core) 폴더에 위치해야 합니다.
 
-- PB_API_AUTH="test@example.com|1234567890" 
+#### 3.1 대규모 언어 모델 구성
 
-  pocketbase 데이터베이스의 superuser 사용자 이름 및 비밀번호, |로 구분하세요.
+Wiseflow는 LLM 네이티브 애플리케이션이므로 프로그램에 안정적인 LLM 서비스를 제공하도록 해주세요.
 
-아래는 선택적 구성입니다:
+🌟 **Wiseflow는 모델 서비스의 출처를 제한하지 않습니다 - ollama, Xinference 등 로컬에 배포된 서비스를 포함하여 openAI SDK와 호환되는 서비스라면 모두 사용할 수 있습니다**
+
+#### 추천 1: Siliconflow가 제공하는 MaaS 서비스 사용
+
+Siliconflow는 대부분의 주류 오픈소스 모델에 대한 온라인 MaaS 서비스를 제공합니다. 축적된 추론 가속화 기술로 속도와 가격 모두에서 큰 장점이 있습니다. siliconflow의 서비스를 사용할 때 .env 구성은 다음을 참조할 수 있습니다:
+
+```bash
+export LLM_API_KEY=Your_API_KEY
+export LLM_API_BASE="https://api.siliconflow.cn/v1"
+export PRIMARY_MODEL="Qwen/Qwen2.5-32B-Instruct"
+export SECONDARY_MODEL="Qwen/Qwen2.5-7B-Instruct"
+export VL_MODEL="OpenGVLab/InternVL2-26B"
+```
+      
+😄 원하신다면 제 [siliconflow 추천 링크](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92)를 사용하실 수 있습니다. 이를 통해 제가 더 많은 토큰 보상을 받을 수 있습니다 🌹
+
+#### 추천 2: OpenAI, Claude, Gemini와 같은 폐쇄형 상용 모델에는 AiHubMix 프록시 사용
+
+정보 소스가 대부분 비한국어 페이지이고 추출된 정보가 한국어일 필요가 없다면, OpenAI, Claude, Gemini와 같은 폐쇄형 상용 모델을 사용하는 것이 좋습니다. 서드파티 프록시인 **AiHubMix**를 시도해볼 수 있습니다. 하나의 API로 OpenAI, Claude, Google, Llama 등 주요 AI 모델에 원활하게 접근할 수 있습니다.
+
+AiHubMix 모델을 사용할 때 .env 구성은 다음을 참조할 수 있습니다:
+
+```bash
+export LLM_API_KEY=Your_API_KEY
+export LLM_API_BASE="https://aihubmix.com/v1" # 具体参考 https://doc.aihubmix.com/
+export PRIMARY_MODEL="gpt-4o"
+export SECONDARY_MODEL="gpt-4o-mini"
+export VL_MODEL="gpt-4o"
+```
+
+😄 Welcome to register using the [AiHubMix referral link](https://aihubmix.com?aff=Gp54) 🌹
+
+#### 3.2 Pocketbase Account and Password Configuration
+
+```bash
+export PB_API_AUTH="test@example.com|1234567890" 
+```
+
+여기서 pocketbase 데이터베이스의 슈퍼유저 사용자 이름과 비밀번호를 설정합니다. |로 구분하는 것을 잊지 마세요 (install_pocketbase.sh 스크립트가 성공적으로 실행되었다면 이미 존재할 것입니다)
+
+#### 3.3 기타 선택적 구성
+
+다음은 모두 선택적 구성입니다:
 - #VERBOSE="true" 
 
-  관찰 모드 활성화 여부, 활성화하면 debug log 정보가 logger 파일에 기록됩니다 (기본적으로 console에만 출력됨). 또한 playwright 브라우저 창이 열리므로 크롤링 과정을 관찰하기 쉽습니다.
-
-- #PRIMARY_MODEL="Qwen/Qwen2.5-7B-Instruct"
-
-    주 모델 선택, siliconflow 서비스를 사용하는 경우, 이 항목을 비워두면 기본적으로 Qwen2.5-7B-Instruct가 호출됩니다. 실제로 충분히 사용 가능하지만, 저는 **Qwen2.5-14B-Instruct**를 더 추천합니다.
-
-- #SECONDARY_MODEL="THUDM/glm-4-9b-chat" 
-
-    보조 모델 선택, siliconflow 서비스를 사용하는 경우, 이 항목을 비워두면 기본적으로 glm-4-9b-chat가 호출됩니다.
+  관찰 모드를 활성화할지 여부. 활성화되면 디버그 정보가 로거 파일에 기록됩니다(기본적으로 콘솔에만 출력);
 
 - #PROJECT_DIR="work_dir" 
 
-    프로젝트 실행 데이터 디렉토리, 구성하지 않으면 기본적으로 `core/work_dir`에 저장됩니다. 주의: 현재 전체 core 디렉토리는 container에 마운트되어 있으므로, 여기에 직접 접근할 수 있습니다.
+    프로젝트 런타임 데이터 디렉토리. 구성하지 않으면 기본값은 `core/work_dir`입니다. 참고: 현재 전체 core 디렉토리가 컨테이너에 마운트되어 있어 직접 접근할 수 있습니다.
 
 - #PB_API_BASE="" 
 
-  pocketbase가 기본 IP 또는 포트에서 실행되지 않는 경우에만 구성해야 합니다. 기본적으로 무시하면 됩니다.
+  pocketbase가 기본 IP 또는 포트에서 실행되지 않는 경우에만 구성이 필요합니다. 기본 상황에서는 이를 무시할 수 있습니다.
 
-### 3.1 docker를 사용하여 실행
+### 4. 프로그램 실행
 
-✋ V0.3.5 버전의 아키텍처 및 종속성은 이전 버전과 크게 다릅니다. 반드시 코드를 다시 가져와 이전 버전 이미지 (pb_data 폴더 포함)를 삭제하고 다시 build하세요!
+✋ V0.3.5 버전의 아키텍처와 종속성은 이전 버전과 크게 다릅니다. 코드를 다시 가져오고, pb_data를 삭제(또는 재구축)하도록 하세요
 
-> ⚠️ 대신 루트 디렉토리의 install_pocketbase.sh 스크립트를 실행하십시오. 이 스크립트는 자동으로 pocketbase를 다운로드하고 구성합니다.
-> ```bash
-> chmod +x install_pocketbase.sh
-> ./install_pocketbase.sh
-> ```
+가상 환경을 구축하기 위해 conda를 사용하는 것을 권장합니다(물론 이 단계를 건너뛰거나 다른 Python 가상 환경 솔루션을 사용할 수 있습니다)
 
 ```bash
-cd wiseflow
-docker compose up
-```
-
-**주의:**
-
-처음 docker container를 실행할 때 프로그램이 오류를 보고할 수 있습니다. 이는 정상적인 현상입니다. 화면의 프롬프트에 따라 superuser 계정을 생성하세요 (반드시 이메일 주소를 사용하세요). 그런 다음 생성된 사용자 이름과 비밀번호를 .env 파일에 입력하고 container를 다시 시작하세요.
-
-🌟 docker 솔루션은 기본적으로 task.py를 실행하며, 이는 주기적으로 크롤링-추출 작업을 실행합니다 (시작 시 즉시 한 번 실행된 후, 매 시간마다 한 번씩 실행됩니다).
-
-### 3.2 python 환경에서 실행
-
-✋ V0.3.5 버전의 아키텍처 및 종속성은 이전 버전과 크게 다릅니다. 반드시 코드를 다시 가져와 pb_data를 삭제 (또는 재구축)하세요.
-
-conda를 사용하여 가상 환경을 구축하는 것을 추천합니다.
-
-```bash
-cd wiseflow
 conda create -n wiseflow python=3.10
 conda activate wiseflow
-cd core
-pip install -r requirements.txt
 ```
 
-그 후 [다운로드](https://pocketbase.io/docs/) 해당 pocketbase 클라이언트를 [/pb](/pb) 디렉토리에 배치하세요. 그리고
+그런 다음
 
 ```bash
+cd wiseflow
+cd core
+pip install -r requirements.txt
 chmod +x run.sh
-./run_task.sh # 사이트를 한 번만 스캔하려면 (루프 없이), ./run.sh를 사용하세요
+./run_task.sh # if you just want to scan sites one-time (no loop), use ./run.sh
 ```
 
-이 스크립트는 pocketbase가 이미 실행 중인지 자동으로 판단하며, 실행 중이 아니면 자동으로 시작합니다. 그러나 ctrl+c 또는 ctrl+z로 프로세스를 종료할 때 pocketbase 프로세스는 종료되지 않으며, terminal을 닫을 때까지 계속 실행됩니다.
+🌟 이 스크립트는 pocketbase가 이미 실행 중인지 자동으로 확인합니다. 실행 중이 아닌 경우 자동으로 시작됩니다. 단, ctrl+c 또는 ctrl+z로 프로세스를 종료할 때 터미널을 닫을 때까지 pocketbase 프로세스는 종료되지 않는다는 점에 유의하세요.
 
-또한 docker 배포와 마찬가지로, 처음 실행할 때 오류가 발생할 수 있습니다. 화면의 프롬프트에 따라 superuser 계정을 생성하세요 (반드시 이메일 주소를 사용하세요). 그런 다음 생성된 사용자 이름과 비밀번호를 .env 파일에 입력하고 다시 실행하세요.
-
-물론 다른 terminal에서 미리 pocketbase를 실행하고 설정할 수도 있습니다 (이렇게 하면 첫 번째 오류를 방지할 수 있습니다). 구체적인 내용은 [pb/README.md](/pb/README.md)를 참조하세요.
-
-### 4. 모델 추천 [2024-12-09]
-
-모델의 매개변수 수가 많을수록 더 나은 성능을 의미하지만, 실제 테스트를 통해 **Qwen2.5-7b-Instruct 및 glm-4-9b-chat 모델을 사용하면 기본적인 효과를 얻을 수 있음**이 확인되었습니다. 그러나 비용, 속도 및 효과를 종합적으로 고려할 때, 저는 주 모델 **(PRIMARY_MODEL)로 Qwen2.5-14B-Instruct를 더 추천합니다**.
-
-여기에서 siliconflow (규소 흐름)의 MaaS 서비스를 강력히 추천합니다. 여러 주요 오픈소스 모델의 서비스를 제공하며, 대량 서비스를 제공합니다. Qwen2.5-7b-Instruct 및 glm-4-9b-chat는 현재 무료 서비스를 제공합니다. (주 모델로 Qwen2.5-14B-Instruct를 사용하는 경우, 374개의 웹페이지를 크롤링하고 43개의 유효한 info를 추출하여 총 비용은 ￥3.07입니다).
-
-😄 원한다면 제 [siliconflow 초대 링크](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92)를 사용하여 등록할 수 있으며, 이 경우 저도 더 많은 token 보상을 받을 수 있습니다 🌹
-
-**만약 귀하의 정보 소스가 주로 중국어가 아닌 페이지이고, 추출된 info가 중국어일 필요가 없다면, openai 또는 claude와 같은 해외 제조사의 모델을 사용하는 것을 더 추천합니다.**
-
-타사 프록시 **AiHubMix**를 사용하여 단 하나의 API로 OpenAI, Claude, Google, Llama 등과 같은 다양한 주요 AI 모델에 원활하게 액세스할 수 있습니다.
-
-😄 다음 초대 링크 [AiHubMix 초대 링크](https://aihubmix.com?aff=Gp54)를 사용하여 등록하세요 🌹
-
-🌟 **wiseflow 자체는 어떤 모델 서비스에도 제한을 두지 않으며, openAI SDK와 호환되는 서비스라면 모두 사용 가능합니다. 로컬에 배포된 ollama, Xinference 등의 서비스도 포함됩니다.**
+run_task.sh는 주기적으로 크롤링-추출 작업을 실행합니다(시작 시 즉시 실행되고 그 후 매시간마다 실행됨). 한 번만 실행하면 되는 경우 run.sh 스크립트를 사용할 수 있습니다.
 
 ### 5. **관심사 및 정기 스캔 정보 소스 추가**
 

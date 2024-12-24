@@ -10,22 +10,32 @@
 
 https://github.com/user-attachments/assets/f6fec29f-2b4b-40f8-8676-8433abb086a7
 
-## 🔥 Introducing Version V0.3.5
+## 🔥 Test Scripts and Test Reports Release
 
-Based on extensive community feedback, we have refined the product positioning of wiseflow, making it more focused. Version V0.3.5 is the new architecture version under this positioning:
+We have horizontally tested and compared the performance of deepseekV2.5, Qwen2.5-32B-Instruct, Qwen2.5-14B-Instruct, and Qwen2.5-coder-7B-Instruct models provided by siliconflow across four real-case tasks and a total of ten real webpage samples.
+Please refer to the [report](./test/reports/wiseflow_report_20241223_bigbrother666/README.md) for test results.
 
-- Introduced [Crawlee](https://github.com/apify/crawlee-python) as the basic crawler and task management framework, significantly enhancing page acquisition capabilities. Pages that were previously unobtainable (including those obtained as garbled text) can now be acquired well. If you encounter pages that cannot be acquired well, please provide feedback in [issue #136](https://github.com/TeamWiseFlow/wiseflow/issues/136);
-- New information extraction strategy under the new product positioning—"crawling and checking integration," abandoning detailed article extraction. During the crawling process, LLM directly extracts user-interested information (infos), and automatically judges links worth following up on. **What you focus on is what you need**;
-- Adapted to the latest version (v0.23.4) of Pocketbase, updated form configuration. Additionally, the new architecture no longer requires modules like GNE, reducing the number of requirement dependencies to 8;
-- The new architecture deployment scheme is also more convenient, with Docker mode supporting hot updates of the code repository. This means that subsequent upgrades no longer require repeated Docker builds.
-- For more details, refer to [CHANGELOG](CHANGELOG.md)
+We have also open-sourced the test scripts and welcome everyone to actively submit more test results. Wiseflow is an open-source project, and we hope to create an "information crawling tool that everyone can use" through our collective contributions!
 
-🌟 **Future Plans for V0.3.x**
+For details, please refer to [test/README_EN.md](./test/README_EN.md)
 
-- Introduce [SeeAct](https://github.com/OSU-NLP-Group/SeeAct) solution, guiding complex page operations through visual large models, such as scrolling, clicking to reveal information (V0.3.6);
-- Attempt to support WeChat official account subscription without wxbot (V0.3.7);
-- Introduce support for RSS information sources (V0.3.8);
-- Attempt to introduce a lightweight knowledge graph driven by LLM to help users build insights from infos (V0.3.9).
+At this stage, **submitting test results is equivalent to submitting project code**, and you will similarly be accepted as a contributor and may even be invited to participate in commercialization projects!
+
+Additionally, we have improved the download and username/password configuration solution for pocketbase. Thanks to @ourines for contributing the install_pocketbase.sh script.
+
+(The docker deployment solution has been temporarily removed as we felt it wasn't very convenient for users...)
+
+🌟 **V0.3.6 Version Preview**
+
+Version V0.3.6 is planned for release before December 30, 2024. This version is a performance optimization of v0.3.5, with significant improvements in information extraction quality. It will also introduce visual large models to extract page image information as supplementary when webpage information is insufficient.
+
+**V0.3.x Plan**
+
+- Attempt to support WeChat official account subscription without wxbot (V0.3.7)
+- Introduce support for RSS information sources (V0.3.8)
+- Attempt to introduce LLM-driven lightweight knowledge graphs to help users build insights from infos (V0.3.9)
+
+Starting from version V0.3.5, wiseflow uses a completely new architecture and introduces [Crawlee](https://github.com/apify/crawlee-python) as the basic crawler and task management framework, significantly improving page acquisition capabilities. We will continue to enhance wiseflow's page acquisition capabilities. If you encounter pages that cannot be properly acquired, please provide feedback in [issue #136](https://github.com/TeamWiseFlow/wiseflow/issues/136).
 
 ## ✋ How is wiseflow Different from Traditional Crawler Tools, AI Search, and Knowledge Base (RAG) Projects?
 
@@ -49,109 +59,106 @@ However, we have also noticed some misunderstandings about the functional positi
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-### 2. Refer to env_sample to Configure the .env File and Place it in the Core Directory
+### 2. Execute the install_pocketbase.sh script in the root directory
 
-🌟 **This is different from previous versions**, starting from V0.3.5, the .env file needs to be placed in the core folder.
+This script will guide you through downloading and configuring pocketbase (version 0.23.4), and create a .env file under core.
 
-Additionally, the env configuration has been greatly simplified from V0.3.5, with only three required configuration items, as follows:
+```bash
+chmod +x install_pocketbase.sh
+./install_pocketbase.sh
+```
 
-- LLM_API_KEY=""
+Wiseflow 0.3.x uses pocketbase as its database. You can also manually download the pocketbase client (remember to download version 0.23.4 and place it in the [pb](./pb) directory) and manually create the superuser (remember to save it in the .env file).
 
-    Large model service key, this is mandatory
+For details, please refer to [pb/README.md](/pb/README.md)
 
-- LLM_API_BASE="https://api.siliconflow.cn/v1" 
+### 3. Continue Configuring the core/.env File
 
-    Service interface address, any service provider supporting openai sdk can be used. If you directly use openai services, this item can also be left blank
+🌟 **This is different from previous versions** - starting from V0.3.5, the .env file needs to be placed in the [core](./core) folder.
 
-- PB_API_AUTH="test@example.com|1234567890" 
+#### 3.1 Large Language Model Configuration
 
-  Pocketbase database superuser username and password, remember to separate with |
+Wiseflow is a LLM native application, so please ensure you provide stable LLM service for the program.
 
-The following are optional configurations:
+🌟 **Wiseflow does not restrict the source of model services - as long as the service is compatible with the openAI SDK, including locally deployed services like ollama, Xinference, etc.**
+
+#### Recommendation 1: Use MaaS Service Provided by Siliconflow
+
+Siliconflow provides online MaaS services for most mainstream open-source models. With its accumulated acceleration inference technology, its service has great advantages in both speed and price. When using siliconflow's service, the .env configuration can refer to the following:
+
+```bash
+export LLM_API_KEY=Your_API_KEY
+export LLM_API_BASE="https://api.siliconflow.cn/v1"
+export PRIMARY_MODEL="Qwen/Qwen2.5-32B-Instruct"
+export SECONDARY_MODEL="Qwen/Qwen2.5-7B-Instruct"
+export VL_MODEL="OpenGVLab/InternVL2-26B"
+```
+      
+😄 If you'd like, you can use my [siliconflow referral link](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92), which will help me earn more token rewards 🌹
+
+#### Recommendation 2: Use AiHubMix Proxy for Closed-Source Commercial Models like OpenAI, Claude, Gemini
+
+If your information sources are mostly non-Chinese pages and you don't require the extracted info to be in Chinese, then it's recommended to use closed-source commercial models like OpenAI, Claude, Gemini. You can try the third-party proxy **AiHubMix**, seamlessly access a wide range of leading AI models like OpenAI, Claude, Google, Llama, and more with just one API.
+
+When using AiHubMix models, the .env configuration can refer to the following:
+
+```bash
+export LLM_API_KEY=Your_API_KEY
+export LLM_API_BASE="https://aihubmix.com/v1" # 具体参考 https://doc.aihubmix.com/
+export PRIMARY_MODEL="gpt-4o"
+export SECONDARY_MODEL="gpt-4o-mini"
+export VL_MODEL="gpt-4o"
+```
+
+😄 Welcome to register using the [AiHubMix referral link](https://aihubmix.com?aff=Gp54) 🌹
+
+#### 3.2 Pocketbase Account and Password Configuration
+
+```bash
+export PB_API_AUTH="test@example.com|1234567890" 
+```
+
+This is where you set the superuser username and password for the pocketbase database, remember to separate them with | (if the install_pocketbase.sh script executed successfully, this should already exist)
+
+#### 3.3 Other Optional Configurations
+
+The following are all optional configurations:
 - #VERBOSE="true" 
 
-   Whether to enable observation mode. If enabled, not only will debug log information be recorded in the logger file (default is only output to the console), but the playwright browser window will also be opened to facilitate observation of the crawling process;
-
-- #PRIMARY_MODEL="Qwen/Qwen2.5-7B-Instruct"
-
-    Main model selection. When using siliconflow services, this item left blank will default to Qwen2.5-7B-Instruct, which is practically sufficient, but I **recommend Qwen2.5-14B-Instruct** more
-
-- #SECONDARY_MODEL="THUDM/glm-4-9b-chat" 
-
-    Secondary model selection. When using siliconflow services, this item left blank will default to glm-4-9b-chat.
+  Whether to enable observation mode. When enabled, debug information will be recorded in the logger file (by default only output to console);
 
 - #PROJECT_DIR="work_dir" 
 
-    Project runtime data directory. If not configured, the default is `core/work_dir`. Note: The entire core directory is mounted under the container, meaning you can directly access it.
+    Project runtime data directory. If not configured, defaults to `core/work_dir`. Note: Currently the entire core directory is mounted under the container, meaning you can access it directly.
 
 - #PB_API_BASE="" 
 
-   Only required when your pocketbase is not running on the default IP or port. Ignored by default.
+  Only needs to be configured if your pocketbase is not running on the default IP or port. Under default circumstances, you can ignore this.
 
-### 3.1 Run Using Docker
-
-✋ The V0.3.5 version architecture and dependencies are significantly different from previous versions. Please make sure to re-pull the code, delete the old version image (including the mounted pb_data folder), and rebuild!
-
-```bash
-cd wiseflow
-docker compose up
-```
-
-**Note:**
-
-The first time you run the Docker container, the program may report an error, which is normal. Please follow the screen prompts to create a super user account (must use an email), then fill in the created username and password into the .env file, and restart the container.
-
-🌟 The Docker solution defaults to running task.py, which will periodically execute crawling-extraction tasks (immediately executes once at startup, then every hour thereafter)
-
-### 3.2 Run Using Python Environment
+### 4. Running the Program
 
 ✋ The V0.3.5 version architecture and dependencies are significantly different from previous versions. Please make sure to re-pull the code, delete (or rebuild) pb_data
 
-> ⚠️ Alternatively, execute the install_pocketbase.sh script in the root directory, which will automatically download and configure pocketbase.
-> ```bash
-> chmod +x install_pocketbase.sh
-> ./install_pocketbase.sh
-> ```
+It is recommended to use conda to build a virtual environment (of course you can skip this step, or use other Python virtual environment solutions)
 
-It is recommended to use conda to build a virtual environment
+```bash
+conda create -n wiseflow python=3.10
+conda activate wiseflow
+```
+
+then
 
 ```bash
 cd wiseflow
-conda create -n wiseflow python=3.10
-conda activate wiseflow
 cd core
 pip install -r requirements.txt
-```
-
-Then go here [Download](https://pocketbase.io/docs/) the corresponding pocketbase client and place it in the [/pb](/pb) directory. Then
-
-```bash
 chmod +x run.sh
 ./run_task.sh # if you just want to scan sites one-time (no loop), use ./run.sh
 ```
 
-This script will automatically determine if pocketbase is already running. If not, it will automatically start. However, please note that when you terminate the process with ctrl+c or ctrl+z, the pocketbase process will not be terminated until you close the terminal.
+🌟 This script will automatically determine if pocketbase is already running. If not, it will automatically start. However, please note that when you terminate the process with ctrl+c or ctrl+z, the pocketbase process will not be terminated until you close the terminal.
 
-Similarly to Docker deployment, the first run may result in an error. Please follow the screen prompts to create a super user account (must use an email), then fill in the created username and password into the .env file and run again.
-
-Of course, you can also run and set up pocketbase in another terminal in advance (this will avoid the first error). For details, please refer to [pb/README.md](/pb/README.md)
-
-### 4. Model Recommendations [2024-12-09]
-
-Although larger models generally mean better performance, practical tests show that **using Qwen2.5-7b-Instruct and glm-4-9b-chat models can achieve basic effects**. However, considering cost, speed, and effect, I **recommend using Qwen2.5-14B-Instruct as the main model (PRIMARY_MODEL)**.
-
-Here, I still strongly recommend using siliconflow's MaaS service, which provides services for multiple mainstream open-source models, with ample supply. Qwen2.5-7b-Instruct and glm-4-9b-chat currently offer free services. (When using Qwen2.5-14B-Instruct as the main model, crawling 374 web pages, effectively extracting 43 infos, total cost ￥3.07)
-      
-😄 If you are willing, you can use my [siliconflow invitation link](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92), so I can also get more token rewards 🌹
-
-**If your information sources are mostly non-Chinese pages and you do not require the extracted infos to be in Chinese, it is more recommended to use models from overseas manufacturers such as openai or claude.**
-   
-You can try the third-party proxy **AiHubMix**, seamlessly access a wide range of leading AI models like OpenAI, Claude, Google, Llama, and more with just one API.
-
-😄 Welcome to use the following invitation link [AiHubMix invitation link](https://aihubmix.com?aff=Gp54) to register 🌹
-
-🌟 **Please note that wiseflow itself does not limit any model services, as long as the service is compatible with the openAI SDK, including locally deployed services like ollama, Xinference, etc.**
-
+run_task.sh will periodically execute crawling-extraction tasks (it will execute immediately at startup, then every hour after that). If you only need to execute once, you can use the run.sh script.
 
 ### 5. **Adding Focus Points and Scheduled Scanning of Information Sources**
     
@@ -199,7 +206,7 @@ PocketBase, as a popular lightweight database, currently has SDKs for Go/Javascr
 
 This project is open-source under the [Apache2.0](LICENSE) license.
 
-For commercial and custom cooperation, please contact **Email: 35252986@qq.com**
+For commercial and custom cooperation, please contact **Email: zm.zhao@foxmail.com**
 
 - Commercial customers, please contact us for registration. The product promises to be forever free.
 
