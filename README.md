@@ -10,31 +10,32 @@
 
 https://github.com/user-attachments/assets/f6fec29f-2b4b-40f8-8676-8433abb086a7
 
-## 🔥 隆重介绍 V0.3.6 版本
+## 🔥 测试脚本与测试报告发布
 
-v0.3.6版本已经发布，新增使用视觉大模型作为主模型，大幅提升页面获取能力。
+我们在四个现实案例任务以及共计十个真实网页 sample 中横向测试并比较了由 siliconflow 提供的deepseekV2.5、Qwen2.5-32B-Instruct、Qwen2.5-14B-Instruct、Qwen2.5-coder-7B-Instruct 模型的表现情况，
+测试结果请参考 [report](./test/reports/wiseflow_report_20241223_bigbrother666/README.md)
 
-使用视觉大模型通过分析页面截屏信息提取效果 vs 使用文本大模型通过分析页面文本信息提取效果：
+同时我们也将测试脚本进行开源，欢迎大家踊跃提交更多测试结果，wiseflow 是一个开源项目，希望通过大家共同的贡献，打造“人人可用的信息爬取工具”！
 
-![image](https://github.com/user-attachments/assets/f6fec29f-2b4b-40f8-8676-8433abb086a7)
+具体请参考 [test/README.md](./test/README.md) 
 
-同时本版本改进了 pocketbase 的前期下载以及用户名密码配置方案，感谢 @ourines 贡献了 install_pocketbase.sh 脚本。
+现阶段，**提交测试结果等同于提交项目代码**，同样会被接纳为contributor，甚至受邀参加商业化项目！
+
+另外我们改进了 pocketbase 的下载以及用户名密码配置方案，感谢 @ourines 贡献了 install_pocketbase.sh 脚本。
 
 (docker运行方案被暂时移除了，感觉大家用起来也不是很方便……)
 
-- 更多细节，参考 [CHANGELOG](CHANGELOG.md)
+🌟 **V0.3.6 版本预告**
 
-🌟 **V0.3.x 版本介绍**
+V0.3.6 版本计划于2024年12月30日前发布，该版本是 v0.3.5 的性能优化版本，信息抽取质量将有质的提升，同时还会引入视觉大模型，在网页信息不足时提取页面图片信息作为补充。
 
-在充分听取社区反馈意见基础之上，我们重新提炼了 wiseflow 的产品定位，新定位更加聚焦，自V0.3.5版本开始 wiseflow 使用全新的架构，并引入 [Crawlee](https://github.com/apify/crawlee-python) 作为基础爬虫和任务管理框架，大幅提升页面获取能力。后续我们会持续提升wiseflow 的页面获取能力，大家碰到不能很好获取的页面，欢迎在 [issue #136](https://github.com/TeamWiseFlow/wiseflow/issues/136) 中进行反馈；
-
-另外 V0.3.5开始，wiseflow 采用全新的信息提取策略——“爬查一体”，放弃文章详细提取，爬取过程中即使用 llm 直接提取用户感兴趣的信息（infos），同时自动判断值得跟进爬取的链接，**你关注的才是你需要的**；
-
-**V0.3.x 后续计划**
+**V0.3.x 计划**
 
 - 尝试支持微信公众号免wxbot订阅（V0.3.7）；
-- 引入对 RSS 信息源的支持（V0.3.8）;~
+- 引入对 RSS 信息源的支持（V0.3.8）;
 - 尝试引入 LLM 驱动的轻量级知识图谱，帮助用户从 infos 中建立洞察（V0.3.9）。
+
+自V0.3.5版本开始 wiseflow 使用全新的架构，并引入 [Crawlee](https://github.com/apify/crawlee-python) 作为基础爬虫和任务管理框架，大幅提升页面获取能力。后续我们会持续提升wiseflow 的页面获取能力，大家碰到不能很好获取的页面，欢迎在 [issue #136](https://github.com/TeamWiseFlow/wiseflow/issues/136) 中进行反馈。
 
 ## ✋ wiseflow 与传统的爬虫工具、AI搜索、知识库（RAG）项目有何不同？
 
@@ -73,34 +74,57 @@ wiseflow 0.3.x版本使用 pocketbase 作为数据库，你当然也可以手动
 
 ### 3. 继续配置 core/.env 文件
 
-🌟 **这里与之前版本不同**，V0.3.5开始需要把 .env 放置在 core文件夹中。
+🌟 **这里与之前版本不同**，V0.3.5开始需要把 .env 放置在 [core](./core) 文件夹中。
 
-另外 V0.3.5 起，env 配置也大幅简化了，必须的配置项目只有三项，具体如下：
+#### 3.1 大模型相关配置
 
-- LLM_API_KEY=""
+wiseflow 是 LLM 原生应用，请务必保证为程序提供稳定的 LLM 服务。
 
-    大模型服务key，这是必须的
+🌟 **wiseflow 并不限定模型服务提供来源，只要服务兼容 openAI SDK 即可，包括本地部署的 ollama、Xinference 等服务**
 
-- LLM_API_BASE="https://api.siliconflow.cn/v1" 
+#### 推荐1：使用硅基流动（siliconflow）提供的 MaaS 服务
 
-    服务接口地址，任何支持 openai sdk 的服务商都可以，如果直接使用openai 的服务，这一项也可以不填
+siliconflow（硅基流动）提供大部分主流开源模型的在线 MaaS 服务，凭借着自身的加速推理技术积累，其服务速度和价格方面都有很大优势。使用 siliconflow 的服务时，.env的配置可以参考如下：
 
-- PB_API_AUTH="test@example.com|1234567890" 
+```bash
+export LLM_API_KEY=Your_API_KEY
+export LLM_API_BASE="https://api.siliconflow.cn/v1"
+export PRIMARY_MODEL="Qwen/Qwen2.5-32B-Instruct"
+export SECONDARY_MODEL="Qwen/Qwen2.5-7B-Instruct"
+export VL_MODEL="OpenGVLab/InternVL2-26B"
+```
+      
+😄 如果您愿意，可以使用我的[siliconflow邀请链接](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92)，这样我也可以获得更多token奖励 🌹
 
-  pocketbase 数据库的 superuser 用户名和密码，记得用 | 分隔 (如果 install_pocketbase.sh 脚本执行成功，这一项应该已经存在了)
+#### 推荐2：使用 AiHubMix 代理的openai、claude、gemini 等海外闭源商业模型服务
+
+如果您的信源多为非中文页面，且也不要求提取出的 info 为中文，那么更推荐您使用 openai、claude、gemini 等海外闭源商业模型。您可以尝试第三方代理 **AiHubMix**，支持国内网络环境直连、支付宝便捷支付，免去封号风险。
+使用 AiHubMix 的模型时，.env的配置可以参考如下：
+
+```bash
+export LLM_API_KEY=Your_API_KEY
+export LLM_API_BASE="https://aihubmix.com/v1" # 具体参考 https://doc.aihubmix.com/
+export PRIMARY_MODEL="gpt-4o"
+export SECONDARY_MODEL="gpt-4o-mini"
+export VL_MODEL="gpt-4o"
+```
+
+😄 欢迎使用 [AiHubMix邀请链接](https://aihubmix.com?aff=Gp54) 注册 🌹
+
+#### 3.2 pocketbase 账号密码配置
+
+```bash
+export PB_API_AUTH="test@example.com|1234567890" 
+```
+
+这里pocketbase 数据库的 superuser 用户名和密码，记得用 | 分隔 (如果 install_pocketbase.sh 脚本执行成功，这一项应该已经存在了)
+
+#### 3.3 其他可选配置
 
 下面的都是可选配置：
 - #VERBOSE="true" 
 
-  是否开启观测模式，开启的话，不仅会把 debug log信息记录在 logger 文件上（默认仅输出在 console 上），同时会开启 playwright 的浏览器窗口，方便观察抓取过程；
-
-- #PRIMARY_MODEL="Qwen/Qwen2.5-7B-Instruct"
-
-    主模型选择，在使用 siliconflow 服务的情况下，这一项不填就会默认调用Qwen2.5-7B-Instruct，实测基本也够用，但我更加**推荐 Qwen2.5-14B-Instruct**
-
-- #SECONDARY_MODEL="THUDM/glm-4-9b-chat" 
-
-    副模型选择，在使用 siliconflow 服务的情况下，这一项不填就会默认调用glm-4-9b-chat。
+  是否开启观测模式，开启的话会把 debug 信息记录在 logger 文件上（默认仅输出在 console 上）；
 
 - #PROJECT_DIR="work_dir" 
 
@@ -110,7 +134,7 @@ wiseflow 0.3.x版本使用 pocketbase 作为数据库，你当然也可以手动
 
   只有当你的 pocketbase 不运行在默认ip 或端口下才需要配置，默认情况下忽略就行。
 
-### 4. 使用python环境运行
+### 4. 运行程序
 
 ✋ V0.3.5版本架构和依赖与之前版本有较大不同，请务必重新拉取代码，删除（或重建）pb_data
 
@@ -135,29 +159,11 @@ chmod +x run.sh
 
 run_task.sh 会周期性执行爬取-提取任务（启动时会立即先执行一次，之后每隔一小时启动一次）, 如果仅需执行一次，可以使用 run.sh 脚本。
 
-### 5. 模型推荐 [2024-12-09]
-
-虽然参数量越大的模型意味着更佳的性能，但经过实测，**使用 Qwen2.5-7b-Instruct 和 glm-4-9b-chat 模型，即可以达到基本的效果**。不过综合考虑成本、速度和效果，我更加推荐主模型
-**（PRIMARY_MODEL）使用Qwen2.5-14B-Instruct**。
-
-这里依然强烈推荐使用 siliconflow（硅基流动）的 MaaS 服务，提供多个主流开源模型的服务，量大管饱，Qwen2.5-7b-Instruct 和 glm-4-9b-chat 目前提供免费服务。（主模型使用Qwen2.5-14B-Instruct情况下，爬取374个网页，有效抽取43条 info，总耗费￥3.07）
-      
-😄 如果您愿意，可以使用我的[siliconflow邀请链接](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92)，这样我也可以获得更多token奖励 🌹
-
-**如果您的信源多为非中文页面，且也不要求提取出的 info 为中文，那么更推荐您使用 openai 或者 claude 等海外厂家的模型。**
-   
-您可以尝试第三方代理 **AiHubMix**，支持国内网络环境直连、支付宝便捷支付，免去封号风险；
-
-😄 欢迎使用如下邀请链接 [AiHubMix邀请链接](https://aihubmix.com?aff=Gp54) 注册 🌹
-
-🌟 **请注意 wiseflow 本身并不限定任何模型服务，只要服务兼容 openAI SDK 即可，包括本地部署的 ollama、Xinference 等服务**
-
-
-### 6. **关注点和定时扫描信源添加**
+### 5. **关注点和定时扫描信源添加**
     
 启动程序后，打开pocketbase Admin dashboard UI (http://127.0.0.1:8090/_/)
     
-#### 6.1 打开 focus_point 表单
+#### 5.1 打开 focus_point 表单
 
 通过这个表单可以指定你的关注点，LLM会按此提炼、过滤并分类信息。
     
@@ -168,7 +174,7 @@ run_task.sh 会周期性执行爬取-提取任务（启动时会立即先执行�
 
 注意：focus_point 更新设定（包括 activated 调整）后，**需要重启程序才会生效。**
 
-#### 6.2 打开 sites表单
+#### 5.2 打开 sites表单
 
 通过这个表单可以指定自定义信源，系统会启动后台定时任务，在本地执行信源扫描、解析和分析。
 
@@ -199,7 +205,7 @@ PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 
 
 本项目基于 [Apache2.0](LICENSE) 开源。
 
-商用以及定制合作，请联系 **Email：35252986@qq.com**
+商用以及定制合作，请联系 **Email：zm.zhao@foxmail.com**
 
 - 商用客户请联系我们报备登记，产品承诺永远免费。
 

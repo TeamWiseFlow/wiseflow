@@ -11,8 +11,8 @@ from find_article_or_list import find_article_or_list, common_tlds, common_file_
 
 sample_dir = 'webpage_samples'
 models = ['deepseek-ai/DeepSeek-V2.5', 'Qwen/Qwen2.5-Coder-32B-Instruct', 'Qwen/Qwen2.5-32B-Instruct', 'Qwen/Qwen2.5-14B-Instruct', 'Qwen/Qwen2.5-Coder-7B-Instruct']
-secondary_mpdel = 'Qwen/Qwen2.5-7B-Instruct'
-vl_model = ''
+# secondary_model = 'Qwen/Qwen2.5-7B-Instruct' # recommended to use for source and publish date extraction
+vl_model = 'OpenGVLab/InternVL2-26B'
 
 async def generate_results(text, model, system_prompt, suffix_prompt) -> set:
     lines = text.split('\n')
@@ -31,9 +31,12 @@ async def generate_results(text, model, system_prompt, suffix_prompt) -> set:
                 print(f"warning: bad generate result")
                 text_batch = ''
                 continue
-            result = result[0].strip()
-            result = result.split('\n')
-            cache.update(result)
+            for item in result:
+                item = item.strip()
+                if not item:
+                    continue
+                item = item.split('\n')
+                cache.update(item)
             text_batch = ''
 
     if text_batch:
@@ -46,9 +49,12 @@ async def generate_results(text, model, system_prompt, suffix_prompt) -> set:
         if not result:
             print(f"warning: bad generate result")
             return cache
-        result = result[0].strip()
-        result = result.split('\n')
-        cache.update(result)
+        for item in result:
+            item = item.strip()
+            if not item:
+                continue
+            item = item.split('\n')
+            cache.update(item)
     return cache
 
 
@@ -65,13 +71,13 @@ async def extract_info_from_img(text, link_dict) -> str:
         if url in cache:
             replace_text = cache[url]
         else:
-            if any(url.lower().endswith(tld) for tld in common_tlds):
+            if any(url.lower().endswith(tld) or url.lower().endswith(tld + '/') for tld in common_tlds):
                 continue
             if any(url.lower().endswith(ext) for ext in common_file_exts if ext not in ['jpg', 'jpeg', 'png']):
                 continue
             llm_output = await llm([{"role": "user",
                                 "content": [{"type": "image_url", "image_url": {"url": url, "detail": "high"}},
-                                             {"type": "text", "text": image_system}]}], model='OpenGVLab/InternVL2-26B')
+                                             {"type": "text", "text": image_system}]}], model=vl_model)
             print(f"vl model output: \n{llm_output}\n")
             replace_text = llm_output
             cache[url] = replace_text
@@ -108,16 +114,21 @@ async def main(link_dict, text, record_file, prompts):
                     hallucination_times += 1
                     continue
                 # 从item中提取[]中的url标记
-                url_tag = re.search(r'\[(.*?)]', item).group(1)
-                if url_tag not in link_dict:
+                url_tags = re.findall(r'\[url\d+]', item)
+                if not url_tags:
                     hallucination_times += 1
                     continue
-                result_url = link_dict[url_tag]
-                if any(result_url.lower().endswith(tld) for tld in common_tlds):
+                for url_tag in url_tags:
+                    url_tag = url_tag[1:-1]  # 去掉前后的[]
+                    if url_tag not in link_dict:
+                        hallucination_times += 1
+                        continue
+                    result_url = link_dict[url_tag]
+                if any(result_url.lower().endswith(tld) or result_url.lower().endswith(tld + '/') for tld in common_tlds):
                     continue
-                if any(result_url.lower().endswith(ext) for ext in common_file_exts):
+                if any(result_url.lower().endswith(ext) for ext in common_file_exts if ext not in ['jpg', 'jpeg', 'png']):
                     continue
-                final_result.add(item)
+                final_result.add(f'{item} {result_url}')
             else:
                 result = json_repair.repair_json(item, return_objects=True)
                 if not isinstance(result, dict):
@@ -129,12 +140,12 @@ async def main(link_dict, text, record_file, prompts):
                 if 'focus' not in result or 'content' not in result:
                     hallucination_times += 1
                     continue
-                if not result['content'].strip() or not result['focus'].strip():
+                if not result['content'] or not result['focus']:
                     hallucination_times += 1
                     continue
                 if result['focus'].startswith('#'):
                     result['focus'] = result['focus'][1:]
-                final_result.add(result)
+                final_result.add(f'{result}')
 
         final_infos = '\n'.join(final_result)
 
@@ -166,6 +177,7 @@ async def main(link_dict, text, record_file, prompts):
         with open(record_file, 'a') as f:
             f.write(f"llm model: {model}\n")
             f.write(f"hallucination times: {hallucination_times}\n")
+            f.write(f"total results: {len(final_result)}\n")
             f.write(f"total analysis time: {total_analysis_time}\n\n")
             f.write(f"author and publish time(not formated): {ap_}\n")
             f.write(f"infos(not formated): \n{final_infos}\n")
@@ -177,7 +189,7 @@ async def main(link_dict, text, record_file, prompts):
 if __name__ == '__main__':
     dirs = os.listdir(sample_dir)
     for _dir in dirs:
-        if not _dir.startswith('task0'):
+        if not _dir.startswith('task'):
             continue
         _path = os.path.join(sample_dir, _dir)
         if not os.path.isdir(_path):

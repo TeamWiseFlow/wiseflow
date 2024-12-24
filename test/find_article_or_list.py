@@ -35,7 +35,7 @@ def find_article_or_list(link_dict, text) -> (bool, bool, str):
     for url in link_dict.values():
         url_lower = url.lower()
         has_common_ext = any(url_lower.endswith(ext) for ext in common_file_exts)
-        has_common_tld = any(url_lower.endswith(tld) for tld in common_tlds)
+        has_common_tld = any(url_lower.endswith(tld) or url_lower.endswith(tld + '/') for tld in common_tlds)
         if not has_common_ext and not has_common_tld:
             valid_url_count += 1
 

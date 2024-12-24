@@ -1,0 +1,7 @@
+content_judge: 2263
+special_url_count: 112
+arcile_or_list_judge: 0.049491825011047284
+************
+
+raw materials: ab9447
+

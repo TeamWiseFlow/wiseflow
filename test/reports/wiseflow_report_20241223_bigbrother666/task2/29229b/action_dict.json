@@ -1,0 +1,166 @@
+{
+    "token_id": {
+        "input": {
+            "type": "hidden",
+            "values": []
+        }
+    },
+    "Create Post": {
+        "button": {
+            "type": "button",
+            "values": [
+                "Create Post"
+            ]
+        }
+    },
+    "auth-flow-modal-close-btn": {
+        "button": {
+            "type": "button",
+            "values": []
+        }
+    },
+    "button_3": {
+        "button": {
+            "type": "button",
+            "values": []
+        }
+    },
+    "button_4": {
+        "button": {
+            "type": "button",
+            "values": []
+        }
+    },
+    "button_5": {
+        "button": {
+            "type": "button",
+            "values": []
+        }
+    },
+    "button_6": {
+        "button": {
+            "type": "button",
+            "values": []
+        }
+    },
+    "button_7": {
+        "button": {
+            "type": "button",
+            "values": []
+        }
+    },
+    "button_8": {
+        "button": {
+            "type": "button",
+            "values": []
+        }
+    },
+    "button_9": {
+        "button": {
+            "type": "button",
+            "values": []
+        }
+    },
+    "skip": {
+        "button": {
+            "type": "button",
+            "values": []
+        }
+    },
+    "resend": {
+        "button": {
+            "type": "button",
+            "values": []
+        }
+    },
+    "email-verification-submit": {
+        "button": {
+            "type": "button",
+            "values": []
+        }
+    },
+    "button_13": {
+        "button": {
+            "type": "button",
+            "values": []
+        }
+    },
+    "button_14": {
+        "button": {
+            "type": "button",
+            "values": []
+        }
+    },
+    "button_15": {
+        "button": {
+            "type": "submit",
+            "values": []
+        }
+    },
+    "button_16": {
+        "button": {
+            "type": "button",
+            "values": []
+        }
+    },
+    "button_17": {
+        "button": {
+            "type": "button",
+            "values": []
+        }
+    },
+    "button_18": {
+        "button": {
+            "type": "button",
+            "values": []
+        }
+    },
+    "button_19": {
+        "button": {
+            "type": "button",
+            "values": []
+        }
+    },
+    "button_20": {
+        "button": {
+            "type": "submit",
+            "values": []
+        }
+    },
+    "button_21": {
+        "button": {
+            "type": "button",
+            "values": []
+        }
+    },
+    "auth-password-recovery-primary-cta": {
+        "button": {
+            "type": "submit",
+            "values": []
+        }
+    },
+    "button_23": {
+        "button": {
+            "type": "button",
+            "values": []
+        }
+    },
+    "auth-password-recovery-resend-email-cta": {
+        "button": {
+            "type": "submit",
+            "values": []
+        }
+    },
+    "button_25": {
+        "button": {
+            "type": "button",
+            "values": []
+        }
+    },
+    "auth-password-reset-primary-cta": {
+        "button": {
+            "type": "submit",
+            "values": []
+        }
+    }
+}
