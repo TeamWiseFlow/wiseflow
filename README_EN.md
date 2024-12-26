@@ -8,7 +8,7 @@
 
 🌱 See how AI Intelligence Officer helps you save time, filter irrelevant information, and organize key points of interest! 🌱
 
-https://github.com/user-attachments/assets/f6fec29f-2b4b-40f8-8676-8433abb086a7
+https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 ## 🔥 Test Scripts and Test Reports Release
 

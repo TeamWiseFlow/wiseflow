@@ -8,7 +8,7 @@
 
 🌱首席情報官がどのようにあなたの時間を節約し、無関係な情報をフィルタリングし、関心のあるポイントを整理するのかを見てみましょう！🌱
 
-<iframe src="https://player.vimeo.com/video/1042199968" width="640" height="360" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 ## 🔥 テストスクリプトとテストレポートの公開
 
