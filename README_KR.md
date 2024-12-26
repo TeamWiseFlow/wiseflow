@@ -2,13 +2,13 @@
 
 **[English](README_EN.md) | [日本語](README_JP.md) | [简体中文](README.md)**
 
-🚀 **수석 정보 책임자** (Wiseflow)는 웹사이트, 위챗 공중 계정, 소셜 플랫폼 등 다양한 정보 소스에서 설정된 관심사에 따라 정보를 추출하고, 자동으로 태그를 분류하여 데이터베이스에 업로드하는 민첩한 정보 마이닝 도구입니다.
+🚀 **수석 정보 책임자** (Wiseflow)는 다양한 정보 소스에서 특정 정보를 정확하게 추출할 수 있는 민첩한 정보 마이닝 도구입니다. 대규모 언어 모델의 사고 및 분석 능력을 활용하여 인간의 개입 없이도 작동합니다.
 
 **우리가 부족한 것은 정보가 아니라, 방대한 정보 속에서 노이즈를 필터링하여 가치 있는 정보를 드러내는 것입니다.**
 
 🌱 수석 정보 책임자가 어떻게 시간을 절약하고, 관련 없는 정보를 필터링하며, 관심 사항을 정리하는지 살펴보세요! 🌱
 
-https://github.com/user-attachments/assets/f6fec29f-2b4b-40f8-8676-8433abb086a7
+<div style="padding:56.56% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1042199968?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="prompt_video_v03x"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>
 
 ## 🔥 테스트 스크립트 및 테스트 보고서 발표
 
@@ -54,6 +54,8 @@ wiseflow는 2024년 6월 말 V0.3.0 버전 출시 이후 오픈소스 커뮤니�
 ### 1. 코드 저장소 복제
 
 🌹 좋아요, fork는 좋은 습관입니다 🌹
+
+**windows 사용자는 먼저 git bash 도구를 다운로드해야 합니다** [링크](https://git-scm.com/downloads/win)
 
 ```bash
 git clone https://github.com/TeamWiseFlow/wiseflow.git
@@ -104,13 +106,25 @@ AiHubMix 모델을 사용할 때 .env 구성은 다음을 참조할 수 있습�
 
 ```bash
 export LLM_API_KEY=Your_API_KEY
-export LLM_API_BASE="https://aihubmix.com/v1" # 具体参考 https://doc.aihubmix.com/
+export LLM_API_BASE="https://aihubmix.com/v1" # refer https://doc.aihubmix.com/
 export PRIMARY_MODEL="gpt-4o"
 export SECONDARY_MODEL="gpt-4o-mini"
 export VL_MODEL="gpt-4o"
 ```
 
 😄 Welcome to register using the [AiHubMix referral link](https://aihubmix.com?aff=Gp54) 🌹
+
+#### 로컬 대규모 언어 모델 서비스 배포
+
+Xinference를 예로 들면, .env 구성은 다음을 참조할 수 있습니다:
+
+```bash
+# LLM_API_KEY='' no need for local service, please comment out or delete
+export LLM_API_BASE='http://127.0.0.1:9997'
+export PRIMARY_MODEL=launched_model_id
+export SECONDARY_MODEL=launched_model_id
+export VL_MODEL=launched_model_id
+```
 
 #### 3.2 Pocketbase Account and Password Configuration
 
@@ -205,7 +219,7 @@ PocketBase는 인기 있는 경량 데이터베이스로, 현재 Go/Javascript/P
 
 이 프로젝트는 [Apache2.0](LICENSE) 오픈소스 라이선스를 기반으로 합니다.
 
-상업적 및 맞춤형 협력은 **Email: 35252986@qq.com**으로 문의하세요.
+상업적 및 맞춤형 협력은 **Email: zm.zhao@foxmail.com**으로 문의하세요.
 
 - 상업용 고객은 등록을 위해 연락해 주세요. 제품은 영원히 무료로 제공됩니다.
 
