@@ -2,13 +2,13 @@
 
 **[English](README_EN.md) | [简体中文](README.md) | [한국어](README_KR.md)**
 
-🚀 **首席情報官**（Wiseflow）は、大規模言語モデルの思考と分析能力を活用し、人手を介さずに様々な情報源から特定の情報を正確に抽出できる俊敏な情報マイニングツールです。
+🚀 **首席情報官**（Wiseflow）は、大規模言語モデルの思考・分析能力を活用して、様々な情報源から特定の情報を正確に抽出できる俊敏な情報マイニングツールです。プロセス全体で人間の介入を必要としません。
 
 **私たちが欠けているのは情報ではなく、大量の情報からノイズをフィルタリングし、価値ある情報を明らかにすることです**
 
 🌱首席情報官がどのようにあなたの時間を節約し、無関係な情報をフィルタリングし、関心のあるポイントを整理するのかを見てみましょう！🌱
 
-<div style="padding:56.56% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1042199968?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="prompt_video_v03x"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>
+<iframe src="https://player.vimeo.com/video/1042199968?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="prompt_video_v03x"></iframe>
 
 ## 🔥 テストスクリプトとテストレポートの公開
 

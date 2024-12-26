@@ -2,7 +2,7 @@
 
 **[简体中文](README.md) | [日本語](README_JP.md) | [한국어](README_KR.md)**
 
-🚀 **Chief Intelligence Officer** (Wiseflow) is an agile information mining tool that can accurately extract specific information from various given sources, relying on the thinking and analytical capabilities of large language models, without human intervention.
+🚀 **Chief Intelligence Officer** (Wiseflow) is an agile information mining tool that can precisely extract specific information from various given sources by leveraging the thinking and analytical capabilities of large models, requiring no human intervention throughout the process.
 
 **What we lack is not information, but the ability to filter out noise from massive information, thereby revealing valuable information.**
 

@@ -2,13 +2,13 @@
 
 **[English](README_EN.md) | [日本語](README_JP.md) | [简体中文](README.md)**
 
-🚀 **수석 정보 책임자** (Wiseflow)는 다양한 정보 소스에서 특정 정보를 정확하게 추출할 수 있는 민첩한 정보 마이닝 도구입니다. 대규모 언어 모델의 사고 및 분석 능력을 활용하여 인간의 개입 없이도 작동합니다.
+🚀 **수석 정보 책임자** (Wiseflow)는 대규모 언어 모델의 사고 및 분석 능력을 활용하여 다양한 정보원에서 특정 정보를 정확하게 추출할 수 있는 민첩한 정보 마이닝 도구입니다. 전체 과정에서 인간의 개입이 필요하지 않습니다.
 
 **우리가 부족한 것은 정보가 아니라, 방대한 정보 속에서 노이즈를 필터링하여 가치 있는 정보를 드러내는 것입니다.**
 
 🌱 수석 정보 책임자가 어떻게 시간을 절약하고, 관련 없는 정보를 필터링하며, 관심 사항을 정리하는지 살펴보세요! 🌱
 
-<div style="padding:56.56% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1042199968?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="prompt_video_v03x"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>
+<iframe src="https://player.vimeo.com/video/1042199968?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="prompt_video_v03x"></iframe>
 
 ## 🔥 테스트 스크립트 및 테스트 보고서 발표
 
