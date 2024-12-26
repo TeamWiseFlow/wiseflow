@@ -2,11 +2,11 @@
 
 **[English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md)**
 
-🚀 **首席情报官**（Wiseflow）是一个敏捷的信息挖掘工具，可以从网站、微信公众号、社交平台等各种信息源中按设定的关注点提炼讯息，自动做标签归类并上传数据库。
+🚀 **首席情报官**（Wiseflow）是一个敏捷的信息挖掘工具，可以从各种给定信源中精准抓取特定信息，依靠大模型的思考与分析能力，无需人工参与。
 
 **我们缺的不是信息，而是从海量信息中过滤噪音，从而让有价值的信息显露出来**
 
-🌱看看首席情报官是如何帮您节省时间，过滤无关信息，并整理关注要点的吧！🌱
+🌱看看AI情报官是如何帮您节省时间，过滤无关信息，并整理关注要点的吧！🌱
 
 https://github.com/user-attachments/assets/f6fec29f-2b4b-40f8-8676-8433abb086a7
 
@@ -54,6 +54,8 @@ wiseflow自2024年6月底发布 V0.3.0版本来受到了开源社区的广泛关
 ### 1. 克隆代码仓库
 
 🌹 点赞、fork是好习惯 🌹
+
+**windows 用户请提前下载 git bash 工具** [链接](https://git-scm.com/downloads/win)
 
 ```bash
 git clone https://github.com/TeamWiseFlow/wiseflow.git
@@ -110,6 +112,18 @@ export VL_MODEL="gpt-4o"
 ```
 
 😄 欢迎使用 [AiHubMix邀请链接](https://aihubmix.com?aff=Gp54) 注册 🌹
+
+#### 本地部署大模型服务
+
+以 Xinference 为例，.env 配置可以参考如下：
+
+```bash
+# LLM_API_KEY='' 本地服务无需这一项，请注释掉或删除
+export LLM_API_BASE='http://127.0.0.1:9997'
+export PRIMARY_MODEL=启动的模型 ID
+export SECONDARY_MODEL=启动的模型 ID
+export VL_MODEL=启动的模型 ID
+```
 
 #### 3.2 pocketbase 账号密码配置
 
@@ -205,7 +219,7 @@ PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 
 
 本项目基于 [Apache2.0](LICENSE) 开源。
 
-商用以及定制合作，请联系 **Email：zm.zhao@foxmail.com**
+商用合作，请联系 **Email：zm.zhao@foxmail.com**
 
 - 商用客户请联系我们报备登记，产品承诺永远免费。
 

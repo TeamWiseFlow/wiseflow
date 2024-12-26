@@ -2,13 +2,13 @@
 
 **[English](README_EN.md) | [简体中文](README.md) | [한국어](README_KR.md)**
 
-🚀 **首席情報官**（Wiseflow）は、ウェブサイト、微信公衆号、ソーシャルプラットフォームなど、さまざまな情報源から設定された関心事に基づいて情報を抽出し、自動的にタグ付けしてデータベースにアップロードする、アジャイルな情報マイニングツールです。
+🚀 **首席情報官**（Wiseflow）は、大規模言語モデルの思考と分析能力を活用し、人手を介さずに様々な情報源から特定の情報を正確に抽出できる俊敏な情報マイニングツールです。
 
 **私たちが欠けているのは情報ではなく、大量の情報からノイズをフィルタリングし、価値ある情報を明らかにすることです**
 
 🌱首席情報官がどのようにあなたの時間を節約し、無関係な情報をフィルタリングし、関心のあるポイントを整理するのかを見てみましょう！🌱
 
-https://github.com/user-attachments/assets/f6fec29f-2b4b-40f8-8676-8433abb086a7
+<div style="padding:56.56% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1042199968?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="prompt_video_v03x"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>
 
 ## 🔥 テストスクリプトとテストレポートの公開
 
@@ -54,6 +54,8 @@ wiseflowは2024年6月末にV0.3.0バージョンをリリースして以来、�
 ### 1. コードリポジトリのクローン
 
 🌹 いいね、forkは良い習慣です 🌹
+
+**Windowsユーザーは事前にGit Bashツールをダウンロードしてください** [リンク](https://git-scm.com/downloads/win)
 
 ```bash
 git clone https://github.com/TeamWiseFlow/wiseflow.git
@@ -104,12 +106,24 @@ AiHubMixモデルを使用する場合、.envの設定は以下を参考にし�
 
 ```bash
 export LLM_API_KEY=Your_API_KEY
-export LLM_API_BASE="https://aihubmix.com/v1" # 具体参考 https://doc.aihubmix.com/
+export LLM_API_BASE="https://aihubmix.com/v1" # referhttps://doc.aihubmix.com/
 export PRIMARY_MODEL="gpt-4o"
 export SECONDARY_MODEL="gpt-4o-mini"
 export VL_MODEL="gpt-4o"
 ```
 😄 [AiHubMixの紹介リンク](https://aihubmix.com?aff=Gp54)からご登録いただけますと幸いです 🌹
+
+#### ローカル大規模言語モデルサービスのデプロイ
+
+Xinferenceを例にすると、.envの設定は以下を参考にできます：
+
+```bash
+# LLM_API_KEY='' no need for local service, please comment out or delete
+export LLM_API_BASE='http://127.0.0.1:9997'
+export PRIMARY_MODEL=launched_model_id
+export SECONDARY_MODEL=launched_model_id
+export VL_MODEL=launched_model_id
+```
 
 #### 3.2 Pocketbaseのアカウントとパスワードの設定
 
@@ -206,7 +220,7 @@ PocketBaseは人気のある軽量データベースで、現在Go/Javascript/Py
 
 本プロジェクトは [Apache2.0](LICENSE) オープンソースライセンスに基づいています。
 
-商用およびカスタムコラボレーションについては、**Email：35252986@qq.com** までお問い合わせください
+商用およびカスタムコラボレーションについては、**Email：zm.zhao@foxmail.com** までお問い合わせください
 
 - 商用顧客は私たちに報告登録をお願いします。製品は永遠に無料で提供されることを約束します。
 

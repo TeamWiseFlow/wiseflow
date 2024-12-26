@@ -2,11 +2,11 @@
 
 **[简体中文](README.md) | [日本語](README_JP.md) | [한국어](README_KR.md)**
 
-🚀 **Chief Intelligence Officer** (Wiseflow) is an agile information mining tool that can extract information from various sources such as websites, WeChat official accounts, and social platforms based on preset focus points, automatically tag and categorize the information, and upload it to the database.
+🚀 **Chief Intelligence Officer** (Wiseflow) is an agile information mining tool that can accurately extract specific information from various given sources, relying on the thinking and analytical capabilities of large language models, without human intervention.
 
 **What we lack is not information, but the ability to filter out noise from massive information, thereby revealing valuable information.**
 
-🌱 See how Chief Intelligence Officer helps you save time, filter irrelevant information, and organize key points of interest! 🌱
+🌱 See how AI Intelligence Officer helps you save time, filter irrelevant information, and organize key points of interest! 🌱
 
 https://github.com/user-attachments/assets/f6fec29f-2b4b-40f8-8676-8433abb086a7
 
@@ -54,6 +54,8 @@ However, we have also noticed some misunderstandings about the functional positi
 ### 1. Clone the Code Repository
 
 🌹 Starring and forking are good habits 🌹
+
+**windows users please download git bash tool first** [link](https://git-scm.com/downloads/win)
 
 ```bash
 git clone https://github.com/TeamWiseFlow/wiseflow.git
@@ -104,13 +106,25 @@ When using AiHubMix models, the .env configuration can refer to the following:
 
 ```bash
 export LLM_API_KEY=Your_API_KEY
-export LLM_API_BASE="https://aihubmix.com/v1" # 具体参考 https://doc.aihubmix.com/
+export LLM_API_BASE="https://aihubmix.com/v1" # refer to https://doc.aihubmix.com/
 export PRIMARY_MODEL="gpt-4o"
 export SECONDARY_MODEL="gpt-4o-mini"
 export VL_MODEL="gpt-4o"
 ```
 
 😄 Welcome to register using the [AiHubMix referral link](https://aihubmix.com?aff=Gp54) 🌹
+
+#### Use Local Large Language Model Service
+
+Taking Xinference as an example, the .env configuration can refer to the following:
+
+```bash
+# LLM_API_KEY='' no need for local service, please comment out or delete
+export LLM_API_BASE='http://127.0.0.1:9997'
+export PRIMARY_MODEL=launched_model_id
+export SECONDARY_MODEL=launched_model_id
+export VL_MODEL=launched_model_id
+```
 
 #### 3.2 Pocketbase Account and Password Configuration
 
@@ -206,7 +220,7 @@ PocketBase, as a popular lightweight database, currently has SDKs for Go/Javascr
 
 This project is open-source under the [Apache2.0](LICENSE) license.
 
-For commercial and custom cooperation, please contact **Email: zm.zhao@foxmail.com**
+For cooperation, please contact **Email: zm.zhao@foxmail.com**
 
 - Commercial customers, please contact us for registration. The product promises to be forever free.
 
