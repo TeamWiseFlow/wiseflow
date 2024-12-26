@@ -8,7 +8,7 @@
 
 🌱 수석 정보 책임자가 어떻게 시간을 절약하고, 관련 없는 정보를 필터링하며, 관심 사항을 정리하는지 살펴보세요! 🌱
 
-<iframe src="https://player.vimeo.com/video/1042199968?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="prompt_video_v03x"></iframe>
+https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 ## 🔥 테스트 스크립트 및 테스트 보고서 발표
 
