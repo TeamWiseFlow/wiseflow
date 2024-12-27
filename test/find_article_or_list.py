@@ -31,16 +31,16 @@ def find_article_or_list(link_dict, text) -> (bool, bool, str):
     text_no_urls = re.sub(r'\[url\d+]', '', text_no_tags)
     content_length = len(text_no_urls)
 
-    valid_url_count = 0
+    valid_url = set()
     for url in link_dict.values():
         url_lower = url.lower()
         has_common_ext = any(url_lower.endswith(ext) for ext in common_file_exts)
         has_common_tld = any(url_lower.endswith(tld) or url_lower.endswith(tld + '/') for tld in common_tlds)
         if not has_common_ext and not has_common_tld:
-            valid_url_count += 1
+            valid_url.add(url)
 
-    valid_url_rate = valid_url_count / content_length
-    is_list = valid_url_rate > 0.007 and valid_url_count > valid_list_min_length
+    valid_url_rate = len(valid_url) / content_length
+    is_list = valid_url_rate > 0.007 and len(valid_url) > valid_list_min_length
     need_more_info = content_length < min_content_length
     return is_list, need_more_info, text
  
