@@ -71,9 +71,9 @@ async def extract_info_from_img(text, link_dict) -> str:
         if url in cache:
             replace_text = cache[url]
         else:
-            if any(url.lower().endswith(tld) or url.lower().endswith(tld + '/') for tld in common_tlds):
+            if any(url.endswith(tld) or url.endswith(tld + '/') for tld in common_tlds):
                 continue
-            if any(url.lower().endswith(ext) for ext in common_file_exts if ext not in ['jpg', 'jpeg', 'png']):
+            if any(url.endswith(ext) for ext in common_file_exts if ext not in ['jpg', 'jpeg', 'png']):
                 continue
             llm_output = await llm([{"role": "user",
                                 "content": [{"type": "image_url", "image_url": {"url": url, "detail": "high"}},
@@ -86,7 +86,7 @@ async def extract_info_from_img(text, link_dict) -> str:
 
 
 async def main(link_dict, text, record_file, prompts):
-    is_list, need_more_info, text = find_article_or_list(link_dict, text)
+    is_list, need_more_info, link_dict, text = find_article_or_list(link_dict, text)
 
     if is_list:
         print("may be a article list page, get more urls ...")
@@ -124,9 +124,9 @@ async def main(link_dict, text, record_file, prompts):
                         hallucination_times += 1
                         continue
                     result_url = link_dict[url_tag]
-                if any(result_url.lower().endswith(tld) or result_url.lower().endswith(tld + '/') for tld in common_tlds):
+                if any(result_url.endswith(tld) or result_url.endswith(tld + '/') for tld in common_tlds):
                     continue
-                if any(result_url.lower().endswith(ext) for ext in common_file_exts if ext not in ['jpg', 'jpeg', 'png']):
+                if any(result_url.endswith(ext) for ext in common_file_exts if ext not in ['jpg', 'jpeg', 'png']):
                     continue
                 final_result.add(f'{item} {result_url}')
             else:

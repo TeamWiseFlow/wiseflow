@@ -60,7 +60,8 @@ async def request_handler(context: PlaywrightCrawlingContext) -> None:
     context.page.on('dialog', handle_dialog)
 
     context.log.info('successfully finish fetching')
-
+    wiseflow_logger.info(context.request.url)
+    
     html = await context.page.inner_html('head')
     soup = BeautifulSoup(html, 'html.parser')
     web_title = soup.find('title')

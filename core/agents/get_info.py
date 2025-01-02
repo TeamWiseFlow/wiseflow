@@ -263,6 +263,9 @@ text2
         return cache
     
     async def _extract_info_from_img(self, text, link_dict) -> str:
+        if not self.vl_model:
+            self.logger.warning("vl model not found, skip extracting info from img")
+            return text
         cache = {}
         pattern = r'<img>\[url\d+\]'
         matches = re.findall(pattern, text)
@@ -294,7 +297,6 @@ text2
         final_result = set()
         for item in raw_result:
             if '[url' not in item:
-                self.logger.warning(f"bad generate result: {item}")
                 continue
             url_tags = re.findall(r'\[url\d+]', item)
             if not url_tags:
