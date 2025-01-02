@@ -1,5 +1,5 @@
 import os
-from openai import OpenAI
+from openai import AsyncOpenAI as OpenAI
 from openai import RateLimitError
 import asyncio
 
@@ -26,11 +26,11 @@ async def openai_llm(messages: list, model: str, logger=None, **kwargs) -> str:
 
     async with llm_lock:
         try:
-            response = client.chat.completions.create(messages=messages, model=model, **kwargs)
+            response = await client.chat.completions.create(messages=messages, model=model, **kwargs)
         except RateLimitError as e:
             logger.warning(f'{e}\nRetrying in 60 second...')
             await asyncio.sleep(60)
-            response = client.chat.completions.create(messages=messages, model=model, **kwargs)
+            response = await client.chat.completions.create(messages=messages, model=model, **kwargs)
             if response.status_code == 200 and response.choices:
                 return response.choices[0].message.content
             else:

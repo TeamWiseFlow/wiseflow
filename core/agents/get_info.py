@@ -1,3 +1,5 @@
+import asyncio
+
 from llms.openai_wrapper import openai_llm as llm
 # from core.llms.siliconflow_wrapper import sfa_llm
 from utils.general_utils import is_chinese, extract_and_convert_dates, extract_urls
@@ -116,36 +118,60 @@ url2
 
         return result['source'], extract_and_convert_dates(result['publish_date'])
 
-    async def get_more_related_urls(self, link_dict: dict, og_url: str) -> set[str]:
+    async def get_more_related_urls(self, link_dict: dict, og_url: str, max_concurrency: int = 5) -> set[str]:
         if not link_dict:
             return set()
         self.logger.debug(f'{len(link_dict)} items to analyze')
         urls = set()
-        content = ''
-        for key, value in link_dict.items():
-            content = f"{content}{key}: {value}\n"
-            if len(content) > 512:
-                result = await llm([{'role': 'system', 'content': self.get_more_link_prompt},
-                                    {'role': 'user', 'content': f'{content}\n{self.get_more_link_suffix}'}],
-                                   model=self.model, temperature=0.1)
-                self.logger.debug(f'get_more_related_urls llm output:\n{result}')
-                result = re.findall(r'\"\"\"(.*?)\"\"\"', result, re.DOTALL)
-                if result:
-                    result = result[0].strip()
-                    # self.logger.debug(f"cleaned output: {result}")
-                    urls.update(extract_urls(result))
-                content = ''
 
-        if content:
-            result = await llm([{'role': 'system', 'content': self.get_more_link_prompt},
-                                {'role': 'user', 'content': f'{content}\n{self.get_more_link_suffix}'}],
-                               model=self.model, temperature=0.1)
-            self.logger.debug(f'get_more_related_urls llm output:\n{result}')
-            result = re.findall(r'\"\"\"(.*?)\"\"\"', result, re.DOTALL)
-            if result:
-                result = result[0].strip()
-                # self.logger.debug(f"cleaned output: {result}")
-                urls.update(extract_urls(result))
+        semaphore = asyncio.Semaphore(max_concurrency)  # 创建一个信号量来限制并发数量
+
+        # 跟踪每个批次的内容
+        contents = []
+        current_content = ''
+
+        # 创建批次
+        for key, value in link_dict.items():
+            line = f"{key}: {value}\n"
+            if len(current_content) + len(line) > 512:
+                contents.append(current_content)
+                current_content = line
+            else:
+                current_content += line
+
+        if current_content:  # 添加最后一个批次
+            contents.append(current_content)
+
+        # 处理单个批次的辅助函数
+        async def process_batch(content: str) -> set[str]:
+            async with semaphore:  # 使用信号量来限制并发
+                print("开始")
+                batch_urls = set()
+                try:
+                    result = await llm([
+                        {'role': 'system', 'content': self.get_more_link_prompt},
+                        {'role': 'user', 'content': f'{content}\n{self.get_more_link_suffix}'}
+                    ], model=self.model, temperature=0.1)
+
+                    self.logger.debug(f'get_more_related_urls llm output:\n{result}')
+                    result = re.findall(r'\"\"\"(.*?)\"\"\"', result, re.DOTALL)
+                    if result:
+                        result = result[0].strip()
+                        batch_urls.update(extract_urls(result))
+
+                    print("结束")
+                except Exception as e:
+                    self.logger.error(f"Error processing batch: {e}")
+                return batch_urls
+
+        # 并发处理所有批次
+        tasks = [asyncio.create_task(process_batch(content)) for content in contents]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        # 合并所有结果
+        for result in results:
+            if isinstance(result, set):  # 确保结果不是异常
+                urls.update(result)
 
         raw_urls = set(link_dict.values())
         urls.discard(og_url)
