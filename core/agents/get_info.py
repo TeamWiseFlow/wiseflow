@@ -10,6 +10,7 @@ from datetime import datetime
 from urllib.parse import urlparse
 import json_repair
 
+LLM_CONCURRENT_NUMBER = os.environ.get('LLM_CONCURRENT_NUMBER', 3)
 
 class GeneralInfoExtractor:
     def __init__(self, pb: PbTalker, _logger: logger) -> None:
@@ -145,7 +146,6 @@ url2
         # 处理单个批次的辅助函数
         async def process_batch(content: str) -> set[str]:
             async with semaphore:  # 使用信号量来限制并发
-                print("开始")
                 batch_urls = set()
                 try:
                     result = await llm([
@@ -159,7 +159,6 @@ url2
                         result = result[0].strip()
                         batch_urls.update(extract_urls(result))
 
-                    print("结束")
                 except Exception as e:
                     self.logger.error(f"Error processing batch: {e}")
                 return batch_urls
@@ -256,7 +255,7 @@ url2
         if not publish_date or publish_date.lower() == 'na':
             publish_date = datetime.now().strftime('%Y-%m-%d')
 
-        related_urls = await self.get_more_related_urls(link_dict, base_url)
+        related_urls = await self.get_more_related_urls(link_dict, base_url, LLM_CONCURRENT_NUMBER)
 
         info_prefix = f"//{author} {publish_date}//"
         lines = text.split('\n')
