@@ -73,8 +73,6 @@ if __name__ == '__main__':
     if sample_dir:
         files.extend([os.path.join(sample_dir, file) for file in os.listdir(sample_dir)])
 
-    result_folder = sample_dir if sample_dir else '.'
-
     for file in files:
         if not file.endswith('.json'): continue
 

@@ -1,53 +1,61 @@
-from llms.openai_wrapper import openai_llm as llm
-# from core.llms.siliconflow_wrapper import sfa_llm
-from utils.general_utils import is_chinese, extract_and_convert_dates, extract_urls
+# -*- coding: utf-8 -*-
 from loguru import logger
-from utils.pb_api import PbTalker
-import os, re
+import os, re, sys
 from datetime import datetime
 from urllib.parse import urlparse
 import json_repair
 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)  # get parent dir
+sys.path.append(project_root)
 
-list_judge_threshold = 0.007
-valid_list_min_length = 10
-min_content_length = 420
+from utils.deep_scraper import common_chars, common_file_exts, common_tlds 
+from utils.pb_api import PbTalker
+from llms.openai_wrapper import openai_llm as llm
+# from llms.siliconflow_wrapper import sfa_llm # or other llm wrapper
+from utils.general_utils import is_chinese, extract_and_convert_dates, extract_urls
 
-common_file_exts = [
-    'jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'svg', 'm3u8',
-    'mp4', 'mp3', 'wav', 'avi', 'mov', 'wmv', 'flv', 'webp', 'webm',
-    'zip', 'rar', '7z', 'tar', 'gz', 'bz2',
-    'txt', 'csv', 'xls', 'xlsx', 'ppt', 'pptx',
-    'json', 'xml', 'yaml', 'yml', 'css', 'js', 'php', 'asp', 'jsp'
-]
-common_tlds = [
-    '.com', '.cn', '.net', '.org', '.edu', '.gov', '.io', '.co',
-    '.info', '.biz', '.me', '.tv', '.cc', '.xyz', '.app', '.dev',
-    '.cloud', '.ai', '.tech', '.online', '.store', '.shop', '.site',
-    '.top', '.vip', '.pro', '.ltd', '.group', '.team', '.work'
-]
 
-def find_article_or_list(link_dict: dict, text: str) -> (bool, bool, dict, str):
-    lines = [l.strip() for l in text.split('\n') if l.strip()]
-    text = '\n'.join(lines)
-    for key, value in link_dict.items():
-        link_dict[key] = value.lower()
+async def get_author_and_publish_date(text: str) -> tuple[str, str]:
+    if not text:
+        return "", ""
 
-    text_no_tags = re.sub(r'<\w{1,5}>', '', text)
-    text_no_urls = re.sub(r'\[url\d+]', '', text_no_tags)
-    content_length = len(text_no_urls)
+    if len(text) > 1024:
+        text = f'{text[:500]}......{text[-500:]}'
 
-    valid_url = set()
-    for url in link_dict.values():
-        has_common_ext = any(url.endswith(ext) for ext in common_file_exts)
-        has_common_tld = any(url.endswith(tld) or url.endswith(tld + '/') for tld in common_tlds)
-        if not has_common_ext and not has_common_tld:
-            valid_url.add(url)
+    system_prompt = "As an information extraction assistant, your task is to accurately extract the source (or author) and publication date from the given webpage text. It is important to adhere to extracting the information directly from the original text. If the original text does not contain a particular piece of information, please replace it with NA"
+    suffix = '''Please output the extracted information in the following JSON format:
+{"source": source or article author (use "NA" if this information cannot be extracted), "publish_date": extracted publication date (keep only the year, month, and day; use "NA" if this information cannot be extracted)}'''
 
-    valid_url_rate = len(valid_url) / content_length
-    is_list = valid_url_rate > list_judge_threshold and len(valid_url) > valid_list_min_length
-    need_more_info = content_length < min_content_length
-    return is_list, need_more_info, link_dict, text
+    content = f'<text>\n{text}\n</text>\n\n{suffix}'
+    llm_output = await llm([{'role': 'system', 'content': system_prompt}, {'role': 'user', 'content': content}],
+                           model=self.secondary_model, max_tokens=50, temperature=0.1, response_format={"type": "json_object"})
+
+    if not llm_output:
+        return '', ''
+
+    result = json_repair.repair_json(llm_output, return_objects=True)
+
+    if not isinstance(result, dict):
+        print("failed to parse from llm output")
+        return '', ''
+    if 'source' not in result or 'publish_date' not in result:
+        print("failed to parse from llm output")
+        return '', ''
+
+    return result['source'], extract_and_convert_dates(result['publish_date'])
+
+
+async def extract_info_from_img(task: list, vl_model: str) -> dict:
+    cache = {}
+    for url in task:
+        llm_output = await llm([{"role": "user",
+        "content": [{"type": "image_url", "image_url": {"url": url, "detail": "high"}},
+        {"type": "text", "text": "提取图片中的所有文字，如果图片不包含文字或者文字很少或者你判断图片仅是网站logo、商标、图标等，则输出NA。注意请仅输出提取出的文字，不要输出别的任何内容。"}]}],
+        model=vl_model)
+
+        cache[url] = llm_output
+    return cache
 
 
 class GeneralInfoExtractor:
@@ -57,11 +65,17 @@ class GeneralInfoExtractor:
         self.model = os.environ.get("PRIMARY_MODEL", "")
         self.secondary_model = os.environ.get("SECONDARY_MODEL", "")
 
-        if not self.model or not self.secondary_model:
-            self.logger.error("PRIMARY_MODEL or SECONDARY_MODEL not set, can't continue")
-            raise ValueError("PRIMARY_MODEL or SECONDARY_MODEL not set, please set it in environment variables or edit core/.env")
+        if not self.model:
+            self.logger.error("PRIMARY_MODEL not set, can't continue")
+            raise ValueError("PRIMARY_MODEL not set, please set it in environment variables or edit core/.env")
+        
+        if not self.secondary_model:
+            self.logger.warning("SECONDARY_MODEL not set, will use primary model for secondary model, pls attention the request rate limit")
+            self.secondary_model = self.model
 
         self.vl_model = os.environ.get("VL_MODEL", "")
+        if not self.vl_model:
+            self.logger.warning("VL_MODEL not set, will skip extracting info from img, some info may be lost!")
 
         # collect tags user set in pb database and determin the system prompt language based on tags
         focus_data = pb.read(collection_name='focus_points', filter=f'activated=True')
@@ -178,35 +192,6 @@ text2
 
             self.info_judge_suffix = 'First, output all found text fragments, then output the final conclusion (only "Y" or "N").'
 
-    async def get_author_and_publish_date(self, text: str) -> tuple[str, str]:
-        if not text:
-            return "", ""
-
-        if len(text) > 1024:
-            text = f'{text[:500]}......{text[-500:]}'
-
-        system_prompt = "As an information extraction assistant, your task is to accurately extract the source (or author) and publication date from the given webpage text. It is important to adhere to extracting the information directly from the original text. If the original text does not contain a particular piece of information, please replace it with NA"
-        suffix = '''Please output the extracted information in the following JSON format:
-{"source": source or article author (use "NA" if this information cannot be extracted), "publish_date": extracted publication date (keep only the year, month, and day; use "NA" if this information cannot be extracted)}'''
-
-        content = f'<text>\n{text}\n</text>\n\n{suffix}'
-        llm_output = await llm([{'role': 'system', 'content': system_prompt}, {'role': 'user', 'content': content}],
-                           model=self.secondary_model, max_tokens=50, temperature=0.1, response_format={"type": "json_object"})
-
-        self.logger.debug(f'get_author_and_publish_date llm output:\n{llm_output}')
-        if not llm_output:
-            return '', ''
-        result = json_repair.repair_json(llm_output, return_objects=True)
-
-        if not isinstance(result, dict):
-            self.logger.warning("failed to parse from llm output")
-            return '', ''
-        if 'source' not in result or 'publish_date' not in result:
-            self.logger.warning("failed to parse from llm output")
-            return '', ''
-
-        return result['source'], extract_and_convert_dates(result['publish_date'])
-
     async def _generate_results(self, text: str, mode: str) -> set:
         if mode == 'get_info':
             system_prompt = self.get_info_prompt
@@ -261,36 +246,6 @@ text2
                 item = item.split('\n')
                 cache.update(item)
         return cache
-    
-    async def _extract_info_from_img(self, text, link_dict) -> str:
-        if not self.vl_model:
-            self.logger.warning("vl model not found, skip extracting info from img")
-            return text
-        cache = {}
-        pattern = r'<img>\[url\d+\]'
-        matches = re.findall(pattern, text)
-        for match in matches:
-            key = match.split('[url')[1][:-1]
-            url = link_dict.get(f'url{key}', '')
-            if not url:
-                continue
-        
-            if url in cache:
-                replace_text = cache[url]
-            else:
-                if any(url.endswith(tld) or url.endswith(tld + '/') for tld in common_tlds):
-                    continue
-                if any(url.endswith(ext) for ext in common_file_exts if ext not in ['jpg', 'jpeg', 'png']):
-                    continue
-                llm_output = await llm([{"role": "user",
-                                    "content": [{"type": "image_url", "image_url": {"url": url, "detail": "high"}},
-                                                {"type": "text", "text": "提取图片中的所有文字，如果图片不包含文字或者文字很少或者你判断图片仅是网站logo、商标、图标等，则输出NA。注意请仅输出提取出的文字，不要输出别的任何内容。"}]}],
-                                                model=self.vl_model)
-                self.logger.debug(f"vl model output: \n{llm_output}\n")
-                replace_text = llm_output
-                cache[url] = replace_text
-            text = text.replace(match, f'{replace_text}{match}', 1)
-        return text
 
     async def get_more_related_urls(self, link_dict: dict, text: str) -> list[str]:
         raw_result = await self._generate_results(text, 'get_link')

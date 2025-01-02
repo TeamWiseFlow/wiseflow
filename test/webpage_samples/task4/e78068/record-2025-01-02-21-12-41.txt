@@ -1,0 +1,102 @@
+focus statement: 
+#上海房地产新闻
+#北京房地产新闻
+#广州房地产新闻
+#深圳房地产新闻
+#杭州房地产新闻
+
+
+raw materials in: e78068
+
+llm model: Qwen/Qwen2.5-7B-Instruct
+get more links hallucination times: 0
+get infos hallucination times: 0
+get more links time: 6.735590934753418 s
+get infos time: 4.8277060985565186 s
+total more links: 7
+total infos: 1
+author and publish time: {"source": "乐居新媒体 徐迪", "publish_date": "2024-12-23"}
+infos: 
+#北京房地产新闻:北京市住建委数据显示，12月22日北京新房网签307套（期房213+现房94），网签面积约2.6万平方米；二手房网签185套，网签面积1.65万平方米。其中，新房住宅网签184套（期房164+现房20），网签面积2.17万平方米；二手房住宅网签180套，网签面积1.63万平方米。
+more links: 
+北京建独栋别墅，懋源打了擦边球:https://www.lejucaijing.com/column-61.html
+本地市场:https://www.lejucaijing.com/channel-shanghai/data_channel_id=6848073394228390811&sub_channel_name=本地市场
+月1日北京住宅网签：新房56套、二手房68套 5.2w阅读:https://www.lejucaijing.com/news-7280383417282918151.html
+深圳光明再添新盘，地铁13号线月亮站旁项目定名阅洺境花园 1.3w阅读 深圳光明再添新盘，地铁13号线月亮站旁项目定名阅洺境花园 深圳光明再添新盘，地铁13号线月亮站旁项目定名阅洺境花园:https://www.lejucaijing.com/news-7280412724021622645.html
+广州楼市2024年成绩单出炉：二手成交首超一手，连续3月破万套 1.7w阅读 广州楼市2024年成绩单出炉：二手成交首超一手，连续3月破万套 广州楼市2024年成绩单出炉：二手成交首超一手，连续3月破万套:https://www.lejucaijing.com/news-7280398764920731411.html
+当前位置：上海:https://www.lejucaijing.com/channel-shanghai/
+首拍！海淀朱房双子地块，8家房企入场 3.9w阅读:https://www.lejucaijing.com/news-7280029718337484066.html
+************
+
+llm model: Qwen/Qwen2.5-14B-Instruct
+get more links hallucination times: 0
+get infos hallucination times: 0
+get more links time: 5.896205902099609 s
+get infos time: 6.4380762577056885 s
+total more links: 9
+total infos: 1
+author and publish time: {"source": "乐居新媒体 徐迪", "publish_date": "2024-12-23"}
+infos: 
+北京房地产新闻:北京市住建委数据显示，12月22日北京新房网签307套（期房213+现房94），网签面积约2.6万平方米；二手房网签185套，网签面积1.65万平方米。其中，新房住宅网签184套（期房164+现房20），网签面积2.17万平方米；二手房住宅网签180套，网签面积1.63万平方米。
+more links: 
+北京建独栋别墅，懋源打了擦边球:https://www.lejucaijing.com/column-61.html
+首开售罄16天后电建长安华曦府再拿证，单套总价466万元起:https://www.lejucaijing.com/news-7280112407346345715.html
+内嵌阳台尺度收紧？金茂璞逸丰宜花池是这么来的 9167阅读 内嵌阳台尺度收紧？金茂璞逸丰宜花池是这么来的 内嵌阳台尺度收紧？金茂璞逸丰宜花池是这么来的:https://www.lejucaijing.com/news-7280415329275802996.html
+保利发展转让南京学尚置业50%股权，底价2053万元:https://www.lejucaijing.com/news-7280366957340849921.html
+月1日北京住宅网签：新房56套、二手房68套 5.2w阅读:https://www.lejucaijing.com/news-7280383417282918151.html
+深圳光明再添新盘，地铁13号线月亮站旁项目定名阅洺境花园 1.3w阅读 深圳光明再添新盘，地铁13号线月亮站旁项目定名阅洺境花园 深圳光明再添新盘，地铁13号线月亮站旁项目定名阅洺境花园:https://www.lejucaijing.com/news-7280412724021622645.html
+广州楼市2024年成绩单出炉：二手成交首超一手，连续3月破万套 1.7w阅读 广州楼市2024年成绩单出炉：二手成交首超一手，连续3月破万套 广州楼市2024年成绩单出炉：二手成交首超一手，连续3月破万套:https://www.lejucaijing.com/news-7280398764920731411.html
+保利嘉华天珺852套房源拿证，8.8万+新盘、最小70㎡两居:https://www.lejucaijing.com/news-7280124924101588705.html
+首拍！海淀朱房双子地块，8家房企入场 3.9w阅读:https://www.lejucaijing.com/news-7280029718337484066.html
+************
+
+llm model: Qwen/Qwen2.5-32B-Instruct
+get more links hallucination times: 0
+get infos hallucination times: 0
+get more links time: 5.530687093734741 s
+get infos time: 4.671689033508301 s
+total more links: 9
+total infos: 1
+author and publish time: {"source": "乐居新媒体 徐迪", "publish_date": "2024-12-23"}
+infos: 
+#北京房地产新闻:北京市住建委数据显示，12月22日北京新房网签307套（期房213+现房94），网签面积约2.6万平方米；二手房网签185套，网签面积1.65万平方米。其中，新房住宅网签184套（期房164+现房20），网签面积2.17万平方米；二手房住宅网签180套，网签面积1.63万平方米。
+more links: 
+北京建独栋别墅，懋源打了擦边球:https://www.lejucaijing.com/column-61.html
+首开售罄16天后电建长安华曦府再拿证，单套总价466万元起:https://www.lejucaijing.com/news-7280112407346345715.html
+内嵌阳台尺度收紧？金茂璞逸丰宜花池是这么来的 9167阅读 内嵌阳台尺度收紧？金茂璞逸丰宜花池是这么来的 内嵌阳台尺度收紧？金茂璞逸丰宜花池是这么来的:https://www.lejucaijing.com/news-7280415329275802996.html
+月1日北京住宅网签：新房56套、二手房68套 5.2w阅读:https://www.lejucaijing.com/news-7280383417282918151.html
+深圳光明再添新盘，地铁13号线月亮站旁项目定名阅洺境花园 1.3w阅读 深圳光明再添新盘，地铁13号线月亮站旁项目定名阅洺境花园 深圳光明再添新盘，地铁13号线月亮站旁项目定名阅洺境花园:https://www.lejucaijing.com/news-7280412724021622645.html
+广州楼市2024年成绩单出炉：二手成交首超一手，连续3月破万套 1.7w阅读 广州楼市2024年成绩单出炉：二手成交首超一手，连续3月破万套 广州楼市2024年成绩单出炉：二手成交首超一手，连续3月破万套:https://www.lejucaijing.com/news-7280398764920731411.html
+当前位置：上海:https://www.lejucaijing.com/channel-shanghai/
+保利嘉华天珺852套房源拿证，8.8万+新盘、最小70㎡两居:https://www.lejucaijing.com/news-7280124924101588705.html
+首拍！海淀朱房双子地块，8家房企入场 3.9w阅读:https://www.lejucaijing.com/news-7280029718337484066.html
+************
+
+llm model: deepseek-ai/DeepSeek-V2.5
+get more links hallucination times: 0
+get infos hallucination times: 0
+get more links time: 30.159864902496338 s
+get infos time: 30.636465072631836 s
+total more links: 10
+total infos: 3
+author and publish time: {
+  "source": "乐居新媒体 徐迪",
+  "publish_date": "2024-12-23"
+}
+infos: 
+#北京房地产新闻:其中，新房住宅网签184套（期房164+现房20），网签面积2.17万平方米；二手房住宅网签180套，网签面积1.63万平方米。
+#北京房地产新闻:12月22日北京住宅网签：新房184套、二手房180套
+#北京房地产新闻:北京市住建委数据显示，12月22日北京新房网签307套（期房213+现房94），网签面积约2.6万平方米；二手房网签185套，网签面积1.65万平方米。
+more links: 
+北京建独栋别墅，懋源打了擦边球:https://www.lejucaijing.com/column-61.html
+首开售罄16天后电建长安华曦府再拿证，单套总价466万元起:https://www.lejucaijing.com/news-7280112407346345715.html
+内嵌阳台尺度收紧？金茂璞逸丰宜花池是这么来的 9167阅读 内嵌阳台尺度收紧？金茂璞逸丰宜花池是这么来的 内嵌阳台尺度收紧？金茂璞逸丰宜花池是这么来的:https://www.lejucaijing.com/news-7280415329275802996.html
+保利发展转让南京学尚置业50%股权，底价2053万元:https://www.lejucaijing.com/news-7280366957340849921.html
+月1日北京住宅网签：新房56套、二手房68套 5.2w阅读:https://www.lejucaijing.com/news-7280383417282918151.html
+深圳光明再添新盘，地铁13号线月亮站旁项目定名阅洺境花园 1.3w阅读 深圳光明再添新盘，地铁13号线月亮站旁项目定名阅洺境花园 深圳光明再添新盘，地铁13号线月亮站旁项目定名阅洺境花园:https://www.lejucaijing.com/news-7280412724021622645.html
+广州楼市2024年成绩单出炉：二手成交首超一手，连续3月破万套 1.7w阅读 广州楼市2024年成绩单出炉：二手成交首超一手，连续3月破万套 广州楼市2024年成绩单出炉：二手成交首超一手，连续3月破万套:https://www.lejucaijing.com/news-7280398764920731411.html
+当前位置：上海:https://www.lejucaijing.com/channel-shanghai/
+保利嘉华天珺852套房源拿证，8.8万+新盘、最小70㎡两居:https://www.lejucaijing.com/news-7280124924101588705.html
+首拍！海淀朱房双子地块，8家房企入场 3.9w阅读:https://www.lejucaijing.com/news-7280029718337484066.html
+************
+

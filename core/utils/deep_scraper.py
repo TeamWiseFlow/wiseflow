@@ -8,7 +8,7 @@
 import os, re
 import json
 import time
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlparse, urljoin, quote
 
 
 common_file_exts = [
@@ -28,20 +28,24 @@ common_tlds = [
 common_chars = ',.!;:，；：、一二三四五六七八九十#*@% \t\n\r|*-_…>#'
 
 def normalize_url(url: str) -> str:
-    if url.startswith("www."):
+    if url.lower().startswith("www."):
         url = f"https://{url}"
 
     parsed_url = urlparse(url)
     if not parsed_url.netloc:
         return ''
     # 处理路径中的多余斜杠
-    path = re.sub(r'//+', '/', parsed_url.path)
-    # remove hash fragment
+    path = quote(re.sub(r'//+', '/', parsed_url.path))
+    
+    # 构建查询字符串
+    query = f"?{quote(parsed_url.query)}" if parsed_url.query else ""
+    
+    # 构建完整URL
     if not parsed_url.scheme:
         # just try https
-        return f"https://{parsed_url.netloc}{path}{parsed_url.params}{parsed_url.query}"
+        return f"https://{parsed_url.netloc}{path}{parsed_url.params}{query}"
     else:
-        return f"{parsed_url.scheme}://{parsed_url.netloc}{path}{parsed_url.params}{parsed_url.query}"
+        return f"{parsed_url.scheme}://{parsed_url.netloc}{path}{parsed_url.params}{query}"
 
 
 def deep_scraper(raw_markdown: str, base_url: str, used_img: dict[str, str]) -> tuple[dict, tuple[str, dict]]:
@@ -157,7 +161,7 @@ def deep_scraper(raw_markdown: str, base_url: str, used_img: dict[str, str]) -> 
                 img_src = alt_img_src
                 img_alt = alt_img_alt
 
-            if not img_src:
+            if not img_src or img_src.startswith('#'):
                 continue
 
             img_src = img_src.lower()
@@ -166,8 +170,6 @@ def deep_scraper(raw_markdown: str, base_url: str, used_img: dict[str, str]) -> 
             if any(img_src.endswith(ext) for ext in common_file_exts if ext not in ['jpg', 'jpeg', 'png']):
                 continue
 
-            if not img_src or img_src.startswith('#'):
-                continue
             if img_src.startswith('//'):
                 img_src = f"https:{img_src}"
             else:
@@ -197,6 +199,10 @@ def deep_scraper(raw_markdown: str, base_url: str, used_img: dict[str, str]) -> 
 
         alt = used_img[src]
         src = src.strip().lower()
+        if not src or src.startswith('#'):
+            html_text = html_text.replace(match, alt)
+            continue
+
         if any(src.endswith(tld) or src.endswith(tld + '/') for tld in common_tlds):
             html_text = html_text.replace(match, alt)
             continue
@@ -204,9 +210,6 @@ def deep_scraper(raw_markdown: str, base_url: str, used_img: dict[str, str]) -> 
             html_text = html_text.replace(match, alt)
             continue
 
-        if not src or src.startswith('#'):
-            html_text = html_text.replace(match, alt)
-            continue
         if src.startswith('//'):
             src = f"https:{src}"
         else:
