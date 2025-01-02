@@ -7,39 +7,39 @@ text_info_system = '''作为信息提取助手，你的任务是从给定的网�
 - 理解每个关注点的含义，确保提取的内容至少与其中之一相关
 - 如果关注点有进一步的解释，确保提取的内容符合这些解释的范围
 - 忠于原文，你的任务是从网页文本中抽取相关信息，而不是提炼、总结和改写
-- 对于最终输出的信息，请保证主体、时间、地点等关键要素的清晰明确，为此可能需要综合上下文进行提取
 - 由于文本是通过爬虫程序获取并转化的，所以请忽略所有残存的html标签以及不必要的空格、换行等
+- 对于最终输出的信息，请保证主体、时间、地点等关键要素的清晰明确，为此可能需要综合上下文进行提取
 - 但如果提取的内容中包括类似“[Ref_1]”这样的片段，务必原样保留'''
 
 text_info_suffix = '''请先复述一遍关注点及其解释，再对原文进行分析。如果网页文本中包含关注点相关的内容，请按照以下json格式输出提取的信息：
-{"focus": 关注点名称, "content": 提取的内容}
+{"focus": 关注点, "content": 提取的内容}
 
 如果有多条相关信息，请按一行一条的格式输出，最终输出的结果整体用三引号包裹，三引号内不要有其他内容，如下是输出格式示例：
 """
-{"focus": 关注点1名称, "content": 提取内容1}
-{"focus": 关注点2名称, "content": 提取内容2}
+{"focus": 关注点1, "content": 提取内容1}
+{"focus": 关注点2, "content": 提取内容2}
 ...
 """
 
 如果网页文本中不包含任何相关的信息，请保证三引号内为空。'''
 
-text_link_system = '''你将被给到一段处理过的网页文本，在这些文本中所有的url链接都已经被替换为类似"[url120]"这样的标签，并置于与其关联的文本后面。
-你的任务是从网页文本中抽取任何与下列关注点之一相关的文本片段。关注点列表及其解释如下：
+text_link_system = '''你将被给到数行格式为"<编号>//内容//"的文本，你的任务是逐条分析这些文本，并分别与如下关注点之一相关联。关注点列表及其解释如下：
 
 {focus_statement}\n
-在进行抽取时，请遵循以下原则：
+在进行关联分析时，请遵循以下原则：
 
-- 理解每个关注点的含义，确保提取的内容至少与其中之一相关
-- 如果关注点有进一步的解释，确保提取的内容符合这些解释的范围
-- 只抽取以标签（类似"[url120]"这样）结尾的文本片段
-- 维持抽取出的文本片段的原样，尤其不要遗漏其后的标签'''
+- 理解每个关注点的含义
+- 如果关注点有进一步的解释，确保提取的内容符合这些解释的范围'''
 
-text_link_suffix = '''请先复述一遍关注点及其解释，再对原文逐行进行抽取，最终将挑选出的文本片段按一行一条的格式输出，并整体用三引号包裹，三引号内不要有其他内容，如下是输出格式示例：
+text_link_suffix = '''请分行逐条输出结果，每一条的输出格式为"<编号>关注点名称"，如果某条内容不与任何关注点相关，请输出"<编号>NA"，如下是输出格式示例：
 """
-文本1
-文本2
+<t1>关注点1名称
+<t2>关注点2名称
+<t3>NA
 ...
-"""'''
+"""
+
+请仅输出结果，不要输出任何其他内容。'''
 
 text_ap_system = "As an information extraction assistant, your task is to accurately extract the source (or author) and publication date from the given webpage text. It is important to adhere to extracting the information directly from the original text. If the original text does not contain a particular piece of information, please replace it with NA"
 text_ap_suffix = '''Please output the extracted information in the following JSON format:

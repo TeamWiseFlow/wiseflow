@@ -1,7 +1,0 @@
-content_judge: 6528
-special_url_count: 207
-arcile_or_list_judge: 0.03170955882352941
-************
-
-raw materials: 407948
-

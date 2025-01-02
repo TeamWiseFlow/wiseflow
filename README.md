@@ -45,7 +45,7 @@ wiseflow自2024年6月底发布 V0.3.0版本来受到了开源社区的广泛关
 
 |          | 与 **首席情报官（Wiseflow）** 的比较说明| 
 |-------------|-----------------|
-| **爬虫类工具** | 首先 wiseflow 是基于爬虫工具的项目（以目前版本而言，我们基于爬虫框架 Crawlee），但传统的爬虫工具在信息提取方面需要人工的介入，提供明确的 Xpath 等信息……这不仅阻挡了普通用户，同时也毫无通用性可言，对于不同网站（包括已有网站升级后）都需要人工重做分析，并更新提取代码。wiseflow致力于使用 LLM 自动化网页的分析和提取工作，用户只要告诉程序他的关注点即可，从这个角度来说，可以简单理解 wiseflow 为 “能自动使用爬虫工具的 AI 智能体” |
+| **爬虫类工具** | 首先 wiseflow 是基于爬虫工具的项目（目前我们基于的是 Crawl4ai），但传统的爬虫工具在信息提取方面需要人工的提供明确的 Xpath 等信息……这不仅阻挡了普通用户，同时也毫无通用性可言，对于不同网站（包括已有网站升级后）都需要人工重做分析，更新程序。wiseflow致力于使用 LLM 自动化网页的分析和提取工作，用户只要告诉程序他的关注点即可。 如果以 Crawl4ai 为例对比说明，Crawl4ai 是会使用 llm 进行信息提取的爬虫，而wiseflow 则是会使用爬虫工具的llm信息提取器。|
 | **AI搜索** |  AI搜索主要的应用场景是**具体问题的即时问答**，举例：”XX公司的创始人是谁“、“xx品牌下的xx产品哪里有售” ，用户要的是**一个答案**；wiseflow主要的应用场景是**某一方面信息的持续采集**，比如XX公司的关联信息追踪，XX品牌市场行为的持续追踪……在这些场景下，用户能提供关注点（某公司、某品牌）、甚至能提供信源（站点 url 等），但无法提出具体搜索问题，用户要的是**一系列相关信息**| 
 | **知识库（RAG）类项目** | 知识库（RAG）类项目一般是基于已有信息的下游任务，并且一般面向的是私有知识（比如企业内的操作手册、产品手册、政府部门的文件等）；wiseflow 目前并未整合下游任务，同时面向的是互联网上的公开信息，如果从“智能体”的角度来看，二者属于为不同目的而构建的智能体，RAG 类项目是“（内部）知识助理智能体”，而 wiseflow 则是“（外部）信息采集智能体”|
 
@@ -55,7 +55,7 @@ wiseflow自2024年6月底发布 V0.3.0版本来受到了开源社区的广泛关
 
 🌹 点赞、fork是好习惯 🌹
 
-**windows 用户请提前下载 git bash 工具** [链接](https://git-scm.com/downloads/win)
+**windows 用户请提前下载 git bash 工具，并在 bash 中执行如下命令** [bash下载链接](https://git-scm.com/downloads/win)
 
 ```bash
 git clone https://github.com/TeamWiseFlow/wiseflow.git
@@ -64,6 +64,8 @@ git clone https://github.com/TeamWiseFlow/wiseflow.git
 ### 2. 执行根目录下的 install_pocketbase.sh 脚本
 
 该脚本会引导下载并配置 pocketbase（版本选择0.23.4），同时在 core 下创建 .env 文件。
+
+注意：该脚本目前不支持 windows 操作系统，windows 用户可以手动去 https://github.com/pocketbase/pocketbase/releases/tag/v0.23.4 下载，解压放入 wiseflow/pb 目录下
 
 ```bash
 chmod +x install_pocketbase.sh
