@@ -8,7 +8,7 @@
 import os, re
 import json
 import time
-from urllib.parse import urlparse, urljoin, quote
+from urllib.parse import urlparse, urljoin
 
 
 common_file_exts = [
@@ -27,26 +27,46 @@ common_tlds = [
 
 common_chars = ',.!;:，；：、一二三四五六七八九十#*@% \t\n\r|*-_…>#'
 
-def normalize_url(url: str) -> str:
-    if url.lower().startswith("www."):
-        url = f"https://{url}"
-
-    parsed_url = urlparse(url)
-    if not parsed_url.netloc:
+def normalize_url(url: str, base_url: str) -> str:
+    url = url.strip().lower()
+    if url.startswith(("javascript:", "mailto:", "javacript:", "tel:", "sms:", "data:", "file:", "ftp:", "about:", "chrome:", "blob:", "ws:", "wss:", "view-source:")):
         return ''
-    # 处理路径中的多余斜杠
-    path = quote(re.sub(r'//+', '/', parsed_url.path))
-    
-    # 构建查询字符串
-    query = f"?{quote(parsed_url.query)}" if parsed_url.query else ""
-    
-    # 构建完整URL
-    if not parsed_url.scheme:
-        # just try https
-        return f"https://{parsed_url.netloc}{path}{parsed_url.params}{query}"
+    if "<" in url and url.endswith(">"):
+        if '<javascript:void' in url:
+            print(url)
+        # 暂时应对 crawl4ai 的特殊情况
+        part1, part2 = url.split("<")
+        if part2.startswith("http"):
+            url = part2[:-1]
+        else:
+            parsed_base = urlparse(part1)
+            url = f"{parsed_base.scheme}://{parsed_base.netloc}/{part2[:-1]}"
+        
+    if url.startswith("www."):
+        _url = f"https://{url}"
+    elif url.startswith("//"):
+        _url = f"https:{url}"
+    elif url.startswith(('http:/', 'https:/')):
+        _url = url
+    elif url.startswith('/'):
+        if base_url.endswith('/'):
+            _url = base_url[:-1] + url
+        else:
+            _url = base_url + url
     else:
-        return f"{parsed_url.scheme}://{parsed_url.netloc}{path}{parsed_url.params}{query}"
-
+        _url = urljoin(base_url, url)
+    # 处理url中path部分的多余斜杠
+    parsed = urlparse(_url)
+    path = parsed.path
+    # 将连续的多个/替换为单个/
+    normalized_path = re.sub(r'/+', '/', path)
+    # 重新组装url
+    _url = f"{parsed.scheme}://{parsed.netloc}{normalized_path}"
+    if parsed.query:
+        _url = f"{_url}?{parsed.query}"
+    if parsed.fragment:
+        _url = f"{_url}#{parsed.fragment}"
+    return _url
 
 def deep_scraper(raw_markdown: str, base_url: str, used_img: dict[str, str]) -> tuple[dict, tuple[str, dict]]:
     link_dict = {}
@@ -110,17 +130,9 @@ def deep_scraper(raw_markdown: str, base_url: str, used_img: dict[str, str]) -> 
             _url = re.sub(quote_pattern, '', link_url).strip()
             if not _url or _url.startswith('#'):
                 continue
-            if _url.startswith('//'):
-                _url = f"https:{_url}"
-            else:
-                if _url.startswith('/'):
-                    _url = _url[1:]
-                _url = urljoin(base_url, _url)
-            _url = normalize_url(_url)
-            if not _url:
+            url = normalize_url(_url, base_url)
+            if not url:
                 continue
-
-            url = _url.lower()
             # 检查链接是否是常见文件类型或顶级域名
             has_common_ext = any(url.endswith(ext) for ext in common_file_exts)
             has_common_tld = any(url.endswith(tld) or url.endswith(tld + '/') for tld in common_tlds)
@@ -164,20 +176,12 @@ def deep_scraper(raw_markdown: str, base_url: str, used_img: dict[str, str]) -> 
             if not img_src or img_src.startswith('#'):
                 continue
 
-            img_src = img_src.lower()
+            img_src = normalize_url(img_src, base_url)
+            if not img_src:
+                continue
             if any(img_src.endswith(tld) or img_src.endswith(tld + '/') for tld in common_tlds):
                 continue
             if any(img_src.endswith(ext) for ext in common_file_exts if ext not in ['jpg', 'jpeg', 'png']):
-                continue
-
-            if img_src.startswith('//'):
-                img_src = f"https:{img_src}"
-            else:
-                if img_src.startswith('/'):
-                    img_src = img_src[1:]
-                img_src = urljoin(base_url, img_src)
-            img_src = normalize_url(img_src)
-            if not img_src:
                 continue
             link_dict[url] = f"{img_alt}§to_be_recognized_by_visual_llm_{img_src}§"
             
@@ -202,22 +206,15 @@ def deep_scraper(raw_markdown: str, base_url: str, used_img: dict[str, str]) -> 
         if not src or src.startswith('#'):
             html_text = html_text.replace(match, alt)
             continue
+        src = normalize_url(src, base_url)
+        if not src:
+            html_text = html_text.replace(match, alt)
+            continue
 
         if any(src.endswith(tld) or src.endswith(tld + '/') for tld in common_tlds):
             html_text = html_text.replace(match, alt)
             continue
         if any(src.endswith(ext) for ext in common_file_exts if ext not in ['jpg', 'jpeg', 'png']):
-            html_text = html_text.replace(match, alt)
-            continue
-
-        if src.startswith('//'):
-            src = f"https:{src}"
-        else:
-            if src.startswith('/'):
-                src = src[1:]
-            src = urljoin(base_url, src)
-        src = normalize_url(src)
-        if not src:
             html_text = html_text.replace(match, alt)
             continue
         html_text = html_text.replace(match, f" {alt}§to_be_recognized_by_visual_llm_{src[1:]}§") # to avoid conflict with the url pattern
@@ -239,16 +236,9 @@ def deep_scraper(raw_markdown: str, base_url: str, used_img: dict[str, str]) -> 
         _url = re.sub(quote_pattern, '', link_url).strip()
         if not _url or _url.startswith('#'):
             continue
-        if _url.startswith('//'):
-            _url = f"https:{_url}"
-        else:
-            if _url.startswith('/'):
-                _url = _url[1:]
-            _url = urljoin(base_url, _url)
-        _url = normalize_url(_url)
-        if not _url:
+        url = normalize_url(_url, base_url)
+        if not url:
             continue
-        url = _url.lower()
         key = f"Ref_{len(text_link_map)+1}"
         text_link_map[key] = url
 
@@ -258,7 +248,7 @@ def deep_scraper(raw_markdown: str, base_url: str, used_img: dict[str, str]) -> 
     url_pattern = r'((?:https?://|www\.)[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|])'
     matches = re.findall(url_pattern, html_text)
     for url in matches:
-        url = normalize_url(url)
+        url = normalize_url(url, base_url)
         if not url:
             continue
         key = f"Ref_{len(text_link_map)+1}"

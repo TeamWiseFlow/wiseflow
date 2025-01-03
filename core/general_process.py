@@ -76,8 +76,11 @@ async def request_handler(context: PlaywrightCrawlingContext) -> None:
     if base_tag and base_tag.get('href'):
         base_url = base_tag['href']
     else:
-        # if no base tag, use the current url as base url
-        base_url = f"{parsed_url.scheme}://{domain}"
+        # 如果没有 base 标签，使用当前页面的 URL 路径作为 base url
+        base_url = f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}"
+        if not base_url.endswith('/'):
+            # 如果路径不以 / 结尾，则去掉最后一个路径段
+            base_url = base_url.rsplit('/', 1)[0] + '/'
 
     html = await context.page.inner_html('body')
     if domain in custom_scrapers:
