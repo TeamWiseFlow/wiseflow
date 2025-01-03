@@ -5,4 +5,4 @@ pydantic
 json_repair==0.*
 beautifulsoup4
 requests
-crawlee[playwright]
+crawlee[playwright]~=0.4.5
