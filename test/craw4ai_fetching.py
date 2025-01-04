@@ -13,7 +13,6 @@ sites = [
 save_dir = 'webpage_samples'
 
 async def main(sites: list):
-    failed_record = []
     config = CrawlerRunConfig(
         delay_before_return_html=2.0,
         exclude_social_media_links=True,
@@ -27,9 +26,6 @@ async def main(sites: list):
             # 排除自动爬虫
             # 排除已经爬过的
             result = await crawler.arun(url=site, crawler_config=config, cache_mode=CacheMode.BYPASS)
-            if not result.success:
-                failed_record.append(site)
-                continue
             
             record_file = os.path.join(save_dir, f"{hashlib.sha256(site.encode()).hexdigest()[-6:]}.json")
             with open(record_file, 'w', encoding='utf-8') as f:

@@ -6,7 +6,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)  # 获取父目录
 sys.path.append(project_root)
 
-from core.utils.deep_scraper import deep_scraper, common_chars, common_file_exts, common_tlds 
+from core.utils.deep_scraper import deep_scraper, common_chars
 
 def check_url_text(text):
     print(f"processing: {text}")

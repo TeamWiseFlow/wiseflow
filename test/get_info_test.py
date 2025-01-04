@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-
 import os, re, sys
 import json
 import asyncio
 import time
 from prompts import *
-import json_repair
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)  # get parent dir
