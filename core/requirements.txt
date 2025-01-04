@@ -5,4 +5,4 @@ pydantic
 json_repair==0.*
 beautifulsoup4
 requests
-crawl4ai
+crawl4ai==0.4.245

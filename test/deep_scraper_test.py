@@ -8,8 +8,6 @@ sys.path.append(project_root)
 
 from core.utils.deep_scraper import deep_scraper, common_chars, common_file_exts, common_tlds 
 
-test_string = ''
-
 def check_url_text(text):
     print(f"processing: {text}")
     left_bracket = text.find('[')
@@ -51,6 +49,11 @@ def check_url_text(text):
         text = text.replace(f'![{alt}]({src})', f'§{alt}||{src}§')
     print(text)
 
+    print("处理 [part0](part1) 格式的片段")
+    link_pattern = r'\[(.*?)\]\((.*?)\)'
+    matches = re.findall(link_pattern, text)
+    for match in matches:
+        print(match)
 
 if __name__ == '__main__':
     import argparse
@@ -61,7 +64,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--test_file', '-F', type=str, default='')
     parser.add_argument('--sample_dir', '-D', type=str, default='')
+    parser.add_argument('--test_string', '-T', type=str, default='')
     args = parser.parse_args()
+
+    if args.test_string:
+        check_url_text(args.test_string)
+        exit()
 
     test_file = args.test_file
     sample_dir = args.sample_dir
@@ -89,8 +97,10 @@ if __name__ == '__main__':
             continue
 
         parsed_url = urlparse(_url)
-        domain = parsed_url.netloc
-        base_url = f"{parsed_url.scheme}://{domain}"
+        base_url = f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}"
+        if not base_url.endswith('/'):
+            # 如果路径不以 / 结尾，则去掉最后一个路径段
+            base_url = base_url.rsplit('/', 1)[0] + '/'
 
         time_start = time.time()
         from_html_link_dict, (from_html_text, from_html_text_link_map) = deep_scraper(raw_markdown, base_url, used_img)
@@ -108,7 +118,3 @@ if __name__ == '__main__':
             json.dump(result, f, indent=4, ensure_ascii=False)
         print("done")
         print("*" * 12)
-
-    if test_string:
-        check_url_text(test_string)
-        exit()
