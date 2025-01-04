@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import os
 import json
 import asyncio
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlparse
 import hashlib
 from crawlee.playwright_crawler import PlaywrightCrawler, PlaywrightCrawlingContext, PlaywrightPreNavigationContext
 from datetime import timedelta

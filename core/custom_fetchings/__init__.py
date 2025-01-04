@@ -1,4 +1,5 @@
-from .general_scraper import general_scraper
-
+# from .xxx import xx_scraper
+# from .xxx import xx_config
 
 custom_scrapers = {}
+crawl4ai_custom_configs = {}

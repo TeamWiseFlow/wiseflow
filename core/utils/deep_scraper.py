@@ -5,9 +5,7 @@
 # Currently this script only handles images and links, other elements like downloads and videos are not processed yet, todo: process according to media list
 # action_dict needs to be extracted from raw html, which is not covered by this script
 
-import os, re
-import json
-import time
+import re
 from urllib.parse import urlparse, urljoin
 
 
@@ -194,8 +192,9 @@ def deep_scraper(raw_markdown: str, base_url: str, used_img: dict[str, str]) -> 
     # 处理图片标记 ![alt](src)
     img_pattern = r'(!\[.*?\]\(.*?\))'
     matches = re.findall(img_pattern, html_text)
+    text_link_map = {}
     for match in matches:
-        src = re.search(r'!\[.*?\]\((.*?)\)', match).group(1)
+        src = re.search(r'!\[.*?]\((.*?)\)', match).group(1)
         if src not in used_img:
             html_text = html_text.replace(match, '')
             continue
@@ -205,23 +204,26 @@ def deep_scraper(raw_markdown: str, base_url: str, used_img: dict[str, str]) -> 
         if not src or src.startswith('#'):
             html_text = html_text.replace(match, alt)
             continue
+
+        key = f"Ref_{len(text_link_map)+1}"
+        text_link_map[key] = src
         src = normalize_url(src, base_url)
+
         if not src:
-            html_text = html_text.replace(match, alt)
+            html_text = html_text.replace(match, f"{alt}[{key}]")
             continue
 
         if any(src.endswith(tld) or src.endswith(tld + '/') for tld in common_tlds):
-            html_text = html_text.replace(match, alt)
+            html_text = html_text.replace(match, f"{alt}[{key}]")
             continue
         if any(src.endswith(ext) for ext in common_file_exts if ext not in ['jpg', 'jpeg', 'png']):
-            html_text = html_text.replace(match, alt)
+            html_text = html_text.replace(match, f"{alt}[{key}]")
             continue
-        html_text = html_text.replace(match, f" {alt}§to_be_recognized_by_visual_llm_{src[1:]}§") # to avoid conflict with the url pattern
+        html_text = html_text.replace(match, f" {alt}[{key}]§to_be_recognized_by_visual_llm_{src[1:]}§") # to avoid conflict with the url pattern
     
     # 接下来要处理所有的[]()文本了
     link_pattern = r'\[(.*?)\]\((.*?)\)'
     matches = re.findall(link_pattern, html_text)
-    text_link_map = {}
     for match in matches:
         link_text, link_url = match
         original_markdown = f'[{link_text}]({link_url})'  # 重建原始的 markdown 链接格式
