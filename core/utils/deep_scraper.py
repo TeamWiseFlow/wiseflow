@@ -31,9 +31,8 @@ def normalize_url(url: str, base_url: str) -> str:
     url = url.strip().lower()
     if url.startswith(("javascript:", "mailto:", "javacript:", "tel:", "sms:", "data:", "file:", "ftp:", "about:", "chrome:", "blob:", "ws:", "wss:", "view-source:")):
         return ''
+    """
     if "<" in url and url.endswith(">"):
-        if '<javascript:void' in url:
-            print(url)
         # 暂时应对 crawl4ai 的特殊情况
         part1, part2 = url.split("<")
         if part2.startswith("http"):
@@ -41,7 +40,7 @@ def normalize_url(url: str, base_url: str) -> str:
         else:
             parsed_base = urlparse(part1)
             url = f"{parsed_base.scheme}://{parsed_base.netloc}/{part2[:-1]}"
-        
+    """    
     if url.startswith("www."):
         _url = f"https://{url}"
     elif url.startswith("//"):

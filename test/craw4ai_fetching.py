@@ -7,7 +7,7 @@ import json
 
 
 sites = [
-    "https://www.lejucaijing.com/news-7276781538510567338.html"
+    "https://www.lejucaijing.com/news-7280844510992200941.html"
 ]
 
 save_dir = 'webpage_samples'
