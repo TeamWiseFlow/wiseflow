@@ -4,13 +4,25 @@
 
 [craw4ai_fetching.py](./craw4ai_fetching.py)
 
+```
+python craw4ai_fetching.py -S 'url1,url2...'
+```
+
 ## html 内容解析
 
 [deep_scraper_test.py](./deep_scraper_test.py)
 
+```
+python deep_scraper_test.py -F 'json_file_path'
+```
+
 ## 视觉大模型信息提取
 
 [get_visual_info_for_samples.py](./get_visual_info_for_samples.py)
+
+```
+python get_visual_info_for_samples.py -F 'json_file_path'
+```
 
 ## 大模型信息提取测试
 
@@ -19,6 +31,10 @@
     - 为测试任务创建 关注点说明，可以参考 [reports/wiseflow_report_v036_bigbrother666/task0/focus_point.json](./reports/wiseflow_report_v036_bigbrother666/task0/focus_point.json),
 
     - 要更改 get_info 的 prompt，请编辑 [prompts.py](./prompts.py)
+
+```
+python get_info_test.py -D 'sample dir'
+```
 
 # 结果提交与共享
 
