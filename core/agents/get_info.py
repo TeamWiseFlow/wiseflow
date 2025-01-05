@@ -87,7 +87,7 @@ class GeneralInfoExtractor:
 {focus_statement}\n
 在提炼摘要时，请遵循以下原则：
 - 理解每个关注点的含义以及进一步的解释（如有），确保摘要与关注点强相关并符合解释（如有）的范围
-- 摘要应当详实、充分
+- 摘要应当详实、充分，使用简体中文（如果原文是英文，请翻译成简体中文）
 - 摘要信息务必忠于原文'''
 
             self.get_info_suffix = '''请对关注点逐一生成摘要，不要遗漏任何关注点，如果网页文本与关注点无关，可以对应输出"NA"。输出结果整体用三引号包裹，三引号内不要有其他内容。如下是输出格式示例：
@@ -176,7 +176,8 @@ When performing the association analysis, please follow these principles:
                     model=self.model, temperature=0.1)
                 # self.logger.debug(f"llm output: {result}")
                 result = re.findall(r'\"\"\"(.*?)\"\"\"', result, re.DOTALL)
-                cache.add(result[-1])
+                if result:
+                    cache.add(result[-1])
                 text_batch = ''
 
         if text_batch:
@@ -186,7 +187,8 @@ When performing the association analysis, please follow these principles:
                 model=self.model, temperature=0.1)
             # self.logger.debug(f"llm output: {result}")
             result = re.findall(r'\"\"\"(.*?)\"\"\"', result, re.DOTALL)
-            cache.add(result[-1])
+            if result:
+                cache.add(result[-1])
         return cache
 
     async def get_more_related_urls(self, link_dict: dict) -> set:
@@ -215,7 +217,7 @@ When performing the association analysis, please follow these principles:
                 if focus not in self.focus_dict or _index not in link_map:
                     self.logger.debug(f"bad generate result: {item}")
                     continue
-                self.logger.debug(f"{link_map[_index]} selected")
+                # self.logger.debug(f"{link_map[_index]} selected")
                 final_result.add(link_map[_index])
         return final_result
 
@@ -223,6 +225,7 @@ When performing the association analysis, please follow these principles:
         raw_result = await self._generate_results(text.split('\n'), 'get_info')
         final = []
         for item in raw_result:
+            self.logger.debug(f"llm output:\n{item}")
             segs = item.split('//')
             i = 0
             while i < len(segs) - 1:
@@ -241,7 +244,6 @@ When performing the association analysis, please follow these principles:
                 """
                 maybe can use embedding retrieval to judge
                 """
-                self.logger.debug(f"get info: {focus}: {content}")
 
                 url_tags = re.findall(r'\[(Ref_\d+)]', content)
                 refences = {url_tag: text_links[url_tag] for url_tag in url_tags if url_tag in text_links}
