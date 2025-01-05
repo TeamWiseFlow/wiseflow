@@ -9,7 +9,9 @@ from custom_fetchings import *
 from urllib.parse import urlparse
 from crawl4ai import AsyncWebCrawler, CacheMode
 from datetime import datetime, timedelta
+import logging
 
+logging.getLogger("httpx").setLevel(logging.WARNING)
 
 project_dir = os.environ.get("PROJECT_DIR", "")
 if project_dir:
@@ -64,8 +66,8 @@ async def main_process(_sites: set | list):
                 raw_markdown, metadata_dict, media_dict = custom_scrapers[domain](url)
             else:
                 crawl4ai_cache_mode = CacheMode.WRITE_ONLY if url in _sites else CacheMode.ENABLED
-                result = await crawler.arun(url=url, delay_before_return_html=2.0, exclude_social_media_links=True,
-                                            magic=True, scan_full_page=True, remove_overlay_elements=True,
+                result = await crawler.arun(url=url, delay_before_return_html=2.0, wait_until='commit',
+                                            magic=True, scan_full_page=True,
                                             cache_mode=crawl4ai_cache_mode)
                 if not result.success:
                     wiseflow_logger.warning(f'{url} failed to crawl, destination web cannot reach, skip')
@@ -122,8 +124,9 @@ async def main_process(_sites: set | list):
                         to_be_replaces[img_url].append("content")
                     else:
                         to_be_replaces[img_url] = ["content"]
-            wiseflow_logger.debug(f'total {len(to_be_replaces)} images to be recognized')
+
             recognized_result = await extract_info_from_img(list(to_be_replaces.keys()), vl_model)
+            wiseflow_logger.debug(f'total {len(recognized_result)} imgs be recognized')
             recognized_img_cache.update({key: value for key, value in recognized_result.items() if value.strip()})
             for img_url, content in recognized_result.items():
                 for u in to_be_replaces[img_url]:

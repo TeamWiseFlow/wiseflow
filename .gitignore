@@ -10,3 +10,4 @@ pb/pb_data/
 pb/pocketbase
 core/docker_dir/
 core/work_dir/
+test/webpage_samples/
