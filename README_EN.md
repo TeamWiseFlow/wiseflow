@@ -10,32 +10,48 @@
 
 https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
-## 🔥 Test Scripts and Test Reports Release
+## 🔥 V0.3.6 is Here
 
-We have horizontally tested and compared the performance of deepseekV2.5, Qwen2.5-32B-Instruct, Qwen2.5-14B-Instruct, and Qwen2.5-coder-7B-Instruct models provided by siliconflow across four real-case tasks and a total of ten real webpage samples.
-Please refer to the [report](./test/reports/wiseflow_report_20241223_bigbrother666/README.md) for test results.
+V0.3.6 is an enhanced version of V0.3.5, incorporating numerous improvements based on community feedback. We recommend all users to upgrade.
 
-We have also open-sourced the test scripts and welcome everyone to actively submit more test results. Wiseflow is an open-source project, and we hope to create an "information crawling tool that everyone can use" through our collective contributions!
+- Switched to Crawl4ai as the underlying web crawling framework. Although Crawl4ai and Crawlee both rely on Playwright with similar fetching results, Crawl4ai's html2markdown feature is quite practical for LLM information extraction. Additionally, Crawl4ai's architecture better aligns with my design philosophy.
+- Built upon Crawl4ai's html2markdown, we added a deep scraper to further differentiate standalone links from the main content, facilitating more precise LLM extraction. The preprocessing done by html2markdown and deep scraper significantly cleans up raw web data, minimizing interference and misleading information for LLMs, ensuring higher quality outcomes while reducing unnecessary token consumption.
 
-For details, please refer to [test/README_EN.md](./test/README_EN.md)
+  *Distinguishing between list pages and article pages is a common challenge in web scraping projects, especially when modern webpages often include extensive recommended readings in sidebars and footers of articles, making it difficult to differentiate them through text statistics.*
+  *Initially, I considered using large visual models for layout analysis, but found that obtaining undistorted webpage screenshots greatly increases program complexity and reduces processing efficiency...*
 
-At this stage, **submitting test results is equivalent to submitting project code**, and you will similarly be accepted as a contributor and may even be invited to participate in commercialization projects!
+- Restructured extraction strategies and LLM prompts;
 
-Additionally, we have improved the download and username/password configuration solution for pocketbase. Thanks to @ourines for contributing the install_pocketbase.sh script.
+  *Regarding prompts, I believe that a good prompt serves as clear workflow guidance, with each step being explicit enough to minimize errors. However, I am skeptical about the value of overly complex prompts, which are hard to evaluate. If you have better solutions, feel free to submit a PR.*
 
-(The docker deployment solution has been temporarily removed as we felt it wasn't very convenient for users...)
+- Introduced large visual models to automatically recognize high-weight images (currently evaluated by Crawl4ai) before extraction and append relevant information to the page text;
+- Continued to reduce dependencies in requirement.txt; json_repair is no longer needed (in practice, having LLMs generate JSON format still noticeably increases processing time and failure rates, so I now adopt a simpler approach with additional post-processing of results)
+- Made minor adjustments to the pb info form structure, adding web_title and reference fields.
+- @ourines contributed the install_pocketbase.sh script (the Docker running solution has been temporarily removed as it wasn't very convenient for users...)
 
-🌟 **V0.3.6 Version Preview**
+**Upgrading to V0.3.6 requires restructuring the PocketBase database. Please delete the pb/pb_data folder and re-run the setup**
 
-Version V0.3.6 is planned for release before December 30, 2024. This version is a performance optimization of v0.3.5, with significant improvements in information extraction quality. It will also introduce visual large models to extract page image information as supplementary when webpage information is insufficient.
+**In V0.3.6, replace SECONDARY_MODEL with VL_MODEL in the .env file. Refer to the latest [env_sample](./env_sample)**
 
-**V0.3.x Plan**
+### V0.3.6 Test Report
 
-- Attempt to support WeChat official account subscription without wxbot (V0.3.7)
-- Introduce support for RSS information sources (V0.3.8)
-- Attempt to introduce LLM-driven lightweight knowledge graphs to help users build insights from infos (V0.3.9)
+We conducted horizontal tests across four real-world tasks and six real web samples using deepseekV2.5, Qwen2.5-32B-Instruct, Qwen2.5-14B-Instruct, and Qwen2.5-72B-Instruct models provided by siliconflow. For detailed test results, please refer to [report](./test/reports/wiseflow_report_v036_bigbrother666/README.md).
 
-Starting from version V0.3.5, wiseflow uses a completely new architecture and introduces [Crawlee](https://github.com/apify/crawlee-python) as the basic crawler and task management framework, significantly improving page acquisition capabilities. We will continue to enhance wiseflow's page acquisition capabilities. If you encounter pages that cannot be properly acquired, please provide feedback in [issue #136](https://github.com/TeamWiseFlow/wiseflow/issues/136).
+We have also open-sourced our testing scripts. We welcome everyone to submit more test results. Wiseflow is an open-source project aiming to create an "information retrieval tool accessible to everyone"!
+
+Refer to [test/README.md](./test/README.md)
+
+At this stage, **submitting test results is equivalent to contributing code**, and contributors may even be invited to participate in commercial projects!
+
+
+🌟**V0.3.x Roadmap**
+
+- Attempt to support WeChat Official Account subscription without wxbot (V0.3.7);
+- Introduce support for RSS feeds and search engines (V0.3.8);
+- Attempt partial support for social platforms (V0.3.9).
+
+Throughout these versions, I will continuously improve the deep scraper and LLM extraction strategies. We welcome continuous feedback on application scenarios and sources where extraction performance is unsatisfactory. Please provide feedback in [issue #136](https://github.com/TeamWiseFlow/wiseflow/issues/136).
+
 
 ## ✋ How is wiseflow Different from Traditional Crawler Tools, AI Search, and Knowledge Base (RAG) Projects?
 
@@ -45,9 +61,11 @@ However, we have also noticed some misunderstandings about the functional positi
 
 |          | Comparison with **Chief Intelligence Officer (Wiseflow)** | 
 |-------------|-----------------|
-| **Crawler Tools** | First, wiseflow is a project based on crawler tools (in the current version, we use the crawler framework Crawlee). However, traditional crawler tools require manual intervention in information extraction, providing explicit Xpath, etc. This not only blocks ordinary users but also lacks generality. For different websites (including upgraded websites), manual reanalysis and updating of extraction code are required. Wiseflow is committed to automating web analysis and extraction using LLM. Users only need to tell the program their focus points. From this perspective, wiseflow can be simply understood as an "AI agent that can automatically use crawler tools." |
+| **Crawler Tools** | First of all, wiseflow is a project based on a web crawler tool, but traditional crawler tools require manual provision of explicit Xpath information for data extraction... This not only blocks ordinary users but also lacks universality. For different websites (including existing websites after upgrades), manual re-analysis and program updates are required. wiseflow is committed to using LLM to automate the analysis and extraction of web pages. Users only need to tell the program their focus points. Taking Crawl4ai as an example for comparison, Crawl4ai is a crawler that uses LLM for information extraction, while wiseflow is an LLM information extractor that uses crawler tools. |
 | **AI Search** | AI search is mainly used for **instant question-and-answer** scenarios, such as "Who is the founder of XX company?" or "Where can I buy the xx product under the xx brand?" Users want **a single answer**; wiseflow is mainly used for **continuous information collection** in certain areas, such as tracking related information of XX company, continuously tracking market behavior of XX brand, etc. In these scenarios, users can provide focus points (a company, a brand) or even information sources (site URLs, etc.), but cannot pose specific search questions. Users want **a series of related information**.| 
 | **Knowledge Base (RAG) Projects** | Knowledge base (RAG) projects are generally based on downstream tasks of existing information and usually face private knowledge (such as operation manuals, product manuals, government documents within enterprises, etc.); wiseflow currently does not integrate downstream tasks and faces public information on the internet. From the perspective of "agents," the two belong to agents built for different purposes. RAG projects are "internal knowledge assistant agents," while wiseflow is an "external information collection agent."|
+
+**The wiseflow 0.4.x version will focus on the integration of downstream tasks, introducing an LLM-driven lightweight knowledge graph to help users gain insights from infos.**
 
 ## 📥 Installation and Usage
 
@@ -92,7 +110,6 @@ Siliconflow provides online MaaS services for most mainstream open-source models
 export LLM_API_KEY=Your_API_KEY
 export LLM_API_BASE="https://api.siliconflow.cn/v1"
 export PRIMARY_MODEL="Qwen/Qwen2.5-32B-Instruct"
-export SECONDARY_MODEL="Qwen/Qwen2.5-7B-Instruct"
 export VL_MODEL="OpenGVLab/InternVL2-26B"
 ```
       
@@ -108,7 +125,6 @@ When using AiHubMix models, the .env configuration can refer to the following:
 export LLM_API_KEY=Your_API_KEY
 export LLM_API_BASE="https://aihubmix.com/v1" # refer to https://doc.aihubmix.com/
 export PRIMARY_MODEL="gpt-4o"
-export SECONDARY_MODEL="gpt-4o-mini"
 export VL_MODEL="gpt-4o"
 ```
 
@@ -122,7 +138,6 @@ Taking Xinference as an example, the .env configuration can refer to the followi
 # LLM_API_KEY='' no need for local service, please comment out or delete
 export LLM_API_BASE='http://127.0.0.1:9997'
 export PRIMARY_MODEL=launched_model_id
-export SECONDARY_MODEL=launched_model_id
 export VL_MODEL=launched_model_id
 ```
 
@@ -232,12 +247,10 @@ If you have any questions or suggestions, please feel free to leave a message vi
 
 ## 🤝 This Project is Based on the Following Excellent Open-Source Projects:
 
-- crawlee-python (A web scraping and browser automation library for Python to build reliable crawlers. Works with BeautifulSoup, Playwright, and raw HTTP. Both headful and headless mode. With proxy rotation.) https://github.com/apify/crawlee-python
-- json_repair (Repair invalid JSON documents) https://github.com/josdejong/jsonrepair/tree/main 
+- crawl4ai（Open-source LLM Friendly Web Crawler & Scraper） https://github.com/unclecode/crawl4ai
 - python-pocketbase (pocketBase client SDK for python) https://github.com/vaphes/pocketbase
-- SeeAct (a system for generalist web agents that autonomously carry out tasks on any given website, with a focus on large multimodal models (LMMs) such as GPT-4Vision.) https://github.com/OSU-NLP-Group/SeeAct
 
-Also inspired by [GNE](https://github.com/GeneralNewsExtractor/GeneralNewsExtractor) and [AutoCrawler](https://github.com/kingname/AutoCrawler).
+Also inspired by [GNE](https://github.com/GeneralNewsExtractor/GeneralNewsExtractor)  [AutoCrawler](https://github.com/kingname/AutoCrawler)  [SeeAct](https://github.com/OSU-NLP-Group/SeeAct) .
 
 ## Citation
 

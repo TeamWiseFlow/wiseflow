@@ -45,11 +45,6 @@ def normalize_url(url: str, base_url: str) -> str:
         _url = f"https:{url}"
     elif url.startswith(('http:/', 'https:/')):
         _url = url
-    elif url.startswith('/'):
-        if base_url.endswith('/'):
-            _url = base_url[:-1] + url
-        else:
-            _url = base_url + url
     else:
         _url = urljoin(base_url, url)
     # 处理url中path部分的多余斜杠
@@ -65,7 +60,7 @@ def normalize_url(url: str, base_url: str) -> str:
         _url = f"{_url}#{parsed.fragment}"
     return _url
 
-def deep_scraper(raw_markdown: str, base_url: str, used_img: dict[str, str]) -> tuple[dict, tuple[str, dict]]:
+def deep_scraper(raw_markdown: str, base_url: str, used_img: list[str]) -> tuple[dict, tuple[str, dict]]:
     link_dict = {}
     def check_url_text(text):
         text = text.strip()
@@ -147,8 +142,8 @@ def deep_scraper(raw_markdown: str, base_url: str, used_img: dict[str, str]) -> 
                 link_text = f"{link_text} {text}"
 
             # 去除首尾的common_chars和数字
-            link_text = link_text.strip(''.join(common_chars + '0123456789'))
-            if len(link_text) >= 3:
+            link_text = link_text.strip()
+            if link_text:
                 if url not in link_dict:
                     link_dict[url] = link_text
                 else:
@@ -190,19 +185,17 @@ def deep_scraper(raw_markdown: str, base_url: str, used_img: dict[str, str]) -> 
     html_text = '\n\n'.join(texts)
 
     # 处理图片标记 ![alt](src)
-    img_pattern = r'(!\[.*?\]\(.*?\))'
+    img_pattern = r'!\[(.*?)\]\((.*?)\)'
     matches = re.findall(img_pattern, html_text)
     text_link_map = {}
-    for match in matches:
-        src = re.search(r'!\[.*?]\((.*?)\)', match).group(1)
+    for alt, src in matches:
         if src not in used_img:
-            html_text = html_text.replace(match, '')
+            html_text = html_text.replace(f'![{alt}]({src})', '')
             continue
 
-        alt = used_img[src]
         src = src.strip().lower()
         if not src or src.startswith('#'):
-            html_text = html_text.replace(match, alt)
+            html_text = html_text.replace(f'![{alt}]({src})', alt)
             continue
 
         key = f"Ref_{len(text_link_map)+1}"
@@ -210,16 +203,16 @@ def deep_scraper(raw_markdown: str, base_url: str, used_img: dict[str, str]) -> 
         src = normalize_url(src, base_url)
 
         if not src:
-            html_text = html_text.replace(match, f"{alt}[{key}]")
+            html_text = html_text.replace(f'![{alt}]({src})', f"{alt}[{key}]")
             continue
 
         if any(src.endswith(tld) or src.endswith(tld + '/') for tld in common_tlds):
-            html_text = html_text.replace(match, f"{alt}[{key}]")
+            html_text = html_text.replace(f'![{alt}]({src})', f"{alt}[{key}]")
             continue
         if any(src.endswith(ext) for ext in common_file_exts if ext not in ['jpg', 'jpeg', 'png']):
-            html_text = html_text.replace(match, f"{alt}[{key}]")
+            html_text = html_text.replace(f'![{alt}]({src})', f"{alt}[{key}]")
             continue
-        html_text = html_text.replace(match, f" {alt}[{key}]§to_be_recognized_by_visual_llm_{src[1:]}§") # to avoid conflict with the url pattern
+        html_text = html_text.replace(f'![{alt}]({src})', f" {alt}[{key}]§to_be_recognized_by_visual_llm_{src[1:]}§") # to avoid conflict with the url pattern
     
     # 接下来要处理所有的[]()文本了
     link_pattern = r'\[(.*?)\]\((.*?)\)'

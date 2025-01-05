@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
 from loguru import logger
-import os, re, sys
-
-current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.dirname(current_dir)  # get parent dir
-sys.path.append(project_root)
-
-from core.utils.pb_api import PbTalker
-from core.llms.openai_wrapper import openai_llm as llm
+import os, re
+from utils.pb_api import PbTalker
+from llms.openai_wrapper import openai_llm as llm
 # from core.llms.siliconflow_wrapper import sfa_llm # or other llm wrapper
-from core.utils.general_utils import is_chinese, extract_and_convert_dates
+from utils.general_utils import is_chinese, extract_and_convert_dates
 
 
 async def get_author_and_publish_date(text: str, model: str) -> tuple[str, str]:
     if not text:
         return "", ""
 
-    if len(text) > 1024:
-        text = f'{text[:999]}......'
+    if len(text) > 100:
+        text = text[20:]
+
+    if len(text) > 2048:
+        text = f'{text[:2048]}......'
 
     system_prompt = "As an information extraction assistant, your task is to accurately extract the source (or author) and publication date from the given webpage text. It is important to adhere to extracting the information directly from the original text. If the original text does not contain a particular piece of information, please replace it with NA"
     suffix = '''Please output the extracted information in the following format(output only the result, no other content):
@@ -248,7 +246,7 @@ When performing the association analysis, please follow these principles:
                 url_tags = re.findall(r'\[(Ref_\d+)]', content)
                 refences = {url_tag: text_links[url_tag] for url_tag in url_tags if url_tag in text_links}
 
-                final.append({'tag': self.focus_dict[item['focus']], 'content': f"{info_pre_fix}{content}", 'references': refences})
+                final.append({'tag': self.focus_dict[focus], 'content': f"{info_pre_fix}{content}", 'references': refences})
         
         return final
 

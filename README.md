@@ -10,10 +10,33 @@
 
 https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
-## 🔥 测试脚本与测试报告发布
+## 🔥 虽迟但到, V0.3.6来了
 
-我们在四个现实案例任务以及共计十个真实网页 sample 中横向测试并比较了由 siliconflow 提供的deepseekV2.5、Qwen2.5-32B-Instruct、Qwen2.5-14B-Instruct、Qwen2.5-coder-7B-Instruct 模型的表现情况，
-测试结果请参考 [report](./test/reports/wiseflow_report_20241223_bigbrother666/README.md)
+V0.3.6 是 V0.3.5的效果改进版本，针对诸多社区反馈进行了改进，建议所有用户升级。
+
+  - 改用 Crawl4ai 作为底层爬虫框架，其实Crawl4ai 和 Crawlee 的获取效果差别不大，二者也都是基于 Playwright ，但 Crawl4ai 的 html2markdown 功能很实用，而这对llm 信息提取作用很大，另外 Crawl4ai 的架构也更加符合我的思路；
+  - 在 Crawl4ai 的 html2markdown 基础上，增加了 deep scraper，进一步把页面的独立链接与正文进行区分，便于后一步 llm 的精准提取。由于html2markdown和deep scraper已经将原始网页数据做了很好的清理，极大降低了llm所受的干扰和误导，保证了最终结果的质量，同时也减少了不必要的 token 消耗；
+
+     *列表页面和文章页面的区分是所有爬虫类项目都头痛的地方，尤其是现代网页往往习惯在文章页面的侧边栏和底部增加大量推荐阅读，使得二者几乎不存在文本统计上的特征差异。*
+     *这一块我本来想用视觉大模型进行 layout 分析，但最终实现起来发现获取不受干扰的网页截图是一件会极大增加程序复杂度并降低处理效率的事情……*
+  
+  - 重构了提取策略、llm 的 prompt 等；
+
+    *有关 prompt 我想说的是，我理解好的 prompt 是清晰的工作流指导，每一步都足够明确，明确到很难犯错。但我不太相信过于复杂的 prompt 的价值，这个很难评估，如果你有更好的方案，欢迎提供 PR*
+
+  - 引入视觉大模型，自动在提取前对高权重（目前由 Crawl4ai 评估权重）图片进行识别，并补充相关信息到页面文本中；
+  - 继续减少 requirement.txt 的依赖项，目前不需要 json_repair了（实践中也发现让 llm 按 json 格式生成，还是会明显增加处理时间和失败率，因此我现在采用更简单的方式，同时增加对处理结果的后处理）
+  - pb info 表单的结构做了小调整，增加了 web_title 和 reference 两项。
+  - @ourines 贡献了 install_pocketbase.sh 脚本 (docker运行方案被暂时移除了，感觉大家用起来也不是很方便……)
+
+**升级V0.3.6 版本依然需要重构 pocketbase 数据库，请删除pb/pb_data 文件夹后重新执行**
+
+**V0.3.6版本 .env 中需要把SECONDARY_MODEL替换为VL_MODEL，请参考最新的 [env_sample](./env_sample)**
+  
+### V0.3.6 测试报告
+
+我们在四个现实案例任务以及共计六个真实网页 sample 中横向测试并比较了由 siliconflow 提供的deepseekV2.5、Qwen2.5-32B-Instruct、Qwen2.5-14B-Instruct、Qwen2.5-72B-Instruct 模型的表现情况，
+测试结果请参考 [report](./test/reports/wiseflow_report_v036_bigbrother666/README.md)
 
 同时我们也将测试脚本进行开源，欢迎大家踊跃提交更多测试结果，wiseflow 是一个开源项目，希望通过大家共同的贡献，打造“人人可用的信息爬取工具”！
 
@@ -21,21 +44,15 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 现阶段，**提交测试结果等同于提交项目代码**，同样会被接纳为contributor，甚至受邀参加商业化项目！
 
-另外我们改进了 pocketbase 的下载以及用户名密码配置方案，感谢 @ourines 贡献了 install_pocketbase.sh 脚本。
 
-(docker运行方案被暂时移除了，感觉大家用起来也不是很方便……)
-
-🌟 **V0.3.6 版本预告**
-
-V0.3.6 版本计划于2024年12月30日前发布，该版本是 v0.3.5 的性能优化版本，信息抽取质量将有质的提升，同时还会引入视觉大模型，在网页信息不足时提取页面图片信息作为补充。
-
-**V0.3.x 计划**
+🌟**V0.3.x 计划**
 
 - 尝试支持微信公众号免wxbot订阅（V0.3.7）；
-- 引入对 RSS 信息源的支持（V0.3.8）;
-- 尝试引入 LLM 驱动的轻量级知识图谱，帮助用户从 infos 中建立洞察（V0.3.9）。
+- 引入对 RSS 信息源和搜索引擎的支持（V0.3.8）;
+- 尝试部分支持社交平台（V0.3.9）。
 
-自V0.3.5版本开始 wiseflow 使用全新的架构，并引入 [Crawlee](https://github.com/apify/crawlee-python) 作为基础爬虫和任务管理框架，大幅提升页面获取能力。后续我们会持续提升wiseflow 的页面获取能力，大家碰到不能很好获取的页面，欢迎在 [issue #136](https://github.com/TeamWiseFlow/wiseflow/issues/136) 中进行反馈。
+伴随着上述三个版本，我会持续改进 deep scraper 以及 llm 提取策略，也欢迎大家持续反馈应用场景和抽取效果不理想的信源地址，欢迎在 [issue #136](https://github.com/TeamWiseFlow/wiseflow/issues/136) 中进行反馈。
+
 
 ## ✋ wiseflow 与传统的爬虫工具、AI搜索、知识库（RAG）项目有何不同？
 
@@ -45,9 +62,11 @@ wiseflow自2024年6月底发布 V0.3.0版本来受到了开源社区的广泛关
 
 |          | 与 **首席情报官（Wiseflow）** 的比较说明| 
 |-------------|-----------------|
-| **爬虫类工具** | 首先 wiseflow 是基于爬虫工具的项目（目前我们基于的是 Crawl4ai），但传统的爬虫工具在信息提取方面需要人工的提供明确的 Xpath 等信息……这不仅阻挡了普通用户，同时也毫无通用性可言，对于不同网站（包括已有网站升级后）都需要人工重做分析，更新程序。wiseflow致力于使用 LLM 自动化网页的分析和提取工作，用户只要告诉程序他的关注点即可。 如果以 Crawl4ai 为例对比说明，Crawl4ai 是会使用 llm 进行信息提取的爬虫，而wiseflow 则是会使用爬虫工具的llm信息提取器。|
+| **爬虫类工具** | 首先 wiseflow 是基于爬虫工具的项目，但传统的爬虫工具在信息提取方面需要人工的提供明确的 Xpath 等信息……这不仅阻挡了普通用户，同时也毫无通用性可言，对于不同网站（包括已有网站升级后）都需要人工重做分析，更新程序。wiseflow致力于使用 LLM 自动化网页的分析和提取工作，用户只要告诉程序他的关注点即可。 如果以 Crawl4ai 为例对比说明，Crawl4ai 是会使用 llm 进行信息提取的爬虫，而wiseflow 则是会使用爬虫工具的llm信息提取器。|
 | **AI搜索** |  AI搜索主要的应用场景是**具体问题的即时问答**，举例：”XX公司的创始人是谁“、“xx品牌下的xx产品哪里有售” ，用户要的是**一个答案**；wiseflow主要的应用场景是**某一方面信息的持续采集**，比如XX公司的关联信息追踪，XX品牌市场行为的持续追踪……在这些场景下，用户能提供关注点（某公司、某品牌）、甚至能提供信源（站点 url 等），但无法提出具体搜索问题，用户要的是**一系列相关信息**| 
 | **知识库（RAG）类项目** | 知识库（RAG）类项目一般是基于已有信息的下游任务，并且一般面向的是私有知识（比如企业内的操作手册、产品手册、政府部门的文件等）；wiseflow 目前并未整合下游任务，同时面向的是互联网上的公开信息，如果从“智能体”的角度来看，二者属于为不同目的而构建的智能体，RAG 类项目是“（内部）知识助理智能体”，而 wiseflow 则是“（外部）信息采集智能体”|
+
+**wiseflow 0.4.x 版本将关注下游任务的集成， 引入 LLM 驱动的轻量级知识图谱，帮助用户从 infos 中建立洞察。**
 
 ## 📥 安装与使用
 
@@ -94,7 +113,6 @@ siliconflow（硅基流动）提供大部分主流开源模型的在线 MaaS 服
 export LLM_API_KEY=Your_API_KEY
 export LLM_API_BASE="https://api.siliconflow.cn/v1"
 export PRIMARY_MODEL="Qwen/Qwen2.5-32B-Instruct"
-export SECONDARY_MODEL="Qwen/Qwen2.5-7B-Instruct"
 export VL_MODEL="OpenGVLab/InternVL2-26B"
 ```
       
@@ -109,7 +127,6 @@ export VL_MODEL="OpenGVLab/InternVL2-26B"
 export LLM_API_KEY=Your_API_KEY
 export LLM_API_BASE="https://aihubmix.com/v1" # 具体参考 https://doc.aihubmix.com/
 export PRIMARY_MODEL="gpt-4o"
-export SECONDARY_MODEL="gpt-4o-mini"
 export VL_MODEL="gpt-4o"
 ```
 
@@ -123,7 +140,6 @@ export VL_MODEL="gpt-4o"
 # LLM_API_KEY='' 本地服务无需这一项，请注释掉或删除
 export LLM_API_BASE='http://127.0.0.1:9997'
 export PRIMARY_MODEL=启动的模型 ID
-export SECONDARY_MODEL=启动的模型 ID
 export VL_MODEL=启动的模型 ID
 ```
 
@@ -233,8 +249,7 @@ PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 
 
 ## 🤝 本项目基于如下优秀的开源项目：
 
-- crawlee-python （A web scraping and browser automation library for Python to build reliable crawlers. Works with BeautifulSoup, Playwright, and raw HTTP. Both headful and headless mode. With proxy rotation.） https://github.com/apify/crawlee-python
-- json_repair（Repair invalid JSON documents ） https://github.com/josdejong/jsonrepair/tree/main 
+- crawl4ai（Open-source LLM Friendly Web Crawler & Scraper） https://github.com/unclecode/crawl4ai
 - python-pocketbase (pocketBase client SDK for python) https://github.com/vaphes/pocketbase
 
 本项目开发受 [GNE](https://github.com/GeneralNewsExtractor/GeneralNewsExtractor)、[AutoCrawler](https://github.com/kingname/AutoCrawler) 、[SeeAct](https://github.com/OSU-NLP-Group/SeeAct) 启发。

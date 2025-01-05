@@ -5,16 +5,22 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)  # get parent dir
 sys.path.append(project_root)
 
-from core.agents.get_info import extract_info_from_img
-
-vl_model = os.environ.get("VL_MODEL", "")
-if not vl_model:
-    print("错误: VL_MODEL not set, will skip extracting info from img, some info may be lost!")
-    sys.exit(1)
-
+from core.llms.openai_wrapper import openai_llm as llm
 
 async def main(task: list):
-    return await extract_info_from_img(task, vl_model)
+    vl_model = os.environ.get("VL_MODEL", "")
+    if not vl_model:
+        print("错误: VL_MODEL not set, will skip extracting info from img, some info may be lost!")
+        sys.exit(1)
+    cache = {}
+    for url in task:
+        llm_output = await llm([{"role": "user",
+                                "content": [{"type": "image_url", "image_url": {"url": url, "detail": "high"}},
+                                                {"type": "text",
+                                                "text": "提取图片中的所有文字，如果图片不包含文字或者文字很少或者你判断图片仅是网站logo、商标、图标等，则输出NA。注意请仅输出提取出的文字，不要输出别的任何内容。"}]}],
+                                   model=vl_model)
+        cache[url] = llm_output
+    return cache
 
 
 if __name__ == '__main__':
