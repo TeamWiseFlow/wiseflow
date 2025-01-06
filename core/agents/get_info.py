@@ -10,7 +10,7 @@ from datetime import datetime
 from urllib.parse import urlparse
 import json_repair
 
-LLM_CONCURRENT_NUMBER = os.environ.get('LLM_CONCURRENT_NUMBER', 3)
+LLM_CONCURRENT_NUMBER = os.environ.get('LLM_CONCURRENT_NUMBER', 1)
 
 class GeneralInfoExtractor:
     def __init__(self, pb: PbTalker, _logger: logger) -> None:
