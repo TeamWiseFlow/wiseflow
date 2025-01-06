@@ -55,12 +55,6 @@ class GeneralInfoExtractor:
         self.pb = pb
         self.logger = _logger
         self.model = os.environ.get("PRIMARY_MODEL", "")
-        concurrent_number = os.environ.get('LLM_CONCURRENT_NUMBER', 1)
-        try:
-            self.semaphore = asyncio.Semaphore(int(concurrent_number))
-        except ValueError:
-            self.logger.warning("Invalid LLM_CONCURRENT_NUMBER, using default value 5.")
-            self.semaphore = asyncio.Semaphore(1)
 
         if not self.model:
             self.logger.error("PRIMARY_MODEL not set, can't continue")
@@ -187,25 +181,19 @@ When performing the association analysis, please follow these principles:
             content = f'<text>\n{text_batch}</text>\n\n{suffix}'
             batches.append({'system_prompt': system_prompt, 'content': content})
 
-        async def process_batch(batch):
-            await self.semaphore.acquire()
-            try:
-                result = await llm(
+        self.logger.info(f"LLM tasks size: {len(batches)}")
+        tasks = [
+            llm(
                     [{'role': 'system', 'content': batch['system_prompt']}, {'role': 'user', 'content': batch['content']}],
                     model=self.model, temperature=0.1
                 )
-                extracted_result = re.findall(r'\"\"\"(.*?)\"\"\"', result, re.DOTALL)
-                if extracted_result:
-                    return extracted_result[-1]
-                return None
-            finally:
-                self.semaphore.release()
-        self.logger.info(f"LLM tasks size: {len(batches)}")
-        tasks = [process_batch(batch) for batch in batches]
+            for batch in batches]
         results = await asyncio.gather(*tasks)
         for res in results:
             if res:
-                cache.add(res)
+                extracted_result = re.findall(r'\"\"\"(.*?)\"\"\"', res, re.DOTALL)
+                if extracted_result:
+                    cache.add(extracted_result[-1])
 
         return cache
 
