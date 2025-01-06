@@ -49,19 +49,19 @@ async def extract_info_from_img(task: list, vl_model: str) -> dict:
         cache[url] = llm_output
     return cache
 
-LLM_CONCURRENT_NUMBER = os.environ.get('LLM_CONCURRENT_NUMBER', 1)
 
 class GeneralInfoExtractor:
     def __init__(self, pb: PbTalker, _logger: logger) -> None:
         self.pb = pb
         self.logger = _logger
         self.model = os.environ.get("PRIMARY_MODEL", "")
-        concurrent_number = os.environ.get('LLM_CONCURRENT_NUMBER', 5)
+        concurrent_number = os.environ.get('LLM_CONCURRENT_NUMBER', 1)
         try:
             self.semaphore = asyncio.Semaphore(int(concurrent_number))
         except ValueError:
             self.logger.warning("Invalid LLM_CONCURRENT_NUMBER, using default value 5.")
-            self.semaphore = asyncio.Semaphore(5)
+            self.semaphore = asyncio.Semaphore(1)
+
         if not self.model:
             self.logger.error("PRIMARY_MODEL not set, can't continue")
             raise ValueError("PRIMARY_MODEL not set, please set it in environment variables or edit core/.env")
@@ -183,6 +183,10 @@ When performing the association analysis, please follow these principles:
                 batches.append({'system_prompt': system_prompt, 'content': content})
                 text_batch = ''
 
+        if text_batch:
+            content = f'<text>\n{text_batch}</text>\n\n{suffix}'
+            batches.append({'system_prompt': system_prompt, 'content': content})
+
         async def process_batch(batch):
             await self.semaphore.acquire()
             try:
@@ -196,7 +200,7 @@ When performing the association analysis, please follow these principles:
                 return None
             finally:
                 self.semaphore.release()
-        print("tasks size, ", len(batches))
+        self.logger.info(f"LLM tasks size: {len(batches)}")
         tasks = [process_batch(batch) for batch in batches]
         results = await asyncio.gather(*tasks)
         for res in results:
