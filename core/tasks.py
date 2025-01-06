@@ -1,5 +1,5 @@
 import asyncio
-from general_process import crawler, pb, wiseflow_logger
+from general_process import main_process, pb, wiseflow_logger
 
 counter = 1
 
@@ -18,7 +18,7 @@ async def schedule_pipeline(interval):
                 todo_urls.add(site['url'].rstrip('/'))
 
         counter += 1
-        await crawler.run(list(todo_urls))
+        await main_process(todo_urls)
         wiseflow_logger.info(f'task execute loop finished, work after {interval} seconds')
         await asyncio.sleep(interval)
 

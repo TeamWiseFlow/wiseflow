@@ -1,14 +1,53 @@
+# -*- coding: utf-8 -*-
 import asyncio
 
-from llms.openai_wrapper import openai_llm as llm
-# from core.llms.siliconflow_wrapper import sfa_llm
-from utils.general_utils import is_chinese, extract_and_convert_dates, extract_urls
 from loguru import logger
-from utils.pb_api import PbTalker
 import os, re
-from datetime import datetime
-from urllib.parse import urlparse
-import json_repair
+from utils.pb_api import PbTalker
+from llms.openai_wrapper import openai_llm as llm
+# from core.llms.siliconflow_wrapper import sfa_llm # or other llm wrapper
+from utils.general_utils import is_chinese, extract_and_convert_dates
+
+
+async def get_author_and_publish_date(text: str, model: str) -> tuple[str, str]:
+    if not text:
+        return "", ""
+
+    if len(text) > 100:
+        text = text[20:]
+
+    if len(text) > 2048:
+        text = f'{text[:2048]}......'
+
+    system_prompt = "As an information extraction assistant, your task is to accurately extract the source (or author) and publication date from the given webpage text. It is important to adhere to extracting the information directly from the original text. If the original text does not contain a particular piece of information, please replace it with NA"
+    suffix = '''Please output the extracted information in the following format(output only the result, no other content):
+"""source or article author (use "NA" if this information cannot be extracted)//extracted publication date (keep only the year, month, and day; use "NA" if this information cannot be extracted)"""'''
+
+    content = f'<text>\n{text}\n</text>\n\n{suffix}'
+    llm_output = await llm([{'role': 'system', 'content': system_prompt}, {'role': 'user', 'content': content}],
+                           model=model, max_tokens=50, temperature=0.1, response_format={"type": "json_object"})
+
+    ap_ = llm_output.strip().strip('"').strip('//')
+
+    if '//' not in ap_:
+        print(f"failed to parse from llm output: {ap_}")
+        return '', ''
+
+    ap = ap_.split('//')
+
+    return ap[0], extract_and_convert_dates(ap[1])
+
+
+async def extract_info_from_img(task: list, vl_model: str) -> dict:
+    cache = {}
+    for url in task:
+        llm_output = await llm([{"role": "user",
+        "content": [{"type": "image_url", "image_url": {"url": url, "detail": "high"}},
+        {"type": "text", "text": "提取图片中的所有文字，如果图片不包含文字或者文字很少或者你判断图片仅是网站logo、商标、图标等，则输出NA。注意请仅输出提取出的文字，不要输出别的任何内容。"}]}],
+        model=vl_model)
+
+        cache[url] = llm_output
+    return cache
 
 LLM_CONCURRENT_NUMBER = os.environ.get('LLM_CONCURRENT_NUMBER', 1)
 
@@ -16,8 +55,16 @@ class GeneralInfoExtractor:
     def __init__(self, pb: PbTalker, _logger: logger) -> None:
         self.pb = pb
         self.logger = _logger
-        self.model = os.environ.get("PRIMARY_MODEL", "Qwen/Qwen2.5-7B-Instruct") # better to use "Qwen/Qwen2.5-14B-Instruct"
-        self.secondary_model = os.environ.get("SECONDARY_MODEL", 'Qwen/Qwen2.5-7B-Instruct') # better to use ''
+        self.model = os.environ.get("PRIMARY_MODEL", "")
+        concurrent_number = os.environ.get('LLM_CONCURRENT_NUMBER', 5)
+        try:
+            self.semaphore = asyncio.Semaphore(int(concurrent_number))
+        except ValueError:
+            self.logger.warning("Invalid LLM_CONCURRENT_NUMBER, using default value 5.")
+            self.semaphore = asyncio.Semaphore(5)
+        if not self.model:
+            self.logger.error("PRIMARY_MODEL not set, can't continue")
+            raise ValueError("PRIMARY_MODEL not set, please set it in environment variables or edit core/.env")
 
         # collect tags user set in pb database and determin the system prompt language based on tags
         focus_data = pb.read(collection_name='focus_points', filter=f'activated=True')
@@ -35,240 +82,191 @@ class GeneralInfoExtractor:
         for item in focus_data:
             tag = item["focuspoint"]
             expl = item["explanation"]
-            focus_statement = f"{focus_statement}#{tag}\n"
+            focus_statement = f"{focus_statement}//{tag}//\n"
             if expl:
-                focus_statement = f"{focus_statement}解释：{expl}\n"
+                if is_chinese(expl):
+                    focus_statement = f"{focus_statement}解释：{expl}\n"
+                else:
+                    focus_statement = f"{focus_statement}Explanation: {expl}\n"
 
         if is_chinese(focus_statement):
-            self.get_info_prompt = f'''作为信息提取助手，你的任务是从给定的网页文本中提取与以下用户兴趣点相关的内容。兴趣点列表及其解释如下：
+            self.get_info_prompt = f'''你将被给到一段使用<text></text>标签包裹的网页文本，请分别按如下关注点对网页文本提炼摘要。关注点列表及其解释如下：
 
 {focus_statement}\n
-在进行信息提取时，请遵循以下原则：
+在提炼摘要时，请遵循以下原则：
+- 理解每个关注点的含义以及进一步的解释（如有），确保摘要与关注点强相关并符合解释（如有）的范围
+- 摘要应当详实、充分，使用简体中文（如果原文是英文，请翻译成简体中文）
+- 摘要信息务必忠于原文'''
 
-- 理解每个兴趣点的含义，确保提取的内容与之相关。
-- 如果兴趣点有进一步的解释，确保提取的内容符合这些解释的范围。
-- 忠于原文，你的任务是从网页文本中识别和提取与各个兴趣点相关的信息，并不是总结和提炼。
-
-另外请注意给定的网页文本是通过爬虫程序从html代码中提取出来的，所以请忽略里面不必要的空格、换行符等。'''
-            self.get_info_suffix = '''如果上述网页文本中包含兴趣点相关的内容，请按照以下json格式输出提取的信息（文本中可能包含多条有用信息，请不要遗漏）：
-[{"focus": 兴趣点名称, "content": 提取的内容}]
-
-示例：
-[{"focus": "旅游景点", "content": "北京故宫，地址：北京市东城区景山前街4号，开放时间：8:30-17:00"}, {"focus": "美食推荐", "content": "来王府井小吃街必吃北京烤鸭、炸酱面"}]
-
-如果网页文本中不包含任何与兴趣点相关的信息，请仅输出：[]。'''
-            self.get_more_link_prompt = f"作为一位高效的信息筛选助手，你的任务是根据给定的兴趣点，从给定的文本及其对应的URL中挑选出最值得关注的URL。兴趣点及其解释如下：\n\n{focus_statement}"
-            self.get_more_link_suffix = '''请逐条分析，先逐一给出分析依据，最终将挑选出的 url 按一行一条的格式输出，最终输出的 url 列表整体用三引号包裹，三引号内不要有其他内容，如下是输出格式示例：
+            self.get_info_suffix = '''请对关注点逐一生成摘要，不要遗漏任何关注点，如果网页文本与关注点无关，可以对应输出"NA"。输出结果整体用三引号包裹，三引号内不要有其他内容。如下是输出格式示例：
 """
-url1
-url2
+//关注点1//
+摘要1
+//关注点2//
+摘要2
+//关注点3//
+NA
 ...
 """'''
+            self.get_more_link_prompt = f'''你将被给到数行格式为"<编号>//内容//"的文本，你的任务是逐条分析这些文本，并分别与如下关注点之一相关联。关注点列表及其解释如下：
+
+{focus_statement}\n
+在进行关联分析时，请遵循以下原则：
+
+- 理解每个关注点的含义
+- 如果关注点有进一步的解释，确保提取的内容符合这些解释的范围'''
+
+            self.get_more_link_suffix = '''请分行逐条输出结果，每一条的输出格式为"<编号>//关注点名称//"，如果某条内容不与任何关注点相关，请输出"<编号>//NA//"。输出结果整体用三引号包裹，三引号内不要有其他内容。如下是输出格式示例：
+"""
+<t1>//关注点1名称//
+<t2>//关注点2名称//
+<t3>//NA//
+...
+"""'''
+
         else:
-            self.get_info_prompt = f'''As an information extraction assistant, your task is to extract content related to the following user focus points from the given web page text. The list of focus points and their explanations is as follows:
+            self.get_info_prompt = f'''You will be given a webpage text wrapped in <text></text> tags. Please extract summaries from the text according to the following focus points. The list of focus points and their explanations are as follows:
 
 {focus_statement}\n
-When extracting information, please follow the principles below:
+When extracting summaries, please follow these principles:
+- Understand the meaning of each focus point and its explanation (if any), ensure the summary strongly relates to the focus point and aligns with the explanation (if any)
+- The summary should be detailed and comprehensive
+- The summary should be faithful to the original text'''
 
-- Understand the meaning of each focus point and ensure that the extracted content is relevant to it.
-- If a focus point has further explanations, ensure that the extracted content conforms to the scope of these explanations.
-- Stay true to the original text; your task is to identify and extract information related to each focus point from the web page text, not to summarize or refine it.
-
-Please note that the given web page text is extracted from HTML code via a crawler, so please ignore any unnecessary spaces, line breaks, etc.'''
-            self.get_info_suffix = '''If the above webpage text contains content related to points of interest, please output the extracted information in the following JSON format (the text may contain multiple useful pieces of information, do not miss any):
-[{"focus": "Point of Interest Name", "content": "Extracted Content"}]
-
-Example:
-[{"focus": "Tourist Attraction", "content": "The Forbidden City, Beijing, Address: No. 4 Jingshan Front Street, Dongcheng District, Opening Hours: 8:30-17:00"}, {"focus": "Food Recommendation", "content": "Must-try at Wangfujing Snack Street: Beijing Roast Duck, Noodles with Soybean Paste"}]
-
-If the webpage text does not contain any information related to points of interest, please output only: []'''
-            self.get_more_link_prompt = f"As an efficient information filtering assistant, your task is to select the most noteworthy URLs from a set of texts and their corresponding URLs based on the given focus points. The focus points and their explanations are as follows:\n\n{focus_statement}"
-            self.get_more_link_suffix = '''Please analyze one by one, first give the analysis basis one by one, and finally output the selected URLs in a row-by-row format. The final output URL list is wrapped in three quotes as a whole, and there should be no other content in the three quotes. Here is an example of the output format:
+            self.get_info_suffix = '''Please generate summaries for each focus point, don't miss any focus points. If the webpage text is not related to a focus point, output "NA" for that point. The entire output should be wrapped in triple quotes with no other content inside. Here is an example of the output format:
 """
-url1
-url2
+//Focus Point 1//
+Summary 1
+//Focus Point 2//
+Summary 2
+//Focus Point 3//
+NA
 ...
 """'''
 
-    async def get_author_and_publish_date(self, text: str) -> tuple[str, str]:
-        if not text:
-            return "NA", "NA"
+            self.get_more_link_prompt = f'''You will be given several lines of text in the format "<index>//content//". Your task is to analyze each line and associate it with one of the following focus points. The list of focus points and their explanations are as follows:
 
-        if len(text) > 1024:
-            text = f'{text[:500]}......{text[-500:]}'
+{focus_statement}\n
+When performing the association analysis, please follow these principles:
 
-        system_prompt = "As an information extraction assistant, your task is to accurately extract the source (or author) and publication date from the given webpage text. It is important to adhere to extracting the information directly from the original text. If the original text does not contain a particular piece of information, please replace it with NA"
-        suffix = '''Please output the extracted information in the following JSON format:
-{"source": source or article author (use "NA" if this information cannot be extracted), "publish_date": extracted publication date (keep only the year, month, and day; use "NA" if this information cannot be extracted)}'''
+- Understand the meaning of each focus point
+- If a focus point has further explanation, ensure the extracted content aligns with the scope of these explanations'''
 
-        content = f'<text>\n{text}\n</text>\n\n{suffix}'
-        llm_output = await llm([{'role': 'system', 'content': system_prompt}, {'role': 'user', 'content': content}],
-                           model=self.secondary_model, max_tokens=50, temperature=0.1, response_format={"type": "json_object"})
+            self.get_more_link_suffix = '''Please output the results line by line. Each line should be in the format "<index>//focus point name//". If a line is not related to any focus point, output "<index>//NA//". The entire output should be wrapped in triple quotes with no other content inside. Here is an example of the output format:
+"""
+<t1>//Focus Point 1//
+<t2>//Focus Point 2// 
+<t3>//NA//
+...
+"""'''
 
-        self.logger.debug(f'get_author_and_publish_date llm output:\n{llm_output}')
-        if not llm_output:
-            return '', ''
-        result = json_repair.repair_json(llm_output, return_objects=True)
-        self.logger.debug(f"decoded_object: {result}")
-        if not isinstance(result, dict):
-            self.logger.warning("failed to parse from llm output")
-            return '', ''
-        if 'source' not in result or 'publish_date' not in result:
-            self.logger.warning("failed to parse from llm output")
-            return '', ''
-
-        return result['source'], extract_and_convert_dates(result['publish_date'])
-
-    async def get_more_related_urls(self, link_dict: dict, og_url: str, max_concurrency: int = 5) -> set[str]:
-        if not link_dict:
+    async def _generate_results(self, lines: list, mode: str) -> set:
+        if mode == 'get_info':
+            system_prompt = self.get_info_prompt
+            suffix = self.get_info_suffix
+            batch_size = 5000
+        elif mode == 'get_link':
+            system_prompt = self.get_more_link_prompt
+            suffix = self.get_more_link_suffix
+            batch_size = 2048
+        else:
+            self.logger.error(f"unknown mode: {mode}")
             return set()
-        self.logger.debug(f'{len(link_dict)} items to analyze')
-        urls = set()
 
-        semaphore = asyncio.Semaphore(max_concurrency)  # 创建一个信号量来限制并发数量
+        cache = set()
+        batches = []
+        text_batch = ''
+        for line in lines:
+            text_batch += f'{line}\n'
+            if len(text_batch) > batch_size:
+                content = f'<text>\n{text_batch}</text>\n\n{suffix}'
+                batches.append({'system_prompt': system_prompt, 'content': content})
+                text_batch = ''
 
-        # 跟踪每个批次的内容
-        contents = []
-        current_content = ''
+        async def process_batch(batch):
+            await self.semaphore.acquire()
+            print(self.semaphore)
+            try:
+                result = await llm(
+                    [{'role': 'system', 'content': batch['system_prompt']}, {'role': 'user', 'content': batch['content']}],
+                    model=self.model, temperature=0.1
+                )
+                extracted_result = re.findall(r'\"\"\"(.*?)\"\"\"', result, re.DOTALL)
+                if extracted_result:
+                    return extracted_result[-1]
+                return None
+            finally:
+                self.semaphore.release()
+        print("tasks size, ", len(batches))
+        tasks = [process_batch(batch) for batch in batches]
+        results = await asyncio.gather(*tasks)
+        for res in results:
+            if res:
+                cache.add(res)
 
-        # 创建批次
-        for key, value in link_dict.items():
-            line = f"{key}: {value}\n"
-            if len(current_content) + len(line) > 512:
-                contents.append(current_content)
-                current_content = line
-            else:
-                current_content += line
+        return cache
 
-        if current_content:  # 添加最后一个批次
-            contents.append(current_content)
+    async def get_more_related_urls(self, link_dict: dict) -> set:
+        _to_be_processed = []
+        link_map = {}
+        for i, (url, des) in enumerate(link_dict.items()):
+            des = des.replace('\n', ' ')
+            _to_be_processed.append(f'<t{i+1}>//{des}//')
+            link_map[f'<t{i+1}'] = url
 
-        # 处理单个批次的辅助函数
-        async def process_batch(content: str) -> set[str]:
-            async with semaphore:  # 使用信号量来限制并发
-                batch_urls = set()
-                try:
-                    result = await llm([
-                        {'role': 'system', 'content': self.get_more_link_prompt},
-                        {'role': 'user', 'content': f'{content}\n{self.get_more_link_suffix}'}
-                    ], model=self.model, temperature=0.1)
+        raw_result = await self._generate_results(_to_be_processed, 'get_link')
+        final_result = set()
+        for result in raw_result:
+            for item in result.split('\n'):
+                if not item:
+                    continue
+                segs = item.split('>')
+                if len(segs) != 2:
+                    self.logger.debug(f"bad generate result: {item}")
+                    continue
+                _index, focus = segs
+                _index = _index.strip()
+                focus = focus.strip().strip('//')
+                if focus == 'NA':
+                    continue
+                if focus not in self.focus_dict or _index not in link_map:
+                    self.logger.debug(f"bad generate result: {item}")
+                    continue
+                # self.logger.debug(f"{link_map[_index]} selected")
+                final_result.add(link_map[_index])
+        return final_result
 
-                    self.logger.debug(f'get_more_related_urls llm output:\n{result}')
-                    result = re.findall(r'\"\"\"(.*?)\"\"\"', result, re.DOTALL)
-                    if result:
-                        result = result[0].strip()
-                        batch_urls.update(extract_urls(result))
-
-                except Exception as e:
-                    self.logger.error(f"Error processing batch: {e}")
-                return batch_urls
-
-        # 并发处理所有批次
-        tasks = [asyncio.create_task(process_batch(content)) for content in contents]
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-
-        # 合并所有结果
-        for result in results:
-            if isinstance(result, set):  # 确保结果不是异常
-                urls.update(result)
-
-        raw_urls = set(link_dict.values())
-        urls.discard(og_url)
-        hallucination_urls = urls - raw_urls
-        if hallucination_urls:
-            self.logger.warning(f"{hallucination_urls} not in link_dict, it's model's Hallucination")
-
-        return urls & raw_urls
-
-    async def get_info(self, text: str, info_pre_fix: str, link_dict: dict) -> list[dict]:
-        if not text:
-            return []
-
-        content = f'<text>\n{text}\n</text>\n\n{self.get_info_suffix}'
-        result = await llm([{'role': 'system', 'content': self.get_info_prompt}, {'role': 'user', 'content': content}],
-                           model=self.model, temperature=0.1, response_format={"type": "json_object"})
-        self.logger.debug(f'get_info llm output:\n{result}')
-        if not result:
-            return []
-
-        result = json_repair.repair_json(result, return_objects=True)
-        if not isinstance(result, list):
-            self.logger.warning("failed to parse from llm output")
-            return []
-        if not result:
-            self.logger.debug("no info found")
-            return []
-
-        system = '''判断给定的信息是否与网页文本相符。信息将用标签<info></info>包裹，网页文本则用<text></text>包裹。请遵循如下工作流程:
-1、尝试找出网页文本中所有与信息对应的文本片段（可能有多处）；
-2、基于这些片段给出是否相符的最终结论，最终结论仅为“是”或“否”'''
-        suffix = '先输出找到的所有文本片段，再输出最终结论（仅为是或否）'
-
+    async def get_info(self, text: str, text_links: dict, info_pre_fix: str) -> list[dict]:
+        raw_result = await self._generate_results(text.split('\n'), 'get_info')
         final = []
-        for item in result:
-            if 'focus' not in item or 'content' not in item:
-                self.logger.warning(f"not quality item: {item}, it's model's Hallucination")
-                continue
-            if item['focus'] not in self.focus_dict:
-                self.logger.warning(f"{item['focus']} not in focus_list, it's model's Hallucination")
-                continue
-            if not item['content']:
-                continue
-            
-            if item['content'] in link_dict:
-                self.logger.debug(f"{item['content']} in link_dict, aborting")
-                continue
+        for item in raw_result:
+            self.logger.debug(f"llm output:\n{item}")
+            segs = item.split('//')
+            i = 0
+            while i < len(segs) - 1:
+                focus = segs[i].strip()
+                if not focus:
+                    i += 1
+                    continue
+                if focus not in self.focus_dict:
+                    self.logger.debug(f"bad generate result: {item}")
+                    i += 1
+                    continue
+                content = segs[i+1].strip().strip('摘要').strip(':').strip('：')
+                i += 2
+                if not content or content == 'NA':
+                    continue
+                """
+                maybe can use embedding retrieval to judge
+                """
 
-            judge = await llm([{'role': 'system', 'content': system},
-                               {'role': 'user', 'content': f'<info>\n{item["content"]}\n</info>\n\n<text>\n{text}\n</text>\n\n{suffix}'}],
-                               model=self.secondary_model, temperature=0.1)
-            self.logger.debug(f'judge llm output:\n{judge}')
-            if not judge:
-                self.logger.warning("failed to parse from llm output, skip checking")
-                final.append({'tag': self.focus_dict[item['focus']], 'content': f"{info_pre_fix}{item['content']}"})
-                continue
+                url_tags = re.findall(r'\[(Ref_\d+)]', content)
+                refences = {url_tag: text_links[url_tag] for url_tag in url_tags if url_tag in text_links}
 
-            to_save = False
-            for i in range(min(7, len(judge))):
-                char = judge[-1 - i]
-                if char == '是':
-                    to_save = True
-                    break
-                elif char == '否':
-                    break
-            if not to_save:
-                self.logger.info(f"secondary model judge {item} not faithful to article text, aborting")
-                continue
-            final.append({'tag': self.focus_dict[item['focus']], 'content': f"{info_pre_fix}{item['content']}"})
-
-        if not final:
-            self.logger.info("no quality result from llm output")
+                final.append({'tag': self.focus_dict[focus], 'content': f"{info_pre_fix}{content}", 'references': refences})
+        
         return final
 
-    async def __call__(self, text: str, link_dict: dict, base_url: str, author: str = None, publish_date: str = None) -> tuple[list, set, str, str]:
-        if not author and not publish_date and text:
-            author, publish_date = await self.get_author_and_publish_date(text)
-
-        if not author or author.lower() == 'na':
-            author = urlparse(base_url).netloc
-
-        if not publish_date or publish_date.lower() == 'na':
-            publish_date = datetime.now().strftime('%Y-%m-%d')
-
-        related_urls = await self.get_more_related_urls(link_dict, base_url, LLM_CONCURRENT_NUMBER)
-
+    async def __call__(self, link_dict: dict, text: str, text_links: dict, author: str, publish_date: str) -> tuple[set, list]:
         info_prefix = f"//{author} {publish_date}//"
-        lines = text.split('\n')
-        text = ''
-        infos = []
-        for line in lines:
-            text = f'{text}{line}'
-            if len(text) > 2048:
-                cache = await self.get_info(text, info_prefix, link_dict)
-                infos.extend(cache)
-                text = ''
-        if text:
-            cache = await self.get_info(text, info_prefix, link_dict)
-            infos.extend(cache)
-
-        return infos, related_urls, author, publish_date
+        return await self.get_more_related_urls(link_dict), await self.get_info(text, text_links, info_prefix)
