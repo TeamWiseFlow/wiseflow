@@ -25,7 +25,7 @@ async def get_author_and_publish_date(text: str, model: str) -> tuple[str, str]:
 
     content = f'<text>\n{text}\n</text>\n\n{suffix}'
     llm_output = await llm([{'role': 'system', 'content': system_prompt}, {'role': 'user', 'content': content}],
-                           model=model, max_tokens=50, temperature=0.1, response_format={"type": "json_object"})
+                           model=model, max_tokens=50, temperature=0.1)
 
     ap_ = llm_output.strip().strip('"').strip('//')
 
@@ -185,7 +185,6 @@ When performing the association analysis, please follow these principles:
 
         async def process_batch(batch):
             await self.semaphore.acquire()
-            print(self.semaphore)
             try:
                 result = await llm(
                     [{'role': 'system', 'content': batch['system_prompt']}, {'role': 'user', 'content': batch['content']}],
