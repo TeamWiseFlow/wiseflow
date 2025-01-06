@@ -28,7 +28,7 @@ V0.3.6 is an enhanced version of V0.3.5, incorporating numerous improvements bas
 - Continued to reduce dependencies in requirement.txt; json_repair is no longer needed (in practice, having LLMs generate JSON format still noticeably increases processing time and failure rates, so I now adopt a simpler approach with additional post-processing of results)
 - Made minor adjustments to the pb info form structure, adding web_title and reference fields.
 - @ourines contributed the install_pocketbase.sh script (the Docker running solution has been temporarily removed as it wasn't very convenient for users...)
-
+- @ibaoger contributed the install_pocketbase.ps1 script for windows users
 **Upgrading to V0.3.6 requires restructuring the PocketBase database. Please delete the pb/pb_data folder and re-run the setup**
 
 **In V0.3.6, replace SECONDARY_MODEL with VL_MODEL in the .env file. Refer to the latest [env_sample](./env_sample)**
@@ -79,14 +79,16 @@ However, we have also noticed some misunderstandings about the functional positi
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-### 2. Execute the install_pocketbase.sh script in the root directory
+### 2. Execute the install_pocketbase script in the root directory
 
-This script will guide you through downloading and configuring pocketbase (version 0.23.4), and create a .env file under core.
+linux/macos users please execute 
 
 ```bash
-chmod +x install_pocketbase.sh
-./install_pocketbase.sh
+chmod +x install_pocketbase
+./install_pocketbase
 ```
+
+**windows users please execute [install_pocketbase.ps1](./install_pocketbase.ps1) script**
 
 Wiseflow 0.3.x uses pocketbase as its database. You can also manually download the pocketbase client (remember to download version 0.23.4 and place it in the [pb](./pb) directory) and manually create the superuser (remember to save it in the .env file).
 
