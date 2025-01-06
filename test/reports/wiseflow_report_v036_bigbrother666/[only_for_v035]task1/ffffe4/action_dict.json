@@ -1,0 +1,16 @@
+{
+    "input_0": {
+        "input": {
+            "type": "text",
+            "values": []
+        }
+    },
+    "input_1": {
+        "input": {
+            "type": "checkbox",
+            "values": [
+                "aria-hidden=false class=['el-checkbox__original'] value="
+            ]
+        }
+    }
+}

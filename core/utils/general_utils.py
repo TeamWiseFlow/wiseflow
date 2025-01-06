@@ -63,7 +63,8 @@ def extract_and_convert_dates(input_string):
         r'(\d{4})/(\d{2})/(\d{2})',  # YYYY/MM/DD
         r'(\d{4})\.(\d{2})\.(\d{2})',  # YYYY.MM.DD
         r'(\d{4})\\(\d{2})\\(\d{2})',  # YYYY\MM\DD
-        r'(\d{4})(\d{2})(\d{2})'  # YYYYMMDD
+        r'(\d{4})(\d{2})(\d{2})',  # YYYYMMDD
+        r'(\d{4})年(\d{2})月(\d{2})日'  # YYYY年MM月DD日
     ]
 
     matches = []

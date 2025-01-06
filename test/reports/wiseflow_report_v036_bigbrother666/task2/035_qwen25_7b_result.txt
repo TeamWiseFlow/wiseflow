@@ -1,0 +1,123 @@
+focus statement: 
+#大模型技术突破与创新
+解释：包括新算法与模型，新的研究成果
+#AI应用市场规模与增长预测
+解释：提供AI市场的最新统计数据、增长趋势和未来预测，帮助读者了解行业发展方向的信息
+#大模型落地行业应用趋势
+解释：分析大模型在各个行业（如医疗、金融、制造、教育）的应用现状和发展前景，展示AI在实际业务中的价值。
+#大模型企业应用案例
+解释：分享企业如何利用大模型提升效率、降低成本或创新产品的具体案例，展示AI的实际效益。
+#大模型创业故事
+解释：介绍大模型初创公司的发展历程、融资情况和成功经验，激励创业者和投资者。
+#好用的AI工具及其适用的范围，和同类型工具的对比
+
+
+raw materials: 9c76f8
+
+llm model: Qwen/Qwen2.5-7B-Instruct
+hallucination times: 11
+total results: 8
+total analysis time: 9.75146222114563
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+1. machine-learning[url68]	2. artificial-intelligence	3. reinforcement-learning[url69]	4. recommendation-engine[url70]	5. collaborative-filtering[url71] https://stackoverflow.com/questions/tagged/collaborative-filtering
+Consultion about a Recommendations system complexity as a graduation project [url67] https://stackoverflow.com/questions/79294470/consultion-about-a-recommendations-system-complexity-as-a-graduation-project
+Asking ChatGPT API for questions and then for reviewing the answers I give him [url61] https://stackoverflow.com/questions/79294509/asking-chatgpt-api-for-questions-and-then-for-reviewing-the-answers-i-give-him
+Autoscaling resources for llm model [url55] https://stackoverflow.com/questions/79297363/autoscaling-resources-for-llm-model
+Which are the most effective topic modelling algorithm for a very random text corpus? [url120] https://stackoverflow.com/questions/79287858/which-are-the-most-effective-topic-modelling-algorithm-for-a-very-random-text-co
+How can I test the responses that an AI gives to a survey [url107] https://stackoverflow.com/questions/79288025/how-can-i-test-the-responses-that-an-ai-gives-to-a-survey
+Proper System Message Construction in Chatbot[url48] https://stackoverflow.com/questions/79297501/proper-system-message-construction-in-chatbot
+large-language-model[url163] https://stackoverflow.com/questions/tagged/artificial-intelligence+large-language-model
+************
+
+raw materials: e8c97c
+
+llm model: Qwen/Qwen2.5-7B-Instruct
+hallucination times: 2
+total results: 21
+total analysis time: 6.710699081420898
+
+author and publish time(not formated): {'source': '36氪', 'publish_date': 'NA'}
+infos(not formated): 
+-[url316] https://weibo.com/wow36kr
+-[url52] https://36kr.com/topics/799051634713857
+-[url15] https://36kr.com/usercenter/basicinfo
+「长安街英菲尼迪车祸案」14年，一个女人的丧失与重建[url273] https://36kr.com/p/3087052296943753
+-[url317] https://36kr.com/rss-center
+-[url318] https://36kr.com/mform/1755983296602372
+当你以为AI发展放缓时，OpenAI推出o3，向AGI迈出关键一步[url185] https://36kr.com/p/3088107741870215
+-[url54] ttps://36kr.com/topics/799051634713857
+AI+Emoji，终于打了一场胜仗？[url248] https://36kr.com/p/3087292469065863
+刚刚，OpenAI放出最后大惊喜o3，高计算模式每任务花费数千美元[url149] https://36kr.com/p/3087654394362243
+o3权威评测报告：AI能力实现关键跃升，但仍未达到AGI水平[url167] https://36kr.com/p/3088122103117959
+刚刚，OpenAI放出最后大惊喜o3，高计算模式每任务花费数千美元[url7] https://img.36krcdn.com/hsossms/20241221/v2_7c85fa6cf15244c7b01989df9e9a2851@000000_oswg56173oswg1080oswg460_img_000?x-oss-process=image/resize,m_mfit,w_600,h_400,limit_0/crop,w_600,h_400,g_center
+1. AI[url61] https://36kr.com/information/AI/
+如视数字空间综合解决方案引领者[url283] https://36kr.com/user/6004667
+一个男性自学女性主义后，越来越「自闭」了[url260] https://36kr.com/p/3087061837281667
+o3：突破 ARC-AGI 基准，博士级问题求解能力[url150] https://36kr.com/p/3087654394362243
+90后独生子女，把抑郁症父母送去精神科[url255] https://36kr.com/p/3087063959665031
+长视频与短视频的2024[url279] https://36kr.com/p/3087158007168777
+-[url53] http://www.bjjubao.org.cn/node_1606.html
+第一批用上苹果AI的人，已经后悔了[url120] https://36kr.com/p/3088295581481346
+中国人打价格战，德国人先裁员[url267] https://36kr.com/p/3087175585134728
+************
+
+raw materials: 29229b
+
+llm model: Qwen/Qwen2.5-7B-Instruct
+hallucination times: 3
+total results: 35
+total analysis time: 7.976946830749512
+
+author and publish time(not formated): {'source': 'u/F0urLeafCl0ver', 'publish_date': 'NA'}
+infos(not formated): 
+Meta AI[url49] https://ai.meta.com/blog/?page=1
+Stability AI[url57] https://stability.ai/news
+Runway[url63] https://runwayml.com/blog/
+Adobe AI[url67] https://www.adobe.com/ai/overview.html
+ElevenLabs[url60] https://elevenlabs.io/blog/
+IBM AI[url52] https://research.ibm.com/artificial-intelligence
+Midjourney[url65] https://www.midjourney.com/home
+NVIDIA DL[url55] https://blogs.nvidia.com/blog/category/deep-learning/
+OpenAI[url48] https://openai.com/news
+I built a quick app that lets you clone your voice and chat with yourself. The AI becomes more like you the more you talk to it - took me about an hour, happy to share code![url39] https://www.reddit.com/r/artificial/comments/1hiujec/i_built_a_quick_app_that_lets_you_clone_your/
+-[url76] https://www.redditinc.com/policies/user-agreement
+Microsoft AI[url51] https://news.microsoft.com/source/topics/ai/
+Project[url40] https://www.reddit.com/r/artificial/?f=flair_name%3A%22Project%22
+Google AI[url50] https://blog.google/technology/ai/
+UK’s ambitions to police AI face Trump’s ‘starkly’ different approach[url26] https://www.reddit.com/r/artificial/comments/1hj8nmp/uks_ambitions_to_police_ai_face_trumps_starkly/
+-[url75] https://www.redditinc.com/policies/privacy-policy
+Anthropic[url58] https://www.anthropic.com/news
+Hugging Face[url62] https://huggingface.co/blog
+-[url77] https://www.redditinc.com/policies/privacy-policy
+ARC-AGI has fallen to OpenAI's new model, o3[url33] https://www.reddit.com/r/artificial/comments/1hiq12u/arcagi_has_fallen_to_openais_new_model_o3/
+r/OpenAI[url72] https://www.reddit.com/r/OpenAI
+Apple ML[url54] https://www.apple.com/apple-intelligence/
+Suno AI[url66] https://suno.com/blog/
+-[url80] https://reddithelp.com/hc/sections/360008917491-Account-Security
+-[url78] https://www.redditinc.com/policies/user-agreement
+Amazon AWS[url53] https://aws.amazon.com/ai/
+I built a quick app that lets you clone your voice and chat with yourself. The AI becomes more like you the more you talk to it - took me about an hour, happy to share code![url37] https://www.reddit.com/r/artificial/comments/1hiujec/i_built_a_quick_app_that_lets_you_clone_your/
+ARC-AGI has fallen to OpenAI's new model, o3[url35] https://www.reddit.com/r/artificial/comments/1hiq12u/arcagi_has_fallen_to_openais_new_model_o3/
+Solve complex engineering challenges up to 53X faster with Ansys' multiphysics simulation software. Learn more[url5] https://external-preview.redd.it/3rRln0iVIX-wT0xZbW3PEwBaaAnqFo9eY9B6gKooOa4.jpg?width=640&crop=smart&auto=webp&s=217592e90ae2f0a92d7cfc6f0e43b91cae8e71ed
+r/ClaudeAI[url73] https://www.reddit.com/r/ClaudeAI
+r/ChatGPT[url71] https://www.reddit.com/r/ChatGPT
+Perplexity[url64] https://www.perplexity.ai/hub
+-[url74] https://www.redditinc.com/policies/user-agreement
+-[url79] https://www.redditinc.com/policies/privacy-policy
+Mistral AI[url59] https://mistral.ai/news/
+************
+
+raw materials: 3958ab
+
+llm model: Qwen/Qwen2.5-7B-Instruct
+hallucination times: 0
+total results: 1
+total analysis time: 1.0662531852722168
+
+author and publish time(not formated): {'source': 'NA', 'publish_date': 'NA'}
+infos(not formated): 
+{'focus': '大模型技术突破与创新', 'content': 'The latest advances in the quest to build machines that can reason, learn, and act intelligently.'}
+************
+

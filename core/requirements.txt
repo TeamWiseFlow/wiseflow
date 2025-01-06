@@ -2,7 +2,7 @@ openai
 loguru
 pocketbase
 pydantic
-json_repair==0.*
+#json_repair==0.*
 beautifulsoup4
 requests
-crawlee[playwright]~=0.4.5
+crawl4ai==0.4.245

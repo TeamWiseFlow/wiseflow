@@ -2,30 +2,57 @@
 
 **[English](README_EN.md) | [日本語](README_JP.md) | [简体中文](README.md)**
 
-🚀 **수석 정보 책임자** (Wiseflow)는 웹사이트, 위챗 공중 계정, 소셜 플랫폼 등 다양한 정보 소스에서 설정된 관심사에 따라 정보를 추출하고, 자동으로 태그를 분류하여 데이터베이스에 업로드하는 민첩한 정보 마이닝 도구입니다.
+🚀 **수석 정보 책임자** (Wiseflow)는 대규모 언어 모델의 사고 및 분석 능력을 활용하여 다양한 정보원에서 특정 정보를 정확하게 추출할 수 있는 민첩한 정보 마이닝 도구입니다. 전체 과정에서 인간의 개입이 필요하지 않습니다.
 
 **우리가 부족한 것은 정보가 아니라, 방대한 정보 속에서 노이즈를 필터링하여 가치 있는 정보를 드러내는 것입니다.**
 
 🌱 수석 정보 책임자가 어떻게 시간을 절약하고, 관련 없는 정보를 필터링하며, 관심 사항을 정리하는지 살펴보세요! 🌱
 
-https://github.com/user-attachments/assets/f6fec29f-2b4b-40f8-8676-8433abb086a7
+https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
-## 🔥 V0.3.5 버전 소개
+## 🔥 늦었지만 도착했습니다, V0.3.6가 출시되었습니다
 
-커뮤니티 피드백을 충분히 수렴한 후, 우리는 wiseflow의 제품 위치를 재정립하였으며, 새로운 위치는 더욱 집중되어 있습니다. V0.3.5 버전은 이 새로운 위치에 기반한 완전히 새로운 아키텍처 버전입니다.
+V0.3.6은 V0.3.5의 개선 버전으로, 많은 커뮤니티 피드백을 반영하여 업그레이드를 권장드립니다.
 
-- [Crawlee](https://github.com/apify/crawlee-python)를 기본 크롤러 및 작업 관리 프레임워크로 도입하여 페이지 획득 능력을 크게 향상시켰습니다. 이전에 획득할 수 없었던 (또는 코드가 깨진) 페이지를 현재는 잘 획득할 수 있습니다. 향후 획득이 잘 되지 않는 페이지가 있다면, [issue #136](https://github.com/TeamWiseFlow/wiseflow/issues/136)에 피드백을 주시기 바랍니다.
-- 새로운 제품 위치에 따른 새로운 정보 추출 전략 — "크롤링과 조사 통합"을 도입하였습니다. 기사 상세 추출을 포기하고, 크롤링 과정에서 llm을 사용하여 사용자가 관심 있는 정보(infos)를 직접 추출하며, 추가로 크롤링할 가치가 있는 링크를 자동으로 판단합니다. **당신이 관심 있는 것이 당신이 필요한 것입니다.**
-- 최신 버전(v0.23.4)의 Pocketbase에 적합하며, 폼 구성을 업데이트하였습니다. 또한 새로운 아키텍처는 GNE 등의 모듈이 더 이상 필요하지 않으며, requirement 종속 항목이 8개로 줄었습니다.
-- 새로운 아키텍처의 배포 방식도 더욱 간편해졌으며, docker 모드는 코드 저장소 핫 업데이트를 지원합니다. 이는 향후 업그레이드 시 docker build를 다시 수행할 필요가 없음을 의미합니다.
-- 더 많은 세부 사항은 [CHANGELOG](CHANGELOG.md)를 참조하세요.
+  - Crawl4ai를 기본 크롤링 프레임워크로 변경하였습니다. 사실 Crawl4ai와 Crawlee는 Playwright 기반이며 얻는 결과가 비슷하지만, Crawl4ai의 html2markdown 기능이 매우 유용하며 이는 llm 정보 추출에 큰 도움이 됩니다. 또한 Crawl4ai의 아키텍처가 저의 생각과 더 잘 맞습니다.
+  - Crawl4ai의 html2markdown 기능을 바탕으로 deep scraper를 추가하여 페이지의 독립 링크와 본문을 구분함으로써 llm의 정확한 추출을 용이하게 하였습니다. html2markdown과 deep scraper가 원본 웹 페이지 데이터를 잘 정리하여 llm이 받는 간섭과 오도를 크게 줄이고 최종 결과의 품질을 보장하며 불필요한 token 소비도 줄였습니다.
 
-🌟 **V0.3.x 향후 계획**
+     *리스트 페이지와 문서 페이지의 구분은 모든 크롤링 프로젝트에서 어려운 문제입니다. 특히 현대 웹 페이지는 종종 문서 페이지의 사이드바와 하단에 많은 추천 읽기 항목을 추가하여 두 가지가 텍스트 통계적 특징 차이 없이 혼동됩니다.*
+     *이 부분에서는 시각 대형 모델을 사용하여 레이아웃 분석을 고려했으나, 간섭받지 않는 웹 페이지 스크린샷을 얻는 것이 프로그램 복잡성을 크게 증가시키고 처리 효율성을 낮추는 것으로 나타났습니다.*
 
-- [SeeAct](https://github.com/OSU-NLP-Group/SeeAct) 방식을 도입하여, 시각 대형 모델을 통해 복잡한 페이지의 작업을 지원합니다. 예를 들어, 스크롤, 클릭 후 정보 표시 등 (V0.3.6).
-- 위챗 공중 계정 무료 구독 지원 시도 (V0.3.7).
-- RSS 정보 소스 지원 도입 (V0.3.8).
-- LLM 기반의 경량 지식 그래프 도입 시도, 사용자가 infos에서 통찰력을 구축하는 데 도움을 줍니다 (V0.3.9).
+  - 추출 전략과 llm의 prompt를 재구성하였습니다.
+
+    *좋은 prompt는 명확한 작업 지침이며 각 단계가 충분히 명확해야 실수를 하기 어렵습니다. 하지만 너무 복잡한 prompt의 가치는 평가하기 어렵습니다. 더 나은 방법이 있으시다면 PR을 환영합니다.*
+
+  - 시각 대형 모델을 도입하여 Crawl4ai가 높은 가중치(현재 Crawl4ai가 평가)를 부여한 이미지를 자동으로 인식하고 관련 정보를 페이지 텍스트에 추가합니다.
+  - requirement.txt 의 의존성 항목을 계속 줄였으며, 이제 json_repair가 필요하지 않습니다. (실제로 llm이 JSON 형식으로 생성하는 것은 처리 시간을 증가시키고 실패율을 높이므로 더 간단한 방식을 채택하고 처리 결과 후처리를 강화하였습니다.)
+  - pb info 양식 구조를 약간 조정하여 web_title과 reference 항목을 추가했습니다.
+  - @ourines님이 install_pocketbase.sh 스크립트를 기여하셨습니다. (Docker 실행 방안은 일시적으로 제거되었으며 사용이 편리하지 않아서……)
+
+**V0.3.6 버전으로 업그레이드하려면 pocketbase 데이터베이스를 다시 구성해야 합니다. pb/pb_data 폴더를 삭제한 후 다시 실행해 주세요.**
+
+**V0.3.6 버전에서는 .env에서 SECONDARY_MODEL을 VL_MODEL로 변경해야 합니다. 최신 [env_sample](./env_sample)을 참고해 주세요.**
+  
+### V0.3.6 테스트 보고서
+
+siliconflow의 deepseekV2.5, Qwen2.5-32B-Instruct, Qwen2.5-14B-Instruct, Qwen2.5-72B-Instruct 모델의 성능을 네 가지 실제 사례 및 여섯 개의 실제 웹 페이지 샘플에서 횡断적으로 테스트하고 비교하였습니다.
+테스트 결과는 [report](./test/reports/wiseflow_report_v036_bigbrother666/README.md)를 참조해 주세요.
+
+또한 테스트 스크립트도 오픈소스로 제공되며 더 많은 테스트 결과를 제출해 주시길 바랍니다. wiseflow는 오픈소스 프로젝트로서 모두의 공헌으로 "누구나 사용할 수 있는 정보 수집 도구"를 만들고자 합니다!
+
+참고: [test/README.md](./test/README.md)
+
+현재, **테스트 결과 제출은 프로젝트 코드 제출과 동일하며** 기여자로 인정되며 상업 프로젝트 참여 초청까지 받을 수도 있습니다!
+
+
+🌟**V0.3.x 계획**
+
+- WeChat 공개 계정 wxbot 없이 구독 지원 (V0.3.7);
+- RSS 정보 소스 및 검색 엔진 지원 도입 (V0.3.8);
+- 일부 사회적 플랫폼 지원 시도 (V0.3.9).
+
+이 세 가지 버전 동안 deep scraper 및 llm 추출 전략을 지속적으로 개선할 예정입니다. 또한 적용 장면과 추출 효과가 이상적인 정보 원본 주소를 지속적으로 피드백해 주시길 바랍니다. [issue #136](https://github.com/TeamWiseFlow/wiseflow/issues/136)에서 피드백을 남겨주세요.
+
 
 ## ✋ wiseflow는 전통적인 크롤러 도구, AI 검색, 지식 베이스(RAG) 프로젝트와 어떻게 다를까요?
 
@@ -33,11 +60,13 @@ wiseflow는 2024년 6월 말 V0.3.0 버전 출시 이후 오픈소스 커뮤니�
 
 그러나 우리는 일부 관심 있는 분들이 wiseflow의 기능 위치에 대해 일부 이해 오류가 있음을 알게 되었습니다. 아래 표는 전통적인 크롤러 도구, AI 검색, 지식 베이스(RAG) 프로젝트와의 비교를 통해 wiseflow 제품의 최신 위치에 대한 우리의 생각을 나타냅니다.
 
-|          | **수석 정보 책임자 (Wiseflow)**와의 비교 설명 | 
-|-------------|-----------------|
-| **크롤러 도구** | 먼저 wiseflow는 크롤러 도구 기반 프로젝트입니다 (현재 버전 기준으로, 우리는 크롤러 프레임워크 Crawlee를 기반으로 합니다). 그러나 전통적인 크롤러 도구는 정보 추출 측면에서 인간의 개입이 필요하며, 명확한 Xpath 등을 제공해야 합니다. 이는 일반 사용자를 막을 뿐만 아니라 일반성이 전혀 없으며, 다른 웹사이트 (기존 웹사이트 업그레이드 포함)에 대해서는 인간이 다시 분석을 수행하고 추출 코드를 업데이트해야 합니다. wiseflow는 LLM을 사용하여 웹페이지의 자동 분석 및 추출 작업을 추구하며, 사용자는 프로그램에 그의 관심사만 알려주면 됩니다. 이 관점에서 wiseflow를 "자동으로 크롤러 도구를 사용할 수 있는 AI 에이전트"로 간단히 이해할 수 있습니다. |
-| **AI 검색** | AI 검색의 주요 응용 시나리오는 **구체적인 문제의 즉각적인 질문 및 답변**입니다. 예: "XX 회사의 창립자는 누구인가", "xx 브랜드의 xx 제품은 어디서 구매할 수 있는가". 사용자는 **하나의 답변**을 원합니다. wiseflow의 주요 응용 시나리오는 **특정 측면의 정보 지속적 수집**입니다. 예: XX 회사의 관련 정보 추적, XX 브랜드의 시장 행동 지속 추적 등. 이러한 시나리오에서 사용자는 관심사 (특정 회사, 특정 브랜드) 및 신뢰할 수 있는 소스 (사이트 URL 등)를 제공할 수 있지만, 구체적인 검색 질문을 제시할 수 없습니다. 사용자는 **일련의 관련 정보**를 원합니다. |
-| **지식 베이스 (RAG) 프로젝트** | 지식 베이스 (RAG) 프로젝트는 일반적으로 기존 정보를 기반으로 한 하류 작업을 기반으로 하며, 일반적으로 개인 지식 (예: 기업 내 운영 매뉴얼, 제품 매뉴얼, 정부 부서의 문서 등)을 대상으로 합니다. wiseflow는 현재 하류 작업을 통합하지 않으며, 인터넷상의 공개 정보를 대상으로 합니다. "에이전트"의 관점에서 볼 때, 둘은 서로 다른 목적으로 구축된 에이전트입니다. RAG 프로젝트는 "내부 지식 보조 에이전트"이며, wiseflow는 "외부 정보 수집 에이전트"입니다. |
+|          | **수석 정보 책임자 (Wiseflow)**와의 비교 설명                                                                                                                                                                                                                                                                                                                                                      | 
+|-------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **크롤러 도구** | 먼저, wiseflow는 크롤러 도구를 기반으로 한 프로젝트이지만, 전통적인 크롤러 도구는 정보 추출을 위해 명시적인 Xpath 등의 정보를 수동으로 제공해야 합니다... 이는 일반 사용자를 막을 뿐만 아니라 범용성도 없습니다. 다양한 웹사이트(기존 웹사이트 업그레이드 후 포함)에 대해 수동으로 재분석하고 프로그램을 업데이트해야 합니다. wiseflow는 LLM을 사용하여 웹 페이지의 분석과 추출을 자동화하는 데 주력하고 있으며, 사용자는 프로그램에 자신의 관심사를 알리기만 하면 됩니다. Crawl4ai를 예로 들어 비교하자면, Crawl4ai는 LLM을 사용하여 정보를 추출하는 크롤러이고, wiseflow는 크롤러 도구를 사용하는 LLM 정보 추출기입니다.  |
+| **AI 검색** | AI 검색의 주요 응용 시나리오는 **구체적인 문제의 즉각적인 질문 및 답변**입니다. 예: "XX 회사의 창립자는 누구인가", "xx 브랜드의 xx 제품은 어디서 구매할 수 있는가". 사용자는 **하나의 답변**을 원합니다. wiseflow의 주요 응용 시나리오는 **특정 측면의 정보 지속적 수집**입니다. 예: XX 회사의 관련 정보 추적, XX 브랜드의 시장 행동 지속 추적 등. 이러한 시나리오에서 사용자는 관심사 (특정 회사, 특정 브랜드) 및 신뢰할 수 있는 소스 (사이트 URL 등)를 제공할 수 있지만, 구체적인 검색 질문을 제시할 수 없습니다. 사용자는 **일련의 관련 정보**를 원합니다.                                  |
+| **지식 베이스 (RAG) 프로젝트** | 지식 베이스 (RAG) 프로젝트는 일반적으로 기존 정보를 기반으로 한 하류 작업을 기반으로 하며, 일반적으로 개인 지식 (예: 기업 내 운영 매뉴얼, 제품 매뉴얼, 정부 부서의 문서 등)을 대상으로 합니다. wiseflow는 현재 하류 작업을 통합하지 않으며, 인터넷상의 공개 정보를 대상으로 합니다. "에이전트"의 관점에서 볼 때, 둘은 서로 다른 목적으로 구축된 에이전트입니다. RAG 프로젝트는 "내부 지식 보조 에이전트"이며, wiseflow는 "외부 정보 수집 에이전트"입니다.                                                                                                      |
+
+**wiseflow 0.4.x 버전은 다운스트림 작업의 통합에 초점을 맞추고, LLM 기반의 경량 지식 그래프를 도입하여 사용자가 infos에서 통찰력을 얻을 수 있도록 돕습니다.**
 
 ## 📥 설치 및 사용
 
@@ -45,112 +74,121 @@ wiseflow는 2024년 6월 말 V0.3.0 버전 출시 이후 오픈소스 커뮤니�
 
 🌹 좋아요, fork는 좋은 습관입니다 🌹
 
+**windows 사용자는 먼저 git bash 도구를 다운로드해야 합니다** [링크](https://git-scm.com/downloads/win)
+
 ```bash
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-### 2. env_sample 참조하여 .env 파일 구성하고 core 디렉토리에 배치
+### 2. 루트 디렉토리에서 install_pocketbase.sh 스크립트 실행
 
-🌟 **이전 버전과 다릅니다** V0.3.5부터 .env 파일을 core 폴더에 배치해야 합니다.
+이 스크립트는 pocketbase(버전 0.23.4)의 다운로드 및 구성을 안내하고 core 디렉토리 아래에 .env 파일을 생성합니다.
 
-또한 V0.3.5부터 env 구성이 크게 단순화되었으며, 필수 구성 항목은 세 가지뿐입니다. 구체적인 내용은 다음과 같습니다:
+```bash
+chmod +x install_pocketbase.sh
+./install_pocketbase.sh
+```
 
-- LLM_API_KEY=""
+Wiseflow 0.3.x는 데이터베이스로 pocketbase를 사용합니다. pocketbase 클라이언트를 수동으로 다운로드할 수도 있습니다(버전 0.23.4를 다운로드하여 [pb](./pb) 디렉토리에 배치하는 것을 잊지 마세요). 그리고 수퍼유저를 수동으로 생성할 수 있습니다(.env 파일에 저장하는 것을 잊지 마세요).
 
-    대형 모델 서비스 키, 이는 필수입니다.
+자세한 내용은 [pb/README.md](/pb/README.md)를 참조하세요.
 
-- LLM_API_BASE="https://api.siliconflow.cn/v1" 
+### 3. core/.env 파일 구성 계속하기
 
-    서비스 인터페이스 주소, openai sdk를 지원하는 모든 서비스 제공자를 사용할 수 있습니다. openai 서비스를 직접 사용하는 경우, 이 항목은 비워둘 수 있습니다.
+🌟 **이전 버전과 다릅니다** - V0.3.5부터 .env 파일은 [core](./core) 폴더에 위치해야 합니다.
 
-- PB_API_AUTH="test@example.com|1234567890" 
+#### 3.1 대규모 언어 모델 구성
 
-  pocketbase 데이터베이스의 superuser 사용자 이름 및 비밀번호, |로 구분하세요.
+Wiseflow는 LLM 네이티브 애플리케이션이므로 프로그램에 안정적인 LLM 서비스를 제공하도록 해주세요.
 
-아래는 선택적 구성입니다:
+🌟 **Wiseflow는 모델 서비스의 출처를 제한하지 않습니다 - ollama, Xinference 등 로컬에 배포된 서비스를 포함하여 openAI SDK와 호환되는 서비스라면 모두 사용할 수 있습니다**
+
+#### 추천 1: Siliconflow가 제공하는 MaaS 서비스 사용
+
+Siliconflow는 대부분의 주류 오픈소스 모델에 대한 온라인 MaaS 서비스를 제공합니다. 축적된 추론 가속화 기술로 속도와 가격 모두에서 큰 장점이 있습니다. siliconflow의 서비스를 사용할 때 .env 구성은 다음을 참조할 수 있습니다:
+
+```bash
+export LLM_API_KEY=Your_API_KEY
+export LLM_API_BASE="https://api.siliconflow.cn/v1"
+export PRIMARY_MODEL="Qwen/Qwen2.5-32B-Instruct"
+export VL_MODEL="OpenGVLab/InternVL2-26B"
+```
+      
+😄 원하신다면 제 [siliconflow 추천 링크](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92)를 사용하실 수 있습니다. 이를 통해 제가 더 많은 토큰 보상을 받을 수 있습니다 🌹
+
+#### 추천 2: OpenAI, Claude, Gemini와 같은 폐쇄형 상용 모델에는 AiHubMix 프록시 사용
+
+정보 소스가 대부분 비한국어 페이지이고 추출된 정보가 한국어일 필요가 없다면, OpenAI, Claude, Gemini와 같은 폐쇄형 상용 모델을 사용하는 것이 좋습니다. 서드파티 프록시인 **AiHubMix**를 시도해볼 수 있습니다. 하나의 API로 OpenAI, Claude, Google, Llama 등 주요 AI 모델에 원활하게 접근할 수 있습니다.
+
+AiHubMix 모델을 사용할 때 .env 구성은 다음을 참조할 수 있습니다:
+
+```bash
+export LLM_API_KEY=Your_API_KEY
+export LLM_API_BASE="https://aihubmix.com/v1" # refer https://doc.aihubmix.com/
+export PRIMARY_MODEL="gpt-4o"
+export VL_MODEL="gpt-4o"
+```
+
+😄 Welcome to register using the [AiHubMix referral link](https://aihubmix.com?aff=Gp54) 🌹
+
+#### 로컬 대규모 언어 모델 서비스 배포
+
+Xinference를 예로 들면, .env 구성은 다음을 참조할 수 있습니다:
+
+```bash
+# LLM_API_KEY='' no need for local service, please comment out or delete
+export LLM_API_BASE='http://127.0.0.1:9997'
+export PRIMARY_MODEL=launched_model_id
+export VL_MODEL=launched_model_id
+```
+
+#### 3.2 Pocketbase Account and Password Configuration
+
+```bash
+export PB_API_AUTH="test@example.com|1234567890" 
+```
+
+여기서 pocketbase 데이터베이스의 슈퍼유저 사용자 이름과 비밀번호를 설정합니다. |로 구분하는 것을 잊지 마세요 (install_pocketbase.sh 스크립트가 성공적으로 실행되었다면 이미 존재할 것입니다)
+
+#### 3.3 기타 선택적 구성
+
+다음은 모두 선택적 구성입니다:
 - #VERBOSE="true" 
 
-  관찰 모드 활성화 여부, 활성화하면 debug log 정보가 logger 파일에 기록됩니다 (기본적으로 console에만 출력됨). 또한 playwright 브라우저 창이 열리므로 크롤링 과정을 관찰하기 쉽습니다.
-
-- #PRIMARY_MODEL="Qwen/Qwen2.5-7B-Instruct"
-
-    주 모델 선택, siliconflow 서비스를 사용하는 경우, 이 항목을 비워두면 기본적으로 Qwen2.5-7B-Instruct가 호출됩니다. 실제로 충분히 사용 가능하지만, 저는 **Qwen2.5-14B-Instruct**를 더 추천합니다.
-
-- #SECONDARY_MODEL="THUDM/glm-4-9b-chat" 
-
-    보조 모델 선택, siliconflow 서비스를 사용하는 경우, 이 항목을 비워두면 기본적으로 glm-4-9b-chat가 호출됩니다.
+  관찰 모드를 활성화할지 여부. 활성화되면 디버그 정보가 로거 파일에 기록됩니다(기본적으로 콘솔에만 출력);
 
 - #PROJECT_DIR="work_dir" 
 
-    프로젝트 실행 데이터 디렉토리, 구성하지 않으면 기본적으로 `core/work_dir`에 저장됩니다. 주의: 현재 전체 core 디렉토리는 container에 마운트되어 있으므로, 여기에 직접 접근할 수 있습니다.
+    프로젝트 런타임 데이터 디렉토리. 구성하지 않으면 기본값은 `core/work_dir`입니다. 참고: 현재 전체 core 디렉토리가 컨테이너에 마운트되어 있어 직접 접근할 수 있습니다.
 
 - #PB_API_BASE="" 
 
-  pocketbase가 기본 IP 또는 포트에서 실행되지 않는 경우에만 구성해야 합니다. 기본적으로 무시하면 됩니다.
+  pocketbase가 기본 IP 또는 포트에서 실행되지 않는 경우에만 구성이 필요합니다. 기본 상황에서는 이를 무시할 수 있습니다.
 
-### 3.1 docker를 사용하여 실행
+### 4. 프로그램 실행
 
-✋ V0.3.5 버전의 아키텍처 및 종속성은 이전 버전과 크게 다릅니다. 반드시 코드를 다시 가져와 이전 버전 이미지 (pb_data 폴더 포함)를 삭제하고 다시 build하세요!
+✋ V0.3.5 버전의 아키텍처와 종속성은 이전 버전과 크게 다릅니다. 코드를 다시 가져오고, pb_data를 삭제(또는 재구축)하도록 하세요
 
-> ⚠️ 대신 루트 디렉토리의 install_pocketbase.sh 스크립트를 실행하십시오. 이 스크립트는 자동으로 pocketbase를 다운로드하고 구성합니다.
-> ```bash
-> chmod +x install_pocketbase.sh
-> ./install_pocketbase.sh
-> ```
+가상 환경을 구축하기 위해 conda를 사용하는 것을 권장합니다(물론 이 단계를 건너뛰거나 다른 Python 가상 환경 솔루션을 사용할 수 있습니다)
 
 ```bash
-cd wiseflow
-docker compose up
-```
-
-**주의:**
-
-처음 docker container를 실행할 때 프로그램이 오류를 보고할 수 있습니다. 이는 정상적인 현상입니다. 화면의 프롬프트에 따라 superuser 계정을 생성하세요 (반드시 이메일 주소를 사용하세요). 그런 다음 생성된 사용자 이름과 비밀번호를 .env 파일에 입력하고 container를 다시 시작하세요.
-
-🌟 docker 솔루션은 기본적으로 task.py를 실행하며, 이는 주기적으로 크롤링-추출 작업을 실행합니다 (시작 시 즉시 한 번 실행된 후, 매 시간마다 한 번씩 실행됩니다).
-
-### 3.2 python 환경에서 실행
-
-✋ V0.3.5 버전의 아키텍처 및 종속성은 이전 버전과 크게 다릅니다. 반드시 코드를 다시 가져와 pb_data를 삭제 (또는 재구축)하세요.
-
-conda를 사용하여 가상 환경을 구축하는 것을 추천합니다.
-
-```bash
-cd wiseflow
 conda create -n wiseflow python=3.10
 conda activate wiseflow
-cd core
-pip install -r requirements.txt
 ```
 
-그 후 [다운로드](https://pocketbase.io/docs/) 해당 pocketbase 클라이언트를 [/pb](/pb) 디렉토리에 배치하세요. 그리고
+그런 다음
 
 ```bash
+cd wiseflow
+cd core
+pip install -r requirements.txt
 chmod +x run.sh
-./run_task.sh # 사이트를 한 번만 스캔하려면 (루프 없이), ./run.sh를 사용하세요
+./run_task.sh # if you just want to scan sites one-time (no loop), use ./run.sh
 ```
 
-이 스크립트는 pocketbase가 이미 실행 중인지 자동으로 판단하며, 실행 중이 아니면 자동으로 시작합니다. 그러나 ctrl+c 또는 ctrl+z로 프로세스를 종료할 때 pocketbase 프로세스는 종료되지 않으며, terminal을 닫을 때까지 계속 실행됩니다.
+🌟 이 스크립트는 pocketbase가 이미 실행 중인지 자동으로 확인합니다. 실행 중이 아닌 경우 자동으로 시작됩니다. 단, ctrl+c 또는 ctrl+z로 프로세스를 종료할 때 터미널을 닫을 때까지 pocketbase 프로세스는 종료되지 않는다는 점에 유의하세요.
 
-또한 docker 배포와 마찬가지로, 처음 실행할 때 오류가 발생할 수 있습니다. 화면의 프롬프트에 따라 superuser 계정을 생성하세요 (반드시 이메일 주소를 사용하세요). 그런 다음 생성된 사용자 이름과 비밀번호를 .env 파일에 입력하고 다시 실행하세요.
-
-물론 다른 terminal에서 미리 pocketbase를 실행하고 설정할 수도 있습니다 (이렇게 하면 첫 번째 오류를 방지할 수 있습니다). 구체적인 내용은 [pb/README.md](/pb/README.md)를 참조하세요.
-
-### 4. 모델 추천 [2024-12-09]
-
-모델의 매개변수 수가 많을수록 더 나은 성능을 의미하지만, 실제 테스트를 통해 **Qwen2.5-7b-Instruct 및 glm-4-9b-chat 모델을 사용하면 기본적인 효과를 얻을 수 있음**이 확인되었습니다. 그러나 비용, 속도 및 효과를 종합적으로 고려할 때, 저는 주 모델 **(PRIMARY_MODEL)로 Qwen2.5-14B-Instruct를 더 추천합니다**.
-
-여기에서 siliconflow (규소 흐름)의 MaaS 서비스를 강력히 추천합니다. 여러 주요 오픈소스 모델의 서비스를 제공하며, 대량 서비스를 제공합니다. Qwen2.5-7b-Instruct 및 glm-4-9b-chat는 현재 무료 서비스를 제공합니다. (주 모델로 Qwen2.5-14B-Instruct를 사용하는 경우, 374개의 웹페이지를 크롤링하고 43개의 유효한 info를 추출하여 총 비용은 ￥3.07입니다).
-
-😄 원한다면 제 [siliconflow 초대 링크](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92)를 사용하여 등록할 수 있으며, 이 경우 저도 더 많은 token 보상을 받을 수 있습니다 🌹
-
-**만약 귀하의 정보 소스가 주로 중국어가 아닌 페이지이고, 추출된 info가 중국어일 필요가 없다면, openai 또는 claude와 같은 해외 제조사의 모델을 사용하는 것을 더 추천합니다.**
-
-타사 프록시 **AiHubMix**를 사용하여 단 하나의 API로 OpenAI, Claude, Google, Llama 등과 같은 다양한 주요 AI 모델에 원활하게 액세스할 수 있습니다.
-
-😄 다음 초대 링크 [AiHubMix 초대 링크](https://aihubmix.com?aff=Gp54)를 사용하여 등록하세요 🌹
-
-🌟 **wiseflow 자체는 어떤 모델 서비스에도 제한을 두지 않으며, openAI SDK와 호환되는 서비스라면 모두 사용 가능합니다. 로컬에 배포된 ollama, Xinference 등의 서비스도 포함됩니다.**
+run_task.sh는 주기적으로 크롤링-추출 작업을 실행합니다(시작 시 즉시 실행되고 그 후 매시간마다 실행됨). 한 번만 실행하면 되는 경우 run.sh 스크립트를 사용할 수 있습니다.
 
 ### 5. **관심사 및 정기 스캔 정보 소스 추가**
 
@@ -197,7 +235,7 @@ PocketBase는 인기 있는 경량 데이터베이스로, 현재 Go/Javascript/P
 
 이 프로젝트는 [Apache2.0](LICENSE) 오픈소스 라이선스를 기반으로 합니다.
 
-상업적 및 맞춤형 협력은 **Email: 35252986@qq.com**으로 문의하세요.
+상업적 및 맞춤형 협력은 **Email: zm.zhao@foxmail.com**으로 문의하세요.
 
 - 상업용 고객은 등록을 위해 연락해 주세요. 제품은 영원히 무료로 제공됩니다.
 
@@ -207,12 +245,10 @@ PocketBase는 인기 있는 경량 데이터베이스로, 현재 Go/Javascript/P
 
 ## 🤝 이 프로젝트는 다음과 같은 우수한 오픈소스 프로젝트를 기반으로 합니다:
 
-- crawlee-python (Python용 웹 스크래핑 및 브라우저 자동화 라이브러리로, 신뢰할 수 있는 크롤러를 구축합니다. BeautifulSoup, Playwright 및 원시 HTTP와 함께 작동합니다. headful 및 headless 모드 모두 지원. 프록시 회전 기능 포함.) https://github.com/apify/crawlee-python
-- json_repair (유효하지 않은 JSON 문서 복구) https://github.com/josdejong/jsonrepair/tree/main 
+- crawl4ai（Open-source LLM Friendly Web Crawler & Scraper） https://github.com/unclecode/crawl4ai
 - python-pocketbase (pocketBase 클라이언트 SDK for python) https://github.com/vaphes/pocketbase
-- SeeAct (모든 주어진 웹사이트에서 자율적으로 작업을 수행하는 일반 웹 에이전트 시스템, 특히 GPT-4Vision과 같은 대형 멀티모달 모델 (LMMs)에 중점을 둡니다.) https://github.com/OSU-NLP-Group/SeeAct
 
-또한 [GNE](https://github.com/GeneralNewsExtractor/GeneralNewsExtractor), [AutoCrawler](https://github.com/kingname/AutoCrawler)에서 영감을 받았습니다.
+또한 [GNE](https://github.com/GeneralNewsExtractor/GeneralNewsExtractor), [AutoCrawler](https://github.com/kingname/AutoCrawler), [SeeAct](https://github.com/OSU-NLP-Group/SeeAct) 에서 영감을 받았습니다.
 
 ## Citation
 

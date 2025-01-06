@@ -1,11 +1,12 @@
 export LLM_API_KEY=""
 export LLM_API_BASE="https://api.siliconflow.cn/v1"
+export PRIMARY_MODEL="Qwen/Qwen2.5-32B-Instruct"
+#If your source pages are relatively simple with small amounts of information per page, considering cost and time (mainly time), Qwen2.5-32B-Instruct is recommended
+#If your source pages contain more links, have complex layouts, and you don't want to miss any information, DeepSeek-V2.5 is recommended
+export VL_MODEL="OpenGVLab/InternVL2-26B"
 export PB_API_AUTH="test@example.com|1234567890" ##your pb superuser account and password
 
 ##belowing is optional, go as you need
 #export VERBOSE="true" ##for detail log info. If not need, remove this item.
-#export PRIMARY_MODEL="Qwen/Qwen2.5-14B-Instruct"
-#export SECONDARY_MODEL="Qwen/Qwen2.5-7B-Instruct"
-#export VL_MODEL="OpenGVLab/InternVL2-26B"
 export PROJECT_DIR="work_dir"
 #export PB_API_BASE="" ##only use if your pb not run on 127.0.0.1:8090
