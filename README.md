@@ -28,6 +28,7 @@ V0.3.6 是 V0.3.5的效果改进版本，针对诸多社区反馈进行了改进
   - 继续减少 requirement.txt 的依赖项，目前不需要 json_repair了（实践中也发现让 llm 按 json 格式生成，还是会明显增加处理时间和失败率，因此我现在采用更简单的方式，同时增加对处理结果的后处理）
   - pb info 表单的结构做了小调整，增加了 web_title 和 reference 两项。
   - @ourines 贡献了 install_pocketbase.sh 脚本 (docker运行方案被暂时移除了，感觉大家用起来也不是很方便……)
+  - @ibaoger 贡献了 windows 下的pocketbase 安装脚本
 
 **升级V0.3.6 版本依然需要重构 pocketbase 数据库，请删除pb/pb_data 文件夹后重新执行**
 
@@ -80,16 +81,16 @@ wiseflow自2024年6月底发布 V0.3.0版本来受到了开源社区的广泛关
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-### 2. 执行根目录下的 install_pocketbase.sh 脚本
+### 2. 执行根目录下的 install_pocketbase 脚本
 
-该脚本会引导下载并配置 pocketbase（版本选择0.23.4），同时在 core 下创建 .env 文件。
-
-注意：该脚本目前不支持 windows 操作系统，windows 用户可以手动去 https://github.com/pocketbase/pocketbase/releases/tag/v0.23.4 下载，解压放入 wiseflow/pb 目录下
+linux/macos 用户请执行 
 
 ```bash
-chmod +x install_pocketbase.sh
-./install_pocketbase.sh
+chmod +x install_pocketbase
+./install_pocketbase
 ```
+
+**windows 用户请执行 [install_pocketbase.ps1](./install_pocketbase.ps1) 脚本**
 
 wiseflow 0.3.x版本使用 pocketbase 作为数据库，你当然也可以手动下载 pocketbase 客户端 (记得下载0.23.4版本，并放入 [pb](./pb) 目录下) 以及手动完成superuser的创建(记得存入.env文件)
 

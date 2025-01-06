@@ -27,7 +27,8 @@ V0.3.6은 V0.3.5의 개선 버전으로, 많은 커뮤니티 피드백을 반영
   - 시각 대형 모델을 도입하여 Crawl4ai가 높은 가중치(현재 Crawl4ai가 평가)를 부여한 이미지를 자동으로 인식하고 관련 정보를 페이지 텍스트에 추가합니다.
   - requirement.txt 의 의존성 항목을 계속 줄였으며, 이제 json_repair가 필요하지 않습니다. (실제로 llm이 JSON 형식으로 생성하는 것은 처리 시간을 증가시키고 실패율을 높이므로 더 간단한 방식을 채택하고 처리 결과 후처리를 강화하였습니다.)
   - pb info 양식 구조를 약간 조정하여 web_title과 reference 항목을 추가했습니다.
-  - @ourines님이 install_pocketbase.sh 스크립트를 기여하셨습니다. (Docker 실행 방안은 일시적으로 제거되었으며 사용이 편리하지 않아서……)
+  - @ourines 님이 install_pocketbase.sh 스크립트를 기여하셨습니다. (Docker 실행 방안은 일시적으로 제거되었으며 사용이 편리하지 않아서……)
+  - @ibaoger 님이 install_pocketbase.ps1 스크립트를 기여하셨습니다.
 
 **V0.3.6 버전으로 업그레이드하려면 pocketbase 데이터베이스를 다시 구성해야 합니다. pb/pb_data 폴더를 삭제한 후 다시 실행해 주세요.**
 
@@ -80,14 +81,16 @@ wiseflow는 2024년 6월 말 V0.3.0 버전 출시 이후 오픈소스 커뮤니�
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-### 2. 루트 디렉토리에서 install_pocketbase.sh 스크립트 실행
+### 2. 루트 디렉토리에서 install_pocketbase 스크립트 실행
 
-이 스크립트는 pocketbase(버전 0.23.4)의 다운로드 및 구성을 안내하고 core 디렉토리 아래에 .env 파일을 생성합니다.
+for linux/macos users:
 
 ```bash
-chmod +x install_pocketbase.sh
-./install_pocketbase.sh
+chmod +x install_pocketbase
+./install_pocketbase
 ```
+
+**windows users please execute [install_pocketbase.ps1](./install_pocketbase.ps1) script**
 
 Wiseflow 0.3.x는 데이터베이스로 pocketbase를 사용합니다. pocketbase 클라이언트를 수동으로 다운로드할 수도 있습니다(버전 0.23.4를 다운로드하여 [pb](./pb) 디렉토리에 배치하는 것을 잊지 마세요). 그리고 수퍼유저를 수동으로 생성할 수 있습니다(.env 파일에 저장하는 것을 잊지 마세요).
 

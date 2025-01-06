@@ -27,7 +27,8 @@ V0.3.6はV0.3.5の効果改善版で、多くのコミュニティからのフ�
   - 視覚的大規模モデルを導入し、抽出前に高ウェイト（現在はCrawl4aiによって評価）の画像を自動的に認識し、関連情報をページテキストに追加します。
   - requirement.txtの依存関係をさらに削減し、json_repairは必要なくなった（実際の運用中、LLMがJSON形式で生成すると、処理時間と失敗率が明らかに増加することがわかったため、よりシンプルな方法を採用し、処理結果の後処理を強化）
   - pb infoフォームの構造を微調整し、web_titleとreferenceの2項目を追加しました。
-  - @ourinesがinstall_pocketbase.shスクリプトを貢献しました (Docker実行方案は一時的に削除されました、使い勝手が良くなかったため……)
+  - @ourines がinstall_pocketbase.shスクリプトを貢献しました (Docker実行方案は一時的に削除されました、使い勝手が良くなかったため……)
+  - @ibaoger がinstall_pocketbase.ps1スクリプトを貢献しました（WindowsユーザーのためのDocker実行方案は一時的に削除されました、使い勝手が良くなかったため……）
 
 **V0.3.6バージョンへのアップグレードにはpocketbaseデータベースの再構築が必要です。pb/pb_dataフォルダを削除した後、再度実行してください**
 
@@ -80,14 +81,16 @@ wiseflowは2024年6月末にV0.3.0バージョンをリリースして以来、�
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-### 2. ルートディレクトリのinstall_pocketbase.shスクリプトを実行
+### 2. ルートディレクトリのinstall_pocketbase スクリプトを実行
 
-このスクリプトは、pocketbase（バージョン0.23.4）のダウンロードと設定をガイドし、coreディレクトリの下に.envファイルを作成します。
+linux/macosユーザーは以下を実行してください
 
 ```bash
-chmod +x install_pocketbase.sh
-./install_pocketbase.sh
+chmod +x install_pocketbase
+./install_pocketbase
 ```
+
+**Windowsユーザーは[install_pocketbase.ps1](./install_pocketbase.ps1)スクリプトを実行してください**
 
 Wiseflow 0.3.xはデータベースとしてpocketbaseを使用しています。pocketbaseクライアント（バージョン0.23.4をダウンロードして[pb](./pb)ディレクトリに配置することを忘れないでください）を手動でダウンロードし、スーパーユーザーを手動で作成することもできます（.envファイルに保存することを忘れないでください）。
 
