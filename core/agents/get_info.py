@@ -57,8 +57,8 @@ def extract_info(llm_text: str):
         pass
     else:
         extracted_result = re.findall(r'```(.*?)```', llm_text, re.DOTALL)
-
-    cache.add(extracted_result[-1])
+    if extracted_result:
+        cache.add(extracted_result[-1])
     return cache
 
 
