@@ -29,7 +29,7 @@ V0.3.6はV0.3.5の効果改善版で、多くのコミュニティからのフ�
   - pb infoフォームの構造を微調整し、web_titleとreferenceの2項目を追加しました。
   - @ourines がinstall_pocketbase.shスクリプトを貢献しました (Docker実行方案は一時的に削除されました、使い勝手が良くなかったため……)
   - @ibaoger がinstall_pocketbase.ps1スクリプトを貢献しました（WindowsユーザーのためのDocker実行方案は一時的に削除されました、使い勝手が良くなかったため……）
-
+  - @tusik が非同期 llm wrapper を貢献しました
 **V0.3.6バージョンへのアップグレードにはpocketbaseデータベースの再構築が必要です。pb/pb_dataフォルダを削除した後、再度実行してください**
 
 **V0.3.6バージョンでは.envファイルのSECONDARY_MODELをVL_MODELに置き換えてください。最新の[env_sample](./env_sample)を参照してください**
@@ -166,6 +166,12 @@ export PB_API_AUTH="test@example.com|1234567890"
 - #PB_API_BASE="" 
 
   pocketbaseがデフォルトのIPまたはポートで実行されていない場合にのみ設定が必要です。デフォルトの状況では、これを無視できます。
+
+- #LLM_CONCURRENT_NUMBER=8 
+
+  llm の同時リクエスト数を制御するために使用されます。デフォルトは1です（llm provider が設定された同時性をサポートしていることを確認してください。ローカル大規模モデルはハードウェアベースに自分がない限り慎重に使用してください）
+  
+  @tusik に感謝します
 
 ### 4. プログラムの実行
 

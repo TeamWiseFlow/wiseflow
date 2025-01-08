@@ -29,6 +29,8 @@ V0.3.6 is an enhanced version of V0.3.5, incorporating numerous improvements bas
 - Made minor adjustments to the pb info form structure, adding web_title and reference fields.
 - @ourines contributed the install_pocketbase.sh script (the Docker running solution has been temporarily removed as it wasn't very convenient for users...)
 - @ibaoger contributed the install_pocketbase.ps1 script for windows users
+- @tusik contributed the asynchronous llm wrapper
+
 **Upgrading to V0.3.6 requires restructuring the PocketBase database. Please delete the pb/pb_data folder and re-run the setup**
 
 **In V0.3.6, replace SECONDARY_MODEL with VL_MODEL in the .env file. Refer to the latest [env_sample](./env_sample)**
@@ -165,6 +167,12 @@ The following are all optional configurations:
 - #PB_API_BASE="" 
 
   Only needs to be configured if your pocketbase is not running on the default IP or port. Under default circumstances, you can ignore this.
+
+- #LLM_CONCURRENT_NUMBER=8 
+
+ Used to control the number of concurrent LLM requests. Default is 1 if not set (before enabling, please ensure your LLM provider supports the configured concurrency. Use local large models with caution unless you are confident in your hardware capabilities)
+  
+  Thanks to @tusik for contributing the asynchronous LLM wrapper
 
 ### 4. Running the Program
 
