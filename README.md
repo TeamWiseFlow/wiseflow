@@ -29,6 +29,7 @@ V0.3.6 是 V0.3.5的效果改进版本，针对诸多社区反馈进行了改进
   - pb info 表单的结构做了小调整，增加了 web_title 和 reference 两项。
   - @ourines 贡献了 install_pocketbase.sh 脚本 (docker运行方案被暂时移除了，感觉大家用起来也不是很方便……)
   - @ibaoger 贡献了 windows 下的pocketbase 安装脚本
+  - @tusik 贡献了异步 llm wrapper
 
 **升级V0.3.6 版本依然需要重构 pocketbase 数据库，请删除pb/pb_data 文件夹后重新执行**
 
@@ -166,6 +167,12 @@ export PB_API_AUTH="test@example.com|1234567890"
 - #PB_API_BASE="" 
 
   只有当你的 pocketbase 不运行在默认ip 或端口下才需要配置，默认情况下忽略就行。
+
+- #LLM_CONCURRENT_NUMBER=8 
+
+  用于控制 llm 的并发请求数量，不设定默认是1（开启前请确保 llm provider 支持设定的并发，本地大模型慎用，除非你对自己的硬件基础有信心）
+  
+  感谢 @tusik 贡献的异步 llm wrapper
 
 ### 4. 运行程序
 

@@ -29,7 +29,7 @@ V0.3.6은 V0.3.5의 개선 버전으로, 많은 커뮤니티 피드백을 반영
   - pb info 양식 구조를 약간 조정하여 web_title과 reference 항목을 추가했습니다.
   - @ourines 님이 install_pocketbase.sh 스크립트를 기여하셨습니다. (Docker 실행 방안은 일시적으로 제거되었으며 사용이 편리하지 않아서……)
   - @ibaoger 님이 install_pocketbase.ps1 스크립트를 기여하셨습니다.
-
+  - @tusik 님이 비동기 llm wrapper를 기여하셨습니다.
 **V0.3.6 버전으로 업그레이드하려면 pocketbase 데이터베이스를 다시 구성해야 합니다. pb/pb_data 폴더를 삭제한 후 다시 실행해 주세요.**
 
 **V0.3.6 버전에서는 .env에서 SECONDARY_MODEL을 VL_MODEL로 변경해야 합니다. 최신 [env_sample](./env_sample)을 참고해 주세요.**
@@ -167,6 +167,12 @@ export PB_API_AUTH="test@example.com|1234567890"
 - #PB_API_BASE="" 
 
   pocketbase가 기본 IP 또는 포트에서 실행되지 않는 경우에만 구성이 필요합니다. 기본 상황에서는 이를 무시할 수 있습니다.
+  
+- #LLM_CONCURRENT_NUMBER=8 
+
+  llm 동시 요청 수를 제어하는 데 사용됩니다. 설정하지 않으면 기본값은 1입니다(활성화하기 전에 llm 제공자가 설정된 동시성을 지원하는지 확인하세요. 로컬 대규모 모델은 하드웨어 기반에 자신이 있지 않는 한 신중하게 사용하세요)
+  
+  @tusik이 기여한 비동기 llm wrapper에 감사드립니다
 
 ### 4. 프로그램 실행
 
