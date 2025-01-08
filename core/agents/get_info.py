@@ -50,6 +50,18 @@ async def extract_info_from_img(task: list, vl_model: str) -> dict:
     return cache
 
 
+def extract_info(llm_text: str):
+    cache = set()
+    extracted_result = re.findall(r'\"\"\"(.*?)\"\"\"', llm_text, re.DOTALL)
+    if extracted_result:
+        pass
+    else:
+        extracted_result = re.findall(r'```(.*?)```', llm_text, re.DOTALL)
+
+    cache.add(extracted_result[-1])
+    return cache
+
+
 class GeneralInfoExtractor:
     def __init__(self, pb: PbTalker, _logger: logger) -> None:
         self.pb = pb
@@ -191,9 +203,7 @@ When performing the association analysis, please follow these principles:
         results = await asyncio.gather(*tasks)
         for res in results:
             if res:
-                extracted_result = re.findall(r'\"\"\"(.*?)\"\"\"', res, re.DOTALL)
-                if extracted_result:
-                    cache.add(extracted_result[-1])
+                cache.update(extract_info(res))
 
         return cache
 
