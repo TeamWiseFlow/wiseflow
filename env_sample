@@ -10,3 +10,4 @@ export PB_API_AUTH="test@example.com|1234567890" ##your pb superuser account and
 #export VERBOSE="true" ##for detail log info. If not need, remove this item.
 export PROJECT_DIR="work_dir"
 #export PB_API_BASE="" ##only use if your pb not run on 127.0.0.1:8090
+#export LLM_CONCURRENT_NUMBER=8 ##for concurrent llm requests, make sure your llm provider supports it(leave default is 1)
