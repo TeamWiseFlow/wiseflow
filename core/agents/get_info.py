@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import asyncio
+
 from loguru import logger
 import os, re
 from utils.pb_api import PbTalker
@@ -23,7 +25,7 @@ async def get_author_and_publish_date(text: str, model: str) -> tuple[str, str]:
 
     content = f'<text>\n{text}\n</text>\n\n{suffix}'
     llm_output = await llm([{'role': 'system', 'content': system_prompt}, {'role': 'user', 'content': content}],
-                           model=model, max_tokens=50, temperature=0.1, response_format={"type": "json_object"})
+                           model=model, max_tokens=50, temperature=0.1)
 
     ap_ = llm_output.strip().strip('"').strip('//')
 
@@ -166,29 +168,33 @@ When performing the association analysis, please follow these principles:
             return set()
 
         cache = set()
+        batches = []
         text_batch = ''
         for line in lines:
-            text_batch = f'{text_batch}{line}\n'
+            text_batch += f'{line}\n'
             if len(text_batch) > batch_size:
                 content = f'<text>\n{text_batch}</text>\n\n{suffix}'
-                result = await llm(
-                    [{'role': 'system', 'content': system_prompt}, {'role': 'user', 'content': content}],
-                    model=self.model, temperature=0.1)
-                # self.logger.debug(f"llm output: {result}")
-                result = re.findall(r'\"\"\"(.*?)\"\"\"', result, re.DOTALL)
-                if result:
-                    cache.add(result[-1])
+                batches.append({'system_prompt': system_prompt, 'content': content})
                 text_batch = ''
 
         if text_batch:
             content = f'<text>\n{text_batch}</text>\n\n{suffix}'
-            result = await llm(
-                [{'role': 'system', 'content': system_prompt}, {'role': 'user', 'content': content}],
-                model=self.model, temperature=0.1)
-            # self.logger.debug(f"llm output: {result}")
-            result = re.findall(r'\"\"\"(.*?)\"\"\"', result, re.DOTALL)
-            if result:
-                cache.add(result[-1])
+            batches.append({'system_prompt': system_prompt, 'content': content})
+
+        self.logger.info(f"LLM tasks size: {len(batches)}")
+        tasks = [
+            llm(
+                    [{'role': 'system', 'content': batch['system_prompt']}, {'role': 'user', 'content': batch['content']}],
+                    model=self.model, temperature=0.1
+                )
+            for batch in batches]
+        results = await asyncio.gather(*tasks)
+        for res in results:
+            if res:
+                extracted_result = re.findall(r'\"\"\"(.*?)\"\"\"', res, re.DOTALL)
+                if extracted_result:
+                    cache.add(extracted_result[-1])
+
         return cache
 
     async def get_more_related_urls(self, link_dict: dict) -> set:
