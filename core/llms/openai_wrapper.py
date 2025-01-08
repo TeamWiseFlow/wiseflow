@@ -21,6 +21,7 @@ semaphore = asyncio.Semaphore(int(concurrent_number))
 
 async def openai_llm(messages: list, model: str, logger=None, **kwargs) -> str:
     resp = ''
+    response = None
     await semaphore.acquire()
     if logger:
         logger.debug(f'messages:\n {messages}')
@@ -54,7 +55,7 @@ async def openai_llm(messages: list, model: str, logger=None, **kwargs) -> str:
     finally:
         semaphore.release()
 
-    if logger:
+    if logger and response:
         logger.debug(f'result:\n {response.choices[0]}')
         logger.debug(f'usage:\n {response.usage}')
     return resp
