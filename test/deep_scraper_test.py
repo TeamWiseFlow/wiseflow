@@ -7,6 +7,7 @@ project_root = os.path.dirname(current_dir)  # 获取父目录
 sys.path.append(project_root)
 
 from core.utils.deep_scraper import deep_scraper, common_chars
+from core.custom_scrapers.mp_scraper import mp_scraper
 
 def check_url_text(text):
     print(f"processing: {text}")
@@ -89,8 +90,21 @@ if __name__ == '__main__':
             with open(file, 'r') as f:
                 html_sample = json.load(f)
             _url = html_sample['url']
-            raw_markdown = html_sample['markdown']
-            used_img = {d['src']: d['alt'] for d in html_sample['media']['images']}
+            if _url.startswith('https://mp.weixin.qq.com'):
+                result = mp_scraper(html_sample)
+                print(f'url: {result.url}')
+                print(f'content: {result.content}')
+                print(f'links: {result.links}')
+                print(f'author: {result.author}')
+                print(f'publish_date: {result.publish_date}')
+                print(f'images: {len(result.images)}')
+                for img in result.images:
+                    print(img)
+                raw_markdown = result.content
+                used_img = result.images
+            else:
+                raw_markdown = html_sample['markdown']
+                used_img = {d['src']: d['alt'] for d in html_sample['media']['images']}
         except Exception as e:
             print('sample format error, try to use craw4ai_fething.py to get sample')
             print(f"error: {e}")
