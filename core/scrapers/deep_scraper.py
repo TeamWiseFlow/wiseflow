@@ -6,7 +6,7 @@
 # action_dict needs to be extracted from raw html, which is not covered by this script
 
 import re
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urljoin
 
 
 common_file_exts = [
@@ -128,7 +128,7 @@ def deep_scraper(raw_markdown: str, base_url: str, used_img: list[str]) -> tuple
             text = text.replace(_sec, link_text + _key, 1)
 
             # 检查链接是否是常见文件类型或顶级域名
-            # todo: get_more_url 时再处理
+            # todo: 最后提取是否添加到 more_link时或者主流程时再处理
             """
             has_common_ext = any(url.endswith(ext) for ext in common_file_exts)
             has_common_tld = any(url.endswith(tld) or url.endswith(tld + '/') for tld in common_tlds)
@@ -138,14 +138,16 @@ def deep_scraper(raw_markdown: str, base_url: str, used_img: list[str]) -> tuple
         # 处理文本中的其他图片标记
         img_pattern = r'(§(.*?)\|\|(.*?)§)'
         matches = re.findall(img_pattern, text)
+        remained_text = re.sub(img_pattern, '', text).strip()
+        remained_text_len = len(remained_text )
         for _sec, alt, src in matches:
-            if not src or src.startswith('#') or src not in used_img:
+            if not src or src.startswith('#'):
                 text = text.replace(_sec, alt, 1)
                 continue
             img_src = normalize_url(src, base_url)
             if not img_src:
                 text = text.replace(_sec, alt, 1)
-            elif len(alt) > 2:
+            elif src not in used_img or remained_text_len > 5 or len(alt) > 2:
                 _key = f"[img{len(link_dict)+1}]"
                 link_dict[_key] = img_src
                 text = text.replace(_sec, alt + _key, 1)
@@ -176,8 +178,18 @@ def deep_scraper(raw_markdown: str, base_url: str, used_img: list[str]) -> tuple
         return text
 
     sections = raw_markdown.split('# ') # use '# ' to avoid # in url
-    texts = [check_url_text(text) for text in sections]
-    texts = [text for text in texts if text.strip()]
+    texts = []
+    for i, section in enumerate(sections):
+        # filter the possible navigate section and footer section
+        section_remain = re.sub(r'\[.*?]\(.*?\)', '', section).strip()
+        section_remain_len = len(section_remain)
+        total_links = len(re.findall(r'\[.*?]\(.*?\)', section))
+        print(f"section {i}")
+        print(f"ratio: {total_links/section_remain_len}")
+
+        processed_p = [check_url_text(p) for p in section.split('\n\n')]
+        processed_p = [p for p in processed_p if p.strip()]
+        texts.append('\n\n'.join(processed_p))
 
     return link_dict, texts, to_be_recognized_by_visual_llm
         

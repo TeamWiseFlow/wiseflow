@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import re
+from crawl4ai import CrawlResult
 from .scraper_data import ScraperResultData
 
 # 定义所有可能包含文本的块级和内联元素
@@ -11,13 +12,12 @@ text_elements = {
 }
 
 
-def mp_scraper(fetch_result: dict) -> ScraperResultData:
-    url = fetch_result['url']
-    raw_html = fetch_result['html']
-    cleaned_html = fetch_result['cleaned_html']
-    
+def mp_scraper(fetch_result: CrawlResult) -> ScraperResultData:
+    url = fetch_result.url
+    raw_html = fetch_result.html
+    cleaned_html = fetch_result.cleaned_html
+
     content = ''
-    links = {}
     images = []
 
     if url.startswith('https://mp.weixin.qq.com/mp/appmsgalbum'):
@@ -38,17 +38,13 @@ def mp_scraper(fetch_result: dict) -> ScraperResultData:
                 description = u_text
             else:
                 description = f'{u_title}-{u_text}'
-            if _url and description:
-                if _url not in links:
-                    links[_url] = description
-                else:
-                    links[_url] = f'{links[_url]}|{description}'
-        return ScraperResultData(url=url, content=content, links=links, images=images)
+            content += f'[{description}]({_url})\n'
+        return ScraperResultData(content=content, images=images)
  
     def process_content(content_div):
         # 3.1 处理所有 <img> 元素
         for img in content_div.find_all('img', attrs={'data-src': True}, recursive=True):
-            data_type = img.get('data-type')
+            data_type = img.get('data-type', '')
             if data_type in ['gif', 'svg']:
                 continue
             src = img.get('data-src')
@@ -200,15 +196,18 @@ def mp_scraper(fetch_result: dict) -> ScraperResultData:
             # 替换 http 为 https
             data_url = data_url.replace('http://', 'https://', 1)
             if not data_url or not data_url.startswith('https://mp.weixin.qq.com'):
-                return ScraperResultData(url=url, content=content, links=links, images=images)
+                # maybe a new_type_article
+                return ScraperResultData(title='maybe a new_type_article')
             # 从 js_content 中获取描述文本
             content_div = soup.find('div', id='js_content')
             if not content_div:
-                return ScraperResultData(url=url, content=content, links=links, images=images)
+                # maybe a new_type_article
+                return ScraperResultData(title='maybe a new_type_article')
             des = content_div.get_text(strip=True)
-            return ScraperResultData(url=url, content=content, links={data_url: des}, images=images)
+            return ScraperResultData(content=f'[{des}]({data_url})')
         else:
-            return ScraperResultData(url=url, content=content, links=links, images=images)
+            # a deleted page
+            return ScraperResultData()
     
     # 2. 判断这个子块下面包含几个非空 div 子块
     sub_divs = [div for div in h1_div.find_all('div', recursive=False) if len(div.contents) > 0]
@@ -226,6 +225,7 @@ def mp_scraper(fetch_result: dict) -> ScraperResultData:
                 publish_date = date_span.get_text(strip=True).split()[0]  # 只取日期部分
             else:
                 publish_date = None
+                title = 'maybe a new_type_article'
             # 提取与包含 <h1> 元素的 div 块平级的紧挨着的下一个 div 块作为 content
             content_div = h1_div.find_next_sibling('div')
             content = title + '\n\n' + process_content(content_div)
@@ -246,9 +246,11 @@ def mp_scraper(fetch_result: dict) -> ScraperResultData:
                 publish_date = date_em.get_text(strip=True).split()[0]
             else:
                 publish_date = None
+                title = 'maybe a new_type_article'
         else:
             author = None
             publish_date = None
+            title = 'maybe a new_type_article'
         # 剩下的 div 子块合起来作为 content
         content_divs = sub_divs[1:]
         content = '# '.join([process_content(div) for div in content_divs])
@@ -256,6 +258,8 @@ def mp_scraper(fetch_result: dict) -> ScraperResultData:
     else:
         author = None
         publish_date = None
-        content = title
+        content = 'maybe a new_type_article'
 
-    return ScraperResultData(url=url, content=content, links=links, images=images, author=author, publish_date=publish_date, title=title)
+    if len(images) > 2:
+        images = images[1:-1]
+    return ScraperResultData(title=title, content=content, images=images, author=author, publish_date=publish_date)
