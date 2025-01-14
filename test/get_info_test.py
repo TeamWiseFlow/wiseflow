@@ -4,7 +4,7 @@ import json
 import asyncio
 import time
 from prompts import *
-
+# prompt 要加上今天是…………
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)  # get parent dir
 sys.path.append(project_root)

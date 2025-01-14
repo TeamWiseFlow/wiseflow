@@ -1,8 +1,18 @@
 #!/bin/bash
 
-# export CONFIGS='avatars'
-# export WX_BOT_ENDPOINT='127.0.0.1:8066'
-# export MAIN_SERVICE_ENDPOINT='http://127.0.0.1:7777/'
-# export VERBOSE=True
+set -o allexport
+source ../core/.env
+set +o allexport
 
-python weixin.py
+if ! pgrep -x "pocketbase" > /dev/null; then
+    if ! netstat -tuln | grep ":8090" > /dev/null && ! lsof -i :8090 > /dev/null; then
+        echo "Starting PocketBase..."
+        ../pb/pocketbase serve --http=127.0.0.1:8090 &
+    else
+        echo "Port 8090 is already in use."
+    fi
+else
+    echo "PocketBase is already running."
+fi
+
+python __init__.py

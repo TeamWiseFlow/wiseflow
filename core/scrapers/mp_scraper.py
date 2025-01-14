@@ -48,6 +48,9 @@ def mp_scraper(fetch_result: dict) -> ScraperResultData:
     def process_content(content_div):
         # 3.1 处理所有 <img> 元素
         for img in content_div.find_all('img', attrs={'data-src': True}, recursive=True):
+            data_type = img.get('data-type')
+            if data_type in ['gif', 'svg']:
+                continue
             src = img.get('data-src')
             if not src or src.startswith('#') or src.startswith('about:blank'):
                 src = None
@@ -178,7 +181,7 @@ def mp_scraper(fetch_result: dict) -> ScraperResultData:
                 if text:
                     content_parts.append(text)
     
-        return '\n'.join(content_parts).strip()
+        return '  '.join(content_parts).strip()
 
     soup = BeautifulSoup(cleaned_html, 'html.parser')
 
@@ -248,7 +251,7 @@ def mp_scraper(fetch_result: dict) -> ScraperResultData:
             publish_date = None
         # 剩下的 div 子块合起来作为 content
         content_divs = sub_divs[1:]
-        content = '\n\n'.join([process_content(div) for div in content_divs])
+        content = '# '.join([process_content(div) for div in content_divs])
         content = title + '\n\n' + content
     else:
         author = None

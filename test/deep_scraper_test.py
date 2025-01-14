@@ -6,8 +6,8 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)  # 获取父目录
 sys.path.append(project_root)
 
-from core.utils.deep_scraper import deep_scraper, common_chars
-from core.custom_scrapers.mp_scraper import mp_scraper
+from core.scrapers.deep_scraper import deep_scraper, common_chars
+from core.scrapers.mp_scraper import mp_scraper
 
 def check_url_text(text):
     print(f"processing: {text}")
@@ -85,21 +85,21 @@ if __name__ == '__main__':
     for file in files:
         if not file.endswith('.json'): continue
 
-        print(f"processing {file} ...")
+        #print(f"processing {file} ...")
         try:
             with open(file, 'r') as f:
                 html_sample = json.load(f)
             _url = html_sample['url']
             if _url.startswith('https://mp.weixin.qq.com'):
                 result = mp_scraper(html_sample)
-                print(f'url: {result.url}')
-                print(f'content: {result.content}')
-                print(f'links: {result.links}')
-                print(f'author: {result.author}')
-                print(f'publish_date: {result.publish_date}')
-                print(f'images: {len(result.images)}')
-                for img in result.images:
-                    print(img)
+                #print(f'url: {result.url}')
+                #print(f'content: {result.content}')
+                #print(f'links: {result.links}')
+                #print(f'author: {result.author}')
+                #print(f'publish_date: {result.publish_date}')
+                #print(f'images: {len(result.images)}')
+                #for img in result.images:
+                #    print(img)
                 raw_markdown = result.content
                 used_img = result.images
             else:
@@ -117,18 +117,18 @@ if __name__ == '__main__':
             base_url = base_url.rsplit('/', 1)[0] + '/'
 
         time_start = time.time()
-        from_html_link_dict, (from_html_text, from_html_text_link_map) = deep_scraper(raw_markdown, base_url, used_img)
+        link_dict, texts, to_be_recognized_by_visual_llm = deep_scraper(raw_markdown, base_url, used_img)
         time_end = time.time()
-        print(f"time cost for html: {time_end - time_start}s")
+        #print(f"time cost for html: {time_end - time_start}s")
 
         result = {
-            "link_dict": from_html_link_dict,
-            "text": from_html_text,
-            "text_link_map": from_html_text_link_map,
+            "link_dict": link_dict,
+            "texts": texts,
+            "to_be_recognized_by_visual_llm": to_be_recognized_by_visual_llm,
         }
         record_folder = file.replace('.json', '')
         os.makedirs(record_folder, exist_ok=True)
         with open(os.path.join(record_folder, 'sample.json'), 'w', encoding='utf-8') as f:
             json.dump(result, f, indent=4, ensure_ascii=False)
-        print("done")
-        print("*" * 12)
+        #print("done")
+        #print("*" * 12)

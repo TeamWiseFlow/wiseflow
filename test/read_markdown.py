@@ -1,6 +1,13 @@
 import os
 import json
 import re
+import sys
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)  # 获取父目录
+sys.path.append(project_root)
+
+from core.scrapers.mp_scraper import mp_scraper
 
 def read_markdown_from_json_files(directory_path):
     # Get all JSON files in the directory
@@ -16,42 +23,30 @@ def read_markdown_from_json_files(directory_path):
         
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-                
-        markdown = data.get('markdown')
+
+        url = data.get('url')
+        if url.startswith('https://mp.weixin.qq.com'):
+            result = mp_scraper(data)
+            markdown = result.content
+        else:
+            markdown = data.get('markdown')
+
         # Find the longest consecutive newlines in the markdown text
         if markdown:
-            # Find all sequences of newlines and get their lengths
-            max_newlines = max(len(match) for match in re.findall(r'\n+', markdown)) if re.search(r'\n+', markdown) else 0
-            print(f"Longest consecutive newlines: {max_newlines}")
-            if max_newlines < 2:
-                sections = [markdown]
-            else:
-                sections = markdown.split('\n' * max_newlines)
+            # 处理图片标记 ![alt](src)
+            matches = re.findall(img_pattern, markdown)
+            for alt, src in matches:
+                # 替换为新格式 §alt||img_12§
+                markdown = markdown.replace(f'![{alt}]({src})', f'<img>')
+            matches = re.findall(link_pattern, markdown)
+            for link_text, link_url in matches:
+                markdown = markdown.replace(f'[{link_text}]({link_url})', '[url]')
+            markdown = [m.strip() for m in markdown.split('# ') if m.strip()]
+            markdown = '\n----------------------------------\n'.join(markdown)
 
-            for i, section in enumerate(sections):
-                print(f"Section {i + 1}:")
-                print(section)
-                print('\n\n')
-                newline_count = section.count('\n')
-                # 处理图片标记 ![alt](src)
-                img_pattern = r'!\[(.*?)\]\((.*?)\)'
-                matches = re.findall(img_pattern, section)
-                for alt, src in matches:
-                # 替换为新格式 §alt||src§
-                    section = section.replace(f'![{alt}]({src})', f'§{alt}||{src}§')
-                # 处理链接标记 [text](url)
-                matches = re.findall(link_pattern, section)
-                # 从text中去掉所有matches部分
-                for link_text, link_url in matches:
-                    section = section.replace(f'[{link_text}]({link_url})', '')
-                
-                if len(section) == 0:
-                    print("no text in section")
-                    continue
-                print(f"newline/text ratio: {newline_count/len(section)*100}")
-                print(f"links/section ratio: {len(matches)/len(section)*100}")
-                print("-" * 50)
-
+            record_file = open(f'{json_file}.txt', 'w', encoding='utf-8')
+            record_file.write(markdown)
+            record_file.close()
 
 if __name__ == "__main__":
     # Path to the webpage_samples directory
