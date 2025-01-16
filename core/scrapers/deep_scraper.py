@@ -49,34 +49,34 @@ def normalize_url(url: str, base_url: str) -> str:
         return _ss[0] + '//' + '/'.join(_ss[1:])
 
 
-def deep_scraper(raw_markdown: str, base_url: str, used_img: list[str]) -> tuple[dict, list[str], dict]:
+def deep_scraper(raw_markdown: str, base_url: str, used_img: list[str]) -> tuple[dict, list[str], list[str]]:
     link_dict = {}
     to_be_recognized_by_visual_llm = {}
-    def check_url_text(text):
-        # text = text.strip()
-        # for special url formate from crawl4ai 0.4.247
-        text = re.sub(r'<javascript:.*?>', '<javascript:>', text).strip()
+    # for special url formate from crawl4ai 0.4.247
+    raw_markdown = re.sub(r'<javascript:.*?>', '<javascript:>', raw_markdown).strip()
 
-        # 处理图片标记 ![alt](src)
-        img_pattern = r'(!\[(.*?)\]\((.*?)\))'
-        matches = re.findall(img_pattern, text)
-        for _sec,alt, src in matches:
-            # 替换为新格式 §alt||src§
-            text = text.replace(_sec, f'§{alt}||{src}§', 1)  
-            
+    # 处理图片标记 ![alt](src)
+    i_pattern = r'(!\[(.*?)\]\((.*?)\))'
+    matches = re.findall(i_pattern, raw_markdown, re.DOTALL)
+    for _sec, alt, src in matches:
+        # 替换为新格式 §alt||src§
+        raw_markdown = raw_markdown.replace(_sec, f'§{alt}||{src}§', 1)
+
+    def check_url_text(text) -> tuple[int, str]:
+        score = 0
+        _valid_len = len(text.strip())
         # 找到所有[part0](part1)格式的片段
         link_pattern = r'(\[(.*?)\]\((.*?)\))'
-        matches = re.findall(link_pattern, text)
+        matches = re.findall(link_pattern, text, re.DOTALL)
         for _sec, link_text, link_url in matches:
-            print("found link sec:", _sec)
             # 处理 \"***\" 格式的片段
             quote_pattern = r'\"(.*?)\"'
             # 提取所有引号包裹的内容
-            _title = ''.join(re.findall(quote_pattern, link_url))
+            _title = ''.join(re.findall(quote_pattern, link_url, re.DOTALL))
 
             # 分离§§内的内容和后面的内容
             img_marker_pattern = r'§(.*?)\|\|(.*?)§'
-            inner_matches = re.findall(img_marker_pattern, link_text)
+            inner_matches = re.findall(img_marker_pattern, link_text, re.DOTALL)
             for alt, src in inner_matches:
                 link_text = link_text.replace(f'§{alt}||{src}§', '')
             link_text = link_text.strip()
@@ -113,20 +113,21 @@ def deep_scraper(raw_markdown: str, base_url: str, used_img: list[str]) -> tuple
                     link_text = img_alt
 
             real_url_pattern = r'<(.*?)>'
-            real_url = re.search(real_url_pattern, link_url)
+            real_url = re.search(real_url_pattern, link_url, re.DOTALL)
             if real_url:
                 _url = real_url.group(1).strip()
             else:
-                _url = re.sub(quote_pattern, '', link_url).strip()
+                _url = re.sub(quote_pattern, '', link_url, re.DOTALL).strip()
 
             if not _url or _url.startswith(('#', 'javascript:')):
                 text = text.replace(_sec, link_text, 1)
                 continue
+            score += 1
+            _valid_len = _valid_len - len(_sec)
             url = normalize_url(_url, base_url)
             _key = f"[{len(link_dict)+1}]"
             link_dict[_key] = url
             text = text.replace(_sec, link_text + _key, 1)
-
             # 检查链接是否是常见文件类型或顶级域名
             # todo: 最后提取是否添加到 more_link时或者主流程时再处理
             """
@@ -137,17 +138,17 @@ def deep_scraper(raw_markdown: str, base_url: str, used_img: list[str]) -> tuple
             """
         # 处理文本中的其他图片标记
         img_pattern = r'(§(.*?)\|\|(.*?)§)'
-        matches = re.findall(img_pattern, text)
-        remained_text = re.sub(img_pattern, '', text).strip()
-        remained_text_len = len(remained_text )
+        matches = re.findall(img_pattern, text, re.DOTALL)
+        remained_text = re.sub(img_pattern, '', text, re.DOTALL).strip()
+        remained_text_len = len(remained_text)
         for _sec, alt, src in matches:
-            if not src or src.startswith('#'):
+            if not src or src.startswith('#') or src not in used_img:
                 text = text.replace(_sec, alt, 1)
                 continue
             img_src = normalize_url(src, base_url)
             if not img_src:
                 text = text.replace(_sec, alt, 1)
-            elif src not in used_img or remained_text_len > 5 or len(alt) > 2:
+            elif remained_text_len > 5 or len(alt) > 2:
                 _key = f"[img{len(link_dict)+1}]"
                 link_dict[_key] = img_src
                 text = text.replace(_sec, alt + _key, 1)
@@ -165,7 +166,6 @@ def deep_scraper(raw_markdown: str, base_url: str, used_img: list[str]) -> tuple
                 _key = f"[img{len(link_dict)+1}]"
                 link_dict[_key] = img_src
                 text = text.replace(_sec, to_be_recognized_by_visual_llm[img_src] + _key, 1)
-
         # 处理文本中的"野 url"
         url_pattern = r'((?:https?://|www\.)[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|])'
         matches = re.findall(url_pattern, text)
@@ -174,22 +174,52 @@ def deep_scraper(raw_markdown: str, base_url: str, used_img: list[str]) -> tuple
             _key = f"[{len(link_dict)+1}]"
             link_dict[_key] = url
             text = text.replace(url, _key, 1)
+            score += 1
+            _valid_len = _valid_len - len(url)
+        # 统计换行符数量
+        newline_count = text.count(' * ')
+        score += newline_count
+        ratio = _valid_len/score if score != 0 else 999
 
-        return text
+        return ratio, text
 
     sections = raw_markdown.split('# ') # use '# ' to avoid # in url
-    texts = []
-    for i, section in enumerate(sections):
-        # filter the possible navigate section and footer section
-        section_remain = re.sub(r'\[.*?]\(.*?\)', '', section).strip()
+    if len(sections) > 2:
+        _sec = sections[0]
+        section_remain = re.sub(r'\[.*?]\(.*?\)', '', _sec, re.DOTALL).strip()
         section_remain_len = len(section_remain)
-        total_links = len(re.findall(r'\[.*?]\(.*?\)', section))
-        print(f"section {i}")
-        print(f"ratio: {total_links/section_remain_len}")
+        total_links = len(re.findall(r'\[.*?]\(.*?\)', _sec, re.DOTALL))
+        ratio = total_links / section_remain_len if section_remain_len != 0 else 1
+        if ratio > 0.05:
+            print('this is a navigation section, will be removed')
+            print(ratio)
+            print(section_remain)
+            print('-' * 50)
+            sections = sections[1:]
+        _sec = sections[-1]
+        section_remain = re.sub(r'\[.*?]\(.*?\)', '', _sec, re.DOTALL).strip()
+        section_remain_len = len(section_remain)
+        if section_remain_len < 198:
+            print('this is a footer section, will be removed')
+            print(section_remain_len)
+            print(section_remain)
+            print('-' * 50)
+            sections = sections[:-1]
 
-        processed_p = [check_url_text(p) for p in section.split('\n\n')]
-        processed_p = [p for p in processed_p if p.strip()]
-        texts.append('\n\n'.join(processed_p))
-
-    return link_dict, texts, to_be_recognized_by_visual_llm
-        
+    links_parts = []
+    contents = []
+    for section in sections:
+        ratio, text = check_url_text(section)
+        if ratio < 70:
+            print('this is a links part')
+            print(ratio)
+            print(text)
+            print('-' * 50)
+            links_parts.append(text)
+        else:
+            print('this is a content part')
+            print(ratio)
+            print(text)
+            print('-' * 50)
+            contents.append(text)
+    return link_dict, links_parts, contents

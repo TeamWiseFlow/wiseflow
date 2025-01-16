@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from bs4 import BeautifulSoup
 import re
 from crawl4ai import CrawlResult
@@ -12,10 +14,21 @@ text_elements = {
 }
 
 
-def mp_scraper(fetch_result: CrawlResult) -> ScraperResultData:
-    url = fetch_result.url
-    raw_html = fetch_result.html
-    cleaned_html = fetch_result.cleaned_html
+def mp_scraper(fetch_result: CrawlResult | dict) -> ScraperResultData:
+    if isinstance(fetch_result, dict):
+        url = fetch_result['url']
+        raw_html = fetch_result['html']
+        cleaned_html = fetch_result['cleaned_html']
+        raw_markdown = fetch_result['markdown']
+        media = fetch_result['media']['images']
+    elif isinstance(fetch_result, CrawlResult):
+        url = fetch_result.url
+        raw_html = fetch_result.html
+        cleaned_html = fetch_result.cleaned_html
+        raw_markdown = fetch_result.markdown
+        media = fetch_result.media['images']
+    else:
+        raise TypeError('fetch_result must be a CrawlResult or a dict')
 
     content = ''
     images = []
@@ -232,7 +245,8 @@ def mp_scraper(fetch_result: CrawlResult) -> ScraperResultData:
         else:
             author = None
             publish_date = None
-            content = fetch_result['markdown']
+            content = raw_markdown
+            images = [d['src'] for d in media]
             
     elif num_sub_divs >= 2:
         # 2.2 如果包含两个及以上子块
