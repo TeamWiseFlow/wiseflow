@@ -85,26 +85,18 @@ if __name__ == '__main__':
     for file in files:
         if not file.endswith('.json'): continue
 
-        #print(f"processing {file} ...")
+        print(f"processing {file} ...")
         try:
             with open(file, 'r') as f:
                 html_sample = json.load(f)
             _url = html_sample['url']
             if _url.startswith('https://mp.weixin.qq.com'):
                 result = mp_scraper(html_sample)
-                #print(f'url: {result.url}')
-                #print(f'content: {result.content}')
-                #print(f'links: {result.links}')
-                #print(f'author: {result.author}')
-                #print(f'publish_date: {result.publish_date}')
-                #print(f'images: {len(result.images)}')
-                #for img in result.images:
-                #    print(img)
                 raw_markdown = result.content
                 used_img = result.images
             else:
                 raw_markdown = html_sample['markdown']
-                used_img = {d['src']: d['alt'] for d in html_sample['media']['images']}
+                used_img = [d['src'] for d in html_sample['media']['images']]
         except Exception as e:
             print('sample format error, try to use craw4ai_fething.py to get sample')
             print(f"error: {e}")
@@ -117,14 +109,14 @@ if __name__ == '__main__':
             base_url = base_url.rsplit('/', 1)[0] + '/'
 
         time_start = time.time()
-        link_dict, texts, to_be_recognized_by_visual_llm = deep_scraper(raw_markdown, base_url, used_img)
+        link_dict, links_part, contents = deep_scraper(raw_markdown, base_url, used_img)
         time_end = time.time()
         #print(f"time cost for html: {time_end - time_start}s")
 
         result = {
             "link_dict": link_dict,
-            "texts": texts,
-            "to_be_recognized_by_visual_llm": to_be_recognized_by_visual_llm,
+            "links_part": links_part,
+            "contents": contents,
         }
         record_folder = file.replace('.json', '')
         os.makedirs(record_folder, exist_ok=True)

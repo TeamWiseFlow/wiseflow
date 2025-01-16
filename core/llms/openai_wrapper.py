@@ -54,7 +54,7 @@ async def openai_llm(messages: list, model: str, logger=None, **kwargs) -> str:
     finally:
         semaphore.release()
 
-    if logger:
+    if logger and resp:
         logger.debug(f'result:\n {response.choices[0]}')
         logger.debug(f'usage:\n {response.usage}')
     return resp
