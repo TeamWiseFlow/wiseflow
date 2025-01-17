@@ -1,0 +1,256 @@
+focus statement: 
+//大模型技术突破与创新//
+解释：包括新算法与模型，新的研究成果
+//事件图谱方面的知识//
+//人工智能领军人物介绍//
+
+
+raw materials in: 6bc393
+
+llm model: Qwen/Qwen2.5-72B-Instruct
+process time: 6.696149110794067 s
+bad generate times: 0
+diff from benchmark: benchmark
+segments: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393307&idx=1&sn=6e363c3c20a423be7ce2aa9ec007b4a0
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392428&idx=1&sn=a0dc37d6fd3fe5ef1c5730277a2d848c
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393841&idx=1&sn=28df29fbc8b48684709f9f605982f88c
+************
+
+llm model: Qwen/Qwen2.5-7B-Instruct
+process time: 2.5253818035125732 s
+bad generate times: 0
+diff from benchmark: 差异1个(遗漏1个,多出0个)
+segments: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393307&idx=1&sn=6e363c3c20a423be7ce2aa9ec007b4a0
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392428&idx=1&sn=a0dc37d6fd3fe5ef1c5730277a2d848c
+************
+
+llm model: Qwen/Qwen2.5-14B-Instruct
+process time: 11.904451847076416 s
+bad generate times: 0
+diff from benchmark: 差异3个(遗漏0个,多出3个)
+segments: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648417242&idx=1&sn=56d097f76eaa1429702117df6c1be8e0
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393307&idx=1&sn=6e363c3c20a423be7ce2aa9ec007b4a0
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393841&idx=1&sn=28df29fbc8b48684709f9f605982f88c
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648395297&idx=1&sn=dee01e1b54a1cdc92cb7990c1bf79eb6
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392428&idx=1&sn=a0dc37d6fd3fe5ef1c5730277a2d848c
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648400372&idx=1&sn=b13509af77924e18bdb092387a7fcdbd
+************
+
+llm model: Qwen/Qwen2.5-32B-Instruct
+process time: 6.574889898300171 s
+bad generate times: 0
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+segments: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648395297&idx=1&sn=dee01e1b54a1cdc92cb7990c1bf79eb6
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393307&idx=1&sn=6e363c3c20a423be7ce2aa9ec007b4a0
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392428&idx=1&sn=a0dc37d6fd3fe5ef1c5730277a2d848c
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393841&idx=1&sn=28df29fbc8b48684709f9f605982f88c
+************
+
+llm model: deepseek-ai/DeepSeek-V2.5
+process time: 9.091066837310791 s
+bad generate times: 0
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+segments: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393307&idx=1&sn=6e363c3c20a423be7ce2aa9ec007b4a0
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392428&idx=1&sn=a0dc37d6fd3fe5ef1c5730277a2d848c
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393841&idx=1&sn=28df29fbc8b48684709f9f605982f88c
+************
+
+llm model: internlm/internlm2_5-20b-chat
+process time: 11.879637002944946 s
+bad generate times: 0
+diff from benchmark: 差异12个(遗漏0个,多出12个)
+segments: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393886&idx=1&sn=4b52708641a4396dff02f6226fc12c72
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648394368&idx=1&sn=d1e08a4447a6580d25a22a5e59c67749
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648400372&idx=1&sn=b13509af77924e18bdb092387a7fcdbd
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648395869&idx=1&sn=e0262760944c82366148688a96bd5656
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648417242&idx=1&sn=56d097f76eaa1429702117df6c1be8e0
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393307&idx=1&sn=6e363c3c20a423be7ce2aa9ec007b4a0
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393841&idx=1&sn=28df29fbc8b48684709f9f605982f88c
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648395297&idx=1&sn=dee01e1b54a1cdc92cb7990c1bf79eb6
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392066&idx=1&sn=c46a35c0158fb83ea69405dc87806c87
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392260&idx=1&sn=dbd78f54326df8d9efbc0ef9d2a93361
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392428&idx=1&sn=a0dc37d6fd3fe5ef1c5730277a2d848c
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648396807&idx=1&sn=a7c940746468849026479a127a8e048a
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648396934&idx=1&sn=a11541e40612942e215ecdd927650153
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648401296&idx=1&sn=c2ec7a5b1aa5fc27e6d9c0224f561860
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393744&idx=1&sn=728919676ef249970029c1a57751ca1c
+************
+
+raw materials in: d49f87
+
+llm model: Qwen/Qwen2.5-72B-Instruct
+process time: 9.92981505393982 s
+bad generate times: 0
+diff from benchmark: benchmark
+segments: 
+
+************
+
+llm model: Qwen/Qwen2.5-7B-Instruct
+process time: 9.110497951507568 s
+bad generate times: 0
+diff from benchmark: 差异10个(遗漏0个,多出10个)
+segments: 
+https://www.gzhu.edu.cn/info/1105/3650.htm
+https://mp.weixin.qq.com/s/shbXj7-U33YoZy5f7yspVg
+https://mp.weixin.qq.com/s/RV8B7iwHqJNs26fXSFTd8g
+https://www.gzhu.edu.cn/info/1104/3648.htm
+https://www.gzhu.edu.cn/info/1105/3649.htm
+https://www.gzhu.edu.cn/info/1105/11857.htm
+https://mp.weixin.qq.com/s/JldpXoUyBUOZHVPJ6d1APQ
+https://www.gzhu.edu.cn/info/1105/11856.htm
+http://www.gzhu.edu.cn/szdw1.htm
+https://www.gzhu.edu.cn/info/1104/3647.htm
+************
+
+llm model: Qwen/Qwen2.5-14B-Instruct
+process time: 4.704345941543579 s
+bad generate times: 0
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+segments: 
+
+************
+
+llm model: Qwen/Qwen2.5-32B-Instruct
+process time: 8.18041706085205 s
+bad generate times: 0
+diff from benchmark: 差异6个(遗漏0个,多出6个)
+segments: 
+https://www.gzhu.edu.cn/info/1105/3650.htm
+https://www.gzhu.edu.cn/info/1104/3648.htm
+https://www.gzhu.edu.cn/info/1105/3649.htm
+https://www.gzhu.edu.cn/info/1105/11857.htm
+https://www.gzhu.edu.cn/info/1105/11856.htm
+https://www.gzhu.edu.cn/info/1104/3647.htm
+************
+
+llm model: deepseek-ai/DeepSeek-V2.5
+process time: 312.72214102745056 s
+bad generate times: 0
+diff from benchmark: 差异15个(遗漏0个,多出15个)
+segments: 
+http://news.gzhu.edu.cn/info/1016/27397.htm
+https://www.gzhu.edu.cn/info/1105/3650.htm
+http://news.gzhu.edu.cn/info/1016/26527.htm
+http://news.gzhu.edu.cn/info/1016/26391.htm
+https://mp.weixin.qq.com/s/shbXj7-U33YoZy5f7yspVg
+https://mp.weixin.qq.com/s/RV8B7iwHqJNs26fXSFTd8g
+https://www.gzhu.edu.cn/info/1104/3648.htm
+https://www.gzhu.edu.cn/info/1105/3649.htm
+https://www.gzhu.edu.cn/info/1113/11443.htm
+https://www.gzhu.edu.cn/info/1105/11857.htm
+https://mp.weixin.qq.com/s/JldpXoUyBUOZHVPJ6d1APQ
+http://news.gzhu.edu.cn/info/1016/26257.htm
+https://www.gzhu.edu.cn/info/1105/11856.htm
+https://www.gzhu.edu.cn/info/1104/3647.htm
+************
+
+llm model: internlm/internlm2_5-20b-chat
+process time: 24.59732985496521 s
+bad generate times: 0
+diff from benchmark: 差异60个(遗漏0个,多出60个)
+segments: 
+https://www.gzhu.edu.cn/info/1071/14847.htm
+https://mp.weixin.qq.com/s/shbXj7-U33YoZy5f7yspVg
+https://www.gzhu.edu.cn/info/1299/12410.htm
+https://www.gzhu.edu.cn/info/1105/3649.htm
+http://news.gzhu.edu.cn/info/1002/31587.htm
+http://dsxxjy.gzhu.edu.cn/
+https://www.gzhu.edu.cn/xkjs1/zyssd.htm
+https://www.gzhu.edu.cn/info/1113/11443.htm
+https://www.gzhu.edu.cn/kxyj1/zykyjx.htm
+https://www.gzhu.edu.cn/info/1299/12412.htm
+https://www.gzhu.edu.cn/rczp1/gccrczpgg.htm
+https://www.gzhu.edu.cn/info/1105/11856.htm
+http://ztjy.gzhu.edu.cn/
+https://www.gzhu.edu.cn/hzjl1/gjjlyhz.htm
+https://dangshi.gzhu.edu.cn/vr/a-1/spg.html
+https://www.gzhu.edu.cn/xkjs1/bsd.htm
+https://www.gzhu.edu.cn/xkjs1/zdxk.htm
+https://www.gzhu.edu.cn/info/1071/12640.htm
+https://www.gzhu.edu.cn/xkjs1/xsssd.htm
+https://www.gzhu.edu.cn/info/1105/3650.htm
+https://mp.weixin.qq.com/s/RV8B7iwHqJNs26fXSFTd8g
+https://news.gzhu.edu.cn/info/1002/31657.htm
+https://www.gzhu.edu.cn/info/1299/12411.htm
+http://journal.gzhu.edu.cn/
+https://www.gzhu.edu.cn/info/1105/11857.htm
+https://www.gzhu.edu.cn/kxyj1/zdkypt.htm
+https://www.gzhu.edu.cn/info/1299/12413.htm
+https://www.gzhu.edu.cn/info/1071/12641.htm
+https://www.gzhu.edu.cn/info/1299/12409.htm
+https://www.gzhu.edu.cn/info/1299/12408.htm
+https://www.gzhu.edu.cn/kxyj1/kxyjjk.htm
+https://kyc.gzhu.edu.cn/
+http://ershida.gzhu.edu.cn/
+https://www.gzhu.edu.cn/info/1104/3648.htm
+https://www.gzhu.edu.cn/z__l/sjgd.htm
+https://www.gzhu.edu.cn/rczp1/qtxlzpgg.htm
+https://mp.weixin.qq.com/s/JldpXoUyBUOZHVPJ6d1APQ
+https://www.gzhu.edu.cn/hzjl1/gatjlyhz.htm
+https://www.gzhu.edu.cn/rczp1/bshzpgg.htm
+https://mp.weixin.qq.com/s/rZdV9wXTX56wJloW4YvPQQ
+https://www.gzhu.edu.cn/kxyj1/xsqk.htm
+https://www.gzhu.edu.cn/info/1104/3647.htm
+************
+
+raw materials in: 348a2f
+
+llm model: Qwen/Qwen2.5-72B-Instruct
+process time: 4.108199834823608 s
+bad generate times: 0
+diff from benchmark: benchmark
+segments: 
+
+************
+
+llm model: Qwen/Qwen2.5-7B-Instruct
+process time: 1.1887578964233398 s
+bad generate times: 0
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+segments: 
+
+************
+
+llm model: Qwen/Qwen2.5-14B-Instruct
+process time: 1.594810962677002 s
+bad generate times: 0
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+segments: 
+
+************
+
+llm model: Qwen/Qwen2.5-32B-Instruct
+process time: 1.7601499557495117 s
+bad generate times: 0
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+segments: 
+
+************
+
+llm model: deepseek-ai/DeepSeek-V2.5
+process time: 4.550754070281982 s
+bad generate times: 0
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+segments: 
+
+************
+
+llm model: internlm/internlm2_5-20b-chat
+process time: 4.095300197601318 s
+bad generate times: 0
+diff from benchmark: 差异6个(遗漏0个,多出6个)
+segments: 
+https://www.zhihu.com/org/signup
+https://www.zhihu.com/term/zhihu-terms
+https://www.zhihu.com/people/traderusingpython
+https://www.zhihu.com/term/privacy
+https://www.zhihu.com/verify/info
+************
+

@@ -1,0 +1,76 @@
+focus statement: 
+//各地住宅网签最新数据//
+解释：2025年1月6日以后的数据
+
+
+raw materials in: e78068
+
+llm model: Qwen/Qwen2.5-72B-Instruct
+process time: 7.1008219718933105 s
+bad generate times: 0
+diff from benchmark: benchmark
+segments: 
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+************
+
+llm model: Qwen/Qwen2.5-7B-Instruct
+process time: 2.897831916809082 s
+bad generate times: 0
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+segments: 
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282205540909512356.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+************
+
+llm model: Qwen/Qwen2.5-14B-Instruct
+process time: 6.038768291473389 s
+bad generate times: 0
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+segments: 
+https://m.lejucaijing.com/news-7284052729575175847.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+************
+
+llm model: Qwen/Qwen2.5-32B-Instruct
+process time: 5.187220096588135 s
+bad generate times: 0
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+segments: 
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282205540909512356.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+************
+
+llm model: deepseek-ai/DeepSeek-V2.5
+process time: 12.998179912567139 s
+bad generate times: 0
+diff from benchmark: 差异2个(遗漏0个,多出2个)
+segments: 
+https://m.lejucaijing.com/news-7284052729575175847.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282205540909512356.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+************
+
+llm model: internlm/internlm2_5-20b-chat
+process time: 2.487760066986084 s
+bad generate times: 0
+diff from benchmark: 差异4个(遗漏0个,多出4个)
+segments: 
+https://m.lejucaijing.com/news-7284052729575175847.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282205540909512356.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282015484009707134.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/hotline/
+************
+

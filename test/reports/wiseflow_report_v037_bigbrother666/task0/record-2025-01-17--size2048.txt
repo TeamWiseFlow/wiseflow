@@ -1,0 +1,65 @@
+focus statement: 
+//广州市未来一周的冷空气预警信息//
+//广东全省的台风预警//
+解释：仅限2024年的信息
+
+
+raw materials in: ab9447
+
+llm model: Qwen/Qwen2.5-72B-Instruct
+process time: 15.076175928115845 s
+bad generate times: 0
+diff from benchmark: benchmark: 8 results
+segments: 
+https://www.gd121.cn/zx/qxzx/ff8080818a06a6560193d825534f3be1.shtml
+https://www.gd121.cn/zx/qxzx/ff8080818a06a6560193fc4659ea3cd0.shtml
+https://www.gd121.cn/zx/qxzx/ff8080818a06a6560193e74a0f363c51.shtml
+https://www.gd121.cn/zx/qxzx/ff8080818a06a6560193ec938aea3c69.shtml
+https://www.gd121.cn/zx/qxzx/ff8080818a06a6560193f251ce043c95.shtml
+https://www.gd121.cn/zx/qxzx/ff8080818a06a6560193e21fb3e73c2b.shtml
+https://www.gd121.cn/zx/qxzx/ff8080818a06a6560193dd4610be3c10.shtml
+https://www.gd121.cn/zx/qxzx/ff8080818a06a6560193f727ff503cae.shtml
+************
+
+llm model: Qwen/Qwen2.5-7B-Instruct
+process time: 0.6364688873291016 s
+bad generate times: 0
+diff from benchmark: 差异8个(遗漏8个,多出0个)
+segments: 
+
+************
+
+llm model: Qwen/Qwen2.5-14B-Instruct
+process time: 4.469786167144775 s
+bad generate times: 0
+diff from benchmark: 差异3个(遗漏2个,多出1个)
+segments: 
+https://www.gd121.cn/zx/qxzx/ff8080818a06a6560193d825534f3be1.shtml
+https://www.gd121.cn/zx/qxzx/ff8080818a06a6560193fc4659ea3cd0.shtml
+https://www.gd121.cn/zx/qxzx/ff8080818a06a6560193ec938aea3c69.shtml
+https://www.gd121.cn/zx/qxzx/ff8080818a06a656019401b162d13cf9.shtml
+https://www.gd121.cn/zx/qxzx/ff8080818a06a6560193e21fb3e73c2b.shtml
+https://www.gd121.cn/zx/qxzx/ff8080818a06a6560193dd4610be3c10.shtml
+https://www.gd121.cn/zx/qxzx/ff8080818a06a6560193f727ff503cae.shtml
+************
+
+llm model: Qwen/Qwen2.5-32B-Instruct
+process time: 1.2642040252685547 s
+bad generate times: 0
+diff from benchmark: 差异8个(遗漏8个,多出0个)
+segments: 
+
+************
+
+llm model: deepseek-ai/DeepSeek-V2.5
+process time: 11.476641178131104 s
+bad generate times: 0
+diff from benchmark: 差异5个(遗漏4个,多出1个)
+segments: 
+https://www.gd121.cn/zx/qxzx/ff8080818a06a6560193d825534f3be1.shtml
+https://www.gd121.cn/zx/qxzx/ff8080818a06a656019401b162d13cf9.shtml
+https://www.gd121.cn/zx/qxzx/ff8080818a06a6560193e21fb3e73c2b.shtml
+https://www.gd121.cn/zx/qxzx/ff8080818a06a6560193dd4610be3c10.shtml
+https://www.gd121.cn/zx/qxzx/ff8080818a06a6560193f727ff503cae.shtml
+************
+
