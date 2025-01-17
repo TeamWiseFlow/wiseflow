@@ -114,6 +114,7 @@ Siliconflowは、主流のオープンソースモデルのほとんどにオン
 export LLM_API_KEY=Your_API_KEY
 export LLM_API_BASE="https://api.siliconflow.cn/v1"
 export PRIMARY_MODEL="Qwen/Qwen2.5-32B-Instruct"
+export SECONDARY_MODEL="Qwen/Qwen2.5-7B-Instruct"
 export VL_MODEL="OpenGVLab/InternVL2-26B"
 ```
       
@@ -129,6 +130,7 @@ AiHubMixモデルを使用する場合、.envの設定は以下を参考にし�
 export LLM_API_KEY=Your_API_KEY
 export LLM_API_BASE="https://aihubmix.com/v1" # referhttps://doc.aihubmix.com/
 export PRIMARY_MODEL="gpt-4o"
+export SECONDARY_MODEL="gpt-4o-mini"
 export VL_MODEL="gpt-4o"
 ```
 😄 [AiHubMixの紹介リンク](https://aihubmix.com?aff=Gp54)からご登録いただけますと幸いです 🌹

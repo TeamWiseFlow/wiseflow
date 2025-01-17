@@ -1,7 +1,8 @@
 from crawl4ai import CrawlerRunConfig
 from crawl4ai.markdown_generation_strategy import DefaultMarkdownGenerator
+from .mp_scraper import mp_scraper
 
-custom_scrapers = {}
+custom_scrapers = {'mp.weixin.qq.com': mp_scraper}
 custom_fetching_configs = {}
 
 md_generator = DefaultMarkdownGenerator(

@@ -115,6 +115,7 @@ siliconflow（硅基流动）提供大部分主流开源模型的在线 MaaS 服
 export LLM_API_KEY=Your_API_KEY
 export LLM_API_BASE="https://api.siliconflow.cn/v1"
 export PRIMARY_MODEL="Qwen/Qwen2.5-32B-Instruct"
+export SECONDARY_MODEL="Qwen/Qwen2.5-7B-Instruct"
 export VL_MODEL="OpenGVLab/InternVL2-26B"
 ```
       
@@ -129,6 +130,7 @@ export VL_MODEL="OpenGVLab/InternVL2-26B"
 export LLM_API_KEY=Your_API_KEY
 export LLM_API_BASE="https://aihubmix.com/v1" # 具体参考 https://doc.aihubmix.com/
 export PRIMARY_MODEL="gpt-4o"
+export SECONDARY_MODEL="gpt-4o-mini"
 export VL_MODEL="gpt-4o"
 ```
 
