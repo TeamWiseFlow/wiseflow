@@ -1,15 +1,222 @@
 # -*- coding: utf-8 -*-
 import asyncio
-
 from loguru import logger
 import os, re
-from utils.pb_api import PbTalker
 from llms.openai_wrapper import openai_llm as llm
 # from core.llms.siliconflow_wrapper import sfa_llm # or other llm wrapper
-from utils.general_utils import is_chinese, extract_and_convert_dates
+from utils.general_utils import is_chinese, extract_and_convert_dates, normalize_url
+from .get_info_prompts import *
 
 
-async def get_author_and_publish_date(text: str, model: str) -> tuple[str, str]:
+common_file_exts = [
+    'jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'svg', 'm3u8',
+    'mp4', 'mp3', 'wav', 'avi', 'mov', 'wmv', 'flv', 'webp', 'webm',
+    'zip', 'rar', '7z', 'tar', 'gz', 'bz2',
+    'txt', 'csv', 'xls', 'xlsx', 'ppt', 'pptx',
+    'json', 'xml', 'yaml', 'yml', 'css', 'js', 'php', 'asp', 'jsp'
+]
+common_tlds = [
+    '.com', '.cn', '.net', '.org', '.edu', '.gov', '.io', '.co',
+    '.info', '.biz', '.me', '.tv', '.cc', '.xyz', '.app', '.dev',
+    '.cloud', '.ai', '.tech', '.online', '.store', '.shop', '.site',
+    '.top', '.vip', '.pro', '.ltd', '.group', '.team', '.work'
+]
+
+async def pre_process(raw_markdown: str, base_url: str, used_img: list[str], 
+                        recognized_img_cache: dict, existing_urls: set = set(), 
+                        test_mode: bool = False) -> tuple[dict, list[str], list[str], dict]:
+
+    link_dict = {}
+
+    # for special url formate from crawl4ai 0.4.247
+    raw_markdown = re.sub(r'<javascript:.*?>', '<javascript:>', raw_markdown).strip()
+
+    # 处理图片标记 ![alt](src)
+    i_pattern = r'(!\[(.*?)\]\((.*?)\))'
+    matches = re.findall(i_pattern, raw_markdown, re.DOTALL)
+    for _sec, alt, src in matches:
+        # 替换为新格式 §alt||src§
+        raw_markdown = raw_markdown.replace(_sec, f'§{alt}||{src}§', 1)
+
+    async def check_url_text(text) -> tuple[int, str]:
+        score = 0
+        _valid_len = len(text.strip())
+        # 找到所有[part0](part1)格式的片段
+        link_pattern = r'(\[(.*?)\]\((.*?)\))'
+        matches = re.findall(link_pattern, text, re.DOTALL)
+        for _sec, link_text, link_url in matches:
+            # 处理 \"***\" 格式的片段
+            quote_pattern = r'\"(.*?)\"'
+            # 提取所有引号包裹的内容
+            _title = ''.join(re.findall(quote_pattern, link_url, re.DOTALL))
+            _title = _title.strip()
+            link_text = link_text.strip()
+            if _title and _title not in link_text:
+                link_text = f"{_title} - {link_text}"
+
+            real_url_pattern = r'<(.*?)>'
+            real_url = re.search(real_url_pattern, link_url, re.DOTALL)
+            if real_url:
+                _url = real_url.group(1).strip()
+            else:
+                _url = re.sub(quote_pattern, '', link_url, re.DOTALL).strip()
+
+            if not _url or _url.startswith(('#', 'javascript:')):
+                text = text.replace(_sec, link_text, 1)
+                continue
+            score += 1
+            _valid_len = _valid_len - len(_sec)
+            url = normalize_url(_url, base_url)
+            
+            # 分离§§内的内容和后面的内容
+            img_marker_pattern = r'§(.*?)\|\|(.*?)§'
+            inner_matches = re.findall(img_marker_pattern, link_text, re.DOTALL)
+            for alt, src in inner_matches:
+                link_text = link_text.replace(f'§{alt}||{src}§', '')
+
+            if not link_text and inner_matches:
+                img_alt = inner_matches[0][0].strip()
+                img_src = inner_matches[0][1].strip()
+                if img_src and not img_src.startswith('#'):
+                    img_src = normalize_url(img_src, base_url)
+                    if not img_src:
+                        link_text = img_alt
+                    elif len(img_alt) > 2 or url in existing_urls:
+                        _key = f"[img{len(link_dict)+1}]"
+                        link_dict[_key] = img_src
+                        link_text = img_alt + _key
+                    elif any(img_src.endswith(tld) or img_src.endswith(tld + '/') for tld in common_tlds):
+                        _key = f"[img{len(link_dict)+1}]"
+                        link_dict[_key] = img_src
+                        link_text = img_alt + _key
+                    elif any(img_src.endswith(ext) for ext in common_file_exts if ext not in ['jpg', 'jpeg', 'png']):
+                        _key = f"[img{len(link_dict)+1}]"
+                        link_dict[_key] = img_src
+                        link_text = img_alt + _key
+                    else:
+                        if img_src not in recognized_img_cache:
+                            recognized_img_cache[img_src] = await extract_info_from_img(img_src)
+                        _key = f"[img{len(link_dict)+1}]"
+                        link_dict[_key] = img_src
+                        link_text = recognized_img_cache[img_src] + _key
+                else:
+                    link_text = img_alt
+
+            _key = f"[{len(link_dict)+1}]"
+            link_dict[_key] = url
+            text = text.replace(_sec, link_text + _key, 1)
+ 
+        # 处理文本中的其他图片标记
+        img_pattern = r'(§(.*?)\|\|(.*?)§)'
+        matches = re.findall(img_pattern, text, re.DOTALL)
+        remained_text = re.sub(img_pattern, '', text, re.DOTALL).strip()
+        remained_text_len = len(remained_text)
+        for _sec, alt, src in matches:
+            if not src or src.startswith('#') or src not in used_img:
+                text = text.replace(_sec, alt, 1)
+                continue
+            img_src = normalize_url(src, base_url)
+            if not img_src:
+                text = text.replace(_sec, alt, 1)
+            elif remained_text_len > 5 or len(alt) > 2:
+                _key = f"[img{len(link_dict)+1}]"
+                link_dict[_key] = img_src
+                text = text.replace(_sec, alt + _key, 1)
+            elif any(img_src.endswith(tld) or img_src.endswith(tld + '/') for tld in common_tlds):
+                _key = f"[img{len(link_dict)+1}]"
+                link_dict[_key] = img_src
+                text = text.replace(_sec, alt + _key, 1)
+            elif any(img_src.endswith(ext) for ext in common_file_exts if ext not in ['jpg', 'jpeg', 'png']):
+                _key = f"[img{len(link_dict)+1}]"
+                link_dict[_key] = img_src
+                text = text.replace(_sec, alt + _key, 1)
+            else:
+                if img_src not in recognized_img_cache:
+                    recognized_img_cache[img_src] = await extract_info_from_img(img_src)
+                _key = f"[img{len(link_dict)+1}]"
+                link_dict[_key] = img_src
+                text = text.replace(_sec, recognized_img_cache[img_src] + _key, 1)
+        # 处理文本中的"野 url"
+        url_pattern = r'((?:https?://|www\.)[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|])'
+        matches = re.findall(url_pattern, text)
+        for url in matches:
+            url = normalize_url(url, base_url)
+            _key = f"[{len(link_dict)+1}]"
+            link_dict[_key] = url
+            text = text.replace(url, _key, 1)
+            score += 1
+            _valid_len = _valid_len - len(url)
+        # 统计换行符数量
+        newline_count = text.count(' * ')
+        score += newline_count
+        ratio = _valid_len/score if score != 0 else 999
+
+        return ratio, text
+
+    sections = raw_markdown.split('# ') # use '# ' to avoid # in url
+    if len(sections) > 2:
+        _sec = sections[0]
+        section_remain = re.sub(r'\[.*?]\(.*?\)', '', _sec, re.DOTALL).strip()
+        section_remain_len = len(section_remain)
+        total_links = len(re.findall(r'\[.*?]\(.*?\)', _sec, re.DOTALL))
+        ratio = total_links / section_remain_len if section_remain_len != 0 else 1
+        if ratio > 0.05:
+            if test_mode:
+                print('this is a navigation section, will be removed')
+                print(ratio)
+                print(section_remain)
+                print('-' * 50)
+            sections = sections[1:]
+        _sec = sections[-1]
+        section_remain = re.sub(r'\[.*?]\(.*?\)', '', _sec, re.DOTALL).strip()
+        section_remain_len = len(section_remain)
+        if section_remain_len < 198:
+            if test_mode:
+                print('this is a footer section, will be removed')
+                print(section_remain_len)
+                print(section_remain)
+                print('-' * 50)
+            sections = sections[:-1]
+
+    links_parts = []
+    contents = []
+    for section in sections:
+        ratio, text = await check_url_text(section)
+        if ratio < 70:
+            if test_mode:
+                print('this is a links part')
+                print(ratio)
+                print(text)
+                print('-' * 50)
+            links_parts.append(text)
+        else:
+            if test_mode:
+                print('this is a content part')
+                print(ratio)
+                print(text)
+                print('-' * 50)
+            contents.append(text)
+    return link_dict, links_parts, contents, recognized_img_cache
+
+
+vl_model = os.environ.get("VL_MODEL", "")
+if not vl_model:
+    print("VL_MODEL not set, will skip extracting info from img, some info may be lost!")
+
+
+async def extract_info_from_img(url: str) -> str:
+    if not vl_model:
+        return '§to_be_recognized_by_visual_llm§'
+
+    llm_output = await llm([{"role": "user",
+        "content": [{"type": "image_url", "image_url": {"url": url, "detail": "high"}},
+        {"type": "text", "text": "提取图片中的所有文字，如果图片不包含文字或者文字很少或者你判断图片仅是网站logo、商标、图标等，则输出NA。注意请仅输出提取出的文字，不要输出别的任何内容。"}]}],
+        model=vl_model)
+
+    return llm_output
+
+
+async def get_author_and_publish_date(text: str, model: str, test_mode: bool = False, _logger: logger = None) -> tuple[str, str]:
     if not text:
         return "", ""
 
@@ -19,245 +226,122 @@ async def get_author_and_publish_date(text: str, model: str) -> tuple[str, str]:
     if len(text) > 2048:
         text = f'{text[:2048]}......'
 
-    system_prompt = "As an information extraction assistant, your task is to accurately extract the source (or author) and publication date from the given webpage text. It is important to adhere to extracting the information directly from the original text. If the original text does not contain a particular piece of information, please replace it with NA"
-    suffix = '''Please output the extracted information in the following format(output only the result, no other content):
-"""source or article author (use "NA" if this information cannot be extracted)//extracted publication date (keep only the year, month, and day; use "NA" if this information cannot be extracted)"""'''
-
-    content = f'<text>\n{text}\n</text>\n\n{suffix}'
-    llm_output = await llm([{'role': 'system', 'content': system_prompt}, {'role': 'user', 'content': content}],
-                           model=model, max_tokens=50, temperature=0.1)
-
+    content = f'<text>\n{text}\n</text>\n\n{get_ap_suffix}'
+    llm_output = await llm([{'role': 'system', 'content': get_ap_system}, {'role': 'user', 'content': content}],
+                            model=model, max_tokens=50, temperature=0.1)
+    if test_mode:
+        print(f"llm output:\n {llm_output}")
     ap_ = llm_output.strip().strip('"').strip('//')
 
     if '//' not in ap_:
-        print(f"failed to parse from llm output: {ap_}")
+        if _logger:
+            _logger.warning(f"failed to parse from llm output: {ap_}")
         return '', ''
 
     ap = ap_.split('//')
-
     return ap[0], extract_and_convert_dates(ap[1])
 
 
-async def extract_info_from_img(task: list, vl_model: str) -> dict:
-    cache = {}
-    for url in task:
-        llm_output = await llm([{"role": "user",
-        "content": [{"type": "image_url", "image_url": {"url": url, "detail": "high"}},
-        {"type": "text", "text": "提取图片中的所有文字，如果图片不包含文字或者文字很少或者你判断图片仅是网站logo、商标、图标等，则输出NA。注意请仅输出提取出的文字，不要输出别的任何内容。"}]}],
-        model=vl_model)
-
-        cache[url] = llm_output
-    return cache
-
-
-class GeneralInfoExtractor:
-    def __init__(self, pb: PbTalker, _logger: logger) -> None:
-        self.pb = pb
-        self.logger = _logger
-        self.model = os.environ.get("PRIMARY_MODEL", "")
-
-        if not self.model:
-            self.logger.error("PRIMARY_MODEL not set, can't continue")
-            raise ValueError("PRIMARY_MODEL not set, please set it in environment variables or edit core/.env")
-
-        # collect tags user set in pb database and determin the system prompt language based on tags
-        focus_data = pb.read(collection_name='focus_points', filter=f'activated=True')
-        if not focus_data:
-            self.logger.info('no activated tag found, will ask user to create one')
-            focus = input('It seems you have not set any focus point, WiseFlow need the specific focus point to guide the following info extract job.'
-                          'so please input one now. describe what info you care about shortly: ')
-            explanation = input('Please provide more explanation for the focus point (if not necessary, pls just type enter: ')
-            focus_data.append({"focuspoint": focus, "explanation": explanation,
-                               "id": pb.add('focus_points', {"focuspoint": focus, "explanation": explanation})})
-
-        # self.focus_list = [item["focuspoint"] for item in focus_data]
-        self.focus_dict = {item["focuspoint"]: item["id"] for item in focus_data}
-        focus_statement = ''
-        for item in focus_data:
-            tag = item["focuspoint"]
-            expl = item["explanation"]
-            focus_statement = f"{focus_statement}//{tag}//\n"
-            if expl:
-                if is_chinese(expl):
-                    focus_statement = f"{focus_statement}解释：{expl}\n"
-                else:
-                    focus_statement = f"{focus_statement}Explanation: {expl}\n"
-
-        if is_chinese(focus_statement):
-            self.get_info_prompt = f'''你将被给到一段使用<text></text>标签包裹的网页文本，请分别按如下关注点对网页文本提炼摘要。关注点列表及其解释如下：
-
-{focus_statement}\n
-在提炼摘要时，请遵循以下原则：
-- 理解每个关注点的含义以及进一步的解释（如有），确保摘要与关注点强相关并符合解释（如有）的范围
-- 摘要应当详实、充分，使用简体中文（如果原文是英文，请翻译成简体中文）
-- 摘要信息务必忠于原文'''
-
-            self.get_info_suffix = '''请对关注点逐一生成摘要，不要遗漏任何关注点，如果网页文本与关注点无关，可以对应输出"NA"。输出结果整体用三引号包裹，三引号内不要有其他内容。如下是输出格式示例：
-"""
-//关注点1//
-摘要1
-//关注点2//
-摘要2
-//关注点3//
-NA
-...
-"""'''
-            self.get_more_link_prompt = f'''你将被给到数行格式为"<编号>//内容//"的文本，你的任务是逐条分析这些文本，并分别与如下关注点之一相关联。关注点列表及其解释如下：
-
-{focus_statement}\n
-在进行关联分析时，请遵循以下原则：
-
-- 理解每个关注点的含义
-- 如果关注点有进一步的解释，确保提取的内容符合这些解释的范围'''
-
-            self.get_more_link_suffix = '''请分行逐条输出结果，每一条的输出格式为"<编号>//关注点名称//"，如果某条内容不与任何关注点相关，请输出"<编号>//NA//"。输出结果整体用三引号包裹，三引号内不要有其他内容。如下是输出格式示例：
-"""
-<t1>//关注点1名称//
-<t2>//关注点2名称//
-<t3>//NA//
-...
-"""'''
-
-        else:
-            self.get_info_prompt = f'''You will be given a webpage text wrapped in <text></text> tags. Please extract summaries from the text according to the following focus points. The list of focus points and their explanations are as follows:
-
-{focus_statement}\n
-When extracting summaries, please follow these principles:
-- Understand the meaning of each focus point and its explanation (if any), ensure the summary strongly relates to the focus point and aligns with the explanation (if any)
-- The summary should be detailed and comprehensive
-- The summary should be faithful to the original text'''
-
-            self.get_info_suffix = '''Please generate summaries for each focus point, don't miss any focus points. If the webpage text is not related to a focus point, output "NA" for that point. The entire output should be wrapped in triple quotes with no other content inside. Here is an example of the output format:
-"""
-//Focus Point 1//
-Summary 1
-//Focus Point 2//
-Summary 2
-//Focus Point 3//
-NA
-...
-"""'''
-
-            self.get_more_link_prompt = f'''You will be given several lines of text in the format "<index>//content//". Your task is to analyze each line and associate it with one of the following focus points. The list of focus points and their explanations are as follows:
-
-{focus_statement}\n
-When performing the association analysis, please follow these principles:
-
-- Understand the meaning of each focus point
-- If a focus point has further explanation, ensure the extracted content aligns with the scope of these explanations'''
-
-            self.get_more_link_suffix = '''Please output the results line by line. Each line should be in the format "<index>//focus point name//". If a line is not related to any focus point, output "<index>//NA//". The entire output should be wrapped in triple quotes with no other content inside. Here is an example of the output format:
-"""
-<t1>//Focus Point 1//
-<t2>//Focus Point 2// 
-<t3>//NA//
-...
-"""'''
-
-    async def _generate_results(self, lines: list, mode: str) -> set:
-        if mode == 'get_info':
-            system_prompt = self.get_info_prompt
-            suffix = self.get_info_suffix
-            batch_size = 5000
-        elif mode == 'get_link':
-            system_prompt = self.get_more_link_prompt
-            suffix = self.get_more_link_suffix
-            batch_size = 2048
-        else:
-            self.logger.error(f"unknown mode: {mode}")
-            return set()
-
-        cache = set()
-        batches = []
-        text_batch = ''
-        for line in lines:
-            text_batch += f'{line}\n'
-            if len(text_batch) > batch_size:
-                content = f'<text>\n{text_batch}</text>\n\n{suffix}'
-                batches.append({'system_prompt': system_prompt, 'content': content})
-                text_batch = ''
-
-        if text_batch:
+async def get_more_related_urls(texts: list[str], link_dict: dict, prompts: list[str], test_mode: bool = False,
+                                _logger: logger = None) -> set:
+    
+    sys_prompt, suffix, model = prompts
+    text_batch = ''
+    cache = set()
+    while texts:
+        t = texts.pop(0)
+        text_batch = f'{text_batch}{t}\n\n'
+        if len(text_batch) > 2048 or len(texts) == 0:
             content = f'<text>\n{text_batch}</text>\n\n{suffix}'
-            batches.append({'system_prompt': system_prompt, 'content': content})
+            result = await llm(
+                    [{'role': 'system', 'content': sys_prompt}, {'role': 'user', 'content': content}],
+                    model=model, temperature=0.1)
 
-        self.logger.info(f"LLM tasks size: {len(batches)}")
-        tasks = [
-            llm(
-                    [{'role': 'system', 'content': batch['system_prompt']}, {'role': 'user', 'content': batch['content']}],
-                    model=self.model, temperature=0.1
-                )
-            for batch in batches]
-        results = await asyncio.gather(*tasks)
-        for res in results:
-            if res:
-                extracted_result = re.findall(r'\"\"\"(.*?)\"\"\"', res, re.DOTALL)
-                if extracted_result:
-                    cache.add(extracted_result[-1])
+            result = re.findall(r'\"\"\"(.*?)\"\"\"', result, re.DOTALL)
+            if test_mode:
+                print(f"llm output:\n {result}")
+            if result:
+                links = re.findall(r'\[\d+\]', result[-1])
+                for link in links:
+                    if link not in text_batch:
+                        if _logger:
+                            _logger.warning(f"model generating hallucination:\n{result[-1]}")
+                        if test_mode:
+                            print(f"model hallucination:\n{result[-1]}")
+                        continue
+                    cache.add(link)
+            text_batch = ''
 
-        return cache
+    more_urls = set()
+    for mark in cache:
+        url = link_dict[mark]
+        has_common_ext = any(url.endswith(ext) for ext in common_file_exts)
+        has_common_tld = any(url.endswith(tld) or url.endswith(tld + '/') for tld in common_tlds)
+        if has_common_ext or has_common_tld:
+            continue
+        more_urls.add(url)
+    
+    return more_urls
+    
 
-    async def get_more_related_urls(self, link_dict: dict) -> set:
-        _to_be_processed = []
-        link_map = {}
-        for i, (url, des) in enumerate(link_dict.items()):
-            des = des.replace('\n', ' ')
-            _to_be_processed.append(f'<t{i+1}>//{des}//')
-            link_map[f'<t{i+1}'] = url
+async def get_info(texts: list[str], link_dict: dict, prompts: list[str], focus_dict: dict, author: str, publish_date: str,
+                   test_mode: bool = False, _logger: logger = None) -> list[dict]:
 
-        raw_result = await self._generate_results(_to_be_processed, 'get_link')
-        final_result = set()
-        for result in raw_result:
-            for item in result.split('\n'):
-                if not item:
-                    continue
-                segs = item.split('>')
-                if len(segs) != 2:
-                    self.logger.debug(f"bad generate result: {item}")
-                    continue
-                _index, focus = segs
-                _index = _index.strip()
-                focus = focus.strip().strip('//')
-                if focus == 'NA':
-                    continue
-                if focus not in self.focus_dict or _index not in link_map:
-                    self.logger.debug(f"bad generate result: {item}")
-                    continue
-                # self.logger.debug(f"{link_map[_index]} selected")
-                final_result.add(link_map[_index])
-        return final_result
+    sys_prompt, suffix, model = prompts
 
-    async def get_info(self, text: str, text_links: dict, info_pre_fix: str) -> list[dict]:
-        raw_result = await self._generate_results(text.split('\n'), 'get_info')
-        final = []
-        for item in raw_result:
-            self.logger.debug(f"llm output:\n{item}")
-            segs = item.split('//')
-            i = 0
-            while i < len(segs) - 1:
-                focus = segs[i].strip()
-                if not focus:
-                    i += 1
-                    continue
-                if focus not in self.focus_dict:
-                    self.logger.debug(f"bad generate result: {item}")
-                    i += 1
-                    continue
-                content = segs[i+1].strip().strip('摘要').strip(':').strip('：')
-                i += 2
-                if not content or content == 'NA':
-                    continue
-                """
-                maybe can use embedding retrieval to judge
-                """
+    if test_mode:
+        info_pre_fix = ''
+    else:
+        info_pre_fix = f"//{author} {publish_date}//"
 
-                url_tags = re.findall(r'\[(Ref_\d+)]', content)
-                refences = {url_tag: text_links[url_tag] for url_tag in url_tags if url_tag in text_links}
+    cache = set()
+    batches = []
+    text_batch = ''
+    while texts:
+        t = texts.pop(0)
+        text_batch = f'{text_batch}{t}# '
+        if len(text_batch) > 9999 or len(texts) == 0:
+            content = f'<text>\n{text_batch}</text>\n\n{suffix}'
+            batches.append(content)
+            text_batch = ''
 
-                final.append({'tag': self.focus_dict[focus], 'content': f"{info_pre_fix}{content}", 'references': refences})
+    tasks = [
+        llm([{'role': 'system', 'content': sys_prompt}, {'role': 'user', 'content': content}], model=model, temperature=0.1)
+        for content in batches]
+    results = await asyncio.gather(*tasks)
+
+    for res in results:
+        if test_mode:
+            print(f"llm output:\n {res}")
+        extracted_result = re.findall(r'\"\"\"(.*?)\"\"\"', res, re.DOTALL)
+        if extracted_result:
+            cache.add(extracted_result[-1])
+
+    final = []
+    for item in cache:
+        segs = item.split('//')
+        i = 0
+        while i < len(segs) - 1:
+            focus = segs[i].strip()
+            if not focus:
+                i += 1
+                continue
+            if focus not in focus_dict:
+                if _logger:
+                    _logger.info(f"llm hallucination: {item}")
+                if test_mode:
+                    print(f"llm hallucination: {item}")
+                i += 1
+                continue
+            content = segs[i+1].strip().strip('摘要').strip(':').strip('：')
+            i += 2
+            if not content or content == 'NA':
+                continue
+            """
+            maybe can use embedding retrieval to judge
+            """
+            url_tags = re.findall(r'\[\d+\]', content)
+            refences = {url_tag: link_dict[url_tag] for url_tag in url_tags if url_tag in link_dict}
+            final.append({'tag': focus_dict[focus], 'content': f"{info_pre_fix}{content}", 'references': refences})
         
-        return final
-
-    async def __call__(self, link_dict: dict, text: str, text_links: dict, author: str, publish_date: str) -> tuple[set, list]:
-        info_prefix = f"//{author} {publish_date}//"
-        return await self.get_more_related_urls(link_dict), await self.get_info(text, text_links, info_prefix)
+    return final

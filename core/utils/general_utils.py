@@ -1,8 +1,32 @@
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 import os
 import re
 # import jieba
 from loguru import logger
+
+
+def normalize_url(url: str, base_url: str) -> str:
+    url = url.strip()
+    if url.startswith(('www.', 'WWW.')):
+        _url = f"https://{url}"
+    elif url.startswith('/www.'):
+        _url = f"https:/{url}"
+    elif url.startswith("//"):
+        _url = f"https:{url}"
+    elif url.startswith(('http://', 'https://')):
+        _url = url
+    elif url.startswith('http:/'):
+        _url = f"http://{url[6:]}"
+    elif url.startswith('https:/'):
+        _url = f"https://{url[7:]}"
+    else:
+        _url = urljoin(base_url, url)
+    
+    _ss = _url.split('//')
+    if len(_ss) == 2:
+        return '//'.join(_ss)
+    else:
+        return _ss[0] + '//' + '/'.join(_ss[1:])
 
 
 def isURL(string):
