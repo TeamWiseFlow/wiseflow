@@ -1,0 +1,258 @@
+focus statement: 
+//新获批的氢能项目//
+//新投产的氢能项目//
+
+
+raw materials in: ae2d03
+
+llm model: Qwen/Qwen2.5-7B-Instruct
+process time: 6.135756254196167 s
+bad generate times: 0
+total segments: 7
+segments: 
+https://m.bjx.com.cn/mnews/20250110/1422206.shtml
+https://m.bjx.com.cn/mnews/20241220/1418153.shtml
+https://m.bjx.com.cn/mnews/20241231/1420185.shtml
+https://m.bjx.com.cn/mnews/20250110/1422074.shtml
+https://m.bjx.com.cn/mnews/20250103/1420820.shtml
+https://m.bjx.com.cn/mnews/20250110/1422088.shtml
+https://m.bjx.com.cn/mnews/20241231/1420185.shtml
+************
+
+llm model: Qwen/Qwen2.5-14B-Instruct
+process time: 20.637880086898804 s
+bad generate times: 0
+total segments: 35
+segments: 
+https://news.bjx.com.cn/tgj/
+https://m.bjx.com.cn/mnews/20241225/1419089.shtml
+https://m.bjx.com.cn/mnews/20250110/1422182.shtml
+https://news.bjx.com.cn/dlrjst/
+https://news.bjx.com.cn/search/
+https://news.bjx.com.cn/psd/
+https://m.bjx.com.cn/mnews/20241220/1418153.shtml
+https://news.bjx.com.cn/energy/
+https://m.bjx.com.cn/mnews/20250110/1422074.shtml
+https://news.bjx.com.cn/
+https://m.bjx.com.cn/mnews/20250103/1420820.shtml
+https://news.bjx.com.cn/huodian/
+https://mhuanbao.bjx.com.cn/
+https://news.bjx.com.cn/zhnyfw/
+https://m.bjx.com.cn/mnews/20241231/1420185.shtml
+https://news.bjx.com.cn/hedian/
+https://m.bjx.com.cn/jqz/
+https://m.bjx.com.cn/mnews/20250110/1422065.shtml
+https://m.bjx.com.cn/sc/
+https://pubapinews.bjx.com.cn/Kehuclick?id=18438
+https://news.bjx.com.cn/chuneng/
+https://wap.bjx.com.cn
+https://news.bjx.com.cn/oidc/login/
+https://news.bjx.com.cn/sd/
+https://news.bjx.com.cn/battery/
+https://m.bjx.com.cn/xnjt/
+https://news.bjx.com.cn/spdfl/
+https://m.bjx.com.cn/mnews/20250106/1420968.shtml
+https://news.bjx.com.cn/qn/
+https://m.bjx.com.cn/qn/
+https://news.bjx.com.cn/zcbz/
+https://news.bjx.com.cn/fd/
+https://mguangfu.bjx.com.cn/
+https://news.bjx.com.cn/nd/
+http://m.chinasmartgrid.com.cn/
+************
+
+llm model: Qwen/Qwen2.5-32B-Instruct
+process time: 10.051167964935303 s
+bad generate times: 0
+total segments: 3
+segments: 
+https://m.bjx.com.cn/mnews/20241231/1420185.shtml
+https://m.bjx.com.cn/mnews/20250103/1420820.shtml
+https://m.bjx.com.cn/mnews/20250106/1420968.shtml
+************
+
+llm model: deepseek-ai/DeepSeek-V2.5
+process time: 34.54008889198303 s
+bad generate times: 0
+total segments: 10
+segments: 
+https://m.bjx.com.cn/mnews/20241225/1419089.shtml
+https://m.bjx.com.cn/mnews/20241220/1418153.shtml
+https://m.bjx.com.cn/mnews/20241224/1418861.shtml
+https://m.bjx.com.cn/mnews/20250109/1421992.shtml
+https://m.bjx.com.cn/mnews/20241231/1420185.shtml
+https://m.bjx.com.cn/mnews/20250110/1422074.shtml
+https://m.bjx.com.cn/mnews/20250103/1420820.shtml
+https://m.bjx.com.cn/mnews/20250110/1422088.shtml
+https://m.bjx.com.cn/mnews/20241231/1420185.shtml
+https://m.bjx.com.cn/mnews/20250109/1421960.shtml
+************
+
+raw materials in: df9e89
+
+llm model: Qwen/Qwen2.5-7B-Instruct
+process time: 8.387340068817139 s
+bad generate times: 0
+total segments: 4
+segments: 
+https://news.bjx.com.cn/qn.bjx.com.cn
+https://news.bjx.com.cn/html/20250110/1422240.shtml
+https://news.bjx.com.cn/html/20241227/1419508.shtml
+https://news.bjx.com.cn/html/20250110/1422240.shtml
+************
+
+llm model: Qwen/Qwen2.5-14B-Instruct
+process time: 32.46393704414368 s
+bad generate times: 0
+total segments: 12
+segments: 
+https://news.bjx.com.cn/html/20250109/1421823.shtml
+https://news.bjx.com.cn/html/20250110/1422074.shtml
+https://news.bjx.com.cn/html/20250110/1422065.shtml
+https://news.bjx.com.cn/html/20250110/1422074.shtml
+https://news.bjx.com.cn/html/20250110/1422065.shtml
+https://news.bjx.com.cn/html/20250110/1422206.shtml
+https://news.bjx.com.cn/html/20250110/1422088.shtml
+https://news.bjx.com.cn/html/20250110/1422074.shtml
+https://news.bjx.com.cn/html/20241218/1417617.shtml
+https://news.bjx.com.cn/html/20250108/1421608.shtml
+https://news.bjx.com.cn/html/20250109/1421819.shtml
+https://news.bjx.com.cn/html/20240703/1386708.shtml
+************
+
+llm model: Qwen/Qwen2.5-32B-Instruct
+process time: 22.630156993865967 s
+bad generate times: 0
+total segments: 3
+segments: 
+https://news.bjx.com.cn/html/20241218/1417617.shtml
+https://news.bjx.com.cn/html/20250110/1422206.shtml
+https://news.bjx.com.cn/html/20250110/1422074.shtml
+************
+
+llm model: deepseek-ai/DeepSeek-V2.5
+process time: 158.3119399547577 s
+bad generate times: 0
+total segments: 62
+segments: 
+https://news.bjx.com.cn/dj/
+https://news.bjx.com.cn/guangfu.bjx.com.cn
+https://news.bjx.com.cn/html/20250110/1422218.shtml
+https://news.bjx.com.cn/html/20250108/1421600.shtml
+https://news.bjx.com.cn/shuidian.bjx.com.cn
+https://news.bjx.com.cn/html/20250108/1421568.shtml
+https://news.bjx.com.cn/html/20250110/1422088.shtml
+https://news.bjx.com.cn/html/20250110/1422074.shtml
+https://news.bjx.com.cn/sj/
+https://news.bjx.com.cn/fd.bjx.com.cn
+https://news.bjx.com.cn/shoudian.bjx.com.cn
+https://news.bjx.com.cn/js/
+https://hr.bjx.com.cn/
+https://news.bjx.com.cn/html/20250109/1421960.shtml
+https://news.bjx.com.cn/huodian.bjx.com.cn
+https://news.bjx.com.cn/html/20250109/1421992.shtml
+https://news.bjx.com.cn/html/20250110/1422074.shtml
+https://news.bjx.com.cn/zb/
+http://www.chinasmartgrid.com.cn/
+https://news.bjx.com.cn/nongdian.bjx.com.cn
+https://qn.bjx.com.cn/
+https://news.bjx.com.cn/gj/
+https://news.bjx.com.cn/zc/
+https://news.bjx.com.cn/mq/
+http://www.bjx.com.cn/zt/
+https://huanbao.bjx.com.cn/hbrw.shtml
+https://news.bjx.com.cn/html/20240708/1387671.shtml
+https://news.bjx.com.cn/battery.bjx.com.cn
+https://news.bjx.com.cn/html/20250108/1421608.shtml
+https://edu.bjx.com.cn/
+https://news.bjx.com.cn/
+https://news.bjx.com.cn/html/20250109/1421823.shtml
+https://news.bjx.com.cn/html/20250110/1422088.shtml
+https://news.bjx.com.cn/html/20250110/1422218.shtml
+https://news.bjx.com.cn/html/20250110/1422065.shtml
+https://news.bjx.com.cn/xm/
+https://news.bjx.com.cn/html/20250110/1422065.shtml
+https://news.bjx.com.cn/b2b.bjx.com.cn/
+https://news.bjx.com.cn/html/20250110/1422206.shtml
+https://news.bjx.com.cn/chuneng.bjx.com.cn
+https://news.bjx.com.cn/html/20250110/1422240.shtml
+https://news.bjx.com.cn/club.bjx.com.cn
+https://news.bjx.com.cn/html/20250110/1422065.shtml
+https://news.bjx.com.cn/html/20250110/1422218.shtml
+https://news.bjx.com.cn/hedian.bjx.com.cn
+https://news.bjx.com.cn/html/20241218/1417617.shtml
+https://news.bjx.com.cn/html/20250110/1422240.shtml
+https://news.bjx.com.cn/pl/
+https://download.bjx.com.cn/
+https://news.bjx.com.cn/news.bjx.com.cn/zhuanti/2019zhnyfw/
+https://news.bjx.com.cn/shupeidian.bjx.com.cn
+https://news.bjx.com.cn/tv.bjx.com.cn
+https://news.bjx.com.cn/sc/
+https://news.bjx.com.cn/html/20250110/1422057.shtml
+https://news.bjx.com.cn/html/20250110/1422224.shtml
+https://news.bjx.com.cn/bg/
+https://news.bjx.com.cn/html/20250110/1422218.shtml
+https://news.bjx.com.cn/html/20250110/1422088.shtml
+https://news.bjx.com.cn/html/20250110/1422088.shtml
+https://news.bjx.com.cn/qn.bjx.com.cn
+https://news.bjx.com.cn/huanbao.bjx.com.cn
+https://news.bjx.com.cn/html/20250109/1421819.shtml
+************
+
+raw materials in: 407948
+
+llm model: Qwen/Qwen2.5-7B-Instruct
+process time: 4.742202043533325 s
+bad generate times: 0
+total segments: 5
+segments: 
+https://news.bjx.com.cn/html/20250106/1421053.shtml
+https://news.bjx.com.cn/html/20250106/1420958.shtml
+https://news.bjx.com.cn/html/20250106/1421039.shtml
+https://news.bjx.com.cn/html/20250106/1420968.shtml
+https://news.bjx.com.cn/html/20250106/1421058.shtml
+************
+
+llm model: Qwen/Qwen2.5-14B-Instruct
+process time: 17.82507014274597 s
+bad generate times: 0
+total segments: 4
+segments: 
+https://news.bjx.com.cn/html/20250106/1421039.shtml
+https://news.bjx.com.cn/html/20250106/1421053.shtml
+https://news.bjx.com.cn/html/20250106/1420968.shtml
+https://news.bjx.com.cn/html/20250106/1420958.shtml
+************
+
+llm model: Qwen/Qwen2.5-32B-Instruct
+process time: 79.93152904510498 s
+bad generate times: 0
+total segments: 4
+segments: 
+https://news.bjx.com.cn/html/20250106/1420958.shtml
+https://news.bjx.com.cn/html/20250106/1421039.shtml
+https://news.bjx.com.cn/html/20250106/1421053.shtml
+https://news.bjx.com.cn/html/20250103/1420820.shtml
+************
+
+llm model: deepseek-ai/DeepSeek-V2.5
+process time: 88.85893201828003 s
+bad generate times: 0
+total segments: 14
+segments: 
+https://news.bjx.com.cn/html/20250106/1420958.shtml
+https://news.bjx.com.cn/html/20250106/1421039.shtml
+https://news.bjx.com.cn/html/20250106/1421053.shtml
+https://news.bjx.com.cn/html/20250106/1420968.shtml
+https://news.bjx.com.cn/html/20250106/1420958.shtml
+https://news.bjx.com.cn/html/20250106/1421181.shtml
+https://news.bjx.com.cn/html/20250106/1421181.shtml
+https://news.bjx.com.cn/html/20250106/1421179.shtml
+https://news.bjx.com.cn/html/20250106/1421039.shtml
+https://news.bjx.com.cn/html/20250106/1420968.shtml
+https://news.bjx.com.cn/html/20250106/1421058.shtml
+https://news.bjx.com.cn/html/20250106/1421053.shtml
+https://news.bjx.com.cn/html/20250106/1421179.shtml
+https://news.bjx.com.cn/html/20250106/1421058.shtml
+************
+

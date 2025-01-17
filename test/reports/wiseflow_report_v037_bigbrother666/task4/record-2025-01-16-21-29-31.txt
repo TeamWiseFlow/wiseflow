@@ -1,0 +1,108 @@
+focus statement: 
+//上海房地产新闻//
+//北京房地产新闻//
+//广州房地产新闻//
+//深圳房地产新闻//
+//杭州房地产新闻//
+
+
+raw materials in: 53b5ac
+
+llm model: Qwen/Qwen2.5-7B-Instruct
+process time: 9.5367431640625e-07 s
+bad generate times: 0
+total segments: 0
+segments: 
+
+************
+
+llm model: Qwen/Qwen2.5-14B-Instruct
+process time: 1.1920928955078125e-06 s
+bad generate times: 0
+total segments: 0
+segments: 
+
+************
+
+llm model: Qwen/Qwen2.5-32B-Instruct
+process time: 3.0994415283203125e-06 s
+bad generate times: 0
+total segments: 0
+segments: 
+
+************
+
+llm model: deepseek-ai/DeepSeek-V2.5
+process time: 3.0994415283203125e-06 s
+bad generate times: 0
+total segments: 0
+segments: 
+
+************
+
+raw materials in: e78068
+
+llm model: Qwen/Qwen2.5-7B-Instruct
+process time: 6.336287021636963 s
+bad generate times: 0
+total segments: 8
+segments: 
+https://m.lejucaijing.com/news-7282205540909512356.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7284088725935158955.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7284052729575175847.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282015484009707134.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7284155223982667078.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+************
+
+llm model: Qwen/Qwen2.5-14B-Instruct
+process time: 8.607954978942871 s
+bad generate times: 0
+total segments: 9
+segments: 
+https://m.lejucaijing.com/news-7282205540909512356.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7284088725935158955.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7284052729575175847.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7284030737727813284.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7284123723316787003.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282015484009707134.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+************
+
+llm model: Qwen/Qwen2.5-32B-Instruct
+process time: 8.55211591720581 s
+bad generate times: 0
+total segments: 9
+segments: 
+https://m.lejucaijing.com/news-7282205540909512356.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7284088725935158955.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7284052729575175847.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7284123723316787003.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282015484009707134.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7284155223982667078.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+************
+
+llm model: deepseek-ai/DeepSeek-V2.5
+process time: 27.798372983932495 s
+bad generate times: 0
+total segments: 10
+segments: 
+https://m.lejucaijing.com/news-7282205540909512356.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7284088725935158955.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7284052729575175847.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7284030737727813284.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7284123723316787003.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282015484009707134.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7284155223982667078.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+************
+

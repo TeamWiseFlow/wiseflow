@@ -1,0 +1,61 @@
+focus statement: 
+//各地住宅网签最新数据//
+解释：2025年1月6日以后的数据
+
+
+raw materials in: e78068
+
+llm model: Qwen/Qwen2.5-72B-Instruct
+process time: 6.987915992736816 s
+bad generate times: 0
+diff from benchmark: benchmark: 3 results
+segments: 
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+************
+
+llm model: Qwen/Qwen2.5-7B-Instruct
+process time: 2.9607717990875244 s
+bad generate times: 0
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+segments: 
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282205540909512356.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+************
+
+llm model: Qwen/Qwen2.5-14B-Instruct
+process time: 3.5073490142822266 s
+bad generate times: 0
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+segments: 
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282205540909512356.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+************
+
+llm model: Qwen/Qwen2.5-32B-Instruct
+process time: 4.405393123626709 s
+bad generate times: 0
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+segments: 
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282205540909512356.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+************
+
+llm model: deepseek-ai/DeepSeek-V2.5
+process time: 18.09337282180786 s
+bad generate times: 0
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+segments: 
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282205540909512356.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+************
+
