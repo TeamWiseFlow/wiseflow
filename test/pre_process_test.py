@@ -89,8 +89,8 @@ async def main(html_sample, record_file):
         base_url = html_sample.get('base', '')
     if not base_url:
         base_url = f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}"
-    if not base_url.endswith('/'):
-        base_url = base_url.rsplit('/', 1)[0] + '/'
+
+    print('base_url:', base_url)
             
     if not author:
         author = html_sample.get('author', '')

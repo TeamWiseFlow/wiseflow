@@ -15,7 +15,7 @@ async def schedule_pipeline(interval):
                 continue
             if counter % site['per_hours'] == 0:
                 wiseflow_logger.info(f"applying {site['url']}")
-                todo_urls.add(site['url'].rstrip('/'))
+                todo_urls.add(site['url'])
 
         counter += 1
         await main_process(todo_urls)
