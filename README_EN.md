@@ -2,7 +2,7 @@
 
 **[简体中文](README.md) | [日本語](README_JP.md) | [한국어](README_KR.md)**
 
-🚀 **Chief Intelligence Officer** (Wiseflow) is an agile information mining tool that can precisely extract specific information from various given sources by leveraging the thinking and analytical capabilities of large models, requiring no human intervention throughout the process.
+🚀 **AI Intelligence Officer** (Wiseflow) is an agile information mining tool that can precisely extract specific information from various given sources by leveraging the thinking and analytical capabilities of large models, requiring no human intervention throughout the process.
 
 **What we lack is not information, but the ability to filter out noise from massive information, thereby revealing valuable information.**
 
@@ -10,49 +10,40 @@
 
 https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
-## 🔥 V0.3.6 is Here
+## 🔥 V0.3.7 is Here
 
-V0.3.6 is an enhanced version of V0.3.5, incorporating numerous improvements based on community feedback. We recommend all users to upgrade.
+This upgrade brings wxbot integration solution, making it convenient for everyone to add WeChat Official Accounts as information sources. For details, see [weixin_mp/README.md](./weixin_mp/README.md)
 
-- Switched to Crawl4ai as the underlying web crawling framework. Although Crawl4ai and Crawlee both rely on Playwright with similar fetching results, Crawl4ai's html2markdown feature is quite practical for LLM information extraction. Additionally, Crawl4ai's architecture better aligns with my design philosophy.
-- Built upon Crawl4ai's html2markdown, we added a deep scraper to further differentiate standalone links from the main content, facilitating more precise LLM extraction. The preprocessing done by html2markdown and deep scraper significantly cleans up raw web data, minimizing interference and misleading information for LLMs, ensuring higher quality outcomes while reducing unnecessary token consumption.
+We have also provided extractors specifically designed for WeChat Official Account articles, while also designing custom extractor interfaces to allow users to customize according to their actual needs.
 
-  *Distinguishing between list pages and article pages is a common challenge in web scraping projects, especially when modern webpages often include extensive recommended readings in sidebars and footers of articles, making it difficult to differentiate them through text statistics.*
-  *Initially, I considered using large visual models for layout analysis, but found that obtaining undistorted webpage screenshots greatly increases program complexity and reduces processing efficiency...*
+This upgrade further strengthens information extraction capabilities, not only greatly optimizing the analysis of links within pages but also enabling models of 7b and 14b scale to better complete extractions based on complex focus points (such as those containing time and metric restrictions in explanations).
 
-- Restructured extraction strategies and LLM prompts;
+Additionally, this upgrade adapts to Crawl4ai version 0.4.247 and makes many program improvements. For details, see [CHANGELOG.md](./CHANGELOG.md)
 
-  *Regarding prompts, I believe that a good prompt serves as clear workflow guidance, with each step being explicit enough to minimize errors. However, I am skeptical about the value of overly complex prompts, which are hard to evaluate. If you have better solutions, feel free to submit a PR.*
+Thanks to the following community contributors for their PRs during this phase:
 
-- Introduced large visual models to automatically recognize high-weight images (currently evaluated by Crawl4ai) before extraction and append relevant information to the page text;
-- Continued to reduce dependencies in requirement.txt; json_repair is no longer needed (in practice, having LLMs generate JSON format still noticeably increases processing time and failure rates, so I now adopt a simpler approach with additional post-processing of results)
-- Made minor adjustments to the pb info form structure, adding web_title and reference fields.
-- @ourines contributed the install_pocketbase.sh script (the Docker running solution has been temporarily removed as it wasn't very convenient for users...)
-- @ibaoger contributed the install_pocketbase.ps1 script for windows users
-- @tusik contributed the asynchronous llm wrapper
+  - @ourines contributed the install_pocketbase.sh script (docker running solution has been temporarily removed as it wasn't very convenient for users...)
+  - @ibaoger contributed the pocketbase installation script for Windows
+  - @tusik contributed the asynchronous llm wrapper
 
-**Upgrading to V0.3.6 requires restructuring the PocketBase database. Please delete the pb/pb_data folder and re-run the setup**
+**V0.3.7 version reintroduces SECONDARY_MODEL, mainly to reduce usage costs**
+  
+### V0.3.7 Test Report
 
-**In V0.3.6, replace SECONDARY_MODEL with VL_MODEL in the .env file. Refer to the latest [env_sample](./env_sample)**
+Under the latest extraction strategy, we found that models of 7b scale can also perform link analysis and extraction tasks well. For test results, please refer to [report](./test/reports/wiseflow_report_v037_bigbrother666/README.md)
 
-### V0.3.6 Test Report
+However, for information summarization tasks, we still recommend using models no smaller than 32b scale. For specific recommendations, please refer to the latest [env_sample](./env_sample)
 
-We conducted horizontal tests across four real-world tasks and six real web samples using deepseekV2.5, Qwen2.5-32B-Instruct, Qwen2.5-14B-Instruct, and Qwen2.5-72B-Instruct models provided by siliconflow. For detailed test results, please refer to [report](./test/reports/wiseflow_report_v036_bigbrother666/README.md).
+We continue to welcome more test results to jointly explore the best usage solutions for wiseflow under various information sources.
 
-We have also open-sourced our testing scripts. We welcome everyone to submit more test results. Wiseflow is an open-source project aiming to create an "information retrieval tool accessible to everyone"!
-
-Refer to [test/README.md](./test/README.md)
-
-At this stage, **submitting test results is equivalent to contributing code**, and contributors may even be invited to participate in commercial projects!
+At this stage, **submitting test results is equivalent to submitting project code**, and will similarly be accepted as a contributor, and may even be invited to participate in commercialization projects! For details, please refer to [test/README.md](./test/README.md)
 
 
 🌟**V0.3.x Roadmap**
 
-- Attempt to support WeChat Official Account subscription without wxbot (V0.3.7);
+- ~~Attempt to support WeChat Official Account subscription without wxbot (V0.3.7);~~
 - Introduce support for RSS feeds and search engines (V0.3.8);
 - Attempt partial support for social platforms (V0.3.9).
-
-Throughout these versions, I will continuously improve the deep scraper and LLM extraction strategies. We welcome continuous feedback on application scenarios and sources where extraction performance is unsatisfactory. Please provide feedback in [issue #136](https://github.com/TeamWiseFlow/wiseflow/issues/136).
 
 
 ## ✋ How is wiseflow Different from Traditional Crawler Tools, AI Search, and Knowledge Base (RAG) Projects?
@@ -260,6 +251,7 @@ If you have any questions or suggestions, please feel free to leave a message vi
 ## 🤝 This Project is Based on the Following Excellent Open-Source Projects:
 
 - crawl4ai（Open-source LLM Friendly Web Crawler & Scraper） https://github.com/unclecode/crawl4ai
+- pocketbase (Open Source realtime backend in 1 file) https://github.com/pocketbase/pocketbase
 - python-pocketbase (pocketBase client SDK for python) https://github.com/vaphes/pocketbase
 
 Also inspired by [GNE](https://github.com/GeneralNewsExtractor/GeneralNewsExtractor)  [AutoCrawler](https://github.com/kingname/AutoCrawler)  [SeeAct](https://github.com/OSU-NLP-Group/SeeAct) .

@@ -10,49 +10,40 @@
 
 https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
-## 🔥 늦었지만 도착했습니다, V0.3.6가 출시되었습니다
+## 🔥 V0.3.7이 출시되었습니다
 
-V0.3.6은 V0.3.5의 개선 버전으로, 많은 커뮤니티 피드백을 반영하여 업그레이드를 권장드립니다.
+이번 업그레이드는 WeChat 공식 계정을 정보 소스로 추가할 수 있도록 wxbot 통합 솔루션을 제공합니다. 자세한 내용은 [weixin_mp/README.md](./weixin_mp/README.md)를 참조하세요.
 
-  - Crawl4ai를 기본 크롤링 프레임워크로 변경하였습니다. 사실 Crawl4ai와 Crawlee는 Playwright 기반이며 얻는 결과가 비슷하지만, Crawl4ai의 html2markdown 기능이 매우 유용하며 이는 llm 정보 추출에 큰 도움이 됩니다. 또한 Crawl4ai의 아키텍처가 저의 생각과 더 잘 맞습니다.
-  - Crawl4ai의 html2markdown 기능을 바탕으로 deep scraper를 추가하여 페이지의 독립 링크와 본문을 구분함으로써 llm의 정확한 추출을 용이하게 하였습니다. html2markdown과 deep scraper가 원본 웹 페이지 데이터를 잘 정리하여 llm이 받는 간섭과 오도를 크게 줄이고 최종 결과의 품질을 보장하며 불필요한 token 소비도 줄였습니다.
+또한 WeChat 공식 계정 게시물을 위한 전용 추출기를 제공하고, 사용자가 실제 요구 사항에 따라 커스터마이즈할 수 있도록 사용자 정의 추출기 인터페이스를 설계했습니다.
 
-     *리스트 페이지와 문서 페이지의 구분은 모든 크롤링 프로젝트에서 어려운 문제입니다. 특히 현대 웹 페이지는 종종 문서 페이지의 사이드바와 하단에 많은 추천 읽기 항목을 추가하여 두 가지가 텍스트 통계적 특징 차이 없이 혼동됩니다.*
-     *이 부분에서는 시각 대형 모델을 사용하여 레이아웃 분석을 고려했으나, 간섭받지 않는 웹 페이지 스크린샷을 얻는 것이 프로그램 복잡성을 크게 증가시키고 처리 효율성을 낮추는 것으로 나타났습니다.*
+이번 업그레이드는 정보 추출 기능을 더욱 강화했습니다. 페이지 내 링크 분석을 크게 최적화했을 뿐만 아니라, 7b, 14b와 같은 규모의 모델도 복잡한 관심 포인트(시간, 지표 제한 등을 포함하는 설명)를 기반으로 한 추출을 잘 수행할 수 있게 되었습니다.
 
-  - 추출 전략과 llm의 prompt를 재구성하였습니다.
+또한 이번 업그레이드는 Crawl4ai 0.4.247 버전을 지원하고 많은 프로그램 개선을 했습니다. 자세한 내용은 [CHANGELOG.md](./CHANGELOG.md)를 참조하세요.
 
-    *좋은 prompt는 명확한 작업 지침이며 각 단계가 충분히 명확해야 실수를 하기 어렵습니다. 하지만 너무 복잡한 prompt의 가치는 평가하기 어렵습니다. 더 나은 방법이 있으시다면 PR을 환영합니다.*
+이 단계에서 다음 커뮤니티 기여자들의 PR에 감사드립니다:
 
-  - 시각 대형 모델을 도입하여 Crawl4ai가 높은 가중치(현재 Crawl4ai가 평가)를 부여한 이미지를 자동으로 인식하고 관련 정보를 페이지 텍스트에 추가합니다.
-  - requirement.txt 의 의존성 항목을 계속 줄였으며, 이제 json_repair가 필요하지 않습니다. (실제로 llm이 JSON 형식으로 생성하는 것은 처리 시간을 증가시키고 실패율을 높이므로 더 간단한 방식을 채택하고 처리 결과 후처리를 강화하였습니다.)
-  - pb info 양식 구조를 약간 조정하여 web_title과 reference 항목을 추가했습니다.
-  - @ourines 님이 install_pocketbase.sh 스크립트를 기여하셨습니다. (Docker 실행 방안은 일시적으로 제거되었으며 사용이 편리하지 않아서……)
-  - @ibaoger 님이 install_pocketbase.ps1 스크립트를 기여하셨습니다.
-  - @tusik 님이 비동기 llm wrapper를 기여하셨습니다.
-**V0.3.6 버전으로 업그레이드하려면 pocketbase 데이터베이스를 다시 구성해야 합니다. pb/pb_data 폴더를 삭제한 후 다시 실행해 주세요.**
+  - @ourines가 install_pocketbase.sh 스크립트를 기여했습니다 (docker 실행 방식은 사용이 불편하다고 판단되어 임시로 제거되었습니다...)
+  - @ibaoger가 Windows용 pocketbase 설치 스크립트를 기여했습니다
+  - @tusik가 비동기 llm wrapper를 기여했습니다
 
-**V0.3.6 버전에서는 .env에서 SECONDARY_MODEL을 VL_MODEL로 변경해야 합니다. 최신 [env_sample](./env_sample)을 참고해 주세요.**
+**V0.3.7 버전은 사용 비용을 낮추기 위해 SECONDARY_MODEL을 다시 도입했습니다**
   
-### V0.3.6 테스트 보고서
+### V0.3.7 테스트 보고서
 
-siliconflow의 deepseekV2.5, Qwen2.5-32B-Instruct, Qwen2.5-14B-Instruct, Qwen2.5-72B-Instruct 모델의 성능을 네 가지 실제 사례 및 여섯 개의 실제 웹 페이지 샘플에서 횡断적으로 테스트하고 비교하였습니다.
-테스트 결과는 [report](./test/reports/wiseflow_report_v036_bigbrother666/README.md)를 참조해 주세요.
+최신 추출 전략에서, 7b와 같은 규모의 모델도 링크 분석 및 추출 작업을 잘 수행할 수 있다는 것을 발견했습니다. 테스트 결과는 [report](./test/reports/wiseflow_report_v037_bigbrother666/README.md)를 참조하세요.
 
-또한 테스트 스크립트도 오픈소스로 제공되며 더 많은 테스트 결과를 제출해 주시길 바랍니다. wiseflow는 오픈소스 프로젝트로서 모두의 공헌으로 "누구나 사용할 수 있는 정보 수집 도구"를 만들고자 합니다!
+하지만 정보 요약 작업의 경우 여전히 32b 이상 규모의 모델을 사용하는 것을 권장합니다. 자세한 권장 사항은 최신 [env_sample](./env_sample)을 참조하세요.
 
-참고: [test/README.md](./test/README.md)
+계속해서 더 많은 테스트 결과를 제출해 주시기를 환영합니다. 다양한 정보 소스에서 wiseflow의 최적 사용 방안을 함께 탐구해 봅시다.
 
-현재, **테스트 결과 제출은 프로젝트 코드 제출과 동일하며** 기여자로 인정되며 상업 프로젝트 참여 초청까지 받을 수도 있습니다!
+현재 단계에서는 **테스트 결과 제출이 프로젝트 코드 제출과 동등하게 취급**되며, contributor로 인정받을 수 있고, 심지어 상업화 프로젝트에 초대될 수도 있습니다! 자세한 내용은 [test/README.md](./test/README.md)를 참조하세요.
 
 
 🌟**V0.3.x 계획**
 
-- WeChat 공개 계정 wxbot 없이 구독 지원 (V0.3.7);
+- ~~WeChat 공개 계정 wxbot 없이 구독 지원 (V0.3.7);~~
 - RSS 정보 소스 및 검색 엔진 지원 도입 (V0.3.8);
 - 일부 사회적 플랫폼 지원 시도 (V0.3.9).
-
-이 세 가지 버전 동안 deep scraper 및 llm 추출 전략을 지속적으로 개선할 예정입니다. 또한 적용 장면과 추출 효과가 이상적인 정보 원본 주소를 지속적으로 피드백해 주시길 바랍니다. [issue #136](https://github.com/TeamWiseFlow/wiseflow/issues/136)에서 피드백을 남겨주세요.
 
 
 ## ✋ wiseflow는 전통적인 크롤러 도구, AI 검색, 지식 베이스(RAG) 프로젝트와 어떻게 다를까요?
@@ -257,6 +248,7 @@ PocketBase는 인기 있는 경량 데이터베이스로, 현재 Go/Javascript/P
 ## 🤝 이 프로젝트는 다음과 같은 우수한 오픈소스 프로젝트를 기반으로 합니다:
 
 - crawl4ai（Open-source LLM Friendly Web Crawler & Scraper） https://github.com/unclecode/crawl4ai
+- pocketbase (Open Source realtime backend in 1 file) https://github.com/pocketbase/pocketbase
 - python-pocketbase (pocketBase 클라이언트 SDK for python) https://github.com/vaphes/pocketbase
 
 또한 [GNE](https://github.com/GeneralNewsExtractor/GeneralNewsExtractor), [AutoCrawler](https://github.com/kingname/AutoCrawler), [SeeAct](https://github.com/OSU-NLP-Group/SeeAct) 에서 영감을 받았습니다.
