@@ -5,11 +5,10 @@ import httpx
 import asyncio
 import os, sys
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.dirname(current_dir)  # 获取父目录
-sys.path.append(project_root)
+core_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'core')
+sys.path.append(core_path)
 
-from core.general_process import main_process, wiseflow_logger
+from general_process import main_process, wiseflow_logger
 from typing import Optional
 import logging
 

@@ -2,7 +2,7 @@
 
 **[English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md)**
 
-🚀 **首席情报官**（Wiseflow）是一个敏捷的信息挖掘工具，可以从各种给定信源中依靠大模型的思考与分析能力精准抓取特定信息，全程无需人工参与。
+🚀 **AI情报官**（Wiseflow）是一个敏捷的信息挖掘工具，可以从各种给定信源中依靠大模型的思考与分析能力精准抓取特定信息，全程无需人工参与。
 
 **我们缺的不是信息，而是从海量信息中过滤噪音，从而让有价值的信息显露出来**
 
@@ -10,51 +10,40 @@
 
 https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
-## 🔥 虽迟但到, V0.3.6来了
+## 🔥 V0.3.7 来了
 
-V0.3.6 是 V0.3.5的效果改进版本，针对诸多社区反馈进行了改进，建议所有用户升级。
+本次升级带来了 wxbot 的整合方案，方便大家添加微信公众号作为信源，具体见 [weixin_mp/README.md](./weixin_mp/README.md)
 
-  - 改用 Crawl4ai 作为底层爬虫框架，其实Crawl4ai 和 Crawlee 的获取效果差别不大，二者也都是基于 Playwright ，但 Crawl4ai 的 html2markdown 功能很实用，而这对llm 信息提取作用很大，另外 Crawl4ai 的架构也更加符合我的思路；
-  - 在 Crawl4ai 的 html2markdown 基础上，增加了 deep scraper，进一步把页面的独立链接与正文进行区分，便于后一步 llm 的精准提取。由于html2markdown和deep scraper已经将原始网页数据做了很好的清理，极大降低了llm所受的干扰和误导，保证了最终结果的质量，同时也减少了不必要的 token 消耗；
+我们也提供了专门针对微信公众号文章的提取器，同时也设计了自定义提取器接口，方便用户根据实际需求进行定制。
 
-     *列表页面和文章页面的区分是所有爬虫类项目都头痛的地方，尤其是现代网页往往习惯在文章页面的侧边栏和底部增加大量推荐阅读，使得二者几乎不存在文本统计上的特征差异。*
-     *这一块我本来想用视觉大模型进行 layout 分析，但最终实现起来发现获取不受干扰的网页截图是一件会极大增加程序复杂度并降低处理效率的事情……*
-  
-  - 重构了提取策略、llm 的 prompt 等；
+本次升级也进一步强化了信息提取能力，不仅极大优化了页面中链接的分析，还使得7b、14b 这种规模的模型也能比较好的完成基于复杂关注点（explanation中包含时间、指标限制这种）的提取。
 
-    *有关 prompt 我想说的是，我理解好的 prompt 是清晰的工作流指导，每一步都足够明确，明确到很难犯错。但我不太相信过于复杂的 prompt 的价值，这个很难评估，如果你有更好的方案，欢迎提供 PR*
+另外本次升级还适配了 Crawl4ai 0.4.247 版本，以及做了诸多程序改进，具体见 [CHANGELOG.md](./CHANGELOG.md)
 
-  - 引入视觉大模型，自动在提取前对高权重（目前由 Crawl4ai 评估权重）图片进行识别，并补充相关信息到页面文本中；
-  - 继续减少 requirement.txt 的依赖项，目前不需要 json_repair了（实践中也发现让 llm 按 json 格式生成，还是会明显增加处理时间和失败率，因此我现在采用更简单的方式，同时增加对处理结果的后处理）
-  - pb info 表单的结构做了小调整，增加了 web_title 和 reference 两项。
+感谢如下社区贡献者在这一阶段的 PR：
+
   - @ourines 贡献了 install_pocketbase.sh 脚本 (docker运行方案被暂时移除了，感觉大家用起来也不是很方便……)
   - @ibaoger 贡献了 windows 下的pocketbase 安装脚本
   - @tusik 贡献了异步 llm wrapper
 
-**升级V0.3.6 版本依然需要重构 pocketbase 数据库，请删除pb/pb_data 文件夹后重新执行**
-
-**V0.3.6版本 .env 中需要把SECONDARY_MODEL替换为VL_MODEL，请参考最新的 [env_sample](./env_sample)**
+**V0.3.7版本再次引入SECONDARY_MODEL，这主要是为了降低使用成本**
   
-### V0.3.6 测试报告
+### V0.3.7 测试报告
 
-我们在四个现实案例任务以及共计六个真实网页 sample 中横向测试并比较了由 siliconflow 提供的deepseekV2.5、Qwen2.5-32B-Instruct、Qwen2.5-14B-Instruct、Qwen2.5-72B-Instruct 模型的表现情况，
-测试结果请参考 [report](./test/reports/wiseflow_report_v036_bigbrother666/README.md)
+在最新的提取策略下，我们发现7b 这种规模的模型也能很好的执行链接分析与提取任务，测试结果请参考 [report](./test/reports/wiseflow_report_v037_bigbrother666/README.md)
 
-同时我们也将测试脚本进行开源，欢迎大家踊跃提交更多测试结果，wiseflow 是一个开源项目，希望通过大家共同的贡献，打造“人人可用的信息爬取工具”！
+不过信息总结任务目前还是推荐大家使用不低于 32b 规模的模型，具体推荐请参考最新的 [env_sample](./env_sample)
 
-具体请参考 [test/README.md](./test/README.md) 
+继续欢迎大家提交更多测试结果，共同探索 wiseflow 在各种信源下的最佳使用方案。
 
-现阶段，**提交测试结果等同于提交项目代码**，同样会被接纳为contributor，甚至受邀参加商业化项目！
+现阶段，**提交测试结果等同于提交项目代码**，同样会被接纳为contributor，甚至受邀参加商业化项目！具体请参考 [test/README.md](./test/README.md) 
 
 
 🌟**V0.3.x 计划**
 
-- 尝试支持微信公众号免wxbot订阅（V0.3.7）；
+- ~~尝试支持微信公众号免wxbot订阅（V0.3.7）；【已完成】~~
 - 引入对 RSS 信息源和搜索引擎的支持（V0.3.8）;
 - 尝试部分支持社交平台（V0.3.9）。
-
-伴随着上述三个版本，我会持续改进 deep scraper 以及 llm 提取策略，也欢迎大家持续反馈应用场景和抽取效果不理想的信源地址，欢迎在 [issue #136](https://github.com/TeamWiseFlow/wiseflow/issues/136) 中进行反馈。
-
 
 ## ✋ wiseflow 与传统的爬虫工具、AI搜索、知识库（RAG）项目有何不同？
 
@@ -260,6 +249,7 @@ PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 
 ## 🤝 本项目基于如下优秀的开源项目：
 
 - crawl4ai（Open-source LLM Friendly Web Crawler & Scraper） https://github.com/unclecode/crawl4ai
+- pocketbase (Open Source realtime backend in 1 file) https://github.com/pocketbase/pocketbase
 - python-pocketbase (pocketBase client SDK for python) https://github.com/vaphes/pocketbase
 
 本项目开发受 [GNE](https://github.com/GeneralNewsExtractor/GeneralNewsExtractor)、[AutoCrawler](https://github.com/kingname/AutoCrawler) 、[SeeAct](https://github.com/OSU-NLP-Group/SeeAct) 启发。

@@ -1,3 +1,25 @@
+# V0.3.7
+
+- 新增通过wxbot方案获取微信公众号订阅消息信源（不是很优雅，但已是目前能找到的最佳方案）
+  
+  Added WeChat Official Account subscription message source acquisition through wxbot solution (not very elegant, but currently the best solution available)
+
+- 升级适配 Crawl4ai 0.4.247 版本，
+
+  Upgraded to fit Crawl4ai 0.4.247 version,
+
+- 通过新增预处理流程以及全新设计的推荐链接提取策略，大幅提升信息抓取效果，现在7b 这样的小模型也能比较好的完成复杂关注点（explanation中包含时间、指标限制这种）的提取了。
+
+  Through the addition of a new pre-processing process and a completely redesigned recommended link extraction strategy, the information capture effect has been significantly improved, and now even small models like 7b can better complete the extraction of complex focus points (such as time and index limits in the explanation).
+
+- 提供自定义提取器接口，方便用户根据实际需求进行定制。
+
+  Provided a custom extractor interface to allow users to customize according to actual needs.
+
+- bug 修复以及其他改进（crawl4ai浏览器生命周期管理，异步 llm wrapper 等）
+
+  Bug fixes and other improvements (crawl4ai browser lifecycle management, asynchronous llm wrapper, etc.)
+
 # V0.3.6
 - 改用 Crawl4ai 作为底层爬虫框架，其实Crawl4ai 和 Crawlee 的获取效果差别不大，二者也都是基于 Playwright ，但 Crawl4ai 的 html2markdown 功能很实用，而这对llm 信息提取作用很大，另外 Crawl4ai 的架构也更加符合我的思路；
 - 在 Crawl4ai 的 html2markdown 基础上，增加了 deep scraper，进一步把页面的独立链接与正文进行区分，便于后一步 llm 的精准提取。由于html2markdown和deep scraper已经将原始网页数据做了很好的清理，极大降低了llm所受的干扰和误导，保证了最终结果的质量，同时也减少了不必要的 token 消耗；
