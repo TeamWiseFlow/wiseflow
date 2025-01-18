@@ -265,9 +265,9 @@ async def get_more_related_urls(texts: list[str], link_dict: dict, prompts: list
                 for link in links:
                     if link not in text_batch:
                         if _logger:
-                            _logger.warning(f"model generating hallucination:\n{result[-1]}")
+                            _logger.warning(f"model generating hallucination:\n{link}\n{result[-1]}\n{text_batch}")
                         if test_mode:
-                            print(f"model hallucination:\n{result[-1]}")
+                            print(f"model hallucination:\n{link}\n{result[-1]}\n{text_batch}")
                         continue
                     cache.add(link)
             text_batch = ''
@@ -343,5 +343,5 @@ async def get_info(texts: list[str], link_dict: dict, prompts: list[str], focus_
             url_tags = re.findall(r'\[\d+\]', content)
             refences = {url_tag: link_dict[url_tag] for url_tag in url_tags if url_tag in link_dict}
             final.append({'tag': focus_dict[focus], 'content': f"{info_pre_fix}{content}", 'references': refences})
-        
+    
     return final

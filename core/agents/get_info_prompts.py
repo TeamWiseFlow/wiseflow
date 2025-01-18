@@ -36,8 +36,8 @@ get_info_system = '''你将被给到一段使用<text></text>标签包裹的网�
 {focus_statement}\n
 在提炼摘要时，请遵循以下原则：
 - 理解每个关注点的含义以及进一步的解释（如有），确保摘要与关注点强相关并符合解释（如有）的范围
-- 摘要应当详实、充分，使用简体中文（如果原文是英文，请翻译成简体中文）
-- 摘要信息务必忠于原文'''
+- 摘要应当详实、充分，且绝对忠于原文
+- 如果摘要涉及的原文片段中包含类似"[3]"这样的引用标记，务必在摘要中保留相关标记'''
 
 get_info_suffix = '''请对关注点逐一生成摘要，不要遗漏任何关注点，如果网页文本与关注点无关，可以对应输出"NA"。输出结果整体用三引号包裹，三引号内不要有其他内容。如下是输出格式示例：
 """
@@ -55,8 +55,8 @@ get_info_system_en = '''You will be given a webpage text wrapped in <text></text
 {focus_statement}\n
 When extracting summaries, please follow these principles:
 - Understand the meaning of each focus point and its explanation (if any), ensure the summary strongly relates to the focus point and aligns with the explanation (if any)
-- The summary should be detailed and comprehensive
-- The summary should be faithful to the original text'''
+- The summary should be detailed and comprehensive and absolutely faithful to the original text
+- If the summary involves a reference marker like "[3]", it must be retained in the summary'''
 
 get_info_suffix_en = '''Please generate summaries for each focus point, don't miss any focus points. If the webpage text is not related to a focus point, output "NA" for that point. The entire output should be wrapped in triple quotes with no other content inside. Here is an example of the output format:
 """

@@ -183,14 +183,16 @@ def mp_scraper(fetch_result: CrawlResult | dict) -> ScraperResultData:
                 if text:
                     content_parts.append(text)
                 # 只在块级元素后添加换行符
-                if element.name in {'div', 'section', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'}:
+                if element.name in {'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'}:
                     content_parts.append('\n')
+                if element.name in {'div', 'section'}:
+                    content_parts.append('# ')
             elif isinstance(element, str):
                 text = element.strip()
                 if text:
                     content_parts.append(text)
     
-        return '  '.join(content_parts).strip()
+        return ''.join(content_parts).strip()
 
     soup = BeautifulSoup(cleaned_html, 'html.parser')
 

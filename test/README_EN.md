@@ -10,18 +10,10 @@ python craw4ai_fetching.py -S 'url1,url2...'
 
 ## HTML Content Parsing
 
-[deep_scraper_test.py](./deep_scraper_test.py)
+[pre_process_test.py](./pre_process_test.py)
 
 ```
-python deep_scraper_test.py -F 'json_file_path'
-```
-
-## Visual Large Model Information Extraction
-
-[get_visual_info_for_samples.py](./get_visual_info_for_samples.py)
-
-```
-python get_visual_info_for_samples.py -F 'json_file_path'
+python pre_process_test.py -F 'json_file_path' -R 'record save path'
 ```
 
 ## Large Model Information Extraction Testing
@@ -30,11 +22,11 @@ python get_visual_info_for_samples.py -F 'json_file_path'
 
     - To create focus point descriptions for test tasks, refer to [reports/wiseflow_report_v036_bigbrother666/task0/focus_point.json](./reports/wiseflow_report_v036_bigbrother666/task0/focus_point.json)
 
-    - To modify the prompt for get_info, edit [prompts.py](./prompts.py)
+```
+python get_info_test.py -D 'sample dir' -I 'include ap'
+```
 
-```
-python get_info_test.py -D 'sample dir'
-```
+*-I whether to test LLM extraction of author and publish date*
 
 # Result Submission and Sharing
 

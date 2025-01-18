@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 from utils.pb_api import PbTalker
 from utils.general_utils import get_logger, extract_and_convert_dates, is_chinese
 from agents.get_info import *
@@ -87,9 +88,10 @@ async def main_process(_sites: set | list):
     while working_list:
         url = working_list.pop()
         existing_urls.add(url)
+        wiseflow_logger.debug(f'process new url, still {len(working_list)} urls in working list')
         has_common_ext = any(url.lower().endswith(ext) for ext in common_file_exts)
         if has_common_ext:
-            wiseflow_logger.info(f'{url} is a common file, skip')
+            wiseflow_logger.debug(f'{url} is a common file, skip')
             continue
 
         parsed_url = urlparse(url)
@@ -125,7 +127,6 @@ async def main_process(_sites: set | list):
             base_url = ''
             author = ''
             publish_date = ''
-
         if not raw_markdown:
             wiseflow_logger.warning(f'{url} no content, something during fetching failed, skip')
             continue
@@ -136,17 +137,14 @@ async def main_process(_sites: set | list):
             base_url = metadata_dict.get('base', '')
         if not base_url:
             base_url = f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}"
-        if not base_url.endswith('/'):
-            # 如果路径不以 / 结尾，则去掉最后一个路径段
-            base_url = base_url.rsplit('/', 1)[0] + '/'
-            
+
         if not author:
             author = metadata_dict.get('author', '')
         if not publish_date:
             publish_date = metadata_dict.get('publish_date', '')
-            
+
         link_dict, links_parts, contents, recognized_img_cache = await pre_process(raw_markdown, base_url, used_img, recognized_img_cache, existing_urls)
-            
+
         if link_dict and links_parts:
             prompts = [get_link_sys_prompt, get_link_suffix_prompt, secondary_model]
             links_texts = []
@@ -154,6 +152,7 @@ async def main_process(_sites: set | list):
                 links_texts.extend(_parts.split('\n\n'))
             more_url = await get_more_related_urls(links_texts, link_dict, prompts, _logger=wiseflow_logger)
             if more_url:
+                wiseflow_logger.debug(f'get {len(more_url)} more related urls, will add to working list')
                 working_list.update(more_url - existing_urls)
             
         if not contents:
@@ -173,10 +172,12 @@ async def main_process(_sites: set | list):
         prompts = [get_info_sys_prompt, get_info_suffix_prompt, model]
         infos = await get_info(contents, link_dict, prompts, focus_dict, author, publish_date, _logger=wiseflow_logger)
         if infos:
+            wiseflow_logger.debug(f'get {len(infos)} infos, will save to pb')
             await save_to_pb(url, title, infos)
     await crawler.close()
 
 if __name__ == '__main__':
+
     sites = pb.read('sites', filter='activated=True')
     wiseflow_logger.info('execute all sites one time')
-    asyncio.run(main_process([site['url'].rstrip('/') for site in sites]))
+    asyncio.run(main_process([site['url'] for site in sites]))
