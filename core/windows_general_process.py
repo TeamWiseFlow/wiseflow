@@ -8,13 +8,13 @@ env_path = Path(__file__).parent / 'windows.env'
 if env_path.exists():
     load_dotenv(env_path)
 
+import os
 from utils.pb_api import PbTalker
-from utils.general_utils import get_logger, extract_and_convert_dates
-from utils.deep_scraper import *
+from utils.general_utils import get_logger, extract_and_convert_dates, is_chinese
 from agents.get_info import *
 import json
 import asyncio
-from custom_fetchings import *
+from scrapers import *
 from urllib.parse import urlparse
 from crawl4ai import AsyncWebCrawler, CacheMode
 from datetime import datetime, timedelta
@@ -28,18 +28,14 @@ if project_dir:
 
 wiseflow_logger = get_logger('general_process', project_dir)
 pb = PbTalker(wiseflow_logger)
-gie = GeneralInfoExtractor(pb, wiseflow_logger)
 one_month_ago = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
 existing_urls = {url['url'] for url in pb.read(collection_name='infos', fields=['url'], filter=f"created>='{one_month_ago}'")}
 
-llm_model = os.environ.get("PRIMARY_MODEL", "")
-vl_model = os.environ.get("VL_MODEL", "")
-if not vl_model:
-    wiseflow_logger.warning("VL_MODEL not set, will skip extracting info from img, some info may be lost!")
-
-img_to_be_recognized_pattern = r'§to_be_recognized_by_visual_llm_(.*?)§'
-recognized_img_cache = {}
-
+crawler = AsyncWebCrawler(verbose=False)
+model = os.environ.get("PRIMARY_MODEL", "")
+if not model:
+    raise ValueError("PRIMARY_MODEL not set, please set it in environment variables or edit core/.env")
+secondary_model = os.environ.get("SECONDARY_MODEL", model)
 
 async def save_to_pb(url: str, url_title: str, infos: list):
     # saving to pb process
@@ -55,112 +51,142 @@ async def save_to_pb(url: str, url_title: str, infos: list):
 
 
 async def main_process(_sites: set | list):
+    # collect tags user set in pb database and determin the system prompt language based on tags
+    focus_data = pb.read(collection_name='focus_points', filter=f'activated=True')
+    if not focus_data:
+        wiseflow_logger.info('no activated tag found, will ask user to create one')
+        focus = input('It seems you have not set any focus point, WiseFlow need the specific focus point to guide the following info extract job.'
+                    'so please input one now. describe what info you care about shortly: ')
+        explanation = input('Please provide more explanation for the focus point (if not necessary, pls just press enter: ')
+        focus_data.append({"focuspoint": focus, "explanation": explanation,
+                            "id": pb.add('focus_points', {"focuspoint": focus, "explanation": explanation})})
+
+
+    focus_dict = {item["focuspoint"]: item["id"] for item in focus_data}
+    focus_statement = ''
+    for item in focus_data:
+        tag = item["focuspoint"]
+        expl = item["explanation"]
+        focus_statement = f"{focus_statement}//{tag}//\n"
+        if expl:
+            if is_chinese(expl):
+                focus_statement = f"{focus_statement}解释：{expl}\n"
+            else:
+                focus_statement = f"{focus_statement}Explanation: {expl}\n"
+
+    date_stamp = datetime.now().strftime('%Y-%m-%d')
+    if is_chinese(focus_statement):
+        get_link_sys_prompt = get_link_system.replace('{focus_statement}', focus_statement)
+        get_link_sys_prompt = f"今天的日期是{date_stamp}，{get_link_sys_prompt}"
+        get_link_suffix_prompt = get_link_suffix
+        get_info_sys_prompt = get_info_system.replace('{focus_statement}', focus_statement)
+        get_info_sys_prompt = f"今天的日期是{date_stamp}，{get_info_sys_prompt}"
+        get_info_suffix_prompt = get_info_suffix
+    else:
+        get_link_sys_prompt = get_link_system_en.replace('{focus_statement}', focus_statement)
+        get_link_sys_prompt = f"today is {date_stamp}, {get_link_sys_prompt}"
+        get_link_suffix_prompt = get_link_suffix_en
+        get_info_sys_prompt = get_info_system_en.replace('{focus_statement}', focus_statement)
+        get_info_sys_prompt = f"today is {date_stamp}, {get_info_sys_prompt}"
+        get_info_suffix_prompt = get_info_suffix_en
+
+    recognized_img_cache = {}
     working_list = set()
     working_list.update(_sites)
-    async with AsyncWebCrawler(headless=True, verbose=False) as crawler:
-        while working_list:
-            url = working_list.pop()
-            existing_urls.add(url)
-            has_common_ext = any(url.lower().endswith(ext) for ext in common_file_exts)
-            if has_common_ext:
-                wiseflow_logger.info(f'{url} is a common file, skip')
-                continue
+    await crawler.start()
+    while working_list:
+        url = working_list.pop()
+        existing_urls.add(url)
+        wiseflow_logger.debug(f'process new url, still {len(working_list)} urls in working list')
+        has_common_ext = any(url.lower().endswith(ext) for ext in common_file_exts)
+        if has_common_ext:
+            wiseflow_logger.debug(f'{url} is a common file, skip')
+            continue
 
-            parsed_url = urlparse(url)
-            existing_urls.add(f"{parsed_url.scheme}://{parsed_url.netloc}")
-            existing_urls.add(f"{parsed_url.scheme}://{parsed_url.netloc}/")
-            domain = parsed_url.netloc
-            if domain in custom_scrapers:
-                wiseflow_logger.debug(f'{url} is a custom scraper, use custom scraper')
-                raw_markdown, metadata_dict, media_dict = custom_scrapers[domain](url)
-            else:
-                crawl4ai_cache_mode = CacheMode.WRITE_ONLY if url in _sites else CacheMode.ENABLED
-                result = await crawler.arun(url=url, delay_before_return_html=2.0, wait_until='commit',
-                                            magic=True, scan_full_page=True,
-                                            cache_mode=crawl4ai_cache_mode)
-                if not result.success:
-                    wiseflow_logger.warning(f'{url} failed to crawl, destination web cannot reach, skip')
-                    continue
+        parsed_url = urlparse(url)
+        existing_urls.add(f"{parsed_url.scheme}://{parsed_url.netloc}")
+        existing_urls.add(f"{parsed_url.scheme}://{parsed_url.netloc}/")
+        domain = parsed_url.netloc
+        if domain in custom_fetching_configs:
+            wiseflow_logger.debug(f'{url} will using custom crawl4ai run config')
+            run_config = custom_fetching_configs[domain]
+        else:
+            run_config = crawler_config
+            
+        run_config.cache_mode = CacheMode.WRITE_ONLY if url in _sites else CacheMode.ENABLED
+        result = await crawler.arun(url=url, config=run_config)
+        if not result.success:
+            wiseflow_logger.warning(f'{url} failed to crawl, destination web cannot reach, skip')
+            continue
+        metadata_dict = result.metadata if result.metadata else {}
 
-                raw_markdown = result.markdown
-                if not raw_markdown:
-                    wiseflow_logger.warning(f'{url} no content, something during fetching failed, skip')
-                    continue
-                metadata_dict = result.metadata if result.metadata else {}
-                media_dict = result.media if result.media else {}
+        if domain in custom_scrapers:
+            result = custom_scrapers[domain](result)
+            raw_markdown = result.content
+            used_img = result.images
+            title = result.title
+            base_url = result.base
+            author = result.author
+            publish_date = result.publish_date
+        else:
+            raw_markdown = result.markdown
+            media_dict = result.media if result.media else {}
+            used_img = [d['src'] for d in media_dict.get('images', [])]
+            title = ''
+            base_url = ''
+            author = ''
+            publish_date = ''
+        if not raw_markdown:
+            wiseflow_logger.warning(f'{url} no content, something during fetching failed, skip')
+            continue
 
-            web_title = metadata_dict.get('title', '')
+        if not title:
+            title = metadata_dict.get('title', '')
+        if not base_url:
             base_url = metadata_dict.get('base', '')
-            if not base_url:
-                base_url = url
+        if not base_url:
+            base_url = f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}"
 
+        if not author:
             author = metadata_dict.get('author', '')
-            publish_date = extract_and_convert_dates(metadata_dict.get('publish_date', ''))
+        if not publish_date:
+            publish_date = metadata_dict.get('publish_date', '')
+
+        link_dict, links_parts, contents, recognized_img_cache = await pre_process(raw_markdown, base_url, used_img, recognized_img_cache, existing_urls)
+
+        if link_dict and links_parts:
+            prompts = [get_link_sys_prompt, get_link_suffix_prompt, secondary_model]
+            links_texts = []
+            for _parts in links_parts:
+                links_texts.extend(_parts.split('\n\n'))
+            more_url = await get_more_related_urls(links_texts, link_dict, prompts, _logger=wiseflow_logger)
+            if more_url:
+                wiseflow_logger.debug(f'get {len(more_url)} more related urls, will add to working list')
+                working_list.update(more_url - existing_urls)
             
-            img_dict = media_dict.get('images', [])
-            if not img_dict or not isinstance(img_dict, list):
-                used_img = []
-            else:
-                used_img = [d['src'] for d in img_dict]
-            
-            link_dict, (text, reference_map) = deep_scraper(raw_markdown, base_url, used_img)
-            _duplicate_url = set(link_dict.keys()) & existing_urls
-            for _d in _duplicate_url:
-                del link_dict[_d]
+        if not contents:
+            continue
 
-            to_be_replaces = {}
-            for u, des in link_dict.items():
-                matches = re.findall(img_to_be_recognized_pattern, des)
-                if matches:
-                    for img_url in matches:
-                        if img_url in recognized_img_cache:
-                            link_dict[u] = des.replace(f'§to_be_recognized_by_visual_llm_{img_url}§', recognized_img_cache[img_url])
-                            continue
-                        link_dict[u] = des.replace(f'§to_be_recognized_by_visual_llm_{img_url}§', img_url)
-                        if img_url in to_be_replaces:
-                            to_be_replaces[img_url].append(u)
-                        else:
-                            to_be_replaces[img_url] = [u]
-            matches = re.findall(img_to_be_recognized_pattern, text)
-            if matches:
-                for img_url in matches:
-                    if f'h{img_url}' in recognized_img_cache:
-                        text = text.replace(f'§to_be_recognized_by_visual_llm_{img_url}§', recognized_img_cache[f'h{img_url}'])
-                        continue
-                    text = text.replace(f'§to_be_recognized_by_visual_llm_{img_url}§', f'h{img_url}')
-                    img_url = f'h{img_url}'
-                    if img_url in to_be_replaces:
-                        to_be_replaces[img_url].append("content")
-                    else:
-                        to_be_replaces[img_url] = ["content"]
+        if not author or author.lower() == 'na' or not publish_date or publish_date.lower() == 'na':
+            author, publish_date = await get_author_and_publish_date(raw_markdown, model, _logger=wiseflow_logger)
 
-            recognized_result = await extract_info_from_img(list(to_be_replaces.keys()), vl_model)
-            wiseflow_logger.debug(f'total {len(recognized_result)} imgs be recognized')
-            recognized_img_cache.update({key: value for key, value in recognized_result.items() if value.strip()})
-            for img_url, content in recognized_result.items():
-                for u in to_be_replaces[img_url]:
-                    if u == "content":
-                        text = text.replace(img_url, content)
-                    else:
-                        link_dict[u] = link_dict[u].replace(img_url, content)
+        if not author or author.lower() == 'na':
+            author = parsed_url.netloc
+        
+        if publish_date:
+            publish_date = extract_and_convert_dates(publish_date)
+        else:
+            publish_date = date_stamp
 
-            if not author or author.lower() == 'na' or not publish_date or publish_date.lower() == 'na':
-                author, publish_date = await get_author_and_publish_date(text, llm_model)
-                wiseflow_logger.debug(f'get author and publish date by llm: {author}, {publish_date}')
-            if not author or author.lower() == 'na':
-                author = parsed_url.netloc
-            if not publish_date:
-                publish_date = datetime.now().strftime('%Y-%m-%d')
-
-            more_urls, infos = await gie(link_dict, text, reference_map, author, publish_date)
-            wiseflow_logger.debug(f'get {len(more_urls)} more urls and {len(infos)} infos')
-            if more_urls:
-                working_list.update(more_urls - existing_urls)
-            if infos:
-                await save_to_pb(url, web_title, infos)
-
+        prompts = [get_info_sys_prompt, get_info_suffix_prompt, model]
+        infos = await get_info(contents, link_dict, prompts, focus_dict, author, publish_date, _logger=wiseflow_logger)
+        if infos:
+            wiseflow_logger.debug(f'get {len(infos)} infos, will save to pb')
+            await save_to_pb(url, title, infos)
+    await crawler.close()
 
 if __name__ == '__main__':
+
     sites = pb.read('sites', filter='activated=True')
     wiseflow_logger.info('execute all sites one time')
     asyncio.run(main_process([site['url'] for site in sites]))
