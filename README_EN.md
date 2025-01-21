@@ -41,7 +41,7 @@ At this stage, **submitting test results is equivalent to submitting project cod
 
 🌟**V0.3.x Roadmap**
 
-- ~~Attempt to support WeChat Official Account subscription without wxbot (V0.3.7);~~
+- ~~Attempt to support WeChat Official Account subscription without wxbot (V0.3.7);Done~~
 - Introduce support for RSS feeds and search engines (V0.3.8);
 - Attempt partial support for social platforms (V0.3.9).
 
@@ -90,6 +90,10 @@ For details, please refer to [pb/README.md](/pb/README.md)
 ### 3. Continue Configuring the core/.env File
 
 🌟 **This is different from previous versions** - starting from V0.3.5, the .env file needs to be placed in the [core](./core) folder.
+
+**Windows users can refer to the windows.env and windows_run.py files in the core folder and execute the windows_run.py script**
+
+Thanks to @c469591 for contributing the native Windows startup script
 
 #### 3.1 Large Language Model Configuration
 

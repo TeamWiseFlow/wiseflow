@@ -71,7 +71,7 @@ async def get_public_msg(websocket_uri):
                 while True:
                     response = await websocket.recv()
                     datas = json.loads(response)
-
+                    todo_urls = set()
                     for data in datas["data"]:
                         if "StrTalker" not in data or "Content" not in data:
                             wiseflow_logger.warning(f"invalid data:\n{data}")
@@ -80,7 +80,7 @@ async def get_public_msg(websocket_uri):
 
                         items = item_pattern.findall(data["Content"])
                         # Iterate through all < item > content, extracting < url > and < summary >
-                        todo_urls = set()
+                        
                         for item in items:
                             url_match = url_pattern.search(item)
                             url = url_match.group(1) if url_match else None
@@ -95,7 +95,8 @@ async def get_public_msg(websocket_uri):
                             # summary_match = summary_pattern.search(item)
                             # addition = summary_match.group(1) if summary_match else None
                             todo_urls.add(url)
-                    await main_process(todo_urls)                        
+                    if todo_urls:
+                        await main_process(todo_urls)                        
         except websockets.exceptions.ConnectionClosedError as e:
             wiseflow_logger.error(f"Connection closed with exception: {e}")
             reconnect_attempts += 1
