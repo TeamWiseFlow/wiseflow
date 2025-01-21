@@ -65,7 +65,7 @@ wiseflow自2024年6月底发布 V0.3.0版本来受到了开源社区的广泛关
 
 🌹 点赞、fork是好习惯 🌹
 
-**windows 用户请提前下载 git bash 工具，并在 bash 中执行如下命令** [bash下载链接](https://git-scm.com/downloads/win)
+**windows 用户请提前下载 git bash 工具，并在 bash 中执行如下命令 [bash下载链接](https://git-scm.com/downloads/win)**
 
 ```bash
 git clone https://github.com/TeamWiseFlow/wiseflow.git
@@ -89,6 +89,10 @@ wiseflow 0.3.x版本使用 pocketbase 作为数据库，你当然也可以手动
 ### 3. 继续配置 core/.env 文件
 
 🌟 **这里与之前版本不同**，V0.3.5开始需要把 .env 放置在 [core](./core) 文件夹中。
+
+**windows 用户可以参考 core文件夹下的 windows.env windows_run.py 文件，执行 windows_run.py 脚本**
+
+感谢 @c469591 贡献的 windows 下原生启动脚本
 
 #### 3.1 大模型相关配置
 
