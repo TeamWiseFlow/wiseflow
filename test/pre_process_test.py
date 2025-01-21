@@ -10,6 +10,9 @@ sys.path.append(core_path)
 from scrapers import *
 from agents.get_info import pre_process
 
+
+save_dir = 'webpage_samples'
+
 def check_url_text(text):
     common_chars = ',.!;:，；：、一二三四五六七八九十#*@% \t\n\r|*-_…>#'
     print(f"processing: {text}")
@@ -118,7 +121,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--test_file', '-F', type=str, default='')
     parser.add_argument('--sample_dir', '-D', type=str, default='')
-    parser.add_argument('--record_folder', '-R', type=str, default='')
+    parser.add_argument('--record_folder', '-R', type=str, default=save_dir)
     args = parser.parse_args()
 
     test_file = args.test_file

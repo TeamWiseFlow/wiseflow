@@ -6,3 +6,4 @@ pydantic
 beautifulsoup4
 requests
 crawl4ai==0.4.247
+feedparser==6.0.11
