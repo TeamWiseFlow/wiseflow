@@ -6,33 +6,43 @@ from agents.get_info import *
 import json
 import asyncio
 from scrapers import *
+from utils.zhipu_search import run_v4_async
 from urllib.parse import urlparse
 from crawl4ai import AsyncWebCrawler, CacheMode
 from datetime import datetime, timedelta
-import logging
+import feedparser
 
-logging.getLogger("httpx").setLevel(logging.WARNING)
 
 project_dir = os.environ.get("PROJECT_DIR", "")
 if project_dir:
     os.makedirs(project_dir, exist_ok=True)
 
-wiseflow_logger = get_logger('general_process', project_dir)
+wiseflow_logger = get_logger('wiseflow', project_dir)
 pb = PbTalker(wiseflow_logger)
-one_month_ago = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
-existing_urls = {url['url'] for url in pb.read(collection_name='infos', fields=['url'], filter=f"created>='{one_month_ago}'")}
-
 crawler = AsyncWebCrawler(verbose=False)
+
 model = os.environ.get("PRIMARY_MODEL", "")
 if not model:
     raise ValueError("PRIMARY_MODEL not set, please set it in environment variables or edit core/.env")
 secondary_model = os.environ.get("SECONDARY_MODEL", model)
 
-async def save_to_pb(url: str, url_title: str, infos: list):
-    # saving to pb process
+async def info_process(url: str, 
+                       url_title: str, 
+                       author: str, 
+                       publish_date: str, 
+                       contents: list[str], 
+                       link_dict: dict, 
+                       focus_id: str,
+                       get_info_prompts: list[str]):
+
+    infos = await get_info(contents, link_dict, get_info_prompts, author, publish_date, _logger=wiseflow_logger)
+    if infos:
+        wiseflow_logger.debug(f'get {len(infos)} infos, will save to pb')
+
     for info in infos:
         info['url'] = url
         info['url_title'] = url_title
+        info['tag'] = focus_id
         _ = pb.add(collection_name='infos', body=info)
         if not _:
             wiseflow_logger.error('add info failed, writing to cache_file')
@@ -41,29 +51,20 @@ async def save_to_pb(url: str, url_title: str, infos: list):
                 json.dump(info, f, ensure_ascii=False, indent=4)
 
 
-async def main_process(_sites: set | list):
-    # collect tags user set in pb database and determin the system prompt language based on tags
-    focus_data = pb.read(collection_name='focus_points', filter=f'activated=True')
-    if not focus_data:
-        wiseflow_logger.info('no activated tag found, will ask user to create one')
-        focus = input('It seems you have not set any focus point, WiseFlow need the specific focus point to guide the following info extract job.'
-                    'so please input one now. describe what info you care about shortly: ')
-        explanation = input('Please provide more explanation for the focus point (if not necessary, pls just press enter: ')
-        focus_data.append({"focuspoint": focus, "explanation": explanation,
-                            "id": pb.add('focus_points', {"focuspoint": focus, "explanation": explanation})})
-
-
-    focus_dict = {item["focuspoint"]: item["id"] for item in focus_data}
-    focus_statement = ''
-    for item in focus_data:
-        tag = item["focuspoint"]
-        expl = item["explanation"]
-        focus_statement = f"{focus_statement}//{tag}//\n"
-        if expl:
-            if is_chinese(expl):
-                focus_statement = f"{focus_statement}解释：{expl}\n"
-            else:
-                focus_statement = f"{focus_statement}Explanation: {expl}\n"
+async def main_process(focus: dict, sites: list):
+    wiseflow_logger.debug('new task initializing...')
+    focus_id = focus["id"]
+    focus_point = focus["focuspoint"]
+    explanation = focus["explanation"]
+    wiseflow_logger.debug(f'focus_id: {focus_id}, focus_point: {focus_point}, explanation: {explanation}, search_engine: {focus["search_engine"]}')
+    wiseflow_logger.debug(f'related sites: {sites}')
+    existing_urls = {url['url'] for url in pb.read(collection_name='infos', fields=['url'], filter=f"tag=='{focus_id}'")}
+    focus_statement = f"//{focus_point}//\n"
+    if explanation:
+        if is_chinese(explanation):
+            focus_statement = f"{focus_statement}解释：{explanation}\n"
+        else:
+            focus_statement = f"{focus_statement}Explanation: {explanation}\n"
 
     date_stamp = datetime.now().strftime('%Y-%m-%d')
     if is_chinese(focus_statement):
@@ -80,10 +81,55 @@ async def main_process(_sites: set | list):
         get_info_sys_prompt = get_info_system_en.replace('{focus_statement}', focus_statement)
         get_info_sys_prompt = f"today is {date_stamp}, {get_info_sys_prompt}"
         get_info_suffix_prompt = get_info_suffix_en
+    
+    get_link_prompts = [get_link_sys_prompt, get_link_suffix_prompt, secondary_model]
+    get_info_prompts = [get_info_sys_prompt, get_info_suffix_prompt, model]
+
+    working_list = set()
+    if focus['search_engine']:
+        query = focus_point if not explanation else f"{focus_point}({explanation})"
+        search_intent, search_content = await run_v4_async(query, _logger=wiseflow_logger)
+        _intent = search_content['search_intent'][0]['intent']
+        _keywords = search_content['search_intent'][0]['keywords']
+        wiseflow_logger.info(f'query: {query}\nsearch intent: {_intent}\nkeywords: {_keywords}')
+        search_results = search_content['search_result']
+        for result in search_results:
+            url = result['link']
+            if url in existing_urls:
+                continue
+            if '（发布时间' not in result['title']:
+                wiseflow_logger.debug(f'can not find publish time in the search result {url}, adding to working list')
+                working_list.add(url)
+                continue
+            title, publish_date = result['title'].split('（发布时间')
+            publish_date = publish_date.strip('）')
+            # 严格匹配YYYY-MM-DD格式
+            date_match = re.search(r'\d{4}-\d{2}-\d{2}', publish_date)
+            if date_match:
+                publish_date = date_match.group()
+                publish_date = extract_and_convert_dates(publish_date)
+            else:
+                wiseflow_logger.warning(f'can not find publish time in the search result {url}, adding to working list')
+                working_list.add(url)
+                continue
+            author = result['media']
+            texts = [result['content']]
+            await info_process(url, title, author, publish_date, texts, {}, focus_id, get_info_prompts)
 
     recognized_img_cache = {}
-    working_list = set()
-    working_list.update(_sites)
+    for site in sites:
+        if site['type'] and site['type'] == 'rss':
+            try:
+                feed = feedparser.parse(site['url'])
+            except Exception as e:
+                wiseflow_logger.warning(f"{site['url']} RSS feed is not valid: {e}")
+                continue
+            rss_urls = {entry.link for entry in feed.entries if entry.link}
+            wiseflow_logger.debug(f'get {len(rss_urls)} urls from rss source {site["url"]}')
+            working_list.update(rss_urls - existing_urls)
+        else:
+            working_list.add(site['url'])
+    
     await crawler.start()
     while working_list:
         url = working_list.pop()
@@ -146,11 +192,10 @@ async def main_process(_sites: set | list):
         link_dict, links_parts, contents, recognized_img_cache = await pre_process(raw_markdown, base_url, used_img, recognized_img_cache, existing_urls)
 
         if link_dict and links_parts:
-            prompts = [get_link_sys_prompt, get_link_suffix_prompt, secondary_model]
             links_texts = []
             for _parts in links_parts:
                 links_texts.extend(_parts.split('\n\n'))
-            more_url = await get_more_related_urls(links_texts, link_dict, prompts, _logger=wiseflow_logger)
+            more_url = await get_more_related_urls(links_texts, link_dict, get_link_prompts, _logger=wiseflow_logger)
             if more_url:
                 wiseflow_logger.debug(f'get {len(more_url)} more related urls, will add to working list')
                 working_list.update(more_url - existing_urls)
@@ -168,16 +213,7 @@ async def main_process(_sites: set | list):
             publish_date = extract_and_convert_dates(publish_date)
         else:
             publish_date = date_stamp
+        
+        await info_process(url, title, author, publish_date, contents, link_dict, focus_id, get_info_prompts)
 
-        prompts = [get_info_sys_prompt, get_info_suffix_prompt, model]
-        infos = await get_info(contents, link_dict, prompts, focus_dict, author, publish_date, _logger=wiseflow_logger)
-        if infos:
-            wiseflow_logger.debug(f'get {len(infos)} infos, will save to pb')
-            await save_to_pb(url, title, infos)
     await crawler.close()
-
-if __name__ == '__main__':
-
-    sites = pb.read('sites', filter='activated=True')
-    wiseflow_logger.info('execute all sites one time')
-    asyncio.run(main_process([site['url'] for site in sites]))
