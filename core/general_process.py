@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-import os
+
 from utils.pb_api import PbTalker
 from utils.general_utils import get_logger, extract_and_convert_dates, is_chinese
 from agents.get_info import *
 import json
-import asyncio
 from scrapers import *
 from utils.zhipu_search import run_v4_async
 from urllib.parse import urlparse
 from crawl4ai import AsyncWebCrawler, CacheMode
-from datetime import datetime, timedelta
+from datetime import datetime
 import feedparser
 
 
@@ -54,17 +53,16 @@ async def info_process(url: str,
 async def main_process(focus: dict, sites: list):
     wiseflow_logger.debug('new task initializing...')
     focus_id = focus["id"]
-    focus_point = focus["focuspoint"]
-    explanation = focus["explanation"]
+    focus_point = focus["focuspoint"].strip()
+    explanation = focus["explanation"].strip()
     wiseflow_logger.debug(f'focus_id: {focus_id}, focus_point: {focus_point}, explanation: {explanation}, search_engine: {focus["search_engine"]}')
-    wiseflow_logger.debug(f'related sites: {sites}')
-    existing_urls = {url['url'] for url in pb.read(collection_name='infos', fields=['url'], filter=f"tag=='{focus_id}'")}
-    focus_statement = f"//{focus_point}//\n"
+    existing_urls = {url['url'] for url in pb.read(collection_name='infos', fields=['url'], filter=f"tag='{focus_id}'")}
+    focus_statement = f"//{focus_point}//"
     if explanation:
         if is_chinese(explanation):
-            focus_statement = f"{focus_statement}解释：{explanation}\n"
+            focus_statement = f"{focus_statement}\n解释：{explanation}"
         else:
-            focus_statement = f"{focus_statement}Explanation: {explanation}\n"
+            focus_statement = f"{focus_statement}\nExplanation: {explanation}"
 
     date_stamp = datetime.now().strftime('%Y-%m-%d')
     if is_chinese(focus_statement):
@@ -86,11 +84,11 @@ async def main_process(focus: dict, sites: list):
     get_info_prompts = [get_info_sys_prompt, get_info_suffix_prompt, model]
 
     working_list = set()
-    if focus['search_engine']:
+    if focus.get('search_engine', False):
         query = focus_point if not explanation else f"{focus_point}({explanation})"
         search_intent, search_content = await run_v4_async(query, _logger=wiseflow_logger)
-        _intent = search_content['search_intent'][0]['intent']
-        _keywords = search_content['search_intent'][0]['keywords']
+        _intent = search_intent['search_intent'][0]['intent']
+        _keywords = search_intent['search_intent'][0]['keywords']
         wiseflow_logger.info(f'query: {query}\nsearch intent: {_intent}\nkeywords: {_keywords}')
         search_results = search_content['search_result']
         for result in search_results:
@@ -102,6 +100,7 @@ async def main_process(focus: dict, sites: list):
                 working_list.add(url)
                 continue
             title, publish_date = result['title'].split('（发布时间')
+            title = title.strip() + '(from search engine)'
             publish_date = publish_date.strip('）')
             # 严格匹配YYYY-MM-DD格式
             date_match = re.search(r'\d{4}-\d{2}-\d{2}', publish_date)
@@ -118,7 +117,7 @@ async def main_process(focus: dict, sites: list):
 
     recognized_img_cache = {}
     for site in sites:
-        if site['type'] and site['type'] == 'rss':
+        if site.get('type', 'web') == 'rss':
             try:
                 feed = feedparser.parse(site['url'])
             except Exception as e:
@@ -150,7 +149,7 @@ async def main_process(focus: dict, sites: list):
         else:
             run_config = crawler_config
             
-        run_config.cache_mode = CacheMode.WRITE_ONLY if url in _sites else CacheMode.ENABLED
+        run_config.cache_mode = CacheMode.WRITE_ONLY if url in sites else CacheMode.ENABLED
         result = await crawler.arun(url=url, config=run_config)
         if not result.success:
             wiseflow_logger.warning(f'{url} failed to crawl, destination web cannot reach, skip')

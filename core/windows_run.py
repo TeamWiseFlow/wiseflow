@@ -4,7 +4,7 @@ import subprocess
 import socket
 import psutil
 from pathlib import Path
-from dotenv import load_dotenv
+
 
 #檢查指定端口是否被使用
 def is_port_in_use(port):

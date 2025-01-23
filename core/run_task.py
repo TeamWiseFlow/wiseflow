@@ -5,18 +5,18 @@ env_path = Path(__file__).parent / '.env'
 if env_path.exists():
     load_dotenv(env_path)
 
+import logging
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
 import asyncio
 from general_process import main_process, wiseflow_logger, pb
-import logging
-
-logging.getLogger("httpx").setLevel(logging.WARNING)
 
 counter = 0
 
 async def schedule_task():
     global counter
     while True:
-        wiseflow_logger.info(f'task execute loop {counter}')
+        wiseflow_logger.info(f'task execute loop {counter + 1}')
         tasks = pb.read('focus_points', filter='activated=True')
         sites_record = pb.read('sites')
         jobs = []

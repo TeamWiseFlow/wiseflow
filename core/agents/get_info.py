@@ -315,12 +315,12 @@ async def get_info(texts: list[str], link_dict: dict, prompts: list[str], author
         if test_mode:
             print(f"llm output:\n {res}")
         res = res.strip().lstrip('摘要').lstrip(':').lstrip('：')
-        if not content or content == 'NA':
+        if not res or res == 'NA':
             continue
         """
         maybe can use embedding retrieval to judge
         """
-        url_tags = re.findall(r'\[\d+\]', res)
+        url_tags = re.findall(r'\[\d+]', res)
         refences = {}
         for _tag in url_tags:
             if _tag in link_dict:

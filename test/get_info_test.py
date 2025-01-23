@@ -11,8 +11,6 @@ sys.path.append(core_path)
 
 # 现在可以直接导入模块，因为core目录已经在Python路径中
 from scrapers import *
-from agents.get_info import pre_process
-
 from utils.general_utils import is_chinese
 from agents.get_info import get_author_and_publish_date, get_info, get_more_related_urls
 from agents.get_info_prompts import *
