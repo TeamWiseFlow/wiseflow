@@ -27,7 +27,8 @@ class PbTalker:
                 else:
                     raise Exception("pocketbase auth failed")
 
-    def read(self, collection_name: str, fields: Optional[List[str]] = None, filter: str = '', skiptotal: bool = True) -> list:
+    def read(self, collection_name: str, fields: Optional[List[str]] = None,
+                expand: Optional[List[str]] = None, filter: str = '', skiptotal: bool = True) -> list:
         results = []
         i = 1
         while True:
@@ -35,6 +36,7 @@ class PbTalker:
                 res = self.client.collection(collection_name).get_list(i, 500,
                                                                        {"filter": filter,
                                                                         "fields": ','.join(fields) if fields else '',
+                                                                        "expand": ','.join(expand) if expand else '',
                                                                         "skiptotal": skiptotal})
 
             except Exception as e:

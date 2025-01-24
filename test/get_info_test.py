@@ -11,13 +11,13 @@ sys.path.append(core_path)
 
 # 现在可以直接导入模块，因为core目录已经在Python路径中
 from scrapers import *
-from agents.get_info import pre_process
-
 from utils.general_utils import is_chinese
 from agents.get_info import get_author_and_publish_date, get_info, get_more_related_urls
 from agents.get_info_prompts import *
 
 benchmark_model = 'Qwen/Qwen2.5-72B-Instruct'
+# benchmark_model = 'deepseek-chat'
+# models = ['deepseek-reasoner']
 models = ['Qwen/Qwen2.5-7B-Instruct', 'Qwen/Qwen2.5-14B-Instruct',  'Qwen/Qwen2.5-32B-Instruct', 'deepseek-ai/DeepSeek-V2.5']
 
 async def main(sample: dict, include_ap: bool, prompts: list, focus_dict: dict, record_file: str):
@@ -46,7 +46,7 @@ async def main(sample: dict, include_ap: bool, prompts: list, focus_dict: dict, 
         print(f"get more related urls time: {get_more_url_time}")
 
         start_time = time.time()
-        infos = await get_info(contents, link_dict, [get_info_sys_prompt, get_info_suffix_prompt, model], focus_dict, author, publish_date, test_mode=True)
+        infos = await get_info(contents, link_dict, [get_info_sys_prompt, get_info_suffix_prompt, model], author, publish_date, test_mode=True)
         get_info_time = time.time() - start_time
         print(f"get info time: {get_info_time}")
 
@@ -60,7 +60,7 @@ async def main(sample: dict, include_ap: bool, prompts: list, focus_dict: dict, 
             diff = f'差异{total_diff}个(遗漏{missing_in_cache}个,多出{extra_in_cache}个)'
 
         related_urls_to_record = '\n'.join(more_url)
-        infos_to_record = [f"{fi['tag']}: {fi['content']}" for fi in infos]
+        infos_to_record = [fi['content'] for fi in infos]
         infos_to_record = '\n'.join(infos_to_record)
         with open(record_file, 'a') as f:
             f.write(f"model: {model}\n")

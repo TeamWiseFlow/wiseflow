@@ -9,7 +9,7 @@ set +o allexport
 pocketbase_pid=$!
 
 # 启动 Python 任务
-python tasks.py &
+python run_task.py &
 python_pid=$!
 
 # 启动 Uvicorn

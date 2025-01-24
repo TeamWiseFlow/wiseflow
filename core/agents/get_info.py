@@ -162,8 +162,8 @@ async def pre_process(raw_markdown: str, base_url: str, used_img: list[str],
         ratio = total_links / section_remain_len if section_remain_len != 0 else 1
         if ratio > 0.05:
             if test_mode:
-                print('this is a navigation section, will be removed')
-                print(ratio)
+                print('\033[31mthis is a navigation section, will be removed\033[0m')
+                print(ratio, '\n')
                 print(section_remain)
                 print('-' * 50)
             sections = sections[1:]
@@ -172,7 +172,7 @@ async def pre_process(raw_markdown: str, base_url: str, used_img: list[str],
         section_remain_len = len(section_remain)
         if section_remain_len < 198:
             if test_mode:
-                print('this is a footer section, will be removed')
+                print('\033[31mthis is a footer section, will be removed\n\033[0m')
                 print(section_remain_len)
                 print(section_remain)
                 print('-' * 50)
@@ -184,15 +184,15 @@ async def pre_process(raw_markdown: str, base_url: str, used_img: list[str],
         ratio, text = await check_url_text(section)
         if ratio < 70:
             if test_mode:
-                print('this is a links part')
-                print(ratio)
+                print('\033[32mthis is a links part\033[0m')
+                print(ratio, '\n')
                 print(text)
                 print('-' * 50)
             links_parts.append(text)
         else:
             if test_mode:
-                print('this is a content part')
-                print(ratio)
+                print('\033[34mthis is a content part\033[0m')
+                print(ratio, '\n')
                 print(text)
                 print('-' * 50)
             contents.append(text)
@@ -257,9 +257,10 @@ async def get_more_related_urls(texts: list[str], link_dict: dict, prompts: list
                     [{'role': 'system', 'content': sys_prompt}, {'role': 'user', 'content': content}],
                     model=model, temperature=0.1)
 
-            result = re.findall(r'\"\"\"(.*?)\"\"\"', result, re.DOTALL)
             if test_mode:
                 print(f"llm output:\n {result}")
+
+            result = re.findall(r'\"\"\"(.*?)\"\"\"', result, re.DOTALL)
             if result:
                 links = re.findall(r'\[\d+\]', result[-1])
                 for link in links:
@@ -284,7 +285,7 @@ async def get_more_related_urls(texts: list[str], link_dict: dict, prompts: list
     return more_urls
     
 
-async def get_info(texts: list[str], link_dict: dict, prompts: list[str], focus_dict: dict, author: str, publish_date: str,
+async def get_info(texts: list[str], link_dict: dict, prompts: list[str], author: str, publish_date: str,
                    test_mode: bool = False, _logger: logger = None) -> list[dict]:
 
     sys_prompt, suffix, model = prompts
@@ -294,7 +295,6 @@ async def get_info(texts: list[str], link_dict: dict, prompts: list[str], focus_
     else:
         info_pre_fix = f"//{author} {publish_date}//"
 
-    cache = set()
     batches = []
     text_batch = ''
     while texts:
@@ -310,38 +310,27 @@ async def get_info(texts: list[str], link_dict: dict, prompts: list[str], focus_
         for content in batches]
     results = await asyncio.gather(*tasks)
 
+    final = []
     for res in results:
         if test_mode:
             print(f"llm output:\n {res}")
-        extracted_result = re.findall(r'\"\"\"(.*?)\"\"\"', res, re.DOTALL)
-        if extracted_result:
-            cache.add(extracted_result[-1])
-
-    final = []
-    for item in cache:
-        segs = item.split('//')
-        i = 0
-        while i < len(segs) - 1:
-            focus = segs[i].strip()
-            if not focus:
-                i += 1
-                continue
-            if focus not in focus_dict:
+        res = res.strip().lstrip('摘要').lstrip(':').lstrip('：')
+        if not res or res == 'NA':
+            continue
+        """
+        maybe can use embedding retrieval to judge
+        """
+        url_tags = re.findall(r'\[\d+]', res)
+        refences = {}
+        for _tag in url_tags:
+            if _tag in link_dict:
+                refences[_tag] = link_dict[_tag]
+            else:
                 if _logger:
-                    _logger.info(f"llm hallucination: {item}")
+                    _logger.warning(f"model hallucination: {res} \ncontains {_tag} which is not in link_dict")
                 if test_mode:
-                    print(f"llm hallucination: {item}")
-                i += 1
-                continue
-            content = segs[i+1].strip().strip('摘要').strip(':').strip('：')
-            i += 2
-            if not content or content == 'NA':
-                continue
-            """
-            maybe can use embedding retrieval to judge
-            """
-            url_tags = re.findall(r'\[\d+\]', content)
-            refences = {url_tag: link_dict[url_tag] for url_tag in url_tags if url_tag in link_dict}
-            final.append({'tag': focus_dict[focus], 'content': f"{info_pre_fix}{content}", 'references': refences})
+                    print(f"model hallucination: {res} \ncontains {_tag} which is not in link_dict")
+                res = res.replace(_tag, '')
+        final.append({'content': f"{info_pre_fix}{res}", 'references': refences})
     
     return final
