@@ -243,7 +243,11 @@ def mp_scraper(fetch_result: CrawlResult | dict) -> ScraperResultData:
                 title = 'maybe a new_type_article'
             # 提取与包含 <h1> 元素的 div 块平级的紧挨着的下一个 div 块作为 content
             content_div = h1_div.find_next_sibling('div')
-            content = title + '\n\n' + process_content(content_div)
+            if not content_div:
+                title = 'maybe a new_type_article'
+                content = raw_markdown
+            else:
+                content = title + '\n\n' + process_content(content_div)
         else:
             author = None
             publish_date = None

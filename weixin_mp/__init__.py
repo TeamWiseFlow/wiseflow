@@ -7,25 +7,33 @@ import os, sys
 
 core_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'core')
 sys.path.append(core_path)
+env_path = os.path.join(core_path, '.env')
 
-from general_process import main_process, wiseflow_logger
+from dotenv import load_dotenv
+if os.path.exists(env_path):
+    print(f"loading env from {env_path}")
+    load_dotenv(env_path)
+
+import logging
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
+from general_process import main_process, wiseflow_logger, pb
 from typing import Optional
 import logging
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
-# 千万注意扫码登录时不要选择“同步历史消息”，否则会造成 bot 上来挨个回复历史消息
+# 千万注意扫码登录时不要选择"同步历史消息"，否则会造成 bot 上来挨个回复历史消息
 # 先检查下 wx 的登录状态，同时获取已登录微信的 wxid
+
 WX_BOT_ENDPOINT = os.environ.get('WX_BOT_ENDPOINT', '127.0.0.1:8066')
 wx_url = f"http://{WX_BOT_ENDPOINT}/api/"
 try:
     # 发送GET请求
     response = httpx.get(f"{wx_url}checklogin")
     response.raise_for_status()  # 检查HTTP响应状态码是否为200
-
     # 解析JSON响应
     data = response.json()
-
     # 检查status字段
     if data['data']['status'] == 1:
         # 记录wxid
@@ -51,16 +59,27 @@ wiseflow_logger.info(f"self_nickname: {self_nickname}")
 # 注意这里要写公众号的原始id，即 gh_ 开头的id, 可以通过历史 logger 获取
 config_file = 'config.json'
 if not os.path.exists(config_file):
-    config = None
+    wiseflow_logger.error("config.json not found, please create it in the same folder as this script")
+    raise ValueError(f"config.json not found, please create it in the same folder as this script")
 else:
     with open(config_file, 'r', encoding='utf-8') as f:
         config = json.load(f)
-
+    focus_points = pb.read('focus_points', fields=['id', 'focuspoint', 'explanation'])
+    _dict = {point['id']: point for point in focus_points}
+    focus_dict = {}
+    defaut_focus = None
+    for key, value in config.items():
+        if "__all__" in value:
+            defaut_focus = _dict[key]
+        else:
+            for nickname in value:
+                focus_dict[nickname] = _dict[key]
 
 #如下 pattern 仅适用于public msg的解析，群内分享的公号文章不在此列
 # The XML parsing scheme is not used because there are abnormal characters in the XML code extracted from the weixin public_msg
 item_pattern = re.compile(r'<item>(.*?)</item>', re.DOTALL)
 url_pattern = re.compile(r'<url><!\[CDATA\[(.*?)]]></url>')
+appname_pattern = re.compile(r'<appname><!\[CDATA\[(.*?)]]></appname>')
 
 async def get_public_msg(websocket_uri):
     reconnect_attempts = 0
@@ -71,16 +90,23 @@ async def get_public_msg(websocket_uri):
                 while True:
                     response = await websocket.recv()
                     datas = json.loads(response)
-                    todo_urls = set()
                     for data in datas["data"]:
-                        if "StrTalker" not in data or "Content" not in data:
+                        if "Content" not in data:
                             wiseflow_logger.warning(f"invalid data:\n{data}")
                             continue
-                        user_id = data["StrTalker"]
-
+                        # user_id = data["StrTalker"]
+                        appname_match = appname_pattern.search(data["Content"])
+                        appname = appname_match.group(1).strip() if appname_match else None
+                        if not appname:
+                            wiseflow_logger.warning(f"can not find appname in \n{data['Content']}")
+                            continue
+                        focus = focus_dict.get(appname, defaut_focus)
+                        if not focus:
+                            wiseflow_logger.debug(f"{appname} related to no focus and there is no default focus")
+                            continue
+                        sites = []
                         items = item_pattern.findall(data["Content"])
                         # Iterate through all < item > content, extracting < url > and < summary >
-                        
                         for item in items:
                             url_match = url_pattern.search(item)
                             url = url_match.group(1) if url_match else None
@@ -94,9 +120,10 @@ async def get_public_msg(websocket_uri):
                                 url = url[:cut_off_point - 1]
                             # summary_match = summary_pattern.search(item)
                             # addition = summary_match.group(1) if summary_match else None
-                            todo_urls.add(url)
-                    if todo_urls:
-                        await main_process(todo_urls)                        
+                            sites.append({'url': url, 'type': 'web'})
+                        if sites:
+                            # 不等待任务完成，直接创建任务
+                            asyncio.create_task(main_process(focus, sites))
         except websockets.exceptions.ConnectionClosedError as e:
             wiseflow_logger.error(f"Connection closed with exception: {e}")
             reconnect_attempts += 1

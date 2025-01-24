@@ -1,9 +1,4 @@
 #!/bin/bash
-
-set -o allexport
-source .env
-set +o allexport
-
 if ! pgrep -x "pocketbase" > /dev/null; then
     if ! netstat -tuln | grep ":8090" > /dev/null && ! lsof -i :8090 > /dev/null; then
         echo "Starting PocketBase..."
@@ -15,4 +10,4 @@ else
     echo "PocketBase is already running."
 fi
 
-python general_process.py
+python run_task.py
