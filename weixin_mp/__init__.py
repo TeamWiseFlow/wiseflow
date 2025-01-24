@@ -19,9 +19,7 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 from general_process import main_process, wiseflow_logger, pb
 from typing import Optional
-import logging
 
-logging.getLogger("httpx").setLevel(logging.WARNING)
 
 # 千万注意扫码登录时不要选择"同步历史消息"，否则会造成 bot 上来挨个回复历史消息
 # 先检查下 wx 的登录状态，同时获取已登录微信的 wxid

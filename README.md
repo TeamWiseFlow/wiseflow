@@ -89,10 +89,6 @@ wiseflow 0.3.x版本使用 pocketbase 作为数据库，你当然也可以手动
 
 🌟 **这里与之前版本不同**，V0.3.5开始需要把 .env 放置在 [core](./core) 文件夹中。
 
-**windows 用户可以参考 core文件夹下的 windows.env windows_run.py 文件，执行 windows_run.py 脚本**
-
-感谢 @c469591 贡献的 windows 下原生启动脚本
-
 #### 3.1 大模型相关配置
 
 wiseflow 是 LLM 原生应用，请务必保证为程序提供稳定的 LLM 服务。
