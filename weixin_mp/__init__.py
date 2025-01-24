@@ -79,7 +79,7 @@ else:
 # The XML parsing scheme is not used because there are abnormal characters in the XML code extracted from the weixin public_msg
 item_pattern = re.compile(r'<item>(.*?)</item>', re.DOTALL)
 url_pattern = re.compile(r'<url><!\[CDATA\[(.*?)]]></url>')
-nickname_pattern = re.compile(r'<nickname><!\[CDATA\[(.*?)]]></nickname>')
+appname_pattern = re.compile(r'<appname><!\[CDATA\[(.*?)]]></appname>')
 
 async def get_public_msg(websocket_uri):
     reconnect_attempts = 0
@@ -96,14 +96,14 @@ async def get_public_msg(websocket_uri):
                             wiseflow_logger.warning(f"invalid data:\n{data}")
                             continue
                         # user_id = data["StrTalker"]
-                        nickname_match = nickname_pattern.search(data["Content"])
-                        nickname = nickname_match.group(1).strip() if nickname_match else None
-                        if not nickname:
-                            wiseflow_logger.warning(f"can not find nickname in \n{data['Content']}")
+                        appname_match = appname_pattern.search(data["Content"])
+                        appname = appname_match.group(1).strip() if appname_match else None
+                        if not appname:
+                            wiseflow_logger.warning(f"can not find appname in \n{data['Content']}")
                             continue
-                        focus = focus_dict.get(nickname, defaut_focus)
+                        focus = focus_dict.get(appname, defaut_focus)
                         if not focus:
-                            wiseflow_logger.debug(f"{nickname} related to no focus and not default focus")
+                            wiseflow_logger.debug(f"{appname} related to no focus and there is no default focus")
                             continue
                         sites = []
                         items = item_pattern.findall(data["Content"])

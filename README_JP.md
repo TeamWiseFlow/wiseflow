@@ -1,8 +1,8 @@
-# 首席情報官（Wiseflow）
+# AIチーフインテリジェンスオフィサー（Wiseflow）
 
 **[English](README_EN.md) | [简体中文](README.md) | [한국어](README_KR.md)**
 
-🚀 **AI情報官**（Wiseflow）は、大規模言語モデルの思考・分析能力を活用して、様々な情報源から特定の情報を正確に抽出できる俊敏な情報マイニングツールです。プロセス全体で人間の介入を必要としません。
+🚀 **AIチーフインテリジェンスオフィサー**（Wiseflow）は、大規模言語モデルの思考・分析能力を活用して、様々な情報源から特定の情報を正確に抽出できる俊敏な情報マイニングツールです。プロセス全体で人間の介入を必要としません。
 
 **私たちが欠けているのは情報ではなく、大量の情報からノイズをフィルタリングし、価値ある情報を明らかにすることです**
 
@@ -10,25 +10,30 @@
 
 https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
-## 🔥 V0.3.7 がリリースされました
+## 🔥 V0.3.8 正式リリース
 
-今回のアップグレードでは、WeChat公式アカウントを情報源として追加できるwxbotの統合ソリューションを提供しました。詳細は[weixin_mp/README.md](./weixin_mp/README.md)をご覧ください。
+- V0.3.8バージョンではRSSと検索エンジンのサポートを導入し、現在wiseflowは_ウェブサイト_、_RSS_、_検索エンジン_、_WeChat公式アカウント_の4種類の情報源をサポートしています！
 
-また、WeChat公式アカウントの記事専用の抽出ツールを提供し、ユーザーが実際のニーズに応じてカスタマイズできるカスタム抽出インターフェースも設計しました。
+- 製品戦略を変更し、関心点ごとに情報源を指定できるようになりました。これにより、同じモデルでも情報抽出の精度をさらに向上させることが実証されています。
 
-今回のアップグレードでは、情報抽出機能もさらに強化されました。ページ内のリンク分析を大幅に最適化しただけでなく、7b、14bクラスのモデルでも複雑な注目点（explanationに時間や指標の制限などを含む）に基づく抽出を適切に実行できるようになりました。
+- エントリープログラムを最適化し、MacOS/LinuxとWindowsユーザーそれぞれに単一の起動スクリプトを提供し、使いやすさを向上させました。
 
-さらに、今回のアップグレードではCrawl4ai 0.4.247バージョンに対応し、多くのプログラム改善を行いました。詳細は[CHANGELOG.md](./CHANGELOG.md)をご覧ください。
+今回のアップグレードの詳細については、[CHANGELOG.md](./CHANGELOG.md)をご覧ください。
 
-この段階で以下のコミュニティ貢献者のPRに感謝いたします：
+**V0.3.8バージョンの検索エンジンは、智譜bigmodelオープンプラットフォームのサービスを使用しています。.envファイルにZHIPU_API_KEYを追加する必要があります**
 
-  - @ourines がinstall_pocketbase.shスクリプトを提供（dockerでの実行方法は一時的に削除されました。使いにくいと感じられたため...）
-  - @ibaoger がWindows用のpocketbaseインストールスクリプトを提供
-  - @tusik が非同期llmラッパーを提供
+**V0.3.8バージョンではpocketbaseのフォーム構造を調整しました。既存のユーザーは一度./pocketbase migrateを実行してください （pbフォルダ内）**
 
-**V0.3.7バージョンでSECONDARY_MODELを再導入しました。これは主に使用コストを削減するためです**
+V0.3.8は安定版です。当初計画されていたV0.3.9は、コミュニティからのフィードバックをさらに蓄積してアップグレードの方向性を決定する必要があるため、リリースまでに時間がかかります。
+
+以下のコミュニティメンバーに、V0.3.5～V0.3.8バージョンでのPRに感謝します：
+
+  - @ourines install_pocketbase.sh自動インストールスクリプトの提供
+  - @ibaoger Windows用pocketbase自動インストールスクリプトの提供
+  - @tusik 非同期llm wrapperの提供とAsyncWebCrawlerのライフサイクル問題の発見
+  - @c469591 Windows版起動スクリプトの提供
   
-### V0.3.7 テストレポート
+### 🌟 テストレポート
 
 最新の抽出戦略では、7bクラスのモデルでもリンク分析と抽出タスクを適切に実行できることがわかりました。テスト結果は[report](./test/reports/wiseflow_report_v037_bigbrother666/README.md)をご参照ください。
 
@@ -37,13 +42,6 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 引き続き、より多くのテスト結果の提出を歓迎し、様々な情報源でのwiseflowの最適な使用方法を共に探求していきましょう。
 
 現段階では、**テスト結果の提出はプロジェクトコードの提出と同等**とみなされ、contributorとして受け入れられ、商業化プロジェクトへの参加招待も受けられます！詳細は[test/README.md](./test/README.md)をご参照ください。
-
-
-🌟**V0.3.x プラン**
-
-- ~~WeChat公式アカウントのwxbotなしでの購読をサポートする（V0.3.7）；done~~
-- RSS情報源と検索エンジンのサポートを導入する（V0.3.8）;
-- 部分的なソーシャルプラットフォームのサポートを試みる（V0.3.9）。
 
 
 ## ✋ wiseflow と従来のクローラーツール、AI検索、知識ベース（RAG）プロジェクトの違いは何ですか？
@@ -91,10 +89,6 @@ Wiseflow 0.3.xはデータベースとしてpocketbaseを使用しています�
 
 🌟 **これは以前のバージョンとは異なります** - V0.3.5以降、.envファイルは[core](./core)フォルダに配置する必要があります。
 
-**Windowsユーザーはcoreフォルダ内のwindows.envとwindows_run.pyファイルを参照し、windows_run.pyスクリプトを実行してください**
-
-@c469591によるWindows用ネイティブ起動スクリプトの貢献に感謝いたします
-
 #### 3.1 大規模言語モデルの設定
 
 Wiseflowは LLMネイティブアプリケーションですので、プログラムに安定したLLMサービスを提供するようにしてください。
@@ -105,12 +99,12 @@ Wiseflowは LLMネイティブアプリケーションですので、プログ�
 
 Siliconflowは、主流のオープンソースモデルのほとんどにオンラインMaaSサービスを提供しています。蓄積された推論加速技術により、そのサービスは速度と価格の両面で大きな利点があります。siliconflowのサービスを使用する場合、.envの設定は以下を参考にしてください：
 
-```bash
-export LLM_API_KEY=Your_API_KEY
-export LLM_API_BASE="https://api.siliconflow.cn/v1"
-export PRIMARY_MODEL="Qwen/Qwen2.5-32B-Instruct"
-export SECONDARY_MODEL="Qwen/Qwen2.5-7B-Instruct"
-export VL_MODEL="OpenGVLab/InternVL2-26B"
+```
+LLM_API_KEY=Your_API_KEY
+LLM_API_BASE="https://api.siliconflow.cn/v1"
+PRIMARY_MODEL="Qwen/Qwen2.5-32B-Instruct"
+SECONDARY_MODEL="Qwen/Qwen2.5-14B-Instruct"
+VL_MODEL="OpenGVLab/InternVL2-26B"
 ```
       
 😄 よろしければ、私の[siliconflow紹介リンク](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92)をご利用ください。これにより、私もより多くのトークン報酬を獲得できます 🌹
@@ -121,12 +115,12 @@ export VL_MODEL="OpenGVLab/InternVL2-26B"
 
 AiHubMixモデルを使用する場合、.envの設定は以下を参考にしてください：
 
-```bash
-export LLM_API_KEY=Your_API_KEY
-export LLM_API_BASE="https://aihubmix.com/v1" # referhttps://doc.aihubmix.com/
-export PRIMARY_MODEL="gpt-4o"
-export SECONDARY_MODEL="gpt-4o-mini"
-export VL_MODEL="gpt-4o"
+```
+LLM_API_KEY=Your_API_KEY
+LLM_API_BASE="https://aihubmix.com/v1" # referhttps://doc.aihubmix.com/
+PRIMARY_MODEL="gpt-4o"
+SECONDARY_MODEL="gpt-4o-mini"
+VL_MODEL="gpt-4o"
 ```
 😄 [AiHubMixの紹介リンク](https://aihubmix.com?aff=Gp54)からご登録いただけますと幸いです 🌹
 
@@ -134,22 +128,30 @@ export VL_MODEL="gpt-4o"
 
 Xinferenceを例にすると、.envの設定は以下を参考にできます：
 
-```bash
+```
 # LLM_API_KEY='' no need for local service, please comment out or delete
-export LLM_API_BASE='http://127.0.0.1:9997'
-export PRIMARY_MODEL=launched_model_id
-export VL_MODEL=launched_model_id
+LLM_API_BASE='http://127.0.0.1:9997'
+PRIMARY_MODEL=launched_model_id
+VL_MODEL=launched_model_id
 ```
 
 #### 3.2 Pocketbaseのアカウントとパスワードの設定
 
-```bash
-export PB_API_AUTH="test@example.com|1234567890" 
+```
+PB_API_AUTH="test@example.com|1234567890" 
 ```
 
 これはpocketbaseデータベースのスーパーユーザー名とパスワードを設定する場所です。|で区切ることを忘れないでください（install_pocketbase.shスクリプトが正常に実行された場合、これは既に存在しているはずです）
 
-#### 3.3 その他のオプション設定
+#### 3.3 智谱（bigmodel）プラットフォームキーの設定（検索エンジンサービスに使用）
+
+```
+ZHIPU_API_KEY=Your_API_KEY
+```
+
+（申請先：https://bigmodel.cn/ 現在無料）
+
+#### 3.4 その他のオプション設定
 
 以下はすべてオプションの設定です：
 - #VERBOSE="true" 
@@ -167,8 +169,6 @@ export PB_API_AUTH="test@example.com|1234567890"
 - #LLM_CONCURRENT_NUMBER=8 
 
   llm の同時リクエスト数を制御するために使用されます。デフォルトは1です（llm provider が設定された同時性をサポートしていることを確認してください。ローカル大規模モデルはハードウェアベースに自分がない限り慎重に使用してください）
-  
-  @tusik に感謝します
 
 ### 4. プログラムの実行
 
@@ -187,40 +187,50 @@ conda activate wiseflow
 cd wiseflow
 cd core
 pip install -r requirements.txt
-chmod +x run.sh
-./run_task.sh # if you just want to scan sites one-time (no loop), use ./run.sh
 ```
 
-🌟 このスクリプトは、pocketbaseが既に実行されているかどうかを自動的に判断します。実行されていない場合は自動的に起動します。ただし、ctrl+cまたはctrl+zでプロセスを終了した場合、ターミナルを閉じるまでpocketbaseプロセスは終了しないことに注意してください。
+その後、MacOS&Linuxユーザーは実行します
 
-run_task.shは定期的にクローリング・抽出タスクを実行します（起動時に即座に実行され、その後1時間ごとに実行されます）。1回だけ実行する必要がある場合は、run.shスクリプトを使用できます。
+```bash
+chmod +x run.sh
+./run.sh
+```
 
+Windowsユーザーは実行します
 
-### 5. **関心事と定期的なスキャン情報源の追加**
+```bash
+python windows_run.py
+```
+
+- このスクリプトはpocketbaseが既に実行されているかどうかを自動的に判断し、実行されていない場合は自動で起動します。ただし、注意してください、ctrl+cまたはctrl+zでプロセスを終了させた場合、pocketbaseプロセスは終了しないため、terminalを閉じるまでです。
+
+- run.shはまず、activatedがtrueに設定されたすべての信源に対して一度のクロールタスクを実行し、その後、設定された頻率で時間単位で周期的に実行します。
+
+### 5. フォーカスポイントと情報源の追加
     
-プログラムを起動した後、pocketbase Admin dashboard UI (http://127.0.0.1:8090/_/) を開きます
+プログラムを起動した後、pocketbase Admin dashboard UI (http://127.0.0.1:8090/_/) を開いてください。
+
+#### 5.1 サイトフォームを開く
+
+このフォームを使用して情報源を構成できます。注意：情報源は次のステップの focus_point フォームで選択する必要があります。
+
+サイトフィールドの説明：
+- url, 情報源のurl。情報源には具体的な記事ページを指定する必要はありません。記事リストページを指定してください。
+- type, タイプ。web または rss。
     
-#### 5.1 focus_point フォームを開く
+#### 5.2 フォーカスポイントフォームを開く
 
-このフォームを使用して、あなたの関心事を指定できます。LLMはこれに基づいて情報を抽出、フィルタリング、分類します。
+このフォームを使用してあなたのフォーカスポイントを指定できます。LLMはこれに基づいて情報を抽出、フィルタリング、分類します。
     
-フィールド説明：
-- focuspoint, 関心事の説明（必須）、例えば「上海の小学校から中学校への情報」、「暗号通貨価格」
-- explanation，関心事の詳細な説明または具体的な約束、例えば「上海市公式発表の中学校進学情報のみ」、「BTC、ETHの現在価格、変動率データ」など
-- activated, 有効化するかどうか。無効にするとこの関心事は無視され、無効にした後再び有効にできます。
+フィールドの説明：
+- focuspoint, フォーカスポイントの説明（必須）。例：”新年セールの割引“、”入札通知“
+- explanation，フォーカスポイントの詳細な説明または具体的な約束。例：”xxシリーズの製品”、”2025年1月1日以降に発行され、100万円以上の“
+- activated, アクティブ化するかどうか。オフにすると、そのフォーカスポイントは無視されます。オフにした後、再度オンにできます。
+- per_hour, クロール頻度。単位は時間で、整数型（1~24の範囲）。クロール頻度を1日1回を超えないように設定することをお勧めします。つまり、24に設定します。
+- search_engine, クロール時に検索エンジンをオンにするかどうか
+- sites，対応する情報源を選択
 
-注意：focus_pointの更新設定（activatedの調整を含む）後、**プログラムを再起動する必要があります。**
-
-#### 5.2 sitesフォームを開く
-
-このフォームを使用して、カスタム情報源を指定できます。システムはバックグラウンドで定期的なタスクを開始し、ローカルで情報源のスキャン、解析、分析を実行します。
-
-sitesフィールド説明：
-- url, 情報源のurlで、情報源は具体的な記事ページを指定する必要はありません。記事リストページを指定するだけで十分です。
-- per_hours, スキャン頻度で、単位は時間、整数型（1~24の範囲、スキャン頻度は1日1回を超えないように、つまり24に設定することをお勧めします）
-- activated, 有効化するかどうか。無効にするとこの情報源は無視され、無効にした後再び有効にできます。
-
-**sitesの設定調整は、プログラムを再起動する必要はありません。**
+**注意：V0.3.8以降、設定の調整はプログラムを再起動する必要はありません。次回の実行時に自動的に適用されます。**
 
 
 ## 📚 あなた自身のプログラムでwiseflowがクロールしたデータをどのように使用するか
@@ -257,6 +267,7 @@ PocketBaseは人気のある軽量データベースで、現在Go/Javascript/Py
 - crawl4ai（Open-source LLM Friendly Web Crawler & Scraper） https://github.com/unclecode/crawl4ai
 - pocketbase (Open Source realtime backend in 1 file) https://github.com/pocketbase/pocketbase
 - python-pocketbase (pocketBase client SDK for python) https://github.com/vaphes/pocketbase
+- feedparser (Parse feeds in Python) https://github.com/kurtmckee/feedparser
 
 また、[GNE](https://github.com/GeneralNewsExtractor/GeneralNewsExtractor)、[AutoCrawler](https://github.com/kingname/AutoCrawler)、[SeeAct](https://github.com/OSU-NLP-Group/SeeAct)  からもインスピレーションを受けています。
 

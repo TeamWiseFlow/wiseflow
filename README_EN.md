@@ -1,8 +1,8 @@
-# Chief Intelligence Officer (Wiseflow)
+# AI Chief Intelligence Officer (Wiseflow)
 
 **[简体中文](README.md) | [日本語](README_JP.md) | [한국어](README_KR.md)**
 
-🚀 **AI Intelligence Officer** (Wiseflow) is an agile information mining tool that can precisely extract specific information from various given sources by leveraging the thinking and analytical capabilities of large models, requiring no human intervention throughout the process.
+🚀 **AI Chief Intelligence Officer** (Wiseflow) is an agile information mining tool that can precisely extract specific information from various given sources by leveraging the thinking and analytical capabilities of large models, requiring no human intervention throughout the process.
 
 **What we lack is not information, but the ability to filter out noise from massive information, thereby revealing valuable information.**
 
@@ -10,25 +10,30 @@
 
 https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
-## 🔥 V0.3.7 is Here
+## 🔥 V0.3.8 Officially Released
 
-This upgrade brings wxbot integration solution, making it convenient for everyone to add WeChat Official Accounts as information sources. For details, see [weixin_mp/README.md](./weixin_mp/README.md)
+- Version V0.3.8 introduces support for RSS and search engines. Now wiseflow supports four types of information sources: _websites_, _rss_, _search engines_, and _WeChat Official Accounts_!
 
-We have also provided extractors specifically designed for WeChat Official Account articles, while also designing custom extractor interfaces to allow users to customize according to their actual needs.
+- The product strategy has been changed to specify information sources based on focus points, meaning different focus points can be assigned to different information sources. Tests show this can further improve information extraction accuracy with the same model.
 
-This upgrade further strengthens information extraction capabilities, not only greatly optimizing the analysis of links within pages but also enabling models of 7b and 14b scale to better complete extractions based on complex focus points (such as those containing time and metric restrictions in explanations).
+- The entry program has been optimized, providing single startup scripts for both MacOS/Linux and Windows users for easier usage.
 
-Additionally, this upgrade adapts to Crawl4ai version 0.4.247 and makes many program improvements. For details, see [CHANGELOG.md](./CHANGELOG.md)
+For more details about this upgrade, please see [CHANGELOG.md](./CHANGELOG.md)
 
-Thanks to the following community contributors for their PRs during this phase:
+**V0.3.8 version uses the service provided by Zhipu bigmodel open platform for search engine functionality. You need to add ZHIPU_API_KEY in .env file**
 
-  - @ourines contributed the install_pocketbase.sh script (docker running solution has been temporarily removed as it wasn't very convenient for users...)
-  - @ibaoger contributed the pocketbase installation script for Windows
-  - @tusik contributed the asynchronous llm wrapper
+**V0.3.8 version has made adjustments to the PocketBase form structure. Existing users should execute ./pocketbase migrate once in the pb folder**
 
-**V0.3.7 version reintroduces SECONDARY_MODEL, mainly to reduce usage costs**
+V0.3.8 is a stable version. The originally planned V0.3.9 needs to accumulate more community feedback to determine the upgrade direction, so it will take longer to release.
+
+Thanks to the following community members for their PRs in versions V0.3.5~V0.3.8:
+
+  - @ourines contributed the install_pocketbase.sh automated installation script
+  - @ibaoger contributed the PocketBase automated installation script for Windows
+  - @tusik contributed the asynchronous llm wrapper and discovered the AsyncWebCrawler lifecycle issue
+  - @c469591 contributed the Windows version startup script
   
-### V0.3.7 Test Report
+### 🌟 Test Report
 
 Under the latest extraction strategy, we found that models of 7b scale can also perform link analysis and extraction tasks well. For test results, please refer to [report](./test/reports/wiseflow_report_v037_bigbrother666/README.md)
 
@@ -37,13 +42,6 @@ However, for information summarization tasks, we still recommend using models no
 We continue to welcome more test results to jointly explore the best usage solutions for wiseflow under various information sources.
 
 At this stage, **submitting test results is equivalent to submitting project code**, and will similarly be accepted as a contributor, and may even be invited to participate in commercialization projects! For details, please refer to [test/README.md](./test/README.md)
-
-
-🌟**V0.3.x Roadmap**
-
-- ~~Attempt to support WeChat Official Account subscription without wxbot (V0.3.7);Done~~
-- Introduce support for RSS feeds and search engines (V0.3.8);
-- Attempt partial support for social platforms (V0.3.9).
 
 
 ## ✋ How is wiseflow Different from Traditional Crawler Tools, AI Search, and Knowledge Base (RAG) Projects?
@@ -91,10 +89,6 @@ For details, please refer to [pb/README.md](/pb/README.md)
 
 🌟 **This is different from previous versions** - starting from V0.3.5, the .env file needs to be placed in the [core](./core) folder.
 
-**Windows users can refer to the windows.env and windows_run.py files in the core folder and execute the windows_run.py script**
-
-Thanks to @c469591 for contributing the native Windows startup script
-
 #### 3.1 Large Language Model Configuration
 
 Wiseflow is a LLM native application, so please ensure you provide stable LLM service for the program.
@@ -105,12 +99,12 @@ Wiseflow is a LLM native application, so please ensure you provide stable LLM se
 
 Siliconflow provides online MaaS services for most mainstream open-source models. With its accumulated acceleration inference technology, its service has great advantages in both speed and price. When using siliconflow's service, the .env configuration can refer to the following:
 
-```bash
-export LLM_API_KEY=Your_API_KEY
-export LLM_API_BASE="https://api.siliconflow.cn/v1"
-export PRIMARY_MODEL="Qwen/Qwen2.5-32B-Instruct"
-export SECONDARY_MODEL="Qwen/Qwen2.5-7B-Instruct"
-export VL_MODEL="OpenGVLab/InternVL2-26B"
+```
+LLM_API_KEY=Your_API_KEY
+LLM_API_BASE="https://api.siliconflow.cn/v1"
+PRIMARY_MODEL="Qwen/Qwen2.5-32B-Instruct"
+SECONDARY_MODEL="Qwen/Qwen2.5-14B-Instruct"
+VL_MODEL="OpenGVLab/InternVL2-26B"
 ```
       
 😄 If you'd like, you can use my [siliconflow referral link](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92), which will help me earn more token rewards 🌹
@@ -121,12 +115,12 @@ If your information sources are mostly non-Chinese pages and you don't require t
 
 When using AiHubMix models, the .env configuration can refer to the following:
 
-```bash
-export LLM_API_KEY=Your_API_KEY
-export LLM_API_BASE="https://aihubmix.com/v1" # refer to https://doc.aihubmix.com/
-export PRIMARY_MODEL="gpt-4o"
-export SECONDARY_MODEL="gpt-4o-mini"
-export VL_MODEL="gpt-4o"
+```
+LLM_API_KEY=Your_API_KEY
+LLM_API_BASE="https://aihubmix.com/v1" # refer to https://doc.aihubmix.com/
+PRIMARY_MODEL="gpt-4o"
+SECONDARY_MODEL="gpt-4o-mini"
+VL_MODEL="gpt-4o"
 ```
 
 😄 Welcome to register using the [AiHubMix referral link](https://aihubmix.com?aff=Gp54) 🌹
@@ -135,22 +129,31 @@ export VL_MODEL="gpt-4o"
 
 Taking Xinference as an example, the .env configuration can refer to the following:
 
-```bash
+```
 # LLM_API_KEY='' no need for local service, please comment out or delete
-export LLM_API_BASE='http://127.0.0.1:9997'
-export PRIMARY_MODEL=launched_model_id
-export VL_MODEL=launched_model_id
+LLM_API_BASE='http://127.0.0.1:9997'
+PRIMARY_MODEL=launched_model_id
+VL_MODEL=launched_model_id
 ```
 
 #### 3.2 Pocketbase Account and Password Configuration
 
-```bash
-export PB_API_AUTH="test@example.com|1234567890" 
+```
+PB_API_AUTH="test@example.com|1234567890" 
 ```
 
 This is where you set the superuser username and password for the pocketbase database, remember to separate them with | (if the install_pocketbase.sh script executed successfully, this should already exist)
 
-#### 3.3 Other Optional Configurations
+
+#### 3.3 Zhipu (bigmodel) Platform Key Configuration (for Search Engine Services)
+
+```
+ZHIPU_API_KEY=Your_API_KEY
+```
+
+(Application here: https://bigmodel.cn/  currently free)
+
+#### 3.4 Other Optional Configurations
 
 The following are all optional configurations:
 - #VERBOSE="true" 
@@ -168,8 +171,6 @@ The following are all optional configurations:
 - #LLM_CONCURRENT_NUMBER=8 
 
  Used to control the number of concurrent LLM requests. Default is 1 if not set (before enabling, please ensure your LLM provider supports the configured concurrency. Use local large models with caution unless you are confident in your hardware capabilities)
-  
-  Thanks to @tusik for contributing the asynchronous LLM wrapper
 
 ### 4. Running the Program
 
@@ -188,40 +189,50 @@ then
 cd wiseflow
 cd core
 pip install -r requirements.txt
-chmod +x run.sh
-./run_task.sh # if you just want to scan sites one-time (no loop), use ./run.sh
 ```
 
-🌟 This script will automatically determine if pocketbase is already running. If not, it will automatically start. However, please note that when you terminate the process with ctrl+c or ctrl+z, the pocketbase process will not be terminated until you close the terminal.
+Afterwards, MacOS&Linux users execute
 
-run_task.sh will periodically execute crawling-extraction tasks (it will execute immediately at startup, then every hour after that). If you only need to execute once, you can use the run.sh script.
+```bash
+chmod +x run.sh
+./run.sh
+```
 
-### 5. **Adding Focus Points and Scheduled Scanning of Information Sources**
+Windows users execute
+
+```bash
+python windows_run.py
+```
+
+- This script will automatically determine if pocketbase is already running, and if not, it will automatically start it. However, please note that when you terminate the process with ctrl+c or ctrl+z, the pocketbase process will not be terminated until you close the terminal.
+
+- run.sh will first execute a crawling task for all sources that have been activated (set to true), and then execute periodically at the set frequency in hours.
+
+### 5. Focus Points and Source Addition
     
 After starting the program, open the pocketbase Admin dashboard UI (http://127.0.0.1:8090/_/)
+
+#### 5.1 Opening the Sites Form
+
+This form allows you to configure sources, noting that sources must be selected in the subsequent focus_point form.
+
+Sites field explanations:
+- url, the URL of the source, the source does not need to provide specific article pages, just the article list pages.
+- type, the type, either web or rss.
     
-#### 5.1 Open the focus_point Form
+#### 5.2 Opening the Focus Point Form
 
-Through this form, you can specify your focus points, and LLM will refine, filter, and categorize information accordingly.
+This form allows you to specify your focus points, and LLM will refine, filter, and categorize information based on this.
     
-Field description:
-- focuspoint, focus point description (required), such as "Shanghai elementary to junior high school information," "cryptocurrency prices"
-- explanation, detailed explanation or specific conventions of the focus point, such as "Only official junior high school admission information released by Shanghai" or "Current price, price change data of BTC, ETH"
-- activated, whether to activate. If closed, this focus point will be ignored, and it can be re-enabled later.
+Field explanations:
+- focuspoint, focus point description (required), such as "Christmas holiday discount information" or "bid announcement"
+- explanation, detailed explanation or specific convention of the focus point, such as "xx series products" or "published after January 1, 2025, and with an amount over 10 million" etc.
+- activated, whether to activate. If closed, this focus point will be ignored, and can be reopened after closing.
+- per_hour, crawl frequency, in hours, integer type (1-24 range, we recommend not to exceed once a day, i.e., set to 24)
+- search_engine, whether to enable the search engine for each crawl
+- sites, select the corresponding source
 
-Note: After updating the focus_point settings (including activated adjustments), **the program needs to be restarted for the changes to take effect.**
-
-#### 5.2 Open the sites Form
-
-Through this form, you can specify custom information sources. The system will start background scheduled tasks to scan, parse, and analyze the information sources locally.
-
-sites field description:
-- url, the URL of the information source. The information source does not need to be given a specific article page, just the article list page.
-- per_hours, scanning frequency, in hours, integer type (1~24 range, we recommend not exceeding once a day, i.e., set to 24)
-- activated, whether to activate. If closed, this information source will be ignored, and it can be re-enabled later.
-
-**Adjustments to sites settings do not require restarting the program.**
-
+**Note: After version V0.3.8, adjustments to configurations do not require restarting the program, and will automatically take effect at the next execution.**
 
 ## 📚 How to Use the Data Crawled by wiseflow in Your Own Program
 
@@ -257,6 +268,7 @@ If you have any questions or suggestions, please feel free to leave a message vi
 - crawl4ai（Open-source LLM Friendly Web Crawler & Scraper） https://github.com/unclecode/crawl4ai
 - pocketbase (Open Source realtime backend in 1 file) https://github.com/pocketbase/pocketbase
 - python-pocketbase (pocketBase client SDK for python) https://github.com/vaphes/pocketbase
+- feedparser (Parse feeds in Python) https://github.com/kurtmckee/feedparser
 
 Also inspired by [GNE](https://github.com/GeneralNewsExtractor/GeneralNewsExtractor)  [AutoCrawler](https://github.com/kingname/AutoCrawler)  [SeeAct](https://github.com/OSU-NLP-Group/SeeAct) .
 

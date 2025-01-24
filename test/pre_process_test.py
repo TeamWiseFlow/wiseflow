@@ -70,6 +70,9 @@ async def main(html_sample, record_file):
         raw_markdown = result.content
         used_img = result.images
         title = result.title
+        if title == 'maybe a new_type_article':
+            print(f'\033[31mwe found a new type here, {record_file}\033[0m')
+            return
         base_url = result.base
         author = result.author
         publish_date = result.publish_date

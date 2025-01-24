@@ -161,6 +161,8 @@ async def main_process(focus: dict, sites: list):
             raw_markdown = result.content
             used_img = result.images
             title = result.title
+            if title == 'maybe a new_type_article':
+                wiseflow_logger.warning(f'we found a new type here,{url}')
             base_url = result.base
             author = result.author
             publish_date = result.publish_date

@@ -162,7 +162,7 @@ async def pre_process(raw_markdown: str, base_url: str, used_img: list[str],
         ratio = total_links / section_remain_len if section_remain_len != 0 else 1
         if ratio > 0.05:
             if test_mode:
-                print('this is a navigation section, will be removed')
+                print('\033[31mthis is a navigation section, will be removed\033[0m')
                 print(ratio, '\n')
                 print(section_remain)
                 print('-' * 50)
@@ -172,7 +172,7 @@ async def pre_process(raw_markdown: str, base_url: str, used_img: list[str],
         section_remain_len = len(section_remain)
         if section_remain_len < 198:
             if test_mode:
-                print('this is a footer section, will be removed\n')
+                print('\033[31mthis is a footer section, will be removed\n\033[0m')
                 print(section_remain_len)
                 print(section_remain)
                 print('-' * 50)
@@ -184,14 +184,14 @@ async def pre_process(raw_markdown: str, base_url: str, used_img: list[str],
         ratio, text = await check_url_text(section)
         if ratio < 70:
             if test_mode:
-                print('this is a links part')
+                print('\033[32mthis is a links part\033[0m')
                 print(ratio, '\n')
                 print(text)
                 print('-' * 50)
             links_parts.append(text)
         else:
             if test_mode:
-                print('this is a content part')
+                print('\033[34mthis is a content part\033[0m')
                 print(ratio, '\n')
                 print(text)
                 print('-' * 50)
