@@ -88,10 +88,6 @@ Wiseflow 0.3.x는 데이터베이스로 pocketbase를 사용합니다. pocketbas
 
 🌟 **이전 버전과 다릅니다** - V0.3.5부터 .env 파일은 [core](./core) 폴더에 위치해야 합니다.
 
-**windows 사용자는 core 폴더의 windows.env와 windows_run.py 파일을 참조하여 windows_run.py 스크립트를 실행할 수 있습니다**
-
-@c469591님이 기여해 주신 windows용 네이티브 실행 스크립트에 감사드립니다
-
 #### 3.1 대규모 언어 모델 구성
 
 Wiseflow는 LLM 네이티브 애플리케이션이므로 프로그램에 안정적인 LLM 서비스를 제공하도록 해주세요.

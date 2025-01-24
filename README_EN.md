@@ -88,10 +88,6 @@ For details, please refer to [pb/README.md](/pb/README.md)
 
 🌟 **This is different from previous versions** - starting from V0.3.5, the .env file needs to be placed in the [core](./core) folder.
 
-**Windows users can refer to the windows.env and windows_run.py files in the core folder and execute the windows_run.py script**
-
-Thanks to @c469591 for contributing the native Windows startup script
-
 #### 3.1 Large Language Model Configuration
 
 Wiseflow is a LLM native application, so please ensure you provide stable LLM service for the program.

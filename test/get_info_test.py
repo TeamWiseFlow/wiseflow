@@ -10,7 +10,6 @@ core_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'core
 sys.path.append(core_path)
 
 # 现在可以直接导入模块，因为core目录已经在Python路径中
-from scrapers import *
 from utils.general_utils import is_chinese
 from agents.get_info import get_author_and_publish_date, get_info, get_more_related_urls
 from agents.get_info_prompts import *
@@ -20,7 +19,7 @@ benchmark_model = 'Qwen/Qwen2.5-72B-Instruct'
 # models = ['deepseek-reasoner']
 models = ['Qwen/Qwen2.5-7B-Instruct', 'Qwen/Qwen2.5-14B-Instruct',  'Qwen/Qwen2.5-32B-Instruct', 'deepseek-ai/DeepSeek-V2.5']
 
-async def main(sample: dict, include_ap: bool, prompts: list, focus_dict: dict, record_file: str):
+async def main(sample: dict, include_ap: bool, prompts: list, record_file: str):
     link_dict, links_parts, contents = sample['link_dict'], sample['links_part'], sample['contents']
     get_link_sys_prompt, get_link_suffix_prompt, get_info_sys_prompt, get_info_suffix_prompt = prompts
 
@@ -91,16 +90,16 @@ if __name__ == '__main__':
     focus_points = json.load(open(os.path.join(sample_dir, 'focus_point.json'), 'r'))
     focus_statement = ''
     for item in focus_points:
-        tag = item["focuspoint"]
-        expl = item["explanation"]
-        focus_statement = f"{focus_statement}//{tag}//\n"
+        tag = item["focuspoint"].strip()
+        expl = item["explanation"].strip()
+        focus_statement = f"{focus_statement}//{tag}//"
         if expl:
             if is_chinese(expl):
-                focus_statement = f"{focus_statement}解释：{expl}\n"
+                focus_statement = f"{focus_statement}\n解释：{expl}\n"
             else:
-                focus_statement = f"{focus_statement}Explanation: {expl}\n"
+                focus_statement = f"{focus_statement}\nExplanation: {expl}\n"
     
-    focus_dict = {item["focuspoint"]: item["focuspoint"] for item in focus_points}
+    #focus_dict = {item["focuspoint"]: item["focuspoint"] for item in focus_points}
     date_stamp = datetime.now().strftime('%Y-%m-%d')
     if is_chinese(focus_statement):
         get_link_sys_prompt = get_link_system.replace('{focus_statement}', focus_statement)
@@ -134,4 +133,4 @@ if __name__ == '__main__':
         with open(record_file, 'a') as f:
             f.write(f"raw materials: {file}\n\n")
         print(f'start testing {file}')
-        asyncio.run(main(sample, include_ap, prompts, focus_dict, record_file))
+        asyncio.run(main(sample, include_ap, prompts, record_file))

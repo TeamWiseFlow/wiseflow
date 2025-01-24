@@ -35,11 +35,11 @@
 
   Provided a custom extractor interface to allow users to customize according to actual needs.
 
-- bug 修复以及其他改进（crawl4ai浏览器生命周期管理，异步 llm wrapper 等）（感谢 @tusik 贡献异步 llm wrapper）
+- bug 修复以及其他改进（crawl4ai浏览器生命周期管理，异步 llm wrapper 等）（感谢 @tusik 贡献）
 
   Bug fixes and other improvements (crawl4ai browser lifecycle management, asynchronous llm wrapper, etc.)
 
-  Thanks to @tusik for contributing the asynchronous LLM wrapper
+  Thanks to @tusik for contributing
 
 # V0.3.6
 - 改用 Crawl4ai 作为底层爬虫框架，其实Crawl4ai 和 Crawlee 的获取效果差别不大，二者也都是基于 Playwright ，但 Crawl4ai 的 html2markdown 功能很实用，而这对llm 信息提取作用很大，另外 Crawl4ai 的架构也更加符合我的思路；
