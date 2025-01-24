@@ -90,7 +90,6 @@ async def get_public_msg(websocket_uri):
                 while True:
                     response = await websocket.recv()
                     datas = json.loads(response)
-                    jobs = []
                     for data in datas["data"]:
                         if "Content" not in data:
                             wiseflow_logger.warning(f"invalid data:\n{data}")

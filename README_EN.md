@@ -43,7 +43,6 @@ We continue to welcome more test results to jointly explore the best usage solut
 
 At this stage, **submitting test results is equivalent to submitting project code**, and will similarly be accepted as a contributor, and may even be invited to participate in commercialization projects! For details, please refer to [test/README.md](./test/README.md)
 
-
 ## ✋ How is wiseflow Different from Traditional Crawler Tools, AI Search, and Knowledge Base (RAG) Projects?
 
 Since the release of version V0.3.0 in late June 2024, wiseflow has received widespread attention from the open-source community, attracting even some self-media reports. First of all, we would like to express our gratitude!
@@ -88,6 +87,10 @@ For details, please refer to [pb/README.md](/pb/README.md)
 ### 3. Continue Configuring the core/.env File
 
 🌟 **This is different from previous versions** - starting from V0.3.5, the .env file needs to be placed in the [core](./core) folder.
+
+**Windows users can refer to the windows.env and windows_run.py files in the core folder and execute the windows_run.py script**
+
+Thanks to @c469591 for contributing the native Windows startup script
 
 #### 3.1 Large Language Model Configuration
 

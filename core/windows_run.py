@@ -72,6 +72,7 @@ def main():
                 print(f"Error: run_task.py not found at: {process_script}")
         except subprocess.CalledProcessError as e:
             print(f"Error running run_task.py: {e}")
+
     else:
         print("Failed to start services")
 
