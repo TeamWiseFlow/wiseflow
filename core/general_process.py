@@ -92,6 +92,8 @@ async def main_process(focus: dict, sites: list):
         wiseflow_logger.info(f'query: {query}\nsearch intent: {_intent}\nkeywords: {_keywords}')
         search_results = search_content['search_result']
         for result in search_results:
+            if 'content' not in result or 'link' not in result:
+                continue
             url = result['link']
             if url in existing_urls:
                 continue
@@ -111,7 +113,9 @@ async def main_process(focus: dict, sites: list):
                 wiseflow_logger.warning(f'can not find publish time in the search result {url}, adding to working list')
                 working_list.add(url)
                 continue
-            author = result['media']
+            author = result.get('media', '')
+            if not author:
+                author = urlparse(url).netloc
             texts = [result['content']]
             await info_process(url, title, author, publish_date, texts, {}, focus_id, get_info_prompts)
 
