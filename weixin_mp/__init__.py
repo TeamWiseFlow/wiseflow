@@ -89,6 +89,8 @@ async def get_public_msg(websocket_uri):
                     response = await websocket.recv()
                     datas = json.loads(response)
                     for data in datas["data"]:
+                        if data.get('Type', '') == '10000':
+                            continue
                         if "Content" not in data:
                             wiseflow_logger.warning(f"invalid data:\n{data}")
                             continue

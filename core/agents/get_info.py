@@ -84,21 +84,21 @@ async def pre_process(raw_markdown: str, base_url: str, used_img: list[str],
                     elif len(img_alt) > 2 or url in existing_urls:
                         _key = f"[img{len(link_dict)+1}]"
                         link_dict[_key] = img_src
-                        link_text = img_alt + _key
+                        link_text = img_alt
                     elif any(img_src.endswith(tld) or img_src.endswith(tld + '/') for tld in common_tlds):
                         _key = f"[img{len(link_dict)+1}]"
                         link_dict[_key] = img_src
-                        link_text = img_alt + _key
+                        link_text = img_alt
                     elif any(img_src.endswith(ext) for ext in common_file_exts if ext not in ['jpg', 'jpeg', 'png']):
                         _key = f"[img{len(link_dict)+1}]"
                         link_dict[_key] = img_src
-                        link_text = img_alt + _key
+                        link_text = img_alt
                     else:
                         if img_src not in recognized_img_cache:
                             recognized_img_cache[img_src] = await extract_info_from_img(img_src)
                         _key = f"[img{len(link_dict)+1}]"
                         link_dict[_key] = img_src
-                        link_text = recognized_img_cache[img_src] + _key
+                        link_text = recognized_img_cache[img_src]
                 else:
                     link_text = img_alt
 
@@ -119,21 +119,21 @@ async def pre_process(raw_markdown: str, base_url: str, used_img: list[str],
             if not img_src:
                 text = text.replace(_sec, alt, 1)
             elif remained_text_len > 5 or len(alt) > 2:
-                _key = f"[img{len(link_dict)+1}]"
+                _key = f"[{len(link_dict)+1}]"
                 link_dict[_key] = img_src
                 text = text.replace(_sec, alt + _key, 1)
             elif any(img_src.endswith(tld) or img_src.endswith(tld + '/') for tld in common_tlds):
-                _key = f"[img{len(link_dict)+1}]"
+                _key = f"[{len(link_dict)+1}]"
                 link_dict[_key] = img_src
                 text = text.replace(_sec, alt + _key, 1)
             elif any(img_src.endswith(ext) for ext in common_file_exts if ext not in ['jpg', 'jpeg', 'png']):
-                _key = f"[img{len(link_dict)+1}]"
+                _key = f"[{len(link_dict)+1}]"
                 link_dict[_key] = img_src
                 text = text.replace(_sec, alt + _key, 1)
             else:
                 if img_src not in recognized_img_cache:
                     recognized_img_cache[img_src] = await extract_info_from_img(img_src)
-                _key = f"[img{len(link_dict)+1}]"
+                _key = f"[{len(link_dict)+1}]"
                 link_dict[_key] = img_src
                 text = text.replace(_sec, recognized_img_cache[img_src] + _key, 1)
         # 处理文本中的"野 url"
@@ -229,9 +229,10 @@ async def get_author_and_publish_date(text: str, model: str, test_mode: bool = F
     content = f'<text>\n{text}\n</text>\n\n{get_ap_suffix}'
     llm_output = await llm([{'role': 'system', 'content': get_ap_system}, {'role': 'user', 'content': content}],
                             model=model, max_tokens=50, temperature=0.1)
+                     
     if test_mode:
         print(f"llm output:\n {llm_output}")
-    ap_ = llm_output.strip().strip('"').strip('//')
+    ap_ = llm_output.strip().strip('"').strip('//').strip('`')
 
     if '//' not in ap_:
         if _logger:
@@ -260,7 +261,7 @@ async def get_more_related_urls(texts: list[str], link_dict: dict, prompts: list
             if test_mode:
                 print(f"llm output:\n {result}")
 
-            result = re.findall(r'\"\"\"(.*?)\"\"\"', result, re.DOTALL)
+            result = re.findall(r'<answer>(.*?)</answer>', result, re.DOTALL)
             if result:
                 links = re.findall(r'\[\d+\]', result[-1])
                 for link in links:
@@ -314,8 +315,15 @@ async def get_info(texts: list[str], link_dict: dict, prompts: list[str], author
     for res in results:
         if test_mode:
             print(f"llm output:\n {res}")
-        res = res.strip().lstrip('摘要').lstrip(':').lstrip('：')
-        if not res or res == 'NA':
+        res = re.findall(r'<summary>(.*?)</summary>', res, re.DOTALL)
+        if not res:
+            if _logger:
+                _logger.warning(f"model hallucination: {res} \ncontains no summary tag")
+            if test_mode:
+                print(f"model hallucination: {res} \ncontains no summary tag")
+            continue
+        res = res[-1]
+        if len(res) < 3:
             continue
         """
         maybe can use embedding retrieval to judge

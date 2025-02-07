@@ -10,6 +10,11 @@
 
 https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
+🌟 Reminder: Although you may have recently heard many people praise reasoning models like DeepSeek R1 (which I do not deny), tasks like information extraction and summarization in WiseFlow do not require complex logical reasoning. Using reasoning models will instead significantly increase inference time and costs! If you are interested in understanding this conclusion further, you can refer to the following test report: [wiseflow V0.38 with deepseek series report](./test/reports/wiseflow_report_v038_dp_bigbrother666/README.md).
+
+At present, we strongly recommend continuing to use standard large language models. We have also improved the original prompt to enhance the output quality of the 7B and 14B models. If you are concerned about generation speed and cost, we currently recommend setting both `PRIMARY_MODEL` and `SECONDARY_MODEL` to `Qwen2.5-14B-Instruct`.
+
+
 ## 🔥 V0.3.8 Officially Released
 
 - Version V0.3.8 introduces support for RSS and search engines. Now wiseflow supports four types of information sources: _websites_, _rss_, _search engines_, and _WeChat Official Accounts_!

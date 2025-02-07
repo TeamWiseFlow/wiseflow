@@ -1,0 +1,541 @@
+focus statement: 
+//大模型技术突破与创新//
+解释：包括新算法与模型，新的研究成果
+
+
+raw materials: 348_processed.json
+
+model: deepseek-ai/DeepSeek-R1-Distill-Llama-70B
+get author and publish date time: 168.8258512020111
+author:   
+程指南
+publish date: None
+get more related urls time: 153.31215381622314
+diff from benchmark: benchmark: 0 results
+get info time: 59.80016374588013
+related urls: 
+
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+get author and publish date time: 23.877891778945923
+author: 生姜DrGinger
+publish date: None
+get more related urls time: 33.976563930511475
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 19.464500904083252
+related urls: 
+
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+get author and publish date time: 12.113592863082886
+author: plaintext
+"""程指南
+publish date: None
+get more related urls time: 18.905511140823364
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 10.140168190002441
+related urls: 
+
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+get author and publish date time: 30.876951932907104
+author: 
+publish date: 
+get more related urls time: 141.73146390914917
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 112.07096433639526
+related urls: 
+
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+get author and publish date time: 8.18986177444458
+author: python
+["NA
+publish date: None
+get more related urls time: 17.48957085609436
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 4.630155086517334
+related urls: 
+
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B
+get author and publish date time: 1.7976930141448975
+author: 
+publish date: 
+get more related urls time: 4.14693021774292
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 2.4764211177825928
+related urls: 
+
+final result: 
+
+
+
+raw materials: 6bc_processed.json
+
+model: deepseek-ai/DeepSeek-R1-Distill-Llama-70B
+get author and publish date time: 4.76837158203125e-06
+author: 
+publish date: 
+get more related urls time: 170.7785849571228
+diff from benchmark: benchmark: 8 results
+get info time: 2.47955322265625e-05
+related urls: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648400372&idx=1&sn=b13509af77924e18bdb092387a7fcdbd
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392428&idx=1&sn=a0dc37d6fd3fe5ef1c5730277a2d848c
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648396807&idx=1&sn=a7c940746468849026479a127a8e048a
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648394368&idx=1&sn=d1e08a4447a6580d25a22a5e59c67749
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648395869&idx=1&sn=e0262760944c82366148688a96bd5656
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648395297&idx=1&sn=dee01e1b54a1cdc92cb7990c1bf79eb6
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392066&idx=1&sn=c46a35c0158fb83ea69405dc87806c87
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648401296&idx=1&sn=c2ec7a5b1aa5fc27e6d9c0224f561860
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+get author and publish date time: 5.0067901611328125e-06
+author: 
+publish date: 
+get more related urls time: 38.273324728012085
+diff from benchmark: 差异5个(遗漏5个,多出0个)
+get info time: 2.4080276489257812e-05
+related urls: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648395297&idx=1&sn=dee01e1b54a1cdc92cb7990c1bf79eb6
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648401296&idx=1&sn=c2ec7a5b1aa5fc27e6d9c0224f561860
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648400372&idx=1&sn=b13509af77924e18bdb092387a7fcdbd
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+get author and publish date time: 6.198883056640625e-06
+author: 
+publish date: 
+get more related urls time: 39.608866930007935
+diff from benchmark: 差异3个(遗漏2个,多出1个)
+get info time: 2.09808349609375e-05
+related urls: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648400372&idx=1&sn=b13509af77924e18bdb092387a7fcdbd
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648417242&idx=1&sn=56d097f76eaa1429702117df6c1be8e0
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648396807&idx=1&sn=a7c940746468849026479a127a8e048a
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648394368&idx=1&sn=d1e08a4447a6580d25a22a5e59c67749
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648395869&idx=1&sn=e0262760944c82366148688a96bd5656
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648395297&idx=1&sn=dee01e1b54a1cdc92cb7990c1bf79eb6
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648401296&idx=1&sn=c2ec7a5b1aa5fc27e6d9c0224f561860
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+get author and publish date time: 6.198883056640625e-06
+author: 
+publish date: 
+get more related urls time: 326.4857358932495
+diff from benchmark: 差异2个(遗漏1个,多出1个)
+get info time: 2.6226043701171875e-05
+related urls: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648400372&idx=1&sn=b13509af77924e18bdb092387a7fcdbd
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392428&idx=1&sn=a0dc37d6fd3fe5ef1c5730277a2d848c
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648417242&idx=1&sn=56d097f76eaa1429702117df6c1be8e0
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648396807&idx=1&sn=a7c940746468849026479a127a8e048a
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648394368&idx=1&sn=d1e08a4447a6580d25a22a5e59c67749
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648395297&idx=1&sn=dee01e1b54a1cdc92cb7990c1bf79eb6
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392066&idx=1&sn=c46a35c0158fb83ea69405dc87806c87
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648401296&idx=1&sn=c2ec7a5b1aa5fc27e6d9c0224f561860
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+get author and publish date time: 5.9604644775390625e-06
+author: 
+publish date: 
+get more related urls time: 27.645294904708862
+diff from benchmark: 差异7个(遗漏0个,多出7个)
+get info time: 2.3126602172851562e-05
+related urls: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393886&idx=1&sn=4b52708641a4396dff02f6226fc12c72
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648400372&idx=1&sn=b13509af77924e18bdb092387a7fcdbd
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393744&idx=1&sn=728919676ef249970029c1a57751ca1c
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648396934&idx=1&sn=a11541e40612942e215ecdd927650153
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393307&idx=1&sn=6e363c3c20a423be7ce2aa9ec007b4a0
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392428&idx=1&sn=a0dc37d6fd3fe5ef1c5730277a2d848c
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648417242&idx=1&sn=56d097f76eaa1429702117df6c1be8e0
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648396807&idx=1&sn=a7c940746468849026479a127a8e048a
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648394368&idx=1&sn=d1e08a4447a6580d25a22a5e59c67749
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392260&idx=1&sn=dbd78f54326df8d9efbc0ef9d2a93361
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648395869&idx=1&sn=e0262760944c82366148688a96bd5656
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393841&idx=1&sn=28df29fbc8b48684709f9f605982f88c
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648395297&idx=1&sn=dee01e1b54a1cdc92cb7990c1bf79eb6
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392066&idx=1&sn=c46a35c0158fb83ea69405dc87806c87
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648401296&idx=1&sn=c2ec7a5b1aa5fc27e6d9c0224f561860
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B
+get author and publish date time: 5.0067901611328125e-06
+author: 
+publish date: 
+get more related urls time: 3.3849756717681885
+diff from benchmark: 差异10个(遗漏8个,多出2个)
+get info time: 2.6702880859375e-05
+related urls: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392260&idx=1&sn=dbd78f54326df8d9efbc0ef9d2a93361
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648417242&idx=1&sn=56d097f76eaa1429702117df6c1be8e0
+final result: 
+
+
+
+raw materials: 41a15b.json_processed.json
+
+model: deepseek-ai/DeepSeek-R1-Distill-Llama-70B
+get author and publish date time: 265.5123031139374
+author: 央视新闻
+publish date: None
+get more related urls time: 106.28402185440063
+diff from benchmark: benchmark: 3 results
+get info time: 602.656849861145
+related urls: 
+https://www.ifanr.com/1612646
+https://www.ifanr.com/app/
+https://www.ifanr.com/category/aigc
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+get author and publish date time: 391.5592610836029
+author: NA
+publish date: 2024-01-19
+get more related urls time: 24.567830085754395
+diff from benchmark: 差异3个(遗漏3个,多出0个)
+get info time: 75.7824501991272
+related urls: 
+
+final result: 
+
+1. OpenAI「Operator」项目取得突破，CEO Sam Altman 预计将于 1 月 30 日向美国政府进行闭门简报。据悉，「Operator」是 OpenAI 开发的一种具有博士级别能力的自主 AI 智能体，能够在浏览器中独立执行任务，比如编写代码、预订旅行、管理日程等。据 M1 Astra 信息称，「Operator」将很快在 ChatGPT macOS 版中推出[3]。
+
+2. DeepSeek-R1 发布，性能对齐 OpenAI o1 正式版。DeepSeek-R1 在数学、代码、自然语言推理等任务上，性能比肩 OpenAI o1 正式版。DeepSeek 在开源 DeepSeek-R1-Zero 和 DeepSeek-R1 两个 660B 模型的同时，通过 DeepSeek-R1 的输出，蒸馏了 6 个小模型开源给社区，其中 32B 和 70B 模型在多项能力上实现了对标 OpenAI o1-mini 的效果[3]。
+
+3. Kimi 全新 SOTA 模型 k1.5 多模态思考模型发布。从基准测试成绩看，k1.5 多模态思考模型实现了 SOTA（state-of-the-art）级别的多模态推理和通用推理能力。在 short-CoT 模式下，Kimi k1.5 的数学、代码、视觉多模态和通用能力，大幅超越了全球范围内短思考 SOTA 模型 GPT-4o 和 Claude 3.5 Sonnet 的水平，领先达到 550%。而在 long-CoT 模式下，Kimi k1.5 的数学、代码、多模态推理能力，也达到长思考 SOTA 模型 OpenAI o1 正式版的水平[3]。
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+get author and publish date time: 58.16128611564636
+author: 
+央视新闻
+publish date: None
+get more related urls time: 9.62036418914795
+diff from benchmark: 差异3个(遗漏3个,多出0个)
+get info time: 36.15105724334717
+related urls: 
+
+final result: 
+
+- OpenAI 的「Operator」项目取得突破，计划于 1 月 30 日向美国政府进行闭门简报，该 AI 智能体能够在浏览器中独立执行任务，如编写代码、预订旅行、管理日程等。[3]
+- DeepSeek 发布 DeepSeek-R1 模型，性能比肩 OpenAI o1 正式版，支持开源模型权重和 API 调用，提供包括数学、代码和自然语言推理等任务的推理能力。[4]
+- Kimi 发布全新 SOTA 模型 k1.5，实现多模态推理和通用推理能力的突破，数学、代码和视觉多模态能力大幅超越 GPT-4o 和 Claude 3.5 Sonnet，在 long-CoT 模式下达到 OpenAI o1 正式版的水平。[5]
+- 阶跃星辰推出 Step-2 mini 和 Step-2 文学大师版，Step-2 mini 以 3% 左右的参数量保有 80% 以上的模型性能，生成速度快且性价比高，适合开发者和企业使用。[6]
+- 豆包 App 更新实时语音通话功能，基于最新豆包实时语音大模型，语音交互的自然度和情绪饱满度显著提升，用户满意度高达 4.36/5。[7]
+- MiniMax 发布 T2A-01 系列语音模型，支持 17 种语言和上百种预置音色，中文和多语种评测集中相似度和正确率大幅领先，全球用户均可使用。[8]
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+get author and publish date time: 1090.2995409965515
+author: 
+publish date: 
+get more related urls time: 194.30460000038147
+diff from benchmark: 差异1个(遗漏1个,多出0个)
+get info time: 169.76507306098938
+related urls: 
+https://www.ifanr.com/app/
+https://www.ifanr.com/category/aigc
+final result: 
+
+### OpenAI 被曝博士级「超级智能体」即将登场
+1 月 19 日，据 Axios 报道，OpenAI「Operator」项目取得突破，CEO Sam Altman 预计将于 1 月 30 日向美国政府进行闭门简报。  
+「Operator」是 OpenAI 开发的一种具有博士级别能力的自主 AI 智能体，能够在浏览器中独立执行任务，比如编写代码、预订旅行、管理日程等。据 M1 Astra 信息称，「Operator」将很快在 ChatGPT macOS 版中推出。  
+
+### DeepSeek-R1 发布，性能对齐 OpenAI o1 正式版  
+1 月 20 日，DeepSeek 正式发布 DeepSeek-R1，并同步开源模型权重。DeepSeek-R1 在后训练阶段大规模使用了强化学习技术，在仅有极少标注数据的情况下，极大提升了模型推理能力。在数学、代码、自然语言推理等任务上，性能比肩 OpenAI o1 正式版。  
+
+### Kimi 全新 SOTA 模型 k1.5 发布  
+1 月 20 日，月之暗面正式发布 Kimi 全新 SOTA 模型：k1.5 多模态思考模型；同时 Kimi 首次公开模型训练技术报告。据官方介绍，从基准测试成绩看，k1.5 多模态思考模型实现了 SOTA（state-of-the-art）级别的多模态推理和通用推理能力。在 short-CoT 模式下，Kimi k1.5 的数学、代码、视觉多模态和通用能力，大幅超越了全球范围内短思考 SOTA 模型 GPT-4o 和 Claude 3.5 Sonnet 的水平，领先达到 550%。而在 long-CoT 模式下，Kimi k1.5 的数学、代码、多模态推理能力，也达到长思考 SOTA 模型 OpenAI o1 正式版的水平。这应该是全球范围内，OpenAI 之外的公司首次实现 o1 正式版的多模态推理性能。  
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+get author and publish date time: 10.849066019058228
+author: 
+publish date: 
+get more related urls time: 10.149275064468384
+diff from benchmark: 差异15个(遗漏2个,多出13个)
+get info time: 21.514818906784058
+related urls: 
+https://www.ifanr.com/category/top-rank
+https://www.ifanr.com/category/business
+https://www.ifanr.com/category/%e5%95%86%e4%b8%9a
+https://www.ifanr.com/category/ces2018
+https://www.ifanr.com/category/aigc
+https://www.ifanr.com/category/top-rank/ifanrank-top-rank
+https://www.ifanr.com/category/ifanq
+https://www.ifanr.com/category/mindtalk
+https://www.ifanr.com/category/%e8%bd%af%e4%bb%b6
+https://www.ifanr.com/category/future
+https://www.ifanr.com/category/ifanrank-2018
+https://www.ifanr.com/category/mwc-2018
+https://www.ifanr.com/category/review
+https://www.ifanr.com/category/product
+final result: 
+
+# 大模型技术突破与创新
+
+1. **OpenAI的"Operator"项目**  
+   OpenAI宣布推出“Operator”项目，专注于解决加价抢票成功率为零的问题，展示了大模型在实际场景中的应用与优化。
+
+2. **Kimi公司推出k1.5多模态思考模型**  
+   Kimi公司发布k1.5多模态思考模型，实现了SOTA级别的多模态推理和通用推理能力，包括数学、代码、视觉多模态和通用能力的提升。
+
+3. **DeepSeek-R1模型发布**  
+   DeepSeek正式发布DeepSeek-R1，并同步开源模型权重，性能对齐OpenAI o1正式版，展现了技术的持续进步。
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B
+get author and publish date time: 3.8713948726654053
+author: 
+publish date: 
+get more related urls time: 13.20651388168335
+diff from benchmark: 差异3个(遗漏3个,多出0个)
+get info time: 7.680718898773193
+related urls: 
+
+final result: 
+
+2024年中国智能手机市场出货量同比增长5.6%，表现强劲。主要公司包括苹果、腾讯、特斯拉和 FrontendMath 等。苹果宣布新工具，Meta推出移动视频剪辑软件，OpenAI 发展，以及特斯拉推出视频专区。腾讯撤回商标注册，影响其市场地位。 FrontendMath 涉事可能改变其市场份额。B站上线视频推荐系统，持续提升视频效果。苹果宣布停止在美市场的开发，FB 提供新功能。Meta宣布删除 employees 位置，导致员工离职。米米离职，引发Meta股价波动。The Minister发表讲话，强调 AI 的潜力。Bing 提供智能助手，改进视频推荐功能。DeepSeek-R1 成为全球首款高性能模型，支持 OpenAI o1 正式版。Kimi 公司发布多模态思考模型，实现 SOTA水平。滴滴正式上线海外出行服务，满足用户需求。支付宝集福活动开启，用户随机获得福卡奖励。
+
+
+星巴克非遗概念店落地南京  
+南京非遗概念店是星巴克在中国首家的两层独栋公馆的非遗第三空间，位于南京保护规模最大的历史文化街区—颐和路历史文化街区。该店展示了咖啡豆的生命旅程，包括扎染、织锦、麻编、刺绣、掐丝珐琅等多项非遗技艺。此外，星巴克首次推出了白族扎染钥匙链，由云南大理白族扎染非遗传承人张翰敏完成，她来自北京星巴克公益基金会资助的「星绣未来」项目。星巴克表示，未来将不断打开保护和传承中国非遗文化的新思路，并推出更多非遗限定礼品。
+
+《蜘蛛侠：暗影武士》漫画将于 9 月发行  
+漫威官方宣布将于 2025 年 9 月 16 日发行全新漫画系列《蜘蛛侠：暗影武士》（Spider-Man Manga: Shadow Warrior）。该系列由日本漫画家青木翔吾创作，讲述了金并逃离美国后建立日本统治的故事，同时揭示了他带来外星寄生体的玄机。
+
+《猫猫的奇幻漂流》定档 2 月 28 日  
+1 月 20 日，电影《猫猫的奇幻漂流》正式定档，将于今年 2 月 28 日上映。影片讲述洪水淹没世界、猫猫与一群野生动物冒险的故事，探讨了外星寄生体对动物的影响。
+
+《金装律师》衍生剧发布新预告  
+近日，《金装律师》衍生剧《金装律师：洛杉矶》发布新预告。该剧讲述了哈维和迈克组建「西装搭档」的经历，展现了他们的机灵和狡猾。此外，该剧由维多利亚·马奥尼执导，由斯蒂芬·阿梅尔、特洛伊·文布希、莱克斯·斯科特·戴维斯等主演。
+
+最热 最新
+
+
+
+raw materials: d49_processed.json
+
+model: deepseek-ai/DeepSeek-R1-Distill-Llama-70B
+get author and publish date time: 6.198883056640625e-06
+author: 
+publish date: 
+get more related urls time: 355.12184381484985
+diff from benchmark: benchmark: 0 results
+get info time: 2.5033950805664062e-05
+related urls: 
+
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+get author and publish date time: 5.0067901611328125e-06
+author: 
+publish date: 
+get more related urls time: 119.70632600784302
+diff from benchmark: 差异6个(遗漏0个,多出6个)
+get info time: 2.5987625122070312e-05
+related urls: 
+https://mp.weixin.qq.com/s/RV8B7iwHqJNs26fXSFTd8g
+https://mp.weixin.qq.com/s/JldpXoUyBUOZHVPJ6d1APQ
+http://news.gzhu.edu.cn/info/1016/26391.htm
+http://news.gzhu.edu.cn/info/1016/27397.htm
+https://www.gzhu.edu.cn/info/1113/11443.htm
+https://mp.weixin.qq.com/s/shbXj7-U33YoZy5f7yspVg
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+get author and publish date time: 6.198883056640625e-06
+author: 
+publish date: 
+get more related urls time: 47.85094594955444
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+get info time: 2.6226043701171875e-05
+related urls: 
+http://news.gzhu.edu.cn/info/1016/26391.htm
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+get author and publish date time: 6.198883056640625e-06
+author: 
+publish date: 
+get more related urls time: 2092.132440805435
+diff from benchmark: 差异6个(遗漏0个,多出6个)
+get info time: 3.1948089599609375e-05
+related urls: 
+https://mp.weixin.qq.com/s/RV8B7iwHqJNs26fXSFTd8g
+https://mp.weixin.qq.com/s/JldpXoUyBUOZHVPJ6d1APQ
+http://news.gzhu.edu.cn/info/1016/26391.htm
+http://news.gzhu.edu.cn/info/1002/31587.htm
+https://www.gzhu.edu.cn/info/1113/11443.htm
+https://mp.weixin.qq.com/s/shbXj7-U33YoZy5f7yspVg
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+get author and publish date time: 5.9604644775390625e-06
+author: 
+publish date: 
+get more related urls time: 32.406585931777954
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 2.7179718017578125e-05
+related urls: 
+
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B
+get author and publish date time: 6.198883056640625e-06
+author: 
+publish date: 
+get more related urls time: 30.723565101623535
+diff from benchmark: 差异5个(遗漏0个,多出5个)
+get info time: 1.811981201171875e-05
+related urls: 
+http://news.gzhu.edu.cn/info/1016/26257.htm
+http://news.gzhu.edu.cn/info/1016/26391.htm
+https://www.gzhu.edu.cn/z__l/xsdt.htm
+http://news.gzhu.edu.cn/info/1016/26527.htm
+http://news.gzhu.edu.cn/info/1016/27397.htm
+final result: 
+
+
+
+raw materials: 48450d.json_processed.json
+
+model: deepseek-ai/DeepSeek-R1-Distill-Llama-70B
+get author and publish date time: 209.69124484062195
+author: Tinyu Young
+publish date: None
+get more related urls time: 33.947126150131226
+diff from benchmark: benchmark: 0 results
+get info time: 62.82085394859314
+related urls: 
+
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+get author and publish date time: 11.948632001876831
+author: Tinyu Young
+publish date: None
+get more related urls time: 12.624637126922607
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 14.067609071731567
+related urls: 
+
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+get author and publish date time: 12.01464319229126
+author: 
+publish date: 
+get more related urls time: 5.890361070632935
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 14.325589895248413
+related urls: 
+
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+get author and publish date time: 6.757485866546631
+author: 
+publish date: 
+get more related urls time: 8.039768934249878
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 7.830904960632324
+related urls: 
+
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+get author and publish date time: 2.510936975479126
+author: 
+publish date: 
+get more related urls time: 7.829757928848267
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 8.089972019195557
+related urls: 
+
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B
+get author and publish date time: 2.7114720344543457
+author: 
+publish date: 
+get more related urls time: 5.891082048416138
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 4.093423128128052
+related urls: 
+
+final result: 
+
+《精灵宝可梦》中有哪些有趣的冷（小）知识？
+宠物小精灵79% 知友推荐 · 1.5 万人评价日本 / 喜剧 · 动画 · 冒险 / 1997-04-01 日本 / 23 分[2]  
+B站蜘蛛…我又想开坑做冷知识的视频了，但是自己找不到很多新的冷知识了，于是想集思广益来知乎寻求大家的智慧。 参考： 精灵宝可梦（Pokémon）里有哪…显示全部  
+关注者
+**3,636**
+被浏览
+**2,045,751**
+关注问题  
+写回答  
+邀请回答  
+好问题  
+24  
+2 条评论  
+
+
+
