@@ -10,6 +10,11 @@
 
 https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
+🌟 注意：最近、多くの人が DeepSeek R1 を代表とする reasoning モデルを絶賛しているのを耳にするかもしれません（私もそれを否定するわけではありません）。しかし、WiseFlow における情報抽出や要約タスクには複雑な論理推論は必要なく、むしろ reasoning モデルを使用すると処理時間とコストが大幅に増加してしまいます！この結論について詳しく知りたい方は、以下のテストレポートを参照してください：[wiseflow V0.38 with deepseek series report](./test/reports/wiseflow_report_v038_dp_bigbrother666/README.md)。
+
+現在、通常の大規模言語モデルの使用を引き続き推奨しています。また、従来のプロンプトを改良し、7B および 14B モデルの出力品質を向上させました。生成速度やコストを重視する場合、`PRIMARY_MODEL` と `SECONDARY_MODEL` の両方を `Qwen2.5-14B-Instruct` に設定することを推奨します。
+
+
 ## 🔥 V0.3.8 正式リリース
 
 - V0.3.8バージョンではRSSと検索エンジンのサポートを導入し、現在wiseflowは_ウェブサイト_、_RSS_、_検索エンジン_、_WeChat公式アカウント_の4種類の情報源をサポートしています！

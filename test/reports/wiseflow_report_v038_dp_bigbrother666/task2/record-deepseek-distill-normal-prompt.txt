@@ -1,0 +1,294 @@
+focus statement: 
+//大模型技术突破与创新//
+解释：包括新算法与模型，新的研究成果
+
+
+raw materials: 348_processed.json
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+get more related urls time: 40.694578886032104
+diff from benchmark: benchmark: 0 results
+get info time: 14.05855417251587
+related urls: 
+
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+get more related urls time: 19.773258209228516
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 16.700101137161255
+related urls: 
+
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+get more related urls time: 29.079015016555786
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 10.3433678150177
+related urls: 
+
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+get more related urls time: 59.28823709487915
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+get info time: 14.654163122177124
+related urls: 
+https://www.zhihu.com/zhuanlan.zhihu.com/p/17760046103
+final result: 
+
+
+
+raw materials: 6bc_processed.json
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+get more related urls time: 32.75446820259094
+diff from benchmark: benchmark: 4 results
+get info time: 2.6702880859375e-05
+related urls: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648417242&idx=1&sn=56d097f76eaa1429702117df6c1be8e0
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648400372&idx=1&sn=b13509af77924e18bdb092387a7fcdbd
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648401296&idx=1&sn=c2ec7a5b1aa5fc27e6d9c0224f561860
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648395297&idx=1&sn=dee01e1b54a1cdc92cb7990c1bf79eb6
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+get more related urls time: 11.363460063934326
+diff from benchmark: 差异11个(遗漏0个,多出11个)
+get info time: 1.71661376953125e-05
+related urls: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393886&idx=1&sn=4b52708641a4396dff02f6226fc12c72
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393307&idx=1&sn=6e363c3c20a423be7ce2aa9ec007b4a0
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648394368&idx=1&sn=d1e08a4447a6580d25a22a5e59c67749
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392260&idx=1&sn=dbd78f54326df8d9efbc0ef9d2a93361
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392428&idx=1&sn=a0dc37d6fd3fe5ef1c5730277a2d848c
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393744&idx=1&sn=728919676ef249970029c1a57751ca1c
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648417242&idx=1&sn=56d097f76eaa1429702117df6c1be8e0
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648401296&idx=1&sn=c2ec7a5b1aa5fc27e6d9c0224f561860
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648395869&idx=1&sn=e0262760944c82366148688a96bd5656
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648396807&idx=1&sn=a7c940746468849026479a127a8e048a
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392066&idx=1&sn=c46a35c0158fb83ea69405dc87806c87
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648395297&idx=1&sn=dee01e1b54a1cdc92cb7990c1bf79eb6
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393841&idx=1&sn=28df29fbc8b48684709f9f605982f88c
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648400372&idx=1&sn=b13509af77924e18bdb092387a7fcdbd
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648396934&idx=1&sn=a11541e40612942e215ecdd927650153
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+get more related urls time: 22.631659030914307
+diff from benchmark: 差异9个(遗漏1个,多出8个)
+get info time: 2.09808349609375e-05
+related urls: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393886&idx=1&sn=4b52708641a4396dff02f6226fc12c72
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393307&idx=1&sn=6e363c3c20a423be7ce2aa9ec007b4a0
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392428&idx=1&sn=a0dc37d6fd3fe5ef1c5730277a2d848c
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393744&idx=1&sn=728919676ef249970029c1a57751ca1c
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648417242&idx=1&sn=56d097f76eaa1429702117df6c1be8e0
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648395869&idx=1&sn=e0262760944c82366148688a96bd5656
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648396807&idx=1&sn=a7c940746468849026479a127a8e048a
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648395297&idx=1&sn=dee01e1b54a1cdc92cb7990c1bf79eb6
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648393841&idx=1&sn=28df29fbc8b48684709f9f605982f88c
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648400372&idx=1&sn=b13509af77924e18bdb092387a7fcdbd
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648396934&idx=1&sn=a11541e40612942e215ecdd927650153
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+get more related urls time: 65.43188500404358
+diff from benchmark: 差异3个(遗漏1个,多出2个)
+get info time: 2.9087066650390625e-05
+related urls: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392428&idx=1&sn=a0dc37d6fd3fe5ef1c5730277a2d848c
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648417242&idx=1&sn=56d097f76eaa1429702117df6c1be8e0
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648401296&idx=1&sn=c2ec7a5b1aa5fc27e6d9c0224f561860
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648396807&idx=1&sn=a7c940746468849026479a127a8e048a
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648400372&idx=1&sn=b13509af77924e18bdb092387a7fcdbd
+final result: 
+
+
+
+raw materials: 41a15b.json_processed.json
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+get more related urls time: 15.123692989349365
+diff from benchmark: benchmark: 0 results
+get info time: 56.53415083885193
+related urls: 
+
+final result: ！！！here generate humullate ref mark 【3】！！！
+
+- OpenAI 被曝博士级「超级智能体」即将登场：OpenAI 开发的「Operator」项目取得突破，预计将于 1 月 30 日向美国政府进行闭门简报。该 AI 智能体具有博士级别能力，能够在浏览器中独立执行任务，如编写代码、预订旅行等。[3]
+- DeepSeek-R1 发布，性能对齐 OpenAI o1 正式版：DeepSeek 正式发布 DeepSeek-R1，该模型在数学、代码、自然语言推理等任务上性能比肩 OpenAI o1 正式版，并开源模型权重。[3]
+- Kimi 全新 SOTA 模型 k1.5 发布：Kimi 发布 k1.5 多模态思考模型，在 short-CoT 模式下大幅超越全球范围内短思考 SOTA 模型 GPT-4o 和 Claude 3.5 Sonnet 的水平，在 long-CoT 模式下达到 OpenAI o1 正式版的水平。[3]
+- 豆包 App 更新实时语音通话功能：豆包 App 更新实时语音通话功能，基于最新豆包实时语音大模型（Doubao Realtime Voice Model），在语音真实感和情绪表现上近乎达到「人机难辨」的 AI 交互效果。[3]
+- MiniMax 海螺语音全球同步上线：MiniMax 发布全新升级的 T2A-01 系列语音模型，支持 17 种语言及上百种预置音色，中文、粤语、英语、日语、韩语和阿拉伯语等多个语种的相似度和正确率大幅领先。[3]
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+get more related urls time: 8.311394929885864
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+get info time: 27.87731695175171
+related urls: 
+https://www.ifanr.com/category/aigc
+final result: 
+
+大模型技术方面，苹果子品牌推出新款耳机将配备心率检测功能，支持更强的降噪和空间音频。阶跃星辰推出Step-2 mini和Step-2文学大师版，性能对齐OpenAI o1正式版。DeepSeek-R1发布，性能达到全球领先水平。Kimi k1.5多模态思考模型发布，实现短思考和长思考SOTA水平。滴滴出行App上线海外聚合出行服务，提供类似国内滴滴服务的体验。支付宝集福玩法更新，福卡「颜值」更高，玩法更具游戏感。腾势Z9GT正式交付，30万以上新能源轿车销量第一。奔驰欧盟政策调整，鼓励中国车企在欧盟设厂。比尔盖茨提到OpenAI突破，强调AI元突破的可能性。苹果与声学品牌合作，TikTok复出。苹果子品牌推出首款配备心率检测耳机。豆包App更新语音通话功能，模仿不同声线，情绪表现接近人类。阶跃星辰推出Step-2系列新模型，性能对齐OpenAI o1正式版。DeepSeek-R1发布，性能达到全球领先水平。Kimi k1.5多模态思考模型发布，实现短思考和长思考SOTA水平。滴滴出行App上线海外聚合出行服务，提供类似国内滴滴服务的体验。支付宝集福玩法更新，福卡「颜值」更高，玩法更具游戏感。
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+get more related urls time: 12.259608745574951
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 31.335132837295532
+related urls: 
+
+final result: 
+
+- OpenAI「Operator」项目取得突破，预计于1月30日向美国政府进行闭门简报。该AI智能体能够在浏览器中独立执行任务，如编写代码、预订旅行、管理日程等。
+- DeepSeek正式发布DeepSeek-R1模型，性能比肩OpenAI o1正式版。该模型在数学、代码、自然语言推理等任务上表现优异，并开源了模型权重。
+- Kimi发布全新SOTA模型k1.5，实现多模态推理能力的显著提升。在short-CoT模式下，其数学、代码、视觉多模态和通用能力大幅超越GPT-4o和Claude 3.5 Sonnet。
+- MiniMax全球同步上线T2A-01系列语音模型，支持17种语言及上百种预置音色，音质和情绪表达能力显著提升。
+- 豆包App更新实时语音通话功能，基于最新豆包实时语音大模型，语音对话的逻辑思考和情绪感知能力有明显提升。
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+get more related urls time: 15.849904775619507
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+get info time: 79.08487296104431
+related urls: 
+https://www.ifanr.com/category/aigc
+final result: 
+
+近日，多家公司在大模型技术领域取得了显著进展，以下是相关技术突破与创新：
+1. **OpenAI「Operator」项目**：OpenAI开发了一种具有博士级能力的自主AI智能体，能够在浏览器中独立执行任务，如编写代码、预订旅行等。这一技术将于1月30日向美国政府进行闭门简报，并计划在ChatGPT macOS版中推出。
+2. **DeepSeek-R1发布**：DeepSeek推出了DeepSeek-R1模型，该模型在后训练阶段大规模使用强化学习技术，性能在数学、代码、自然语言推理等任务上对齐了OpenAI o1正式版。DeepSeek还开源了两个660B模型，并通过蒸馏生成了32B和70B的小模型。
+3. **Kimi k1.5多模态思考模型**：Kimi发布了全新SOTA级别的多模态思考模型k1.5，实现了对OpenAI o1正式版的多模态推理性能对标。该模型在数学、代码、多模态推理等任务上表现优异，且支持多语言和多模态能力。
+4. **豆包App实时语音通话功能**：豆包App更新了实时语音通话功能，基于最新的大模型，语音真实感和情绪表现接近「人机难辨」，支持多种语言和音色选择。
+5. **阶跃星辰Step-2 mini和Step-2文学大师版**：阶跃星辰推出了Step-2 mini和Step-2文学大师版模型，Step-2 mini在参数量和性能上保留了Step-2的80%以上，具有更高的生成速度和性价比；Step-2文学大师版则在细节把控和内容创作能力上有显著提升。
+6. **MiniMax海螺语音全球同步上线**：MiniMax发布了全新升级的T2A-01语音模型，支持多种语言和音色，语音生成能力稳定且高准确度，尤其在中文和英文的表现尤为突出。
+
+
+
+raw materials: d49_processed.json
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+get more related urls time: 77.24922680854797
+diff from benchmark: benchmark: 4 results
+get info time: 2.3126602172851562e-05
+related urls: 
+https://mp.weixin.qq.com/s/RV8B7iwHqJNs26fXSFTd8g
+https://mp.weixin.qq.com/s/JldpXoUyBUOZHVPJ6d1APQ
+https://www.gzhu.edu.cn/info/1113/11443.htm
+https://mp.weixin.qq.com/s/shbXj7-U33YoZy5f7yspVg
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+get more related urls time: 58.86390805244446
+diff from benchmark: 差异5个(遗漏0个,多出5个)
+get info time: 2.6941299438476562e-05
+related urls: 
+https://www.gzhu.edu.cn/info/1113/11443.htm
+https://mp.weixin.qq.com/s/shbXj7-U33YoZy5f7yspVg
+https://mp.weixin.qq.com/s/RV8B7iwHqJNs26fXSFTd8g
+http://news.gzhu.edu.cn/info/1016/27397.htm
+http://www.gzhu.edu.cn/z__l/xsdt.htm
+http://news.gzhu.edu.cn/info/1016/26527.htm
+http://www.gzhu.edu.cn/z__l/gspdxjs.htm
+https://mp.weixin.qq.com/s/JldpXoUyBUOZHVPJ6d1APQ
+http://news.gzhu.edu.cn/info/1016/26391.htm
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+get more related urls time: 48.43395686149597
+diff from benchmark: 差异5个(遗漏4个,多出1个)
+get info time: 1.71661376953125e-05
+related urls: 
+http://news.gzhu.edu.cn/info/1016/26391.htm
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+get more related urls time: 235.16780495643616
+diff from benchmark: 差异12个(遗漏0个,多出12个)
+get info time: 2.7894973754882812e-05
+related urls: 
+https://www.gzhu.edu.cn/info/1113/11443.htm
+http://news.gzhu.edu.cn/info/1002/31677.htm
+https://mp.weixin.qq.com/s/shbXj7-U33YoZy5f7yspVg
+https://mp.weixin.qq.com/s/RV8B7iwHqJNs26fXSFTd8g
+https://www.gzhu.edu.cn/info/1071/12641.htm
+https://mp.weixin.qq.com/s/rZdV9wXTX56wJloW4YvPQQ
+https://www.gzhu.edu.cn/info/1071/14847.htm
+http://news.gzhu.edu.cn/info/1016/27397.htm
+https://news.cyol.com/gb/articles/2024-12/24/content_WVNZYOSLn3.html
+https://www.gzhu.edu.cn/info/1299/12409.htm
+http://news.gzhu.edu.cn/info/1002/31617.htm
+https://www.gzhu.edu.cn/info/1071/12640.htm
+http://news.gzhu.edu.cn/info/1016/26257.htm
+http://news.gzhu.edu.cn/info/1002/31587.htm
+https://mp.weixin.qq.com/s/JldpXoUyBUOZHVPJ6d1APQ
+http://news.gzhu.edu.cn/info/1016/26391.htm
+final result: 
+
+
+
+raw materials: 48450d.json_processed.json
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+get more related urls time: 9.825263261795044
+diff from benchmark: benchmark: 0 results
+get info time: 13.92853569984436
+related urls: 
+
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+get more related urls time: 9.3162100315094
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 6.145816802978516
+related urls: 
+
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+get more related urls time: 9.315205335617065
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 11.36708927154541
+related urls: 
+
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+get more related urls time: 15.60471487045288
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 11.840175151824951
+related urls: 
+
+final result: 
+
+
+

@@ -1,0 +1,34 @@
+focus statement: 
+//各地住宅网签最新数据//
+
+
+raw materials: ddd_processed.json
+
+model: deepseek-chat
+get more related urls time: 3.5725600719451904
+diff from benchmark: benchmark: 5 results
+get info time: 2.055072069168091
+related urls: 
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282205540909512356.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282015484009707134.html#ln=m_cj_tjlistnews
+final result: 
+12月22日北京住宅网签数据显示，新房住宅网签184套（期房164+现房20），网签面积2.17万平方米；二手房住宅网签180套，网签面积1.63万平方米。[7]
+
+
+model: deepseek-reasoner
+get more related urls time: 9.095598697662354
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 12.386415243148804
+related urls: 
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282205540909512356.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282015484009707134.html#ln=m_cj_tjlistnews
+final result: 
+- 12月22日北京新房住宅网签184套（期房164套+现房20套），网签面积2.17万平方米；二手房住宅网签180套，网签面积1.63万平方米（北京市住建委数据显示[7]）。
+
+

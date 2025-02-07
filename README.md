@@ -10,6 +10,11 @@
 
 https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
+
+🌟 提醒：虽然近期你可能听很多人提起 deepseek R1 为代表的reasoning模型屌爆了（对此我并不否认），但 wiseflow 这种信息提取和总结任务并不需要复杂的逻辑推理，使用reasoning模型反而会极大的增加耗时和成本！如果您对此结论有进一步了解的兴趣，可以参考如下测试报告：[wiseflow V0.38 with deepseek series report](./test/reports/wiseflow_report_v038_dp_bigbrother666/README.md)
+
+目前我们更加建议继续使用普通的语言大模型，我们也对原有 prompt 进行了改进，提升了7b、14b 模型的输出效果。如果您对生成速度和成本比较在意，目前推荐同时将PRIMARY_MODEL和SECONDARY_MODEL设定为Qwen2.5-14B-Instruct。
+
 ## 🔥 V0.3.8 正式发布
 
 - V0.3.8版本引入对 RSS、搜索引擎的支持，现在 wiseflow 支持 _网站_、_rss_、_搜索引擎_ 和 _微信公众号_ 四类信源啦！

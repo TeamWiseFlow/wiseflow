@@ -1,0 +1,282 @@
+focus statement: 
+//新投产的氢能项目//
+
+raw materials: 407_processed.json
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+get more related urls time: 48.81999087333679
+diff from benchmark: benchmark: 12 results
+get info time: 4.00543212890625e-05
+related urls: 
+https://news.bjx.com.cn/html/20250106/1421053.shtml
+https://news.bjx.com.cn/html/20250106/1420968.shtml
+https://news.bjx.com.cn/html/20250106/1421080.shtml
+https://news.bjx.com.cn/html/20250106/1421181.shtml
+https://news.bjx.com.cn/html/20250106/1421132.shtml
+https://news.bjx.com.cn/html/20250106/1421039.shtml
+https://news.bjx.com.cn/html/20250106/1421124.shtml
+https://news.bjx.com.cn/html/20250106/1421179.shtml
+https://news.bjx.com.cn/html/20250106/1420960.shtml
+https://news.bjx.com.cn/html/20250103/1420820.shtml
+https://news.bjx.com.cn/html/20250106/1421058.shtml
+https://news.bjx.com.cn/html/20250106/1421049.shtml
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+get more related urls time: 158.34470391273499
+diff from benchmark: 差异28个(遗漏3个,多出25个)
+get info time: 2.5033950805664062e-05
+related urls: 
+https://news.bjx.com.cn/html/20250106/1420958.shtml
+https://news.bjx.com.cn/html/20250106/1421053.shtml
+https://news.bjx.com.cn/rankinglist/shoudian/
+https://pubapinews.bjx.com.cn/Kehuclick?id=22325
+https://news.bjx.com.cn/html/20250106/1421138.shtml
+https://news.bjx.com.cn/rankinglist/chuneng/
+https://news.bjx.com.cn/html/20250106/1421179.shtml
+https://news.bjx.com.cn/html/20250106/1421015.shtml
+https://news.bjx.com.cn/rankinglist/dianli/
+https://news.bjx.com.cn/rankinglist/shuidian/
+https://news.bjx.com.cn/html/20250106/1421039.shtml
+https://news.bjx.com.cn/html/20250106/1421124.shtml
+https://news.bjx.com.cn/html/20250106/1420968.shtml
+https://news.bjx.com.cn/rankinglist/zndw/
+https://news.bjx.com.cn/rankinglist/huodian/
+https://news.bjx.com.cn/html/20250106/1421080.shtml
+https://hr.bjx.com.cn/companys/61751/jobs_0_1/
+https://news.bjx.com.cn/html/20250106/1421181.shtml
+https://news.bjx.com.cn/rankinglist/hedian/
+https://hr.bjx.com.cn/companys/122480/jobs_0_1/
+https://news.bjx.com.cn/html/20250106/1421158.shtml
+https://news.bjx.com.cn/html/20250106/1421128.shtml
+https://hr.bjx.com.cn/companys/117783/jobs_0_1/
+https://news.bjx.com.cn/rankinglist/battery/
+https://hr.bjx.com.cn/companys/106116/jobs_0_1/
+https://news.bjx.com.cn/html/20250106/1421093.shtml
+https://news.bjx.com.cn/rankinglist/qingneng/
+https://news.bjx.com.cn/html/20250106/1421132.shtml
+https://news.bjx.com.cn/rankinglist/tyngf/
+https://news.bjx.com.cn/rankinglist/shupeidian/
+https://news.bjx.com.cn/rankinglist/fengdian/
+https://news.bjx.com.cn/html/20250106/1421125.shtml
+https://news.bjx.com.cn/html/20250106/1421058.shtml
+https://hr.bjx.com.cn/companys/134724/jobs_0_1/
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+get more related urls time: 44.68860387802124
+diff from benchmark: 差异7个(遗漏6个,多出1个)
+get info time: 1.621246337890625e-05
+related urls: 
+https://news.bjx.com.cn/html/20250106/1421053.shtml
+https://news.bjx.com.cn/html/20250106/1421093.shtml
+https://news.bjx.com.cn/html/20250106/1421132.shtml
+https://news.bjx.com.cn/html/20250106/1421039.shtml
+https://news.bjx.com.cn/html/20250106/1421179.shtml
+https://news.bjx.com.cn/html/20250106/1420968.shtml
+https://news.bjx.com.cn/html/20250106/1421058.shtml
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+get more related urls time: 183.57247495651245
+diff from benchmark: 差异12个(遗漏12个,多出0个)
+get info time: 2.4080276489257812e-05
+related urls: 
+
+final result: 
+
+
+
+raw materials: dfg_processed.json
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+get more related urls time: 178.31248211860657
+diff from benchmark: benchmark: 10 results
+get info time: 28.52689790725708
+related urls: 
+https://news.bjx.com.cn/html/20250110/1422074.shtml
+https://news.bjx.com.cn/html/20250109/1421992.shtml
+https://news.bjx.com.cn/html/20241227/1419508.shtml
+https://news.bjx.com.cn/html/20250110/1422088.shtml
+https://news.bjx.com.cn/html/20250110/1422065.shtml
+https://news.bjx.com.cn/html/20240703/1386708.shtml
+https://news.bjx.com.cn/html/20241218/1417617.shtml
+https://news.bjx.com.cn/html/20250109/1421960.shtml
+https://news.bjx.com.cn/html/20240708/1387671.shtml
+https://news.bjx.com.cn/html/20250110/1422206.shtml
+final result: 
+中国能建华北院中标鄂尔多斯市绿氢与煤化工耦合碳减排创新示范项目！项目位于乌审旗苏里格经济开发区，依托丰富的煤炭资源、土地资源、可再生风光资源、矿井疏干水资源和环境承载力空间，通过配套独立建设100万千瓦新能源（其中，风电50万千瓦、光伏50万千瓦），20万千瓦/60万千瓦时储能，为260万吨/年煤制烯烃及配套40万吨/年植入绿氢耦合制烯烃供电。项目建成后，将实现绿电、绿氧、绿氢耦合减排并减少外购甲醇量稳定烯烃产能，最终实现降碳减碳目标。
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+get more related urls time: 169.82171988487244
+diff from benchmark: 差异23个(遗漏1个,多出22个)
+get info time: 15.569348096847534
+related urls: 
+https://news.bjx.com.cn/html/20250110/1422182.shtml
+https://news.bjx.com.cn/html/20250108/1421608.shtml
+https://news.bjx.com.cn/html/20250110/1422074.shtml
+https://news.bjx.com.cn/html/20250109/1421992.shtml
+https://news.bjx.com.cn/topics/luqing/
+https://news.bjx.com.cn/html/20250110/1422088.shtml
+https://news.bjx.com.cn/html/20240708/1387671.shtml
+https://news.bjx.com.cn/html/20250109/1421823.shtml
+https://news.bjx.com.cn/html/20250110/1422103.shtml
+https://news.bjx.com.cn/html/20250110/1422057.shtml
+https://news.bjx.com.cn/html/20241223/1418467.shtml
+https://news.bjx.com.cn/html/20240703/1386708.shtml
+https://news.bjx.com.cn/html/20240423/1372981.shtml
+https://news.bjx.com.cn/html/20250108/1421600.shtml
+https://news.bjx.com.cn/html/20250109/1421819.shtml
+https://news.bjx.com.cn/html/20250109/1421902.shtml
+https://news.bjx.com.cn/html/20250109/1421946.shtml
+https://news.bjx.com.cn/topics/qingneng/
+https://news.bjx.com.cn/html/20250110/1422206.shtml
+https://news.bjx.com.cn/html/20250110/1422224.shtml
+https://news.bjx.com.cn/topics/luqingouhe/
+https://news.bjx.com.cn/html/20250110/1422218.shtml
+https://news.bjx.com.cn/html/20250109/1421884.shtml
+https://news.bjx.com.cn/html/20250110/1422129.shtml
+https://news.bjx.com.cn/html/20250108/1421568.shtml
+https://news.bjx.com.cn/html/20250110/1422065.shtml
+https://news.bjx.com.cn/html/20241218/1417617.shtml
+https://news.bjx.com.cn/html/20250109/1421960.shtml
+https://news.bjx.com.cn/html/20250110/1422240.shtml
+https://news.bjx.com.cn/html/20250109/1421938.shtml
+https://news.bjx.com.cn/html/20250110/1422149.shtml
+final result: 
+
+中国能建华北院中标鄂尔多斯市绿氢与煤化工耦合碳减排创新示范项目。该项目位于乌审旗苏里格经济开发区，依托丰富的煤炭、土地、可再生风光和矿井疏干水资源，计划建设100万千瓦新能源（风电50万千瓦、光伏50万千瓦），20万千瓦/60万千瓦时储能，为260万吨/年煤制烯烃及40万吨/年绿氢制烯烃供电。项目建成后将实现绿电、绿氧、绿氢耦合减排并减少外购甲醇量，稳定烯烃产能，实现降碳减碳目标。
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+get more related urls time: 99.09169387817383
+diff from benchmark: 差异5个(遗漏1个,多出4个)
+get info time: 17.33068013191223
+related urls: 
+https://news.bjx.com.cn/html/20250110/1422074.shtml
+https://news.bjx.com.cn/html/20250109/1421992.shtml
+https://news.bjx.com.cn/html/20250108/1421568.shtml
+https://news.bjx.com.cn/html/20250110/1422088.shtml
+https://news.bjx.com.cn/html/20250110/1422065.shtml
+https://news.bjx.com.cn/html/20240703/1386708.shtml
+https://news.bjx.com.cn/html/20241218/1417617.shtml
+https://news.bjx.com.cn/html/20250109/1421960.shtml
+https://news.bjx.com.cn/html/20250109/1421819.shtml
+https://news.bjx.com.cn/html/20250109/1421946.shtml
+https://news.bjx.com.cn/html/20240708/1387671.shtml
+https://news.bjx.com.cn/html/20250110/1422206.shtml
+https://news.bjx.com.cn/html/20250110/1422057.shtml
+final result: 
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+get more related urls time: 352.3165979385376
+diff from benchmark: 差异27个(遗漏0个,多出27个)
+get info time: 4030.0461761951447
+related urls: 
+https://news.bjx.com.cn/html/20250110/1422182.shtml
+https://news.bjx.com.cn/html/20250108/1421608.shtml
+https://news.bjx.com.cn/html/20250109/1421992.shtml
+https://news.bjx.com.cn/html/20250110/1422074.shtml
+https://news.bjx.com.cn/topics/luqing/
+https://news.bjx.com.cn/html/20250110/1422088.shtml
+https://news.bjx.com.cn/html/20240708/1387671.shtml
+https://news.bjx.com.cn/html/20240327/1368442.shtml
+https://news.bjx.com.cn/html/20250109/1421823.shtml
+https://news.bjx.com.cn/html/20250110/1422103.shtml
+https://news.bjx.com.cn/html/20250110/1422057.shtml
+https://news.bjx.com.cn/html/20241223/1418467.shtml
+https://news.bjx.com.cn/html/20241217/1417357.shtml
+https://news.bjx.com.cn/html/20240703/1386708.shtml
+https://news.bjx.com.cn/html/20240423/1372981.shtml
+https://news.bjx.com.cn/html/20250108/1421600.shtml
+https://news.bjx.com.cn/html/20250109/1421819.shtml
+https://news.bjx.com.cn/html/20240820/1395862.shtml
+https://news.bjx.com.cn/html/20250109/1421946.shtml
+https://news.bjx.com.cn/html/20250109/1421902.shtml
+https://news.bjx.com.cn/topics/qingneng/
+https://news.bjx.com.cn/html/20250110/1422206.shtml
+https://news.bjx.com.cn/html/20250110/1422224.shtml
+https://news.bjx.com.cn/topics/luqingouhe/
+https://news.bjx.com.cn/html/20250110/1422218.shtml
+https://news.bjx.com.cn/html/20250109/1421884.shtml
+https://news.bjx.com.cn/html/20250110/1422129.shtml
+https://news.bjx.com.cn/html/20250108/1421568.shtml
+https://news.bjx.com.cn/html/20241227/1419508.shtml
+https://news.bjx.com.cn/html/20250110/1422065.shtml
+https://news.bjx.com.cn/html/20241218/1417617.shtml
+https://news.bjx.com.cn/html/20250109/1421960.shtml
+https://news.bjx.com.cn/html/20250110/1422240.shtml
+https://news.bjx.com.cn/html/20250109/1421938.shtml
+https://news.bjx.com.cn/html/20240826/1396924.shtml
+https://news.bjx.com.cn/html/20250110/1422149.shtml
+https://news.bjx.com.cn/html/20240422/1372893.shtml
+final result: 
+
+中国能建华北院中标鄂尔多斯市绿氢与煤化工耦合碳减排创新示范项目。项目位于内蒙古乌审旗苏里格经济开发区，依托丰富的煤炭资源、土地资源、可再生风光资源、矿井疏干水资源和环境承载力空间，配套建设100万千瓦新能源（风电50万千瓦、光伏50万千瓦）及20万千瓦/60万千瓦时储能系统，为260万吨/年煤制烯烃及配套40万吨/年绿氢耦合制烯烃供电。项目建成后，将实现绿电、绿氧、绿氢耦合减排并减少外购甲醇量，稳定烯烃产能，达到降碳减碳目标。
+
+
+
+raw materials: ae2d03_processed.json
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+get more related urls time: 137.61481475830078
+diff from benchmark: benchmark: 0 results
+get info time: 49.547406911849976
+related urls: 
+
+final result: 
+湖北武汉首个制氢加氢站项目即将正式投运，采用领先技术，具有高效、环保、氢气纯度高的优势。加氢价格定为25元/公斤，推动氢能源车辆普及。项目基础施工完成，施工团队克服复杂地质条件，即将投入运营，助力湖北省氢能源网络布局。[30]氢气[31]氢能[32]
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+get more related urls time: 33.96092414855957
+diff from benchmark: 差异4个(遗漏0个,多出4个)
+get info time: 13.223427057266235
+related urls: 
+https://m.bjx.com.cn/mnews/20241231/1420185.shtml
+https://m.bjx.com.cn/mnews/20250110/1422065.shtml
+https://m.bjx.com.cn/mnews/20241230/1420059.shtml
+https://m.bjx.com.cn/mnews/20250103/1420820.shtml
+final result: 
+
+湖北武汉即将投运的加氢站采用领先技术，降低操作风险与设备维护难度，具备高效、环保、氢气纯度高优势，可提升制氢效率与质量。加氢环节运用智能精确计量与控制系统，根据不同车辆需求精准加氢，保障加氢过程的安全与高效运营。加氢站提供25元/公斤的加氢价格，助力氢能源车辆的销售与普及，推动氢能源在交通运输领域的广泛应用。项目区域布置有先进的钻探设备和临时指挥设施，施工现场秩序井然，勘探工作高效展开。该项目预计正式投运后，将助力加速湖北省氢能源网络布局，为氢能源行业的规模化应用打下坚实基础。
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+get more related urls time: 219.10292792320251
+diff from benchmark: 差异6个(遗漏0个,多出6个)
+get info time: 16.395369052886963
+related urls: 
+https://m.bjx.com.cn/mnews/20241231/1420185.shtml
+https://m.bjx.com.cn/mnews/20250110/1422065.shtml
+https://m.bjx.com.cn/mnews/20250106/1421179.shtml
+https://news.bjx.com.cn/search/
+https://m.bjx.com.cn/mnews/20250106/1420968.shtml
+https://m.bjx.com.cn/mnews/20250103/1420820.shtml
+final result: 
+
+湖北武汉即将投运的加氢站项目采用领先技术，具有高效、环保、氢气纯度高的优势，加氢价格为25元/公斤。该项目在制氢和加氢环节运用智能精确计量与控制系统，保障了加氢过程的安全与高效运营。目前基础施工已完成，施工团队克服了复杂地质条件，为项目地基建设和设备安装提供了科学依据。项目投运后将助力湖北省氢能源网络布局，推动氢能源行业的规模化应用，并为双碳目标贡献。
+
+
+
+model: deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+get more related urls time: 3.2640798091888428
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 1.7062859535217285
+related urls: 
+
+final result: 
+
+
+

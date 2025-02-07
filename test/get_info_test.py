@@ -14,9 +14,10 @@ from utils.general_utils import is_chinese
 from agents.get_info import get_author_and_publish_date, get_info, get_more_related_urls
 from agents.get_info_prompts import *
 
+
 benchmark_model = 'Qwen/Qwen2.5-72B-Instruct'
-# benchmark_model = 'deepseek-chat'
-# models = ['deepseek-reasoner']
+# benchmark_model = 'deepseek-ai/DeepSeek-R1-Distill-Qwen-32B'
+# models = ['deepseek-ai/DeepSeek-R1-Distill-Qwen-7B', 'deepseek-ai/DeepSeek-R1-Distill-Qwen-14B', 'deepseek-ai/DeepSeek-R1-Distill-Llama-8B']
 models = ['Qwen/Qwen2.5-7B-Instruct', 'Qwen/Qwen2.5-14B-Instruct',  'Qwen/Qwen2.5-32B-Instruct', 'deepseek-ai/DeepSeek-V2.5']
 
 async def main(sample: dict, include_ap: bool, prompts: list, record_file: str):
@@ -32,7 +33,7 @@ async def main(sample: dict, include_ap: bool, prompts: list, record_file: str):
         print(f"running {model} ...")
         start_time = time.time()
         if include_ap:
-            author, publish_date = await get_author_and_publish_date(contents[0], model, test_mode=True)
+            author, publish_date = await get_author_and_publish_date('# '.join(contents), model, test_mode=True)
             get_ap_time = time.time() - start_time
             print(f"get author and publish date time: {get_ap_time}")
         else:
