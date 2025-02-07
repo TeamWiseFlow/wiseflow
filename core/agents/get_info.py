@@ -263,9 +263,9 @@ async def get_more_related_urls(texts: list[str], link_dict: dict, prompts: list
 
             result = re.findall(r'<answer>(.*?)</answer>', result, re.DOTALL)
             if result:
-                links = re.findall(r'\[\d+\]', result[-1])
+                links = re.findall(r'\[\d+]', result[-1])
                 for link in links:
-                    if link not in text_batch:
+                    if link not in link_dict or link not in text_batch:
                         if _logger:
                             _logger.warning(f"model generating hallucination:\n{link}\n{result[-1]}\n{text_batch}")
                         if test_mode:
