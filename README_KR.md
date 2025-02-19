@@ -112,7 +112,7 @@ SECONDARY_MODEL="Qwen/Qwen2.5-14B-Instruct"
 VL_MODEL="OpenGVLab/InternVL2-26B"
 ```
       
-😄 원하신다면 제 [siliconflow 추천 링크](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92)를 사용하실 수 있습니다. 이를 통해 제가 더 많은 토큰 보상을 받을 수 있습니다 🌹
+😄 원하신다면 제 [siliconflow 추천 링크](https://cloud.siliconflow.cn/i/WNLYbBpi)를 사용하실 수 있습니다. 이를 통해 제가 더 많은 토큰 보상을 받을 수 있습니다 🌹
 
 #### 추천 2: OpenAI, Claude, Gemini와 같은 폐쇄형 상용 모델에는 AiHubMix 프록시 사용
 

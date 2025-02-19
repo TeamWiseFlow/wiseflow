@@ -112,7 +112,7 @@ SECONDARY_MODEL="Qwen/Qwen2.5-14B-Instruct"
 VL_MODEL="OpenGVLab/InternVL2-26B"
 ```
       
-😄 よろしければ、私の[siliconflow紹介リンク](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92)をご利用ください。これにより、私もより多くのトークン報酬を獲得できます 🌹
+😄 よろしければ、私の[siliconflow紹介リンク](https://cloud.siliconflow.cn/i/WNLYbBpi) をご利用ください。これにより、私もより多くのトークン報酬を獲得できます 🌹
 
 #### 推奨2：OpenAI、Claude、Geminiなどのクローズドソース商用モデルにはAiHubMixプロキシを使用
 
