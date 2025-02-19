@@ -111,7 +111,7 @@ SECONDARY_MODEL="Qwen/Qwen2.5-14B-Instruct"
 VL_MODEL="OpenGVLab/InternVL2-26B"
 ```
       
-😄 If you'd like, you can use my [siliconflow referral link](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92), which will help me earn more token rewards 🌹
+😄 If you'd like, you can use my [siliconflow referral link](https://cloud.siliconflow.cn/i/WNLYbBpi), which will help me earn more token rewards 🌹
 
 #### Recommendation 2: Use AiHubMix Proxy for Closed-Source Commercial Models like OpenAI, Claude, Gemini
 

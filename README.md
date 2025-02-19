@@ -112,7 +112,7 @@ SECONDARY_MODEL="Qwen/Qwen2.5-14B-Instruct"
 VL_MODEL="OpenGVLab/InternVL2-26B"
 ```
       
-😄 如果您愿意，可以使用我的[siliconflow邀请链接](https://cloud.siliconflow.cn?referrer=clx6wrtca00045766ahvexw92)，这样我也可以获得更多token奖励 🌹
+😄 如果您愿意，可以使用我的[siliconflow邀请链接](https://cloud.siliconflow.cn/i/WNLYbBpi)，这样我也可以获得更多token奖励 🌹
 
 #### 推荐2：使用 AiHubMix 代理的openai、claude、gemini 等海外闭源商业模型服务
 
