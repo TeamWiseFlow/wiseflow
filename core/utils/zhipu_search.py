@@ -37,7 +37,12 @@ async def run_v4_async(query: str, _logger=None):
         )
         result = resp.json()
         result = result['choices'][0]['message']['tool_calls']
-        return result[0], result[1]
+        if len(result) == 0:
+            return {'search_intent': [{'intent': 'Unkown Reason Failed', 'keywords': ''}]}, {'search_result': []}
+        elif len(result) == 1:
+            return result[0], {'search_result': []}
+        else:
+            return result[0], result[1]
 
 if __name__ == '__main__':
     test_list = [#'广东全省的台风预警——仅限2024年的信息',
@@ -46,7 +51,7 @@ if __name__ == '__main__':
              #'人工智能领军人物介绍',
              #'社区治理',
              #'新获批的氢能项目——60万吨级别以上',
-             '氢能项目招标信息——2024年12月以后',
+             '新技术(文章主要内容必须是介绍某项智能汽车相关的新技术，且日期在2025年1月之后，并对提及的新技术进行摘要，格式如：新技术名称、新技术简要描述、行业应用情况（如有）)',
              #'各地住宅网签最新数据——2025年1月6日以后'
              ]
 
@@ -55,8 +60,6 @@ if __name__ == '__main__':
         tasks = [run_v4_async(query) for query in test_list]
         results = await asyncio.gather(*tasks)
         for query, (intent, content) in zip(test_list, results):
-            print(query)
-            print('\n')
             print('test bigmodel...')
             pprint(intent)
             print('\n')
