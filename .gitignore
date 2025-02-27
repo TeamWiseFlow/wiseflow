@@ -12,3 +12,4 @@ core/docker_dir/
 core/work_dir/
 test/webpage_samples/
 weixin_mp/work_dir/
+/docker

@@ -237,6 +237,58 @@ sites 字段说明：
 
 **注意：V0.3.8版本后，配置的调整无需重启程序，会在下一次执行时自动生效。**
 
+## 🐳 Docker 部署
+
+如果您希望使用 Docker 部署 Wiseflow，我们也提供了完整的容器化支持。
+
+### 1. 准备工作
+
+确保您的系统已经安装了 Docker。
+
+### 1. 配置环境变量
+
+将`env_docker`文件复制为根目录下的`.env`文件：
+
+```bash
+cp env_docker .env
+```
+
+### 2. 参考《[安装与使用](#-安装与使用)》修改`.env`文件
+
+以下几个环境变量是必须按需修改的:
+
+```bash
+LLM_API_KEY=""
+LLM_API_BASE="https://api.siliconflow.cn/v1"
+PB_SUPERUSER_EMAIL="test@example.com"
+PB_SUPERUSER_PASSWORD="1234567890"
+```
+
+### 3. 启动服务
+
+在项目根目录执行：
+
+```bash
+docker compose up -d
+```
+
+服务启动后：
+
+- PocketBase 管理界面：http://localhost:8090/\_/
+- Wiseflow 服务将自动运行并连接到 PocketBase
+
+### 4. 停止服务
+
+```bash
+docker compose down
+```
+
+### 5. 注意事项
+
+- `./docker/pb_data`目录用于存储 PocketBase 相关文件
+- `./docker/pip_cache`目录用于存储 Python 依赖包缓存, 避免重复下载安装依赖
+- `./docker/work_dir`目录用于存储 wiseflow 运行时的日志, 可在`.env`文件修改`PROJECT_DIR`
+
 ## 📚 如何在您自己的程序中使用 wiseflow 抓取出的数据
 
 1、参考 [dashbord](dashboard) 部分源码二次开发。
