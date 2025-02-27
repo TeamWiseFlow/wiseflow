@@ -287,9 +287,9 @@ docker compose down
 
 ### 5. 중요 참고 사항
 
-- `./docker/pb_data` 디렉토리는 PocketBase 관련 파일을 저장하는 데 사용됩니다
+- `./pb/pb_data` 디렉토리는 PocketBase 관련 파일을 저장하는 데 사용됩니다
 - `./docker/pip_cache` 디렉토리는 Python 종속성 패키지 캐시를 저장하여 반복 다운로드를 방지하는 데 사용됩니다
-- `./docker/work_dir` 디렉토리는 Wiseflow 런타임 로그를 저장하는 데 사용됩니다. `.env` 파일에서 `PROJECT_DIR`을 수정할 수 있습니다
+- `./core/work_dir` 디렉토리는 Wiseflow 런타임 로그를 저장하는 데 사용됩니다. `.env` 파일에서 `PROJECT_DIR`을 수정할 수 있습니다
 
 ## 📚 wiseflow가 크롤링한 데이터를 귀하의 프로그램에서 사용하는 방법
 

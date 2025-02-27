@@ -285,9 +285,9 @@ docker compose down
 
 ### 5. 注意事项
 
-- `./docker/pb_data`目录用于存储 PocketBase 相关文件
+- `./pb/pb_data`目录用于存储 PocketBase 相关文件
 - `./docker/pip_cache`目录用于存储 Python 依赖包缓存, 避免重复下载安装依赖
-- `./docker/work_dir`目录用于存储 wiseflow 运行时的日志, 可在`.env`文件修改`PROJECT_DIR`
+- `./core/work_dir`目录用于存储 wiseflow 运行时的日志, 可在`.env`文件修改`PROJECT_DIR`
 
 ## 📚 如何在您自己的程序中使用 wiseflow 抓取出的数据
 

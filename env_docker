@@ -10,7 +10,7 @@ VL_MODEL="OpenGVLab/InternVL2-26B"
 # your pb superuser account and password
 PB_SUPERUSER_EMAIL="test@example.com"
 PB_SUPERUSER_PASSWORD="1234567890"
-PROJECT_DIR="./docker/work_dir"
+PROJECT_DIR="./core/work_dir"
 
 # belowing is optional, go as you need
 # for detail log info. If not need, remove this item.

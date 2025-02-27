@@ -6,10 +6,9 @@ services:
     ports:
       - '8090:8090'
     volumes:
-      - ./docker/pb_data:/pb_data
-      - ./pb/pb_migrations:/pb_migrations
+      - ./pb:/pb
     restart: unless-stopped
-    entrypoint: sh -c '/usr/local/bin/pocketbase superuser upsert $PB_SUPERUSER_EMAIL $PB_SUPERUSER_PASSWORD --dev --dir=/pb_data && /usr/local/bin/pocketbase serve --dev --http=0.0.0.0:8090 --dir=/pb_data --publicDir=/pb_public --hooksDir=/pb_hooks --migrationsDir=/pb_migrations'
+    entrypoint: sh -c '/usr/local/bin/pocketbase superuser upsert $PB_SUPERUSER_EMAIL $PB_SUPERUSER_PASSWORD --dev --dir=/pb/pb_data && /usr/local/bin/pocketbase serve --dev --http=0.0.0.0:8090 --dir=/pb/pb_data --publicDir=/pb_public --hooksDir=/pb_hooks --migrationsDir=/pb/pb_migrations'
     environment:
       - PB_SUPERUSER_EMAIL=${PB_SUPERUSER_EMAIL}
       - PB_SUPERUSER_PASSWORD=${PB_SUPERUSER_PASSWORD}
