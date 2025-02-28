@@ -237,6 +237,57 @@ python windows_run.py
 
 **注意：V0.3.8以降、設定の調整はプログラムを再起動する必要はありません。次回の実行時に自動的に適用されます。**
 
+## 🐳 Docker デプロイメント
+
+Docker を使用して Wiseflow をデプロイしたい場合、完全なコンテナ化サポートを提供しています。
+
+### 1. 前提条件
+
+システムに Docker がインストールされていることを確認してください。
+
+### 1. 環境変数の設定
+
+ルートディレクトリで`env_docker`ファイルを`.env`としてコピーします：
+
+```bash
+cp env_docker .env
+```
+
+### 2. 《[インストールと使用方法](#-インストールと使用)》セクションに従って`.env`ファイルを修正
+
+以下の環境変数は必要に応じて修正する必要があります：
+
+```bash
+LLM_API_KEY=""
+LLM_API_BASE="https://api.siliconflow.cn/v1"
+PB_SUPERUSER_EMAIL="test@example.com"
+PB_SUPERUSER_PASSWORD="1234567890"
+```
+
+### 3. サービスの開始
+
+プロジェクトのルートディレクトリで実行：
+
+```bash
+docker compose up -d
+```
+
+サービス開始後：
+
+- PocketBase 管理インターフェース：http://localhost:8090/\_/
+- Wiseflow サービスが自動的に実行され、PocketBase に接続されます
+
+### 4. サービスの停止
+
+```bash
+docker compose down
+```
+
+### 5. 重要な注意事項
+
+- `./pb/pb_data`ディレクトリは PocketBase 関連ファイルの保存に使用されます
+- `./docker/pip_cache`ディレクトリは Python 依存パッケージのキャッシュを保存し、再ダウンロードを避けるために使用されます
+- `./core/work_dir`ディレクトリは Wiseflow のランタイムログの保存に使用されます。`.env`ファイルで`PROJECT_DIR`を修正できます
 
 ## 📚 あなた自身のプログラムでwiseflowがクロールしたデータをどのように使用するか
 
