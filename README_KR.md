@@ -239,6 +239,57 @@ sites 필드 설명：
 
 **참고：V0.3.8 버전 이후, 설정의 변경은 프로그램을 재시작하지 않아도 다음 실행 시 자동으로 적용됩니다.**
 
+## 🐳 Docker 배포
+
+Docker를 사용하여 Wiseflow를 배포하려는 경우, 완벽한 컨테이너화 지원을 제공합니다.
+
+### 1. 전제 조건
+
+시스템에 Docker가 설치되어 있는지 확인하십시오.
+
+### 1. 환경 변수 구성
+
+루트 디렉토리에서 `env_docker` 파일을 `.env`로 복사하십시오:
+
+```bash
+cp env_docker .env
+```
+
+### 2. 《[설치 및 사용](#-설치-및-사용)》섹션에 따라 `.env` 파일 수정
+
+다음 환경 변수는 필요에 따라 수정해야 합니다:
+
+```bash
+LLM_API_KEY=""
+LLM_API_BASE="https://api.siliconflow.cn/v1"
+PB_SUPERUSER_EMAIL="test@example.com"
+PB_SUPERUSER_PASSWORD="1234567890"
+```
+
+### 3. 서비스 시작
+
+프로젝트 루트 디렉토리에서 실행:
+
+```bash
+docker compose up -d
+```
+
+서비스 시작 후:
+
+- PocketBase 관리자 인터페이스: http://localhost:8090/_/
+- Wiseflow 서비스가 자동으로 실행되고 PocketBase에 연결됩니다
+
+### 4. 서비스 중지
+
+```bash
+docker compose down
+```
+
+### 5. 중요 참고 사항
+
+- `./pb/pb_data` 디렉토리는 PocketBase 관련 파일을 저장하는 데 사용됩니다
+- `./docker/pip_cache` 디렉토리는 Python 종속성 패키지 캐시를 저장하여 반복 다운로드를 방지하는 데 사용됩니다
+- `./core/work_dir` 디렉토리는 Wiseflow 런타임 로그를 저장하는 데 사용됩니다. `.env` 파일에서 `PROJECT_DIR`을 수정할 수 있습니다
 
 ## 📚 wiseflow가 크롤링한 데이터를 귀하의 프로그램에서 사용하는 방법
 

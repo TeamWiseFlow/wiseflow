@@ -238,6 +238,58 @@ Field explanations:
 
 **Note: After version V0.3.8, adjustments to configurations do not require restarting the program, and will automatically take effect at the next execution.**
 
+## 🐳 Docker Deployment
+
+If you want to deploy Wiseflow using Docker, we provide complete containerization support.
+
+### 1. Prerequisites
+
+Make sure Docker is installed on your system.
+
+### 1. Configure Environment Variables
+
+Copy the `env_docker` file as `.env` in the root directory:
+
+```bash
+cp env_docker .env
+```
+
+### 2. Modify the `.env` File According to the《[Installation and Usage](#-installation-and-usage)》Section
+
+The following environment variables must be modified as needed:
+
+```bash
+LLM_API_KEY=""
+LLM_API_BASE="https://api.siliconflow.cn/v1"
+PB_SUPERUSER_EMAIL="test@example.com"
+PB_SUPERUSER_PASSWORD="1234567890"
+```
+
+### 3. Start the Service
+
+Execute in the project root directory:
+
+```bash
+docker compose up -d
+```
+
+After the service starts:
+
+- PocketBase Admin Interface: http://localhost:8090/\_/
+- Wiseflow service will automatically run and connect to PocketBase
+
+### 4. Stop the Service
+
+```bash
+docker compose down
+```
+
+### 5. Important Notes
+
+- The `./pb/pb_data` directory is used to store PocketBase related files
+- The `./docker/pip_cache` directory is used to store Python dependency package cache to avoid repeated downloads
+- The `./core/work_dir` directory is used to store Wiseflow runtime logs, you can modify `PROJECT_DIR` in the `.env` file
+
 ## 📚 How to Use the Data Crawled by wiseflow in Your Own Program
 
 1. Refer to the [dashboard](dashboard) part of the source code for secondary development.
