@@ -16,8 +16,36 @@ check_pocketbase() {
 # 2. Get available versions
 get_versions() {
     echo "Fetching available versions..."
-    VERSIONS=($(curl -s https://api.github.com/repos/pocketbase/pocketbase/releases | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'))
-    LATEST_VERSION=${VERSIONS[0]}
+    
+    # Try to fetch versions from GitHub API
+    RESPONSE=$(curl -s -w "\n%{http_code}" https://api.github.com/repos/pocketbase/pocketbase/releases)
+    HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+    CONTENT=$(echo "$RESPONSE" | sed \$d)
+    
+    if [ "$HTTP_CODE" = "200" ]; then
+        VERSIONS=($(echo "$CONTENT" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'))
+        LATEST_VERSION=${VERSIONS[0]}
+        echo "Successfully fetched versions from GitHub API"
+    else
+        echo "Failed to fetch versions from GitHub API (HTTP $HTTP_CODE)"
+        echo "This might be due to API rate limiting."
+        echo "Check versions manually at https://github.com/pocketbase/pocketbase/releases"
+        echo "Please manually enter a PocketBase version (e.g., v0.25.8):"
+        read MANUAL_VERSION
+        
+        # Validate version format
+        if [[ ! "$MANUAL_VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid version format. Version should be in format vX.Y.Z (e.g., v0.25.8)"
+            exit 1
+        fi
+        
+        VERSIONS=("$MANUAL_VERSION")
+        SELECTED_VERSION="$MANUAL_VERSION"
+        LATEST_VERSION="$MANUAL_VERSION"
+        
+        # Skip version selection if manually entered
+        return 1
+    fi
 }
 
 # 3. Select version with arrow keys
@@ -248,7 +276,10 @@ main() {
     echo "Starting PocketBase installation..."
     check_pocketbase
     get_versions
-    select_version
+    # Only run select_version if get_versions was successful
+    if [ $? -eq 0 ]; then
+        select_version
+    fi
     download_pocketbase
     configure_admin
     configure_env
