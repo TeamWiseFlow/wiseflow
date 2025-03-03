@@ -33,6 +33,7 @@ services:
       - SECONDARY_MODEL=${SECONDARY_MODEL}
       - LLM_CONCURRENT_NUMBER=${LLM_CONCURRENT_NUMBER:-1}
       - VERBOSE=${VERBOSE:-""}
+      # - CRAWL4_AI_BASE_DIRECTORY=/work_dir
     depends_on:
       - pocketbase
 

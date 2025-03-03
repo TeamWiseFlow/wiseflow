@@ -6,7 +6,11 @@ import re
 core_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'core')
 sys.path.append(core_path)
 
-# 现在可以直接导入模块，因为core目录已经在Python路径中
+from dotenv import load_dotenv
+env_path = os.path.join(core_path, '.env')
+if os.path.exists(env_path):
+    load_dotenv(env_path)
+
 from scrapers import *
 from agents.get_info import pre_process
 
@@ -72,6 +76,11 @@ async def main(html_sample, record_file):
         title = result.title
         if title == 'maybe a new_type_article':
             print(f'\033[31mwe found a new type here, {record_file}\033[0m')
+            print(f'content: {result.content}')
+            print(f'images: {result.images}')
+            print(f'base: {result.base}')
+            print(f'author: {result.author}')
+            print(f'publish_date: {result.publish_date}')
             return
         base_url = result.base
         author = result.author

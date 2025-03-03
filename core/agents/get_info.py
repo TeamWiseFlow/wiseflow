@@ -53,14 +53,16 @@ async def pre_process(raw_markdown: str, base_url: str, used_img: list[str],
             link_text = link_text.strip()
             if _title and _title not in link_text:
                 link_text = f"{_title} - {link_text}"
-
+            """
+            # for protecting_links model
             real_url_pattern = r'<(.*?)>'
             real_url = re.search(real_url_pattern, link_url, re.DOTALL)
             if real_url:
                 _url = real_url.group(1).strip()
             else:
                 _url = re.sub(quote_pattern, '', link_url, re.DOTALL).strip()
-
+            """
+            _url = re.sub(quote_pattern, '', link_url, re.DOTALL).strip()
             if not _url or _url.startswith(('#', 'javascript:')):
                 text = text.replace(_sec, link_text, 1)
                 continue
@@ -188,14 +190,34 @@ async def pre_process(raw_markdown: str, base_url: str, used_img: list[str],
                 print(ratio, '\n')
                 print(text)
                 print('-' * 50)
-            links_parts.append(text)
+            if len(text) > 30000:
+                lines = text.split('\n')
+                _text = ''
+                while lines:
+                    l = lines.pop(0)
+                    _text = f'{_text}{l}\n'
+                    if len(_text) > 29000 or len(lines) == 0:
+                        links_parts.append(_text)
+                        _text = ''
+            else:
+                links_parts.append(text)
         else:
             if test_mode:
                 print('\033[34mthis is a content part\033[0m')
                 print(ratio, '\n')
                 print(text)
                 print('-' * 50)
-            contents.append(text)
+            if len(text) > 30000:
+                lines = text.split('\n')
+                _text = ''
+                while lines:
+                    l = lines.pop(0)
+                    _text = f'{_text}{l}\n'
+                    if len(_text) > 29000 or len(lines) == 0:
+                        contents.append(_text)
+                        _text = ''
+            else:
+                contents.append(text)
     return link_dict, links_parts, contents, recognized_img_cache
 
 

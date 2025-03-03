@@ -79,7 +79,7 @@ function Configure-AdminAccount {
     } while (-not ($email -match "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"))
     
     do {
-        $password = Read-Host "Enter admin password (min 8 chars)" -AsSecureString
+        $password = Read-Host "Enter admin password (no '&' in the password and at least 10 characters)" -AsSecureString
         $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($password)
         $passwordText = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
     } while ($passwordText.Length -lt 8)

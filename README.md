@@ -15,29 +15,28 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 目前我们更加建议继续使用普通的语言大模型，我们也对原有 prompt 进行了改进，提升了7b、14b 模型的输出效果。如果您对生成速度和成本比较在意，目前推荐同时将PRIMARY_MODEL和SECONDARY_MODEL设定为Qwen2.5-14B-Instruct。
 
-## 🔥 V0.3.8 正式发布
+## 🔥 V0.3.9 发布
 
-- V0.3.8版本引入对 RSS、搜索引擎的支持，现在 wiseflow 支持 _网站_、_rss_、_搜索引擎_ 和 _微信公众号_ 四类信源啦！
-
-- 产品策略上改为按关注点指定信源，也就是可以为不同信源指定不同关注点了，实测同等模型下可以进一步提高信息提取的准确率。
-
-- 优化入口程序，为 MacOS&Linux 和 Windows 用户分别提供单一的启动脚本，方便大家使用。
+v0.3.9 是 v0.3.8版本的升级修复版本，适配了 crawl4ai 0.4.248，优化了性能，并整合了累积的 bug 修复，同时也是 0.3.x 系列的长期稳定版本。
 
 有关本次升级更多内容请见 [CHANGELOG.md](./CHANGELOG.md)
 
-**V0.3.8版本搜索引擎使用智谱bigmodel开放平台提供的服务，需要在 .env 中增加ZHIPU_API_KEY**
+**V0.3.7以及之前版本的老用户升级后请先在 pb 文件夹下执行一次 ./pocketbase migrate**
 
-**V0.3.8版本对pocketbase的表单结构做了调整，老用户请先在 pb 文件夹下执行一次 ./pocketbase migrate**
-
-V0.3.8是一个稳定版本，原计划的 V0.3.9 需要积累更多社区的反馈以决定升级方向，因此需要等待较长时间。
-
-感谢如下社区成员在 V0.3.5~V0.3.8 版本中的 PR：
+感谢如下社区成员在 V0.3.5~V0.3.9 版本中的 PR：
 
   - @ourines 贡献了 install_pocketbase.sh自动化安装脚本
   - @ibaoger 贡献了 windows下的pocketbase自动化安装脚本
   - @tusik 贡献了异步 llm wrapper 同时发现了AsyncWebCrawler生命周期的问题
   - @c469591 贡献了 windows版本启动脚本
-  
+  - @braumye 贡献了 docker 运行方案
+  - @YikaJ 提供了对 install_pocketbase.sh 的优化
+
+**wiseflow 的下一个开源版本预计需要等待至少2个月，我们将开启全新的0.4.x 架构**
+
+有关0.4.x我其实一直在思考具体的产品路线图，目前看我需要更多的真实用户反馈，希望大家能够在 [issue](https://github.com/TeamWiseFlow/wiseflow/issues) 板块中多提出使用需求。
+
+
 ### 🌟测试报告
 
 在最新的提取策略下，我们发现7b 这种规模的模型也能很好的执行链接分析与提取任务，测试结果请参考 [report](./test/reports/wiseflow_report_v037_bigbrother666/README.md)
@@ -58,10 +57,9 @@ wiseflow自2024年6月底发布 V0.3.0版本来受到了开源社区的广泛关
 |          | 与 **首席情报官（Wiseflow）** 的比较说明| 
 |-------------|-----------------|
 | **爬虫类工具** | 首先 wiseflow 是基于爬虫工具的项目，但传统的爬虫工具在信息提取方面需要人工的提供明确的 Xpath 等信息……这不仅阻挡了普通用户，同时也毫无通用性可言，对于不同网站（包括已有网站升级后）都需要人工重做分析，更新程序。wiseflow致力于使用 LLM 自动化网页的分析和提取工作，用户只要告诉程序他的关注点即可。 如果以 Crawl4ai 为例对比说明，Crawl4ai 是会使用 llm 进行信息提取的爬虫，而wiseflow 则是会使用爬虫工具的llm信息提取器。|
-| **AI搜索** |  AI搜索主要的应用场景是**具体问题的即时问答**，举例：”XX公司的创始人是谁“、“xx品牌下的xx产品哪里有售” ，用户要的是**一个答案**；wiseflow主要的应用场景是**某一方面信息的持续采集**，比如XX公司的关联信息追踪，XX品牌市场行为的持续追踪……在这些场景下，用户能提供关注点（某公司、某品牌）、甚至能提供信源（站点 url 等），但无法提出具体搜索问题，用户要的是**一系列相关信息**| 
+| **AI搜索（包括各类‘deep search’）** |  AI搜索主要的应用场景是**具体问题的即时问答**，举例：”XX公司的创始人是谁“、“xx品牌下的xx产品哪里有售” ，用户要的是**一个答案**；wiseflow主要的应用场景是**某一方面信息的持续采集**，比如XX公司的关联信息追踪，XX品牌市场行为的持续追踪……在这些场景下，用户能提供关注点（某公司、某品牌）、甚至能提供信源（站点 url 等），但无法提出具体搜索问题，用户要的是**一系列相关信息**| 
 | **知识库（RAG）类项目** | 知识库（RAG）类项目一般是基于已有信息的下游任务，并且一般面向的是私有知识（比如企业内的操作手册、产品手册、政府部门的文件等）；wiseflow 目前并未整合下游任务，同时面向的是互联网上的公开信息，如果从“智能体”的角度来看，二者属于为不同目的而构建的智能体，RAG 类项目是“（内部）知识助理智能体”，而 wiseflow 则是“（外部）信息采集智能体”|
 
-**wiseflow 0.4.x 版本将关注下游任务的集成， 引入 LLM 驱动的轻量级知识图谱，帮助用户从 infos 中建立洞察。**
 
 ## 📥 安装与使用
 
@@ -109,7 +107,7 @@ LLM_API_KEY=Your_API_KEY
 LLM_API_BASE="https://api.siliconflow.cn/v1"
 PRIMARY_MODEL="Qwen/Qwen2.5-32B-Instruct"
 SECONDARY_MODEL="Qwen/Qwen2.5-14B-Instruct"
-VL_MODEL="OpenGVLab/InternVL2-26B"
+VL_MODEL="deepseek-ai/deepseek-vl2"
 ```
       
 😄 如果您愿意，可以使用我的[siliconflow邀请链接](https://cloud.siliconflow.cn/i/WNLYbBpi)，这样我也可以获得更多token奖励 🌹
@@ -245,7 +243,7 @@ sites 字段说明：
 
 确保您的系统已经安装了 Docker。
 
-### 1. 配置环境变量
+### 2. 配置环境变量
 
 将`env_docker`文件复制为根目录下的`.env`文件：
 
@@ -253,7 +251,7 @@ sites 字段说明：
 cp env_docker .env
 ```
 
-### 2. 参考《[安装与使用](#-安装与使用)》修改`.env`文件
+### 3. 参考《[安装与使用](#-安装与使用)》修改`.env`文件
 
 以下几个环境变量是必须按需修改的:
 
@@ -261,10 +259,10 @@ cp env_docker .env
 LLM_API_KEY=""
 LLM_API_BASE="https://api.siliconflow.cn/v1"
 PB_SUPERUSER_EMAIL="test@example.com"
-PB_SUPERUSER_PASSWORD="1234567890"
+PB_SUPERUSER_PASSWORD="1234567890" #no '&' in the password and at least 10 characters
 ```
 
-### 3. 启动服务
+### 4. 启动服务
 
 在项目根目录执行：
 
@@ -274,16 +272,16 @@ docker compose up -d
 
 服务启动后：
 
-- PocketBase 管理界面：http://localhost:8090/\_/
+- PocketBase 管理界面：http://localhost:8090/_/
 - Wiseflow 服务将自动运行并连接到 PocketBase
 
-### 4. 停止服务
+### 5. 停止服务
 
 ```bash
 docker compose down
 ```
 
-### 5. 注意事项
+### 6. 注意事项
 
 - `./pb/pb_data`目录用于存储 PocketBase 相关文件
 - `./docker/pip_cache`目录用于存储 Python 依赖包缓存, 避免重复下载安装依赖
