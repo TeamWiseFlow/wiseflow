@@ -23,8 +23,6 @@ For more details about this upgrade, please see [CHANGELOG.md](./CHANGELOG.md)
 
 **Users upgrading from V0.3.7 or earlier versions should first execute `./pocketbase migrate` in the `pb` folder.**
 
-V0.3.8 is a stable version. The originally planned V0.3.9 needs to accumulate more community feedback to determine the upgrade direction, so it will take longer to release.
-
 Thanks to the following community members for their PRs in versions V0.3.5~V0.3.9:
 
   - @ourines contributed the install_pocketbase.sh automated installation script
