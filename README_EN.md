@@ -15,28 +15,28 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 At present, we strongly recommend continuing to use standard large language models. We have also improved the original prompt to enhance the output quality of the 7B and 14B models. If you are concerned about generation speed and cost, we currently recommend setting both `PRIMARY_MODEL` and `SECONDARY_MODEL` to `Qwen2.5-14B-Instruct`.
 
 
-## 🔥 V0.3.8 Officially Released
+## 🔥 V0.3.9 Released
 
-- Version V0.3.8 introduces support for RSS and search engines. Now wiseflow supports four types of information sources: _websites_, _rss_, _search engines_, and _WeChat Official Accounts_!
-
-- The product strategy has been changed to specify information sources based on focus points, meaning different focus points can be assigned to different information sources. Tests show this can further improve information extraction accuracy with the same model.
-
-- The entry program has been optimized, providing single startup scripts for both MacOS/Linux and Windows users for easier usage.
+v0.3.9 is an upgraded and fixed version of v0.3.8. It adapts to crawl4ai 0.4.248, optimizes performance, integrates accumulated bug fixes, and is also a long-term stable version of the 0.3.x series.
 
 For more details about this upgrade, please see [CHANGELOG.md](./CHANGELOG.md)
 
-**V0.3.8 version uses the service provided by Zhipu bigmodel open platform for search engine functionality. You need to add ZHIPU_API_KEY in .env file**
-
-**V0.3.8 version has made adjustments to the PocketBase form structure. Existing users should execute ./pocketbase migrate once in the pb folder**
+**Users upgrading from V0.3.7 or earlier versions should first execute `./pocketbase migrate` in the `pb` folder.**
 
 V0.3.8 is a stable version. The originally planned V0.3.9 needs to accumulate more community feedback to determine the upgrade direction, so it will take longer to release.
 
-Thanks to the following community members for their PRs in versions V0.3.5~V0.3.8:
+Thanks to the following community members for their PRs in versions V0.3.5~V0.3.9:
 
   - @ourines contributed the install_pocketbase.sh automated installation script
   - @ibaoger contributed the PocketBase automated installation script for Windows
   - @tusik contributed the asynchronous llm wrapper and discovered the AsyncWebCrawler lifecycle issue
   - @c469591 contributed the Windows version startup script
+  - @braumye contributed the Docker deployment solution
+  - @YikaJ provided optimizations for install_pocketbase.sh
+
+**The next open-source version of wiseflow is expected to take at least 2 months, and we will launch a completely new 0.4.x architecture.**
+
+Regarding 0.4.x, I have been thinking about the specific product roadmap. Currently, I need more real user feedback. I hope everyone can submit more usage requirements in the [issue](https://github.com/TeamWiseFlow/wiseflow/issues) section.
   
 ### 🌟 Test Report
 
@@ -57,10 +57,9 @@ However, we have also noticed some misunderstandings about the functional positi
 |          | Comparison with **Chief Intelligence Officer (Wiseflow)** | 
 |-------------|-----------------|
 | **Crawler Tools** | First of all, wiseflow is a project based on a web crawler tool, but traditional crawler tools require manual provision of explicit Xpath information for data extraction... This not only blocks ordinary users but also lacks universality. For different websites (including existing websites after upgrades), manual re-analysis and program updates are required. wiseflow is committed to using LLM to automate the analysis and extraction of web pages. Users only need to tell the program their focus points. Taking Crawl4ai as an example for comparison, Crawl4ai is a crawler that uses LLM for information extraction, while wiseflow is an LLM information extractor that uses crawler tools. |
-| **AI Search** | AI search is mainly used for **instant question-and-answer** scenarios, such as "Who is the founder of XX company?" or "Where can I buy the xx product under the xx brand?" Users want **a single answer**; wiseflow is mainly used for **continuous information collection** in certain areas, such as tracking related information of XX company, continuously tracking market behavior of XX brand, etc. In these scenarios, users can provide focus points (a company, a brand) or even information sources (site URLs, etc.), but cannot pose specific search questions. Users want **a series of related information**.| 
+| **AI Search（inclue all ‘deep search’）** | AI search is mainly used for **instant question-and-answer** scenarios, such as "Who is the founder of XX company?" or "Where can I buy the xx product under the xx brand?" Users want **a single answer**; wiseflow is mainly used for **continuous information collection** in certain areas, such as tracking related information of XX company, continuously tracking market behavior of XX brand, etc. In these scenarios, users can provide focus points (a company, a brand) or even information sources (site URLs, etc.), but cannot pose specific search questions. Users want **a series of related information**.| 
 | **Knowledge Base (RAG) Projects** | Knowledge base (RAG) projects are generally based on downstream tasks of existing information and usually face private knowledge (such as operation manuals, product manuals, government documents within enterprises, etc.); wiseflow currently does not integrate downstream tasks and faces public information on the internet. From the perspective of "agents," the two belong to agents built for different purposes. RAG projects are "internal knowledge assistant agents," while wiseflow is an "external information collection agent."|
 
-**The wiseflow 0.4.x version will focus on the integration of downstream tasks, introducing an LLM-driven lightweight knowledge graph to help users gain insights from infos.**
 
 ## 📥 Installation and Usage
 
@@ -108,7 +107,7 @@ LLM_API_KEY=Your_API_KEY
 LLM_API_BASE="https://api.siliconflow.cn/v1"
 PRIMARY_MODEL="Qwen/Qwen2.5-32B-Instruct"
 SECONDARY_MODEL="Qwen/Qwen2.5-14B-Instruct"
-VL_MODEL="OpenGVLab/InternVL2-26B"
+VL_MODEL="deepseek-ai/deepseek-vl2"
 ```
       
 😄 If you'd like, you can use my [siliconflow referral link](https://cloud.siliconflow.cn/i/WNLYbBpi), which will help me earn more token rewards 🌹
@@ -246,7 +245,7 @@ If you want to deploy Wiseflow using Docker, we provide complete containerizatio
 
 Make sure Docker is installed on your system.
 
-### 1. Configure Environment Variables
+### 2. Configure Environment Variables
 
 Copy the `env_docker` file as `.env` in the root directory:
 
@@ -254,7 +253,7 @@ Copy the `env_docker` file as `.env` in the root directory:
 cp env_docker .env
 ```
 
-### 2. Modify the `.env` File According to the《[Installation and Usage](#-installation-and-usage)》Section
+### 3. Modify the `.env` File According to the《[Installation and Usage](#-installation-and-usage)》Section
 
 The following environment variables must be modified as needed:
 
@@ -262,10 +261,10 @@ The following environment variables must be modified as needed:
 LLM_API_KEY=""
 LLM_API_BASE="https://api.siliconflow.cn/v1"
 PB_SUPERUSER_EMAIL="test@example.com"
-PB_SUPERUSER_PASSWORD="1234567890"
+PB_SUPERUSER_PASSWORD="1234567890" #no '&' in the password and at least 10 characters
 ```
 
-### 3. Start the Service
+### 4. Start the Service
 
 Execute in the project root directory:
 
@@ -275,16 +274,16 @@ docker compose up -d
 
 After the service starts:
 
-- PocketBase Admin Interface: http://localhost:8090/\_/
+- PocketBase Admin Interface: http://localhost:8090/_/
 - Wiseflow service will automatically run and connect to PocketBase
 
-### 4. Stop the Service
+### 5. Stop the Service
 
 ```bash
 docker compose down
 ```
 
-### 5. Important Notes
+### 6. Important Notes
 
 - The `./pb/pb_data` directory is used to store PocketBase related files
 - The `./docker/pip_cache` directory is used to store Python dependency package cache to avoid repeated downloads

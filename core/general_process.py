@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from utils.pb_api import PbTalker
 from utils.general_utils import get_logger, extract_and_convert_dates, is_chinese
 from agents.get_info import *
@@ -18,7 +17,6 @@ if project_dir:
 
 wiseflow_logger = get_logger('wiseflow', project_dir)
 pb = PbTalker(wiseflow_logger)
-crawler = AsyncWebCrawler(verbose=False)
 
 model = os.environ.get("PRIMARY_MODEL", "")
 if not model:
@@ -133,7 +131,6 @@ async def main_process(focus: dict, sites: list):
         else:
             working_list.add(site['url'])
     
-    await crawler.start()
     while working_list:
         url = working_list.pop()
         existing_urls.add(url)
@@ -154,7 +151,12 @@ async def main_process(focus: dict, sites: list):
             run_config = crawler_config
             
         run_config.cache_mode = CacheMode.WRITE_ONLY if url in sites else CacheMode.ENABLED
-        result = await crawler.arun(url=url, config=run_config)
+        async with AsyncWebCrawler(config=browser_cfg) as crawler:
+            try:
+                result = await crawler.arun(url=url, config=run_config)
+            except Exception as e:
+                wiseflow_logger.error(e)
+                continue
         if not result.success:
             wiseflow_logger.warning(f'{url} failed to crawl, destination web cannot reach, skip')
             continue
@@ -179,7 +181,7 @@ async def main_process(focus: dict, sites: list):
             author = ''
             publish_date = ''
         if not raw_markdown:
-            wiseflow_logger.warning(f'{url} no content, something during fetching failed, skip')
+            wiseflow_logger.warning(f'{url} no content, skip')
             continue
 
         if not title:
@@ -220,5 +222,3 @@ async def main_process(focus: dict, sites: list):
             publish_date = date_stamp
         
         await info_process(url, title, author, publish_date, contents, link_dict, focus_id, get_info_prompts)
-
-    await crawler.close()

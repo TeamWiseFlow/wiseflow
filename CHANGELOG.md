@@ -1,3 +1,19 @@
+
+# V0.3.9
+
+- 适配 Crawl4ai 0.4.248 版本，优化了性能
+
+  Adapt to Crawl4ai 0.4.248 version, optimized performance
+
+- 累积 bug 修复
+
+  Cumulative bug fixes
+
+- 增加 docker 运行方案（感谢 @braumye 贡献）
+
+  Added docker running solution (thanks to @braumye for contributing)
+
+
 # V0.3.8
 
 - 增加对 RSS 信源的支持

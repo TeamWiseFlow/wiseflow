@@ -1,9 +1,9 @@
-openai
 loguru
+openai
 pocketbase
 pydantic
 #json_repair==0.*
 beautifulsoup4
 requests
-crawl4ai==0.4.247
+crawl4ai==0.4.248
 feedparser==6.0.11

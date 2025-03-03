@@ -6,10 +6,10 @@ PRIMARY_MODEL="Qwen/Qwen2.5-32B-Instruct"
 SECONDARY_MODEL="Qwen/Qwen2.5-14B-Instruct"
 # use a secondary model to excute the filtering task for the cost saving
 # if not set, will use the primary model to excute the filtering task
-VL_MODEL="OpenGVLab/InternVL2-26B"
+VL_MODEL="deepseek-ai/deepseek-vl2"
 # your pb superuser account and password
 PB_SUPERUSER_EMAIL="test@example.com"
-PB_SUPERUSER_PASSWORD="1234567890"
+PB_SUPERUSER_PASSWORD="1234567890"  #no '&' in the password and at least 10 characters
 PROJECT_DIR="./core/work_dir"
 
 # belowing is optional, go as you need

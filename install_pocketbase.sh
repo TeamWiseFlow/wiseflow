@@ -214,7 +214,7 @@ configure_admin() {
         
         # Get password
         while true; do
-            echo "Please set superuser password (minimum 8 characters):"
+            echo "Please set superuser password (no '&' in the password and at least 10 characters):"
             read -s PASSWORD
             echo
             
