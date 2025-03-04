@@ -23,6 +23,7 @@ if not model:
     raise ValueError("PRIMARY_MODEL not set, please set it in environment variables or edit core/.env")
 secondary_model = os.environ.get("SECONDARY_MODEL", model)
 
+
 async def info_process(url: str, 
                        url_title: str, 
                        author: str, 
@@ -130,7 +131,9 @@ async def main_process(focus: dict, sites: list):
             working_list.update(rss_urls - existing_urls)
         else:
             working_list.add(site['url'])
-    
+
+    crawler = AsyncWebCrawler(config=browser_cfg)
+    await crawler.start()
     while working_list:
         url = working_list.pop()
         existing_urls.add(url)
@@ -151,14 +154,13 @@ async def main_process(focus: dict, sites: list):
             run_config = crawler_config
             
         run_config.cache_mode = CacheMode.WRITE_ONLY if url in sites else CacheMode.ENABLED
-        async with AsyncWebCrawler(config=browser_cfg) as crawler:
-            try:
-                result = await crawler.arun(url=url, config=run_config)
-            except Exception as e:
-                wiseflow_logger.error(e)
-                continue
+        try:
+            result = await crawler.arun(url=url, config=run_config)
+        except Exception as e:
+            wiseflow_logger.error(e)
+            continue
         if not result.success:
-            wiseflow_logger.warning(f'{url} failed to crawl, destination web cannot reach, skip')
+            wiseflow_logger.warning(f'{url} failed to crawl')
             continue
         metadata_dict = result.metadata if result.metadata else {}
 
@@ -222,3 +224,7 @@ async def main_process(focus: dict, sites: list):
             publish_date = date_stamp
         
         await info_process(url, title, author, publish_date, contents, link_dict, focus_id, get_info_prompts)
+
+    await crawler.close()
+    wiseflow_logger.debug(f'task finished, focus_id: {focus_id}')
+    
