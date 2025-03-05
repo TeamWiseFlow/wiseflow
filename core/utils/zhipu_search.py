@@ -10,7 +10,7 @@ async def run_v4_async(query: str, _logger=None):
             _logger.warning("ZHIPU_API_KEY is not set")
         else:
             print("ZHIPU_API_KEY is not set")
-        return None
+        return {'search_intent': [{'intent': 'NO_API_KEY', 'keywords': ''}]}, {'search_result': []}
 
     msg = [
         {
@@ -36,7 +36,10 @@ async def run_v4_async(query: str, _logger=None):
             timeout=300
         )
         result = resp.json()
-        result = result['choices'][0]['message']['tool_calls']
+        try:
+            result = result['choices'][0]['message']['tool_calls']
+        except:
+            return {'search_intent': [{'intent': 'Unkown Reason Failed', 'keywords': ''}]}, {'search_result': []}
         if len(result) == 0:
             return {'search_intent': [{'intent': 'Unkown Reason Failed', 'keywords': ''}]}, {'search_result': []}
         elif len(result) == 1:
