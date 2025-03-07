@@ -39,7 +39,8 @@ async def run_v4_async(query: str, _logger=None):
         try:
             result = result['choices'][0]['message']['tool_calls']
         except:
-            return {'search_intent': [{'intent': 'Unkown Reason Failed', 'keywords': ''}]}, {'search_result': []}
+            result = str(result)
+            return {'search_intent': [{'intent': 'Failed', 'keywords': result}]}, {'search_result': []}
         if len(result) == 0:
             return {'search_intent': [{'intent': 'Unkown Reason Failed', 'keywords': ''}]}, {'search_result': []}
         elif len(result) == 1:
@@ -54,7 +55,7 @@ if __name__ == '__main__':
              #'人工智能领军人物介绍',
              #'社区治理',
              #'新获批的氢能项目——60万吨级别以上',
-             '猫咪饲养的窍门(仅限健康和行为相关的内容)',
+             '两会',
              #'各地住宅网签最新数据——2025年1月6日以后'
              ]
 

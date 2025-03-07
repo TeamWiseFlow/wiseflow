@@ -319,14 +319,14 @@ async def get_info(texts: list[str], link_dict: dict, prompts: list[str], author
         info_pre_fix = f"//{author} {publish_date}//"
 
     batches = []
-    text_batch = ''
+    text_batch = f'Author: {author}\nPublish Date: {publish_date}\n'
     while texts:
         t = texts.pop(0)
         text_batch = f'{text_batch}{t}# '
         if len(text_batch) > 9999 or len(texts) == 0:
             content = f'<text>\n{text_batch}</text>\n\n{suffix}'
             batches.append(content)
-            text_batch = ''
+            text_batch = f'Author: {author}\nPublish Date: {publish_date}\n'
 
     tasks = [
         llm([{'role': 'system', 'content': sys_prompt}, {'role': 'user', 'content': content}], model=model, temperature=0.1)

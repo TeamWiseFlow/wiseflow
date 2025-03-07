@@ -1,4 +1,4 @@
-from crawl4ai import CrawlerRunConfig, BrowserConfig
+from crawl4ai import CrawlerRunConfig, BrowserConfig, LXMLWebScrapingStrategy
 from .customer_crawl4ai_md_generator import CustomMarkdownGenerator
 from .mp_scraper import mp_scraper
 
@@ -9,15 +9,16 @@ md_generator = CustomMarkdownGenerator(
         options={
             "skip_internal_links": True,
             "escape_html": True,
-            "include_sup_sub": True,
-            "protect_links": False
+            "include_sup_sub": True
         }
     )
 
 crawler_config = CrawlerRunConfig(
+    # session_id="my_session123",
     delay_before_return_html=1.0,
     word_count_threshold=10,
     # keep_data_attributes=True,
+    scraping_strategy=LXMLWebScrapingStrategy(),
     excluded_tags=['script', 'style'],
     # exclude_domains=[],
     # disable_cache=True,
@@ -31,6 +32,7 @@ crawler_config = CrawlerRunConfig(
     # verbose=False,
     # keep_data_attributes=True,
     # fetch_ssl_certificate=True,
+    # image_score_threshold=3
 )
 
 browser_cfg = BrowserConfig(
@@ -50,5 +52,5 @@ browser_cfg = BrowserConfig(
     # user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/116.0.0.0 Safari/537.36",
     light_mode=True,
     # text_mode=True,
-    extra_args=["--disable-gpu"]
+    extra_args=["--disable-gpu", "--disable-extensions"]
 )

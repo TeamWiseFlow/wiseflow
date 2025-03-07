@@ -15,11 +15,14 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 目前我们更加建议继续使用普通的语言大模型，我们也对原有 prompt 进行了改进，提升了7b、14b 模型的输出效果。如果您对生成速度和成本比较在意，目前推荐同时将PRIMARY_MODEL和SECONDARY_MODEL设定为Qwen2.5-14B-Instruct。
 
-## 🔥 V0.3.9 发布
+## 🔥 V0.3.9-patch1 发布
 
-v0.3.9 是 v0.3.8版本的升级修复版本，适配了 crawl4ai 0.4.248，优化了性能，并整合了累积的 bug 修复，同时也是 0.3.x 系列的长期稳定版本。
+v0.3.9-patch1 是 v0.3.9 版本的升级修复版本，适配了 crawl4ai 0.5.0.post4，优化了性能，并整合了累积的 bug 修复，同时也是 0.3.x 系列的长期稳定版本。
 
 有关本次升级更多内容请见 [CHANGELOG.md](./CHANGELOG.md)
+
+:anger: **智谱平台将在2025年3月14日零时起，正式对 web_search_pro 接口进行收费，如需使用搜索功能，请注意账户余额** :anger:
+[智谱平台公告](https://bigmodel.cn/dev/api/search-tool/web-search-pro)
 
 **V0.3.7以及之前版本的老用户升级后请先在 pb 文件夹下执行一次 ./pocketbase migrate**
 
@@ -153,7 +156,7 @@ PB_API_AUTH="test@example.com|1234567890"
 ZHIPU_API_KEY=Your_API_KEY
 ```
 
-（申请地址：https://bigmodel.cn/ 目前免费）
+（申请地址：https://bigmodel.cn/ ~~目前免费~~ 0.03 元/次，请保证账户余额）
 
 #### 3.4 其他可选配置
 
@@ -190,6 +193,7 @@ conda activate wiseflow
 cd wiseflow
 cd core
 pip install -r requirements.txt
+crawl4ai-setup
 ```
 
 之后 MacOS&Linux 用户执行

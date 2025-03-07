@@ -15,9 +15,12 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 At present, we strongly recommend continuing to use standard large language models. We have also improved the original prompt to enhance the output quality of the 7B and 14B models. If you are concerned about generation speed and cost, we currently recommend setting both `PRIMARY_MODEL` and `SECONDARY_MODEL` to `Qwen2.5-14B-Instruct`.
 
 
-## 🔥 V0.3.9 Released
+## 🔥 V0.3.9_patch1 Released
 
-v0.3.9 is an upgraded and fixed version of v0.3.8. It adapts to crawl4ai 0.4.248, optimizes performance, integrates accumulated bug fixes, and is also a long-term stable version of the 0.3.x series.
+v0.3.9_patch1 is an upgraded and fixed version of v0.3.9. It adapts to crawl4ai 0.5.0.post4, optimizes performance, integrates accumulated bug fixes, and is also a long-term stable version of the 0.3.x series.
+
+:anger: **Starting from March 14, 2025, the Wiseflow platform will officially charge for the web_search_pro interface. Please be aware of your account balance if you need to use the search function.** :anger:
+[Wiseflow Platform Announcement](https://bigmodel.cn/dev/api/search-tool/web-search-pro)
 
 For more details about this upgrade, please see [CHANGELOG.md](./CHANGELOG.md)
 
@@ -152,7 +155,7 @@ This is where you set the superuser username and password for the pocketbase dat
 ZHIPU_API_KEY=Your_API_KEY
 ```
 
-(Application here: https://bigmodel.cn/  currently free)
+(Application here: https://bigmodel.cn/ ~~currently free~~ 0.03 CNY/query, please ensure your account balance)
 
 #### 3.4 Other Optional Configurations
 
@@ -190,6 +193,7 @@ then
 cd wiseflow
 cd core
 pip install -r requirements.txt
+crawl4ai-setup
 ```
 
 Afterwards, MacOS&Linux users execute
