@@ -28,7 +28,7 @@ async def pre_process(raw_markdown: str, base_url: str, used_img: list[str],
 
     link_dict = {}
 
-    # for special url formate from crawl4ai 0.4.247
+    # for special url formate from craw4ai-de 0.4.247
     raw_markdown = re.sub(r'<javascript:.*?>', '<javascript:>', raw_markdown).strip()
 
     # 处理图片标记 ![alt](src)
@@ -184,7 +184,7 @@ async def pre_process(raw_markdown: str, base_url: str, used_img: list[str],
     contents = []
     for section in sections:
         ratio, text = await check_url_text(section)
-        if ratio < 70:
+        if ratio < 90:
             if test_mode:
                 print('\033[32mthis is a links part\033[0m')
                 print(ratio, '\n')
@@ -345,11 +345,13 @@ async def get_info(texts: list[str], link_dict: dict, prompts: list[str], author
                 print(f"model hallucination: {res} \ncontains no summary tag")
             continue
         res = res[-1]
+        if _logger:
+            _logger.debug(res)
+        if test_mode:
+            print(res)
         if len(res) < 3:
             continue
-        """
-        maybe can use embedding retrieval to judge
-        """
+
         url_tags = re.findall(r'\[\d+]', res)
         refences = {}
         for _tag in url_tags:

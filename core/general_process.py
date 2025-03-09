@@ -147,15 +147,10 @@ async def main_process(focus: dict, sites: list):
         existing_urls.add(f"{parsed_url.scheme}://{parsed_url.netloc}")
         existing_urls.add(f"{parsed_url.scheme}://{parsed_url.netloc}/")
         domain = parsed_url.netloc
-        if domain in custom_fetching_configs:
-            wiseflow_logger.debug(f'{url} will using custom crawl4ai run config')
-            run_config = custom_fetching_configs[domain]
-        else:
-            run_config = crawler_config
             
-        run_config.cache_mode = CacheMode.WRITE_ONLY if url in sites else CacheMode.ENABLED
+        crawler_config.cache_mode = CacheMode.WRITE_ONLY if url in sites else CacheMode.ENABLED
         try:
-            result = await crawler.arun(url=url, config=run_config)
+            result = await crawler.arun(url=url, config=crawler_config)
         except Exception as e:
             wiseflow_logger.error(e)
             continue

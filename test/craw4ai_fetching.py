@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
 import asyncio
-from crawl4ai import AsyncWebCrawler, CacheMode
 import os
 import hashlib
 import json
 import sys
 import psutil
-# import gc
-
 
 core_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'core')
 sys.path.append(core_path)
-
+from crawl4ai import AsyncWebCrawler, CacheMode
 from scrapers import crawler_config
 from scrapers import browser_cfg
 
@@ -30,10 +27,10 @@ standard_sites = ["https://www.zhihu.com/topic/19552832/hot",
                   "https://tophub.today/",
                   "https://www.reuters.com/site-search/?query=tech&offset=0",
                   "https://www.reuters.com/business/autos-transportation/",
-                  "https://www.wsj.com/tech?mod=nav_top_section",
+                  "https://d.aigclink.ai/?v=e3a86502f7ef495598705abe58e21848",
                   ]
 
-#crawler_config.cache_mode=CacheMode.DISABLED
+crawler_config.cache_mode=CacheMode.DISABLED
 
 async def main(sites: list):
     print("\n=== Crawling Test with Memory Check ===")
@@ -48,15 +45,13 @@ async def main(sites: list):
         if current_mem > peak_memory:
             peak_memory = current_mem
         print(f"{prefix} Current Memory: {current_mem // (1024 * 1024)} MB, Peak: {peak_memory // (1024 * 1024)} MB")
-        return current_mem
-
 
     crawler = AsyncWebCrawler(config=browser_cfg)
     await crawler.start()
     crawler_config.cache_mode = CacheMode.DISABLED
     for site in sites:
         # Check memory usage prior to launching tasks
-        current_mem = log_memory(prefix="Before crawling: ")
+        log_memory(prefix="Before crawling: ")
         try:
             result = await crawler.arun(url=site, config=crawler_config)
         except Exception as e:
@@ -73,11 +68,7 @@ async def main(sites: list):
 
         # Check memory usage after tasks complete
         # maybe we can use this to check memory usage, if exceed settings, we can close and restart the crawler...
-        current_mem = log_memory(prefix="After crawling: ")
-        if current_mem > 120 * 1024 * 1024:
-            print("Memory usage exceeds 200MB, cleaning cache...")
-            await crawler.close()
-            await crawler.start()
+        log_memory(prefix="After crawling: ")
 
     await crawler.close()
     # Final memory log

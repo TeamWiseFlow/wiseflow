@@ -12,17 +12,16 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 🌟 Reminder: Although you may have recently heard many people praise reasoning models like DeepSeek R1 (which I do not deny), tasks like information extraction and summarization in WiseFlow do not require complex logical reasoning. Using reasoning models will instead significantly increase inference time and costs! If you are interested in understanding this conclusion further, you can refer to the following test report: [wiseflow V0.38 with deepseek series report](./test/reports/wiseflow_report_v038_dp_bigbrother666/README.md).
 
-At present, we strongly recommend continuing to use standard large language models. We have also improved the original prompt to enhance the output quality of the 7B and 14B models. If you are concerned about generation speed and cost, we currently recommend setting both `PRIMARY_MODEL` and `SECONDARY_MODEL` to `Qwen2.5-14B-Instruct`.
-
-
-## 🔥 V0.3.9_patch1 Released
-
-v0.3.9_patch1 is an upgraded and fixed version of v0.3.9. It adapts to crawl4ai 0.5.0.post4, optimizes performance, integrates accumulated bug fixes, and is also a long-term stable version of the 0.3.x series.
-
 :anger: **Starting from March 14, 2025, the Wiseflow platform will officially charge for the web_search_pro interface. Please be aware of your account balance if you need to use the search function.** :anger:
 [Wiseflow Platform Announcement](https://bigmodel.cn/dev/api/search-tool/web-search-pro)
 
+## 🔥 V0.3.9_patch2 Released
+
 For more details about this upgrade, please see [CHANGELOG.md](./CHANGELOG.md)
+
+🧐  Comparison between wiseflow and various "deep search" applications including Manus:
+
+In simple terms, question and answer tasks are more suitable for "deep search" applications, and for information collection tasks, you can try it out and you will know the advantages of wiseflow in this aspect..
 
 **Users upgrading from V0.3.7 or earlier versions should first execute `./pocketbase migrate` in the `pb` folder.**
 
@@ -35,7 +34,7 @@ Thanks to the following community members for their PRs in versions V0.3.5~V0.3.
   - @braumye contributed the Docker deployment solution
   - @YikaJ provided optimizations for install_pocketbase.sh
 
-**The next open-source version of wiseflow is expected to take at least 2 months, and we will launch a completely new 0.4.x architecture.**
+0.3.9 is the last version of the 0.3.x series  **The next open-source version of wiseflow is expected to take at least 2 months, and we will launch a completely new 0.4.x architecture.**
 
 Regarding 0.4.x, I have been thinking about the specific product roadmap. Currently, I need more real user feedback. I hope everyone can submit more usage requirements in the [issue](https://github.com/TeamWiseFlow/wiseflow/issues) section.
   
@@ -193,7 +192,7 @@ then
 cd wiseflow
 cd core
 pip install -r requirements.txt
-crawl4ai-setup
+python -m playwright install --with-deps chromium
 ```
 
 Afterwards, MacOS&Linux users execute

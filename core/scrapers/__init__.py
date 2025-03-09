@@ -1,11 +1,10 @@
-from crawl4ai import CrawlerRunConfig, BrowserConfig, LXMLWebScrapingStrategy
-from .customer_crawl4ai_md_generator import CustomMarkdownGenerator
+from crawl4ai import CrawlerRunConfig, BrowserConfig, LXMLWebScrapingStrategy, DefaultMarkdownGenerator
 from .mp_scraper import mp_scraper
 
 custom_scrapers = {'mp.weixin.qq.com': mp_scraper}
-custom_fetching_configs = {}
+# custom_fetching_configs = {}
 
-md_generator = CustomMarkdownGenerator(
+md_generator = DefaultMarkdownGenerator(
         options={
             "skip_internal_links": True,
             "escape_html": True,
@@ -36,8 +35,8 @@ crawler_config = CrawlerRunConfig(
 )
 
 browser_cfg = BrowserConfig(
-    browser_type="chromium",
-    headless=True,
+    # browser_type="chromium",
+    # headless=True,
     viewport_width=1920,
     viewport_height=1080,
     # proxy="http://user:pass@proxy:8080",

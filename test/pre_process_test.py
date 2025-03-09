@@ -83,35 +83,23 @@ async def main(html_sample, record_file):
             print(f'publish_date: {result.publish_date}')
             return
         base_url = result.base
-        author = result.author
-        publish_date = result.publish_date
     else:
         raw_markdown = html_sample['markdown']
         media_dict = html_sample['media'] if html_sample['media'] else {}
         used_img = [d['src'] for d in media_dict.get('images', [])]
-        title = ''
         base_url = ''
-        author = ''
-        publish_date = ''
 
     if not raw_markdown:
         print(f"no raw_markdown for {file}")
         return
 
-    if not title:
-        title = html_sample.get('title', '')
     if not base_url:
         base_url = html_sample.get('base', '')
     if not base_url:
         base_url = f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}"
 
     print('base_url:', base_url)
-            
-    if not author:
-        author = html_sample.get('author', '')
-    if not publish_date:
-        publish_date = html_sample.get('publish_date', '')
-            
+
     link_dict, links_parts, contents, recognized_img_cache = await pre_process(raw_markdown, base_url, used_img, recognized_img_cache, test_mode=True)
     result = {
         "link_dict": link_dict,

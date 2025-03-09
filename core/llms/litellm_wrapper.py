@@ -99,3 +99,34 @@ async def litellm_llm(messages: list, model: str, logger=None, **kwargs) -> str:
         else:
             print(e)
     return resp
+
+"""
+copy from Crawl4ai
+maybe useful in some time
+
+# Default provider, ONLY used when the extraction strategy is LLMExtractionStrategy
+DEFAULT_PROVIDER = "openai/gpt-4o-mini"
+MODEL_REPO_BRANCH = "new-release-0.0.2"
+# Provider-model dictionary, ONLY used when the extraction strategy is LLMExtractionStrategy
+PROVIDER_MODELS = {
+    "ollama/llama3": "no-token-needed",  # Any model from Ollama no need for API token
+    "groq/llama3-70b-8192": os.getenv("GROQ_API_KEY"),
+    "groq/llama3-8b-8192": os.getenv("GROQ_API_KEY"),
+    "openai/gpt-4o-mini": os.getenv("OPENAI_API_KEY"),
+    "openai/gpt-4o": os.getenv("OPENAI_API_KEY"),
+    "openai/o1-mini": os.getenv("OPENAI_API_KEY"),
+    "openai/o1-preview": os.getenv("OPENAI_API_KEY"),
+    "openai/o3-mini": os.getenv("OPENAI_API_KEY"),
+    "openai/o3-mini-high": os.getenv("OPENAI_API_KEY"),
+    "anthropic/claude-3-haiku-20240307": os.getenv("ANTHROPIC_API_KEY"),
+    "anthropic/claude-3-opus-20240229": os.getenv("ANTHROPIC_API_KEY"),
+    "anthropic/claude-3-sonnet-20240229": os.getenv("ANTHROPIC_API_KEY"),
+    "anthropic/claude-3-5-sonnet-20240620": os.getenv("ANTHROPIC_API_KEY"),
+    "gemini/gemini-pro": os.getenv("GEMINI_API_KEY"),
+    'gemini/gemini-1.5-pro': os.getenv("GEMINI_API_KEY"),
+    'gemini/gemini-2.0-flash': os.getenv("GEMINI_API_KEY"),
+    'gemini/gemini-2.0-flash-exp': os.getenv("GEMINI_API_KEY"),
+    'gemini/gemini-2.0-flash-lite-preview-02-05': os.getenv("GEMINI_API_KEY"),
+    "deepseek/deepseek-chat": os.getenv("DEEPSEEK_API_KEY"),
+}
+"""

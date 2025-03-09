@@ -1,0 +1,88 @@
+name: Bug Report
+description: Report a bug with the wiseflow.
+title: "[Bug]: "
+labels: ["🐞 Bug","🩺 Needs Triage"]
+body:
+  - type: input
+    id: wiseflow_version
+    attributes:
+      label: wiseflow version
+      description: Specify the version of wiseflow you are using.
+      placeholder: "e.g., 0.3.9"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: Expected Behavior
+      description: Describe what you expected to happen.
+      placeholder: "Provide a detailed explanation of the expected outcome."
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_behavior
+    attributes:
+      label: Current Behavior
+      description: Describe what is happening instead of the expected behavior.
+      placeholder: "Describe the actual result or issue you encountered."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: reproducible
+    attributes:
+      label: Is this reproducible?
+      description: Indicate whether this bug can be reproduced consistently.
+      options:
+        - "Yes"
+        - "No"
+    validations:
+      required: true
+
+  - type: textarea
+    id: inputs
+    attributes:
+      label: Inputs Causing the Bug
+      description: Provide details about the inputs causing the issue.
+      placeholder: |
+        - URL(s): 
+        - Your FocusPoint: 
+        - Explanation (if applicable):
+      render: bash
+
+  # Header Section with Title
+  - type: markdown
+    attributes:
+      value: |
+          ## Supporting Information
+          Please provide the following details to help us understand and resolve your issue. This will assist us in reproducing and diagnosing the problem
+
+  - type: input
+    id: os
+    attributes:
+      label: OS
+      description: Please provide the operating system & distro where the issue occurs.
+      placeholder: "e.g., Windows, macOS, Linux"
+    validations:
+      required: true
+
+  - type: input
+    id: python_version
+    attributes:
+      label: Python version
+      description: Specify the Python version being used.
+      placeholder: "e.g., 3.8.5"
+    validations:
+      required: true
+
+  # Error Logs Field (Text Area)
+  - type: textarea
+    id: error_logs
+    attributes:
+      label: Error logs & Screenshots (if applicable)
+      description: If you encountered any errors, please provide the error logs. Attach any relevant screenshots to help us understand the issue.
+      placeholder: "Paste error logs here and attach your screenshots"
+    validations:
+      required: false

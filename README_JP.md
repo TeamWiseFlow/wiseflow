@@ -12,17 +12,16 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 🌟 注意：最近、多くの人が DeepSeek R1 を代表とする reasoning モデルを絶賛しているのを耳にするかもしれません（私もそれを否定するわけではありません）。しかし、WiseFlow における情報抽出や要約タスクには複雑な論理推論は必要なく、むしろ reasoning モデルを使用すると処理時間とコストが大幅に増加してしまいます！この結論について詳しく知りたい方は、以下のテストレポートを参照してください：[wiseflow V0.38 with deepseek series report](./test/reports/wiseflow_report_v038_dp_bigbrother666/README.md)。
 
-現在、通常の大規模言語モデルの使用を引き続き推奨しています。また、従来のプロンプトを改良し、7B および 14B モデルの出力品質を向上させました。生成速度やコストを重視する場合、`PRIMARY_MODEL` と `SECONDARY_MODEL` の両方を `Qwen2.5-14B-Instruct` に設定することを推奨します。
+:anger: **Wiseflowプラットフォームは、2025年3月14日0時から、web_search_proインターフェースを有料化します。検索機能を使用する場合は、アカウント残高に注意してください** :anger:
+[Wiseflowプラットフォームのお知らせ](https://bigmodel.cn/dev/api/search-tool/web-search-pro)
 
-
-## 🔥 V0.3.9-patch1 リリース
-
-v0.3.9-patch1 は v0.3.9 のアップグレード修復バージョンで、crawl4ai 0.5.0.post4 に適応し、パフォーマンスを最適化し、累積されたバグを修正し、0.3.xシリーズの長期安定バージョンでもあります。
+## 🔥 V0.3.9-patch2 リリース
 
 詳細については、[CHANGELOG.md](./CHANGELOG.md)をご参照ください。
 
-:anger: **Wiseflowプラットフォームは、2025年3月14日0時から、web_search_proインターフェースを有料化します。検索機能を使用する場合は、アカウント残高に注意してください** :anger:
-[Wiseflowプラットフォームのお知らせ](https://bigmodel.cn/dev/api/search-tool/web-search-pro)
+🧐  wiseflow と Manus を含む他の「ディープサーチ」アプリケーションとの比較:
+
+簡単に言えば、「ディープサーチ」アプリケーションは質問応答タスクに適しています。情報収集タスクを試してみると、この点での wiseflow の利点がわかります...
 
 **V0.3.7 およびそれ以前のバージョンのユーザーは、pb フォルダー内で ./pocketbase migrate を実行してください**
 
@@ -35,7 +34,7 @@ v0.3.9-patch1 は v0.3.9 のアップグレード修復バージョンで、craw
   - @braumye がDocker実行案を貢献しました
   - @YikaJ が install_pocketbase.sh の最適化を提供しました
 
-**wiseflow の次のオープンソースバージョンは、少なくとも2ヶ月の待機が必要となる見込みです。全く新しい0.4.xアーキテクチャを開始します。**
+0.3.9はv0.3.xアーキテクチャの最終バージョンです **wiseflow の次のオープンソースバージョンは、少なくとも2ヶ月の待機が必要となる見込みです。全く新しい0.4.xアーキテクチャを開始します。**
 
 0.4.xに関しては、具体的な製品ロードマップについてずっと考えてきましたが、現時点では、より多くの実際のユーザーからのフィードバックが必要です。[issue](https://github.com/TeamWiseFlow/wiseflow/issues) にて、皆様からの利用ニーズをより多くご提案いただければ幸いです。
   
@@ -192,7 +191,7 @@ conda activate wiseflow
 cd wiseflow
 cd core
 pip install -r requirements.txt
-crawl4ai-setup
+python -m playwright install --with-deps chromium
 ```
 
 その後、MacOS&Linuxユーザーは実行します

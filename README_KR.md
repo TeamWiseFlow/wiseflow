@@ -13,17 +13,18 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 🌟 알림: 최근 DeepSeek R1과 같은 reasoning 모델이 뛰어나다는 이야기를 많이 들었을 수도 있습니다(저도 이를 부정하지 않습니다). 하지만 WiseFlow의 정보 추출 및 요약 작업에는 복잡한 논리적 추론이 필요하지 않으며, reasoning 모델을 사용하면 오히려 처리 시간이 크게 증가하고 비용도 상승하게 됩니다! 이 결론에 대해 더 자세히 알고 싶다면, 아래 테스트 보고서를 참고하세요: [wiseflow V0.38 with deepseek series report](./test/reports/wiseflow_report_v038_dp_bigbrother666/README.md).
 
-현재 우리는 일반적인 대형 언어 모델을 계속 사용하는 것을 추천합니다. 또한 기존 프롬프트를 개선하여 7B 및 14B 모델의 출력 품질을 향상시켰습니다. 생성 속도와 비용이 중요한 경우, `PRIMARY_MODEL`과 `SECONDARY_MODEL`을 `Qwen2.5-14B-Instruct`로 설정하는 것을 권장합니다.
+:anger: **2025년 3월 14일 0시부터, 웹 검색 프로 인터페이스에 대한 요금이 부과됩니다. 검색 기능을 사용하려면 계정 잔액을 확인하십시오** :anger:
+[플랫폼 공지](https://bigmodel.cn/dev/api/search-tool/web-search-pro)
 
 
-## 🔥 V0.3.9-patch1 공식 출시
 
-v0.3.9-patch1는 v0.3.9 버전의 업그레이드 및 수정 버전으로, crawl4ai 0.5.0.post4에 맞게 조정되었고, 성능이 최적화되었으며, 누적된 버그 수정 사항이 통합되었습니다. 또한 0.3.x 시리즈의 장기 안정 버전이기도 합니다.
+## 🔥 V0.3.9-patch2 공식 출시
 
 이번 업그레이드에 대한 자세한 내용은 [CHANGELOG.md](./CHANGELOG.md)를 참조하십시오.
 
-:anger: **2025년 3월 14일 0시부터, 웹 검색 프로 인터페이스에 대한 요금이 부과됩니다. 검색 기능을 사용하려면 계정 잔액을 확인하십시오** :anger:
-[플랫폼 공지](https://bigmodel.cn/dev/api/search-tool/web-search-pro)
+🧐  wiseflow와 Manus를 포함한 다른 "심층 검색" 애플리케이션 간의 비교:
+
+간단히 말해서, "심층 검색" 애플리케이션은 질문 답변 작업에 더 적합합니다. 정보 수집 작업을 시도해 보면 이와 관련하여 wiseflow의 장점을 알게 될 것입니다...
 
 **V0.3.7 및 이전 버전 사용자는 업그레이드 후 pb 폴더에서 ./pocketbase migrate를 한 번 실행하십시오.**
 
@@ -36,7 +37,7 @@ v0.3.9-patch1는 v0.3.9 버전의 업그레이드 및 수정 버전으로, crawl
   - @braumye는 Docker 실행 방안을 기여했습니다
   - @YikaJ는 install_pocketbase.sh 최적화를 제공했습니다
 
-**Wiseflow의 다음 오픈 소스 버전은 최소 2개월을 기다려야 할 것으로 예상되며, 완전히 새로운 0.4.x 아키텍처를 시작할 것입니다.**
+0.3.9는 v0.3.x 아키텍처의 마지막 버전입니다. **Wiseflow의 다음 오픈 소스 버전은 최소 2개월을 기다려야 할 것으로 예상되며, 완전히 새로운 0.4.x 아키텍처를 시작할 것입니다.**
 
 0.4.x와 관련하여 저는 구체적인 제품 로드맵에 대해 계속 생각하고 있었는데, 현재로서는 더 많은 실제 사용자 피드백이 필요합니다. [issue](https://github.com/TeamWiseFlow/wiseflow/issues) 게시판에 사용 요구 사항을 더 많이 제안해 주시기 바랍니다.
   
@@ -193,7 +194,7 @@ conda activate wiseflow
 cd wiseflow
 cd core
 pip install -r requirements.txt
-crawl4ai-setup
+python -m playwright install --with-deps chromium
 ```
 
 이후 MacOS&Linux 사용자는 실행합니다

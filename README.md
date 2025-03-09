@@ -13,16 +13,16 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 🌟 提醒：虽然近期你可能听很多人提起 deepseek R1 为代表的reasoning模型屌爆了（对此我并不否认），但 wiseflow 这种信息提取和总结任务并不需要复杂的逻辑推理，使用reasoning模型反而会极大的增加耗时和成本！如果您对此结论有进一步了解的兴趣，可以参考如下测试报告：[wiseflow V0.38 with deepseek series report](./test/reports/wiseflow_report_v038_dp_bigbrother666/README.md)
 
-目前我们更加建议继续使用普通的语言大模型，我们也对原有 prompt 进行了改进，提升了7b、14b 模型的输出效果。如果您对生成速度和成本比较在意，目前推荐同时将PRIMARY_MODEL和SECONDARY_MODEL设定为Qwen2.5-14B-Instruct。
+:anger: **智谱平台将在2025年3月14日零时起，正式对 web_search_pro 接口进行收费，如需使用搜索功能，请注意账户余额** :anger:
+[智谱平台公告](https://bigmodel.cn/dev/api/search-tool/web-search-pro)
 
-## 🔥 V0.3.9-patch1 发布
-
-v0.3.9-patch1 是 v0.3.9 版本的升级修复版本，适配了 crawl4ai 0.5.0.post4，优化了性能，并整合了累积的 bug 修复，同时也是 0.3.x 系列的长期稳定版本。
+## 🔥 V0.3.9-patch2 发布
 
 有关本次升级更多内容请见 [CHANGELOG.md](./CHANGELOG.md)
 
-:anger: **智谱平台将在2025年3月14日零时起，正式对 web_search_pro 接口进行收费，如需使用搜索功能，请注意账户余额** :anger:
-[智谱平台公告](https://bigmodel.cn/dev/api/search-tool/web-search-pro)
+🧐  有关 wiseflow 与包括 Manus 在内的各“deep search”类应用的比较：
+
+简单说，问答任务使用“deep search”类应用更合适，信息搜集任务你可以尝试下，就知道 wiseflow 在这方面的优势了……
 
 **V0.3.7以及之前版本的老用户升级后请先在 pb 文件夹下执行一次 ./pocketbase migrate**
 
@@ -35,12 +35,11 @@ v0.3.9-patch1 是 v0.3.9 版本的升级修复版本，适配了 crawl4ai 0.5.0.
   - @braumye 贡献了 docker 运行方案
   - @YikaJ 提供了对 install_pocketbase.sh 的优化
 
-**wiseflow 的下一个开源版本预计需要等待至少2个月，我们将开启全新的0.4.x 架构**
+v0.3.9 是 0.3.x 系列的长期稳定版本。**wiseflow 的下一个开源版本预计需要等待至少2个月，我们将开启全新的0.4.x 架构**
 
 有关0.4.x我其实一直在思考具体的产品路线图，目前看我需要更多的真实用户反馈，希望大家能够在 [issue](https://github.com/TeamWiseFlow/wiseflow/issues) 板块中多提出使用需求。
 
-
-### 🌟测试报告
+### 🌟 测试报告
 
 在最新的提取策略下，我们发现7b 这种规模的模型也能很好的执行链接分析与提取任务，测试结果请参考 [report](./test/reports/wiseflow_report_v037_bigbrother666/README.md)
 
@@ -193,7 +192,7 @@ conda activate wiseflow
 cd wiseflow
 cd core
 pip install -r requirements.txt
-crawl4ai-setup
+python -m playwright install --with-deps chromium
 ```
 
 之后 MacOS&Linux 用户执行
