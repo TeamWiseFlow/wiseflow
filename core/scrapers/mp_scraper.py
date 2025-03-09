@@ -19,13 +19,13 @@ def mp_scraper(fetch_result: CrawlResult | dict) -> ScraperResultData:
         url = fetch_result['url']
         raw_html = fetch_result['html']
         cleaned_html = fetch_result['cleaned_html']
-        raw_markdown = fetch_result['markdown']
+        raw_markdown = fetch_result['markdown']['raw_markdown']
         media = fetch_result['media']['images']
     elif isinstance(fetch_result, CrawlResult):
         url = fetch_result.url
         raw_html = fetch_result.html
         cleaned_html = fetch_result.cleaned_html
-        raw_markdown = fetch_result.markdown
+        raw_markdown = fetch_result.markdown['raw_markdown']
         media = fetch_result.media['images']
     else:
         raise TypeError('fetch_result must be a CrawlResult or a dict')

@@ -1,3 +1,16 @@
+# vV0.3.9-patch2
+
+# v0.3.9-patch2
+
+- 定制更改 crawl4ai 0.4.30 版本，以取得更好的性能
+  Modified crawl4ai version 0.4.30 for better performance
+
+- 相应的更改 core/requirements.txt
+  Corresponding changes to core/requirements.txt
+
+- 更改 prompt，但未在 qwen2.5-14b 模型上发现改进
+  Modified the prompt, but no improvements were found on the qwen2.5-14b model
+
 
 # V0.3.9
 
