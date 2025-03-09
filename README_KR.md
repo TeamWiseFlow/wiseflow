@@ -17,14 +17,9 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 [플랫폼 공지](https://bigmodel.cn/dev/api/search-tool/web-search-pro)
 
 
-
 ## 🔥 V0.3.9-patch2 공식 출시
 
 이번 업그레이드에 대한 자세한 내용은 [CHANGELOG.md](./CHANGELOG.md)를 참조하십시오.
-
-🧐  wiseflow와 Manus를 포함한 다른 "심층 검색" 애플리케이션 간의 비교:
-
-간단히 말해서, "심층 검색" 애플리케이션은 질문 답변 작업에 더 적합합니다. 정보 수집 작업을 시도해 보면 이와 관련하여 wiseflow의 장점을 알게 될 것입니다...
 
 **V0.3.7 및 이전 버전 사용자는 업그레이드 후 pb 폴더에서 ./pocketbase migrate를 한 번 실행하십시오.**
 
@@ -50,6 +45,10 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 계속해서 더 많은 테스트 결과를 제출해 주시기를 환영합니다. 다양한 정보 소스에서 wiseflow의 최적 사용 방안을 함께 탐구해 봅시다.
 
 현재 단계에서는 **테스트 결과 제출이 프로젝트 코드 제출과 동등하게 취급**되며, contributor로 인정받을 수 있고, 심지어 상업화 프로젝트에 초대될 수도 있습니다! 자세한 내용은 [test/README.md](./test/README.md)를 참조하세요.
+
+## 🧐  wiseflow와 Manus를 포함한 다른 "심층 검색" 애플리케이션 간의 비교:
+
+간단히 말해서, "심층 검색" 애플리케이션은 질문 답변 작업에 더 적합합니다. 정보 수집 작업을 시도해 보면 이와 관련하여 wiseflow의 장점을 알게 될 것입니다...
 
 ## ✋ wiseflow는 전통적인 크롤러 도구, AI 검색, 지식 베이스(RAG) 프로젝트와 어떻게 다를까요?
 

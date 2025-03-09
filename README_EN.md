@@ -19,10 +19,6 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 For more details about this upgrade, please see [CHANGELOG.md](./CHANGELOG.md)
 
-🧐  Comparison between wiseflow and various "deep search" applications including Manus:
-
-In simple terms, question and answer tasks are more suitable for "deep search" applications, and for information collection tasks, you can try it out and you will know the advantages of wiseflow in this aspect..
-
 **Users upgrading from V0.3.7 or earlier versions should first execute `./pocketbase migrate` in the `pb` folder.**
 
 Thanks to the following community members for their PRs in versions V0.3.5~V0.3.9:
@@ -47,6 +43,11 @@ However, for information summarization tasks, we still recommend using models no
 We continue to welcome more test results to jointly explore the best usage solutions for wiseflow under various information sources.
 
 At this stage, **submitting test results is equivalent to submitting project code**, and will similarly be accepted as a contributor, and may even be invited to participate in commercialization projects! For details, please refer to [test/README.md](./test/README.md)
+
+## 🧐  Comparison between wiseflow and various "deep search" applications including Manus:
+
+In simple terms, question and answer tasks are more suitable for "deep search" applications, and for information collection tasks, you can try it out and you will know the advantages of wiseflow in this aspect..
+
 
 ## ✋ How is wiseflow Different from Traditional Crawler Tools, AI Search, and Knowledge Base (RAG) Projects?
 

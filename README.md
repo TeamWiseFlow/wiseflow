@@ -20,10 +20,6 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 有关本次升级更多内容请见 [CHANGELOG.md](./CHANGELOG.md)
 
-🧐  有关 wiseflow 与包括 Manus 在内的各“deep search”类应用的比较：
-
-简单说，问答任务使用“deep search”类应用更合适，信息搜集任务你可以尝试下，就知道 wiseflow 在这方面的优势了……
-
 **V0.3.7以及之前版本的老用户升级后请先在 pb 文件夹下执行一次 ./pocketbase migrate**
 
 感谢如下社区成员在 V0.3.5~V0.3.9 版本中的 PR：
@@ -49,6 +45,9 @@ v0.3.9 是 0.3.x 系列的长期稳定版本。**wiseflow 的下一个开源版�
 
 现阶段，**提交测试结果等同于提交项目代码**，同样会被接纳为contributor，甚至受邀参加商业化项目！具体请参考 [test/README.md](./test/README.md) 
 
+## 🧐  有关 wiseflow 与包括 Manus 在内的各“deep search”类应用的比较：
+
+简单说，问答任务使用“deep search”类应用更合适，信息搜集任务你可以尝试下，就知道 wiseflow 在这方面的优势了……
 
 ## ✋ wiseflow 与传统的爬虫工具、AI搜索、知识库（RAG）项目有何不同？
 
