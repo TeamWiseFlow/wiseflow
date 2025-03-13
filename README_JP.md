@@ -108,6 +108,7 @@ LLM_API_BASE="https://api.siliconflow.cn/v1"
 PRIMARY_MODEL="Qwen/Qwen2.5-32B-Instruct"
 SECONDARY_MODEL="Qwen/Qwen2.5-14B-Instruct"
 VL_MODEL="deepseek-ai/deepseek-vl2"
+PROJECT_DIR="work_dir"
 ```
       
 😄 よろしければ、私の[siliconflow紹介リンク](https://cloud.siliconflow.cn/i/WNLYbBpi) をご利用ください。これにより、私もより多くのトークン報酬を獲得できます 🌹
@@ -124,6 +125,7 @@ LLM_API_BASE="https://aihubmix.com/v1" # referhttps://doc.aihubmix.com/
 PRIMARY_MODEL="gpt-4o"
 SECONDARY_MODEL="gpt-4o-mini"
 VL_MODEL="gpt-4o"
+PROJECT_DIR="work_dir"
 ```
 😄 [AiHubMixの紹介リンク](https://aihubmix.com?aff=Gp54)からご登録いただけますと幸いです 🌹
 
@@ -133,9 +135,10 @@ Xinferenceを例にすると、.envの設定は以下を参考にできます：
 
 ```
 # LLM_API_KEY='' no need for local service, please comment out or delete
-LLM_API_BASE='http://127.0.0.1:9997'
+LLM_API_BASE='http://127.0.0.1:9997' # 'http://127.0.0.1:11434/v1' for ollama
 PRIMARY_MODEL=launched_model_id
 VL_MODEL=launched_model_id
+PROJECT_DIR="work_dir"
 ```
 
 #### 3.2 Pocketbaseのアカウントとパスワードの設定
@@ -160,10 +163,6 @@ ZHIPU_API_KEY=Your_API_KEY
 - #VERBOSE="true" 
 
   観察モードを有効にするかどうか。有効にすると、デバッグ情報がloggerファイルに記録されます（デフォルトではコンソールにのみ出力）。
-
-- #PROJECT_DIR="work_dir" 
-
-    プロジェクトの実行時データディレクトリ。設定しない場合、デフォルトで`core/work_dir`になります。注意：現在、core全体のディレクトリがコンテナにマウントされているため、直接アクセスできます。
 
 - #PB_API_BASE="" 
 
