@@ -19,14 +19,16 @@ def mp_scraper(fetch_result: CrawlResult | dict) -> ScraperResultData:
         url = fetch_result['url']
         raw_html = fetch_result['html']
         cleaned_html = fetch_result['cleaned_html']
-        raw_markdown = fetch_result['markdown']['raw_markdown']
+        raw_markdown = fetch_result['markdown']
         media = fetch_result['media']['images']
+        metadata = fetch_result['metadata']
     elif isinstance(fetch_result, CrawlResult):
         url = fetch_result.url
         raw_html = fetch_result.html
         cleaned_html = fetch_result.cleaned_html
-        raw_markdown = fetch_result.markdown['raw_markdown']
+        raw_markdown = fetch_result.markdown
         media = fetch_result.media['images']
+        metadata = fetch_result.metadata
     else:
         raise TypeError('fetch_result must be a CrawlResult or a dict')
 
@@ -212,12 +214,12 @@ def mp_scraper(fetch_result: CrawlResult | dict) -> ScraperResultData:
             data_url = data_url.replace('http://', 'https://', 1)
             if not data_url or not data_url.startswith('https://mp.weixin.qq.com'):
                 # maybe a new_type_article
-                return ScraperResultData(title='maybe a new_type_article')
+                return ScraperResultData(title='maybe a new_type_article', content='new_type_article, type 4')
             # 从 js_content 中获取描述文本
             content_div = soup.find('div', id='js_content')
             if not content_div:
                 # maybe a new_type_article
-                return ScraperResultData(title='maybe a new_type_article')
+                return ScraperResultData(title='maybe a new_type_article', content='new_type_article, type 3')
             des = content_div.get_text(strip=True)
             return ScraperResultData(content=f'[{des}]({data_url})')
         else:
@@ -240,7 +242,7 @@ def mp_scraper(fetch_result: CrawlResult | dict) -> ScraperResultData:
                 publish_date = date_span.get_text(strip=True).split()[0]  # 只取日期部分
             else:
                 publish_date = None
-                title = 'maybe a new_type_article'
+                return ScraperResultData(title='maybe a new_type_article', content='new_type_article, type 2')
             # 提取与包含 <h1> 元素的 div 块平级的紧挨着的下一个 div 块作为 content
             content_div = h1_div.find_next_sibling('div')
             if not content_div:
@@ -266,19 +268,59 @@ def mp_scraper(fetch_result: CrawlResult | dict) -> ScraperResultData:
             else:
                 publish_date = None
                 title = 'maybe a new_type_article'
+            # 剩下的 div 子块合起来作为 content
+            content_divs = sub_divs[1:]
+            content = '# '.join([process_content(div) for div in content_divs])
+            content = title + '\n\n' + content
         else:
-            author = None
-            publish_date = None
-            title = 'maybe a new_type_article'
-        # 剩下的 div 子块合起来作为 content
-        content_divs = sub_divs[1:]
-        content = '# '.join([process_content(div) for div in content_divs])
-        content = title + '\n\n' + content
+            # 2025-03-17 found
+            # a photo-alumbs page, just get every link with the description, formate as [description](url) as the content
+            des = metadata.get('description', '')
+            # 使用正则表达式匹配所有的链接和描述对
+            pattern = r'href=\\x26quot;(.*?)\\x26quot;.*?\\x26gt;(.*?)\\x26lt;/a'
+            matches = re.findall(pattern, des)
+            # 处理每个匹配项
+            for url, description in matches:
+                # 清理URL中的转义字符
+                cleaned_url = clean_weixin_url(url)
+                # 添加到内容中，格式为 [描述](URL)
+                content += f'[{description.strip()}]({cleaned_url})\n'
+
+            if not content:
+                # this is a album page, just use the markdown
+                # return ScraperResultData(title='maybe a new_type_article', content='new_type_article, type 1')
+                content = raw_markdown
+
+            return ScraperResultData(content=content)
     else:
         author = None
         publish_date = None
-        content = 'maybe a new_type_article'
+        content = 'new_type_article, type 0'
 
     if len(images) > 2:
         images = images[1:-1]
     return ScraperResultData(title=title, content=content, images=images, author=author, publish_date=publish_date)
+
+
+def clean_weixin_url(url):
+    """
+    清理微信URL，将转义字符替换为正常字符
+    
+    Args:
+        url (str): 包含转义字符的微信URL
+        
+    Returns:
+        str: 清理后的URL
+    """
+    # 替换常见的转义序列
+    replacements = {
+        '\\x26amp;amp;': '&',
+        '\\x26amp;': '&',
+        '\\x26quot': '',
+        '\\x26': '&'
+    }
+    
+    for old, new in replacements.items():
+        url = url.replace(old, new)
+    
+    return url

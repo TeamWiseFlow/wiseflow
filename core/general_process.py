@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from utils.pb_api import PbTalker
-from utils.general_utils import get_logger, extract_and_convert_dates, is_chinese
+from utils.general_utils import get_logger, extract_and_convert_dates, is_chinese, isURL
 from agents.get_info import *
 import json
 from scrapers import *
@@ -32,7 +32,7 @@ async def info_process(url: str,
                        link_dict: dict, 
                        focus_id: str,
                        get_info_prompts: list[str]):
-
+    wiseflow_logger.debug('info summarising by llm...')
     infos = await get_info(contents, link_dict, get_info_prompts, author, publish_date, _logger=wiseflow_logger)
     if infos:
         wiseflow_logger.debug(f'get {len(infos)} infos, will save to pb')
@@ -56,27 +56,26 @@ async def main_process(focus: dict, sites: list):
     explanation = focus["explanation"].strip()
     wiseflow_logger.debug(f'focus_id: {focus_id}, focus_point: {focus_point}, explanation: {explanation}, search_engine: {focus["search_engine"]}')
     existing_urls = {url['url'] for url in pb.read(collection_name='infos', fields=['url'], filter=f"tag='{focus_id}'")}
-    focus_statement = f"//{focus_point}//"
-    if explanation:
-        if is_chinese(explanation):
-            focus_statement = f"{focus_statement}\n解释：{explanation}"
-        else:
-            focus_statement = f"{focus_statement}\nExplanation: {explanation}"
-
+    focus_statement = f"{focus_point}"
     date_stamp = datetime.now().strftime('%Y-%m-%d')
+    if is_chinese(focus_point):
+        focus_statement = f"{focus_statement}\n注：{explanation}（目前日期是{date_stamp}）"
+    else:
+        focus_statement = f"{focus_statement}\nNote: {explanation}(today is {date_stamp})"
+
     if is_chinese(focus_statement):
         get_link_sys_prompt = get_link_system.replace('{focus_statement}', focus_statement)
-        get_link_sys_prompt = f"今天的日期是{date_stamp}，{get_link_sys_prompt}"
+        # get_link_sys_prompt = f"今天的日期是{date_stamp}，{get_link_sys_prompt}"
         get_link_suffix_prompt = get_link_suffix
         get_info_sys_prompt = get_info_system.replace('{focus_statement}', focus_statement)
-        get_info_sys_prompt = f"今天的日期是{date_stamp}，{get_info_sys_prompt}"
+        # get_info_sys_prompt = f"今天的日期是{date_stamp}，{get_info_sys_prompt}"
         get_info_suffix_prompt = get_info_suffix
     else:
         get_link_sys_prompt = get_link_system_en.replace('{focus_statement}', focus_statement)
-        get_link_sys_prompt = f"today is {date_stamp}, {get_link_sys_prompt}"
+        # get_link_sys_prompt = f"today is {date_stamp}, {get_link_sys_prompt}"
         get_link_suffix_prompt = get_link_suffix_en
         get_info_sys_prompt = get_info_system_en.replace('{focus_statement}', focus_statement)
-        get_info_sys_prompt = f"today is {date_stamp}, {get_info_sys_prompt}"
+        # get_info_sys_prompt = f"today is {date_stamp}, {get_info_sys_prompt}"
         get_info_suffix_prompt = get_info_suffix_en
     
     get_link_prompts = [get_link_sys_prompt, get_link_suffix_prompt, secondary_model]
@@ -88,7 +87,7 @@ async def main_process(focus: dict, sites: list):
         search_intent, search_content = await run_v4_async(query, _logger=wiseflow_logger)
         _intent = search_intent['search_intent'][0]['intent']
         _keywords = search_intent['search_intent'][0]['keywords']
-        wiseflow_logger.info(f'query: {query}\nsearch intent: {_intent}\nkeywords: {_keywords}')
+        wiseflow_logger.info(f'\nquery: {query} keywords: {_keywords}')
         search_results = search_content['search_result']
         for result in search_results:
             if 'content' not in result or 'link' not in result:
@@ -109,9 +108,7 @@ async def main_process(focus: dict, sites: list):
                 publish_date = date_match.group()
                 publish_date = extract_and_convert_dates(publish_date)
             else:
-                wiseflow_logger.warning(f'can not find publish time in the search result {url}, adding to working list')
-                working_list.add(url)
-                continue
+                publish_date = ''
             author = result.get('media', '')
             if not author:
                 author = urlparse(url).netloc
@@ -126,11 +123,12 @@ async def main_process(focus: dict, sites: list):
             except Exception as e:
                 wiseflow_logger.warning(f"{site['url']} RSS feed is not valid: {e}")
                 continue
-            rss_urls = {entry.link for entry in feed.entries if entry.link}
+            rss_urls = {entry.link for entry in feed.entries if entry.link and isURL(entry.link)}
             wiseflow_logger.debug(f'get {len(rss_urls)} urls from rss source {site["url"]}')
             working_list.update(rss_urls - existing_urls)
         else:
-            working_list.add(site['url'])
+            if site['url'] not in existing_urls and isURL(site['url']):
+                working_list.add(site['url'])
 
     crawler = AsyncWebCrawler(config=browser_cfg)
     await crawler.start()
@@ -165,7 +163,7 @@ async def main_process(focus: dict, sites: list):
             used_img = result.images
             title = result.title
             if title == 'maybe a new_type_article':
-                wiseflow_logger.warning(f'we found a new type here,{url}')
+                wiseflow_logger.warning(f'we found a new type here,{url}\n{result}')
             base_url = result.base
             author = result.author
             publish_date = result.publish_date
@@ -178,9 +176,9 @@ async def main_process(focus: dict, sites: list):
             author = ''
             publish_date = ''
         if not raw_markdown:
-            wiseflow_logger.warning(f'{url} no content, skip')
+            wiseflow_logger.warning(f'{url} no content\n{result}\nskip')
             continue
-
+        wiseflow_logger.debug('data preprocessing...')
         if not title:
             title = metadata_dict.get('title', '')
         if not base_url:
@@ -196,6 +194,7 @@ async def main_process(focus: dict, sites: list):
         link_dict, links_parts, contents, recognized_img_cache = await pre_process(raw_markdown, base_url, used_img, recognized_img_cache, existing_urls)
 
         if link_dict and links_parts:
+            wiseflow_logger.debug('links_parts exists, more links detecting...')
             links_texts = []
             for _parts in links_parts:
                 links_texts.extend(_parts.split('\n\n'))
@@ -208,16 +207,17 @@ async def main_process(focus: dict, sites: list):
             continue
 
         if not author or author.lower() == 'na' or not publish_date or publish_date.lower() == 'na':
-            author, publish_date = await get_author_and_publish_date(raw_markdown, model, _logger=wiseflow_logger)
+            wiseflow_logger.debug('no author or publish date from metadata, will try to get by llm')
+            main_content_text = re.sub(r'!\[.*?]\(.*?\)', '', raw_markdown)
+            main_content_text = re.sub(r'\[.*?]\(.*?\)', '', main_content_text)
+            alt_author, alt_publish_date = await get_author_and_publish_date(main_content_text, secondary_model, _logger=wiseflow_logger)
+            if not author or author.lower() == 'na':
+                author = alt_author if alt_author else parsed_url.netloc
+            if not publish_date or publish_date.lower() == 'na':
+                publish_date = alt_publish_date if alt_publish_date else ''
 
-        if not author or author.lower() == 'na':
-            author = parsed_url.netloc
-        
-        if publish_date:
-            publish_date = extract_and_convert_dates(publish_date)
-        else:
-            publish_date = date_stamp
-        
+        publish_date = extract_and_convert_dates(publish_date)
+
         await info_process(url, title, author, publish_date, contents, link_dict, focus_id, get_info_prompts)
 
     await crawler.close()

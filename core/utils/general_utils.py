@@ -5,6 +5,8 @@ import re
 from loguru import logger
 
 
+url_pattern = r'((?:https?://|www\.)[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|])'
+
 def normalize_url(url: str, base_url: str) -> str:
     url = url.strip()
     if url.startswith(('www.', 'WWW.')):
@@ -38,7 +40,6 @@ def isURL(string):
 
 def extract_urls(text):
     # Regular expression to match http, https, and www URLs
-    url_pattern = re.compile(r'((?:https?://|www\.)[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|])')
     urls = re.findall(url_pattern, text)
     # urls = {quote(url.rstrip('/'), safe='/:?=&') for url in urls}
     cleaned_urls = set()
@@ -79,8 +80,8 @@ def is_chinese(string):
 
 def extract_and_convert_dates(input_string):
     # 定义匹配不同日期格式的正则表达式
-    if not isinstance(input_string, str):
-        return None
+    if not isinstance(input_string, str) or len(input_string) < 8:
+        return ''
 
     patterns = [
         r'(\d{4})-(\d{2})-(\d{2})',  # YYYY-MM-DD
@@ -98,7 +99,7 @@ def extract_and_convert_dates(input_string):
             break
     if matches:
         return '-'.join(matches[0])
-    return None
+    return ''
 
 
 def get_logger(logger_name: str, logger_file_path: str):

@@ -4,7 +4,7 @@ from loguru import logger
 import os, re
 from llms.openai_wrapper import openai_llm as llm
 # from core.llms.siliconflow_wrapper import sfa_llm # or other llm wrapper
-from utils.general_utils import is_chinese, extract_and_convert_dates, normalize_url
+from utils.general_utils import normalize_url, url_pattern
 from .get_info_prompts import *
 
 
@@ -31,8 +31,8 @@ async def pre_process(raw_markdown: str, base_url: str, used_img: list[str],
     # for special url formate from craw4ai-de 0.4.247
     raw_markdown = re.sub(r'<javascript:.*?>', '<javascript:>', raw_markdown).strip()
 
-    # 处理图片标记 ![alt](src)
-    i_pattern = r'(!\[(.*?)\]\((.*?)\))'
+    # 处理图片标记 ![alt](src)，使用非贪婪匹配并考虑嵌套括号的情况
+    i_pattern = r'(!\[(.*?)\]\(((?:[^()]*|\([^()]*\))*)\))'
     matches = re.findall(i_pattern, raw_markdown, re.DOTALL)
     for _sec, alt, src in matches:
         # 替换为新格式 §alt||src§
@@ -41,15 +41,14 @@ async def pre_process(raw_markdown: str, base_url: str, used_img: list[str],
     async def check_url_text(text) -> tuple[int, str]:
         score = 0
         _valid_len = len(text.strip())
-        # 找到所有[part0](part1)格式的片段
-        link_pattern = r'(\[(.*?)\]\((.*?)\))'
+
+        # 找到所有[part0](part1)格式的片段，使用非贪婪匹配并考虑嵌套括号的情况
+        link_pattern = r'(\[(.*?)\]\(((?:[^()]*|\([^()]*\))*)\))'
         matches = re.findall(link_pattern, text, re.DOTALL)
         for _sec, link_text, link_url in matches:
-            # 处理 \"***\" 格式的片段
-            quote_pattern = r'\"(.*?)\"'
-            # 提取所有引号包裹的内容
-            _title = ''.join(re.findall(quote_pattern, link_url, re.DOTALL))
-            _title = _title.strip()
+            # 存在“”嵌套情况，需要先提取出url
+            _title = re.sub(url_pattern, '', link_url, re.DOTALL).strip()
+            _title = _title.strip('"')
             link_text = link_text.strip()
             if _title and _title not in link_text:
                 link_text = f"{_title} - {link_text}"
@@ -62,13 +61,13 @@ async def pre_process(raw_markdown: str, base_url: str, used_img: list[str],
             else:
                 _url = re.sub(quote_pattern, '', link_url, re.DOTALL).strip()
             """
-            _url = re.sub(quote_pattern, '', link_url, re.DOTALL).strip()
-            if not _url or _url.startswith(('#', 'javascript:')):
+            _url = re.findall(url_pattern, link_url)
+            if not _url or _url[0].startswith(('#', 'javascript:')):
                 text = text.replace(_sec, link_text, 1)
                 continue
             score += 1
             _valid_len = _valid_len - len(_sec)
-            url = normalize_url(_url, base_url)
+            url = normalize_url(_url[0], base_url)
             
             # 分离§§内的内容和后面的内容
             img_marker_pattern = r'§(.*?)\|\|(.*?)§'
@@ -138,8 +137,8 @@ async def pre_process(raw_markdown: str, base_url: str, used_img: list[str],
                 _key = f"[{len(link_dict)+1}]"
                 link_dict[_key] = img_src
                 text = text.replace(_sec, recognized_img_cache[img_src] + _key, 1)
-        # 处理文本中的"野 url"
-        url_pattern = r'((?:https?://|www\.)[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|])'
+
+        # 处理文本中的"野 url"，使用更精确的正则表达式
         matches = re.findall(url_pattern, text)
         for url in matches:
             url = normalize_url(url, base_url)
@@ -158,9 +157,11 @@ async def pre_process(raw_markdown: str, base_url: str, used_img: list[str],
     sections = raw_markdown.split('# ') # use '# ' to avoid # in url
     if len(sections) > 2:
         _sec = sections[0]
-        section_remain = re.sub(r'\[.*?]\(.*?\)', '', _sec, re.DOTALL).strip()
+        # 更新正则表达式以处理嵌套括号
+        section_remain = re.sub(r'\[(.*?)\]\(((?:[^()]*|\([^()]*\))*)\)', '', _sec, re.DOTALL).strip()
         section_remain_len = len(section_remain)
-        total_links = len(re.findall(r'\[.*?]\(.*?\)', _sec, re.DOTALL))
+        # 更新正则表达式以处理嵌套括号
+        total_links = len(re.findall(r'\[(.*?)\]\(((?:[^()]*|\([^()]*\))*)\)', _sec, re.DOTALL))
         ratio = total_links / section_remain_len if section_remain_len != 0 else 1
         if ratio > 0.05:
             if test_mode:
@@ -170,7 +171,8 @@ async def pre_process(raw_markdown: str, base_url: str, used_img: list[str],
                 print('-' * 50)
             sections = sections[1:]
         _sec = sections[-1]
-        section_remain = re.sub(r'\[.*?]\(.*?\)', '', _sec, re.DOTALL).strip()
+        # 更新正则表达式以处理嵌套括号
+        section_remain = re.sub(r'\[(.*?)\]\(((?:[^()]*|\([^()]*\))*)\)', '', _sec, re.DOTALL).strip()
         section_remain_len = len(section_remain)
         if section_remain_len < 198:
             if test_mode:
@@ -242,27 +244,27 @@ async def get_author_and_publish_date(text: str, model: str, test_mode: bool = F
     if not text:
         return "", ""
 
-    if len(text) > 100:
-        text = text[20:]
-
     if len(text) > 2048:
         text = f'{text[:2048]}......'
 
     content = f'<text>\n{text}\n</text>\n\n{get_ap_suffix}'
-    llm_output = await llm([{'role': 'system', 'content': get_ap_system}, {'role': 'user', 'content': content}],
-                            model=model, max_tokens=50, temperature=0.1)
+    result = await llm([{'role': 'system', 'content': get_ap_system}, {'role': 'user', 'content': content}],
+                            model=model, temperature=0.1)
                      
     if test_mode:
-        print(f"llm output:\n {llm_output}")
-    ap_ = llm_output.strip().strip('"').strip('//').strip('`')
+        print(f"llm output:\n {result}")
+        
+    author = re.findall(r'<source>(.*?)</source>', result, re.DOTALL)
+    publish_date = re.findall(r'<publish_date>(.*?)</publish_date>', result, re.DOTALL)
 
-    if '//' not in ap_:
+    author = author[-1] if author else ''
+    publish_date = publish_date[-1] if publish_date else ''
+
+    if not author or not publish_date:
         if _logger:
-            _logger.warning(f"failed to parse from llm output: {ap_}")
-        return '', ''
+            _logger.warning(f"failed to parse from llm output: {result}")
 
-    ap = ap_.split('//')
-    return ap[0], extract_and_convert_dates(ap[1])
+    return author if author.lower() != 'na' else '', publish_date
 
 
 async def get_more_related_urls(texts: list[str], link_dict: dict, prompts: list[str], test_mode: bool = False,
@@ -344,7 +346,7 @@ async def get_info(texts: list[str], link_dict: dict, prompts: list[str], author
             if test_mode:
                 print(f"model hallucination: {res} \ncontains no summary tag")
             continue
-        res = res[-1]
+        res = res[-1].strip()
         if _logger:
             _logger.debug(res)
         if test_mode:
