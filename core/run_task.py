@@ -30,7 +30,7 @@ async def schedule_task():
 
         counter += 1
         await asyncio.gather(*jobs)
-        wiseflow_logger.info(f'task execute loop finished, work after 3600 seconds')
+        wiseflow_logger.info('task execute loop finished, work after 3600 seconds')
         await asyncio.sleep(3600)
 
 asyncio.run(schedule_task())

@@ -20,9 +20,7 @@ from agents.get_info_prompts import *
 
 
 benchmark_model = 'Qwen/Qwen2.5-72B-Instruct'
-# benchmark_model = 'deepseek-ai/DeepSeek-R1-Distill-Qwen-32B'
-# models = ['deepseek-ai/DeepSeek-R1-Distill-Qwen-7B', 'deepseek-ai/DeepSeek-R1-Distill-Qwen-14B', 'deepseek-ai/DeepSeek-R1-Distill-Llama-8B']
-models = ['Qwen/Qwen2.5-7B-Instruct', 'Qwen/Qwen2.5-14B-Instruct',  'Qwen/Qwen2.5-32B-Instruct', 'deepseek-ai/DeepSeek-V2.5']
+models = ['Qwen/Qwen2.5-7B-Instruct', 'Qwen/Qwen2.5-14B-Instruct',  'Qwen/Qwen2.5-32B-Instruct', 'deepseek-ai/DeepSeek-R1-Distill-Qwen-14B', 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B']
 
 async def main(sample: dict, include_ap: bool, prompts: list, record_file: str):
     link_dict, links_parts, contents = sample['link_dict'], sample['links_part'], sample['contents']
@@ -37,13 +35,19 @@ async def main(sample: dict, include_ap: bool, prompts: list, record_file: str):
         print(f"running {model} ...")
         start_time = time.time()
         if include_ap:
-            author, publish_date = await get_author_and_publish_date('# '.join(contents), model, test_mode=True)
+            main_content_text = ''
+            if contents:
+                main_content_text = '# '.join(contents[:1]) if len(contents) > 1 else contents[0]
+            if links_parts:
+                main_content_text += '# ' + links_parts[0]
+            print(main_content_text)
+            author, publish_date = await get_author_and_publish_date(main_content_text, model, test_mode=True)
             get_ap_time = time.time() - start_time
             print(f"get author and publish date time: {get_ap_time}")
         else:
             author, publish_date = '', ''
             get_ap_time = 0
-
+        
         start_time = time.time()
         more_url = await get_more_related_urls(links_texts, link_dict, [get_link_sys_prompt, get_link_suffix_prompt, model], test_mode=True)
         get_more_url_time = time.time() - start_time
@@ -79,6 +83,7 @@ async def main(sample: dict, include_ap: bool, prompts: list, record_file: str):
             f.write(f"final result: \n{infos_to_record}\n")
             f.write('\n\n')
         print('\n\n')
+
 
 if __name__ == '__main__':
     import argparse

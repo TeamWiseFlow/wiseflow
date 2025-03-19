@@ -33,29 +33,27 @@ async def openai_llm(messages: list, model: str, logger=None, **kwargs) -> str:
     except RateLimitError as e:
         # 直接处理速率限制错误
         if logger:
-            logger.warning(f"触发速率限制，等待60秒后重试: {e}")
+            logger.warning(f"Rate limit error, waiting 60 seconds and retry: {e}")
         else:
-            print(f"触发速率限制，等待60秒后重试: {e}")
+            print(f"Rate limit error, waiting 60 seconds and retry: {e}")
         
         # 全局等待60秒
         await asyncio.sleep(60)
-        
         # 重试请求
         try:
             response = await client.chat.completions.create(messages=messages, model=model, **kwargs)
             resp = response.choices[0].message.content
         except Exception as retry_e:
             if logger:
-                logger.error(f"重试失败: {retry_e}")
+                logger.error(f"Rate limit error waiting 60 seconds and retry failed: {retry_e}\nmodel: {model}\nmessages: {messages}\nkwargs: {kwargs}")
             else:
-                print(f"重试失败: {retry_e}")
+                print(f"Rate limit error waiting 60 seconds and retry failed: {retry_e}\nmodel: {model}\nmessages: {messages}\nkwargs: {kwargs}")
     except Exception as e:
-        error_msg = str(e)
-        if 'Image url should be a valid url or should like data:image/TYPE;base64,YOUR-BASE64-CONTENT' not in error_msg:
-            if logger:
-                logger.warning(e)
-            else:
-                print(e)
+        if logger:
+            logger.error(f"Error: {e}\nmodel: {model}\nmessages: {messages}\nkwargs: {kwargs}")
+        else:
+            print(f"Error: {e}\nmodel: {model}\nmessages: {messages}\nkwargs: {kwargs}")
+
     finally:
         semaphore.release()
 
