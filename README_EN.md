@@ -2,22 +2,33 @@
 
 **[简体中文](README.md) | [日本語](README_JP.md) | [한국어](README_KR.md)**
 
-🚀 **AI Chief Intelligence Officer** (Wiseflow) is an agile information mining tool that can precisely extract specific information from various given sources by leveraging the thinking and analytical capabilities of large models, requiring no human intervention throughout the process.
+🚀 **Use large models to mine the information you are truly interested in from massive information and various sources every day!**
 
-**What we lack is not information, but the ability to filter out noise from massive information, thereby revealing valuable information.**
+What we lack is not information, but the ability to filter out noise from massive information, thereby revealing valuable information.
 
 🌱 See how AI Intelligence Officer helps you save time, filter irrelevant information, and organize key points of interest! 🌱
 
 https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
-🌟 Reminder: Although you may have recently heard many people praise reasoning models like DeepSeek R1 (which I do not deny), tasks like information extraction and summarization in WiseFlow do not require complex logical reasoning. Using reasoning models will instead significantly increase inference time and costs! If you are interested in understanding this conclusion further, you can refer to the following test report: [wiseflow V0.38 with deepseek series report](./test/reports/wiseflow_report_v038_dp_bigbrother666/README.md).
+## 🔥🔥🔥 The online trial service of AI Chief Intelligence Officer is now open for public testing
 
-:anger: **Starting from March 14, 2025, the Wiseflow platform will officially charge for the web_search_pro interface. Please be aware of your account balance if you need to use the search function.** :anger:
-[Wiseflow Platform Announcement](https://bigmodel.cn/dev/api/search-tool/web-search-pro)
+**No deployment or setup is required, and there is no need to apply for various keys. Just register to use it!**
 
-## 🔥 V0.3.9_patch2 Released
+Online trial address: https://www.aiqingbaoguan.com/
 
-For more details about this upgrade, please see [CHANGELOG.md](./CHANGELOG.md)
+During the public testing period, registration will give you 30 free credits (each focus point consumes 1 credit per day, regardless of the number of information sources).
+
+The test service is currently occasionally unstable, please understand.
+
+## 🌟 V3.9-patch3 Version Released
+
+For more information about this upgrade, please see [CHANGELOG.md](./CHANGELOG.md)
+
+Starting from this version, we have updated the version number naming rule: V0.3.9 -> V3.9, V0.3.8 -> V3.8, V0.3.7 -> V3.7, V0.3.6 -> V3.6, V0.3.5 -> V3.5 ...
+
+The current online service core is based on the V3.9-patch3 version.
+
+**Users of V0.3.8 and earlier versions should preferably delete Crawl4ai in the python environment after upgrading (`pip uninstall crawl4ai`)**
 
 **Users upgrading from V0.3.7 or earlier versions should first execute `./pocketbase migrate` in the `pb` folder.**
 
@@ -30,36 +41,33 @@ Thanks to the following community members for their PRs in versions V0.3.5~V0.3.
   - @braumye contributed the Docker deployment solution
   - @YikaJ provided optimizations for install_pocketbase.sh
 
-0.3.9 is the last version of the 0.3.x series  **The next open-source version of wiseflow is expected to take at least 2 months, and we will launch a completely new 0.4.x architecture.**
 
-Regarding 0.4.x, I have been thinking about the specific product roadmap. Currently, I need more real user feedback. I hope everyone can submit more usage requirements in the [issue](https://github.com/TeamWiseFlow/wiseflow/issues) section.
-  
-### 🌟 Test Report
+## 🧐 'Deep Search' VS 'Wide Search'
 
-Under the latest extraction strategy, we found that models of 7b scale can also perform link analysis and extraction tasks well. For test results, please refer to [report](./test/reports/wiseflow_report_v037_bigbrother666/README.md)
+I position Wiseflow's product as a "wide search," in contrast to the currently popular "deep search."
 
-However, for information summarization tasks, we still recommend using models no smaller than 32b scale. For specific recommendations, please refer to the latest [env_sample](./env_sample)
+Specifically, "deep search" is oriented towards a specific question, where the LLM autonomously and dynamically plans the search path, continuously explores different pages, and collects enough information to give an answer or produce a report. However, sometimes we don't have a specific question and don't need in-depth exploration. We only need broad information collection (such as industry intelligence collection, background information collection on a subject, customer information collection, etc.). In these cases, breadth is clearly more meaningful. Although "deep search" can also accomplish this task, it's like using a cannon to kill a mosquito – inefficient and costly. Wiseflow is a powerful tool specifically designed for this "wide search" scenario.
 
-We continue to welcome more test results to jointly explore the best usage solutions for wiseflow under various information sources.
+## ✋ What makes Wiseflow different from other AI-powered crawlers?
 
-At this stage, **submitting test results is equivalent to submitting project code**, and will similarly be accepted as a contributor, and may even be invited to participate in commercialization projects! For details, please refer to [test/README.md](./test/README.md)
+The biggest difference is in the scraper stage, where we propose a pipeline different from existing crawlers: the "crawl-and-check integration" strategy. Specifically, we abandon the traditional filter-extractor process (of course, this process can also be integrated with LLM, as in Crawl4ai), and we no longer treat a single page as the minimum processing unit. Instead, building upon Crawl4ai's html2markdown, we further divide the page into blocks and, based on a series of characteristic algorithms, classify them into "content blocks" and "outbound link blocks." Different LLM extraction strategies are used based on the classification (each block is still analyzed by the LLM only once, but the analysis strategies differ to avoid token waste). This approach can handle list pages, content pages, and mixed pages.
 
-## 🧐  Comparison between wiseflow and various "deep search" applications including Manus:
+  - For "content blocks," summaries are extracted directly according to the focus points, avoiding information scattering and even completing tasks like translation in the process.
+  - For "outbound link blocks," information such as page layout is considered to determine which links are worth further exploration and which can be ignored. Therefore, users do not need to manually configure depth or maximum crawl quantity.
 
-In simple terms, question and answer tasks are more suitable for "deep search" applications, and for information collection tasks, you can try it out and you will know the advantages of wiseflow in this aspect..
+This approach is actually very similar to AI Search.
 
+In addition, we have also written specialized parsing modules for specific types of pages, such as WeChat official account articles (which surprisingly have nine formats...). For this type of content, Wiseflow currently provides the best parsing results among similar products.
 
-## ✋ How is wiseflow Different from Traditional Crawler Tools, AI Search, and Knowledge Base (RAG) Projects?
+## ✋ What's Next (4.x plan)?
 
-Since the release of version V0.3.0 in late June 2024, wiseflow has received widespread attention from the open-source community, attracting even some self-media reports. First of all, we would like to express our gratitude!
+### Enhancements to the Crawler Fetching Stage
 
-However, we have also noticed some misunderstandings about the functional positioning of wiseflow among some followers. The following table, through comparison with traditional crawler tools, AI search, and knowledge base (RAG) projects, represents our current thinking on the latest product positioning of wiseflow.
+The 3.x architecture uses Crawl4ai entirely for the crawler fetching part. In 4.x, we will continue to use this approach for regular page acquisition, but we will gradually add fetching solutions for social media platforms.
 
-|          | Comparison with **Chief Intelligence Officer (Wiseflow)** | 
-|-------------|-----------------|
-| **Crawler Tools** | First of all, wiseflow is a project based on a web crawler tool, but traditional crawler tools require manual provision of explicit Xpath information for data extraction... This not only blocks ordinary users but also lacks universality. For different websites (including existing websites after upgrades), manual re-analysis and program updates are required. wiseflow is committed to using LLM to automate the analysis and extraction of web pages. Users only need to tell the program their focus points. Taking Crawl4ai as an example for comparison, Crawl4ai is a crawler that uses LLM for information extraction, while wiseflow is an LLM information extractor that uses crawler tools. |
-| **AI Search（inclue all ‘deep search’）** | AI search is mainly used for **instant question-and-answer** scenarios, such as "Who is the founder of XX company?" or "Where can I buy the xx product under the xx brand?" Users want **a single answer**; wiseflow is mainly used for **continuous information collection** in certain areas, such as tracking related information of XX company, continuously tracking market behavior of XX brand, etc. In these scenarios, users can provide focus points (a company, a brand) or even information sources (site URLs, etc.), but cannot pose specific search questions. Users want **a series of related information**.| 
-| **Knowledge Base (RAG) Projects** | Knowledge base (RAG) projects are generally based on downstream tasks of existing information and usually face private knowledge (such as operation manuals, product manuals, government documents within enterprises, etc.); wiseflow currently does not integrate downstream tasks and faces public information on the internet. From the perspective of "agents," the two belong to agents built for different purposes. RAG projects are "internal knowledge assistant agents," while wiseflow is an "external information collection agent."|
+### Insight Module
+
+The truly valuable information may not be the "information that can be crawled," but the "hidden information" beneath it. The ability to intelligently correlate crawled information and analyze and extract the "hidden information" beneath it is what the 4.x Insight module will focus on.
 
 
 ## 📥 Installation and Usage
@@ -85,7 +93,7 @@ chmod +x install_pocketbase
 
 **windows users please execute [install_pocketbase.ps1](./install_pocketbase.ps1) script**
 
-Wiseflow 0.3.x uses pocketbase as its database. You can also manually download the pocketbase client (remember to download version 0.23.4 and place it in the [pb](./pb) directory) and manually create the superuser (remember to save it in the .env file).
+Wiseflow 3.x uses pocketbase as its database. You can also manually download the pocketbase client (remember to download version 0.23.4 and place it in the [pb](./pb) directory) and manually create the superuser (remember to save it in the .env file).
 
 For details, please refer to [pb/README.md](/pb/README.md)
 
@@ -106,7 +114,7 @@ Siliconflow provides online MaaS services for most mainstream open-source models
 ```
 LLM_API_KEY=Your_API_KEY
 LLM_API_BASE="https://api.siliconflow.cn/v1"
-PRIMARY_MODEL="Qwen/Qwen2.5-32B-Instruct"
+PRIMARY_MODEL="deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
 SECONDARY_MODEL="Qwen/Qwen2.5-14B-Instruct"
 VL_MODEL="deepseek-ai/deepseek-vl2"
 PROJECT_DIR="work_dir"
@@ -154,6 +162,9 @@ This is where you set the superuser username and password for the pocketbase dat
 
 #### 3.3 Zhipu (bigmodel) Platform Key Configuration (for Search Engine Services)
 
+🚨 **Note: The Zhipu platform will charge for the web_search_pro interface starting from March 14, 2025. Please ensure your account balance when using the search function.**
+[Zhipu Platform Announcement](https://bigmodel.cn/dev/api/search-tool/web-search-pro)
+
 ```
 ZHIPU_API_KEY=Your_API_KEY
 ```
@@ -182,7 +193,7 @@ The following are all optional configurations:
 It is recommended to use conda to build a virtual environment (of course you can skip this step, or use other Python virtual environment solutions)
 
 ```bash
-conda create -n wiseflow python=3.10
+conda create -n wiseflow python=3.12
 conda activate wiseflow
 ```
 
@@ -304,6 +315,12 @@ PocketBase, as a popular lightweight database, currently has SDKs for Go/Javascr
    - Go : https://pocketbase.io/docs/go-overview/
    - Javascript : https://pocketbase.io/docs/js-overview/
    - python : https://github.com/vaphes/pocketbase
+
+3.  The online service will also launch a sync API soon, supporting the synchronization of online crawling results to the local, which can be used to build a "dynamic knowledge base", etc. Please stay tuned:
+
+   - Online experience address: https://www.aiqingbaoguan.com/
+   - Online service API use case: https://github.com/TeamWiseFlow/wiseflow_plus
+
 
 ## 🛡️ License
 

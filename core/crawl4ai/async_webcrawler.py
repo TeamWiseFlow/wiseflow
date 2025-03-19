@@ -106,7 +106,7 @@ class AsyncWebCrawler:
         config: Optional[BrowserConfig] = None,
         base_directory: str = os.getenv("PROJECT_DIR", ''),
         thread_safe: bool = False,
-        memory_threshold_percent: float = 70.0,
+        memory_threshold_percent: float = 90.0,
         **kwargs,
     ):
         """

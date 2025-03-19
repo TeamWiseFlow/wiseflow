@@ -2,23 +2,32 @@
 
 **[English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md)**
 
-🚀 **AI首席情报官**（Wiseflow）是一个敏捷的信息挖掘工具，可以从各种给定信源中依靠大模型的思考与分析能力精准抓取特定信息，全程无需人工参与。
+🚀 **使用大模型从海量信息、各类信源中每日挖掘你真正感兴趣的信息！**
 
-**我们缺的不是信息，而是从海量信息中过滤噪音，从而让有价值的信息显露出来**
+我们缺的不是信息，而是从海量信息中过滤噪音，从而让有价值的信息显露出来
 
 🌱看看AI情报官是如何帮您节省时间，过滤无关信息，并整理关注要点的吧！🌱
 
 https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 
-🌟 提醒：虽然近期你可能听很多人提起 deepseek R1 为代表的reasoning模型屌爆了（对此我并不否认），但 wiseflow 这种信息提取和总结任务并不需要复杂的逻辑推理，使用reasoning模型反而会极大的增加耗时和成本！如果您对此结论有进一步了解的兴趣，可以参考如下测试报告：[wiseflow V0.38 with deepseek series report](./test/reports/wiseflow_report_v038_dp_bigbrother666/README.md)
+## 🔥🔥🔥  AI 首席情报官在线体验服务已开放公测，无需部署和设置，无需额外申请各种 key，注册就能使用！
 
-:anger: **智谱平台将在2025年3月14日零时起，正式对 web_search_pro 接口进行收费，如需使用搜索功能，请注意账户余额** :anger:
-[智谱平台公告](https://bigmodel.cn/dev/api/search-tool/web-search-pro)
+在线体验地址：https://www.aiqingbaoguan.com/ 
 
-## 🔥 V0.3.9-patch2 发布
+公测期间，注册即赠送30点算力值（每个关注点每天消耗1点，不计信源数量）。
+
+测试服务目前偶发不稳定，还请谅解。
+
+## 🌟 V3.9-patch3 版本发布
 
 有关本次升级更多内容请见 [CHANGELOG.md](./CHANGELOG.md)
+
+从此版本开始，我们更新版本号命名规则，V0.3.9 -> V3.9, V0.3.8 -> V3.8, V0.3.7 -> V3.7, V0.3.6 -> V3.6, V0.3.5 -> V3.5 ...
+
+目前在线服务core基于V3.9-patch3版本，
+
+**V0.3.8以及之前版本的老用户升级后，最好在 python 环境中删除 Crawl4ai （ `pip uninstall crawl4ai` ）**
 
 **V0.3.7以及之前版本的老用户升级后请先在 pb 文件夹下执行一次 ./pocketbase migrate**
 
@@ -31,35 +40,35 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
   - @braumye 贡献了 docker 运行方案
   - @YikaJ 提供了对 install_pocketbase.sh 的优化
 
-v0.3.9 是 0.3.x 系列的长期稳定版本。**wiseflow 的下一个开源版本预计需要等待至少2个月，我们将开启全新的0.4.x 架构**
 
-有关0.4.x我其实一直在思考具体的产品路线图，目前看我需要更多的真实用户反馈，希望大家能够在 [issue](https://github.com/TeamWiseFlow/wiseflow/issues) 板块中多提出使用需求。
+## 🧐  ‘deep search’ VS ‘wide search’
 
-### 🌟 测试报告
+我把 wiseflow 的产品定位称为“wide search"，这是相对于目前大火的“deep search”而言。
 
-在最新的提取策略下，我们发现7b 这种规模的模型也能很好的执行链接分析与提取任务，测试结果请参考 [report](./test/reports/wiseflow_report_v037_bigbrother666/README.md)
+具体而言“deep search”是面向某一具体问题由 llm 自主动态规划搜索路径，持续探索不同页面，采集到足够的信息后给出答案或者产出报告等；但是有的时候，我们没有具体的问题，也并不需要深入探索，只需要广泛的信息采集（比如行业情报搜集、对象背景信息搜集、客户信息采集等），这个时候广度明显更有意义。虽然使用“deep search”也能实现这个任务，但那是大炮打蚊子，低效率高成本，而 wiseflow 就是专为这种“wide search"场景打造的利器。
 
-不过信息总结任务目前还是推荐大家使用不低于 32b 规模的模型，具体推荐请参考最新的 [env_sample](./env_sample)
 
-继续欢迎大家提交更多测试结果，共同探索 wiseflow 在各种信源下的最佳使用方案。
+## ✋ What makes wiseflow different from other ai-powered crawlers?
 
-现阶段，**提交测试结果等同于提交项目代码**，同样会被接纳为contributor，甚至受邀参加商业化项目！具体请参考 [test/README.md](./test/README.md) 
+最大的不同是在 scraper 阶段，我们提出了一种与目前已有爬虫都不同的 pipeline，即“爬查一体”策略。具体而言，我们放弃了传统的 filter-extractor 流程（当然这个流程也可以融入 llm，正如 crawl4ai 那样），我们也不再把单一 page 当做最小处理单元。而是在 crawl4ai 的html2markdown 基础上，再进一步将页面分块，并根据一系列特征算法，把块分为“正文块”和“外链块”，并根据分类不同采用不同的llm提取策略（依然是每个块只用 llm 分析一次，只是分析策略不同，规避 token 浪费），这个方案可以同时兼容列表页、内容页以及混排页等情况。
 
-## 🧐  有关 wiseflow 与包括 Manus 在内的各“deep search”类应用的比较：
+  - 对于“正文块”，直接按关注点进行总结提取，避免信息分散，甚至在此过程中直接完成翻译等；
+  - 对于“外链块”，综合页面布局等信息，判断哪些链接值得进一步探索，哪些直接忽略，因此无需用户手动配置深度、最大爬取数量等。
 
-简单说，问答任务使用“deep search”类应用更合适，信息搜集任务你可以尝试下，就知道 wiseflow 在这方面的优势了……
+这个方案其实非常类似 AI Search。
 
-## ✋ wiseflow 与传统的爬虫工具、AI搜索、知识库（RAG）项目有何不同？
+另外我们也针对特定类型的页面编写了专门的解析模块，比如微信公众号文章（居然一共有九种格式……），针对这类内容，wiseflow 目前能够提供同类产品中最好的解析效果。
 
-wiseflow自2024年6月底发布 V0.3.0版本来受到了开源社区的广泛关注，甚至吸引了不少自媒体的主动报道，在此首先表示感谢！
+## ✋ What‘s Next (4.x plan)?
 
-但我们也注意到部分关注者对 wiseflow 的功能定位存在一些理解偏差，如下表格通过与传统爬虫工具、AI搜索、知识库（RAG）类项目的对比，代表了我们目前对于 wiseflow 产品最新定位思考。
+### Crawler fetching 阶段的增强
+    
+3.x 架构  crawler fetching 部分完全使用 Crawl4ai，4.x中普通页面的获取我们依然会使用这个方案，但是会逐步增加对于社交平台的 fetching 方案。
 
-|          | 与 **首席情报官（Wiseflow）** 的比较说明| 
-|-------------|-----------------|
-| **爬虫类工具** | 首先 wiseflow 是基于爬虫工具的项目，但传统的爬虫工具在信息提取方面需要人工的提供明确的 Xpath 等信息……这不仅阻挡了普通用户，同时也毫无通用性可言，对于不同网站（包括已有网站升级后）都需要人工重做分析，更新程序。wiseflow致力于使用 LLM 自动化网页的分析和提取工作，用户只要告诉程序他的关注点即可。 如果以 Crawl4ai 为例对比说明，Crawl4ai 是会使用 llm 进行信息提取的爬虫，而wiseflow 则是会使用爬虫工具的llm信息提取器。|
-| **AI搜索（包括各类‘deep search’）** |  AI搜索主要的应用场景是**具体问题的即时问答**，举例：”XX公司的创始人是谁“、“xx品牌下的xx产品哪里有售” ，用户要的是**一个答案**；wiseflow主要的应用场景是**某一方面信息的持续采集**，比如XX公司的关联信息追踪，XX品牌市场行为的持续追踪……在这些场景下，用户能提供关注点（某公司、某品牌）、甚至能提供信源（站点 url 等），但无法提出具体搜索问题，用户要的是**一系列相关信息**| 
-| **知识库（RAG）类项目** | 知识库（RAG）类项目一般是基于已有信息的下游任务，并且一般面向的是私有知识（比如企业内的操作手册、产品手册、政府部门的文件等）；wiseflow 目前并未整合下游任务，同时面向的是互联网上的公开信息，如果从“智能体”的角度来看，二者属于为不同目的而构建的智能体，RAG 类项目是“（内部）知识助理智能体”，而 wiseflow 则是“（外部）信息采集智能体”|
+
+### Insight 模块
+    
+其实真正有价值的未必是“可以抓取到的信息”，而是隐藏在这些信息之下的“暗信息”。能够智能的关联已抓取信息，并分析提炼出隐藏其下的“暗信息”就是4.x要着重打造的 insight 模块。
 
 
 ## 📥 安装与使用
@@ -85,7 +94,7 @@ chmod +x install_pocketbase
 
 **windows 用户请执行 [install_pocketbase.ps1](./install_pocketbase.ps1) 脚本**
 
-wiseflow 0.3.x版本使用 pocketbase 作为数据库，你当然也可以手动下载 pocketbase 客户端 (记得下载0.23.4版本，并放入 [pb](./pb) 目录下) 以及手动完成superuser的创建(记得存入.env文件)
+wiseflow 3.x版本使用 pocketbase 作为数据库，你当然也可以手动下载 pocketbase 客户端 (记得下载0.23.4版本，并放入 [pb](./pb) 目录下) 以及手动完成superuser的创建(记得存入.env文件)
 
 具体可以参考 [pb/README.md](/pb/README.md)
 
@@ -106,7 +115,7 @@ siliconflow（硅基流动）提供大部分主流开源模型的在线 MaaS 服
 ```
 LLM_API_KEY=Your_API_KEY
 LLM_API_BASE="https://api.siliconflow.cn/v1"
-PRIMARY_MODEL="Qwen/Qwen2.5-32B-Instruct"
+PRIMARY_MODEL="deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
 SECONDARY_MODEL="Qwen/Qwen2.5-14B-Instruct"
 VL_MODEL="deepseek-ai/deepseek-vl2"
 PROJECT_DIR="work_dir"
@@ -153,6 +162,9 @@ PB_API_AUTH="test@example.com|1234567890"
 
 #### 3.3 智谱（bigmodel）平台key设置（用于搜索引擎服务）
 
+提醒： **智谱平台于2025年3月14日零时起，正式对 web_search_pro 接口进行收费，如需使用搜索功能，请注意账户余额**
+[智谱平台公告](https://bigmodel.cn/dev/api/search-tool/web-search-pro)
+
 ```
 ZHIPU_API_KEY=Your_API_KEY
 ```
@@ -180,7 +192,7 @@ ZHIPU_API_KEY=Your_API_KEY
 推荐使用 conda 构建虚拟环境（当然你也可以忽略这一步，或者使用其他 python 虚拟环境方案）
 
 ```bash
-conda create -n wiseflow python=3.10
+conda create -n wiseflow python=3.12
 conda activate wiseflow
 ```
 
@@ -302,6 +314,12 @@ PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 
    - Go : https://pocketbase.io/docs/go-overview/
    - Javascript : https://pocketbase.io/docs/js-overview/
    - python : https://github.com/vaphes/pocketbase
+  
+3、在线服务也即将推出 sync api，支持将在线抓取结果同步本地，用于构建”动态知识库“等，敬请关注：
+
+  - 在线体验地址：https://www.aiqingbaoguan.com/ 
+  - 在线服务 API 使用案例：https://github.com/TeamWiseFlow/wiseflow_plus
+
 
 ## 🛡️ 许可协议
 
