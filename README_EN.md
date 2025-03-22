@@ -117,6 +117,7 @@ LLM_API_BASE="https://api.siliconflow.cn/v1"
 PRIMARY_MODEL="deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
 SECONDARY_MODEL="Qwen/Qwen2.5-14B-Instruct"
 VL_MODEL="deepseek-ai/deepseek-vl2"
+PROJECT_DIR="work_dir"
 ```
       
 😄 If you'd like, you can use my [siliconflow referral link](https://cloud.siliconflow.cn/i/WNLYbBpi), which will help me earn more token rewards 🌹
@@ -133,6 +134,7 @@ LLM_API_BASE="https://aihubmix.com/v1" # refer to https://doc.aihubmix.com/
 PRIMARY_MODEL="gpt-4o"
 SECONDARY_MODEL="gpt-4o-mini"
 VL_MODEL="gpt-4o"
+PROJECT_DIR="work_dir"
 ```
 
 😄 Welcome to register using the [AiHubMix referral link](https://aihubmix.com?aff=Gp54) 🌹
@@ -143,9 +145,10 @@ Taking Xinference as an example, the .env configuration can refer to the followi
 
 ```
 # LLM_API_KEY='' no need for local service, please comment out or delete
-LLM_API_BASE='http://127.0.0.1:9997'
+LLM_API_BASE='http://127.0.0.1:9997' # 'http://127.0.0.1:11434/v1' for ollama
 PRIMARY_MODEL=launched_model_id
 VL_MODEL=launched_model_id
+PROJECT_DIR="work_dir"
 ```
 
 #### 3.2 Pocketbase Account and Password Configuration
@@ -174,10 +177,6 @@ The following are all optional configurations:
 - #VERBOSE="true" 
 
   Whether to enable observation mode. When enabled, debug information will be recorded in the logger file (by default only output to console);
-
-- #PROJECT_DIR="work_dir" 
-
-    Project runtime data directory. If not configured, defaults to `core/work_dir`. Note: Currently the entire core directory is mounted under the container, meaning you can access it directly.
 
 - #PB_API_BASE="" 
 
