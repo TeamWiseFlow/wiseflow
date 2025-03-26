@@ -118,6 +118,7 @@ LLM_API_BASE="https://api.siliconflow.cn/v1"
 PRIMARY_MODEL="deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
 SECONDARY_MODEL="Qwen/Qwen2.5-14B-Instruct"
 VL_MODEL="deepseek-ai/deepseek-vl2"
+PROJECT_DIR="work_dir"
 ```
       
 😄 如果您愿意，可以使用我的[siliconflow邀请链接](https://cloud.siliconflow.cn/i/WNLYbBpi)，这样我也可以获得更多token奖励 🌹
@@ -133,6 +134,7 @@ LLM_API_BASE="https://aihubmix.com/v1" # 具体参考 https://doc.aihubmix.com/
 PRIMARY_MODEL="gpt-4o"
 SECONDARY_MODEL="gpt-4o-mini"
 VL_MODEL="gpt-4o"
+PROJECT_DIR="work_dir"
 ```
 
 😄 欢迎使用 [AiHubMix邀请链接](https://aihubmix.com?aff=Gp54) 注册 🌹
@@ -143,9 +145,10 @@ VL_MODEL="gpt-4o"
 
 ```
 # LLM_API_KEY='' 本地服务无需这一项，请注释掉或删除
-LLM_API_BASE='http://127.0.0.1:9997'
+LLM_API_BASE='http://127.0.0.1:9997' # 'http://127.0.0.1:11434/v1' for ollama
 PRIMARY_MODEL=启动的模型 ID
 VL_MODEL=启动的模型 ID
+PROJECT_DIR="work_dir"
 ```
 
 #### 3.2 pocketbase 账号密码配置
@@ -174,10 +177,6 @@ ZHIPU_API_KEY=Your_API_KEY
 - #VERBOSE="true" 
 
   是否开启观测模式，开启的话会把 debug 信息记录在 logger 文件上（默认仅输出在 console 上）；
-
-- #PROJECT_DIR="work_dir" 
-
-    项目运行数据目录，不配置的话，默认在  `core/work_dir` ，注意：目前整个 core 目录是挂载到 container 下的，所以意味着你可以直接访问这里。
 
 - #PB_API_BASE="" 
 
