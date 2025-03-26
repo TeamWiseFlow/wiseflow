@@ -319,6 +319,10 @@ async def get_info(texts: list[str], link_dict: dict, prompts: list[str], author
         info_pre_fix = ''
     else:
         info_pre_fix = f"//{author} {publish_date}//"
+    
+    texts = [t for t in texts if t.strip()]
+    if not texts:
+        return []
 
     batches = []
     text_batch = f'Author: {author}\nPublish Date: {publish_date}\n'
@@ -342,9 +346,9 @@ async def get_info(texts: list[str], link_dict: dict, prompts: list[str], author
         res = re.findall(r'<summary>(.*?)</summary>', res, re.DOTALL)
         if not res:
             if _logger:
-                _logger.warning(f"model hallucination: {res} \ncontains no summary tag")
+                _logger.warning("model lightly hallucination: contains no summary tag")
             if test_mode:
-                print(f"model hallucination: {res} \ncontains no summary tag")
+                print("model lightly hallucination: contains no summary tag")
             continue
         res = res[-1].strip()
         if _logger:
@@ -360,7 +364,7 @@ async def get_info(texts: list[str], link_dict: dict, prompts: list[str], author
             if _tag in link_dict:
                 refences[_tag] = link_dict[_tag]
             else:
-                if _logger:
+                if _logger and link_dict: # avoid warning when link_dict is empty(search engine)
                     _logger.warning(f"model hallucination: {res} \ncontains {_tag} which is not in link_dict")
                 if test_mode:
                     print(f"model hallucination: {res} \ncontains {_tag} which is not in link_dict")

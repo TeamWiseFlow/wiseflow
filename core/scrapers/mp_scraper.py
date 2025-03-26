@@ -291,7 +291,7 @@ def mp_scraper(fetch_result: CrawlResult | dict) -> ScraperResultData:
                 # return ScraperResultData(title='maybe a new_type_article', content='new_type_article, type 1')
                 content = raw_markdown
 
-            return ScraperResultData(content=content)
+            return ScraperResultData(title=title, content=content)
     else:
         author = None
         publish_date = None

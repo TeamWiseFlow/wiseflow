@@ -53,7 +53,7 @@ async def main_process(focus: dict, sites: list):
     wiseflow_logger.debug('new task initializing...')
     focus_id = focus["id"]
     focus_point = focus["focuspoint"].strip()
-    explanation = focus["explanation"].strip()
+    explanation = focus["explanation"].strip() if focus["explanation"] else ''
     wiseflow_logger.debug(f'focus_id: {focus_id}, focus_point: {focus_point}, explanation: {explanation}, search_engine: {focus["search_engine"]}')
     existing_urls = {url['url'] for url in pb.read(collection_name='infos', fields=['url'], filter=f"tag='{focus_id}'")}
     focus_statement = f"{focus_point}"
@@ -96,19 +96,20 @@ async def main_process(focus: dict, sites: list):
             if url in existing_urls:
                 continue
             if '（发布时间' not in result['title']:
-                wiseflow_logger.debug(f'can not find publish time in the search result {url}, adding to working list')
-                working_list.add(url)
-                continue
-            title, publish_date = result['title'].split('（发布时间')
-            title = title.strip() + '(from search engine)'
-            publish_date = publish_date.strip('）')
-            # 严格匹配YYYY-MM-DD格式
-            date_match = re.search(r'\d{4}-\d{2}-\d{2}', publish_date)
-            if date_match:
-                publish_date = date_match.group()
-                publish_date = extract_and_convert_dates(publish_date)
-            else:
+                title = result['title']
                 publish_date = ''
+            else:
+                title, publish_date = result['title'].split('（发布时间')
+                publish_date = publish_date.strip('）')
+                # 严格匹配YYYY-MM-DD格式
+                date_match = re.search(r'\d{4}-\d{2}-\d{2}', publish_date)
+                if date_match:
+                    publish_date = date_match.group()
+                    publish_date = extract_and_convert_dates(publish_date)
+                else:
+                    publish_date = ''
+                    
+            title = title.strip() + '(from search engine)'
             author = result.get('media', '')
             if not author:
                 author = urlparse(url).netloc
