@@ -147,6 +147,10 @@ async def pre_process(raw_markdown: str, base_url: str, used_img: list[str],
             text = text.replace(url, _key, 1)
             score += 1
             _valid_len = _valid_len - len(url)
+        
+        if score == 0:
+            # 如果没有任何链接，则认为这是一段纯文本
+            return 999, text
         # 统计换行符数量
         newline_count = text.count(' * ')
         score += newline_count
