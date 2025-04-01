@@ -15,9 +15,9 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 在线体验地址：https://www.aiqingbaoguan.com/ 
 
-公测期间，注册即赠送30点算力值（每个关注点每天消耗1点，不计信源数量）。
+公测期间，注册即赠送10点算力值（每个关注点每天消耗1点，不计信源数量）。
 
-测试服务目前偶发不稳定，还请谅解。
+*在线服务器搭建于阿里云，对中国大陆以外的网站访问均受限，且在线服务目前并不支持微信公众号，如您的信源主要为以上两类，建议使用开源版本自行部署。*
 
 ## 🌟 V3.9-patch3 版本发布
 
@@ -39,6 +39,7 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
   - @c469591 贡献了 windows版本启动脚本
   - @braumye 贡献了 docker 运行方案
   - @YikaJ 提供了对 install_pocketbase.sh 的优化
+  - @xxxiaogangg 贡献了导出脚本参考
 
 
 ## 🧐  ‘deep search’ VS ‘wide search’

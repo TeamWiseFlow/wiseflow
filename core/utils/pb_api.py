@@ -41,7 +41,7 @@ class PbTalker:
 
             except Exception as e:
                 self.logger.error(f"pocketbase get list failed: {e}")
-                continue
+                raise e
             if not res.items:
                 break
             for _res in res.items:
