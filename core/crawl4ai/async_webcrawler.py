@@ -34,6 +34,10 @@ from .utils import (
 )
 
 
+# todo 4.x 也许可以推动开源版本和服务器版本的爬虫归一为一个版本
+# 缓存全部使用本地方案，直接缓存 prepross 之后的 data
+# 增加totally_forbidden_domains 配置，默认一些设计平台（这些需要专门的爬虫），另外用户可以添加，最后就是自动对爬取失败的直接添加。爬取时遇到这些直接返回空的结果
+
 class AsyncWebCrawler:
     """
     Asynchronous web crawler with flexible caching capabilities.

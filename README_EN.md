@@ -16,9 +16,9 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 Online trial address: https://www.aiqingbaoguan.com/
 
-During the public testing period, registration will give you 30 free credits (each focus point consumes 1 credit per day, regardless of the number of information sources).
+During the public testing period, registration will give you 10 free credits (each focus point consumes 1 credit per day, regardless of the number of information sources).
 
-The test service is currently occasionally unstable, please understand.
+*The online service is built on Alibaba Cloud, and access to websites outside mainland China is restricted. Additionally, the online service currently does not support WeChat official accounts. If your sources primarily consist of these two types, we recommend using the open-source version to deploy yourself.*
 
 ## 🌟 V3.9-patch3 Version Released
 
@@ -40,6 +40,7 @@ Thanks to the following community members for their PRs in versions V0.3.5~V0.3.
   - @c469591 contributed the Windows version startup script
   - @braumye contributed the Docker deployment solution
   - @YikaJ provided optimizations for install_pocketbase.sh
+  - @xxxiaogangg contributed the export script reference
 
 
 ## 🧐 'Deep Search' VS 'Wide Search'
