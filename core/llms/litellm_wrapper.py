@@ -8,6 +8,7 @@ import os
 import logging
 from typing import Dict, List, Any, Optional, Union
 import json
+import asyncio
 
 try:
     import litellm
@@ -64,4 +65,25 @@ def litellm_llm(messages: List[Dict[str, str]], model: str, temperature: float =
     except Exception as e:
         if logger:
             logger.error(f"Error generating text with LiteLLM: {e}")
+        raise
+
+async def litellm_llm_async(messages: List[Dict[str, str]], model: str, temperature: float = 0.7, max_tokens: int = 1000, logger=None) -> str:
+    """Generate text using LiteLLM asynchronously."""
+    try:
+        # Run in a thread to avoid blocking the event loop
+        loop = asyncio.get_event_loop()
+        response = await loop.run_in_executor(
+            None, 
+            lambda: completion(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+        )
+        
+        return response.choices[0].message.content
+    except Exception as e:
+        if logger:
+            logger.error(f"Error generating text with LiteLLM async: {e}")
         raise

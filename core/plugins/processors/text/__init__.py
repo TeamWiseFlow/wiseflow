@@ -1,155 +1,210 @@
 """
-Text processors for Wiseflow.
+Text processor for Wiseflow.
 
-This module provides processors for text data.
+This module provides a processor for text data.
 """
 
 from typing import Dict, List, Any, Optional, Union
 import logging
 import json
-import os
+import asyncio
+import re
+from datetime import datetime
 
 from core.plugins.processors import ProcessorBase, ProcessedData
-from core.plugins.connectors import DataItem
-from core.llms.litellm_wrapper import LiteLLMWrapper
+from core.connectors import DataItem
+from core.llms.litellm_wrapper import litellm_llm
 
 logger = logging.getLogger(__name__)
 
-class FocusPointProcessor(ProcessorBase):
-    """Processor that extracts information based on focus points using LLMs."""
+class TextProcessor(ProcessorBase):
+    """Processor for text data."""
     
-    name: str = "focus_point_processor"
-    description: str = "Extracts information based on focus points using LLMs"
+    name: str = "text_processor"
+    description: str = "Processor for text data"
     processor_type: str = "text"
     
     def __init__(self, config: Optional[Dict[str, Any]] = None):
-        """Initialize the focus point processor."""
+        """Initialize the text processor."""
         super().__init__(config)
-        self.llm = None
-        self.focus_points = self.config.get("focus_points", [])
         
-    def initialize(self) -> bool:
-        """Initialize the processor."""
-        try:
-            # Initialize the LLM
-            self.llm = LiteLLMWrapper()
-            
-            # Load focus points if not provided in config
-            if not self.focus_points and self.config.get("focus_points_path"):
-                path = self.config["focus_points_path"]
-                if os.path.exists(path):
-                    with open(path, 'r') as f:
-                        self.focus_points = json.load(f)
-            
-            if not self.focus_points:
-                logger.warning("No focus points provided for focus point processor")
-            
-            logger.info(f"Initialized focus point processor with {len(self.focus_points)} focus points")
-            return True
-        except Exception as e:
-            logger.error(f"Failed to initialize focus point processor: {e}")
-            return False
-    
     def process(self, data_item: DataItem, params: Optional[Dict[str, Any]] = None) -> ProcessedData:
-        """Process a data item by extracting information based on focus points."""
+        """Process a text data item."""
         params = params or {}
         
-        # Get focus points from params or use the ones from config
-        focus_points = params.get("focus_points", self.focus_points)
-        if not focus_points:
-            logger.warning("No focus points provided for processing")
+        # Extract focus point information
+        focus_point = params.get("focus_point", "")
+        explanation = params.get("explanation", "")
+        prompts = params.get("prompts", [])
+        
+        if not focus_point:
+            logger.warning("No focus point provided for text processing")
             return ProcessedData(
-                source_id=data_item.source_id,
-                processed_content="",
                 original_item=data_item,
-                metadata={"error": "No focus points provided"}
+                processed_content=[],
+                metadata={"error": "No focus point provided"}
             )
         
-        # Prepare the prompt
-        prompt = self._create_prompt(data_item.content, focus_points)
+        if not data_item.content:
+            logger.warning(f"No content in data item {data_item.source_id}")
+            return ProcessedData(
+                original_item=data_item,
+                processed_content=[],
+                metadata={"error": "No content in data item"}
+            )
         
+        # Process the text using LLM
         try:
-            # Process with LLM
-            if not self.llm:
-                self.initialize()
-            
-            response = self.llm.generate(prompt)
-            
-            # Parse the response
-            extracted_info = self._parse_response(response)
+            # Run the processing in an event loop
+            loop = asyncio.get_event_loop()
+            processed_content = loop.run_until_complete(
+                self._process_with_llm(
+                    data_item.content, 
+                    focus_point, 
+                    explanation, 
+                    prompts,
+                    data_item.metadata.get("author", ""),
+                    data_item.metadata.get("publish_date", "")
+                )
+            )
             
             return ProcessedData(
-                source_id=data_item.source_id,
-                processed_content=extracted_info,
                 original_item=data_item,
+                processed_content=processed_content,
                 metadata={
-                    "focus_points": focus_points,
-                    "url": data_item.url,
-                    "title": data_item.metadata.get("title", "")
+                    "focus_point": focus_point,
+                    "explanation": explanation,
+                    "source_type": data_item.content_type,
+                    "processing_time": datetime.now().isoformat()
                 }
             )
         except Exception as e:
-            logger.error(f"Error processing item {data_item.source_id}: {e}")
+            logger.error(f"Error processing text data: {e}")
             return ProcessedData(
-                source_id=data_item.source_id,
-                processed_content="",
                 original_item=data_item,
+                processed_content=[],
                 metadata={"error": str(e)}
             )
     
-    def _create_prompt(self, content: str, focus_points: List[Dict[str, Any]]) -> str:
-        """Create a prompt for the LLM based on the content and focus points."""
-        focus_points_str = "\n".join([
-            f"{i+1}. {fp.get('focuspoint', '')}: {fp.get('explanation', '')}"
-            for i, fp in enumerate(focus_points)
-        ])
+    async def _process_with_llm(self, content: str, focus_point: str, explanation: str, prompts: List[str], author: str, publish_date: str) -> List[Dict[str, Any]]:
+        """Process text content with LLM."""
+        if not prompts or len(prompts) < 3:
+            logger.warning("Insufficient prompts provided")
+            return []
         
-        prompt = f"""
-You are an expert information extractor. Your task is to analyze the following content and extract information related to specific focus points.
-
-FOCUS POINTS:
-{focus_points_str}
-
-CONTENT:
-{content}
-
-For each focus point, extract any relevant information from the content. If there is no relevant information for a focus point, indicate "No relevant information found".
-
-Format your response as a JSON object with the following structure:
-{{
-  "focus_point_1": {{
-    "relevant": true/false,
-    "information": "extracted information or summary",
-    "confidence": 0-100
-  }},
-  "focus_point_2": {{
-    "relevant": true/false,
-    "information": "extracted information or summary",
-    "confidence": 0-100
-  }},
-  ...
-}}
-
-Only include the JSON object in your response, nothing else.
-"""
-        return prompt
+        system_prompt, user_prompt, model = prompts
+        
+        # Prepare the content
+        # Split content into chunks if it's too long
+        max_chunk_size = 8000  # Adjust based on model's context window
+        chunks = self._split_content(content, max_chunk_size)
+        
+        results = []
+        for chunk in chunks:
+            try:
+                messages = [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": f"{chunk}\n\n{user_prompt}"}
+                ]
+                
+                response = litellm_llm(messages, model)
+                
+                # Parse the response
+                parsed_results = self._parse_llm_response(response, author, publish_date)
+                results.extend(parsed_results)
+                
+            except Exception as e:
+                logger.error(f"Error processing chunk with LLM: {e}")
+        
+        return results
     
-    def _parse_response(self, response: str) -> Dict[str, Any]:
+    def _split_content(self, content: str, max_size: int) -> List[str]:
+        """Split content into chunks of maximum size."""
+        if len(content) <= max_size:
+            return [content]
+        
+        # Split by paragraphs
+        paragraphs = content.split("\n\n")
+        chunks = []
+        current_chunk = ""
+        
+        for paragraph in paragraphs:
+            if len(current_chunk) + len(paragraph) + 2 <= max_size:
+                if current_chunk:
+                    current_chunk += "\n\n"
+                current_chunk += paragraph
+            else:
+                if current_chunk:
+                    chunks.append(current_chunk)
+                
+                # If a single paragraph is too long, split it further
+                if len(paragraph) > max_size:
+                    # Split by sentences
+                    sentences = re.split(r'(?<=[.!?])\s+', paragraph)
+                    current_chunk = ""
+                    
+                    for sentence in sentences:
+                        if len(current_chunk) + len(sentence) + 1 <= max_size:
+                            if current_chunk:
+                                current_chunk += " "
+                            current_chunk += sentence
+                        else:
+                            if current_chunk:
+                                chunks.append(current_chunk)
+                            
+                            # If a single sentence is too long, just truncate it
+                            if len(sentence) > max_size:
+                                for i in range(0, len(sentence), max_size):
+                                    chunks.append(sentence[i:i+max_size])
+                            else:
+                                current_chunk = sentence
+                else:
+                    current_chunk = paragraph
+        
+        if current_chunk:
+            chunks.append(current_chunk)
+        
+        return chunks
+    
+    def _parse_llm_response(self, response: str, author: str, publish_date: str) -> List[Dict[str, Any]]:
         """Parse the LLM response into structured data."""
         try:
+            # Try to parse as JSON
+            if response.startswith("```json") and response.endswith("```"):
+                json_str = response[7:-3].strip()
+                data = json.loads(json_str)
+                if isinstance(data, list):
+                    return data
+                elif isinstance(data, dict):
+                    return [data]
+            
             # Try to extract JSON from the response
-            response = response.strip()
+            json_pattern = r'```json\s*([\s\S]*?)\s*```'
+            matches = re.findall(json_pattern, response)
+            if matches:
+                for match in matches:
+                    try:
+                        data = json.loads(match)
+                        if isinstance(data, list):
+                            return data
+                        elif isinstance(data, dict):
+                            return [data]
+                    except:
+                        pass
             
-            # Find JSON object in the response
-            start_idx = response.find('{')
-            end_idx = response.rfind('}')
-            
-            if start_idx >= 0 and end_idx > start_idx:
-                json_str = response[start_idx:end_idx+1]
-                return json.loads(json_str)
-            
-            # If no JSON found, return the raw response
-            return {"raw_response": response}
+            # If we can't parse as JSON, create a simple structure
+            return [{
+                "content": response,
+                "author": author,
+                "publish_date": publish_date,
+                "type": "text"
+            }]
         except Exception as e:
             logger.error(f"Error parsing LLM response: {e}")
-            return {"error": str(e), "raw_response": response}
+            return [{
+                "content": response,
+                "author": author,
+                "publish_date": publish_date,
+                "type": "text",
+                "parsing_error": str(e)
+            }]
