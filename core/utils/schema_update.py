@@ -1,184 +1,176 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
-Schema update script for Wiseflow.
+Schema update utility for PocketBase database.
 
-This script updates the PocketBase schema to support the new features in the upgrade plan.
+This module provides functions to update the PocketBase schema with new collections
+and fields for the data mining features.
 """
 
 import os
-import sys
-import logging
 import json
-from pathlib import Path
-from dotenv import load_dotenv
+import logging
+from typing import Dict, Any, List, Optional
 
-# Add the parent directory to the path
-sys.path.append(str(Path(__file__).parent.parent.parent))
+from .pb_api import PbTalker
 
-# Load environment variables
-env_path = Path(__file__).parent.parent / '.env'
-if env_path.exists():
-    load_dotenv(env_path)
+logger = logging.getLogger(__name__)
 
-from core.utils.pb_api import PbTalker
-from core.utils.general_utils import get_logger
-
-# Configure logging
-logger = get_logger('schema_update')
-
-def update_focus_points_schema(pb: PbTalker) -> bool:
+async def update_schema_for_insights(pb_client: PbTalker) -> bool:
     """
-    Update the focus_points collection schema.
+    Update the PocketBase schema to add collections for insights data.
     
-    Adds:
-    - auto_shutdown: Boolean field to enable auto-shutdown for completed tasks
-    - references: JSON field to store reference materials
-    - concurrency: Number field to control the number of concurrent threads
+    Args:
+        pb_client: PocketBase client
+        
+    Returns:
+        True if successful, False otherwise
     """
-    logger.info("Updating focus_points schema...")
-    
     try:
-        # Get the current schema
-        collection_name = "focus_points"
+        # Check if insights collection exists
+        collections = await pb_client.get_collections()
+        collection_names = [c.get('name') for c in collections]
         
-        # Check if auto_shutdown field exists
-        records = pb.read(collection_name, fields=["id", "auto_shutdown"])
-        has_auto_shutdown = any("auto_shutdown" in record for record in records)
+        # Create insights collection if it doesn't exist
+        if 'insights' not in collection_names:
+            logger.info("Creating insights collection")
+            insights_schema = {
+                "name": "insights",
+                "type": "base",
+                "schema": [
+                    {
+                        "name": "item_id",
+                        "type": "text",
+                        "required": True,
+                        "options": {
+                            "min": 1,
+                            "max": 255
+                        }
+                    },
+                    {
+                        "name": "timestamp",
+                        "type": "text",
+                        "required": True
+                    },
+                    {
+                        "name": "entities",
+                        "type": "json",
+                        "required": False
+                    },
+                    {
+                        "name": "sentiment",
+                        "type": "json",
+                        "required": False
+                    },
+                    {
+                        "name": "topics",
+                        "type": "json",
+                        "required": False
+                    },
+                    {
+                        "name": "relationships",
+                        "type": "json",
+                        "required": False
+                    }
+                ]
+            }
+            await pb_client.create_collection(insights_schema)
         
-        if not has_auto_shutdown:
-            logger.info("Adding auto_shutdown field to focus_points")
-            # This is a simplified approach - in a real implementation, you would use the PocketBase Admin API
-            # to update the schema. For now, we'll update each record individually.
-            for record in pb.read(collection_name, fields=["id"]):
-                pb.update(collection_name, record["id"], {"auto_shutdown": False})
+        # Create collective_insights collection if it doesn't exist
+        if 'collective_insights' not in collection_names:
+            logger.info("Creating collective_insights collection")
+            collective_insights_schema = {
+                "name": "collective_insights",
+                "type": "base",
+                "schema": [
+                    {
+                        "name": "timestamp",
+                        "type": "text",
+                        "required": True
+                    },
+                    {
+                        "name": "focus_id",
+                        "type": "text",
+                        "required": True,
+                        "options": {
+                            "min": 1,
+                            "max": 255
+                        }
+                    },
+                    {
+                        "name": "focus_point",
+                        "type": "text",
+                        "required": True
+                    },
+                    {
+                        "name": "item_count",
+                        "type": "number",
+                        "required": False
+                    },
+                    {
+                        "name": "item_insights",
+                        "type": "json",
+                        "required": False
+                    },
+                    {
+                        "name": "trends",
+                        "type": "json",
+                        "required": False
+                    },
+                    {
+                        "name": "clusters",
+                        "type": "json",
+                        "required": False
+                    },
+                    {
+                        "name": "insights_report",
+                        "type": "json",
+                        "required": False
+                    }
+                ]
+            }
+            await pb_client.create_collection(collective_insights_schema)
         
-        # Check if references field exists
-        records = pb.read(collection_name, fields=["id", "references"])
-        has_references = any("references" in record for record in records)
+        # Update infos collection to add insights field if it doesn't exist
+        if 'infos' in collection_names:
+            logger.info("Updating infos collection to add insights field")
+            infos_collection = next((c for c in collections if c.get('name') == 'infos'), None)
+            if infos_collection:
+                schema_fields = infos_collection.get('schema', [])
+                field_names = [f.get('name') for f in schema_fields]
+                
+                if 'insights' not in field_names:
+                    schema_fields.append({
+                        "name": "insights",
+                        "type": "json",
+                        "required": False
+                    })
+                    
+                    # Update the collection with the new schema
+                    infos_collection['schema'] = schema_fields
+                    await pb_client.update_collection(infos_collection.get('id'), infos_collection)
         
-        if not has_references:
-            logger.info("Adding references field to focus_points")
-            for record in pb.read(collection_name, fields=["id"]):
-                pb.update(collection_name, record["id"], {"references": json.dumps([])})
-        
-        # Check if concurrency field exists
-        records = pb.read(collection_name, fields=["id", "concurrency"])
-        has_concurrency = any("concurrency" in record for record in records)
-        
-        if not has_concurrency:
-            logger.info("Adding concurrency field to focus_points")
-            for record in pb.read(collection_name, fields=["id"]):
-                pb.update(collection_name, record["id"], {"concurrency": 1})
-        
-        logger.info("Successfully updated focus_points schema")
         return True
     except Exception as e:
-        logger.error(f"Failed to update focus_points schema: {e}")
+        logger.error(f"Error updating schema for insights: {e}")
         return False
 
-def create_references_collection(pb: PbTalker) -> bool:
+async def update_schema(pb_client: PbTalker) -> bool:
     """
-    Create the references collection if it doesn't exist.
+    Update the PocketBase schema with all required changes.
     
-    This collection stores reference materials for focus points.
+    Args:
+        pb_client: PocketBase client
+        
+    Returns:
+        True if all updates were successful, False otherwise
     """
-    logger.info("Creating references collection...")
+    success = True
     
-    try:
-        # Check if the collection exists by trying to read from it
-        try:
-            pb.read("references", fields=["id"], filter="", skiptotal=True)
-            logger.info("References collection already exists")
-            return True
-        except Exception:
-            # Collection doesn't exist, we'll create it
-            pass
-        
-        # In a real implementation, you would use the PocketBase Admin API to create the collection
-        # For now, we'll just log that this needs to be done manually
-        logger.warning("""
-        Please create the 'references' collection manually in PocketBase with the following fields:
-        - id: Text (system field)
-        - created: DateTime (system field)
-        - updated: DateTime (system field)
-        - focus_id: Text (required, relation to focus_points)
-        - name: Text (required)
-        - type: Text (required, options: url, file, text)
-        - content: Text (required)
-        - metadata: JSON
-        """)
-        
-        return True
-    except Exception as e:
-        logger.error(f"Failed to create references collection: {e}")
-        return False
-
-def create_tasks_collection(pb: PbTalker) -> bool:
-    """
-    Create the tasks collection if it doesn't exist.
+    # Update schema for insights
+    insights_success = await update_schema_for_insights(pb_client)
+    if not insights_success:
+        logger.error("Failed to update schema for insights")
+        success = False
     
-    This collection stores information about running and completed tasks.
-    """
-    logger.info("Creating tasks collection...")
+    # Add more schema updates here as needed
     
-    try:
-        # Check if the collection exists by trying to read from it
-        try:
-            pb.read("tasks", fields=["id"], filter="", skiptotal=True)
-            logger.info("Tasks collection already exists")
-            return True
-        except Exception:
-            # Collection doesn't exist, we'll create it
-            pass
-        
-        # In a real implementation, you would use the PocketBase Admin API to create the collection
-        # For now, we'll just log that this needs to be done manually
-        logger.warning("""
-        Please create the 'tasks' collection manually in PocketBase with the following fields:
-        - id: Text (system field)
-        - created: DateTime (system field)
-        - updated: DateTime (system field)
-        - task_id: Text (required)
-        - focus_id: Text (required, relation to focus_points)
-        - status: Text (required, options: pending, running, completed, failed, cancelled)
-        - start_time: DateTime
-        - end_time: DateTime
-        - auto_shutdown: Boolean
-        - error: Text
-        - metadata: JSON
-        """)
-        
-        return True
-    except Exception as e:
-        logger.error(f"Failed to create tasks collection: {e}")
-        return False
-
-def main():
-    """Main entry point for the schema update script."""
-    logger.info("Starting schema update...")
-    
-    # Initialize PocketBase client
-    pb = PbTalker(logger)
-    
-    # Update focus_points schema
-    if not update_focus_points_schema(pb):
-        logger.error("Failed to update focus_points schema")
-        return False
-    
-    # Create references collection
-    if not create_references_collection(pb):
-        logger.error("Failed to create references collection")
-        return False
-    
-    # Create tasks collection
-    if not create_tasks_collection(pb):
-        logger.error("Failed to create tasks collection")
-        return False
-    
-    logger.info("Schema update completed successfully")
-    return True
-
-if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    return success

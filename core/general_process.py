@@ -2,6 +2,7 @@
 from utils.pb_api import PbTalker
 from utils.general_utils import get_logger, extract_and_convert_dates, is_chinese, isURL
 from agents.get_info import *
+from agents.insights import InsightExtractor
 import json
 from scrapers import *
 from utils.zhipu_search import run_v4_async
@@ -31,6 +32,9 @@ plugin_manager = PluginManager(plugins_dir="core")
 # Initialize reference manager
 reference_manager = ReferenceManager(storage_path=os.path.join(project_dir, "references"))
 
+# Initialize insight extractor
+insight_extractor = InsightExtractor(pb_client=pb)
+
 async def info_process(url: str, 
                        url_title: str, 
                        author: str, 
@@ -48,13 +52,29 @@ async def info_process(url: str,
         info['url'] = url
         info['url_title'] = url_title
         info['tag'] = focus_id
-        _ = pb.add(collection_name='infos', body=info)
-        if not _:
-            wiseflow_logger.error('add info failed, writing to cache_file')
-            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-            with open(os.path.join(project_dir, f'{timestamp}_cache_infos.json'), 'w', encoding='utf-8') as f:
-                json.dump(info, f, ensure_ascii=False, indent=4)
 
+        # Process insights for each info item
+        try:
+            content = info.get('content', '')
+            if content:
+                # Extract insights from the content
+                insights = await insight_extractor.process_item({
+                    'id': info.get('id', str(uuid.uuid4())),
+                    'content': content,
+                    'title': info.get('title', url_title),
+                    'url': url,
+                    'author': author,
+                    'publish_date': publish_date
+                })
+                
+                # Add insights to the info object
+                info['insights'] = insights
+                wiseflow_logger.debug(f'Added insights to info item: {len(str(insights))} bytes')
+        except Exception as e:
+            wiseflow_logger.error(f'Error processing insights: {e}')
+        
+        # Save to database
+        await pb.create('infos', info)
 
 async def process_data_with_plugins(data_item: DataItem, focus: dict, get_info_prompts: list[str]):
     """Process a data item using the appropriate processor plugin."""
@@ -390,3 +410,45 @@ async def process_url_with_crawler(url, crawler, focus_id, existing_urls, get_li
             await info_process(url, title, author, publish_date, contents, link_dict, focus_id, get_info_prompts)
         except Exception as e:
             wiseflow_logger.error(f"Error processing URL {url} with crawler: {e}")
+
+
+async def process_focus_point(focus_id: str, focus_point: str, explanation: str, sites: list, search_engine: bool = False):
+    # ... existing code ...
+
+    # After processing all sites, perform collective insights analysis
+    try:
+        # Get all infos for this focus point
+        infos = await pb.get_all('infos', {'filter': f'tag="{focus_id}"'})
+        
+        if infos and len(infos) > 0:
+            wiseflow_logger.info(f'Generating collective insights for focus point {focus_id} with {len(infos)} items')
+            
+            # Process the collection to extract collective insights
+            collective_insights = await insight_extractor.process_collection([
+                {
+                    'id': info.get('id', ''),
+                    'content': info.get('content', ''),
+                    'title': info.get('title', ''),
+                    'url': info.get('url', ''),
+                    'created': info.get('created', ''),
+                    'summary': info.get('summary', '')
+                }
+                for info in infos
+            ])
+            
+            # Save collective insights to database
+            collective_insights['focus_id'] = focus_id
+            collective_insights['focus_point'] = focus_point
+            await insight_extractor.store_insights_in_db(collective_insights, 'collective_insights')
+            
+            # Also save to file for backup
+            insights_dir = os.path.join(project_dir, 'insights')
+            os.makedirs(insights_dir, exist_ok=True)
+            insight_extractor.save_insights(
+                collective_insights, 
+                os.path.join(insights_dir, f'insights_{focus_id}_{datetime.now().strftime("%Y%m%d")}.json')
+            )
+            
+            wiseflow_logger.info(f'Collective insights generated and saved for focus point {focus_id}')
+    except Exception as e:
+        wiseflow_logger.error(f'Error generating collective insights: {e}')
