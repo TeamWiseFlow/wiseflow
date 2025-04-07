@@ -19,25 +19,22 @@ class ProcessedData:
     
     def __init__(
         self,
-        source_id: str,
-        processed_content: str,
         original_item: Optional[DataItem] = None,
+        processed_content: Any = None,
         metadata: Optional[Dict[str, Any]] = None,
         timestamp: Optional[datetime] = None
     ):
         """Initialize processed data."""
-        self.source_id = source_id
-        self.processed_content = processed_content
         self.original_item = original_item
+        self.processed_content = processed_content
         self.metadata = metadata or {}
         self.timestamp = timestamp or datetime.now()
         
     def to_dict(self) -> Dict[str, Any]:
         """Convert the processed data to a dictionary."""
         return {
-            "source_id": self.source_id,
-            "processed_content": self.processed_content,
             "original_item": self.original_item.to_dict() if self.original_item else None,
+            "processed_content": self.processed_content,
             "metadata": self.metadata,
             "timestamp": self.timestamp.isoformat() if self.timestamp else None
         }
@@ -54,12 +51,15 @@ class ProcessedData:
                 
         original_item = None
         if data.get("original_item"):
-            original_item = DataItem.from_dict(data["original_item"])
-                
+            try:
+                from core.connectors import DataItem
+                original_item = DataItem.from_dict(data["original_item"])
+            except Exception as e:
+                logger.error(f"Error creating DataItem from dictionary: {e}")
+        
         return cls(
-            source_id=data["source_id"],
-            processed_content=data["processed_content"],
             original_item=original_item,
+            processed_content=data.get("processed_content"),
             metadata=data.get("metadata", {}),
             timestamp=timestamp
         )
@@ -90,14 +90,3 @@ class ProcessorBase(PluginBase):
         except Exception as e:
             logger.error(f"Failed to initialize processor {self.name}: {e}")
             return False
-    
-    def batch_process(self, data_items: List[DataItem], params: Optional[Dict[str, Any]] = None) -> List[ProcessedData]:
-        """Process multiple data items."""
-        results = []
-        for item in data_items:
-            try:
-                result = self.process(item, params)
-                results.append(result)
-            except Exception as e:
-                logger.error(f"Error processing item {item.source_id}: {e}")
-        return results
