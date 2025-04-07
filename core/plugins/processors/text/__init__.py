@@ -11,7 +11,7 @@ import os
 
 from core.plugins.processors import ProcessorBase, ProcessedData
 from core.plugins.connectors import DataItem
-from core.llms.litellm_wrapper import litellm_llm
+from core.llms.litellm_wrapper import LiteLLMWrapper
 
 logger = logging.getLogger(__name__)
 
@@ -25,11 +25,15 @@ class FocusPointProcessor(ProcessorBase):
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """Initialize the focus point processor."""
         super().__init__(config)
+        self.llm = None
         self.focus_points = self.config.get("focus_points", [])
         
     def initialize(self) -> bool:
         """Initialize the processor."""
         try:
+            # Initialize the LLM
+            self.llm = LiteLLMWrapper()
+            
             # Load focus points if not provided in config
             if not self.focus_points and self.config.get("focus_points_path"):
                 path = self.config["focus_points_path"]
@@ -66,16 +70,10 @@ class FocusPointProcessor(ProcessorBase):
         
         try:
             # Process with LLM
-            model = params.get("model", os.environ.get("PRIMARY_MODEL", ""))
-            if not model:
-                raise ValueError("No model specified for processing")
+            if not self.llm:
+                self.initialize()
             
-            messages = [
-                {"role": "system", "content": "You are an expert information extractor."},
-                {"role": "user", "content": prompt}
-            ]
-            
-            response = litellm_llm(messages, model, logger=logger)
+            response = self.llm.generate(prompt)
             
             # Parse the response
             extracted_info = self._parse_response(response)
