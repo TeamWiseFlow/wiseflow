@@ -19,481 +19,341 @@ from collections import Counter, defaultdict
 from ..llms.openai_wrapper import openai_llm as llm
 from ..utils.general_utils import get_logger, normalize_url
 from ..analysis import Entity, Relationship, KnowledgeGraph
+from ..utils.pb_api import PbTalker
 
 # Setup logging
 project_dir = os.environ.get("PROJECT_DIR", "")
-logger = get_logger('insights', project_dir)
+if project_dir:
+    os.makedirs(project_dir, exist_ok=True)
+insights_logger = get_logger('insights', project_dir)
+pb = PbTalker(insights_logger)
 
-class InsightExtractor:
-    """
-    Extracts insights from collected data using various data mining techniques.
-    """
-    
-    def __init__(self, pb_client=None):
-        """Initialize the insight extractor with optional PocketBase client."""
-        self.pb_client = pb_client
-        self.knowledge_graph = KnowledgeGraph()
-        self.model = os.environ.get("PRIMARY_MODEL", "")
-        if not self.model:
-            logger.warning("PRIMARY_MODEL not set, using default model")
-            self.model = "gpt-4o"
-    
-    async def extract_entities(self, content: str) -> List[Dict[str, Any]]:
-        """
-        Extract named entities from content using LLM.
-        
-        Args:
-            content: The text content to analyze
-            
-        Returns:
-            List of extracted entities with their types and metadata
-        """
-        prompt = """
-        Extract all named entities from the following text. For each entity, identify its type 
-        (person, organization, location, product, event, technology, etc.) and any relevant attributes.
-        
-        Return the results as a JSON array of objects with the following structure:
-        [
-            {
-                "name": "entity name",
-                "type": "entity type",
-                "attributes": {"key1": "value1", "key2": "value2"}
-            }
-        ]
-        
-        Text:
-        {content}
-        """
-        
-        try:
-            response = await llm.achat(
-                messages=[{"role": "user", "content": prompt.format(content=content)}],
-                model=self.model,
-                temperature=0.1,
-                response_format={"type": "json_object"}
-            )
-            
-            result = json.loads(response.choices[0].message.content)
-            return result.get("entities", []) if isinstance(result, dict) and "entities" in result else result
-        except Exception as e:
-            logger.error(f"Error extracting entities: {e}")
-            return []
-    
-    async def analyze_sentiment(self, content: str) -> Dict[str, Any]:
-        """
-        Analyze sentiment of content using LLM.
-        
-        Args:
-            content: The text content to analyze
-            
-        Returns:
-            Dictionary with sentiment analysis results
-        """
-        prompt = """
-        Analyze the sentiment of the following text. Provide:
-        1. Overall sentiment (positive, negative, or neutral)
-        2. Sentiment score (-1.0 to 1.0, where -1 is very negative, 0 is neutral, and 1 is very positive)
-        3. Key emotional tones detected (e.g., excitement, concern, anger, etc.)
-        4. Any notable sentiment shifts within the text
-        
-        Return the results as a JSON object.
-        
-        Text:
-        {content}
-        """
-        
-        try:
-            response = await llm.achat(
-                messages=[{"role": "user", "content": prompt.format(content=content)}],
-                model=self.model,
-                temperature=0.1,
-                response_format={"type": "json_object"}
-            )
-            
-            return json.loads(response.choices[0].message.content)
-        except Exception as e:
-            logger.error(f"Error analyzing sentiment: {e}")
-            return {
-                "sentiment": "neutral",
-                "score": 0,
-                "tones": [],
-                "shifts": []
-            }
-    
-    async def extract_topics(self, content: str, num_topics: int = 5) -> List[Dict[str, Any]]:
-        """
-        Extract main topics from content using LLM.
-        
-        Args:
-            content: The text content to analyze
-            num_topics: Number of topics to extract
-            
-        Returns:
-            List of topics with relevance scores
-        """
-        prompt = """
-        Extract the {num_topics} most important topics from the following text. For each topic:
-        1. Provide a concise label (1-3 words)
-        2. Assign a relevance score (0-100)
-        3. Include key terms related to this topic
-        
-        Return the results as a JSON array of objects.
-        
-        Text:
-        {content}
-        """
-        
-        try:
-            response = await llm.achat(
-                messages=[{"role": "user", "content": prompt.format(content=content, num_topics=num_topics)}],
-                model=self.model,
-                temperature=0.1,
-                response_format={"type": "json_object"}
-            )
-            
-            result = json.loads(response.choices[0].message.content)
-            return result.get("topics", []) if isinstance(result, dict) and "topics" in result else result
-        except Exception as e:
-            logger.error(f"Error extracting topics: {e}")
-            return []
-    
-    async def identify_trends(self, items: List[Dict[str, Any]], time_field: str = "created") -> Dict[str, Any]:
-        """
-        Identify trends in a collection of items over time.
-        
-        Args:
-            items: List of data items to analyze
-            time_field: Field name containing timestamp
-            
-        Returns:
-            Dictionary with trend analysis results
-        """
-        if not items:
-            return {"trends": [], "time_series": {}}
-        
-        # Sort items by time
-        try:
-            sorted_items = sorted(items, key=lambda x: x.get(time_field, ""))
-        except Exception:
-            logger.error(f"Error sorting items by {time_field}")
-            sorted_items = items
-        
-        # Extract all text content for trend analysis
-        all_content = "\n\n".join([
-            f"Item {i+1} ({item.get(time_field, 'unknown date')}):\n{item.get('content', '')}"
-            for i, item in enumerate(sorted_items[:20])  # Limit to 20 items to avoid token limits
-        ])
-        
-        prompt = """
-        Analyze the following collection of items over time and identify emerging trends, patterns, or shifts.
-        
-        For each trend you identify:
-        1. Provide a descriptive name
-        2. Indicate whether it's increasing, decreasing, or stable
-        3. Provide supporting evidence from the items
-        4. Estimate when the trend began (if apparent)
-        
-        Return the results as a JSON object with an array of trend objects.
-        
-        Items:
-        {content}
-        """
-        
-        try:
-            response = await llm.achat(
-                messages=[{"role": "user", "content": prompt.format(content=all_content)}],
-                model=self.model,
-                temperature=0.1,
-                response_format={"type": "json_object"}
-            )
-            
-            return json.loads(response.choices[0].message.content)
-        except Exception as e:
-            logger.error(f"Error identifying trends: {e}")
-            return {"trends": []}
-    
-    async def extract_relationships(self, entities: List[Dict[str, Any]], content: str) -> List[Dict[str, Any]]:
-        """
-        Extract relationships between entities using LLM.
-        
-        Args:
-            entities: List of extracted entities
-            content: Original content for context
-            
-        Returns:
-            List of relationships between entities
-        """
-        if not entities or len(entities) < 2:
-            return []
-        
-        entity_names = [e["name"] for e in entities]
-        entity_str = ", ".join(entity_names)
-        
-        prompt = """
-        Analyze the relationships between the following entities mentioned in the text:
-        {entities}
-        
-        For each meaningful relationship you can identify, provide:
-        1. Source entity
-        2. Target entity
-        3. Relationship type (e.g., "works for", "owns", "located in", "competes with")
-        4. Confidence score (0-100)
-        5. Supporting evidence from the text
-        
-        Return the results as a JSON array of relationship objects.
-        
-        Text:
-        {content}
-        """
-        
-        try:
-            response = await llm.achat(
-                messages=[{"role": "user", "content": prompt.format(entities=entity_str, content=content)}],
-                model=self.model,
-                temperature=0.1,
-                response_format={"type": "json_object"}
-            )
-            
-            result = json.loads(response.choices[0].message.content)
-            return result.get("relationships", []) if isinstance(result, dict) and "relationships" in result else result
-        except Exception as e:
-            logger.error(f"Error extracting relationships: {e}")
-            return []
-    
-    async def cluster_related_information(self, items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """
-        Cluster related information items together.
-        
-        Args:
-            items: List of information items
-            
-        Returns:
-            List of clusters with related items
-        """
-        if not items or len(items) < 2:
-            return [{"cluster_id": "cluster_1", "name": "All Items", "items": items}]
-        
-        # Prepare a condensed version of items for the LLM
-        condensed_items = []
-        for i, item in enumerate(items):
-            condensed = {
-                "id": i,
-                "title": item.get("title", ""),
-                "summary": item.get("summary", "")[:200] + "..." if item.get("summary", "") else ""
-            }
-            condensed_items.append(condensed)
-        
-        prompt = """
-        Analyze the following information items and cluster them into related groups.
-        For each cluster:
-        1. Provide a descriptive name
-        2. List the IDs of items that belong to this cluster
-        3. Explain the common theme or relationship
-        
-        Return the results as a JSON array of cluster objects.
-        
-        Items:
-        {items}
-        """
-        
-        try:
-            response = await llm.achat(
-                messages=[{"role": "user", "content": prompt.format(items=json.dumps(condensed_items, ensure_ascii=False))}],
-                model=self.model,
-                temperature=0.1,
-                response_format={"type": "json_object"}
-            )
-            
-            clusters_data = json.loads(response.choices[0].message.content)
-            clusters = clusters_data.get("clusters", []) if isinstance(clusters_data, dict) and "clusters" in clusters_data else clusters_data
-            
-            # Reconstruct clusters with full items
-            result_clusters = []
-            for cluster in clusters:
-                item_ids = cluster.get("item_ids", [])
-                cluster_items = [items[item_id] for item_id in item_ids if item_id < len(items)]
-                
-                result_clusters.append({
-                    "cluster_id": f"cluster_{uuid.uuid4().hex[:8]}",
-                    "name": cluster.get("name", "Unnamed Cluster"),
-                    "theme": cluster.get("theme", ""),
-                    "items": cluster_items
-                })
-            
-            return result_clusters
-        except Exception as e:
-            logger.error(f"Error clustering information: {e}")
-            return [{"cluster_id": "cluster_1", "name": "All Items", "items": items}]
-    
-    async def generate_insights_report(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Generate a comprehensive insights report from analyzed data.
-        
-        Args:
-            data: Dictionary containing all analyzed data
-            
-        Returns:
-            Dictionary with insights report
-        """
-        prompt = """
-        Generate a comprehensive insights report based on the following analyzed data.
-        Include:
-        
-        1. Executive Summary (key findings in 2-3 sentences)
-        2. Main Insights (3-5 most significant insights)
-        3. Emerging Trends (patterns or shifts identified)
-        4. Key Entities (most important entities and their relationships)
-        5. Sentiment Analysis (overall sentiment and notable patterns)
-        6. Recommendations (2-3 actionable recommendations based on the insights)
-        
-        Return the report as a structured JSON object.
-        
-        Analyzed Data:
-        {data}
-        """
-        
-        try:
-            response = await llm.achat(
-                messages=[{"role": "user", "content": prompt.format(data=json.dumps(data, ensure_ascii=False))}],
-                model=self.model,
-                temperature=0.3,
-                response_format={"type": "json_object"}
-            )
-            
-            return json.loads(response.choices[0].message.content)
-        except Exception as e:
-            logger.error(f"Error generating insights report: {e}")
-            return {
-                "executive_summary": "Error generating insights report.",
-                "main_insights": [],
-                "emerging_trends": [],
-                "key_entities": [],
-                "sentiment_analysis": {},
-                "recommendations": []
-            }
-    
-    async def process_item(self, item: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Process a single data item to extract all insights.
-        
-        Args:
-            item: Data item to process
-            
-        Returns:
-            Dictionary with all extracted insights
-        """
-        content = item.get("content", "")
-        if not content:
-            return {"error": "No content to analyze"}
-        
-        # Extract entities
-        entities = await self.extract_entities(content)
-        
-        # Analyze sentiment
-        sentiment = await self.analyze_sentiment(content)
-        
-        # Extract topics
-        topics = await self.extract_topics(content)
-        
-        # Extract relationships between entities
-        relationships = await self.extract_relationships(entities, content)
-        
-        # Combine all insights
-        insights = {
-            "item_id": item.get("id", str(uuid.uuid4())),
-            "timestamp": datetime.now().isoformat(),
-            "entities": entities,
-            "sentiment": sentiment,
-            "topics": topics,
-            "relationships": relationships
-        }
-        
-        return insights
-    
-    async def process_collection(self, items: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """
-        Process a collection of data items to extract collective insights.
-        
-        Args:
-            items: List of data items to process
-            
-        Returns:
-            Dictionary with collective insights
-        """
-        if not items:
-            return {"error": "No items to analyze"}
-        
-        # Process individual items
-        item_insights = []
-        for item in items:
-            insights = await self.process_item(item)
-            item_insights.append(insights)
-        
-        # Identify trends
-        trends = await self.identify_trends(items)
-        
-        # Cluster related information
-        clusters = await self.cluster_related_information(items)
-        
-        # Generate comprehensive insights report
-        report_data = {
-            "item_insights": item_insights,
-            "trends": trends,
-            "clusters": clusters
-        }
-        insights_report = await self.generate_insights_report(report_data)
-        
-        # Combine all collective insights
-        collective_insights = {
-            "timestamp": datetime.now().isoformat(),
-            "item_count": len(items),
-            "item_insights": item_insights,
-            "trends": trends,
-            "clusters": clusters,
-            "insights_report": insights_report
-        }
-        
-        return collective_insights
-    
-    def save_insights(self, insights: Dict[str, Any], filepath: str) -> None:
-        """
-        Save insights to a file.
-        
-        Args:
-            insights: Insights data to save
-            filepath: Path to save the file
-        """
-        try:
-            os.makedirs(os.path.dirname(filepath), exist_ok=True)
-            with open(filepath, 'w', encoding='utf-8') as f:
-                json.dump(insights, f, ensure_ascii=False, indent=2)
-            logger.info(f"Insights saved to {filepath}")
-        except Exception as e:
-            logger.error(f"Error saving insights: {e}")
-    
-    async def store_insights_in_db(self, insights: Dict[str, Any], collection: str = "insights") -> Optional[str]:
-        """
-        Store insights in the database.
-        
-        Args:
-            insights: Insights data to store
-            collection: Database collection name
-            
-        Returns:
-            ID of the created record or None if failed
-        """
-        if not self.pb_client:
-            logger.warning("No PocketBase client provided, cannot store insights in database")
-            return None
-        
-        try:
-            record = await self.pb_client.create(collection, insights)
-            logger.info(f"Insights stored in database with ID: {record.id}")
-            return record.id
-        except Exception as e:
-            logger.error(f"Error storing insights in database: {e}")
-            return None
+model = os.environ.get("PRIMARY_MODEL", "")
+if not model:
+    raise ValueError("PRIMARY_MODEL not set, please set it in environment variables or edit core/.env")
 
+# ... keep existing InsightExtractor class and other functions ...
+
+# Prompts for insights generation
+TREND_ANALYSIS_PROMPT = """You are an expert data analyst specializing in trend identification and pattern recognition. 
+Your task is to analyze a collection of information items related to a specific focus point and identify meaningful trends, 
+patterns, or insights that might not be immediately obvious from individual items.
+Focus point: {focus_point}
+Focus explanation: {explanation}
+Here are the information items collected over the past {time_period}:
+{info_items}
+Please analyze this information and provide the following:
+1. Key trends or patterns you've identified
+2. Emerging topics or themes
+3. Notable changes or shifts over time
+4. Potential implications or opportunities
+5. Gaps in the information that might be worth exploring
+Your analysis should be data-driven, insightful, and focused on extracting value that goes beyond what's explicitly stated in the individual items.
+"""
+
+ENTITY_RELATIONSHIP_PROMPT = """You are an expert in entity recognition and relationship mapping. 
+Your task is to analyze a collection of information items related to a specific focus point and identify key entities 
+(people, organizations, products, technologies, etc.) and the relationships between them.
+Focus point: {focus_point}
+Focus explanation: {explanation}
+Here are the information items:
+{info_items}
+Please analyze this information and provide the following:
+1. Key entities mentioned across multiple information items
+2. Relationships between these entities
+3. Influence networks or hierarchies
+4. Potential collaborations or conflicts
+5. Central entities that appear to be most connected or influential
+Your analysis should focus on extracting the network of relationships that exists beneath the surface of these individual information items.
+"""
+
+INSIGHT_SUMMARY_PROMPT = """You are an expert intelligence analyst specializing in synthesizing information and extracting strategic insights.
+Your task is to review the trend analysis and entity relationship analysis for a collection of information related to a specific focus point,
+and provide a concise, high-value summary of the most important insights.
+Focus point: {focus_point}
+Focus explanation: {explanation}
+Trend Analysis:
+{trend_analysis}
+Entity Relationship Analysis:
+{entity_analysis}
+Please provide a concise summary of the most valuable insights from this analysis. Focus on information that would be most actionable
+or strategically valuable. Highlight any unexpected findings or connections that might not be obvious from casual reading of the individual items.
+Your summary should be clear, concise, and focused on delivering maximum value to someone interested in this topic.
+"""
+
+async def generate_trend_analysis(focus_point: str, explanation: str, info_items: List[Dict[str, Any]], time_period: str = "week") -> str:
+    """
+    Generate a trend analysis for a collection of information items.
+    
+    Args:
+        focus_point: The focus point being analyzed
+        explanation: Additional explanation or context for the focus point
+        info_items: List of information items to analyze
+        time_period: Time period covered by the analysis (e.g., "day", "week", "month")
+        
+    Returns:
+        String containing the trend analysis
+    """
+    insights_logger.debug(f"Generating trend analysis for focus point: {focus_point}")
+    
+    # Format the info items for the prompt
+    formatted_items = []
+    for i, item in enumerate(info_items, 1):
+        content = item.get('content', '')
+        url = item.get('url', '')
+        formatted_items.append(f"Item {i}:\nContent: {content}\nSource: {url}\n")
+    
+    items_text = "\n".join(formatted_items)
+    
+    # Create the prompt
+    prompt = TREND_ANALYSIS_PROMPT.format(
+        focus_point=focus_point,
+        explanation=explanation,
+        time_period=time_period,
+        info_items=items_text
+    )
+    
+    # Generate the analysis
+    result = await llm([
+        {'role': 'system', 'content': 'You are an expert data analyst specializing in trend identification.'},
+        {'role': 'user', 'content': prompt}
+    ], model=model, temperature=0.2)
+    
+    insights_logger.debug("Trend analysis generated successfully")
+    return result
+
+async def generate_entity_analysis(focus_point: str, explanation: str, info_items: List[Dict[str, Any]]) -> str:
+    """
+    Generate an entity relationship analysis for a collection of information items.
+    
+    Args:
+        focus_point: The focus point being analyzed
+        explanation: Additional explanation or context for the focus point
+        info_items: List of information items to analyze
+        
+    Returns:
+        String containing the entity relationship analysis
+    """
+    insights_logger.debug(f"Generating entity relationship analysis for focus point: {focus_point}")
+    
+    # Format the info items for the prompt
+    formatted_items = []
+    for i, item in enumerate(info_items, 1):
+        content = item.get('content', '')
+        url = item.get('url', '')
+        formatted_items.append(f"Item {i}:\nContent: {content}\nSource: {url}\n")
+    
+    items_text = "\n".join(formatted_items)
+    
+    # Create the prompt
+    prompt = ENTITY_RELATIONSHIP_PROMPT.format(
+        focus_point=focus_point,
+        explanation=explanation,
+        info_items=items_text
+    )
+    
+    # Generate the analysis
+    result = await llm([
+        {'role': 'system', 'content': 'You are an expert in entity recognition and relationship mapping.'},
+        {'role': 'user', 'content': prompt}
+    ], model=model, temperature=0.2)
+    
+    insights_logger.debug("Entity relationship analysis generated successfully")
+    return result
+
+async def generate_insight_summary(focus_point: str, explanation: str, trend_analysis: str, entity_analysis: str) -> str:
+    """
+    Generate a concise summary of insights based on trend and entity analyses.
+    
+    Args:
+        focus_point: The focus point being analyzed
+        explanation: Additional explanation or context for the focus point
+        trend_analysis: The trend analysis text
+        entity_analysis: The entity relationship analysis text
+        
+    Returns:
+        String containing the insight summary
+    """
+    insights_logger.debug(f"Generating insight summary for focus point: {focus_point}")
+    
+    # Create the prompt
+    prompt = INSIGHT_SUMMARY_PROMPT.format(
+        focus_point=focus_point,
+        explanation=explanation,
+        trend_analysis=trend_analysis,
+        entity_analysis=entity_analysis
+    )
+    
+    # Generate the summary
+    result = await llm([
+        {'role': 'system', 'content': 'You are an expert intelligence analyst specializing in synthesizing information.'},
+        {'role': 'user', 'content': prompt}
+    ], model=model, temperature=0.3)
+    
+    insights_logger.debug("Insight summary generated successfully")
+    return result
+
+async def generate_insights_for_focus(focus_id: str, time_period_days: int = 7, force: bool = False) -> Dict[str, Any]:
+    """
+    Generate comprehensive insights for a specific focus point.
+    
+    Args:
+        focus_id: The ID of the focus point
+        time_period_days: Number of days to look back for information items
+        force: Force regeneration of insights even if recent insights exist
+        
+    Returns:
+        Dictionary containing the generated insights
+    """
+    insights_logger.info(f"Generating insights for focus ID: {focus_id}")
+    
+    # Check for recent insights if not forcing regeneration
+    if not force:
+        cutoff_time = (datetime.now() - timedelta(hours=24)).isoformat()
+        filter_query = f"focus_id='{focus_id}' && created>='{cutoff_time}'"
+        recent_insights = pb.read(collection_name='insights', filter=filter_query, sort="-created")
+        
+        if recent_insights:
+            insights_logger.info(f"Found recent insights for focus ID {focus_id}")
+            return recent_insights[0]
+    
+    # Get the focus point details
+    focus = pb.read_one(collection_name='focus_point', id=focus_id)
+    if not focus:
+        insights_logger.error(f"Focus point with ID {focus_id} not found")
+        return {"error": f"Focus point with ID {focus_id} not found"}
+    
+    focus_point = focus.get("focuspoint", "").strip()
+    explanation = focus.get("explanation", "").strip()
+    
+    # Calculate the time period
+    cutoff_date = (datetime.now() - timedelta(days=time_period_days)).strftime('%Y-%m-%d')
+    
+    # Get information items for this focus point from the specified time period
+    filter_query = f"tag='{focus_id}' && created>='{cutoff_date}'"
+    info_items = pb.read(collection_name='infos', filter=filter_query)
+    
+    if not info_items:
+        insights_logger.warning(f"No information items found for focus ID {focus_id} in the last {time_period_days} days")
+        return {
+            "focus_id": focus_id,
+            "focus_point": focus_point,
+            "error": f"No information items found in the last {time_period_days} days"
+        }
+    
+    insights_logger.info(f"Found {len(info_items)} information items for analysis")
+    
+    # Generate the analyses in parallel
+    trend_analysis_task = asyncio.create_task(
+        generate_trend_analysis(focus_point, explanation, info_items, f"{time_period_days} days")
+    )
+    entity_analysis_task = asyncio.create_task(
+        generate_entity_analysis(focus_point, explanation, info_items)
+    )
+    
+    trend_analysis = await trend_analysis_task
+    entity_analysis = await entity_analysis_task
+    
+    # Generate the summary based on both analyses
+    insight_summary = await generate_insight_summary(focus_point, explanation, trend_analysis, entity_analysis)
+    
+    # Create the result
+    result = {
+        "focus_id": focus_id,
+        "focus_point": focus_point,
+        "time_period": f"{time_period_days} days",
+        "item_count": len(info_items),
+        "trend_analysis": trend_analysis,
+        "entity_analysis": entity_analysis,
+        "insight_summary": insight_summary,
+        "generated_at": datetime.now().isoformat()
+    }
+    
+    # Save the insights to the database
+    try:
+        insight_record = {
+            "focus_id": focus_id,
+            "trend_analysis": trend_analysis,
+            "entity_analysis": entity_analysis,
+            "insight_summary": insight_summary,
+            "item_count": len(info_items),
+            "time_period": f"{time_period_days} days"
+        }
+        pb.add(collection_name='insights', body=insight_record)
+        insights_logger.info(f"Insights for focus ID {focus_id} saved to database")
+    except Exception as e:
+        insights_logger.error(f"Error saving insights to database: {e}")
+        # Save to a local file as backup
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        with open(os.path.join(project_dir, f'{timestamp}_insights_{focus_id}.json'), 'w', encoding='utf-8') as f:
+            json.dump(result, f, ensure_ascii=False, indent=4)
+    
+    return result
+
+async def generate_insights_for_all_active_focuses(time_period_days: int = 7) -> List[Dict[str, Any]]:
+    """
+    Generate insights for all active focus points.
+    
+    Args:
+        time_period_days: Number of days to look back for information items
+        
+    Returns:
+        List of dictionaries containing the generated insights for each focus point
+    """
+    insights_logger.info("Generating insights for all active focus points")
+    
+    # Get all active focus points
+    active_focuses = pb.read(collection_name='focus_point', filter="activated=true")
+    
+    if not active_focuses:
+        insights_logger.warning("No active focus points found")
+        return []
+    
+    insights_logger.info(f"Found {len(active_focuses)} active focus points")
+    
+    # Generate insights for each focus point
+    results = []
+    for focus in active_focuses:
+        try:
+            result = await generate_insights_for_focus(focus["id"], time_period_days)
+            results.append(result)
+        except Exception as e:
+            insights_logger.error(f"Error generating insights for focus ID {focus['id']}: {e}")
+            results.append({
+                "focus_id": focus["id"],
+                "focus_point": focus.get("focuspoint", ""),
+                "error": str(e)
+            })
+    
+    return results
+
+async def get_insights_for_focus(focus_id: str, max_age_hours: int = 24) -> Dict[str, Any]:
+    """
+    Get the most recent insights for a focus point, generating new ones if needed.
+    
+    Args:
+        focus_id: The ID of the focus point
+        max_age_hours: Maximum age of insights in hours before regenerating
+        
+    Returns:
+        Dictionary containing the insights
+    """
+    insights_logger.info(f"Getting insights for focus ID: {focus_id}")
+    
+    # Calculate the cutoff time
+    cutoff_time = (datetime.now() - timedelta(hours=max_age_hours)).isoformat()
+    
+    # Try to get recent insights from the database
+    filter_query = f"focus_id='{focus_id}' && created>='{cutoff_time}'"
+    recent_insights = pb.read(collection_name='insights', filter=filter_query, sort="-created")
+    
+    if recent_insights:
+        insights_logger.info(f"Found recent insights for focus ID {focus_id}")
+        return recent_insights[0]
+    
+    # No recent insights found, generate new ones
+    insights_logger.info(f"No recent insights found for focus ID {focus_id}, generating new ones")
+    return await generate_insights_for_focus(focus_id)
 
 # Utility functions for data mining
 
