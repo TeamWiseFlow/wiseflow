@@ -82,7 +82,7 @@ function Configure-AdminAccount {
         $password = Read-Host "Enter admin password (no '&' in the password and at least 10 characters)" -AsSecureString
         $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($password)
         $passwordText = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
-    } while ($passwordText.Length -lt 10) # 修正为 10，与提示一致
+    } while ($passwordText.Length -lt 10)
     
     $global:ADMIN_EMAIL = $email
     $global:ADMIN_PASSWORD = $passwordText
@@ -103,15 +103,15 @@ function Create-AdminAccount {
             exit 1
         }
         
-        # Create admin account
-        Write-Host "Creating admin account for $ADMIN_EMAIL..." -ForegroundColor Green
-        $createOutput = & $pbExe admin create $ADMIN_EMAIL $ADMIN_PASSWORD 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "Failed to create admin account: $createOutput" -ForegroundColor Red
+        # Create or update admin account
+        Write-Host "Creating or updating admin account for $ADMIN_EMAIL..." -ForegroundColor Green
+        $createOutput = & $pbExe superuser upsert $ADMIN_EMAIL $ADMIN_PASSWORD 2>&1
+        if ($LASTEXITCODE -ne 0 -or $createOutput -notmatch "Successfully saved superuser") {
+            Write-Host "Failed to create or update admin account: $createOutput" -ForegroundColor Red
             exit 1
         }
         
-        Write-Host "Admin account created successfully!" -ForegroundColor Green
+        Write-Host "Admin account created or updated successfully!" -ForegroundColor Green
     }
     catch {
         Write-Host "Error creating admin account: $_" -ForegroundColor Red
