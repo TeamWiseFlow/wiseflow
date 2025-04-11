@@ -82,13 +82,44 @@ function Configure-AdminAccount {
         $password = Read-Host "Enter admin password (no '&' in the password and at least 10 characters)" -AsSecureString
         $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($password)
         $passwordText = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
-    } while ($passwordText.Length -lt 8)
+    } while ($passwordText.Length -lt 10) # 修正为 10，与提示一致
     
     $global:ADMIN_EMAIL = $email
     $global:ADMIN_PASSWORD = $passwordText
 }
 
-# 6. Configure environment file
+# 6. Create admin account in PocketBase
+function Create-AdminAccount {
+    Write-Host "`nCreating PocketBase admin account..." -ForegroundColor Yellow
+    
+    try {
+        $pbExe = ".\pb\pocketbase.exe"
+        
+        # Run migrations to initialize database
+        Write-Host "Running database migrations..." -ForegroundColor Green
+        $migrateOutput = & $pbExe migrate up 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to run migrations: $migrateOutput" -ForegroundColor Red
+            exit 1
+        }
+        
+        # Create admin account
+        Write-Host "Creating admin account for $ADMIN_EMAIL..." -ForegroundColor Green
+        $createOutput = & $pbExe admin create $ADMIN_EMAIL $ADMIN_PASSWORD 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Failed to create admin account: $createOutput" -ForegroundColor Red
+            exit 1
+        }
+        
+        Write-Host "Admin account created successfully!" -ForegroundColor Green
+    }
+    catch {
+        Write-Host "Error creating admin account: $_" -ForegroundColor Red
+        exit 1
+    }
+}
+
+# 7. Configure environment file
 function Configure-Environment {
     if (-not (Test-Path ".\core\.env")) {
         Copy-Item "env_sample" -Destination ".\core\.env"
@@ -112,6 +143,7 @@ function Main {
     Select-PocketBaseVersion
     Download-PocketBase
     Configure-AdminAccount
+    Create-AdminAccount
     Configure-Environment
     Write-Host "PocketBase installation completed!" -ForegroundColor Green
 }
