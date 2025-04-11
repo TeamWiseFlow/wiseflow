@@ -121,18 +121,51 @@ function Create-AdminAccount {
 
 # 7. Configure environment file
 function Configure-Environment {
-    if (-not (Test-Path ".\core\.env")) {
-        Copy-Item "env_sample" -Destination ".\core\.env"
-        Write-Host "Created new .env file from template" -ForegroundColor Green
+    $envPath = ".\core\.env"
+    
+    # Create .env if it doesn't exist
+    if (-not (Test-Path $envPath)) {
+        if (Test-Path "env_sample") {
+            Copy-Item "env_sample" -Destination $envPath
+            Write-Host "Created new .env file from template" -ForegroundColor Green
+        } else {
+            # Create a minimal .env file if env_sample is missing
+            Set-Content -Path $envPath -Value "" -Encoding UTF8
+            Write-Host "Created empty .env file (env_sample not found)" -ForegroundColor Yellow
+        }
     } else {
         Write-Host "Found existing .env file" -ForegroundColor Yellow
     }
     
-    $envContent = Get-Content ".\core\.env"
-    $envContent = $envContent -replace 'export PB_API_AUTH="[^"]*"', "export PB_API_AUTH=`"$ADMIN_EMAIL|$ADMIN_PASSWORD`""
-    Set-Content ".\core\.env" $envContent
+    # Read .env content
+    $envContent = Get-Content $envPath -Raw
     
-    Write-Host "Updated PB_API_AUTH in .env with new credentials" -ForegroundColor Green
+    # Prepare the new PB_API_AUTH line
+    $newAuthLine = "PB_API_AUTH=`"$ADMIN_EMAIL|$ADMIN_PASSWORD`""
+    
+    # Check if PB_API_AUTH exists
+    if ($envContent -match "^\s*PB_API_AUTH\s*=.*$") {
+        # Replace existing PB_API_AUTH line
+        $envContent = $envContent -replace "^\s*PB_API_AUTH\s*=.*$", $newAuthLine
+    } else {
+        # Append PB_API_AUTH if not found
+        if ($envContent -and $envContent[-1] -ne "`n") {
+            $envContent += "`n"
+        }
+        $envContent += $newAuthLine
+    }
+    
+    # Write back to .env file with UTF-8 encoding
+    Set-Content -Path $envPath -Value $envContent -Encoding UTF8
+    
+    # Verify the update
+    $updatedContent = Get-Content $envPath -Raw
+    if ($updatedContent -match [regex]::Escape($newAuthLine)) {
+        Write-Host "Successfully updated PB_API_AUTH in .env with new credentials" -ForegroundColor Green
+    } else {
+        Write-Host "Failed to update PB_API_AUTH in .env" -ForegroundColor Red
+        exit 1
+    }
 }
 
 # Main execution
