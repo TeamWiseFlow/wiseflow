@@ -9,6 +9,9 @@ from urllib.parse import urlparse
 from crawl4ai import AsyncWebCrawler, CacheMode
 from datetime import datetime
 import feedparser
+import requests
+from urllib.error import URLError
+from xml.etree.ElementTree import ParseError
 
 
 project_dir = os.environ.get("PROJECT_DIR", "")
@@ -23,6 +26,26 @@ if not model:
     raise ValueError("PRIMARY_MODEL not set, please set it in environment variables or edit core/.env")
 secondary_model = os.environ.get("SECONDARY_MODEL", model)
 
+def parse_feed(url):
+    urls = []
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
+        feed = feedparser.parse(response.text)
+        if feed.bozo:
+            print(f"Error parsing feed: {feed.bozo_exception}")
+        else:
+            # Process feed data
+            print(f"Feed title: {feed.feed.get('title', 'No title')}")
+            for entry in feed.entries:
+                urls.append(entry.link)
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching feed: {e}")
+    except ParseError as e:
+         print(f"XML ParseError: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+    return urls
 
 async def info_process(url: str, 
                        url_title: str, 
@@ -124,7 +147,9 @@ async def main_process(focus: dict, sites: list):
             except Exception as e:
                 wiseflow_logger.warning(f"{site['url']} RSS feed is not valid: {e}")
                 continue
-            rss_urls = {entry.link for entry in feed.entries if entry.link and isURL(entry.link)}
+            rss_urls = {entry.link for entry in feed.entries if entry.link}
+            if len(rss_urls) == 0:
+                rss_urls = parse_feed(site['url'])
             wiseflow_logger.debug(f'get {len(rss_urls)} urls from rss source {site["url"]}')
             working_list.update(rss_urls - existing_urls)
         else:
