@@ -40,11 +40,10 @@ get_info_system = '''你将被给到一段使用<text></text>标签包裹的网�
 {focus_statement}\n
 任务执行请遵循以下原则：
 - 理解关注点及其备注的含义，确保只提取与关注点相关并符合备注要求的信息生成摘要，确保相关性
-- 务必注意：给到的网页文本并不能保证一定与关注点相关以及符合备注的限定，如果你判断网页文本内容并不符合相关性，则使用 NA 代替摘要
 - 无论网页文本是何语言，最终的摘要请使用关注点语言生成
 - 如果摘要涉及的原文片段中包含类似"[3]"这样的引用标记，务必在摘要中保留相关标记'''
 
-get_info_suffix = '''请一步步思考后输出摘要，摘要整体用<summary></summary>标签包裹，<summary></summary>内不要有其他内容，如果网页文本与关注点无关，则保证在<summary></summary>内仅填入NA。'''
+get_info_suffix = '''请一步步思考后输出摘要，摘要整体用<summary></summary>标签包裹，<summary></summary>内不要有其他内容'''
 
 get_info_system_en = '''You will be given a piece of webpage text enclosed within <text></text> tags. Your task is to extract information from this text that is relevant to the focus point listed below and create a summary. Focus point and it's notes are as follows:
 {focus_statement}
