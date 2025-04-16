@@ -19,8 +19,8 @@ from agents.get_info import get_author_and_publish_date, get_info, get_more_rela
 from agents.get_info_prompts import *
 
 
-benchmark_model = 'Qwen/Qwen2.5-72B-Instruct'
-models = ['Qwen/Qwen2.5-7B-Instruct', 'Qwen/Qwen2.5-14B-Instruct',  'Qwen/Qwen2.5-32B-Instruct', 'deepseek-ai/DeepSeek-R1-Distill-Qwen-14B', 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B']
+benchmark_model = 'THUDM/GLM-Z1-32B-0414'
+models = ['THUDM/GLM-4-32B-0414', 'THUDM/GLM-Z1-9B-0414', 'THUDM/GLM-4-9B-0414', 'THUDM/GLM-Z1-Rumination-32B-0414']
 
 async def main(sample: dict, include_ap: bool, prompts: list, record_file: str):
     link_dict, links_parts, contents = sample['link_dict'], sample['links_part'], sample['contents']
@@ -97,33 +97,27 @@ if __name__ == '__main__':
     if not os.path.exists(os.path.join(sample_dir, 'focus_point.json')):
         raise ValueError(f'{sample_dir} focus_point.json not found')
     
-    focus_points = json.load(open(os.path.join(sample_dir, 'focus_point.json'), 'r'))
-    focus_statement = ''
-    for item in focus_points:
-        tag = item["focuspoint"].strip()
-        expl = item["explanation"].strip()
-        focus_statement = f"{focus_statement}//{tag}//"
-        if expl:
-            if is_chinese(expl):
-                focus_statement = f"{focus_statement}\n解释：{expl}\n"
-            else:
-                focus_statement = f"{focus_statement}\nExplanation: {expl}\n"
-    
-    #focus_dict = {item["focuspoint"]: item["focuspoint"] for item in focus_points}
+    focus_point = json.load(open(os.path.join(sample_dir, 'focus_point.json'), 'r'))
+    focus_statement = f"{focus_point[0]['focuspoint']}"
     date_stamp = datetime.now().strftime('%Y-%m-%d')
     if is_chinese(focus_statement):
+        focus_statement = f"{focus_statement}\n注：{focus_point[0]['explanation']}（目前日期是{date_stamp}）"
+    else:
+        focus_statement = f"{focus_statement}\nNote: {focus_point[0]['explanation']}(today is {date_stamp})"
+
+    if is_chinese(focus_statement):
         get_link_sys_prompt = get_link_system.replace('{focus_statement}', focus_statement)
-        get_link_sys_prompt = f"今天的日期是{date_stamp}，{get_link_sys_prompt}"
+        # get_link_sys_prompt = f"今天的日期是{date_stamp}，{get_link_sys_prompt}"
         get_link_suffix_prompt = get_link_suffix
         get_info_sys_prompt = get_info_system.replace('{focus_statement}', focus_statement)
-        get_info_sys_prompt = f"今天的日期是{date_stamp}，{get_info_sys_prompt}"
+        # get_info_sys_prompt = f"今天的日期是{date_stamp}，{get_info_sys_prompt}"
         get_info_suffix_prompt = get_info_suffix
     else:
         get_link_sys_prompt = get_link_system_en.replace('{focus_statement}', focus_statement)
-        get_link_sys_prompt = f"today is {date_stamp}, {get_link_sys_prompt}"
+        # get_link_sys_prompt = f"today is {date_stamp}, {get_link_sys_prompt}"
         get_link_suffix_prompt = get_link_suffix_en
         get_info_sys_prompt = get_info_system_en.replace('{focus_statement}', focus_statement)
-        get_info_sys_prompt = f"today is {date_stamp}, {get_info_sys_prompt}"
+        # get_info_sys_prompt = f"today is {date_stamp}, {get_info_sys_prompt}"
         get_info_suffix_prompt = get_info_suffix_en
 
     prompts = [get_link_sys_prompt, get_link_suffix_prompt, get_info_sys_prompt, get_info_suffix_prompt]

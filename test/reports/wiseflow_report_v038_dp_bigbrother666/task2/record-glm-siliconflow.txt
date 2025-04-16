@@ -1,0 +1,381 @@
+focus statement: 
+大模型技术突破与创新
+注：包括新算法与模型，新的研究成果（目前日期是2025-04-16）
+
+raw materials: 348_processed.json
+
+model: THUDM/GLM-Z1-32B-0414
+get author and publish date time: 4.62724494934082
+author: 什么都想学的阿超
+publish date: NA
+get more related urls time: 18.833634614944458
+diff from benchmark: benchmark: 0 results
+get info time: 5.948081016540527
+related urls: 
+
+final result: 
+
+
+
+model: THUDM/GLM-4-32B-0414
+get author and publish date time: 0.5884842872619629
+author: 什么都想学的阿超
+publish date: NA
+get more related urls time: 1.1437768936157227
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 0.6143081188201904
+related urls: 
+
+final result: 
+
+
+
+model: THUDM/GLM-Z1-9B-0414
+get author and publish date time: 6.454797983169556
+author: 什么都想学的阿超
+publish date: NA
+get more related urls time: 16.323556184768677
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 6.101573705673218
+related urls: 
+
+final result: 
+
+
+
+model: THUDM/GLM-4-9B-0414
+get author and publish date time: 0.510674238204956
+author: 什么都想学的阿超
+publish date: NA
+get more related urls time: 0.6114339828491211
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 0.3314540386199951
+related urls: 
+
+final result: 
+
+
+
+model: THUDM/GLM-Z1-Rumination-32B-0414
+get author and publish date time: 4.585206031799316
+author: 
+publish date: 
+get more related urls time: 3.9710941314697266
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 29.681233167648315
+related urls: 
+
+final result: 
+这些文章涵盖了多个主题，包括Python编程指南、数据处理技巧、系统设计、毕业设计项目、数据挖掘和教学资源。以下是每篇文章的简要摘要：
+
+1. **Python实用速查表：日常任务的高效编程指南**
+   - 作者：什么都想学的阿超
+   - 内容：提供Python在文件操作、API交互等方面的实用速查表，帮助开发者高效完成日常任务。
+
+2. **用Python轻松处理大文件：10个高效技巧助你驾驭海量数据！**
+   - 作者：新语数据故事汇
+   - 内容：介绍在Python中处理大文本文件的方法，特别是避免一次性加载到内存中导致程序崩溃的高效策略。
+
+3. **开题报告Python基于Java的车辆配件管理系统（附源码）**
+   - 作者：2§
+   - 内容：基于Java的车辆配件管理系统，附有源码，适用于汽车行业配件管理。
+
+4. **[开题报告]Python计算机毕业设计+Web+区块链的大宗商品交易B2B服务平台网站(附源码)** 
+   - 作者：豪生星空
+   - 内容：结合Web和区块链技术的大宗商品交易B2B服务平台，适用于计算机专业的毕业设计。
+
+5. **[开题报告]Python计算机毕业设计“请君一笑”休闲论坛(附源码)** 
+   - 作者：3§
+   - 内容：休闲论坛，旨在提供轻松交流的环境，附有源码。
+
+6. **Python淘宝数据挖掘与词云图制作全攻略**
+   - 作者：Lucky
+   - 内容：介绍使用Python进行淘宝商品数据采集和制作词云图的方法，有助于了解市场趋势和消费者需求。
+
+7. **[开题报告]Python计算机毕业设计《Linux网络操作系统》教学网站(附源码)** 
+   - 作者：4§
+   - 内容：关于《Linux网络操作系统》的教学网站，附有源码，适用于教学和学习。
+
+8. **关于“鸢尾花书”的问答**
+   - 作者：生姜DrGinger
+   - 内容：解答关于“鸢尾花书”的常见问题，这是一套7本书，涵盖数学、编程、可视化和机器学习，适合准人工智能时代的学习。
+
+
+raw materials: 6bc_processed.json
+
+model: THUDM/GLM-Z1-32B-0414
+get author and publish date time: 45.03066802024841
+author: 
+publish date: NA
+get more related urls time: 19.83036780357361
+diff from benchmark: benchmark: 1 results
+get info time: 3.0994415283203125e-06
+related urls: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648417242&idx=1&sn=56d097f76eaa1429702117df6c1be8e0
+final result: 
+
+
+
+model: THUDM/GLM-4-32B-0414
+get author and publish date time: 0.5341062545776367
+author: 
+publish date: NA
+get more related urls time: 1.1917901039123535
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 2.1457672119140625e-06
+related urls: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648417242&idx=1&sn=56d097f76eaa1429702117df6c1be8e0
+final result: 
+
+
+
+model: THUDM/GLM-Z1-9B-0414
+get author and publish date time: 17.513498067855835
+author: 
+publish date: 2021/11/09
+get more related urls time: 13.304814100265503
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 2.1457672119140625e-06
+related urls: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648417242&idx=1&sn=56d097f76eaa1429702117df6c1be8e0
+final result: 
+
+
+
+model: THUDM/GLM-4-9B-0414
+get author and publish date time: 0.4660310745239258
+author: 
+publish date: 2023/04/23
+get more related urls time: 1.773806095123291
+diff from benchmark: 差异4个(遗漏0个,多出4个)
+get info time: 5.9604644775390625e-06
+related urls: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648396807&idx=1&sn=a7c940746468849026479a127a8e048a
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648395297&idx=1&sn=dee01e1b54a1cdc92cb7990c1bf79eb6
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648401296&idx=1&sn=c2ec7a5b1aa5fc27e6d9c0224f561860
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648400372&idx=1&sn=b13509af77924e18bdb092387a7fcdbd
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648417242&idx=1&sn=56d097f76eaa1429702117df6c1be8e0
+final result: 
+
+
+
+model: THUDM/GLM-Z1-Rumination-32B-0414
+get author and publish date time: 35.963828325271606
+author: 
+publish date: 2021/11/09
+get more related urls time: 61.846386194229126
+diff from benchmark: 差异1个(遗漏1个,多出0个)
+get info time: 5.245208740234375e-06
+related urls: 
+
+final result: 
+
+
+
+raw materials: 41a15b.json_processed.json
+
+model: THUDM/GLM-Z1-32B-0414
+get author and publish date time: 11.731976747512817
+author: 早报
+publish date: NA
+get more related urls time: 7.923089265823364
+diff from benchmark: benchmark: 0 results
+get info time: 18.639024019241333
+related urls: 
+
+final result: 
+OpenAI开发博士级自主AI智能体「Operator」，具备独立执行代码编写、旅行预订等任务能力，计划于ChatGPT macOS版推出[3]；DeepSeek发布R1模型，性能对标OpenAI o1正式版，开源660B参数模型并推出32B/70B蒸馏版本[3]；Kimi推出k1.5多模态模型，短思考模式超越GPT-4o/Claude 3.5 Sonnet 550%，长思考模式达o1正式版水平，首次公开强化学习训练技术报告[3]；MiniMax海螺语音支持17种语言及上百音色，中文/粤语测试表现优于ElevenLabs[3]；阶跃星辰发布Step-2 mini模型，3%参数量保持80%性能，首字时延0.17秒，API定价1元/百万输入token[3]；豆包App升级实时语音大模型，中文场景对话满意度达4.36/5，显著优于GPT-4o[3]；比尔盖茨预测AI将实现元认知突破，强调需通过云计算资源捐赠促进全球普惠[3]。
+
+
+model: THUDM/GLM-4-32B-0414
+get author and publish date time: 0.6112930774688721
+author: 爱范儿
+publish date: NA
+get more related urls time: 0.5126550197601318
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 5.426082134246826
+related urls: 
+
+final result: 
+OpenAI 被曝博士级「超级智能体」即将登场，CEO Sam Altman 预计将于 1 月 30 日向美国政府进行闭门简报。据悉，「Operator」是 OpenAI 开发的一种具有博士级别能力的自主 AI 智能体，能够在浏览器中独立执行任务，比如编写代码、预订旅行、管理日程等。此外，DeepSeek-R1 发布，性能对齐 OpenAI o1 正式版，DeepSeek 表示，DeepSeek-R1 遵循 MIT License，允许用户通过蒸馏技术借助 R1 训练其他模型。Kimi 全新 SOTA 模型 k1.5 发布，实现了 SOTA 级别的多模态推理和通用推理能力。豆包 App 更新实时语音通话功能，并面向所有用户开放。阶跃星辰推出 Step-2 mini/文学大师版，MiniMax 海螺语音全球同步上线。这些信息都与大模型技术突破与创新相关。
+
+
+model: THUDM/GLM-Z1-9B-0414
+get author and publish date time: 3.6881821155548096
+author: 爱范儿
+publish date: NA
+get more related urls time: 4.706802845001221
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 12.18650221824646
+related urls: 
+
+final result: 
+OpenAI「Operator」项目取得突破，计划推出博士级AI智能体，可在浏览器中独立执行代码编写、旅行预订等任务[3]。豆包App更新实时语音通话功能，基于Doubao Realtime Voice Model实现「人机难辨」的语音交互，用户满意度4.36/5[3]。阶跃星辰发布Step-2 mini和文学大师版模型，前者参数量减少3%但性能保留80%，后者强化内容创作能力[3]。MiniMax海螺语音升级T2A-01系列，支持17种语言，中文相似度媲美ElevenLabs[3]。DeepSeek-R1开源模型，数学、代码等任务性能对齐OpenAI o1正式版，API定价1元/百万输入token[3]。Kimi发布k1.5多模态模型，短思考模式下数学、代码能力超越GPT-4o 550%，首次达到OpenAI o1多模态水平[3]。
+
+
+model: THUDM/GLM-4-9B-0414
+get author and publish date time: 0.4239211082458496
+author: 爱范儿
+publish date: NA
+get more related urls time: 0.29225993156433105
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 3.0591397285461426
+related urls: 
+
+final result: 
+近期，OpenAI 的「Operator」项目取得突破，开发出一种具有博士级别能力的自主 AI 智能体，能够在浏览器中独立执行任务，如编写代码、预订旅行、管理日程等。该智能体预计将很快在 ChatGPT macOS 版中推出。此外，比尔盖茨表示人类还将迎来一些新的 AI 突破，例如「元认知（metacognition）」。同时，国产 AI 也提前扎堆发布重磅模型，如阶跃星辰的 Step-2 mini 和 Step-2 文学大师版，以及 DeepSeek-R1 模型，其性能对齐 OpenAI o1 正式版。Kimi 也发布了全新 SOTA 模型 k1.5，实现了 SOTA 级别的多模态推理和通用推理能力，大幅超越了 GPT-4o 和 Claude 3.5 Sonnet 的水平。
+
+
+model: THUDM/GLM-Z1-Rumination-32B-0414
+get author and publish date time: 5.864513874053955
+author: 
+publish date: 
+get more related urls time: 8.599277019500732
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 63.73334884643555
+related urls: 
+
+final result: 
+
+
+
+raw materials: d49_processed.json
+
+model: THUDM/GLM-Z1-32B-0414
+get author and publish date time: 10.833931922912598
+author: 
+publish date: NA
+get more related urls time: 69.84660911560059
+diff from benchmark: benchmark: 0 results
+get info time: 4.0531158447265625e-06
+related urls: 
+
+final result: 
+
+
+
+model: THUDM/GLM-4-32B-0414
+get author and publish date time: 0.6707491874694824
+author: 
+publish date: NA
+get more related urls time: 2.293118953704834
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 2.86102294921875e-06
+related urls: 
+
+final result: 
+
+
+
+model: THUDM/GLM-Z1-9B-0414
+get author and publish date time: 3.8481359481811523
+author: 
+publish date: NA
+get more related urls time: 21.90444326400757
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 4.291534423828125e-06
+related urls: 
+
+final result: 
+
+
+
+model: THUDM/GLM-4-9B-0414
+get author and publish date time: 0.5117590427398682
+author: 
+publish date: NA
+get more related urls time: 6.133429050445557
+diff from benchmark: 差异7个(遗漏0个,多出7个)
+get info time: 5.0067901611328125e-06
+related urls: 
+https://mp.weixin.qq.com/s/shbXj7-U33YoZy5f7yspVg
+https://mp.weixin.qq.com/s/RV8B7iwHqJNs26fXSFTd8g
+http://news.gzhu.edu.cn/info/1002/31587.htm
+https://mp.weixin.qq.com/s/JldpXoUyBUOZHVPJ6d1APQ
+https://www.gzhu.edu.cn/info/1113/11443.htm
+http://news.gzhu.edu.cn/info/1016/26391.htm
+http://news.gzhu.edu.cn/info/1016/27397.htm
+final result: 
+
+
+
+model: THUDM/GLM-Z1-Rumination-32B-0414
+get author and publish date time: 14.263102054595947
+author: 
+publish date: 
+get more related urls time: 77.58942222595215
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 5.7220458984375e-06
+related urls: 
+
+final result: 
+
+
+
+raw materials: 48450d.json_processed.json
+
+model: THUDM/GLM-Z1-32B-0414
+get author and publish date time: 6.344438076019287
+author: Tinyu Young
+publish date: NA
+get more related urls time: 19.559719800949097
+diff from benchmark: benchmark: 0 results
+get info time: 12.596174240112305
+related urls: 
+
+final result: 
+
+
+
+model: THUDM/GLM-4-32B-0414
+get author and publish date time: 0.6120059490203857
+author: Tinyu Young
+publish date: NA
+get more related urls time: 0.510890007019043
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 0.3564589023590088
+related urls: 
+
+final result: 
+
+
+
+model: THUDM/GLM-Z1-9B-0414
+get author and publish date time: 5.275812864303589
+author: Tinyu Young
+publish date: NA
+get more related urls time: 9.937153100967407
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 3.7861478328704834
+related urls: 
+
+final result: 
+
+
+
+model: THUDM/GLM-4-9B-0414
+get author and publish date time: 0.5129191875457764
+author: Tinyu Young
+publish date: NA
+get more related urls time: 2.3141069412231445
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 0.2694389820098877
+related urls: 
+
+final result: 
+
+
+
+model: THUDM/GLM-Z1-Rumination-32B-0414
+get author and publish date time: 4.369491815567017
+author: 
+publish date: 
+get more related urls time: 1.8731520175933838
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 3.152290105819702
+related urls: 
+
+final result: 
+
+
+
