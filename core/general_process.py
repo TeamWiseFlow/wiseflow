@@ -56,6 +56,7 @@ async def main_process(focus: dict, sites: list):
     explanation = focus["explanation"].strip() if focus["explanation"] else ''
     wiseflow_logger.debug(f'focus_id: {focus_id}, focus_point: {focus_point}, explanation: {explanation}, search_engine: {focus["search_engine"]}')
     existing_urls = {url['url'] for url in pb.read(collection_name='infos', fields=['url'], filter=f"tag='{focus_id}'")}
+    sites_urls = {site['url'] for site in sites}
     focus_statement = f"{focus_point}"
     date_stamp = datetime.now().strftime('%Y-%m-%d')
     if is_chinese(focus_point):
@@ -147,7 +148,7 @@ async def main_process(focus: dict, sites: list):
         existing_urls.add(f"{parsed_url.scheme}://{parsed_url.netloc}/")
         domain = parsed_url.netloc
             
-        crawler_config.cache_mode = CacheMode.WRITE_ONLY if url in sites else CacheMode.ENABLED
+        crawler_config.cache_mode = CacheMode.WRITE_ONLY if url in sites_urls else CacheMode.ENABLED
         try:
             result = await crawler.arun(url=url, config=crawler_config)
         except Exception as e:
