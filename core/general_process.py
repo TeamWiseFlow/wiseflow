@@ -38,7 +38,7 @@ def parse_feed(url):
             # Process feed data
             print(f"Feed title: {feed.feed.get('title', 'No title')}")
             for entry in feed.entries:
-                urls.append(entry.link)
+                urls.append((entry.link, entry.get('pubDate', None)))
     except requests.exceptions.RequestException as e:
         print(f"Error fetching feed: {e}")
     except ParseError as e:
@@ -147,12 +147,15 @@ async def main_process(focus: dict, sites: list):
             except Exception as e:
                 wiseflow_logger.warning(f"{site['url']} RSS feed is not valid: {e}")
                 continue
-            rss_urls = {entry.link for entry in feed.entries if entry.link}
+            rss_urls = [(entry.link, entry.get('pubDate', None)) for entry in feed.entries if entry.link]
             if len(rss_urls) == 0:
                 rss_urls = parse_feed(site['url'])
-            wiseflow_logger.debug(f'get {len(rss_urls)} urls from rss source {site["url"]}')
-            working_list.update(rss_urls - existing_urls)
-        else:
+            rss_urls.sort(key=lambda x: x[1] if x[1] else datetime(1970, 1, 1).timetuple(), reverse=True)
+            rss_urls = [url for url, _ in rss_urls]
+            filtered_urls = [url for url in rss_urls if url not in existing_urls]
+            wiseflow_logger.debug(f'get {len(rss_urls)} urls from rss source {site["url"]}, {len(filtered_urls)} are new')
+            working_list.update(filtered_urls)
+        else: 
             if site['url'] not in existing_urls and isURL(site['url']):
                 working_list.add(site['url'])
 
@@ -161,6 +164,7 @@ async def main_process(focus: dict, sites: list):
     while working_list:
         url = working_list.pop()
         existing_urls.add(url)
+        existing_urls = set(existing_urls)
         wiseflow_logger.debug(f'process new url, still {len(working_list)} urls in working list')
         has_common_ext = any(url.lower().endswith(ext) for ext in common_file_exts)
         if has_common_ext:
@@ -171,7 +175,8 @@ async def main_process(focus: dict, sites: list):
         existing_urls.add(f"{parsed_url.scheme}://{parsed_url.netloc}")
         existing_urls.add(f"{parsed_url.scheme}://{parsed_url.netloc}/")
         domain = parsed_url.netloc
-            
+        wiseflow_logger.debug(f'{domain}')
+
         crawler_config.cache_mode = CacheMode.WRITE_ONLY if url in sites else CacheMode.ENABLED
         try:
             result = await crawler.arun(url=url, config=crawler_config)
@@ -185,6 +190,7 @@ async def main_process(focus: dict, sites: list):
 
         if domain in custom_scrapers:
             result = custom_scrapers[domain](result)
+            wiseflow_logger.debug(f'{result}')
             raw_markdown = result.content
             used_img = result.images
             title = result.title
@@ -227,7 +233,7 @@ async def main_process(focus: dict, sites: list):
             more_url = await get_more_related_urls(links_texts, link_dict, get_link_prompts, _logger=wiseflow_logger)
             if more_url:
                 wiseflow_logger.debug(f'get {len(more_url)} more related urls, will add to working list')
-                working_list.update(more_url - existing_urls)
+                working_list.update(more_url - set(existing_urls))
             
         if not contents:
             continue
