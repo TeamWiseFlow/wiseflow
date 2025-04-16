@@ -1,0 +1,341 @@
+focus statement: 
+新投产的氢能项目
+注：（目前日期是2025-04-16）
+
+raw materials: 407_processed.json
+
+model: THUDM/GLM-Z1-32B-0414
+get author and publish date time: 31.085464000701904
+author: 北极星电力网
+publish date: NA
+get more related urls time: 42.433775901794434
+diff from benchmark: benchmark: 4 results
+get info time: 5.7220458984375e-06
+related urls: 
+https://news.bjx.com.cn/html/20250106/1421132.shtml
+https://news.bjx.com.cn/html/20250106/1420968.shtml
+https://news.bjx.com.cn/html/20250106/1421039.shtml
+https://news.bjx.com.cn/html/20250106/1421053.shtml
+final result: 
+
+
+
+model: THUDM/GLM-4-32B-0414
+get author and publish date time: 0.7132968902587891
+author: 
+publish date: NA
+get more related urls time: 19.764240264892578
+diff from benchmark: 差异2个(遗漏0个,多出2个)
+get info time: 6.9141387939453125e-06
+related urls: 
+https://news.bjx.com.cn/html/20250106/1420968.shtml
+https://news.bjx.com.cn/html/20250106/1421181.shtml
+https://news.bjx.com.cn/html/20250106/1421039.shtml
+https://news.bjx.com.cn/html/20250106/1421179.shtml
+https://news.bjx.com.cn/html/20250106/1421053.shtml
+https://news.bjx.com.cn/html/20250106/1421132.shtml
+final result: 
+
+
+
+model: THUDM/GLM-Z1-9B-0414
+get author and publish date time: 12.185816764831543
+author: 北极星电力网
+publish date: NA
+get more related urls time: 21.883389949798584
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+get info time: 6.9141387939453125e-06
+related urls: 
+https://news.bjx.com.cn/html/20250106/1420968.shtml
+https://news.bjx.com.cn/html/20250106/1421181.shtml
+https://news.bjx.com.cn/html/20250106/1421039.shtml
+https://news.bjx.com.cn/html/20250106/1421053.shtml
+https://news.bjx.com.cn/html/20250106/1421132.shtml
+final result: 
+
+
+
+model: THUDM/GLM-4-9B-0414
+get author and publish date time: 0.44516420364379883
+author: 
+publish date: NA
+get more related urls time: 36.141217947006226
+diff from benchmark: 差异16个(遗漏0个,多出16个)
+get info time: 5.245208740234375e-06
+related urls: 
+https://news.bjx.com.cn/html/20250106/1421181.shtml
+https://news.bjx.com.cn/html/20250106/1420958.shtml
+https://news.bjx.com.cn/html/20250106/1421128.shtml
+https://news.bjx.com.cn/html/20250106/1421138.shtml
+https://news.bjx.com.cn/html/20250106/1421039.shtml
+https://news.bjx.com.cn/html/20250106/1421058.shtml
+https://news.bjx.com.cn/html/20250106/1421132.shtml
+https://news.bjx.com.cn/html/20250106/1421080.shtml
+https://news.bjx.com.cn/html/20250106/1421049.shtml
+https://news.bjx.com.cn/html/20250106/1421093.shtml
+https://news.bjx.com.cn/html/20250106/1421124.shtml
+https://news.bjx.com.cn/html/20250106/1420960.shtml
+https://news.bjx.com.cn/html/20250106/1420968.shtml
+https://news.bjx.com.cn/html/20250106/1421125.shtml
+https://news.bjx.com.cn/html/20250106/1421008.shtml
+https://news.bjx.com.cn/html/20250106/1421179.shtml
+https://news.bjx.com.cn/html/20250103/1420820.shtml
+https://news.bjx.com.cn/html/20250106/1421053.shtml
+https://news.bjx.com.cn/html/20250106/1421015.shtml
+https://news.bjx.com.cn/html/20250106/1421158.shtml
+final result: 
+
+
+
+model: THUDM/GLM-Z1-Rumination-32B-0414
+get author and publish date time: 6.428232192993164
+author: 
+publish date: 
+get more related urls time: 25.327209949493408
+diff from benchmark: 差异14个(遗漏4个,多出10个)
+get info time: 5.7220458984375e-06
+related urls: 
+https://hr.bjx.com.cn/companys/117783/jobs_0_1/
+https://dljob.bjx.com.cn/specials/101783.html
+https://hr.bjx.com.cn/companys/134724/jobs_0_1/
+https://hr.bjx.com.cn/companys/61751/jobs_0_1/
+https://hr.bjx.com.cn/companys/106116/jobs_0_1/
+https://dljob.bjx.com.cn/specials/101821.html
+https://gfjob.bjx.com.cn/specials/101819.html
+https://hr.bjx.com.cn/companys/122480/jobs_0_1/
+https://dljob.bjx.com.cn/specials/101823.html
+https://fdjob.bjx.com.cn/specials/101824.html
+final result: 
+
+
+
+raw materials: dfg_processed.json
+
+model: THUDM/GLM-Z1-32B-0414
+get author and publish date time: 8.768359899520874
+author: 中国能建
+publish date: 2024-12-27
+get more related urls time: 159.4626817703247
+diff from benchmark: benchmark: 6 results
+get info time: 9.319350957870483
+related urls: 
+https://news.bjx.com.cn/html/20250110/1422065.shtml
+https://news.bjx.com.cn/html/20250109/1421960.shtml
+https://news.bjx.com.cn/html/20241223/1418467.shtml
+https://news.bjx.com.cn/html/20240703/1386708.shtml
+https://news.bjx.com.cn/html/20241218/1417617.shtml
+https://news.bjx.com.cn/html/20241227/1419508.shtml
+final result: 
+
+
+
+model: THUDM/GLM-4-32B-0414
+get author and publish date time: 0.9199438095092773
+author: 中国能建
+publish date: 2024-12-27
+get more related urls time: 45.4657199382782
+diff from benchmark: 差异19个(遗漏1个,多出18个)
+get info time: 2.457516670227051
+related urls: 
+https://news.bjx.com.cn/html/20250110/1422218.shtml
+https://news.bjx.com.cn/html/20250110/1422224.shtml
+https://news.bjx.com.cn/html/20241223/1418467.shtml
+https://news.bjx.com.cn/html/20250109/1421992.shtml
+https://news.bjx.com.cn/html/20240826/1396924.shtml
+https://news.bjx.com.cn/html/20250110/1422206.shtml
+https://news.bjx.com.cn/html/20250108/1421568.shtml
+https://news.bjx.com.cn/html/20250109/1421823.shtml
+https://news.bjx.com.cn/html/20250108/1421608.shtml
+https://news.bjx.com.cn/html/20250110/1422149.shtml
+https://news.bjx.com.cn/html/20240703/1386708.shtml
+https://news.bjx.com.cn/html/20250110/1422088.shtml
+https://news.bjx.com.cn/html/20250110/1422074.shtml
+https://news.bjx.com.cn/html/20250110/1422103.shtml
+https://news.bjx.com.cn/html/20240708/1387671.shtml
+https://news.bjx.com.cn/html/20250110/1422057.shtml
+https://news.bjx.com.cn/html/20250110/1422065.shtml
+https://news.bjx.com.cn/html/20250110/1422182.shtml
+https://news.bjx.com.cn/html/20250109/1421819.shtml
+https://news.bjx.com.cn/html/20250109/1421960.shtml
+https://news.bjx.com.cn/html/20250108/1421600.shtml
+https://news.bjx.com.cn/html/20241218/1417617.shtml
+https://news.bjx.com.cn/html/20250110/1422129.shtml
+final result: 
+中国能建华北院中标鄂尔多斯市绿氢与煤化工耦合碳减排创新示范项目。项目位于乌审旗苏里格经济开发区，依托当地丰富的煤炭、土地、可再生风光等资源，配套建设100万千瓦新能源（风电50万千瓦、光伏50万千瓦）、20万千瓦/60万千瓦时储能，为260万吨/年煤制烯烃及配套40万吨/年植入绿氢耦合制烯烃供电。项目建成后，将实现绿电、绿氧、绿氢耦合减排并减少外购甲醇量稳定烯烃产能，最终实现降碳减碳目标。[3]
+
+
+model: THUDM/GLM-Z1-9B-0414
+get author and publish date time: 6.041093826293945
+author: 中国能建
+publish date: 2024-12-27
+get more related urls time: 58.77497720718384
+diff from benchmark: 差异4个(遗漏3个,多出1个)
+get info time: 8.80616807937622
+related urls: 
+https://news.bjx.com.cn/html/20250109/1421960.shtml
+https://news.bjx.com.cn/html/20241223/1418467.shtml
+https://news.bjx.com.cn/html/20250110/1422218.shtml
+https://news.bjx.com.cn/html/20241218/1417617.shtml
+final result: 
+中国能建华北院中标鄂尔多斯市绿氢与煤化工耦合碳减排创新示范项目（2024-12-27），项目位于乌审旗苏里格经济开发区，配套建设100万千瓦新能源（风电50万千瓦、光伏50万千瓦）、20万千瓦/60万千瓦时储能，为260万吨/年煤制烯烃及配套40万吨/年绿氢耦合制烯烃供电，建成后实现绿电、绿氧、绿氢耦合减排并减少外购甲醇量稳定烯烃产能，最终实现降碳减碳目标。
+
+
+model: THUDM/GLM-4-9B-0414
+get author and publish date time: 0.4925119876861572
+author: 北极星
+publish date: 2024-12-27
+get more related urls time: 50.01105785369873
+diff from benchmark: 差异28个(遗漏0个,多出28个)
+get info time: 2.016314744949341
+related urls: 
+https://news.bjx.com.cn/html/20250110/1422218.shtml
+https://news.bjx.com.cn/html/20250110/1422224.shtml
+https://news.bjx.com.cn/html/20241223/1418467.shtml
+https://news.bjx.com.cn/html/20250109/1421992.shtml
+https://news.bjx.com.cn/topics/qingneng/
+https://news.bjx.com.cn/html/20250109/1421938.shtml
+https://news.bjx.com.cn/html/20240826/1396924.shtml
+https://news.bjx.com.cn/html/20250110/1422206.shtml
+https://news.bjx.com.cn/html/20250108/1421568.shtml
+https://news.bjx.com.cn/html/20250109/1421884.shtml
+https://news.bjx.com.cn/html/20250109/1421823.shtml
+https://news.bjx.com.cn/html/20250108/1421608.shtml
+https://news.bjx.com.cn/html/20240820/1395862.shtml
+https://news.bjx.com.cn/html/20250110/1422149.shtml
+https://news.bjx.com.cn/html/20241217/1417357.shtml
+https://news.bjx.com.cn/topics/luqingouhe/
+https://news.bjx.com.cn/html/20240703/1386708.shtml
+https://news.bjx.com.cn/html/20250110/1422088.shtml
+https://news.bjx.com.cn/html/20250109/1421902.shtml
+https://news.bjx.com.cn/html/20250110/1422074.shtml
+https://news.bjx.com.cn/html/20250110/1422103.shtml
+https://news.bjx.com.cn/topics/luqing/
+https://news.bjx.com.cn/html/20240708/1387671.shtml
+https://news.bjx.com.cn/html/20250110/1422240.shtml
+https://news.bjx.com.cn/html/20250110/1422057.shtml
+https://news.bjx.com.cn/html/20250110/1422065.shtml
+https://news.bjx.com.cn/html/20250110/1422182.shtml
+https://news.bjx.com.cn/html/20250109/1421819.shtml
+https://news.bjx.com.cn/html/20250109/1421946.shtml
+https://news.bjx.com.cn/html/20250109/1421960.shtml
+https://news.bjx.com.cn/html/20250108/1421600.shtml
+https://news.bjx.com.cn/html/20241218/1417617.shtml
+https://news.bjx.com.cn/html/20241227/1419508.shtml
+https://news.bjx.com.cn/html/20250110/1422129.shtml
+final result: 
+中国能建华北院中标鄂尔多斯市绿氢与煤化工耦合碳减排创新示范项目，该项目依托乌审旗丰富的煤炭资源、土地资源、可再生风光资源、矿井疏干水资源和环境承载力空间，通过配套独立建设100万千瓦新能源（其中，风电50万千瓦、光伏50万千瓦），20万千瓦/60万千瓦时储能，为260万吨/年煤制烯烃及配套40万吨/年植入绿氢耦合制烯烃供电。项目建成后，将实现绿电、绿氧、绿氢耦合减排并减少外购甲醇量稳定烯烃产能，最终实现降碳减碳目标。
+
+
+model: THUDM/GLM-Z1-Rumination-32B-0414
+get author and publish date time: 53.69597101211548
+author: 
+publish date: 
+get more related urls time: 150.49485206604004
+diff from benchmark: 差异13个(遗漏6个,多出7个)
+get info time: 6.657474994659424
+related urls: 
+http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010502034458
+https://news.bjx.com.cn/html/20250110/1422218.shtml
+https://beian.miit.gov.cn/#/Integrated/index
+https://news.bjx.com.cn/html/20250110/1422103.shtml
+https://news.bjx.com.cn/html/20250110/1422224.shtml
+https://www.bjx.com.cn/icp.html
+https://news.bjx.com.cn/html/20250110/1422129.shtml
+final result: 
+
+
+
+raw materials: ae2d03_processed.json
+
+model: THUDM/GLM-Z1-32B-0414
+get author and publish date time: 10.750044107437134
+author: 北极星氢能网
+publish date: NA
+get more related urls time: 55.582597732543945
+diff from benchmark: benchmark: 7 results
+get info time: 19.886122941970825
+related urls: 
+https://m.bjx.com.cn/mnews/20250103/1420820.shtml
+https://m.bjx.com.cn/mnews/20250106/1421179.shtml
+https://news.bjx.com.cn/search/
+https://m.bjx.com.cn/mnews/20250106/1420968.shtml
+https://m.bjx.com.cn/mnews/20250110/1422065.shtml
+https://m.bjx.com.cn/mnews/20241231/1420185.shtml
+https://m.bjx.com.cn/mnews/20241220/1418153.shtml
+final result: 
+湖北武汉融通汽车集团能源事业部首个制氢加氢站项目即将正式投运[30]，采用领先技术降低操作风险与维护难度，具备高效、环保、氢气纯度高等优势[30]，加氢环节配备智能精确计量与控制系统[30]。项目提供25元/公斤的加氢价格[30]，推动武汉市进入"25元氢气时代"[30]，加速湖北省氢能源网络布局[30]，为规模化应用奠定基础[30]。目前制氢装置和加氢设施基础施工已完成[30]，地质勘探工作已完成多轮评估[30]，项目区域配备先进钻探设备和临时指挥设施[30]。
+
+
+model: THUDM/GLM-4-32B-0414
+get author and publish date time: 0.5600881576538086
+author: 北极星氢能网
+publish date: NA
+get more related urls time: 8.360930919647217
+diff from benchmark: 差异8个(遗漏0个,多出8个)
+get info time: 2.034202814102173
+related urls: 
+https://news.bjx.com.cn/oidc/login/
+https://m.bjx.com.cn/mnews/20250109/1421960.shtml
+https://m.bjx.com.cn/mnews/20241230/1420059.shtml
+https://m.bjx.com.cn/mnews/20250103/1420820.shtml
+https://m.bjx.com.cn/mnews/20250106/1421179.shtml
+https://m.bjx.com.cn/mnews/20250109/1421891.shtml
+https://m.bjx.com.cn/mnews/20250108/1421643.shtml
+https://m.bjx.com.cn/mnews/20241225/1419089.shtml
+https://m.bjx.com.cn/mnews/20250106/1421181.shtml
+https://news.bjx.com.cn/search/
+https://m.bjx.com.cn/mnews/20250106/1420968.shtml
+https://m.bjx.com.cn/mnews/20250108/1421571.shtml
+https://m.bjx.com.cn/mnews/20250110/1422065.shtml
+https://m.bjx.com.cn/mnews/20241231/1420185.shtml
+https://m.bjx.com.cn/mnews/20241220/1418153.shtml
+final result: 
+湖北武汉融通汽车集团能源事业部的首个制氢加氢站项目即将正式投运。该项目采用领先技术，具有高效、环保、氢气纯度高的优势，加氢环节运用智能精确计量与控制系统。项目投入运营后将提供25元/公斤的加氢价格，助力武汉市氢能源车辆的销售与普及，推动氢能源在交通领域的广泛应用。该项目的投运将加速湖北省氢能源网络布局，为氢能源行业的规模化应用打下坚实基础。[30][31][32]
+
+
+model: THUDM/GLM-Z1-9B-0414
+get author and publish date time: 3.5780012607574463
+author: 北极星氢能网
+publish date: NA
+get more related urls time: 29.395429849624634
+diff from benchmark: 差异7个(遗漏3个,多出4个)
+get info time: 10.754695177078247
+related urls: 
+https://m.bjx.com.cn/mnews/20250110/1422206.shtml
+https://m.bjx.com.cn/mnews/20250103/1420820.shtml
+https://m.bjx.com.cn/mnews/20250110/1422218.shtml
+https://m.bjx.com.cn/mnews/20250106/1421179.shtml
+https://m.bjx.com.cn/mnews/20250106/1421181.shtml
+https://m.bjx.com.cn/mnews/20250108/1421571.shtml
+https://m.bjx.com.cn/mnews/20250110/1422065.shtml
+https://m.bjx.com.cn/mnews/20241231/1420185.shtml
+final result: 
+湖北武汉融通汽车集团首个制氢加氢站（加氢站[30]氢气[31]氢能[32]）采用领先技术，实现25元/公斤加氢价格，推动氢能源交通应用。项目已克服复杂地质条件完成施工，预计正式投入运营后助力湖北省氢能网络布局，促进双碳目标实现。
+
+
+model: THUDM/GLM-4-9B-0414
+get author and publish date time: 0.3878650665283203
+author: 北极星氢能网
+publish date: NA
+get more related urls time: 1.6557960510253906
+diff from benchmark: 差异6个(遗漏6个,多出0个)
+get info time: 1.432638168334961
+related urls: 
+https://news.bjx.com.cn/search/
+final result: 
+湖北武汉融通汽车集团能源事业部首个制氢加氢站即将正式投运，采用领先技术，降低操作风险与设备维护难度，具有高效、环保、氢气纯度高的优势。加氢站投运后，将提供25元/公斤的加氢价格，推动氢能源车辆销售与普及，助力节能减排。该项目将加速湖北省氢能源网络布局，为氢能源行业规模化应用打下基础。
+
+
+model: THUDM/GLM-Z1-Rumination-32B-0414
+get author and publish date time: 4.442096948623657
+author: 
+publish date: 
+get more related urls time: 34.59116005897522
+diff from benchmark: 差异7个(遗漏7个,多出0个)
+get info time: 5.0590150356292725
+related urls: 
+
+final result: 
+
+
+

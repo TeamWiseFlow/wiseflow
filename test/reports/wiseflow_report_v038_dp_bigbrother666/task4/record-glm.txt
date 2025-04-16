@@ -1,0 +1,125 @@
+focus statement: 
+各地住宅网签最新数据
+注：（目前日期是2025-04-15）
+
+raw materials: ddd_processed.json
+
+model: glm-4-flash
+get author and publish date time: 1.0420739650726318
+author: 
+publish date: NA
+get more related urls time: 3.930192232131958
+diff from benchmark: benchmark: 5 results
+get info time: 3.688133716583252
+related urls: 
+https://m.lejucaijing.com/news-7282015484009707134.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282205540909512356.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+final result: 
+## 12月22日北京住宅网签：新房184套、二手房180套
+## 新房网签307套（期房213+现房94），网签面积约2.6万平方米
+## 二手房网签185套，网签面积1.65万平方米
+## 新房住宅网签184套（期房164+现房20），网签面积2.17万平方米
+## 二手房住宅网签180套，网签面积1.63万平方米
+
+
+model: glm-4-flash-250414
+get author and publish date time: 0.5099189281463623
+author: 
+publish date: NA
+get more related urls time: 1.227890968322754
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 0.6137149333953857
+related urls: 
+https://m.lejucaijing.com/news-7282015484009707134.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282205540909512356.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+final result: 
+12月22日北京住宅网签：新房184套，二手房180套
+
+model: glm-4-air-250414
+get author and publish date time: 0.7325100898742676
+author: 
+publish date: NA
+get more related urls time: 4.57087516784668
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 3.7129478454589844
+related urls: 
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282205540909512356.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282015484009707134.html#ln=m_cj_tjlistnews
+final result: 
+
+
+model: glm-z1-flash
+get author and publish date time: 3.0751609802246094
+author: 
+publish date: NA
+get more related urls time: 4.7077860832214355
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 2.782132863998413
+related urls: 
+https://m.lejucaijing.com/news-7282015484009707134.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282205540909512356.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+final result: 
+
+
+model: glm-z1-airx
+get author and publish date time: 3.4252359867095947
+author: 
+publish date: NA
+get more related urls time: 4.45650315284729
+diff from benchmark: benchmark: 5 results
+get info time: 8.993030071258545
+related urls: 
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282205540909512356.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282015484009707134.html#ln=m_cj_tjlistnews
+final result: 
+标签包裹，内容不包含其他信息，如果无关则填NA。
+
+现在需要判断网页内容是否符合关注点。网页明确提到了北京住宅网签的最新数据，包括新房和二手房的套数和面积，因此符合关注点。虽然日期是2024年12月，但用户可能接受任何存在的数据，或者可能认为这是最近的可用数据。因此，应该提取这些信息。
+
+接下来，需要将提取的信息组织成摘要，确保包含关键数据：日期、地区、新房和二手房的网签套数及面积，并保留引用标记。例如，原文中的“新房住宅网签184套（期房164+现房20），网签面积2.17万平方米；二手房住宅网签180套，网签面积1.63万平方米。”需要被包含，并检查是否有引用标记。原文中在“网签”后面有[7]，但可能属于段落中的引用，需要确认是否在数据部分有引用标记。例如，“新房网[7]签307套”中的[7]需要保留，但数据部分可能没有其他引用标记，所以需要检查。
+
+最终摘要应包含：北京2024年12月22日的住宅网签数据，新房184套（期房164+现房20），面积2.17万㎡，二手房180套，面积1.63万㎡，并保留可能的引用标记。但需要确认具体位置。例如，原文中的“新房住宅网签184套（期房164+现房20），网签面积2.17万平方米；二手房住宅网签180套，网签面积1.63万平方米。”这部分可能没有引用标记，但前面的“北京新房网[7]签307套”中的[7]可能属于整体数据的一部分，但具体到住宅网签的数据部分可能没有引用标记。因此，可能不需要添加引用标记，除非数据部分有。需要仔细检查原文。
+
+在原文中，关于住宅网签的具体数据部分没有引用标记，而引用标记[7]是在“北京新房网[7]签307套”中，但该数据可能指的是新房的总网签数（包括期房和现房），而住宅网签的数据是分开的，可能没有引用标记。因此，在摘要中，可能不需要添加引用标记，除非数据片段中有。因此，可能不需要添加引用标记，但需要确认。
+
+根据用户指示，如果原文片段包含类似引用标记，必须保留。因此，如果在数据部分有引用标记，必须保留。例如，如果“新房住宅网签184套”后面有引用标记，则需要保留。但根据提供的网页文本，这部分数据后面没有引用标记，因此不需要添加。因此，摘要应包含数据，但无需引用标记。
+
+总结，摘要应包含北京2024年12月22日的住宅网签数据，新房184套（期房164+现房20），面积2.17万㎡，二手房180套，面积1.63万㎡。由于当前日期是2025年4月15日，这些数据可能不是最新的，但用户可能希望提取任何存在的数据，因此需要确认是否符合“最新数据”的要求。如果用户认为“最新”是指最近可用的数据，即使不是当前月份，那么这些数据是符合条件的。否则，可能需要标记为NA。但根据用户提供的示例，可能接受这些数据，因此生成摘要。
+</think>
+<summary>
+北京2024年12月22日住宅网签数据：新房184套（期房164+现房20），网签面积2.17万平方米；二手房住宅网签180套，网签面积1.63万平方米。
+
+
+
+model: glm-z1-air
+get author and publish date time: 8.662874937057495
+author: 
+publish date: NA
+get more related urls time: 19.0051109790802
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 13.08173680305481
+related urls: 
+https://m.lejucaijing.com/news-7283363594816386544.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282205540909512356.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282966165986145482.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282608816083629065.html#ln=m_cj_tjlistnews
+https://m.lejucaijing.com/news-7282015484009707134.html#ln=m_cj_tjlistnews
+final result: 
+标签包裹，内容为NA，没有其他内容。同时检查是否有遗漏的引用标记，但在这个案例中，数据部分没有引用标记，所以不需要处理。
+</think>
+<summary>NA
