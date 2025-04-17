@@ -10,37 +10,32 @@ What we lack is not information, but the ability to filter out noise from massiv
 
 https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
-## 🔥🔥🔥 The online trial service of AI Chief Intelligence Officer is now open for public testing
+## 🔥🔥🔥 Cheers Everyone, it's time to use the Wiseflow at zero cost again!
 
-**No deployment or setup is required, and there is no need to apply for various keys. Just register to use it!**
+On April 14, 2025, Zhipu released the new Z1 series models and GLM-4-0414 series models, and released the corresponding 32B and 9B open-source versions. Later that day, Siliconflow launched online services for these open-source models.
 
-Online trial address: https://www.aiqingbaoguan.com/
+We also tested these newly released models in the first time, and the test results were pleasantly surprising. Even the currently free models glm-z1-flash/GLM-Z1-9B-0414 and glm-4-flash-250414/GLM-4-9B-0414 can complete the extraction and summarization tasks involved in wiseflow quite well.
 
-During the public testing period, registration will give you 10 free credits (each focus point consumes 1 credit per day, regardless of the number of information sources).
+For detailed test reports, please see [test/reports/wiseflow_report_v038_dp_bigbrother666/GLM_report_0416.md](./test/reports/wiseflow_report_v038_dp_bigbrother666/GLM_report_0416.md)
 
-*The online service is built on Alibaba Cloud, and access to websites outside mainland China is restricted. Additionally, the online service currently does not support WeChat official accounts. If your sources primarily consist of these two types, we recommend using the open-source version to deploy yourself.*
+If you want to switch to using the above models, you only need to change the LLM_API_KEY, LLM_API_BASE, PRIMARY_MODEL, and SECONDARY_MODEL configurations in the .env file. (If you're not familiar with this, please see the description below)
 
-## 🌟 V3.9-patch3 Version Released
+Also, considering the size of the 9B model, local deployment is actually quite suitable.
 
-For more information about this upgrade, please see [CHANGELOG.md](./CHANGELOG.md)
+At the same time, to address the issue that the current Zhipu search solution doesn't support English search, we've switched to using the Jina search solution, which has lower prices. You can log in to https://jina.ai/ to get an API without registration (the free quota and concurrency should be enough for personal use).
 
-Starting from this version, we have updated the version number naming rule: V0.3.9 -> V3.9, V0.3.8 -> V3.8, V0.3.7 -> V3.7, V0.3.6 -> V3.6, V0.3.5 -> V3.5 ...
+### If you don't want to bother with setup, you're also welcome to use the **Wiseflow** online service, which requires no deployment or setup, no need to apply for various keys, just register to use!
 
-The current online service core is based on the V3.9-patch3 version.
+Online experience address: https://www.aiqingbaoguan.com/ 
 
-**Users of V0.3.8 and earlier versions should preferably delete Crawl4ai in the python environment after upgrading (`pip uninstall crawl4ai`)**
+Currently, registration gives you 15 computing points (each focus point consumes 1 point per day, regardless of the number of information sources).
 
-**Users upgrading from V0.3.7 or earlier versions should first execute `./pocketbase migrate` in the `pb` folder.**
+*The online server is built on Alibaba Cloud, and access to websites outside mainland China is restricted. Additionally, the online service currently does not support WeChat official accounts. If your sources primarily consist of these two types, we recommend using the open-source version to deploy yourself.*
 
-Thanks to the following community members for their PRs in versions V0.3.5~V0.3.9:
+## 🌟 New contributors in the past two weeks
 
-  - @ourines contributed the install_pocketbase.sh automated installation script
-  - @ibaoger contributed the PocketBase automated installation script for Windows
-  - @tusik contributed the asynchronous llm wrapper and discovered the AsyncWebCrawler lifecycle issue
-  - @c469591 contributed the Windows version startup script
-  - @braumye contributed the Docker deployment solution
-  - @YikaJ provided optimizations for install_pocketbase.sh
-  - @xxxiaogangg contributed the export script reference
+  - @zhudongwork PR #354
+  - @cdxiaodong PR #357
 
 
 ## 🧐 'Deep Search' VS 'Wide Search'
@@ -100,7 +95,7 @@ For details, please refer to [pb/README.md](/pb/README.md)
 
 ### 3. Continue Configuring the core/.env File
 
-🌟 **This is different from previous versions** - starting from V0.3.5, the .env file needs to be placed in the [core](./core) folder.
+🌟 **This is different from previous versions** - starting from V3.5, the .env file needs to be placed in the [core](./core) folder.
 
 #### 3.1 Large Language Model Configuration
 
@@ -114,10 +109,13 @@ Siliconflow provides online MaaS services for most mainstream open-source models
 
 ```
 LLM_API_KEY=Your_API_KEY
-LLM_API_BASE="https://api.siliconflow.cn/v1"
-PRIMARY_MODEL="deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
-SECONDARY_MODEL="Qwen/Qwen2.5-14B-Instruct"
-VL_MODEL="deepseek-ai/deepseek-vl2"
+LLM_API_BASE="https://api.siliconflow.cn/v1" # bigmodels https://open.bigmodel.cn/api/paas/v4/ 
+PRIMARY_MODEL="THUDM/GLM-4-9B-0414"  # for better performance THUDM/GLM-4-32B-0414
+# bigmodel glm-z1-flash / better performance: glm-4-air-250414
+SECONDARY_MODEL="THUDM/GLM-Z1-9B-0414" # for better performance THUDM/GLM-Z1-32B-0414
+# bigmodel glm-4-flash-250414
+VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
+# bigmodel glm-4v-flash (free now)
 PROJECT_DIR="work_dir"
 ```
       
@@ -160,17 +158,13 @@ PB_API_AUTH="test@example.com|1234567890"
 
 This is where you set the superuser username and password for the pocketbase database, remember to separate them with | (if the install_pocketbase.sh script executed successfully, this should already exist)
 
+#### 3.3 JINA_API_KEY Setting (for Search Engine Service)
 
-#### 3.3 Zhipu (bigmodel) Platform Key Configuration (for Search Engine Services)
-
-🚨 **Note: The Zhipu platform will charge for the web_search_pro interface starting from March 14, 2025. Please ensure your account balance when using the search function.**
-[Zhipu Platform Announcement](https://bigmodel.cn/dev/api/search-tool/web-search-pro)
+Obtain from https://jina.ai/, currently no registration is required. (If you have high concurrency or commercial needs, please use after recharging)
 
 ```
-ZHIPU_API_KEY=Your_API_KEY
+JINA_API_KEY=Your_API_KEY
 ```
-
-(Application here: https://bigmodel.cn/ ~~currently free~~ 0.03 CNY/query, please ensure your account balance)
 
 #### 3.4 Other Optional Configurations
 
@@ -188,8 +182,6 @@ The following are all optional configurations:
  Used to control the number of concurrent LLM requests. Default is 1 if not set (before enabling, please ensure your LLM provider supports the configured concurrency. Use local large models with caution unless you are confident in your hardware capabilities)
 
 ### 4. Running the Program
-
-✋ The V0.3.5 version architecture and dependencies are significantly different from previous versions. Please make sure to re-pull the code, delete (or rebuild) pb_data
 
 It is recommended to use conda to build a virtual environment (of course you can skip this step, or use other Python virtual environment solutions)
 
@@ -248,7 +240,7 @@ Field explanations:
 - search_engine, whether to enable the search engine for each crawl
 - sites, select the corresponding source
 
-**Note: After version V0.3.8, adjustments to configurations do not require restarting the program, and will automatically take effect at the next execution.**
+**Note: After version V3.8, adjustments to configurations do not require restarting the program, and will automatically take effect at the next execution.**
 
 ## 🐳 Docker Deployment
 
@@ -271,8 +263,14 @@ cp env_docker .env
 The following environment variables must be modified as needed:
 
 ```bash
-LLM_API_KEY=""
-LLM_API_BASE="https://api.siliconflow.cn/v1"
+LLM_API_KEY=Your_API_KEY
+LLM_API_BASE="https://api.siliconflow.cn/v1" # bigmodels https://open.bigmodel.cn/api/paas/v4/ 
+PRIMARY_MODEL="THUDM/GLM-4-9B-0414"  # for better performance THUDM/GLM-4-32B-0414
+# bigmodel glm-z1-flash / better performance: glm-4-air-250414
+SECONDARY_MODEL="THUDM/GLM-Z1-9B-0414" # for better performance THUDM/GLM-Z1-32B-0414
+# bigmodel glm-4-flash-250414
+VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
+# bigmodel glm-4v-flash (free now)
 PB_SUPERUSER_EMAIL="test@example.com"
 PB_SUPERUSER_PASSWORD="1234567890" #no '&' in the password and at least 10 characters
 ```
