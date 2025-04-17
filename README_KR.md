@@ -11,36 +11,33 @@
 https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 
-## 🔥🔥🔥 AI 수석 정보 책임자 온라인 체험 서비스가 공개 베타 테스트를 시작했습니다. 배포 및 설정이 필요 없고, 각종 키를 추가로 신청할 필요 없이, 가입만으로 사용 가능합니다!
+## 🔥🔥🔥 축하드립니다, 다시 무료로 수석 정보 책임자를 사용할 수 있는 시기가 왔습니다!
 
-온라인 체험 주소: https://www.aiqingbaoguan.com/
+2025년 4월 14일, 즈푸는 새로운 Z1 시리즈 모델과 GLM-4-0414 시리즈 모델을 출시하고, 해당하는 32B와 9B의 오픈소스 버전을 공개했습니다. 같은 날 늦게, 실리콘플로우는 이러한 오픈소스 모델의 온라인 서비스를 시작했습니다.
 
-공개 베타 기간 동안, 가입 시 10 포인트의 연산 능력을 증정합니다 (각 관심 지점은 매일 1 포인트를 소모하며, 정보 출처 수는 계산하지 않습니다).
+우리도 이러한 새로 출시된 모델을 처음으로 테스트했으며, 테스트 결과는 놀랍게도 좋았습니다. 현재 두 플랫폼에서 무료인 glm-z1-flash/GLM-Z1-9B-0414와 glm-4-flash-250414/GLM-4-9B-0414도 wiseflow가 다루는 추출과 요약 작업을 비교적 이상적으로 완료할 수 있습니다.
+
+자세한 테스트 보고서는 [test/reports/wiseflow_report_v038_dp_bigbrother666/GLM_report_0416.md](./test/reports/wiseflow_report_v038_dp_bigbrother666/GLM_report_0416.md)를 참조하세요.
+
+위의 모델로 전환하려면 .env 파일의 LLM_API_KEY, LLM_API_BASE, PRIMARY_MODEL, SECONDARY_MODEL 설정만 변경하면 됩니다. (익숙하지 않은 분은 아래 설명을 참조하세요)
+
+또한 9b 모델의 크기를 고려하면 로컬 배포도 적합합니다.
+
+동시에, 현재 사용 중인 즈푸 검색 솔루션이 영어 검색을 지원하지 않는 문제를 해결하기 위해 Jina 검색 솔루션으로 전환했습니다. 가격이 낮고, https://jina.ai/ 에 로그인만 하면 API를 얻을 수 있습니다 (등록 불필요, 개인 사용에는 충분한 할당량과 동시성 제공).
+
+### 설정을 하고 싶지 않은 분들도 **wiseflow** 온라인 서비스를 이용하실 수 있습니다. 배포나 설정이 필요 없고, 각종 키를 추가로 신청할 필요 없이, 가입만으로 사용 가능합니다!
+
+온라인 체험 주소: https://www.aiqingbaoguan.com/ 
+
+현재, 가입 시 15 포인트의 연산 능력이 증정됩니다 (각 관심 지점은 매일 1 포인트를 소모하며, 정보 출처 수는 계산하지 않습니다).
 
 *온라인 서버는 알리바바 클라우드에 구축되어 있으며, 중국 대륙 외부 사이트 접속이 제한되어 있으며, 온라인 서비스는 현재 WeChat 공식 계정을 지원하지 않습니다. 만약 당신의 정보원이 이러한 유형이라면, 오픈소스 버전을 자체 배포하는 것을 권장합니다.*
 
-## 🌟 V3.9-patch3 버전 출시
+## 🌟 지난 두 주간 추가된 기여자
 
-이번 업그레이드에 대한 자세한 내용은 [CHANGELOG.md](./CHANGELOG.md)를 참조하십시오.
+  - @zhudongwork PR #354
+  - @cdxiaodong PR #357
 
-이 버전부터 버전 번호 명명 규칙을 업데이트합니다. V0.3.9 -> V3.9, V0.3.8 -> V3.8, V0.3.7 -> V3.7, V0.3.6 -> V3.6, V0.3.5 -> V3.5 ...
-
-현재 온라인 서비스 코어는 V3.9-patch3 버전을 기반으로 합니다.
-
-**V0.3.8 및 이전 버전 사용자는 업그레이드 후 Python 환경에서 Crawl4ai를 삭제하는 것이 좋습니다 (`pip uninstall crawl4ai`).**
-
-**V0.3.7 및 이전 버전 사용자는 업그레이드 후 pb 폴더에서 ./pocketbase migrate를 한 번 실행하십시오.**
-
-다음 커뮤니티 멤버들이 V0.3.5~V0.3.9 버전에서 PR을 기여해 주셨습니다:
-
-  - @ourines는 install_pocketbase.sh 자동 설치 스크립트를 기여했습니다
-  - @ibaoger는 Windows용 pocketbase 자동 설치 스크립트를 기여했습니다
-  - @tusik는 비동기 llm wrapper를 기여하고 AsyncWebCrawler의 수명 주기 문제를 발견했습니다
-  - @c469591는 Windows 버전 시작 스크립트를 기여했습니다
-  - @braumye는 Docker 실행 방안을 기여했습니다
-  - @YikaJ는 install_pocketbase.sh 최적화를 제공했습니다
-  - @xxxiaogangg는 내보내기 스크립트 참조를 기여했습니다
-  
 
 ## 🧐 '딥 서치(deep search)' VS '와이드 서치(wide search)'
 
@@ -99,7 +96,7 @@ Wiseflow 3.x는 데이터베이스로 pocketbase를 사용합니다. pocketbase 
 
 ### 3. core/.env 파일 구성 계속하기
 
-🌟 **이전 버전과 다릅니다** - V0.3.5부터 .env 파일은 [core](./core) 폴더에 위치해야 합니다.
+🌟 **이전 버전과 다릅니다** - V3.5부터 .env 파일은 [core](./core) 폴더에 위치해야 합니다.
 
 #### 3.1 대규모 언어 모델 구성
 
@@ -113,10 +110,13 @@ Siliconflow는 대부분의 주류 오픈소스 모델에 대한 온라인 MaaS 
 
 ```
 LLM_API_KEY=Your_API_KEY
-LLM_API_BASE="https://api.siliconflow.cn/v1"
-PRIMARY_MODEL="deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
-SECONDARY_MODEL="Qwen/Qwen2.5-14B-Instruct"
-VL_MODEL="deepseek-ai/deepseek-vl2"
+LLM_API_BASE="https://api.siliconflow.cn/v1" # bigmodels https://open.bigmodel.cn/api/paas/v4/ 
+PRIMARY_MODEL="THUDM/GLM-4-9B-0414"  # for better performance THUDM/GLM-4-32B-0414
+# bigmodel glm-z1-flash / better performance: glm-4-air-250414
+SECONDARY_MODEL="THUDM/GLM-Z1-9B-0414" # for better performance THUDM/GLM-Z1-32B-0414
+# bigmodel glm-4-flash-250414
+VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
+# bigmodel glm-4v-flash (free now)
 PROJECT_DIR="work_dir"
 ```
       
@@ -159,16 +159,13 @@ PB_API_AUTH="test@example.com|1234567890"
 
 여기서 pocketbase 데이터베이스의 슈퍼유저 사용자 이름과 비밀번호를 설정합니다. |로 구분하는 것을 잊지 마세요 (install_pocketbase.sh 스크립트가 성공적으로 실행되었다면 이미 존재할 것입니다)
 
-#### 3.3 智谱（bigmodel）플랫폼 키 설정（검색 엔진 서비스에 사용）
+#### 3.3 JINA_API_KEY（검색 엔진 서비스에 사용）
 
-알림: **즈푸 플랫폼은 2025년 3월 14일 0시부터 web_search_pro 인터페이스에 대한 과금을 정식으로 시작합니다. 검색 기능을 사용하려면 계정 잔액을 확인하시기 바랍니다.**
-[즈푸 플랫폼 공지](https://bigmodel.cn/dev/api/search-tool/web-search-pro)
+https://jina.ai/ 에서 발급, 현재 등록 없이 발급 가능합니다.（고비용 사용 시 충전 후 사용）
 
 ```
-ZHIPU_API_KEY=Your_API_KEY
+JINA_API_KEY=Your_API_KEY
 ```
-
-（신청 주소: https://bigmodel.cn/ ~~현재 무료~~ 0.03 원/회, 계정 잔액을 유지하십시오）
 
 #### 3.4 기타 선택적 구성
 
@@ -246,7 +243,7 @@ sites 필드 설명：
 - search_engine, 각 크롤링 시 검색 엔진을 활성화할지 여부
 - sites, 해당 정보원을 선택
 
-**참고：V0.3.8 버전 이후, 설정의 변경은 프로그램을 재시작하지 않아도 다음 실행 시 자동으로 적용됩니다.**
+**참고：V3.8 버전 이후, 설정의 변경은 프로그램을 재시작하지 않아도 다음 실행 시 자동으로 적용됩니다.**
 
 ## 🐳 Docker 배포
 
@@ -269,8 +266,14 @@ cp env_docker .env
 다음 환경 변수는 필요에 따라 수정해야 합니다:
 
 ```bash
-LLM_API_KEY=""
-LLM_API_BASE="https://api.siliconflow.cn/v1"
+LLM_API_KEY=Your_API_KEY
+LLM_API_BASE="https://api.siliconflow.cn/v1" # bigmodels https://open.bigmodel.cn/api/paas/v4/ 
+PRIMARY_MODEL="THUDM/GLM-4-9B-0414"  # for better performance THUDM/GLM-4-32B-0414
+# bigmodel glm-z1-flash / better performance: glm-4-air-250414
+SECONDARY_MODEL="THUDM/GLM-Z1-9B-0414" # for better performance THUDM/GLM-Z1-32B-0414
+# bigmodel glm-4-flash-250414
+VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
+# bigmodel glm-4v-flash (free now)
 PB_SUPERUSER_EMAIL="test@example.com"
 PB_SUPERUSER_PASSWORD="1234567890" #no '&' in the password and at least 10 characters
 ```
