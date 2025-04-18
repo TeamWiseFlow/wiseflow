@@ -18,7 +18,7 @@ async def run_v4_async(query: str, _logger=None):
             "content": query
         }
     ]
-    tool = "web-search-pro"
+    tool = "search_std"
     url = "https://open.bigmodel.cn/api/paas/v4/tools"
     request_id = str(uuid.uuid4())
     data = {

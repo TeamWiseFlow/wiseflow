@@ -10,38 +10,36 @@
 
 https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
-## 🔥🔥🔥 AIチーフインテリジェンスオフィサー オンライン体験サービスが公開テスト開始、配置や設定不要、各種キーの申請も不要、登録するだけですぐに使えます！
+## 🔥🔥🔥 おめでとうございます、また無料で首席情報官を使用できる時が来ました！
 
-オンライン体験アドレス：https://www.aiqingbaoguan.com/
+2025年4月14日、智譜は新しいZ1シリーズモデルとGLM-4-0414シリーズモデルをリリースし、対応する32Bと9Bのオープンソースバージョンを公開しました。同日遅く、シリコンフローはこれらのオープンソースモデルのオンラインサービスを開始しました。
 
-公開テスト期間中、登録すると10ポイントの計算能力値がプレゼントされます（各注目ポイントは毎日1ポイント消費、情報源の数は問いません）。
+私たちもこれらの新しくリリースされたモデルを最初にテストし、テスト結果は驚くほど良好でした。現在両プラットフォームで無料のglm-z1-flash/GLM-Z1-9B-0414とglm-4-flash-250414/GLM-4-9B-0414でも、wiseflowが扱う抽出と要約タスクを比較的理想的に完了できます。
+
+詳細なテストレポートは[test/reports/wiseflow_report_v038_dp_bigbrother666/GLM_report_0416.md](./test/reports/wiseflow_report_v038_dp_bigbrother666/GLM_report_0416.md)をご覧ください。
+
+上記のモデルに切り替えたい場合は、.envファイルのLLM_API_KEY、LLM_API_BASE、PRIMARY_MODEL、SECONDARY_MODEL設定を変更するだけで済みます。（不慣れな方は以下の説明をご覧ください）
+
+また、9bモデルのサイズを考慮すると、ローカルデプロイも適しています。
+
+同時に、現在使用中の智譜検索ソリューションが英語検索をサポートしていない問題に対処するため、Jina検索ソリューションに切り替えました。価格が低く、https://jina.ai/ にログインするだけでAPIを取得できます（登録不要、個人使用には十分な量と同時実行性が提供されます）。
+
+### 設定をしたくない方も、**AI首席情報官**オンラインサービスをご利用いただけます。デプロイや設定は不要で、各種キーの申請も不要、登録するだけで使用できます！
+
+オンライン体験アドレス：https://www.aiqingbaoguan.com/ 
+
+現在、登録すると15ポイントの計算能力値がプレゼントされます（各注目ポイントは毎日1ポイント消費、情報源の数は問いません）。
 
 *オンラインサーバーは阿里云に構築されています。中国大陸以外のサイトへのアクセスは制限されています。また、オンラインサービスは現在、WeChat公式アカウントをサポートしていません。もし、あなたの情報源がこれらのタイプであれば、開源版を自分でデプロイすることをお勧めします。*
 
-## 🌟 V3.9-patch3 バージョンリリース
 
-今回のアップグレードに関する詳細は[CHANGELOG.md](./CHANGELOG.md)をご覧ください。
+## 🌟 過去2週間のコントリビューター
 
-このバージョンから、バージョン番号の命名規則を更新します。V0.3.9 -> V3.9, V0.3.8 -> V3.8, V0.3.7 -> V3.7, V0.3.6 -> V3.6, V0.3.5 -> V3.5 ...
+  - @zhudongwork PR #354
+  - @cdxiaodong PR #357
 
-現在オンラインサービスcoreはV3.9-patch3バージョンをベースにしています。
 
-**V0.3.8およびそれ以前のバージョンの പഴയ ユーザーがアップグレードした後は、Python 環境で Crawl4ai を削除することをお勧めします ( `pip uninstall crawl4ai` )**
-
-**V0.3.7 およびそれ以前のバージョンのユーザーは、pb フォルダー内で ./pocketbase migrate を実行してください**
-
-以下のコミュニティメンバーに、V0.3.5～V0.3.9バージョンでのPRに感謝します：
-
-  - @ourines install_pocketbase.sh自動インストールスクリプトの提供
-  - @ibaoger Windows用pocketbase自動インストールスクリプトの提供
-  - @tusik 非同期llm wrapperの提供とAsyncWebCrawlerのライフサイクル問題の発見
-  - @c469591 Windows版起動スクリプトの提供
-  - @braumye がDocker実行案を貢献しました
-  - @YikaJ が install_pocketbase.sh の最適化を提供しました
-  - @xxxiaogangg エクスポートスクリプトの参考を提供
-  
-
-## 🧐 ‘deep search’ VS ‘wide search’
+## 🧐 'deep search' VS 'wide search'
 
 Wiseflowの製品ポジショニングは「wide search（広域検索）」と呼んでいます。これは現在注目されている「deep search（深層検索）」とは対照的なものです。
 
@@ -58,7 +56,7 @@ Wiseflowの製品ポジショニングは「wide search（広域検索）」と�
 
 さらに、特定の種類のページ（WeChat公式アカウントの記事など、驚くべきことに9つの形式があります...）のために特別に設計された解析モジュールも作成しました。この種のコンテンツについては、Wiseflowは現在、同種の製品の中で最高の解析結果を提供しています。
 
-## ✋ What‘s Next (4.x plan)?
+## ✋ What's Next (4.x plan)?
 
 ### Crawler fetching 段階の強化
 
@@ -98,7 +96,7 @@ Wiseflow 3.xはデータベースとしてpocketbaseを使用しています。p
 
 ### 3. core/.envファイルの設定を続行
 
-🌟 **これは以前のバージョンとは異なります** - V0.3.5以降、.envファイルは[core](./core)フォルダに配置する必要があります。
+🌟 **これは以前のバージョンとは異なります** - V3.5以降、.envファイルは[core](./core)フォルダに配置する必要があります。
 
 #### 3.1 大規模言語モデルの設定
 
@@ -112,10 +110,13 @@ Siliconflowは、主流のオープンソースモデルのほとんどにオン
 
 ```
 LLM_API_KEY=Your_API_KEY
-LLM_API_BASE="https://api.siliconflow.cn/v1"
-PRIMARY_MODEL="deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
-SECONDARY_MODEL="Qwen/Qwen2.5-14B-Instruct"
-VL_MODEL="deepseek-ai/deepseek-vl2"
+LLM_API_BASE="https://api.siliconflow.cn/v1" # bigmodels https://open.bigmodel.cn/api/paas/v4/ 
+PRIMARY_MODEL="THUDM/GLM-4-9B-0414"  # for better performance THUDM/GLM-4-32B-0414
+# bigmodel glm-z1-flash / better performance: glm-4-air-250414
+SECONDARY_MODEL="THUDM/GLM-Z1-9B-0414" # for better performance THUDM/GLM-Z1-32B-0414
+# bigmodel glm-4-flash-250414
+VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
+# bigmodel glm-4v-flash (free now)
 PROJECT_DIR="work_dir"
 ```
       
@@ -157,16 +158,13 @@ PB_API_AUTH="test@example.com|1234567890"
 
 これはpocketbaseデータベースのスーパーユーザー名とパスワードを設定する場所です。|で区切ることを忘れないでください（install_pocketbase.shスクリプトが正常に実行された場合、これは既に存在しているはずです）
 
-#### 3.3 智谱（bigmodel）プラットフォームキーの設定（検索エンジンサービスに使用）
+#### 3.3 JINA_API_KEY 設定（検索エンジンサービスに使用）
 
-注意： **智譜プラットフォームは2025年3月14日午前0時から、web\_search\_pro インターフェースを有料化しました。検索機能を使用する場合は、アカウントの残高にご注意ください**
-[智譜プラットフォームのお知らせ](https://bigmodel.cn/dev/api/search-tool/web-search-pro)
+https://jina.ai/ から取得できます。現在、登録する必要はありませんが、高並行や商用の需要がある場合は、充電後に使用してください。
 
 ```
-ZHIPU_API_KEY=Your_API_KEY
+JINA_API_KEY=Your_API_KEY
 ```
-
-（申請先：https://bigmodel.cn/ ~~現在無料~~ 0.03 円/回, アカウント残高を確認してください）
 
 #### 3.4 その他のオプション設定
 
@@ -184,8 +182,6 @@ ZHIPU_API_KEY=Your_API_KEY
   llm の同時リクエスト数を制御するために使用されます。デフォルトは1です（llm provider が設定された同時性をサポートしていることを確認してください。ローカル大規模モデルはハードウェアベースに自分がない限り慎重に使用してください）
 
 ### 4. プログラムの実行
-
-✋ V0.3.5バージョンのアーキテクチャと依存関係は以前のバージョンと大きく異なります。必ずコードを再取得し、pb_dataを削除（または再構築）してください。
 
 condaを使用して仮想環境を構築することをお勧めします（もちろん、このステップをスキップするか、他のPython仮想環境ソリューションを使用することもできます）
 
@@ -237,14 +233,14 @@ python windows_run.py
 このフォームを使用してあなたのフォーカスポイントを指定できます。LLMはこれに基づいて情報を抽出、フィルタリング、分類します。
     
 フィールドの説明：
-- focuspoint, フォーカスポイントの説明（必須）。例：”新年セールの割引“、”入札通知“
-- explanation，フォーカスポイントの詳細な説明または具体的な約束。例：”xxシリーズの製品”、”2025年1月1日以降に発行され、100万円以上の“
+- focuspoint, フォーカスポイントの説明（必須）。例："新年セールの割引"、"入札通知"
+- explanation，フォーカスポイントの詳細な説明または具体的な約束。例："xxシリーズの製品"、"2025年1月1日以降に発行され、100万円以上の"
 - activated, アクティブ化するかどうか。オフにすると、そのフォーカスポイントは無視されます。オフにした後、再度オンにできます。
 - per_hour, クロール頻度。単位は時間で、整数型（1~24の範囲）。クロール頻度を1日1回を超えないように設定することをお勧めします。つまり、24に設定します。
 - search_engine, クロール時に検索エンジンをオンにするかどうか
 - sites，対応する情報源を選択
 
-**注意：V0.3.8以降、設定の調整はプログラムを再起動する必要はありません。次回の実行時に自動的に適用されます。**
+**注意：V3.8以降、設定の調整はプログラムを再起動する必要はありません。次回の実行時に自動的に適用されます。**
 
 ## 🐳 Docker デプロイメント
 
@@ -267,8 +263,14 @@ cp env_docker .env
 以下の環境変数は必要に応じて修正する必要があります：
 
 ```bash
-LLM_API_KEY=""
-LLM_API_BASE="https://api.siliconflow.cn/v1"
+LLM_API_KEY=Your_API_KEY
+LLM_API_BASE="https://api.siliconflow.cn/v1" # bigmodels https://open.bigmodel.cn/api/paas/v4/ 
+PRIMARY_MODEL="THUDM/GLM-4-9B-0414"  # for better performance THUDM/GLM-4-32B-0414
+# bigmodel glm-z1-flash / better performance: glm-4-air-250414
+SECONDARY_MODEL="THUDM/GLM-Z1-9B-0414" # for better performance THUDM/GLM-Z1-32B-0414
+# bigmodel glm-4-flash-250414
+VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
+# bigmodel glm-4v-flash (free now)
 PB_SUPERUSER_EMAIL="test@example.com"
 PB_SUPERUSER_PASSWORD="1234567890" #no '&' in the password and at least 10 characters
 ```

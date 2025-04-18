@@ -1,0 +1,381 @@
+focus statement: 
+大模型技术突破与创新
+注：包括新算法与模型，新的研究成果（目前日期是2025-04-15）
+
+raw materials: 348_processed.json
+
+model: glm-z1-flash
+get author and publish date time: 4.712270975112915
+author: 什么都想学的阿超
+publish date: NA
+get more related urls time: 8.561336994171143
+diff from benchmark: benchmark: 0 results
+get info time: 4.634624004364014
+related urls: 
+
+final result: 
+
+model: glm-z1-airx
+get author and publish date time: 2.804926872253418
+author: 什么都想学的阿超
+publish date: NA
+get more related urls time: 6.019260883331299
+diff from benchmark: benchmark: 2 results
+get info time: 2.918440103530884
+related urls: 
+https://www.zhihu.com/people/shi-jian-zai-liu-shi-5
+https://www.zhihu.com/zhuanlan.zhihu.com/p/17760046103
+final result: 
+
+model: glm-z1-air
+get author and publish date time: 9.959408044815063
+author: 什么都想学的阿超
+publish date: NA
+get more related urls time: 22.636924982070923
+diff from benchmark: 差异2个(遗漏2个,多出0个)
+get info time: 8.593142986297607
+related urls: 
+
+final result: 
+
+
+model: glm-4-flash-250414
+get author and publish date time: 0.5704481601715088
+author: 什么都想学的阿超
+publish date: NA
+get more related urls time: 1.2113869190216064
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 0.47321128845214844
+related urls: 
+
+final result: 
+
+
+model: glm-4-flash
+get author and publish date time: 1.1238632202148438
+author: 什么都想学的阿超
+publish date: NA
+get more related urls time: 1.1594629287719727
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 0.8252408504486084
+related urls: 
+
+final result: 
+
+
+model: glm-4-air-250414
+get author and publish date time: 0.9875130653381348
+author: 什么都想学的阿超
+publish date: NA
+get more related urls time: 2.1402430534362793
+diff from benchmark: 差异2个(遗漏2个,多出0个)
+get info time: 0.8036720752716064
+related urls: 
+
+final result: 
+
+
+raw materials: 6bc_processed.json
+
+model: glm-z1-flash
+get author and publish date time: 38.1960551738739
+author: source or article author (use "NA" if this information cannot be found)
+publish date: extracted publication date (keep only the year, month, and day; use "NA" if this information cannot be found)
+get more related urls time: 22.324362993240356
+diff from benchmark: benchmark: 1 results
+get info time: 4.0531158447265625e-06
+related urls: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648417242&idx=1&sn=56d097f76eaa1429702117df6c1be8e0
+final result: 
+
+
+model: glm-z1-air
+get author and publish date time: 623.3724920749664
+author: 
+publish date: 2024/02/23
+get more related urls time: 22.38036608695984
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 4.0531158447265625e-06
+related urls: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648417242&idx=1&sn=56d097f76eaa1429702117df6c1be8e0
+final result: 
+
+
+model: glm-4-flash-250414
+get author and publish date time: 1.2222211360931396
+author: 
+publish date: 2023/04/23
+get more related urls time: 3.6874969005584717
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+get info time: 5.0067901611328125e-06
+related urls: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648417242&idx=1&sn=56d097f76eaa1429702117df6c1be8e0
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648396807&idx=1&sn=a7c940746468849026479a127a8e048a
+final result: 
+
+
+model: glm-4-air-250414
+get author and publish date time: 1.2050268650054932
+author: 
+publish date: NA
+get more related urls time: 1.9151060581207275
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 4.0531158447265625e-06
+related urls: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648417242&idx=1&sn=56d097f76eaa1429702117df6c1be8e0
+final result: 
+
+model: glm-4-flash
+get author and publish date time: 0.8180410861968994
+author: 
+publish date: 2023/06/06
+get more related urls time: 4.608660936355591
+diff from benchmark: 差异5个(遗漏0个,多出5个)
+get info time: 5.7220458984375e-06
+related urls: 
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648395297&idx=1&sn=dee01e1b54a1cdc92cb7990c1bf79eb6
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648396807&idx=1&sn=a7c940746468849026479a127a8e048a
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648417242&idx=1&sn=56d097f76eaa1429702117df6c1be8e0
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392428&idx=1&sn=a0dc37d6fd3fe5ef1c5730277a2d848c
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648400372&idx=1&sn=b13509af77924e18bdb092387a7fcdbd
+https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392066&idx=1&sn=c46a35c0158fb83ea69405dc87806c87
+final result: 
+
+
+
+raw materials: 41a15b.json_processed.json
+
+model: glm-z1-flash
+get author and publish date time: 3.889833927154541
+author: 爱范儿
+publish date: NA
+get more related urls time: 3.4805192947387695
+diff from benchmark: benchmark: 0 results
+get info time: 7.782516002655029
+related urls: 
+
+final result: 
+
+model: glm-z1-airx
+get author and publish date time: 3.57369327545166
+author: 
+publish date: NA
+get more related urls time: 5.7884509563446045
+diff from benchmark: benchmark: 2 results
+get info time: 11.537836074829102
+related urls: 
+https://www.ifanr.com/1612646
+https://www.ifanr.com/app/
+final result: 
+
+model: glm-z1-air
+get author and publish date time: 29.14334011077881
+author: 爱范儿
+publish date: NA
+get more related urls time: 20.096590995788574
+diff from benchmark: 差异2个(遗漏2个,多出0个)
+get info time: 28.175435066223145
+related urls: 
+
+final result: 
+标签包裹结果。
+</think>
+<summary>
+OpenAI被曝开发博士级「超级智能体」Operator，具备独立执行代码编写、旅行预订等任务的能力，预计1月30日向美国政府闭门简报，并计划在ChatGPT macOS版推出[3]。DeepSeek发布R1模型，性能对标OpenAI o1正式版，开源660B参数模型并推出6个小模型，API定价1元/百万输入token[3]。Kimi推出k1.5多模态思考模型，短思考模式数学/代码/多模态推理能力超越GPT-4o和Claude 3.5 Sonnet 550%，长思考模式达OpenAI o1水平，首次实现非OpenAI公司多模态推理性能对齐[3]。阶跃星辰发布Step-2 mini模型，以3%参数量保留80%性能，输入4000 tokens首字时延仅0.17秒，API输入1元/百万token[3]。MiniMax海螺语音支持17种语言上百音色，中文/粤语/英语等语种相似度、正确率大幅领先ElevenLabs[3]。豆包App升级实时语音大模型，中文场景对话真实感达「人机难辨」，用户满意度4.36/5高于GPT-4o的3.18/5[3]。比尔盖茨预测2025年将出现AI元认知等新突破，强调需通过云计算资源捐赠、本地化数据支持等技术普惠[3]。
+
+
+
+model: glm-4-flash-250414
+get author and publish date time: 0.6179678440093994
+author: 爱范儿
+publish date: NA
+get more related urls time: 0.352999210357666
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 10.370140314102173
+related urls: 
+
+final result: 
+OpenAI 被曝博士级「超级智能体」即将登场，OpenAI「Operator」项目取得突破，CEO Sam Altman 预计将于 1 月 30 日向美国政府进行闭门简报。据悉，「Operator」是 OpenAI 开发的一种具有博士级别能力的自主 AI 智能体，能够在浏览器中独立执行任务，比如编写代码、预订旅行、管理日程等。据 M1 Astra 信息称，「Operator」将很快在 ChatGPT macOS 版中推出。
+此前，OpenAI 于 2024 年 2 月向媒体透露，内部正在开发 AI Agent；同年 11 月，OpenAI 透露 2025 年 1 月将发布代号为「Operator」的 AI Agent 工具。
+而 1 月 20 日，Sam Altman 发文表示 OpenAI 下个月不会部署 AGI，并且公司也并未构建 AGI。Altman 也透露，下个月将会有「非常酷」的产品推出，但也希望用户能对其的期望值降低百倍。
+此外，OpenAI 近日再次陷入了舆论风波。一位名为「Meemi」的 Epoch AI 承包商透露，OpenAI 不仅为 FrontierMath 基准测试提供资金支持，还获得了测试题库的特权访问权，随后，Epoch AI 副主任兼联合创始人之一 Tamay Besiroglu 很快在 X 平台承认了此事。
+据了解，去年 12 月，OpenAI 正式发布了新一代号称突破 AI 极限的 o3 模型。在其中一项名为 FrontierMath 的 AI 数学基准测试（成绩单）中，OpenAI 以 25.2% 的准确率遥遥领先，远超 GPT-4 和 Gemini 等模型不足 2% 的成绩。据分析，本次造假，或许是 o3 的成绩在短时间内获得极大提高的重要原因。
+比尔盖茨：人类还将迎来一些新的 AI 突破，比尔盖茨在采访中提到，OpenAI 旗下的 ChatGPT-4 突破了电脑并不能真正「阅读」这一问题；比尔盖茨还以此表示，人类还正在迎来一些新的 AI 突破，比如所谓的「元认知（metacognition）」。
+国产 AI 提前扎堆发布重磅模型，阶跃星辰推出 Step-2 mini/文学大师版，Step-2 mini 和万亿参数大模型 Step-2 相比，以 3% 左右的参数量保有了其 80%以上的模型性能；同时，Step-2 mini 拥有更快的生成速度和极高的性价比，在输入 4000 tokens 的情况下，Step-2 mini 的平均首字时延仅 0.17 秒。
+MiniMax 海螺语音全球同步上线，MiniMax 宣布带来全新升级的 T2A-01 系列语音模型，并全球同步上线海螺语音产品。据介绍，与传统语音生成技术相比，全新升级的 T2A-01 系列语音模型不仅具有音质稳定清晰、韵律自然、情绪精准表达、高准确度等特点；提供更快、更稳的语音生成能力；还能支持包括中文、粤语、英语、日语、韩语、阿拉伯语、西班牙语在内的 17 种语言及上百种预置音色可选。
+DeepSeek-R1 发布，性能对齐 OpenAI o1 正式版，DeepSeek 正式发布 DeepSeek-R1，并同步开源模型权重。据官方介绍，DeepSeek-R1 在后训练阶段大规模使用了强化学习技术，在仅有极少标注数据的情况下，极大提升了模型推理能力。在数学、代码、自然语言推理等任务上，性能比肩 OpenAI o1 正式版。
+Kimi 全新 SOTA 模型 k1.5 发布，月之暗面正式发布 Kimi 全新 SOTA 模型：k1.5 多模态思考模型；同时 Kimi 首次公开模型训练技术报告。据官方介绍，从基准测试成绩看，k1.5 多模态思考模型实现了 SOTA（state-of-the-art）级别的多模态推理和通用推理能力。在 short-CoT 模式下，Kimi k1.5 的数学、代码、视觉多模态和通用能力，大幅超越了全球范围内短思考 SOTA 模型 GPT-4o 和 Claude 3.5 Sonnet 的水平，领先达到 550%。
+
+model: glm-4-air-250414
+get author and publish date time: 0.9186770915985107
+author: 爱范儿
+publish date: NA
+get more related urls time: 0.7146847248077393
+diff from benchmark: 差异2个(遗漏2个,多出0个)
+get info time: 6.555646896362305
+related urls: 
+
+final result: 
+OpenAI 被曝博士级「超级智能体」即将登场，CEO Sam Altman 预计将于 1 月 30 日向美国政府进行闭门简报。据悉，「Operator」是 OpenAI 开发的一种具有博士级别能力的自主 AI 智能体，能够在浏览器中独立执行任务，比如编写代码、预订旅行、管理日程等。此外，DeepSeek-R1 发布，性能对齐 OpenAI o1 正式版；Kimi 全新 SOTA 模型 k1.5 发布，实现了 SOTA 级别的多模态推理和通用推理能力。还有，国产 AI 提前扎堆发布重磅模型，阶跃星辰推出 Step-2 mini/文学大师版，MiniMax 海螺语音全球同步上线。比尔盖茨表示人类还将迎来一些新的 AI 突破，比如所谓的「元认知（metacognition）」。
+
+
+model: glm-4-flash
+get author and publish date time: 0.9446310997009277
+author: 
+publish date: NA
+get more related urls time: 0.7172629833221436
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 5.531570196151733
+related urls: 
+
+final result: 
+OpenAI 被曝博士级「超级智能体」即将登场，名为「Operator」，预计将于 1 月 30 日向美国政府进行闭门简报。该智能体能够在浏览器中独立执行任务，如编写代码、预订旅行、管理日程等。此外，OpenAI 正式发布了新一代号称突破 AI 极限的 o3 模型，在 AI 数学基准测试中取得优异成绩。DeepSeek 发布 DeepSeek-R1，性能对齐 OpenAI o1 正式版。Kimi 发布全新 SOTA 模型 k1.5，实现 SOTA 级别的多模态推理和通用推理能力。
+
+
+raw materials: d49_processed.json
+
+model: glm-z1-flash
+get author and publish date time: 5.23322606086731
+author: 广州大学主站_new
+publish date: NA
+get more related urls time: 16.804944038391113
+diff from benchmark: benchmark: 0 results
+get info time: 4.0531158447265625e-06
+related urls: 
+
+final result: 
+
+model: glm-z1-airx
+get author and publish date time: 2.5820960998535156
+author: 
+publish date: NA
+get more related urls time: 12.057132959365845
+diff from benchmark: benchmark: 0 results
+get info time: 3.814697265625e-06
+related urls: 
+
+final result: 
+
+model: glm-z1-air
+get author and publish date time: 12.036443710327148
+author: 
+publish date: NA
+get more related urls time: 59.53875207901001
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 4.76837158203125e-06
+related urls: 
+
+final result: 
+
+
+model: glm-4-flash-250414
+get author and publish date time: 0.5811870098114014
+author: 
+publish date: NA
+get more related urls time: 4.762126922607422
+diff from benchmark: 差异5个(遗漏0个,多出5个)
+get info time: 4.0531158447265625e-06
+related urls: 
+https://mp.weixin.qq.com/s/JldpXoUyBUOZHVPJ6d1APQ
+https://mp.weixin.qq.com/s/RV8B7iwHqJNs26fXSFTd8g
+http://news.gzhu.edu.cn/info/1016/26391.htm
+https://mp.weixin.qq.com/s/shbXj7-U33YoZy5f7yspVg
+http://news.gzhu.edu.cn/info/1002/31587.htm
+final result: 
+
+model: glm-4-air-250414
+get author and publish date time: 0.9269137382507324
+author: 
+publish date: NA
+get more related urls time: 2.803393840789795
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 3.814697265625e-06
+related urls: 
+
+final result: 
+
+model: glm-4-flash
+get author and publish date time: 1.1825761795043945
+author: 
+publish date: NA
+get more related urls time: 5.9399027824401855
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 5.0067901611328125e-06
+related urls: 
+
+final result: 
+
+
+
+raw materials: 48450d.json_processed.json
+
+model: glm-z1-flash
+get author and publish date time: 3.991882801055908
+author: 知乎
+publish date: NA
+get more related urls time: 3.585994005203247
+diff from benchmark: benchmark: 0 results
+get info time: 3.3795628547668457
+related urls: 
+
+final result: 
+
+model: glm-z1-airx
+get author and publish date time: 6.361411094665527
+author: Tinyu Young
+publish date: NA
+get more related urls time: 3.4160399436950684
+diff from benchmark: benchmark: 0 results
+get info time: 2.233246088027954
+related urls: 
+
+final result: 
+
+model: glm-z1-air
+get author and publish date time: 13.404191970825195
+author: Tinyu Young
+publish date: NA
+get more related urls time: 12.607288837432861
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 9.112642049789429
+related urls: 
+
+final result: 
+标签包裹，内容仅为NA，没有其他多余信息。检查所有步骤是否符合用户的要求，特别是相关性判断和格式规范，避免错误。
+</think>
+<summary>NA
+
+
+model: glm-4-flash-250414
+get author and publish date time: 0.5085499286651611
+author: 
+publish date: NA
+get more related urls time: 2.1522207260131836
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 0.4082372188568115
+related urls: 
+
+final result: 
+
+model: glm-4-air-250414
+get author and publish date time: 0.8273561000823975
+author: 
+publish date: NA
+get more related urls time: 0.5992472171783447
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 0.5428380966186523
+related urls: 
+
+final result: 
+
+
+model: glm-4-flash
+get author and publish date time: 0.6152088642120361
+author: 
+publish date: NA
+get more related urls time: 12.595571041107178
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 0.5082597732543945
+related urls: 
+
+final result: 

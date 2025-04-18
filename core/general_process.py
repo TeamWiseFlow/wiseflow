@@ -4,7 +4,7 @@ from utils.general_utils import get_logger, extract_and_convert_dates, is_chines
 from agents.get_info import *
 import json
 from scrapers import *
-from utils.zhipu_search import run_v4_async
+from utils.jina_search import search_with_jina
 from urllib.parse import urlparse
 from crawl4ai import AsyncWebCrawler, CacheMode
 from datetime import datetime
@@ -108,37 +108,10 @@ async def main_process(focus: dict, sites: list):
     working_list = set()
     if focus.get('search_engine', False):
         query = focus_point if not explanation else f"{focus_point}({explanation})"
-        search_intent, search_content = await run_v4_async(query, _logger=wiseflow_logger)
-        _intent = search_intent['search_intent'][0]['intent']
-        _keywords = search_intent['search_intent'][0]['keywords']
-        wiseflow_logger.info(f'\nquery: {query} keywords: {_keywords}')
-        search_results = search_content['search_result']
-        for result in search_results:
-            if 'content' not in result or 'link' not in result:
-                continue
-            url = result['link']
-            if url in existing_urls:
-                continue
-            if '（发布时间' not in result['title']:
-                title = result['title']
-                publish_date = ''
-            else:
-                title, publish_date = result['title'].split('（发布时间')
-                publish_date = publish_date.strip('）')
-                # 严格匹配YYYY-MM-DD格式
-                date_match = re.search(r'\d{4}-\d{2}-\d{2}', publish_date)
-                if date_match:
-                    publish_date = date_match.group()
-                    publish_date = extract_and_convert_dates(publish_date)
-                else:
-                    publish_date = ''
-                    
-            title = title.strip() + '(from search engine)'
-            author = result.get('media', '')
-            if not author:
-                author = urlparse(url).netloc
-            texts = [result['content']]
-            await info_process(url, title, author, publish_date, texts, {}, focus_id, get_info_prompts)
+        search_results = await search_with_jina(query, _logger=wiseflow_logger)
+        search_urls = {d['url'] for d in search_results if d.get('url', '') and isURL(d['url'])}
+        wiseflow_logger.info(f'get {len(search_urls)} urls from Jina search engine')
+        working_list.update(search_urls - existing_urls)
 
     recognized_img_cache = {}
     for site in sites:
@@ -241,7 +214,7 @@ async def main_process(focus: dict, sites: list):
             wiseflow_logger.debug('no author or publish date from metadata, will try to get by llm')
             main_content_text = re.sub(r'!\[.*?]\(.*?\)', '', raw_markdown)
             main_content_text = re.sub(r'\[.*?]\(.*?\)', '', main_content_text)
-            alt_author, alt_publish_date = await get_author_and_publish_date(main_content_text, secondary_model, _logger=wiseflow_logger)
+            alt_author, alt_publish_date = await get_author_and_publish_date(main_content_text, model, _logger=wiseflow_logger)
             if not author or author.lower() == 'na':
                 author = alt_author if alt_author else parsed_url.netloc
             if not publish_date or publish_date.lower() == 'na':

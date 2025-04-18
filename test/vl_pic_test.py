@@ -14,7 +14,7 @@ if os.path.exists(env_path):
 from llms.openai_wrapper import openai_llm as llm
 
 
-vl_models = ['deepseek-ai/deepseek-vl2', 'Pro/Qwen/Qwen2.5-VL-7B-Instruct', 'OpenGVLab/InternVL2-26B']
+vl_models = ["glm-4v-flash"]
 pic_url_test_list = ["https://img1.utuku.imgcdc.com/593x0/mili/20250114/af9e4eb4-ffb6-48f3-93fd-c2df50ab2d31.jpg",
 "https://img3.utuku.imgcdc.com/650x0/news/20250114/04988522-ee50-419e-94f9-0f47e995d4ac.png",
 "https://img3.utuku.imgcdc.com/300x300/news/20250302/a8782be0-d3f5-4ebb-996c-2f74742d8684.jpg",
