@@ -4,6 +4,7 @@ pocketbase
 pydantic
 #json_repair==0.*
 requests
+regex
 feedparser==6.0.11
 aiosqlite~=0.20
 lxml~=5.3

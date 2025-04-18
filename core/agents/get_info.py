@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import asyncio
 from loguru import logger
-import os, re
+import os
+import regex as re
 from llms.openai_wrapper import openai_llm as llm
 # from core.llms.siliconflow_wrapper import sfa_llm # or other llm wrapper
 from utils.general_utils import normalize_url, url_pattern

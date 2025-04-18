@@ -1,6 +1,6 @@
 from urllib.parse import urlparse, urljoin
 import os
-import re
+import regex as re
 # import jieba
 from loguru import logger
 
