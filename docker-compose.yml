@@ -14,7 +14,7 @@ services:
       - PB_SUPERUSER_PASSWORD=${PB_SUPERUSER_PASSWORD}
 
   core:
-    image: mcr.microsoft.com/playwright/python:v1.50.0-jammy
+    image: mcr.microsoft.com/playwright/python:v1.51.0-jammy
     volumes:
       - ./core:/app
       - ./docker/pip_cache:/root/.cache/pip
