@@ -372,7 +372,7 @@ async def get_info(texts: list[str], link_dict: dict, prompts: list[str], author
                     _logger.warning(f"model hallucination: {res} \ncontains {_tag} which is not in link_dict")
                 if test_mode:
                     print(f"model hallucination: {res} \ncontains {_tag} which is not in link_dict")
-                res = res.replace(_tag, '')
+                # res = res.replace(_tag, '') # original text contents, eg [2025]文
         final.append({'content': f"{info_pre_fix}{res}", 'references': refences})
     
     return final

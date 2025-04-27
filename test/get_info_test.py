@@ -19,8 +19,8 @@ from agents.get_info import get_author_and_publish_date, get_info, get_more_rela
 from agents.get_info_prompts import *
 
 
-benchmark_model = 'THUDM/GLM-Z1-32B-0414'
-models = ['THUDM/GLM-4-32B-0414', 'THUDM/GLM-Z1-9B-0414', 'THUDM/GLM-4-9B-0414', 'THUDM/GLM-Z1-Rumination-32B-0414']
+benchmark_model = 'thudm/glm-4-32b-0414'
+models = ['thudm/glm-4-9b-0414', 'qwen/qwen2.5-32b-instruct']
 
 async def main(sample: dict, include_ap: bool, prompts: list, record_file: str):
     link_dict, links_parts, contents = sample['link_dict'], sample['links_part'], sample['contents']

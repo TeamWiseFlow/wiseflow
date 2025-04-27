@@ -120,7 +120,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--test_file', '-F', type=str, default='')
-    parser.add_argument('--sample_dir', '-D', type=str, default='')
+    parser.add_argument('--sample_dir', '-D', type=str, default=save_dir)
     parser.add_argument('--record_folder', '-R', type=str, default=save_dir)
     args = parser.parse_args()
 
@@ -133,7 +133,6 @@ if __name__ == '__main__':
     files = []
     if test_file:
         files.append(test_file)
-    
     if sample_dir:
         files.extend([os.path.join(sample_dir, file) for file in os.listdir(sample_dir)])
 

@@ -60,7 +60,7 @@ async def main_process(focus: dict, sites: list):
     focus_statement = f"{focus_point}"
     date_stamp = datetime.now().strftime('%Y-%m-%d')
     if is_chinese(focus_point):
-        focus_statement = f"{focus_statement}\n注：{explanation}（目前日期是{date_stamp}）"
+        focus_statement = f"{focus_statement}\n注：{explanation}（今天日期是{date_stamp}）"
     else:
         focus_statement = f"{focus_statement}\nNote: {explanation}(today is {date_stamp})"
 
