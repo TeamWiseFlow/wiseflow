@@ -3,7 +3,6 @@ import asyncio
 from loguru import logger
 import os, re
 from llms.openai_wrapper import openai_llm as llm
-# from core.llms.siliconflow_wrapper import sfa_llm # or other llm wrapper
 from utils.general_utils import normalize_url, url_pattern
 from .get_info_prompts import *
 
@@ -357,8 +356,7 @@ async def get_info(texts: list[str], link_dict: dict, prompts: list[str], author
         res = res[-1].strip()
         if _logger:
             _logger.debug(res)
-        if test_mode:
-            print(res)
+
         if len(res) < 3:
             continue
 

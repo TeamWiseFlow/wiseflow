@@ -122,11 +122,7 @@ async def main_process(focus: dict, sites: list):
         domain = parsed_url.netloc
             
         crawler_config.cache_mode = CacheMode.WRITE_ONLY if url in sites_urls else CacheMode.ENABLED
-        try:
-            result = await crawler.arun(url=url, config=crawler_config)
-        except Exception as e:
-            wiseflow_logger.error(e)
-            continue
+        result = await crawler.arun(url=url, config=crawler_config)
         if not result.success:
             wiseflow_logger.warning(f'{url} failed to crawl')
             continue

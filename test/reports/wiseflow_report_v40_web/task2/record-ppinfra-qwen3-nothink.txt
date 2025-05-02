@@ -1,0 +1,430 @@
+focus statement: 
+东南亚籍人才需求
+注：泰国、老挝、越南、缅甸、柬埔寨、尼泊尔等国家人才（今天日期是2025-05-02）
+
+比照think 模式均有下降，参数量越小的模型下降越严重（含moe 模型）
+
+raw materials: 9692d0.json_processed.json
+
+model: qwen/qwen3-235b-a22b-fp8
+get more related urls time: 3.185757875442505
+diff from benchmark: benchmark: 0 results
+get info time: 15.097084999084473
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-30b-a3b-fp8
+get more related urls time: 3.513558864593506
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 2.068035840988159
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-32b-fp8
+get more related urls time: 12.146652221679688
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 3.3636832237243652
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-14b-fp8
+get more related urls time: 3.8948190212249756
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 3.289348840713501
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-8b-fp8
+get more related urls time: 3.86965012550354
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 2.09397292137146
+related urls: 
+
+final result: 
+
+
+
+raw materials: 02587d.json_processed.json
+
+model: qwen/qwen3-235b-a22b-fp8
+get more related urls time: 4.806653022766113
+diff from benchmark: benchmark: 0 results
+get info time: 0.7142679691314697
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-30b-a3b-fp8
+get more related urls time: 3.5789260864257812
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 0.7236919403076172
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-32b-fp8
+get more related urls time: 7.2695839405059814
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 1.0242640972137451
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-14b-fp8
+get more related urls time: 13.14401888847351
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 0.8015928268432617
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-8b-fp8
+get more related urls time: 4.997138977050781
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 0.8227887153625488
+related urls: 
+
+final result: 
+
+
+
+raw materials: d79893.json_processed.json
+
+model: qwen/qwen3-235b-a22b-fp8
+get more related urls time: 2.251598834991455
+diff from benchmark: benchmark: 0 results
+get info time: 0.9858193397521973
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-30b-a3b-fp8
+get more related urls time: 2.1836941242218018
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 5.588674068450928
+related urls: 
+
+final result: 
+该公司是一家致力于旧衣服回收、再利用的环保企业，提供旧衣回收加盟项目，主要面向东南亚等地区。公司在全国范围内招募加盟者，提供货源系统、分类打包培训、物流运输支持和后续客服运营服务。加盟者可在当地通过联系废品回收站、小区清洁阿姨、学校宿管等渠道回收旧衣物，再以0.5-2元/斤的价格卖给工厂，工厂以1-8元/斤的价格收购，每吨利润在4000元左右。合作条件包括年满18周岁、认同公司经营理念、具备基本创业条件等。公司已在非洲和东南亚建立了成熟的销售市场和渠道[123]。
+
+
+model: qwen/qwen3-32b-fp8
+get more related urls time: 2.429736852645874
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 1.3375790119171143
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-14b-fp8
+get more related urls time: 1.5796239376068115
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 1.150458812713623
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-8b-fp8
+get more related urls time: 1.8287851810455322
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 0.8722200393676758
+related urls: 
+
+final result: 
+
+
+
+raw materials: 018f55.json_processed.json
+
+model: qwen/qwen3-235b-a22b-fp8
+get more related urls time: 3.377933979034424
+diff from benchmark: benchmark: 4 results
+get info time: 2.063509941101074
+related urls: 
+https://cn.58.com/wuliu/58744533328786x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=5
+https://cn.58.com/wuliu/57728574593050x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=8
+https://cn.58.com/wuliu/57728574593050x.shtml?infotype=detail_cnxh&psid=141314228228806126562915654&entinfo=57728574593050_p&slot=-2&pos=1&strategytype=ALG_88_base_A&module_name=3
+https://cn.58.com/wuliu/62039121455892x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=1
+final result: 
+我们是一家致力于印尼、马来西亚和新加坡市场的跨境电商物流公司，提供从中国到东南亚各国的安全、便捷、保障的专线运输服务，支持海运和空运渠道，服务包括包清关、包税并送货到门[125]。
+
+
+model: qwen/qwen3-30b-a3b-fp8
+get more related urls time: 6.596055030822754
+diff from benchmark: 差异1个(遗漏1个,多出0个)
+get info time: 1.0231831073760986
+related urls: 
+https://cn.58.com/wuliu/62039121455892x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=1
+https://cn.58.com/wuliu/57728574593050x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=8
+https://cn.58.com/wuliu/57728574593050x.shtml?infotype=detail_cnxh&psid=141314228228806126562915654&entinfo=57728574593050_p&slot=-2&pos=1&strategytype=ALG_88_base_A&module_name=3
+final result: 
+
+
+
+model: qwen/qwen3-32b-fp8
+get more related urls time: 5.529397010803223
+diff from benchmark: 差异4个(遗漏1个,多出3个)
+get info time: 1.0025062561035156
+related urls: 
+https://cn.58.com/wuliu/58744533328786x.shtml?infotype=detail_cnxh&psid=141314228228806126562915654&entinfo=58744533328786_p&slot=-2&pos=4&strategytype=ALG_88_base_A
+https://cn.58.com/wuliu/62039121455892x.shtml?infotype=detail_cnxh&psid=141314228228806126562915654&entinfo=62039121455892_p&slot=-2&pos=1&strategytype=ALG_88_base_A
+https://cn.58.com/wuliu/62039121455892x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=1
+https://cn.58.com/wuliu/57728574593050x.shtml?infotype=detail_cnxh&psid=141314228228806126562915654&entinfo=57728574593050_p&slot=-2&pos=1&strategytype=ALG_88_base_A&module_name=3
+https://cn.58.com/wuliu/57728574593050x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=8
+https://cn.58.com/wuliu/60483460108599x.shtml?infotype=detail_cnxh&psid=141314228228806126562915654&entinfo=60483460108599_p&slot=-2&pos=2&strategytype=ALG_88_base_A
+final result: 
+
+
+
+model: qwen/qwen3-14b-fp8
+get more related urls time: 4.744606971740723
+diff from benchmark: 差异4个(遗漏0个,多出4个)
+get info time: 0.8518776893615723
+related urls: 
+https://cn.58.com/wuliu/58744533328786x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=5
+https://cn.58.com/wuliu/58744533328786x.shtml?infotype=detail_cnxh&psid=141314228228806126562915654&entinfo=58744533328786_p&slot=-2&pos=4&strategytype=ALG_88_base_A
+https://cn.58.com/guojizx/
+https://cn.58.com/wuliu/62039121455892x.shtml?infotype=detail_cnxh&psid=141314228228806126562915654&entinfo=62039121455892_p&slot=-2&pos=1&strategytype=ALG_88_base_A
+https://cn.58.com/wuliu/57728574593050x.shtml?infotype=detail_cnxh&psid=141314228228806126562915654&entinfo=57728574593050_p&slot=-2&pos=1&strategytype=ALG_88_base_A&module_name=3
+https://cn.58.com/wuliu/62039121455892x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=1
+https://cn.58.com/wuliu/57728574593050x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=8
+https://cn.58.com/wuliu/60483460108599x.shtml?infotype=detail_cnxh&psid=141314228228806126562915654&entinfo=60483460108599_p&slot=-2&pos=2&strategytype=ALG_88_base_A
+final result: 
+
+
+
+model: qwen/qwen3-8b-fp8
+get more related urls time: 3.9666171073913574
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+get info time: 0.8547830581665039
+related urls: 
+https://cn.58.com/wuliu/58744533328786x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=5
+https://cn.58.com/wuliu/62039121455892x.shtml?infotype=detail_cnxh&psid=141314228228806126562915654&entinfo=62039121455892_p&slot=-2&pos=1&strategytype=ALG_88_base_A
+https://cn.58.com/wuliu/57728574593050x.shtml?infotype=detail_cnxh&psid=141314228228806126562915654&entinfo=57728574593050_p&slot=-2&pos=1&strategytype=ALG_88_base_A&module_name=3
+https://cn.58.com/wuliu/57728574593050x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=8
+https://cn.58.com/wuliu/62039121455892x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=1
+final result: 
+
+
+
+raw materials: 17c4cd.json_processed.json
+
+model: qwen/qwen3-235b-a22b-fp8
+get more related urls time: 36.31610131263733
+diff from benchmark: benchmark: 0 results
+get info time: 1.3076820373535156
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-30b-a3b-fp8
+get more related urls time: 3.4810361862182617
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 0.7175431251525879
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-32b-fp8
+get more related urls time: 5.201818943023682
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 0.9419651031494141
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-14b-fp8
+get more related urls time: 4.945700168609619
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 0.8167791366577148
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-8b-fp8
+get more related urls time: 12.116584062576294
+diff from benchmark: 差异44个(遗漏0个,多出44个)
+get info time: 0.7458429336547852
+related urls: 
+https://cn.58.com/nchushid/
+https://cn.58.com/xiaoshouzhy/
+https://cn.58.com/pugongjg/
+https://cn.58.com/chechuangg/
+https://zp.58.com/backv1/htmlpage/875554629641854976
+https://cn.58.com/dianhuaxsh/
+https://cn.58.com/songcany/
+https://cn.58.com/waimaozhuanyuan/
+https://cn.58.com/qzzpshengchankaifa/
+https://cn.58.com/wangluoxsh/
+https://cn.58.com/nyuesao/
+https://cn.58.com/banyung/
+https://cn.58.com/fuwuy/
+https://cn.58.com/songcanyuan/
+https://cn.58.com/houchud/
+https://cn.58.com/chushich/
+https://cn.58.com/nbaojie/
+https://cn.58.com/qzyingyeyuan/
+https://cn.58.com/dianhuakf/
+https://cn.58.com/searchjob.shtml
+https://cn.58.com/njianshenjl/
+https://cn.58.com/qzcuxiao/
+https://cn.58.com/shouhoukf/
+https://cn.58.com/huoyunsj/
+https://cn.58.com/qzcantfwy/
+https://cn.58.com/kefuzhuanyuan/
+https://cn.58.com/dianhuaxiaoshou/
+https://cn.58.com/pugongczg/
+https://cn.58.com/hangong/
+https://cn.58.com/qzyewu/
+https://cn.58.com/nkuaiji/
+https://cn.58.com/baoanl/
+https://cn.58.com/caiwu/
+https://cn.58.com/qichexshd/
+https://cn.58.com/nxiaoshou/
+https://cn.58.com/qzsiji/
+https://cn.58.com/peicaidh/
+https://cn.58.com/shangwusj/
+https://cn.58.com/nfuwuyd/
+https://cn.58.com/xiaoshouyuan/
+https://cn.58.com/sijiwl/
+https://cn.58.com/nqichewx/
+https://cn.58.com/kefuzhyzhl/
+https://cn.58.com/cantfwy/
+final result: 
+
+
+
+raw materials: f20cd6.json_processed.json
+
+model: qwen/qwen3-235b-a22b-fp8
+get more related urls time: 3.2828879356384277
+diff from benchmark: benchmark: 0 results
+get info time: 7.152557373046875e-06
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-30b-a3b-fp8
+get more related urls time: 17.132917881011963
+diff from benchmark: 差异21个(遗漏0个,多出21个)
+get info time: 6.9141387939453125e-06
+related urls: 
+https://www.ynhr.com/job/33680.html
+https://www.ynhr.com/job/33676.html
+https://www.ynhr.com/article.html
+https://www.ynhr.com/job/33701.html
+https://www.ynhr.com/job/33677.html
+https://www.ynhr.com/job/33690.html
+https://www.ynhr.com/job/33699.html
+https://www.ynhr.com/job/33700.html
+https://www.ynhr.com/job/33696.html
+https://www.ynhr.com/job/33679.html
+https://www.ynhr.com/job/33675.html
+https://www.ynhr.com/company/177.html
+https://www.ynhr.com/job/33678.html
+https://www.ynhr.com/job/33698.html
+https://www.ynhr.com/job/33681.html
+https://www.ynhr.com/job/33702.html
+https://www.ynhr.com/jyjx
+https://www.ynhr.com/job/33695.html
+https://www.ynhr.com/job/33682.html
+https://www.ynhr.com/job/33674.html
+https://www.ynhr.com/article/cid/64.html
+final result: 
+
+
+
+model: qwen/qwen3-32b-fp8
+get more related urls time: 3.8567209243774414
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 5.245208740234375e-06
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-14b-fp8
+get more related urls time: 11.972870111465454
+diff from benchmark: 差异27个(遗漏0个,多出27个)
+get info time: 7.152557373046875e-06
+related urls: 
+https://www.ynhr.com/article.html
+https://www.ynhr.com/company/460048.html
+https://www.ynhr.com/job/33701.html
+https://www.ynhr.com/job/33699.html
+https://www.ynhr.com/job/32458.html
+https://www.ynhr.com/job/33700.html
+https://www.ynhr.com/job/33599.html
+https://www.ynhr.com/company/460429.html
+https://www.ynhr.com/company/452986.html
+https://www.ynhr.com/job/33544.html
+https://www.ynhr.com/job/33696.html
+https://www.ynhr.com/job/33481.html
+https://www.ynhr.com/job/33692.html
+https://www.ynhr.com/job/33141.html
+https://www.ynhr.com/company/460431.html
+https://www.ynhr.com/job/33678.html
+https://www.ynhr.com/job/33039.html
+https://www.ynhr.com/company/460099.html
+https://www.ynhr.com/company/460417.html
+https://www.ynhr.com/job/33541.html
+https://www.ynhr.com/job/33698.html
+https://www.ynhr.com/job/33702.html
+https://www.ynhr.com/company/456407.html
+https://www.ynhr.com/job/33224.html
+https://www.ynhr.com/job/32457.html
+https://www.ynhr.com/job/33695.html
+https://www.ynhr.com/job/33532.html
+final result: 
+
+
+
+model: qwen/qwen3-8b-fp8
+get more related urls time: 6.744586944580078
+diff from benchmark: 差异3个(遗漏0个,多出3个)
+get info time: 6.9141387939453125e-06
+related urls: 
+https://www.ynhr.com/job/33701.html
+https://www.ynhr.com/job/33678.html
+https://www.ynhr.com/job/33699.html
+final result: 
+
+
+

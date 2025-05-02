@@ -60,7 +60,7 @@ async def openai_llm(messages: List, model: str, logger=None, **kwargs) -> str:
                 
             except RateLimitError as e:
                 # 速率限制错误需要重试
-                error_msg = f"Rate limit error: {str(e)}. Retry {retry+1}/{max_retries}."
+                error_msg = f"{model} Rate limit error: {str(e)}. Retry {retry+1}/{max_retries}."
                 if logger:
                     logger.warning(error_msg)
                 else:
@@ -69,7 +69,7 @@ async def openai_llm(messages: List, model: str, logger=None, **kwargs) -> str:
                 if hasattr(e, 'status_code'):
                     if e.status_code in [400, 401]:
                         # 客户端错误不需要重试
-                        error_msg = f"Client error: {e.status_code}. Detail: {str(e)}"
+                        error_msg = f"{model} Client error: {e.status_code}. Detail: {str(e)}"
                         if logger:
                             logger.error(error_msg)
                         else:
@@ -77,21 +77,21 @@ async def openai_llm(messages: List, model: str, logger=None, **kwargs) -> str:
                         return ''
                     else:
                         # 其他API错误需要重试
-                        error_msg = f"API error: {e.status_code}. Retry {retry+1}/{max_retries}."
+                        error_msg = f"{model} API error: {e.status_code}. Retry {retry+1}/{max_retries}."
                         if logger:
                             logger.warning(error_msg)
                         else:
                             print(error_msg)
                 else:
                     # 未知API错误需要重试
-                    error_msg = f"Unknown API error: {str(e)}. Retry {retry+1}/{max_retries}."
+                    error_msg = f"{model} Unknown API error: {str(e)}. Retry {retry+1}/{max_retries}."
                     if logger:
                         logger.warning(error_msg)
                     else:
                         print(error_msg)
             except Exception as e:
                 # 其他异常需要重试
-                error_msg = f"Unexpected error: {str(e)}. Retry {retry+1}/{max_retries}."
+                error_msg = f"{model} Unexpected error: {str(e)}. Retry {retry+1}/{max_retries}."
                 if logger:
                     logger.error(error_msg)
                 else:

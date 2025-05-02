@@ -1,0 +1,582 @@
+focus statement: 
+混凝土搅拌站在国内，海外的最新产品，市场，技术趋势
+注：（今天日期是2025-05-02）
+
+评估结果 a22b > a3b > 14b = 4b > 32b > 8b
+其中14b 与4b 在挑选 url 方面达到 glm4-32b-0414水平，但 summary 方面差很多
+a22b a3b 全面超越 glm4-32b-0414
+
+raw materials: 9692d0.json_processed.json
+
+model: qwen/qwen3-235b-a22b-fp8
+get more related urls time: 58.24163770675659
+diff from benchmark: benchmark: 2 results
+get info time: 17.92020297050476
+related urls: 
+https://www.xcmg.com/product/pro-list.htm?catId=32204&erCatId=0&sanCatId=0
+https://www.xcmg.com/product/pro-list.htm?catId=32204
+final result: 
+
+
+
+model: qwen/qwen3-30b-a3b-fp8
+get more related urls time: 24.987759113311768
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+get info time: 6.754249095916748
+related urls: 
+https://www.xcmg.com/product/pro-list.htm?catId=32204&erCatId=0&sanCatId=0
+https://www.xcmg.com/product/pro-detail-136866.htm
+https://www.xcmg.com/product/pro-list.htm?catId=32204
+final result: 
+
+
+-5
+model: qwen/qwen3-32b-fp8 
+get more related urls time: 54.5513060092926
+diff from benchmark: 差异6个(遗漏0个,多出6个)
+get info time: 22.35252285003662
+related urls: 
+https://www.xcmg.com/product/pro-detail-137298.htm
+https://www.xcmg.com/product/pro-detail-137296.htm
+https://www.xcmg.com/product/pro-detail-137287.htm
+https://www.xcmg.com/product/pro-detail-137289.htm
+https://www.xcmg.com/product/pro-list.htm?catId=32204&erCatId=0&sanCatId=0
+https://www.xcmg.com/product/pro-detail-137297.htm
+https://www.xcmg.com/product/pro-detail-136866.htm
+https://www.xcmg.com/product/pro-list.htm?catId=32204
+final result: 
+
+
+-1
+model: qwen/qwen3-14b-fp8
+get more related urls time: 39.11411690711975
+diff from benchmark: 差异2个(遗漏1个,多出1个)
+get info time: 13.078736066818237
+related urls: 
+https://www.xcmg.com/product/pro-detail-136866.htm
+https://www.xcmg.com/product/pro-list.htm?catId=32204
+final result: 
+
+
+-1
+model: qwen/qwen3-8b-fp8
+get more related urls time: 36.68551278114319
+diff from benchmark: 差异3个(遗漏0个,多出3个)
+get info time: 13.300668954849243
+related urls: 
+https://www.xcmg.com/product/pro-list.htm
+https://www.xcmg.com/product/pro-list.htm?catId=32204&erCatId=0&sanCatId=0
+https://www.xcmg.com/product/pro-detail-136866.htm
+https://www.xcmg.com/solution/new-energy.htm
+https://www.xcmg.com/product/pro-list.htm?catId=32204
+final result: 
+
+
+-1
+model: qwen/qwen3-4b-fp8
+get more related urls time: 27.439855813980103
+diff from benchmark: 差异3个(遗漏1个,多出2个)
+get info time: 9.332081079483032
+related urls: 
+https://www.xcmg.com/product/pro-list.htm?catId=32204&erCatId=0&sanCatId=0
+https://www.xcmg.com/product/pro-list.htm?catId=1001000452&erCatId=0&sanCatId=0
+https://www.xcmg.com/solution/new-energy.htm
+final result: 
+
+
+
+raw materials: bc8410.json_processed.json
+
+model: qwen/qwen3-235b-a22b-fp8
+get more related urls time: 244.3136329650879
+diff from benchmark: benchmark: 0 results
+get info time: 12.99635910987854
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-30b-a3b-fp8
+get more related urls time: 6.705910921096802
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 6.609414100646973
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-32b-fp8
+get more related urls time: 14.090442895889282
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 9.665127992630005
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-14b-fp8
+get more related urls time: 7.985453128814697
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 7.579629182815552
+related urls: 
+
+final result: 
+
+
+-2
+model: qwen/qwen3-8b-fp8
+get more related urls time: 6.551715135574341
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 6.726388931274414
+related urls: 
+
+final result: 
+标签内。需要确保不添加任何无关信息，严格按照用户的指示执行。
+</think>
+
+
+
+<summary>NA
+
+
+model: qwen/qwen3-4b-fp8
+get more related urls time: 5.558114051818848
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 4.4039671421051025
+related urls: 
+
+final result: 
+
+
+
+raw materials: 6f6ceb.json_processed.json
+
+model: qwen/qwen3-235b-a22b-fp8
+get more related urls time: 26.23050284385681
+diff from benchmark: benchmark: 0 results
+get info time: 9.096168994903564
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-30b-a3b-fp8
+get more related urls time: 12.18601107597351
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 3.5617799758911133
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-32b-fp8
+get more related urls time: 35.61863398551941
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 12.120534181594849
+related urls: 
+
+final result: 
+
+
+-2
+model: qwen/qwen3-14b-fp8
+get more related urls time: 27.325845956802368
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 9.67982006072998
+related urls: 
+
+final result: 
+标签包裹摘要，里面只填NA。确保没有其他内容，并且使用正确的语言。用户可能是在测试系统是否能正确识别无关内容并返回NA，或者他们可能误贴了文本。无论如何，根据现有信息，正确做法是返回NA。
+</think>
+
+
+
+<summary>NA
+
+
+-2
+model: qwen/qwen3-8b-fp8
+get more related urls time: 26.58373999595642
+diff from benchmark: 差异2个(遗漏0个,多出2个)
+get info time: 7.479397773742676
+related urls: 
+https://www.stone365.com/news/machine.html
+https://www.stone365.com/news/channel-6.html
+final result: 
+标签包裹，并且内部没有其他内容。同时，检查是否需要用中文输出，但这里用户可能希望用中文，所以最终结果应为NA。
+</think>
+
+
+
+<summary>NA
+
+-2
+model: qwen/qwen3-4b-fp8
+get more related urls time: 16.017936944961548
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 3.225947856903076
+related urls: 
+
+final result: 
+标签包裹，里面只有NA。这样就完成了任务。
+</think>
+
+
+
+<summary>NA
+
+
+raw materials: 285ed1.json_processed.json
+
+model: qwen/qwen3-235b-a22b-fp8
+get more related urls time: 42.28722786903381
+diff from benchmark: benchmark: 2 results
+get info time: 7.861598968505859
+related urls: 
+http://www.liugong.com/ins/quarry-aggregates/
+https://www.liugong.com/concrete
+final result: 
+
+
+
+model: qwen/qwen3-30b-a3b-fp8
+get more related urls time: 18.007987022399902
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 6.662282943725586
+related urls: 
+http://www.liugong.com/ins/quarry-aggregates/
+https://www.liugong.com/concrete
+final result: 
+
+
+
+model: qwen/qwen3-32b-fp8
+get more related urls time: 43.85788106918335
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 18.467945098876953
+related urls: 
+http://www.liugong.com/ins/quarry-aggregates/
+https://www.liugong.com/concrete
+final result: 
+
+
+
+model: qwen/qwen3-14b-fp8
+get more related urls time: 38.06455898284912
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 7.160515069961548
+related urls: 
+http://www.liugong.com/ins/quarry-aggregates/
+https://www.liugong.com/concrete
+final result: 
+
+
+-2
+model: qwen/qwen3-8b-fp8
+get more related urls time: 33.107020139694214
+diff from benchmark: 差异2个(遗漏2个,多出0个)
+get info time: 6.524396181106567
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-4b-fp8
+get more related urls time: 25.64931297302246
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 4.5562660694122314
+related urls: 
+http://www.liugong.com/ins/quarry-aggregates/
+https://www.liugong.com/concrete
+final result: 
+
+
+
+raw materials: a16266.json_processed.json
+
+model: qwen/qwen3-235b-a22b-fp8
+get more related urls time: 16.426755905151367
+diff from benchmark: benchmark: 3 results
+get info time: 21.925798892974854
+related urls: 
+https://www.putzmeister.com/web/european-union/contact
+https://www.putzmeister.com/documents/20127/47239/EU_Slider_04_1700x450.jpg/67f5abb3-c5d6-b1da-0847-d213e125b21b?version=1.1&t=1596698521863
+https://www.putzmeister.com/web/european-union/iontron
+final result: 
+Putzmeister展示了其在混凝土泵送技术领域的最新进展，包括在bauma 2025上首次推出的全电动iONTRON卡车安装式混凝土泵（基于Volvo eTrucks底盘）[90]，以及对3D混凝土打印技术的重视，该技术被德国联邦部长Klara Geywitz视为解决建筑行业劳动力短缺和提升效率的关键方向[89]。此外，公司通过全球服务网络覆盖多个国家（如葡萄牙、韩国、越南等），但文本未明确提及混凝土搅拌站的具体产品更新或市场策略。
+
+-1
+model: qwen/qwen3-30b-a3b-fp8
+get more related urls time: 12.741132020950317
+diff from benchmark: 差异1个(遗漏1个,多出0个)
+get info time: 18.12476420402527
+related urls: 
+https://www.putzmeister.com/web/european-union/contact
+https://www.putzmeister.com/documents/20127/47239/EU_Slider_04_1700x450.jpg/67f5abb3-c5d6-b1da-0847-d213e125b21b?version=1.1&t=1596698521863
+final result: 
+
+
+
+model: qwen/qwen3-32b-fp8
+get more related urls time: 17.974713802337646
+diff from benchmark: 差异3个(遗漏3个,多出0个)
+get info time: 36.50375580787659
+related urls: 
+
+final result: 
+Putzmeister在2025年展示了其最新技术趋势，包括全电动iONTRON混凝土泵（基于Volvo eTrucks底盘）[84]，并强调3D混凝土打印技术的潜力，联邦部长Klara Geywitz在BAUMA 2025上访问其INSTATIQ项目时指出该技术可加速施工进程并缓解劳动力短缺问题[83]。海外市场方面，Putzmeister参与了亚洲领先的环保技术展会[82]，同时葡萄牙最大废物管理公司Tratolixo新增第三条Putzmeister生产线以提升产能[93]。国内（德国）案例显示其技术应用于黑森州石膏矿的地下混凝土浇筑项目[91]。
+
+
+model: qwen/qwen3-14b-fp8
+get more related urls time: 21.495327949523926
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 23.58025288581848
+related urls: 
+https://www.putzmeister.com/web/european-union/contact
+https://www.putzmeister.com/documents/20127/47239/EU_Slider_04_1700x450.jpg/67f5abb3-c5d6-b1da-0847-d213e125b21b?version=1.1&t=1596698521863
+https://www.putzmeister.com/web/european-union/iontron
+final result: 
+1. 海外技术趋势：Putzmeister在BAUMA 2025展会上展示了首款电动底盘的iONTRON混凝土泵（与Volvo电动卡车合作）[90]，同时强调了3D混凝土打印技术对解决建筑行业劳动力短缺和提升效率的潜力[89]。  
+2. 国内市场关联：文本提及Putzmeister产品在德国Hesse州Liebenau钾盐矿的地下混凝土浇筑应用[95]，但未明确涉及中国国内具体市场或产品信息。  
+3. 环保技术方向：Tratolixo（葡萄牙最大废物管理公司）通过Putzmeister技术实现城市废物转化为能源和堆肥，显示混凝土相关设备在环保领域的扩展应用[97]。  
+4. 产品线覆盖：Putzmeister的M27-4、Solid Pumps、TransMix等产品被多次提及，但未标注具体发布日期或技术参数[71-75]。
+
+-1
+model: qwen/qwen3-8b-fp8
+get more related urls time: 19.66923999786377
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 27.97416400909424
+related urls: 
+https://www.putzmeister.com/web/european-union/contact
+https://www.putzmeister.com/documents/20127/47239/EU_Slider_04_1700x450.jpg/67f5abb3-c5d6-b1da-0847-d213e125b21b?version=1.1&t=1596698521863
+https://www.putzmeister.com/web/european-union/iontron
+final result: 
+
+
+-1
+model: qwen/qwen3-4b-fp8
+get more related urls time: 11.420119762420654
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 14.658858060836792
+related urls: 
+https://www.putzmeister.com/web/european-union/contact
+https://www.putzmeister.com/documents/20127/47239/EU_Slider_04_1700x450.jpg/67f5abb3-c5d6-b1da-0847-d213e125b21b?version=1.1&t=1596698521863
+https://www.putzmeister.com/web/european-union/iontron
+final result: 
+Putzmeister在海外推出最新混凝土泵产品，包括电动化卡车泵（iONTRON，[88]）及3D混凝土打印技术（[89]）。2025年BAUMA展会上，其展示了首台全电动iONTRON卡车泵（[90]），并强调3D打印对加速施工、缓解劳动力短缺的潜力（[89]）。海外市场案例显示，葡萄牙Tratolixo公司已部署Putzmeister技术处理城市废弃物（[97]），而阿尔及利亚、安道尔等国家的市场布局（[71]）也体现其全球化战略。国内相关信息未在文本中提及，故标注NA。
+
+
+raw materials: e2d679.json_processed.json
+
+model: qwen/qwen3-235b-a22b-fp8
+get more related urls time: 63.8510320186615
+diff from benchmark: benchmark: 4 results
+get info time: 7.867813110351562e-05
+related urls: 
+https://www.zoomlion.com/content/details17_31491.html
+https://www.zoomlion.com/content/details17_31464.html
+https://www.zoomlion.com/product/cate_325.html
+https://www.zoomlion.com/content/details17_31435.html
+final result: 
+
+
+-2
+model: qwen/qwen3-30b-a3b-fp8
+get more related urls time: 26.783836126327515
+diff from benchmark: 差异3个(遗漏3个,多出0个)
+get info time: 3.814697265625e-06
+related urls: 
+https://www.zoomlion.com/content/details17_31435.html
+final result: 
+
+
+-3
+model: qwen/qwen3-32b-fp8
+get more related urls time: 66.95235085487366
+diff from benchmark: 差异5个(遗漏2个,多出3个)
+get info time: 4.0531158447265625e-06
+related urls: 
+https://www.zoomlion.com/news/trends.html
+https://www.zoomlion.com/content/details17_31435.html
+https://www.zoomlion.com/technology/star.html
+https://www.zoomlion.com/content/details17_30989.html
+https://www.zoomlion.com/product/cate_325.html
+final result: 
+
+
+-3
+model: qwen/qwen3-14b-fp8
+get more related urls time: 39.543999910354614
+diff from benchmark: 差异3个(遗漏3个,多出0个)
+get info time: 3.0994415283203125e-06
+related urls: 
+https://www.zoomlion.com/content/details17_31435.html
+final result: 
+
+
+-2
+model: qwen/qwen3-8b-fp8
+get more related urls time: 67.89076519012451
+diff from benchmark: 差异6个(遗漏1个,多出5个)
+get info time: 3.814697265625e-06
+related urls: 
+https://www.zoomlion.com/news/trends.html
+https://www.zoomlion.com/technology/make.html
+https://www.zoomlion.com/content/details17_31435.html
+https://www.zoomlion.com/content/details17_31491.html
+https://www.zoomlion.com/content/details17_31464.html
+https://www.zoomlion.com/content/details17_31465.html
+https://www.zoomlion.com/technology/star.html
+https://www.zoomlion.com/content/details17_30989.html
+final result: 
+
+
+-3
+model: qwen/qwen3-4b-fp8
+get more related urls time: 35.941763162612915
+diff from benchmark: 差异5个(遗漏4个,多出1个)
+get info time: 5.0067901611328125e-06
+related urls: 
+https://www.zoomlion.com/content/details17_31657.html
+final result: 
+
+
+
+raw materials: c5fd72.json_processed.json
+
+model: qwen/qwen3-235b-a22b-fp8
+get more related urls time: 32.51128101348877
+diff from benchmark: benchmark: 1 results
+get info time: 11.356908082962036
+related urls: 
+https://www.liebherr.com/en-hk/concrete-technology/concrete-technology-5231937
+final result: 
+
+
+
+model: qwen/qwen3-30b-a3b-fp8
+get more related urls time: 13.168999910354614
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 4.121983051300049
+related urls: 
+https://www.liebherr.com/en-hk/concrete-technology/concrete-technology-5231937
+final result: 
+
+
+-3
+model: qwen/qwen3-32b-fp8
+get more related urls time: 30.189089059829712
+diff from benchmark: 差异1个(遗漏1个,多出0个)
+get info time: 9.88959288597107
+related urls: 
+
+final result: 
+标签中填写NA。
+</think>
+
+
+
+<summary>NA
+
+
+model: qwen/qwen3-14b-fp8
+get more related urls time: 24.917516231536865
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 12.077924013137817
+related urls: 
+https://www.liebherr.com/en-hk/concrete-technology/concrete-technology-5231937
+final result: 
+
+
+-1
+model: qwen/qwen3-8b-fp8
+get more related urls time: 20.837911128997803
+diff from benchmark: 差异1个(遗漏1个,多出0个)
+get info time: 9.066183090209961
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-4b-fp8
+get more related urls time: 35.63537287712097
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 8.557034969329834
+related urls: 
+https://www.liebherr.com/en-hk/concrete-technology/concrete-technology-5231937
+final result: 
+
+
+
+raw materials: 9797c4.json_processed.json
+
+model: qwen/qwen3-235b-a22b-fp8
+get more related urls time: 31.374505043029785
+diff from benchmark: benchmark: 0 results
+get info time: 4.916118144989014
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-30b-a3b-fp8
+get more related urls time: 15.94135308265686
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 5.147492170333862
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-32b-fp8
+get more related urls time: 41.373759031295776
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 10.753765106201172
+related urls: 
+
+final result: 
+
+
+-1
+model: qwen/qwen3-14b-fp8
+get more related urls time: 34.58909606933594
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+get info time: 8.316604137420654
+related urls: 
+https://www.komatsu.com/en/blog/2025/maximizing-efficiency-in-cement-and-aggregate-processing-with-komatsu-crushing-equipment/
+final result: 
+
+
+-4
+model: qwen/qwen3-8b-fp8
+get more related urls time: 35.532371044158936
+diff from benchmark: 差异4个(遗漏0个,多出4个)
+get info time: 7.064284801483154
+related urls: 
+https://www.komatsu.com/en/newsroom/2025/gmr-mst-leadership-enhancing-underground-mining-through-digitalization-and-automation/
+https://www.komatsu.com/en/newsroom/2025/komatsu-introduces-wa485-11-and-wa475-11-wheel-loaders/
+https://www.komatsu.com/en/blog/2025/komatsu-supports-reforestation-at-new-river-gorge-national-park-and-preserve/
+https://www.komatsu.com/en/blog/2025/maximizing-efficiency-in-cement-and-aggregate-processing-with-komatsu-crushing-equipment/
+final result: 
+
+
+-1
+model: qwen/qwen3-4b-fp8
+get more related urls time: 28.466766834259033
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+get info time: 6.248193025588989
+related urls: 
+https://www.komatsu.com/en/blog/2025/maximizing-efficiency-in-cement-and-aggregate-processing-with-komatsu-crushing-equipment/
+final result: 
+
+
+
