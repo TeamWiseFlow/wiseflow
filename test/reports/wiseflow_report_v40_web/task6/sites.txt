@@ -1,0 +1,11 @@
+'http://www.infobidding.com/searchForNewAction.do, https://www.chinabidding.cn/zbxx, https://ctbpsp.com/#/bulletinList?keyWords=%E7%A7%81%E5%9F%9F, http://mp.weixin.qq.com/s?__biz=MzU1OTAxNjE4Mw==&mid=2247518858&idx=3&sn=5e5717ef6a9bcc797767256fff289c75, http://mp.weixin.qq.com/s?__biz=MzUxMDg2ODQyMw==&mid=2247603791&idx=3&sn=86a0cac136538d148c7849104de65b2d'
+
+
+
+          {
+            "url": "http://www.365trade.com.cn",
+            "type": "rss"
+          },
+          {
+            "url": "http://www.cntcitc.com.cn",
+            "type": "rss"

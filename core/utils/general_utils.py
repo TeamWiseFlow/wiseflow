@@ -1,4 +1,4 @@
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlparse, urljoin, urlunparse, parse_qs, urlencode
 import os
 import regex as re
 # import jieba
@@ -7,7 +7,39 @@ from loguru import logger
 
 url_pattern = r'((?:https?://|www\.)[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|])'
 
-def normalize_url(url: str, base_url: str) -> str:
+params_to_remove = [
+    'utm_source', 'utm_medium', 'utm_campaign', 
+    'utm_term', 'utm_content', 'fbclid', 'gclid',
+    'utm_id', 'utm_source_platform', 'utm_creative_format',
+    'utm_marketing_tactic', 'ref', 'referrer', 'source',
+    'fb_action_ids', 'fb_action_types', 'fb_ref',
+    'fb_source', 'action_object_map', 'action_type_map',
+    'action_ref_map', '_ga', '_gl', '_gcl_au',
+    'mc_cid', 'mc_eid', '_bta_tid', '_bta_c',
+    'trk_contact', 'trk_msg', 'trk_module', 'trk_sid',
+    'gdfms', 'gdftrk', 'gdffi', '_ke',
+    'redirect_log_mongo_id', 'redirect_mongo_id',
+    'sb_referrer_host', 'mkt_tok', 'mkt_unsubscribe',
+    'amp', 'amp_js_v', 'amp_r', '__twitter_impression',
+    's_kwcid', 'msclkid', 'dm_i', 'epik',
+    'pk_campaign', 'pk_kwd', 'pk_keyword',
+    'piwik_campaign', 'piwik_kwd', 'piwik_keyword',
+    'mtm_campaign', 'mtm_keyword', 'mtm_source',
+    'mtm_medium', 'mtm_content', 'mtm_cid',
+    'mtm_group', 'mtm_placement', 'yclid',
+    '_openstat', 'wt_zmc', 'wt.zmc', 'from',
+    'xtor', 'xtref', 'xpid', 'xpsid',
+    'xpcid', 'xptid', 'xpt', 'xps',
+    'xpc', 'xpd', 'xpe', 'xpf',
+    'xpg', 'xph', 'xpi', 'xpj',
+    'xpk', 'xpl', 'xpm', 'xpn',
+    'xpo', 'xpp', 'xpq', 'xpr',
+    'xps', 'xpt', 'xpu', 'xpv',
+    'xpw', 'xpx', 'xpy', 'xpz'
+]
+
+
+def normalize_url(url: str, base_url: str = None) -> str:
     url = url.strip()
     if url.startswith(('www.', 'WWW.')):
         _url = f"https://{url}"
@@ -23,12 +55,34 @@ def normalize_url(url: str, base_url: str) -> str:
         _url = f"https://{url[7:]}"
     else:
         _url = urljoin(base_url, url)
+
+    try:
+        parsed = urlparse(url)
+        query_params = parse_qs(parsed.query)
     
-    _ss = _url.split('//')
-    if len(_ss) == 2:
-        return '//'.join(_ss)
-    else:
-        return _ss[0] + '//' + '/'.join(_ss[1:])
+        for param in params_to_remove:
+            query_params.pop(param, None)
+    
+        new_query = urlencode(query_params, doseq=True)
+    
+        cleaned_url = urlunparse((
+            parsed.scheme,
+            parsed.netloc,
+            parsed.path,
+            parsed.params,
+            new_query,
+            parsed.fragment
+        ))
+    
+        return cleaned_url
+
+    except Exception as e:
+        print(f"Error cleaning URL: {e}")
+        _ss = _url.split('//')
+        if len(_ss) == 2:
+            return '//'.join(_ss)
+        else:
+            return _ss[0] + '//' + '/'.join(_ss[1:])
 
 
 def isURL(string):
@@ -46,16 +100,31 @@ def extract_urls(text):
     for url in urls:
         if url.startswith("www."):
             url = f"https://{url}"
-        parsed_url = urlparse(url)
-        if not parsed_url.netloc:
+
+        try:
+            parsed = urlparse(url)
+            if not parsed.netloc or not parsed.scheme:
+                continue
+
+            query_params = parse_qs(parsed.query)
+    
+            for param in params_to_remove:
+                query_params.pop(param, None)
+        
+            new_query = urlencode(query_params, doseq=True)
+    
+            cleaned_url = urlunparse((
+                parsed.scheme,
+                parsed.netloc,
+                parsed.path,
+                parsed.params,
+                new_query,
+                parsed.fragment
+            ))
+            cleaned_urls.add(cleaned_url)
+        except Exception:
             continue
-        # remove hash fragment
-        if not parsed_url.scheme:
-            # just try https
-            cleaned_urls.add(f"https://{parsed_url.netloc}{parsed_url.path}{parsed_url.params}{parsed_url.query}")
-        else:
-            cleaned_urls.add(
-                f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}{parsed_url.params}{parsed_url.query}")
+
     return cleaned_urls
 
 

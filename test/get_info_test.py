@@ -19,8 +19,8 @@ from agents.get_info import get_author_and_publish_date, get_info, get_more_rela
 from agents.get_info_prompts import *
 
 
-benchmark_model = 'THUDM/GLM-Z1-32B-0414'
-models = ['THUDM/GLM-4-32B-0414', 'THUDM/GLM-Z1-9B-0414', 'THUDM/GLM-4-9B-0414', 'THUDM/GLM-Z1-Rumination-32B-0414']
+benchmark_model = 'Qwen/Qwen3-14B'
+models = ['Qwen/Qwen3-30B-A3B', 'THUDM/GLM-4-32B-0414', 'deepseek-ai/DeepSeek-R1-Distill-Qwen-14B']
 
 async def main(sample: dict, include_ap: bool, prompts: list, record_file: str):
     link_dict, links_parts, contents = sample['link_dict'], sample['links_part'], sample['contents']
@@ -99,9 +99,9 @@ if __name__ == '__main__':
     
     focus_point = json.load(open(os.path.join(sample_dir, 'focus_point.json'), 'r'))
     focus_statement = f"{focus_point[0]['focuspoint']}"
-    date_stamp = datetime.now().strftime('%Y-%m-%d')
+    date_stamp = '2025-04-27'
     if is_chinese(focus_statement):
-        focus_statement = f"{focus_statement}\n注：{focus_point[0]['explanation']}（目前日期是{date_stamp}）"
+        focus_statement = f"{focus_statement}\n注：{focus_point[0]['explanation']}（今天日期是{date_stamp}）"
     else:
         focus_statement = f"{focus_statement}\nNote: {focus_point[0]['explanation']}(today is {date_stamp})"
 

@@ -1,0 +1,230 @@
+focus statement: 
+东南亚籍人才需求
+注：泰国、老挝、越南、缅甸、柬埔寨、尼泊尔等国家人才（目前日期是2025-04-26）
+
+本次测试thudm/glm-4-9b-0414、thudm/glm-4-32b-0414、qwen/qwen2.5-32b-instruct三个模型表现相当
+
+
+raw materials: 9692d0.json_processed.json
+
+model: deepseek/deepseek-v3-0324
+get more related urls time: 2.288755178451538
+diff from benchmark: benchmark: 0 results
+get info time: 1.6014599800109863
+related urls: 
+
+final result: 
+
+
+
+model: thudm/glm-4-9b-0414
+get more related urls time: 2.5157649517059326
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 2.1508607864379883
+related urls: 
+
+final result: 
+
+
+
+model: thudm/glm-4-32b-0414
+get more related urls time: 6.655993700027466
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 5.222316026687622
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen2.5-32b-instruct
+get more related urls time: 4.606770753860474
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 6.044028997421265
+related urls: 
+
+final result: 
+
+
+
+raw materials: d79893.json_processed.json
+
+model: deepseek/deepseek-v3-0324
+get more related urls time: 2.041722059249878
+diff from benchmark: benchmark: 0 results
+get info time: 0.7913529872894287
+related urls: 
+
+final result: 
+
+
+
+model: thudm/glm-4-9b-0414
+get more related urls time: 1.9351439476013184
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 1.0673632621765137
+related urls: 
+
+final result: 
+
+
+
+model: thudm/glm-4-32b-0414
+get more related urls time: 2.758552074432373
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 1.491062879562378
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen2.5-32b-instruct
+get more related urls time: 3.2924411296844482
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 1.8150990009307861
+related urls: 
+
+final result: 
+
+
+
+raw materials: 018f55.json_processed.json
+
+model: deepseek/deepseek-v3-0324
+get more related urls time: 6.739944934844971
+diff from benchmark: benchmark: 7 results
+get info time: 32.02129101753235
+related urls: 
+https://cn.58.com/wuliu/58744533328786x.shtml?infotype=detail_cnxh&psid=141314228228806126562915654&entinfo=58744533328786_p&slot=-2&pos=4&strategytype=ALG_88_base_A
+https://cn.58.com/wuliu/60483460108599x.shtml?infotype=detail_cnxh&psid=141314228228806126562915654&entinfo=60483460108599_p&slot=-2&pos=2&strategytype=ALG_88_base_A
+https://cn.58.com/wuliu/62039121455892x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=1
+https://cn.58.com/wuliu/57728574593050x.shtml?infotype=detail_cnxh&psid=141314228228806126562915654&entinfo=57728574593050_p&slot=-2&pos=1&strategytype=ALG_88_base_A&module_name=3
+https://cn.58.com/wuliu/58744533328786x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=5
+https://cn.58.com/wuliu/62039121455892x.shtml?infotype=detail_cnxh&psid=141314228228806126562915654&entinfo=62039121455892_p&slot=-2&pos=1&strategytype=ALG_88_base_A
+https://cn.58.com/wuliu/57728574593050x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=8
+final result: 
+
+
+
+model: thudm/glm-4-9b-0414
+get more related urls time: 2.0473861694335938
+diff from benchmark: 差异5个(遗漏5个,多出0个)
+get info time: 0.9932208061218262
+related urls: 
+https://cn.58.com/wuliu/57728574593050x.shtml?infotype=detail_cnxh&psid=141314228228806126562915654&entinfo=57728574593050_p&slot=-2&pos=1&strategytype=ALG_88_base_A&module_name=3
+https://cn.58.com/wuliu/57728574593050x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=8
+final result: 
+
+
+
+model: thudm/glm-4-32b-0414
+get more related urls time: 7.727241039276123
+diff from benchmark: 差异3个(遗漏3个,多出0个)
+get info time: 1.0130841732025146
+related urls: 
+https://cn.58.com/wuliu/57728574593050x.shtml?infotype=detail_cnxh&psid=141314228228806126562915654&entinfo=57728574593050_p&slot=-2&pos=1&strategytype=ALG_88_base_A&module_name=3
+https://cn.58.com/wuliu/62039121455892x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=1
+https://cn.58.com/wuliu/58744533328786x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=5
+https://cn.58.com/wuliu/57728574593050x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=8
+final result: 
+
+
+
+model: qwen/qwen2.5-32b-instruct
+get more related urls time: 8.014807939529419
+diff from benchmark: 差异3个(遗漏3个,多出0个)
+get info time: 1.2980501651763916
+related urls: 
+https://cn.58.com/wuliu/58744533328786x.shtml?infotype=detail_cnxh&psid=141314228228806126562915654&entinfo=58744533328786_p&slot=-2&pos=4&strategytype=ALG_88_base_A
+https://cn.58.com/wuliu/62039121455892x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=1
+https://cn.58.com/wuliu/58744533328786x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=5
+https://cn.58.com/wuliu/57728574593050x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=8
+final result: 
+
+
+
+raw materials: 17c4cd.json_processed.json
+
+model: deepseek/deepseek-v3-0324
+get more related urls time: 4.191252946853638
+diff from benchmark: benchmark: 0 results
+get info time: 0.6156089305877686
+related urls: 
+
+final result: 
+
+
+
+model: thudm/glm-4-9b-0414
+get more related urls time: 4.99685001373291
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+get info time: 0.8605248928070068
+related urls: 
+https://cn.58.com/searchjob.shtml
+final result: 
+
+
+
+model: thudm/glm-4-32b-0414
+get more related urls time: 6.892314195632935
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 1.1751878261566162
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen2.5-32b-instruct
+get more related urls time: 7.679028272628784
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 1.126737117767334
+related urls: 
+
+final result: 
+
+
+
+raw materials: f20cd6.json_processed.json
+
+model: deepseek/deepseek-v3-0324
+get more related urls time: 2.6034650802612305
+diff from benchmark: benchmark: 0 results
+get info time: 5.9604644775390625e-06
+related urls: 
+
+final result: 
+
+
+
+model: thudm/glm-4-9b-0414
+get more related urls time: 2.9033308029174805
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 4.0531158447265625e-06
+related urls: 
+
+final result: 
+
+
+
+model: thudm/glm-4-32b-0414
+get more related urls time: 6.7301130294799805
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+get info time: 5.0067901611328125e-06
+related urls: 
+https://www.ynhr.com/article.html
+final result: 
+
+
+
+model: qwen/qwen2.5-32b-instruct
+get more related urls time: 5.272524118423462
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 5.9604644775390625e-06
+related urls: 
+
+final result: 
+
+
+

@@ -60,7 +60,7 @@ async def main_process(focus: dict, sites: list):
     focus_statement = f"{focus_point}"
     date_stamp = datetime.now().strftime('%Y-%m-%d')
     if is_chinese(focus_point):
-        focus_statement = f"{focus_statement}\n注：{explanation}（目前日期是{date_stamp}）"
+        focus_statement = f"{focus_statement}\n注：{explanation}（今天日期是{date_stamp}）"
     else:
         focus_statement = f"{focus_statement}\nNote: {explanation}(today is {date_stamp})"
 
@@ -122,11 +122,7 @@ async def main_process(focus: dict, sites: list):
         domain = parsed_url.netloc
             
         crawler_config.cache_mode = CacheMode.WRITE_ONLY if url in sites_urls else CacheMode.ENABLED
-        try:
-            result = await crawler.arun(url=url, config=crawler_config)
-        except Exception as e:
-            wiseflow_logger.error(e)
-            continue
+        result = await crawler.arun(url=url, config=crawler_config)
         if not result.success:
             wiseflow_logger.warning(f'{url} failed to crawl')
             continue

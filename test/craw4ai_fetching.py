@@ -12,25 +12,13 @@ from crawl4ai import AsyncWebCrawler, CacheMode
 from scrapers import crawler_config
 from scrapers import browser_cfg
 
+
 save_dir = 'webpage_samples'
 # which include some standard sites with different html structure
-standard_sites = ["https://www.zhihu.com/topic/19552832/hot",
-                  "https://mp.weixin.qq.com/s/y-YCGeYXv_T4bB48hn0UGw",
-                  "https://news.bjx.com.cn/html/20241226/1419428.shtml",
-                  "https://news.bjx.com.cn/rankinglist/qingneng/",
-                  "http://search.people.cn/s?keyword=%E7%A4%BE%E5%8C%BA%E6%B2%BB%E7%90%86&st=0&_=1741317033197",
-                  "https://www.gd121.cn/zx/qxzx/list.shtml",
-                  "https://www.xuexi.cn/lgpage/detail/index.html?id=12812273746490421418&item_id=12812273746490421418",
-                  "https://www.gzhu.edu.cn/",
-                  "https://arxiv.org/list/cs/recent",
-                  "https://www.shenmezhideting.com/app/homepage",
-                  "https://tophub.today/",
-                  "https://www.reuters.com/site-search/?query=tech&offset=0",
-                  "https://www.reuters.com/business/autos-transportation/",
-                  "https://d.aigclink.ai/?v=e3a86502f7ef495598705abe58e21848",
-                  ]
+standard_sites = []
 
 crawler_config.cache_mode=CacheMode.DISABLED
+# browser_cfg.proxy = 'http://202.117.115.6:80'
 
 async def main(sites: list):
     print("\n=== Crawling Test with Memory Check ===")

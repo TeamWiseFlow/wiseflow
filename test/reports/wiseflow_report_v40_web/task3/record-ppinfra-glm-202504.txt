@@ -1,0 +1,302 @@
+focus statement: 
+混凝土搅拌站在国内，海外的最新产品，市场，技术趋势
+注：（目前日期是2025-04-27）
+
+本次测试综合情况: thudm/glm-4-32b-0414 > thudm/glm-4-9b-0414 > qwen/qwen2.5-32b-instruct
+glm-4-9b-0414 在信息提取方面其实并不比32b 差，提供的样本中如果包含相关信息，基本都能准确提取，但它分不清 混凝土搅拌站、起重机、石材器材 这些，都混成一个概念了；另外，没有遵循，不管原文如何，使用关注点文字输出的指令。
+qwen2.5-32b-instruct 则几乎遗漏了全部信息（输出格式正常，因此可以判定是模型本身未成功识别提取的问题）
+
+raw materials: 9692d0.json_processed.json
+
+model: thudm/glm-4-32b-0414
+get more related urls time: 6.546838045120239
+diff from benchmark: benchmark: 1 results
+get info time: 4.975661039352417
+related urls: 
+https://www.xcmg.com/product/pro-list.htm?catId=32204
+final result: 
+
+
+
+model: thudm/glm-4-9b-0414
+get more related urls time: 2.763925075531006
+diff from benchmark: 差异2个(遗漏1个,多出1个)
+get info time: 4.6588311195373535
+related urls: 
+https://www.xcmg.com/product/pro-list.htm?catId=32204&erCatId=0&sanCatId=0
+final result: 
+徐工集团在2025年4月9日的新闻中提到，他们携“中国方案”参加了德国宝马展Bauma 2025，致力于成为欧洲低碳化、智能化和可持续发展的重要参与者和值得信赖的伙伴。此外，徐工集团还与江苏省港口集团合作，推动港口物流的绿色化发展。在技术趋势方面，徐工集团积极推动工程机械行业的绿色化智能化，例如徐工新能源重卡和纯电动牵引车的交付，以及新能源装载机的全球巡展。这些举措显示了徐工集团在国内外市场上的最新产品、市场和技术趋势。
+
+
+model: qwen/qwen2.5-32b-instruct
+get more related urls time: 6.0926713943481445
+diff from benchmark: 差异1个(遗漏1个,多出0个)
+get info time: 5.83666467666626
+related urls: 
+
+final result: 
+
+
+
+raw materials: bc8410.json_processed.json
+
+model: thudm/glm-4-32b-0414
+get more related urls time: 1.472641944885254
+diff from benchmark: benchmark: 0 results
+get info time: 6.25858998298645
+related urls: 
+
+final result: 
+
+
+
+model: thudm/glm-4-9b-0414
+get more related urls time: 0.7162716388702393
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 0.7718887329101562
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen2.5-32b-instruct
+get more related urls time: 0.9157829284667969
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 1.0224089622497559
+related urls: 
+
+final result: 
+
+
+
+raw materials: 6f6ceb.json_processed.json
+
+model: thudm/glm-4-32b-0414
+get more related urls time: 3.1713430881500244
+diff from benchmark: benchmark: 0 results
+get info time: 1.6407222747802734
+related urls: 
+
+final result: 
+
+
+
+model: thudm/glm-4-9b-0414
+get more related urls time: 2.6629109382629395
+diff from benchmark: 差异3个(遗漏0个,多出3个)
+get info time: 0.8160920143127441
+related urls: 
+https://www.stone365.com/news/info-4459847042272.html
+https://www.stone365.com/news/info-4520486442149.html
+https://www.stone365.com/news/info-4459822124867.html
+final result: 
+
+
+
+model: qwen/qwen2.5-32b-instruct
+get more related urls time: 2.867835760116577
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 0.9210660457611084
+related urls: 
+
+final result: 
+
+
+
+raw materials: 285ed1.json_processed.json
+
+model: thudm/glm-4-32b-0414
+get more related urls time: 4.300714015960693
+diff from benchmark: benchmark: 0 results
+get info time: 1.167809009552002
+related urls: 
+
+final result: 
+
+
+
+model: thudm/glm-4-9b-0414
+get more related urls time: 19.407022953033447
+diff from benchmark: 差异13个(遗漏0个,多出13个)
+get info time: 0.8231639862060547
+related urls: 
+https://www.liugong.com/success-case/20220915/
+https://www.liugong.com/news/20250123/
+https://www.liugong.com/news/20250202/
+https://www.liugong.com/news/20250201/
+https://www.liugong.com/success-case/20221016-2/
+https://www.liugong.com/news/20250314/
+https://www.liugong.com/success-case/20220817/
+https://www.liugong.com/news/20250403/
+https://www.liugong.com/news/20250108/
+https://www.liugong.com/news/20241225-2/
+https://www.liugong.com/concrete
+https://www.liugong.com/news/20250328/
+https://www.liugong.com/news/20250312/
+final result: 
+
+
+
+model: qwen/qwen2.5-32b-instruct
+get more related urls time: 4.663656234741211
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 1.1423869132995605
+related urls: 
+
+final result: 
+
+
+
+raw materials: a16266.json_processed.json
+
+model: thudm/glm-4-32b-0414
+get more related urls time: 1.6656951904296875
+diff from benchmark: benchmark: 0 results
+get info time: 6.8615148067474365
+related urls: 
+
+final result: 
+Putzmeister公司展示了其最新的混凝土泵产品，包括M27-4、Solid Pumps、The TransMix和Truck-Mounted Concrete Pumps。此外，Putzmeister在bauma 2025上推出了首款电动底盘的iONTRON卡车式混凝土泵，标志着电动化技术的最新进展。公司还强调了3D混凝土打印技术在加速施工过程和解决劳动力短缺方面的潜力。这些信息涉及混凝土搅拌站在国内和海外的最新产品、市场和技术趋势。[71][72][73][74][75][76][77][78][79][80][88][89][90][84]
+
+
+model: thudm/glm-4-9b-0414
+get more related urls time: 0.7625148296356201
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 3.995131015777588
+related urls: 
+
+final result: 
+Putzmeister Stationary concrete pumps, Putzmeister M27-4, Putzmeister Solid Pumps, The TransMix, Putzmeister Truck-Mounted Concrete Pumps, Putzmeister iONTRON. News highlights include Putzmeister's presentation of the first truck-mounted concrete pump on an electric chassis at bauma, emphasizing the growing importance of automation and robotics in construction, and the potential of 3D concrete printing to accelerate construction processes. Success stories involve underground concreting in an anhydrite mine and the use of Putzmeister technology for generating energy and compost with urban waste. Products and technology trends are not explicitly detailed beyond the mentioned innovations and applications.
+
+
+model: qwen/qwen2.5-32b-instruct
+get more related urls time: 1.1692991256713867
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 1.489192247390747
+related urls: 
+
+final result: 
+
+
+
+raw materials: e2d679.json_processed.json
+
+model: thudm/glm-4-32b-0414
+get more related urls time: 16.95289397239685
+diff from benchmark: benchmark: 11 results
+get info time: 4.0531158447265625e-06
+related urls: 
+https://www.zoomlion.com/content/details17_31657.html
+https://www.zoomlion.com/content/details17_31435.html
+https://www.zoomlion.com/content/details17_31491.html
+https://www.zoomlion.com/content/details17_31548.html
+https://www.zoomlion.com/content/details17_31465.html
+https://www.zoomlion.com/content/details17_31660.html
+https://www.zoomlion.com/content/details17_31547.html
+https://www.zoomlion.com/content/details17_31464.html
+https://www.zoomlion.com/content/details17_32024.html
+https://www.zoomlion.com/product/cate_325.html
+https://www.zoomlion.com/content/details17_31659.html
+final result: 
+
+
+
+model: thudm/glm-4-9b-0414
+get more related urls time: 40.323928117752075
+diff from benchmark: 差异3个(遗漏1个,多出2个)
+get info time: 5.245208740234375e-06
+related urls: 
+https://www.zoomlion.com/content/details17_31657.html
+https://www.zoomlion.com/content/details17_31435.html
+https://www.zoomlion.com/content/details17_31491.html
+https://www.zoomlion.com/product/cate_11.html
+https://www.zoomlion.com/content/details17_31548.html
+https://www.zoomlion.com/content/details17_31465.html
+https://www.zoomlion.com/content/details17_31660.html
+https://www.zoomlion.com/content/details17_31547.html
+https://www.zoomlion.com/content/details17_31464.html
+https://www.zoomlion.com/content/details17_32024.html
+https://www.zoomlion.com/product/cate_12.html
+https://www.zoomlion.com/content/details17_31659.html
+final result: 
+
+
+
+model: qwen/qwen2.5-32b-instruct
+get more related urls time: 13.947005033493042
+diff from benchmark: 差异10个(遗漏10个,多出0个)
+get info time: 4.291534423828125e-06
+related urls: 
+https://www.zoomlion.com/content/details17_31435.html
+final result: 
+
+
+
+raw materials: c5fd72.json_processed.json
+
+model: thudm/glm-4-32b-0414
+get more related urls time: 3.1865901947021484
+diff from benchmark: benchmark: 1 results
+get info time: 6.31543493270874
+related urls: 
+https://www.liebherr.com/en-hk/concrete-technology/concrete-technology-5231937
+final result: 
+
+
+
+model: thudm/glm-4-9b-0414
+get more related urls time: 2.623119831085205
+diff from benchmark: 差异2个(遗漏0个,多出2个)
+get info time: 0.7800099849700928
+related urls: 
+https://www.liebherr.com/en-hk/n/ltm-1300-6-3-mobile-crane-from-liebherr-boosts-spallek-fleet-161025-5221574
+https://www.liebherr.com/en-hk/concrete-technology/concrete-technology-5231937
+https://www.liebherr.com/en-hk/n/a-flagship-for-the-crane-fleet-transnacional-invests-in-liebherr-lg-1750-161344-5221574
+final result: 
+
+
+
+model: qwen/qwen2.5-32b-instruct
+get more related urls time: 2.632908821105957
+diff from benchmark: 差异1个(遗漏1个,多出0个)
+get info time: 1.9270992279052734
+related urls: 
+
+final result: 
+
+
+
+raw materials: 9797c4.json_processed.json
+
+model: thudm/glm-4-32b-0414
+get more related urls time: 6.0813307762146
+diff from benchmark: benchmark: 2 results
+get info time: 1.145482063293457
+related urls: 
+https://www.komatsu.com/en/newsroom/2025/komatsu-introduces-wa485-11-and-wa475-11-wheel-loaders/
+https://www.komatsu.com/en/blog/2025/maximizing-efficiency-in-cement-and-aggregate-processing-with-komatsu-crushing-equipment/
+final result: 
+
+
+
+model: thudm/glm-4-9b-0414
+get more related urls time: 3.0858888626098633
+diff from benchmark: 差异1个(遗漏1个,多出0个)
+get info time: 4.1640801429748535
+related urls: 
+https://www.komatsu.com/en/blog/2025/maximizing-efficiency-in-cement-and-aggregate-processing-with-komatsu-crushing-equipment/
+final result: 
+Komatsu's compact excavators now offer 0% financing for up to 48 months, with models including PC30MR-5 E1, PC35MR-5 E1, PC45MR-5, and PC55MR-5. The acquisition of GHH strengthens Komatsu’s presence in the underground mining sector, expanding sales and service networks and product offerings to enhance operational efficiency in challenging environments. Komatsu has also partnered with Williams Racing as the Principal Partner for the 2024 FIA Formula One World Championship season. Additionally, Komatsu’s HD1500-8E0 mechanical haul truck is designed for performance on grade with energy-saving technologies, suitable for mining, quarry, and aggregate applications.
+
+
+model: qwen/qwen2.5-32b-instruct
+get more related urls time: 3.2786128520965576
+diff from benchmark: 差异2个(遗漏2个,多出0个)
+get info time: 1.1113920211791992
+related urls: 
+
+final result: 
+
+
+

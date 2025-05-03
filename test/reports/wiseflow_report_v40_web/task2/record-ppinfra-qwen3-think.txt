@@ -1,0 +1,324 @@
+focus statement: 
+东南亚籍人才需求
+注：泰国、老挝、越南、缅甸、柬埔寨、尼泊尔等国家人才（今天日期是2025-05-02）
+
+整体效果均不错，都能达到glm-4-32b-0414的水平。其中qwen/qwen3-235b-a22b-fp8最佳，qwen/qwen3-14b-fp8其次，二者均可以超越glm-4-32b-0414。
+
+raw materials: 9692d0.json_processed.json
+
+model: qwen/qwen3-235b-a22b-fp8
+get more related urls time: 29.269500017166138
+diff from benchmark: benchmark: 1 results
+get info time: 7.426191091537476
+related urls: 
+https://www.xcmg.com/aboutus/job_center.htm
+final result: 
+
+
+
+model: qwen/qwen3-30b-a3b-fp8
+get more related urls time: 14.040930032730103
+diff from benchmark: 差异1个(遗漏1个,多出0个)
+get info time: 5.625457048416138
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-32b-fp8
+get more related urls time: 51.94968795776367
+diff from benchmark: 差异1个(遗漏1个,多出0个)
+get info time: 19.187693119049072
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-14b-fp8
+get more related urls time: 28.518561124801636
+diff from benchmark: 差异1个(遗漏1个,多出0个)
+get info time: 10.262097835540771
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-8b-fp8
+get more related urls time: 25.10801100730896
+diff from benchmark: 差异1个(遗漏1个,多出0个)
+get info time: 7.892660856246948
+related urls: 
+
+final result: 
+
+
+
+raw materials: 02587d.json_processed.json
+
+model: qwen/qwen3-235b-a22b-fp8
+get more related urls time: 55.2228422164917
+diff from benchmark: benchmark: 0 results
+get info time: 9.114736318588257
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-30b-a3b-fp8
+get more related urls time: 50.66821622848511
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 3.4707400798797607
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-32b-fp8
+get more related urls time: 94.4155011177063
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 14.129702091217041
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-14b-fp8
+get more related urls time: 80.82183408737183
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 10.03773307800293
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-8b-fp8
+get more related urls time: 42.74721002578735
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 6.877896785736084
+related urls: 
+
+final result: 
+
+
+
+raw materials: d79893.json_processed.json
+
+model: qwen/qwen3-235b-a22b-fp8
+get more related urls time: 20.334991931915283
+diff from benchmark: benchmark: 0 results
+get info time: 8.47667407989502
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-30b-a3b-fp8
+get more related urls time: 11.40382695198059
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 4.570101022720337
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-32b-fp8
+get more related urls time: 27.481998205184937
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 10.06154990196228
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-14b-fp8
+get more related urls time: 22.132023811340332
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 10.058368921279907
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-8b-fp8
+get more related urls time: 15.10779595375061
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 6.121424913406372
+related urls: 
+
+final result: 
+
+
+
+raw materials: 018f55.json_processed.json
+
+model: qwen/qwen3-235b-a22b-fp8
+get more related urls time: 25.46291208267212
+diff from benchmark: benchmark: 4 results
+get info time: 5.516438007354736
+related urls: 
+https://cn.58.com/wuliu/57728574593050x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=8
+https://cn.58.com/wuliu/62039121455892x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=1
+https://cn.58.com/wuliu/57728574593050x.shtml?infotype=detail_cnxh&psid=141314228228806126562915654&entinfo=57728574593050_p&slot=-2&pos=1&strategytype=ALG_88_base_A&module_name=3
+https://cn.58.com/wuliu/58744533328786x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=5
+final result: 
+
+
+
+model: qwen/qwen3-30b-a3b-fp8
+get more related urls time: 22.34798288345337
+diff from benchmark: 差异4个(遗漏4个,多出0个)
+get info time: 7.667578935623169
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-32b-fp8
+get more related urls time: 36.57047510147095
+diff from benchmark: 差异4个(遗漏4个,多出0个)
+get info time: 15.406232118606567
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-14b-fp8
+get more related urls time: 33.42552304267883
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 11.667001962661743
+related urls: 
+https://cn.58.com/wuliu/57728574593050x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=8
+https://cn.58.com/wuliu/62039121455892x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=1
+https://cn.58.com/wuliu/57728574593050x.shtml?infotype=detail_cnxh&psid=141314228228806126562915654&entinfo=57728574593050_p&slot=-2&pos=1&strategytype=ALG_88_base_A&module_name=3
+https://cn.58.com/wuliu/58744533328786x.shtml?psid=141314228228806126562915654&entinfo=_p&slot=-6&pos=5
+final result: 
+
+
+
+model: qwen/qwen3-8b-fp8
+get more related urls time: 19.02335214614868
+diff from benchmark: 差异4个(遗漏4个,多出0个)
+get info time: 6.520022869110107
+related urls: 
+
+final result: 
+
+
+
+raw materials: 17c4cd.json_processed.json
+
+model: qwen/qwen3-235b-a22b-fp8
+get more related urls time: 96.52273082733154
+diff from benchmark: benchmark: 0 results
+get info time: 11.773717164993286
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-30b-a3b-fp8
+get more related urls time: 29.986263036727905
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 5.003428936004639
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-32b-fp8
+get more related urls time: 69.99344301223755
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 12.139328002929688
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-14b-fp8
+get more related urls time: 56.31176805496216
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 6.964158058166504
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-8b-fp8
+get more related urls time: 36.348695039749146
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 4.296753883361816
+related urls: 
+
+final result: 
+
+
+
+raw materials: f20cd6.json_processed.json
+
+model: qwen/qwen3-235b-a22b-fp8
+get more related urls time: 31.93704605102539
+diff from benchmark: benchmark: 0 results
+get info time: 6.198883056640625e-06
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-30b-a3b-fp8
+get more related urls time: 19.4703209400177
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 5.7220458984375e-06
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-32b-fp8
+get more related urls time: 48.17002511024475
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 6.9141387939453125e-06
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-14b-fp8
+get more related urls time: 32.544638872146606
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 5.9604644775390625e-06
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen3-8b-fp8
+get more related urls time: 23.104195833206177
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 5.9604644775390625e-06
+related urls: 
+
+final result: 
+
+
+

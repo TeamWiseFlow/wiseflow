@@ -11,19 +11,19 @@
 https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 
-## 🔥🔥🔥 恭喜各位，又到了可以零成本使用首席情报官的时刻了！
+## 🔥🔥🔥 Qwen3 Series 兼容报告
 
-2025年4月14日，智谱发布了全新的 Z1 系列模型与 GLM-4-0414 系列模型，并放出了对应的 32B、9B 开源版本，当日稍晚，硅基流动上线了这些开源版本模型的在线服务。
+4月30日，备受瞩目的Qwen3系列发布，我们赶在假期第一时间进行了测试。
 
-我们也在第一时间对这些新发布的模型进行了测试，测试结果令人惊喜，即便是目前两个平台都免费的glm-z1-flash/GLM-Z1-9B-0414 以及 glm-4-flash-250414/GLM-4-9B-0414 也能比较理想的完成 wiseflow 所涉及的提取和总结任务。
+我们主要测试了Qwen3-14B、Qwen3-30B-A3B，并和GLM-4-32B-0414、DeepSeek-R1-Distill-Qwen-14B进行了对比。之所以只选择参数量不超过32b 的模型，是因为 wiseflow 任务相对简单，更大的模型并不能带来显著的改善，但会极大的增加使用成本。（wiseflow 任务的特点是难度低，但是需要反复调用）。
 
-详细的测试报告请见 [test/reports/wiseflow_report_v038_dp_bigbrother666/GLM_report_0416.md](./test/reports/wiseflow_report_v038_dp_bigbrother666/GLM_report_0416.md)
+最终的结论： **Qwen3-14B、Qwen3-30B-A3B 在开启 think mode 的情况下，非常值得推荐！**  详细的测试报告请见 [test/reports/wiseflow_report_v40_web/Qwen3_report_0502.md](./test/reports/wiseflow_report_v40_web/Qwen3_report_0502.md)
 
-如果各位想切换使用上述模型的话，仅需更改 .env 文件中的 LLM_API_KEY、LLM_API_BASE、PRIMARY_MODEL 和 SECONDARY_MODEL 配置即可。（不熟悉的请看下方描述）
+基于此测试（同时考虑生成速度和成本因素），在 wiseflow 的使用上，我们目前推荐使用 Qwen3-30B-A3B 作为 primary model，Qwen3-14B 作为 secondary model。
 
-另外，考虑到 9b 模型的尺寸，本地部署其实也比较适合。
+如果是本地部署且显存有限的情况，推荐只使用 Qwen3-14B ，可以选择8bit量化版本。
 
-同时针对目前在用的智谱搜索方案不支持英文搜索的问题，我们改为使用 Jina 搜索方案，价格更低，登录 https://jina.ai/ 无需注册即可领取 API （送的量和并发个人使用应该够了）。
+当然你也可以继续选择免费模型实现“零成本”使用，对此，我强烈推荐智谱平台的 glm-4-flash-250414。
 
 ### 不想折腾的，也欢迎使用 **AI首席情报官** 在线服务，无需部署和设置，无需额外申请各种 key，注册就能使用！
 
@@ -35,8 +35,8 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 ## 🌟 过去两周新增 contributor
 
-  - @zhudongwork PR #354
-  - @cdxiaodong PR #357
+  - @zhudongwork PR #360 [replace re with regex library for better performance]
+  - @beat4ocean PR #361 [update docker base image to improve for playwright]
 
 
 ## 🧐  ‘deep search’ VS ‘wide search’
@@ -112,13 +112,10 @@ siliconflow（硅基流动）提供大部分主流开源模型的在线 MaaS 服
 
 ```
 LLM_API_KEY=Your_API_KEY
-LLM_API_BASE="https://api.siliconflow.cn/v1" # bigmodels https://open.bigmodel.cn/api/paas/v4/ 
-PRIMARY_MODEL="THUDM/GLM-4-9B-0414"  # for better performance THUDM/GLM-4-32B-0414
-# bigmodel glm-z1-flash / better performance: glm-4-air-250414
-SECONDARY_MODEL="THUDM/GLM-Z1-9B-0414" # for better performance THUDM/GLM-Z1-32B-0414
-# bigmodel glm-4-flash-250414
+LLM_API_BASE="https://api.siliconflow.cn/v1"
+PRIMARY_MODEL="Qwen3-30B-A3B"
+SECONDARY_MODEL="Qwen3-14B"
 VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
-# bigmodel glm-4v-flash (free now)
 PROJECT_DIR="work_dir"
 ```
       
@@ -268,13 +265,10 @@ cp env_docker .env
 
 ```bash
 LLM_API_KEY=Your_API_KEY
-LLM_API_BASE="https://api.siliconflow.cn/v1" # bigmodels https://open.bigmodel.cn/api/paas/v4/ 
-PRIMARY_MODEL="THUDM/GLM-4-9B-0414"  # for better performance THUDM/GLM-4-32B-0414
-# bigmodel glm-z1-flash / better performance: glm-4-air-250414
-SECONDARY_MODEL="THUDM/GLM-Z1-9B-0414" # for better performance THUDM/GLM-Z1-32B-0414
-# bigmodel glm-4-flash-250414
+LLM_API_BASE="https://api.siliconflow.cn/v1"
+PRIMARY_MODEL="Qwen3-30B-A3B"
+SECONDARY_MODEL="Qwen3-14B"
 VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
-# bigmodel glm-4v-flash (free now)
 PB_SUPERUSER_EMAIL="test@example.com"
 PB_SUPERUSER_PASSWORD="1234567890" #no '&' in the password and at least 10 characters
 ```

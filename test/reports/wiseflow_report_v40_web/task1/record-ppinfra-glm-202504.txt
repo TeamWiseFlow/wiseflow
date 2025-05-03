@@ -1,0 +1,219 @@
+focus statement: 
+中国地区新建石材厂与石材设备采购信息
+注：仅限2025年之后的信息（目前日期是2025-04-26）
+
+本次测试经过人类评估，综合效果  glm-4-32b-0414 > glm-4-9b-0414 > qwen2.5-32b-instruct
+glm-4-32b-0414 尤其在时间判定上表现出色
+
+raw materials: 6f6ceb.json_processed.json
+
+model: thudm/glm-4-32b-0414
+get more related urls time: 14.040325164794922
+diff from benchmark: benchmark: 7 results
+get info time: 1.175166130065918
+related urls: 
+https://www.stone365.com/news/info-4426920820674.html
+https://www.stone365.com/news/info-4416744295431.html
+https://www.stone365.com/news/info-4419026679969.html
+https://www.stone365.com/news/info-4434222254161.html
+https://www.stone365.com/news/info-4520498069854.html
+https://www.stone365.com/news/info-4459822124867.html
+https://www.stone365.com/news/info-4419014480030.html
+final result: 
+
+
+
+model: thudm/glm-4-9b-0414
+get more related urls time: 4.95343017578125
+diff from benchmark: 差异7个(遗漏4个,多出3个)
+get info time: 0.7382678985595703
+related urls: 
+https://www.stone365.com/news/info-4520486442149.html
+https://www.stone365.com/news/info-4434222254161.html
+https://www.stone365.com/news/info-4520498069854.html
+https://www.stone365.com/news/info-4338590079910.html
+https://www.stone365.com/news/info-4459822124867.html
+https://www.stone365.com/news/info-4459847042272.html
+final result: 
+
+
+
+model: qwen/qwen2.5-32b-instruct
+get more related urls time: 3.661020040512085
+diff from benchmark: 差异7个(遗漏7个,多出0个)
+get info time: 0.9308710098266602
+related urls: 
+
+final result: 
+
+
+
+raw materials: 338f2f.json_processed.json
+
+model: thudm/glm-4-32b-0414
+get more related urls time: 1.811521053314209
+diff from benchmark: benchmark: 0 results
+get info time: 11.236578702926636
+related urls: 
+
+final result: 
+
+
+
+model: thudm/glm-4-9b-0414
+get more related urls time: 2.494170904159546
+diff from benchmark: 差异2个(遗漏0个,多出2个)
+get info time: 4.8429930210113525
+related urls: 
+https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+final result: 
+深圳建材2024-2025年度石材采购项目，项目编号STJC-2024-WZ2742，采购方式为公开招标，项目类型为货物。项目地址由甲方指定，资金来源为自有资金。项目概况是为拓展公司贸易品类，招募一批石材企业。公告发布媒体为深圳地铁智能招采管理平台和深圳阳光采购平台，公告开始时间为2024-12-23 15:30。招标范围包括在中华人民共和国境内注册并具备独立法人资格的石材生产企业或其授权的销售公司，需提供相关证书和检测报告。投标截止时间为2025-01-13 09:00，开标时间为2025-01-13 09:00。
+
+
+model: qwen/qwen2.5-32b-instruct
+get more related urls time: 1.1301088333129883
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 2.0397400856018066
+related urls: 
+
+final result: 
+
+
+
+raw materials: 2d45cd.json_processed.json
+
+model: thudm/glm-4-32b-0414
+get more related urls time: 3.515972852706909
+diff from benchmark: benchmark: 0 results
+get info time: 20.75043797492981
+related urls: 
+
+final result: 
+
+
+
+model: thudm/glm-4-9b-0414
+get more related urls time: 2.2516238689422607
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 8.612442970275879
+related urls: 
+
+final result: 
+
+
+
+model: qwen/qwen2.5-32b-instruct
+get more related urls time: 2.951775074005127
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 28.474547863006592
+related urls: 
+
+final result: 
+
+
+
+raw materials: 3b6d96.json_processed.json
+
+model: thudm/glm-4-32b-0414
+get more related urls time: 3.8254377841949463
+diff from benchmark: benchmark: 0 results
+get info time: 5.9604644775390625e-06
+related urls: 
+
+final result: 
+
+
+
+model: thudm/glm-4-9b-0414
+get more related urls time: 2.4187350273132324
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+get info time: 4.76837158203125e-06
+related urls: 
+https://www.jimei123.com/cn/series/mido-2025-collection
+final result: 
+
+
+
+model: qwen/qwen2.5-32b-instruct
+get more related urls time: 3.565680980682373
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 6.198883056640625e-06
+related urls: 
+
+final result: 
+
+
+
+raw materials: e0c0e6.json_processed.json
+
+model: thudm/glm-4-32b-0414
+get more related urls time: 6.352721929550171
+diff from benchmark: benchmark: 3 results
+get info time: 8.14560580253601
+related urls: 
+https://cg.shenzhenmc.com/zzbgg/index.jhtml
+https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+final result: 
+
+
+
+model: thudm/glm-4-9b-0414
+get more related urls time: 2.4878721237182617
+diff from benchmark: 差异1个(遗漏1个,多出0个)
+get info time: 0.8225719928741455
+related urls: 
+https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+final result: 
+
+
+
+model: qwen/qwen2.5-32b-instruct
+get more related urls time: 0.9860391616821289
+diff from benchmark: 差异3个(遗漏3个,多出0个)
+get info time: 1.1276860237121582
+related urls: 
+
+final result: 
+
+
+
+raw materials: f20cd6.json_processed.json
+
+model: thudm/glm-4-32b-0414
+get more related urls time: 13.265398025512695
+diff from benchmark: benchmark: 1 results
+get info time: 5.9604644775390625e-06
+related urls: 
+https://www.ynhr.com/article/cid/2.html
+final result: 
+
+
+
+model: thudm/glm-4-9b-0414
+get more related urls time: 6.022947072982788
+diff from benchmark: 差异7个(遗漏1个,多出6个)
+get info time: 3.0994415283203125e-06
+related urls: 
+https://www.ynhr.com/job/tag/136.html
+https://www.ynhr.com/job/33701.html
+https://www.ynhr.com/job/tag/143.html
+https://www.ynhr.com/job/33702.html
+https://www.ynhr.com/job/33699.html
+https://www.ynhr.com/job/tag/142.html
+final result: 
+
+
+
+model: qwen/qwen2.5-32b-instruct
+get more related urls time: 5.341907978057861
+diff from benchmark: 差异1个(遗漏1个,多出0个)
+get info time: 4.0531158447265625e-06
+related urls: 
+
+final result: 
+
+
+

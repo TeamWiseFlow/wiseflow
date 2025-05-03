@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from bs4 import BeautifulSoup
-import re
+import regex as re
 from crawl4ai import CrawlResult
 from .scraper_data import ScraperResultData
 

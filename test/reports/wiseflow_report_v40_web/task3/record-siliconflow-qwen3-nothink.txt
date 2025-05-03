@@ -1,0 +1,217 @@
+focus statement: 
+混凝土搅拌站在国内，海外的最新产品，市场，技术趋势
+注：（今天日期是2025-04-27）
+
+raw materials: 9692d0.json_processed.json
+
+model: Qwen/Qwen3-30B-A3B
+get more related urls time: 12.323482751846313
+diff from benchmark: benchmark: 0 results
+get info time: 2.218322277069092
+related urls: 
+
+final result: 
+
+
+
+model: Qwen/Qwen3-14B
+get more related urls time: 4.811322212219238
+diff from benchmark: 差异2个(遗漏0个,多出2个)
+get info time: 2.726077079772949
+related urls: 
+https://www.xcmg.com/product/pro-list.htm?catId=32204&erCatId=0&sanCatId=0
+https://www.xcmg.com/product/pro-list.htm?catId=32204
+final result: 
+
+
+
+raw materials: bc8410.json_processed.json
+
+model: Qwen/Qwen3-30B-A3B
+get more related urls time: 1.496769905090332
+diff from benchmark: benchmark: 0 results
+get info time: 2.3288638591766357
+related urls: 
+
+final result: 
+
+
+
+model: Qwen/Qwen3-14B
+get more related urls time: 1.2003068923950195
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 1.3599247932434082
+related urls: 
+
+final result: 
+
+
+
+raw materials: 6f6ceb.json_processed.json
+
+model: Qwen/Qwen3-30B-A3B
+get more related urls time: 2.660705089569092
+diff from benchmark: benchmark: 0 results
+get info time: 1.6781442165374756
+related urls: 
+
+final result: 
+
+
+
+model: Qwen/Qwen3-14B
+get more related urls time: 24.875460147857666
+diff from benchmark: 差异33个(遗漏0个,多出33个)
+get info time: 1.2072687149047852
+related urls: 
+https://www.stone365.com/news/info-4494731514477.html
+https://www.stone365.com/news/info-4459847042272.html
+https://www.stone365.com/news/info-4459822124867.html
+https://www.stone365.com/news/info-4349912791770.html
+https://www.stone365.com/news/info-4520449598702.html
+https://www.stone365.com/news/info-4520486442149.html
+https://www.stone365.com/news/info-4487711042425.html
+https://www.stone365.com/news/info-4434219286738.html
+https://www.stone365.com/news/info-4419014480030.html
+https://www.stone365.com/news/info-4425034380164.html
+https://www.stone365.com/news/info-4520498069854.html
+https://www.stone365.com/news/info-4416744295431.html
+https://www.stone365.com/news/info-4401289154783.html
+https://www.stone365.com/news/info-4358455615131.html
+https://www.stone365.com/news/info-4314367308736.html
+https://www.stone365.com/news/info-4434222254161.html
+https://www.stone365.com/news/info-4401311597268.html
+https://www.stone365.com/news/info-4358409946464.html
+https://www.stone365.com/news/info-4478409337003.html
+https://www.stone365.com/news/info-4401326305533.html
+https://www.stone365.com/news/info-4314356733887.html
+https://www.stone365.com/news/info-4545864644764.html
+https://www.stone365.com/news/info-4520481172448.html
+https://www.stone365.com/news/info-4545879514512.html
+https://www.stone365.com/news/info-4494736785148.html
+https://www.stone365.com/news/info-4426920820674.html
+https://www.stone365.com/news/info-4401272518604.html
+https://www.stone365.com/news/info-4358372579375.html
+https://www.stone365.com/news/info-4556727174024.html
+https://www.stone365.com/news/info-4545854832830.html
+https://www.stone365.com/news/info-4408075544753.html
+https://www.stone365.com/news/info-4338480740039.html
+https://www.stone365.com/news/info-4419026679969.html
+final result: 
+
+
+
+raw materials: 285ed1.json_processed.json
+
+model: Qwen/Qwen3-30B-A3B
+get more related urls time: 6.744783878326416
+diff from benchmark: benchmark: 1 results
+get info time: 6.452431917190552
+related urls: 
+https://www.liugong.com/news/20250403/
+final result: 
+
+
+
+model: Qwen/Qwen3-14B
+get more related urls time: 7.153429985046387
+diff from benchmark: 差异5个(遗漏1个,多出4个)
+get info time: 1.6488540172576904
+related urls: 
+https://www.liugong.com/success-case/20221016-2/
+https://www.liugong.com/concrete
+http://www.liugong.com/ins/quarry-aggregates/
+https://www.liugong.com/ins/quarry-aggregates/
+final result: 
+
+
+
+raw materials: a16266.json_processed.json
+
+model: Qwen/Qwen3-30B-A3B
+get more related urls time: 3.3849449157714844
+diff from benchmark: benchmark: 0 results
+get info time: 1.8391282558441162
+related urls: 
+
+final result: 
+
+
+
+model: Qwen/Qwen3-14B
+get more related urls time: 5.4980621337890625
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+get info time: 3.615773916244507
+related urls: 
+https://www.putzmeister.com/documents/20127/47239/EU_Slider_04_1700x450.jpg/67f5abb3-c5d6-b1da-0847-d213e125b21b?version=1.1&t=1596698521863
+final result: 
+Putzmeister has introduced the first fully electric iONTRON truck-mounted concrete pump with Volvo eTrucks, highlighting a shift towards electric and sustainable technologies in concrete pumping solutions [84]. Additionally, the company is showcasing its vision for affordable and sustainable housing and infrastructure [80]. There is also mention of 3D concrete printing gaining attention as a solution for construction process acceleration and addressing the shortage of skilled workers, as highlighted by the visit of Federal Minister Klara Geywitz to INSTATIQ at BAUMA 2025 [83]. However, no specific information about the latest products, market trends, or technological advancements related to concrete搅拌站 (batching plants) is provided in the text.
+
+
+raw materials: e2d679.json_processed.json
+
+model: Qwen/Qwen3-30B-A3B
+get more related urls time: 17.73595905303955
+diff from benchmark: benchmark: 1 results
+get info time: 4.0531158447265625e-06
+related urls: 
+https://www.zoomlion.com/content/details17_32024.html
+final result: 
+
+
+
+model: Qwen/Qwen3-14B
+get more related urls time: 14.63386607170105
+diff from benchmark: 差异3个(遗漏1个,多出2个)
+get info time: 6.198883056640625e-06
+related urls: 
+https://www.zoomlion.com/content/details17_31435.html
+https://www.zoomlion.com/product/cate_325.html
+final result: 
+
+
+
+raw materials: c5fd72.json_processed.json
+
+model: Qwen/Qwen3-30B-A3B
+get more related urls time: 3.352348804473877
+diff from benchmark: benchmark: 0 results
+get info time: 2.2667341232299805
+related urls: 
+
+final result: 
+
+
+
+model: Qwen/Qwen3-14B
+get more related urls time: 6.934817790985107
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+get info time: 1.4563658237457275
+related urls: 
+https://www.liebherr.com/en-hk/concrete-technology/concrete-technology-5231937
+final result: 
+
+
+
+raw materials: 9797c4.json_processed.json
+
+model: Qwen/Qwen3-30B-A3B
+get more related urls time: 7.6172120571136475
+diff from benchmark: benchmark: 0 results
+get info time: 1.4967169761657715
+related urls: 
+
+final result: 
+
+
+
+model: Qwen/Qwen3-14B
+get more related urls time: 7.584669828414917
+diff from benchmark: 差异1个(遗漏0个,多出1个)
+get info time: 1.423403024673462
+related urls: 
+https://www.komatsu.com/en/blog/2025/maximizing-efficiency-in-cement-and-aggregate-processing-with-komatsu-crushing-equipment/
+final result: 
+
+
+

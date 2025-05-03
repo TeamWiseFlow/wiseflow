@@ -2,17 +2,12 @@ LLM_API_KEY=""
 LLM_API_BASE="https://api.siliconflow.cn/v1"
 # LLM_API_BASE="https://open.bigmodel.cn/api/paas/v4/"
 JINA_API_KEY="" #for the search tool
-PRIMARY_MODEL="THUDM/GLM-4-9B-0414"
-# PRIMARY_MODEL="glm-z1-flash"
-# PRIMARY_MODEL="THUDM/GLM-4-32B-0414"
-# PRIMARY_MODEL="glm-4-air-250414"
-SECONDARY_MODEL="THUDM/GLM-Z1-9B-0414"
-# SECONDARY_MODEL="glm-4-flash-25041" 
-# SECONDARY_MODEL="THUDM/GLM-Z1-32B-0414"
-#use a secondary model to excute the filtering task for the cost saving
-#if not set, will use the primary model to excute the filtering task
+PRIMARY_MODEL="Qwen3-30B-A3B"
+# PRIMARY_MODEL="glm-4-flash-250414"  # free mode
+SECONDARY_MODEL="Qwen3-14B"
+# SECONDARY_MODEL="glm-4-flash-250414" # free model
 VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
-# VL_MODEL="glm-4v-flash"
+# VL_MODEL="glm-4v-flash" # free model
 PROJECT_DIR="work_dir"
 PB_API_AUTH="test@example.com|1234567890" ##your pb superuser account and password #no '&' in the password and at least 10 characters
 

@@ -1,0 +1,178 @@
+focus statement: 
+中国地区新建石材厂与石材设备采购信息
+注：仅限2025年之后的信息（今天日期是2025-04-27）
+
+raw materials: 6f6ceb.json_processed.json
+
+model: Qwen/Qwen3-30B-A3B
+get more related urls time: 17.852299690246582
+diff from benchmark: benchmark: 10 results
+get info time: 1.7927680015563965
+related urls: 
+https://www.stone365.com/news/info-4462184334100.html
+https://www.stone365.com/news/info-4459822124867.html
+https://www.stone365.com/news/info-4520498069854.html
+https://www.stone365.com/news/info-4358409946464.html
+https://www.stone365.com/news/info-4338480740039.html
+https://www.stone365.com/news/info-4419026679969.html
+https://www.stone365.com/news/info-4556727174024.html
+https://www.stone365.com/news/info-4434222254161.html
+https://www.stone365.com/news/info-4349912791770.html
+https://www.stone365.com/news/info-4358455615131.html
+final result: 
+
+
+
+model: Qwen/Qwen3-14B
+get more related urls time: 17.505627870559692
+diff from benchmark: 差异17个(遗漏0个,多出17个)
+get info time: 1.7760188579559326
+related urls: 
+https://www.stone365.com/news/info-4416744295431.html
+https://www.stone365.com/news/info-4462184334100.html
+https://www.stone365.com/news/info-4358372579375.html
+https://www.stone365.com/news/info-4358409946464.html
+https://www.stone365.com/news/info-4426920820674.html
+https://www.stone365.com/news/info-4434222254161.html
+https://www.stone365.com/news/info-4408081255624.html
+https://www.stone365.com/news/info-4349912791770.html
+https://www.stone365.com/news/info-4358455615131.html
+https://www.stone365.com/news/info-4338480740039.html
+https://www.stone365.com/news/info-4487731757760.html
+https://www.stone365.com/news/info-4487711042425.html
+https://www.stone365.com/news/info-4545879514512.html
+https://www.stone365.com/news/info-4520486442149.html
+https://www.stone365.com/news/info-4520498069854.html
+https://www.stone365.com/news/info-4434219286738.html
+https://www.stone365.com/news/info-4408075544753.html
+https://www.stone365.com/news/info-4419026679969.html
+https://www.stone365.com/news/info-4419014480030.html
+https://www.stone365.com/news/info-4401311597268.html
+https://www.stone365.com/news/info-4401289154783.html
+https://www.stone365.com/news/info-4459822124867.html
+https://www.stone365.com/news/info-4401326305533.html
+https://www.stone365.com/news/info-4401272518604.html
+https://www.stone365.com/news/info-4545864644764.html
+https://www.stone365.com/news/info-4556727174024.html
+https://www.stone365.com/news/info-4459847042272.html
+final result: 
+
+
+
+raw materials: 338f2f.json_processed.json
+
+model: Qwen/Qwen3-30B-A3B
+get more related urls time: 2.2496330738067627
+diff from benchmark: benchmark: 0 results
+get info time: 5.438966989517212
+related urls: 
+
+final result: 
+深圳建材2024-2025年度石材采购项目，项目编号为STJC-2024-WZ2742，采购方式为公开招标，采购控制价为折扣率96%。项目地址以甲方指定地点为准，采购范围为石材，投标截止时间为2025-01-13 09:00。招标人要求投标人具备独立法人资格，提供相关资质证明文件，且需满足业绩、信用等条件。投标保证金为50,000元。
+
+
+model: Qwen/Qwen3-14B
+get more related urls time: 5.629159927368164
+diff from benchmark: 差异3个(遗漏0个,多出3个)
+get info time: 5.277687072753906
+related urls: 
+https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+https://cg.shenzhenmc.com/zzzgg/index.jhtml
+https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+final result: 
+该项目为“深圳建材2024-2025年度石材采购项目”，项目编号为STJC-2024-WZ2742，采购方式为公开招标，招标人信息为深圳市建材交易集团有限公司，地址为广东省深圳市福田区地铁大厦。项目地址以甲方指定地点为准，采购控制价为96%，即投标人的报价不得高于或等于96%。投标保证金金额为50,000元。资格条件要求投标人必须是在中华人民共和国境内注册并具备独立法人资格的石材生产企业或其授权的销售公司，需提供有效的营业执照、安全生产许可证、国土资源局开办采矿证、环保测评相关证书等，并满足其他相关要求。文件获取时间为2024-12-23 15:30至2025-01-13 09:00，开标时间为2025-01-13 09:00，开标地点为地铁大厦一楼评定标中心。该项目不接受联合体投标，且投标人需满足多项资质条件，包括无重大失信和违法记录等。更多信息可访问深圳地铁智能招采管理平台。
+
+
+raw materials: 2d45cd.json_processed.json
+
+model: Qwen/Qwen3-30B-A3B
+get more related urls time: 3.5002150535583496
+diff from benchmark: benchmark: 0 results
+get info time: 4.67035698890686
+related urls: 
+
+final result: 
+
+
+
+model: Qwen/Qwen3-14B
+get more related urls time: 3.7399849891662598
+diff from benchmark: 差异0个(遗漏0个,多出0个)
+get info time: 11.878459930419922
+related urls: 
+
+final result: 
+福建省在2025年之后没有新建石材厂与石材设备采购信息。福建省存在石材加工企业环境管理粗放、污染治理水平低的问题，如宁德古田县、泉州市、宁德福鼎白琳石板材工业园和莆田市秀屿区平海镇等地区的石材厂和石材加工企业。这些企业普遍面临污染治理设施不完善、超标排放等问题，但相关整改工作已基本完成，且整改时限均在2017年至2018年之间，不涉及2025年之后的信息。因此，2025年之后的石材厂与石材设备采购信息为NA。
+
+
+raw materials: 3b6d96.json_processed.json
+
+model: Qwen/Qwen3-30B-A3B
+get more related urls time: 7.745025157928467
+diff from benchmark: benchmark: 3 results
+get info time: 6.198883056640625e-06
+related urls: 
+https://www.jimei123.com/cn/news/plate-information/4542.html
+https://www.jimei123.com/cn/news/plate-information/4543.html
+https://www.jimei123.com/cn/series/mido-2025-collection
+final result: 
+
+
+
+model: Qwen/Qwen3-14B
+get more related urls time: 4.951251983642578
+diff from benchmark: 差异3个(遗漏3个,多出0个)
+get info time: 8.106231689453125e-06
+related urls: 
+
+final result: 
+
+
+
+raw materials: e0c0e6.json_processed.json
+
+model: Qwen/Qwen3-30B-A3B
+get more related urls time: 4.913896083831787
+diff from benchmark: benchmark: 2 results
+get info time: 1.9073371887207031
+related urls: 
+https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+final result: 
+
+
+
+model: Qwen/Qwen3-14B
+get more related urls time: 1.778993844985962
+diff from benchmark: 差异1个(遗漏1个,多出0个)
+get info time: 1.4084367752075195
+related urls: 
+https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+final result: 
+
+
+
+raw materials: f20cd6.json_processed.json
+
+model: Qwen/Qwen3-30B-A3B
+get more related urls time: 14.870623111724854
+diff from benchmark: benchmark: 3 results
+get info time: 5.245208740234375e-06
+related urls: 
+https://www.ynhr.com/job/33674.html
+https://www.ynhr.com/job/33675.html
+https://www.ynhr.com/job/33676.html
+final result: 
+
+
+
+model: Qwen/Qwen3-14B
+get more related urls time: 18.374861001968384
+diff from benchmark: 差异4个(遗漏3个,多出1个)
+get info time: 6.9141387939453125e-06
+related urls: 
+https://www.ynhr.com/article.html
+final result: 
+
+
+
