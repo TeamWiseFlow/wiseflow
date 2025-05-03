@@ -7,7 +7,7 @@ by bigbrother666
 
 On April 30, 2025, Alibab released the new Qwen3 series...
 
-Full test on the latest real wiseflow samples... and with 'GLM-4-32B-0414' and DeepSeek-R1-Distill-Qwen-14B as the competitor.
+Full test on the latest real wiseflow samples... and with 'GLM-4-32B-0414' and DeepSeek-R1-Distill-Qwen-14B as compare.
 
 
 ## summary
@@ -27,13 +27,14 @@ Full test on the latest real wiseflow samples... and with 'GLM-4-32B-0414' and D
 
 ## conclusion
 
-|   | Qwen/Qwen3-14B | Qwen/Qwen3-30B-A3B | THUDM/GLM-4-32B-0414 | DeepSeek-R1-Distill-Qwen-14B |
+|   | Qwen/Qwen3-14B(think mode) | Qwen/Qwen3-30B-A3B(think mode) | THUDM/GLM-4-32B-0414 | DeepSeek-R1-Distill-Qwen-14B |
 |--------|--------------|--------------------|-----------------|------------------|
 | not good at get link task |40 | 49| 34 | 48 |
 | not good at get info task |1 | 1| 5| 7 |
 | total cost for test | 0.2937| 0.4331| 0.8419| ---- |
 | speed | normal | low | super-fast | low |
 
+* for Qwen3 series, no-think mode performance is not good, pls use think model.
 
 ## Detailed Test Results
 

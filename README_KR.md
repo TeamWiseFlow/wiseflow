@@ -11,19 +11,19 @@
 https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 
-## 🔥🔥🔥 축하드립니다, 다시 무료로 수석 정보 책임자를 사용할 수 있는 시기가 왔습니다!
+## 🔥🔥🔥 Qwen3 시리즈 호환성 보고서
 
-2025년 4월 14일, 즈푸는 새로운 Z1 시리즈 모델과 GLM-4-0414 시리즈 모델을 출시하고, 해당하는 32B와 9B의 오픈소스 버전을 공개했습니다. 같은 날 늦게, 실리콘플로우는 이러한 오픈소스 모델의 온라인 서비스를 시작했습니다.
+4월 30일, 많은 기대를 모았던 Qwen3 시리즈가 출시되었고, 우리는 휴일을 이용해 즉시 테스트를 진행했습니다.
 
-우리도 이러한 새로 출시된 모델을 처음으로 테스트했으며, 테스트 결과는 놀랍게도 좋았습니다. 현재 두 플랫폼에서 무료인 glm-z1-flash/GLM-Z1-9B-0414와 glm-4-flash-250414/GLM-4-9B-0414도 wiseflow가 다루는 추출과 요약 작업을 비교적 이상적으로 완료할 수 있습니다.
+우리는 주로 Qwen3-14B, Qwen3-30B-A3B를 테스트했으며, GLM-4-32B-0414, DeepSeek-R1-Distill-Qwen-14B와 비교했습니다. 매개변수가 32b를 초과하지 않는 모델만 선택한 이유는 wiseflow 작업이 상대적으로 단순하기 때문입니다. 더 큰 모델은 큰 개선을 가져오지 못하지만 사용 비용은 크게 증가시킵니다. (wiseflow 작업의 특징은 난이도는 낮지만 반복적인 호출이 필요하다는 점입니다).
 
-자세한 테스트 보고서는 [test/reports/wiseflow_report_v038_dp_bigbrother666/GLM_report_0416.md](./test/reports/wiseflow_report_v038_dp_bigbrother666/GLM_report_0416.md)를 참조하세요.
+최종 결론: **Qwen3-14B, Qwen3-30B-A3B는 think mode가 활성화된 경우 매우 추천할 만합니다!** 자세한 테스트 보고서는 [test/reports/wiseflow_report_v40_web/Qwen3_report_0502.md](./test/reports/wiseflow_report_v40_web/Qwen3_report_0502.md)를 참조하세요.
 
-위의 모델로 전환하려면 .env 파일의 LLM_API_KEY, LLM_API_BASE, PRIMARY_MODEL, SECONDARY_MODEL 설정만 변경하면 됩니다. (익숙하지 않은 분은 아래 설명을 참조하세요)
+이 테스트를 바탕으로(생성 속도와 비용 요소를 동시에 고려하여), wiseflow 사용에 있어서는 현재 Qwen3-30B-A3B를 primary model로, Qwen3-14B를 secondary model로 사용하는 것을 추천합니다.
 
-또한 9b 모델의 크기를 고려하면 로컬 배포도 적합합니다.
+로컬 배포이고 GPU 메모리가 제한된 경우, Qwen3-14B만 사용하는 것을 추천하며, 8bit 양자화 버전을 선택할 수 있습니다.
 
-동시에, 현재 사용 중인 즈푸 검색 솔루션이 영어 검색을 지원하지 않는 문제를 해결하기 위해 Jina 검색 솔루션으로 전환했습니다. 가격이 낮고, https://jina.ai/ 에 로그인만 하면 API를 얻을 수 있습니다 (등록 불필요, 개인 사용에는 충분한 할당량과 동시성 제공).
+물론 무료 모델을 계속 사용하여 "제로 코스트"로 운영할 수도 있습니다. 이를 위해 저는 Zhipu 플랫폼의 glm-4-flash-250414를 강력히 추천합니다.
 
 ### 설정을 하고 싶지 않은 분들도 **wiseflow** 온라인 서비스를 이용하실 수 있습니다. 배포나 설정이 필요 없고, 각종 키를 추가로 신청할 필요 없이, 가입만으로 사용 가능합니다!
 
@@ -35,8 +35,8 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 ## 🌟 지난 두 주간 추가된 기여자
 
-  - @zhudongwork PR #354
-  - @cdxiaodong PR #357
+  - @zhudongwork PR #360 [replace re with regex library for better performance]
+  - @beat4ocean PR #361 [update docker base image to improve for playwright]
 
 
 ## 🧐 '딥 서치(deep search)' VS '와이드 서치(wide search)'
@@ -110,13 +110,10 @@ Siliconflow는 대부분의 주류 오픈소스 모델에 대한 온라인 MaaS 
 
 ```
 LLM_API_KEY=Your_API_KEY
-LLM_API_BASE="https://api.siliconflow.cn/v1" # bigmodels https://open.bigmodel.cn/api/paas/v4/ 
-PRIMARY_MODEL="THUDM/GLM-4-9B-0414"  # for better performance THUDM/GLM-4-32B-0414
-# bigmodel glm-z1-flash / better performance: glm-4-air-250414
-SECONDARY_MODEL="THUDM/GLM-Z1-9B-0414" # for better performance THUDM/GLM-Z1-32B-0414
-# bigmodel glm-4-flash-250414
+LLM_API_BASE="https://api.siliconflow.cn/v1"
+PRIMARY_MODEL="Qwen3-30B-A3B"
+SECONDARY_MODEL="Qwen3-14B"
 VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
-# bigmodel glm-4v-flash (free now)
 PROJECT_DIR="work_dir"
 ```
       
@@ -267,13 +264,10 @@ cp env_docker .env
 
 ```bash
 LLM_API_KEY=Your_API_KEY
-LLM_API_BASE="https://api.siliconflow.cn/v1" # bigmodels https://open.bigmodel.cn/api/paas/v4/ 
-PRIMARY_MODEL="THUDM/GLM-4-9B-0414"  # for better performance THUDM/GLM-4-32B-0414
-# bigmodel glm-z1-flash / better performance: glm-4-air-250414
-SECONDARY_MODEL="THUDM/GLM-Z1-9B-0414" # for better performance THUDM/GLM-Z1-32B-0414
-# bigmodel glm-4-flash-250414
+LLM_API_BASE="https://api.siliconflow.cn/v1"
+PRIMARY_MODEL="Qwen3-30B-A3B"
+SECONDARY_MODEL="Qwen3-14B"
 VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
-# bigmodel glm-4v-flash (free now)
 PB_SUPERUSER_EMAIL="test@example.com"
 PB_SUPERUSER_PASSWORD="1234567890" #no '&' in the password and at least 10 characters
 ```

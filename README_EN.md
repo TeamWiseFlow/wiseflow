@@ -10,21 +10,23 @@ What we lack is not information, but the ability to filter out noise from massiv
 
 https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
-## 🔥🔥🔥 Cheers Everyone, it's time to use the Wiseflow at zero cost again!
+## 🔥🔥🔥 Qwen3 Series Compatibility Report
 
-On April 14, 2025, Zhipu released the new Z1 series models and GLM-4-0414 series models, and released the corresponding 32B and 9B open-source versions. Later that day, Siliconflow launched online services for these open-source models.
+On April 30th, the highly anticipated Qwen3 series was released, and we conducted tests immediately during the holiday.
 
-We also tested these newly released models in the first time, and the test results were pleasantly surprising. Even the currently free models glm-z1-flash/GLM-Z1-9B-0414 and glm-4-flash-250414/GLM-4-9B-0414 can complete the extraction and summarization tasks involved in wiseflow quite well.
+We primarily tested Qwen3-14B and Qwen3-30B-A3B, comparing them with GLM-4-32B-0414 and DeepSeek-R1-Distill-Qwen-14B. We chose models with parameters not exceeding 32b because Wiseflow tasks are relatively simple - larger models don't bring significant improvements but would greatly increase usage costs. (Wiseflow tasks are characterized by low difficulty but require frequent calls).
 
-For detailed test reports, please see [test/reports/wiseflow_report_v038_dp_bigbrother666/GLM_report_0416.md](./test/reports/wiseflow_report_v038_dp_bigbrother666/GLM_report_0416.md)
+The final conclusion: **Qwen3-14B and Qwen3-30B-A3B are highly recommended when think mode is enabled!** For detailed test reports, please see [test/reports/wiseflow_report_v40_web/Qwen3_report_0502.md](./test/reports/wiseflow_report_v40_web/Qwen3_report_0502.md)
 
-If you want to switch to using the above models, you only need to change the LLM_API_KEY, LLM_API_BASE, PRIMARY_MODEL, and SECONDARY_MODEL configurations in the .env file. (If you're not familiar with this, please see the description below)
+Based on these tests (considering both generation speed and cost factors), for Wiseflow usage, we currently recommend using Qwen3-30B-A3B as the primary model and Qwen3-14B as the secondary model.
 
-Also, considering the size of the 9B model, local deployment is actually quite suitable.
+For local deployment with limited GPU memory, we recommend using only Qwen3-14B, and you can choose the 8bit quantized version.
 
-At the same time, to address the issue that the current Zhipu search solution doesn't support English search, we've switched to using the Jina search solution, which has lower prices. You can log in to https://jina.ai/ to get an API without registration (the free quota and concurrency should be enough for personal use).
+Of course, you can also continue to use free models for "zero-cost" operation. For this, we strongly recommend the glm-4-flash-250414 from the Zhipu platform.
 
-### If you don't want to bother with setup, you're also welcome to use the **Wiseflow** online service, which requires no deployment or setup, no need to apply for various keys, just register to use!
+### If you don't want to bother with setup, you're also welcome to use the **Wiseflow** online service
+
+which requires no deployment or setup, no need to apply for various keys, just register to use!
 
 Online experience address: https://www.aiqingbaoguan.com/ 
 
@@ -34,8 +36,8 @@ Currently, registration gives you 15 computing points (each focus point consumes
 
 ## 🌟 New contributors in the past two weeks
 
-  - @zhudongwork PR #354
-  - @cdxiaodong PR #357
+  - @zhudongwork PR #360 [replace re with regex library for better performance]
+  - @beat4ocean PR #361 [update docker base image to improve for playwright]
 
 
 ## 🧐 'Deep Search' VS 'Wide Search'
@@ -109,13 +111,10 @@ Siliconflow provides online MaaS services for most mainstream open-source models
 
 ```
 LLM_API_KEY=Your_API_KEY
-LLM_API_BASE="https://api.siliconflow.cn/v1" # bigmodels https://open.bigmodel.cn/api/paas/v4/ 
-PRIMARY_MODEL="THUDM/GLM-4-9B-0414"  # for better performance THUDM/GLM-4-32B-0414
-# bigmodel glm-z1-flash / better performance: glm-4-air-250414
-SECONDARY_MODEL="THUDM/GLM-Z1-9B-0414" # for better performance THUDM/GLM-Z1-32B-0414
-# bigmodel glm-4-flash-250414
+LLM_API_BASE="https://api.siliconflow.cn/v1"
+PRIMARY_MODEL="Qwen3-30B-A3B"
+SECONDARY_MODEL="Qwen3-14B"
 VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
-# bigmodel glm-4v-flash (free now)
 PROJECT_DIR="work_dir"
 ```
       
@@ -264,13 +263,10 @@ The following environment variables must be modified as needed:
 
 ```bash
 LLM_API_KEY=Your_API_KEY
-LLM_API_BASE="https://api.siliconflow.cn/v1" # bigmodels https://open.bigmodel.cn/api/paas/v4/ 
-PRIMARY_MODEL="THUDM/GLM-4-9B-0414"  # for better performance THUDM/GLM-4-32B-0414
-# bigmodel glm-z1-flash / better performance: glm-4-air-250414
-SECONDARY_MODEL="THUDM/GLM-Z1-9B-0414" # for better performance THUDM/GLM-Z1-32B-0414
-# bigmodel glm-4-flash-250414
+LLM_API_BASE="https://api.siliconflow.cn/v1"
+PRIMARY_MODEL="Qwen3-30B-A3B"
+SECONDARY_MODEL="Qwen3-14B"
 VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
-# bigmodel glm-4v-flash (free now)
 PB_SUPERUSER_EMAIL="test@example.com"
 PB_SUPERUSER_PASSWORD="1234567890" #no '&' in the password and at least 10 characters
 ```
