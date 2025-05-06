@@ -5,8 +5,8 @@ env_path = Path(__file__).parent / '.env'
 if env_path.exists():
     load_dotenv(env_path)
 
-import logging
-logging.getLogger("httpx").setLevel(logging.WARNING)
+# import logging
+# logging.getLogger("httpx").setLevel(logging.WARNING)
 
 import asyncio
 from general_process import main_process, wiseflow_logger, pb
