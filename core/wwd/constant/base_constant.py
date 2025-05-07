@@ -13,3 +13,8 @@
 
 KUAISHOU_PLATFORM_NAME = 'ks'
 WEIBO_PLATFORM_NAME = 'wb'
+
+PLATFORM_LOGIN_URLS = {
+    KUAISHOU_PLATFORM_NAME: 'https://www.kuaishou.com/',
+    WEIBO_PLATFORM_NAME: 'https://m.weibo.cn/',
+}

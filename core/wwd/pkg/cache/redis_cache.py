@@ -15,8 +15,8 @@ from typing import Any, List
 
 from redis import Redis
 
-from config import db_config
-from pkg.cache.abs_cache import AbstractCache
+from wwd.config import db_config
+from .abs_cache import AbstractCache
 
 
 class RedisCache(AbstractCache):

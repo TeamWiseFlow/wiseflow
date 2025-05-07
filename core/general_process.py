@@ -11,7 +11,7 @@ from datetime import datetime
 import feedparser
 
 
-project_dir = os.environ.get("PROJECT_DIR", "")
+project_dir = os.environ.get("PROJECT_DIR", "work_dir")
 if project_dir:
     os.makedirs(project_dir, exist_ok=True)
 

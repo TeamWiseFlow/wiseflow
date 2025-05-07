@@ -9,16 +9,9 @@
 # 使用本代码即表示您同意遵守上述原则和LICENSE中的所有条款。  
 
 
-import os
+from contextvars import ContextVar
 
 
-# redis config
-REDIS_DB_HOST = os.getenv("REDIS_DB_HOST", "127.0.0.1")  # your redis host
-REDIS_DB_PWD = os.getenv("REDIS_DB_PWD", "")  # your redis password
-REDIS_DB_PORT = os.getenv("REDIS_DB_PORT", 6379)  # your redis port
-REDIS_DB_NUM = os.getenv("REDIS_DB_NUM", 0)  # your redis db num
-
-# cache type
-CACHE_TYPE_REDIS = "redis"
-CACHE_TYPE_MEMORY = "memory"
-USE_CACHE_TYPE = CACHE_TYPE_REDIS # 请使用 redis 作为缓存，因为这样不会浪费代理IP，本地换成如果程序重启，代理IP就会丢失
+request_keyword_var: ContextVar[str] = ContextVar("request_keyword", default="")
+crawler_type_var: ContextVar[str] = ContextVar("crawler_type", default="")
+source_keyword_var: ContextVar[str] = ContextVar("source_keyword", default="")

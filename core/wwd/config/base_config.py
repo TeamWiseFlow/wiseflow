@@ -13,10 +13,9 @@
 import os
 from typing import List
 
-from constant import MYSQL_ACCOUNT_SAVE, EXCEL_ACCOUNT_SAVE
 
-PLATFORM = "ks"
-KEYWORDS = "浦东小升初2025"
+PLATFORM = "wb"
+KEYWORDS = "浦东 小升初 2025"
 
 # 具体值参见media_platform.xxx.field下的枚举值，暂时只支持小红书
 SORT_TYPE = "popularity_descending"
@@ -27,9 +26,6 @@ CRAWLER_TYPE = "search"  # 爬取类型，search(关键词搜索) | detail(帖�
 
 # 数据保存类型选项配置,支持三种类型：csv、db、json
 SAVE_DATA_OPTION = "json"  # csv or db or json
-
-# 账号池保存类型选项配置,支持2种类型：xlsx、mysql
-ACCOUNT_POOL_SAVE_TYPE = os.getenv("ACCOUNT_POOL_SAVE_TYPE", EXCEL_ACCOUNT_SAVE)
 
 # 爬取开始页数 默认从第一页开始
 START_PAGE = 1
@@ -50,7 +46,8 @@ ENABLE_GET_SUB_COMMENTS = False
 PER_NOTE_MAX_COMMENTS_COUNT = 0
 
 # 是否开启日志打印输出到文件中
-ENABLE_LOG_FILE = True
+COER_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+WORK_DIR = os.path.join(COER_DIR, "work_dir")
 
 # 已废弃⚠️⚠️⚠️指定小红书需要爬虫的笔记ID列表
 # 已废弃⚠️⚠️⚠️ 指定笔记ID笔记列表会因为缺少xsec_token和xsec_source参数导致爬取失败

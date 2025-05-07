@@ -15,10 +15,10 @@ from typing import Dict, List
 import httpx
 from pydantic import BaseModel, Field
 
-import config
-from pkg.proxy import IpCache, IpInfoModel, ProxyProvider
-from pkg.proxy.types import ProviderNameEnum
-from pkg.tools import utils
+import wwd.config as config
+from wwd.pkg.proxy import IpCache, IpInfoModel, ProxyProvider
+from wwd.pkg.proxy.types import ProviderNameEnum
+from wwd.pkg.tools import utils
 
 # 快代理的IP代理过期时间向前推移5秒
 DELTA_EXPIRED_SECOND = 5

@@ -13,7 +13,7 @@ Full test on the latest real wiseflow samples... and with 'GLM-4-32B-0414' and D
 ## summary
 
 - task number: 5
-- sample number: 9
+- sample number: 27
 - involved models: ['Qwen/Qwen3-14B', 'Qwen/Qwen3-30B-A3B', 'THUDM/GLM-4-32B-0414', 'DeepSeek-R1-Distill-Qwen-14B']
 - model provider: siliconflow api
 

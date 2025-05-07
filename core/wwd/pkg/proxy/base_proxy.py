@@ -13,9 +13,9 @@ import json
 from abc import ABC, abstractmethod
 from typing import List
 
-import config
-from pkg.cache.abs_cache import AbstractCache
-from pkg.cache.cache_factory import CacheFactory
+import wwd.config as config
+from wwd.pkg.cache.abs_cache import AbstractCache
+from wwd.pkg.cache.cache_factory import CacheFactory
 
 from ..tools import utils
 from .types import IpInfoModel

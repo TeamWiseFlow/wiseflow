@@ -11,4 +11,3 @@ pb/pocketbase
 work_dir
 test/webpage_samples/
 /docker
-core/test_account_pool.py

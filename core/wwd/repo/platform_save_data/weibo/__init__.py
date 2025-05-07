@@ -12,8 +12,8 @@
 import re
 from typing import List
 
-import config
-from var import source_keyword_var
+import wwd.config as config
+from wwd.var import source_keyword_var
 
 from .weibo_store_impl import *
 
@@ -21,7 +21,6 @@ from .weibo_store_impl import *
 class WeibostoreFactory:
     STORES = {
         "csv": WeiboCsvStoreImplement,
-        "db": WeiboDbStoreImplement,
         "json": WeiboJsonStoreImplement,
     }
 

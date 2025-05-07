@@ -14,8 +14,8 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-import constant
-from pkg.proxy.types import IpInfoModel
+import wwd.constant as constant
+from wwd.pkg.proxy.types import IpInfoModel
 
 
 class AccountStatusEnum(Enum):
@@ -30,13 +30,13 @@ class AccountPlatfromEnum(Enum):
     """
     account platform enum
     """
-    XHS = constant.XHS_PLATFORM_NAME
+    # XHS = constant.XHS_PLATFORM_NAME
     WEIBO = constant.WEIBO_PLATFORM_NAME
-    DOUYIN = constant.DOUYIN_PLATFORM_NAME
+    # DOUYIN = constant.DOUYIN_PLATFORM_NAME
     KUAISHOU = constant.KUAISHOU_PLATFORM_NAME
-    BILIBILI = constant.BILIBILI_PLATFORM_NAME
-    TIEBA = constant.TIEBA_PLATFORM_NAME
-    ZHIHU = constant.ZHIHU_PLATFORM_NAME
+    # BILIBILI = constant.BILIBILI_PLATFORM_NAME
+    # TIEBA = constant.TIEBA_PLATFORM_NAME
+    # ZHIHU = constant.ZHIHU_PLATFORM_NAME
 
 
 class AccountInfoModel(BaseModel):
@@ -49,7 +49,8 @@ class AccountInfoModel(BaseModel):
     platform_name: AccountPlatfromEnum = Field("", title="platform name")
     status: AccountStatusEnum = Field(AccountStatusEnum.NORMAL.value, title="account status, 0: normal, -1: invalid")
     invalid_timestamp: int = Field(0, title="account invalid timestamp")
-
+    user_agent: str = Field("", title="account user agent")
+    
     def __repr__(self):
         # Customize how the instance is represented
         # Hide cookies but show the first 5 characters
@@ -59,7 +60,8 @@ class AccountInfoModel(BaseModel):
                 f"cookies='{cookies_preview}', "
                 f"platform_name={self.platform_name.value}, "
                 f"status={self.status.value}, "
-                f"invalid_timestamp={self.invalid_timestamp})")
+                f"invalid_timestamp={self.invalid_timestamp}, "
+                f"user_agent='{self.user_agent}')")
 
     def __str__(self):
         # Custom __str__ method for other usages
@@ -83,6 +85,7 @@ if __name__ == '__main__':
         cookies="account_cookies_test_1",
         status=AccountStatusEnum.NORMAL,
         invalid_timestamp=0,
+        user_agent="user_agent_test_1",
         platform_name=AccountPlatfromEnum.XHS
     )
     print(aim)

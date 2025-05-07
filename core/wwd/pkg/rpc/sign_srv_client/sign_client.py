@@ -15,8 +15,8 @@ from typing import Any, Dict, Union
 
 import aiohttp
 
-import config
-from pkg.rpc.sign_srv_client.sign_model import (BilibliSignRequest,
+import wwd.config as config
+from wwd.pkg.rpc.sign_srv_client.sign_model import (BilibliSignRequest,
                                                 BilibliSignResponse,
                                                 DouyinSignRequest,
                                                 DouyinSignResponse,
@@ -24,7 +24,7 @@ from pkg.rpc.sign_srv_client.sign_model import (BilibliSignRequest,
                                                 XhsSignResponse,
                                                 ZhihuSignRequest,
                                                 ZhihuSignResponse)
-from pkg.tools import utils
+from wwd.pkg.tools import utils
 
 SIGN_SERVER_URL = f"http://{config.SIGN_SRV_HOST}:{config.SIGN_SRV_PORT}"
 

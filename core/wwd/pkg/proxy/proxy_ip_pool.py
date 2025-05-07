@@ -14,9 +14,9 @@ from typing import Dict, List
 import httpx
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-import config
-from pkg.proxy.providers import new_kuai_daili_proxy
-from pkg.tools import utils
+import wwd.config as config
+from .providers import new_kuai_daili_proxy
+from wwd.pkg.tools import utils
 
 from .base_proxy import ProxyProvider
 from .types import IpInfoModel, ProviderNameEnum

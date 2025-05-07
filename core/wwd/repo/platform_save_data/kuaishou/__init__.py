@@ -11,16 +11,14 @@
 
 from typing import List
 
-import config
-from var import source_keyword_var
-
+import wwd.config as config
+from wwd.var import source_keyword_var
 from .kuaishou_store_impl import *
 
 
 class KuaishouStoreFactory:
     STORES = {
         "csv": KuaishouCsvStoreImplement,
-        "db": KuaishouDbStoreImplement,
         "json": KuaishouJsonStoreImplement,
     }
 

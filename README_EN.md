@@ -24,16 +24,6 @@ For local deployment with limited GPU memory, we recommend using only Qwen3-14B,
 
 Of course, you can also continue to use free models for "zero-cost" operation. For this, we strongly recommend the glm-4-flash-250414 from the Zhipu platform.
 
-### If you don't want to bother with setup, you're also welcome to use the **Wiseflow** online service
-
-which requires no deployment or setup, no need to apply for various keys, just register to use!
-
-Online experience address: https://www.aiqingbaoguan.com/ 
-
-Currently, registration gives you 15 computing points (each focus point consumes 1 point per day, regardless of the number of information sources).
-
-*The online server is built on Alibaba Cloud, and access to websites outside mainland China is restricted. Additionally, the online service currently does not support WeChat official accounts. If your sources primarily consist of these two types, we recommend using the open-source version to deploy yourself.*
-
 ## 🌟 New contributors in the past two weeks
 
   - @zhudongwork PR #360 [replace re with regex library for better performance]
