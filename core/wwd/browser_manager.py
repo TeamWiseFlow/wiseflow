@@ -1,3 +1,6 @@
+# main change from bigbrother666sh: only use local real browser... no chromium, onlye your own browser
+# 2025-05-09
+
 import asyncio
 import time
 from typing import List, Optional
@@ -12,7 +15,8 @@ from .js_snippet import load_js_script
 from .config import DOWNLOAD_PAGE_TIMEOUT
 from .async_configs import BrowserConfig, CrawlerRunConfig
 from playwright_stealth import StealthConfig
-from .utils import get_chromium_path
+from .utils import free_port
+
 
 stealth_config = StealthConfig(
     webdriver=True,
@@ -136,8 +140,8 @@ class ManagedBrowser:
         user_data_dir: Optional[str] = None,
         headless: bool = False,
         logger=None,
-        host: str = "localhost",
-        debugging_port: int = 9222,
+        host: str = "127.0.0.1",
+        debugging_port: int = free_port(),
         cdp_url: Optional[str] = None, 
         browser_config: Optional[BrowserConfig] = None,
     ):
@@ -162,7 +166,7 @@ class ManagedBrowser:
         self.headless = browser_config.headless
         self.browser_process = None
         self.temp_dir = None
-        self.debugging_port = browser_config.debugging_port
+        self.debugging_port = debugging_port
         self.host = browser_config.host
         self.logger = logger
         self.shutting_down = False
@@ -321,32 +325,22 @@ class ManagedBrowser:
         return paths.get(self.browser_type)
 
     async def _get_browser_path(self) -> str:
-        browser_path = await get_chromium_path(self.browser_type)
+        # browser_path = await get_chromium_path(self.browser_type)
+        browser_path = self._get_browser_path_WIP()
         return browser_path
 
     async def _get_browser_args(self) -> List[str]:
         """Returns full CLI args for launching the browser"""
         base = [await self._get_browser_path()]
-        if self.browser_type == "chromium":
-            flags = [
-                f"--remote-debugging-port={self.debugging_port}",
-                f"--user-data-dir={self.user_data_dir}",
-            ]
-            if self.headless:
-                flags.append("--headless=new")
-            # merge common launch flags
-            flags.extend(self.build_browser_flags(self.browser_config))
-        elif self.browser_type == "firefox":
-            flags = [
-                "--remote-debugging-port",
-                str(self.debugging_port),
-                "--profile",
-                self.user_data_dir,
-            ]
-            if self.headless:
-                flags.append("--headless")
-        else:
-            raise NotImplementedError(f"Browser type {self.browser_type} not supported")
+        flags = [
+            f"--remote-debugging-port={self.debugging_port}",
+            f"--user-data-dir={self.user_data_dir}",
+        ]
+        if self.headless:
+            flags.append("--headless=new")
+        # merge common launch flags
+        flags.extend(self.build_browser_flags(self.browser_config))
+
         return base + flags
 
     async def cleanup(self):
@@ -519,17 +513,15 @@ class BrowserManager:
         self.contexts_by_config = {}
         self._contexts_lock = asyncio.Lock() 
 
-        # Initialize ManagedBrowser if needed
-        if self.config.use_managed_browser:
-            self.managed_browser = ManagedBrowser(
-                browser_type=self.config.browser_type,
-                user_data_dir=self.config.user_data_dir,
-                headless=self.config.headless,
-                logger=self.logger,
-                debugging_port=self.config.debugging_port,
-                cdp_url=self.config.cdp_url,
-                browser_config=self.config,
-            )
+        self.managed_browser = ManagedBrowser(
+            browser_type=self.config.browser_type,
+            user_data_dir=self.config.user_data_dir,
+            headless=self.config.headless,
+            logger=self.logger,
+            debugging_port=self.config.debugging_port,
+            cdp_url=self.config.cdp_url,
+            browser_config=self.config,
+        )
 
     async def start(self):
         """
@@ -550,29 +542,17 @@ class BrowserManager:
 
         self.playwright = await async_playwright().start()
 
-        if self.config.cdp_url or self.config.use_managed_browser:
-            self.config.use_managed_browser = True
-            cdp_url = await self.managed_browser.start() if not self.config.cdp_url else self.config.cdp_url
-            self.browser = await self.playwright.chromium.connect_over_cdp(cdp_url)
-            contexts = self.browser.contexts
-            if contexts:
-                self.default_context = contexts[0]
-            else:
-                self.default_context = await self.create_browser_context()
-            await self.setup_context(self.default_context)
+        # force to use builtin model
+        self.config.use_managed_browser = True
+        cdp_url = await self.managed_browser.start() if not self.config.cdp_url else self.config.cdp_url
+        self.browser = await self.playwright.chromium.connect_over_cdp(cdp_url)
+        contexts = self.browser.contexts
+        if contexts:
+            self.default_context = contexts[0]
         else:
-            browser_args = self._build_browser_args()
+            self.default_context = await self.create_browser_context()
 
-            # Launch appropriate browser type
-            if self.config.browser_type == "firefox":
-                self.browser = await self.playwright.firefox.launch(**browser_args)
-            elif self.config.browser_type == "webkit":
-                self.browser = await self.playwright.webkit.launch(**browser_args)
-            else:
-                self.browser = await self.playwright.chromium.launch(**browser_args)
-
-            self.default_context = self.browser
-
+        await self.setup_context(self.default_context)
 
     def _build_browser_args(self) -> dict:
         """Build browser launch arguments from config."""
@@ -654,25 +634,7 @@ class BrowserManager:
         is_default=False,
     ):
         """
-        Set up a browser context with the configured options.
-
-        How it works:
-        1. Set extra HTTP headers if provided.
-        2. Add cookies if provided.
-        3. Load storage state if provided.
-        4. Accept downloads if enabled.
-        5. Set default timeouts for navigation and download.
-        6. Set user agent if provided.
-        7. Set browser hints if provided.
-        8. Set proxy if provided.
-        9. Set downloads path if provided.
-        10. Set storage state if provided.
-        11. Set cache if provided.
-        12. Set extra HTTP headers if provided.
-        13. Add cookies if provided.
-        14. Set default timeouts for navigation and download if enabled.
-        15. Set user agent if provided.
-        16. Set browser hints if provided.
+        Set up a browser context with the configured options for local Chrome browser.
 
         Args:
             context (BrowserContext): The browser context to set up
@@ -680,12 +642,10 @@ class BrowserManager:
             is_default (bool): Flag indicating if this is the default context
         Returns:
             None
-        """
+        """ 
+
         if self.config.headers:
             await context.set_extra_http_headers(self.config.headers)
-
-        if self.config.cookies:
-            await context.add_cookies(self.config.cookies)
 
         if self.config.storage_state:
             await context.storage_state(path=None)
@@ -708,27 +668,7 @@ class BrowserManager:
             combined_headers.update(self.config.headers)
             await context.set_extra_http_headers(combined_headers)
 
-        # Add default cookie
-        await context.add_cookies(
-            [
-                {
-                    "name": "cookiesEnabled",
-                    "value": "true",
-                    "url": crawlerRunConfig.url
-                    if crawlerRunConfig and crawlerRunConfig.url
-                    else "https://crawl4ai.com/",
-                }
-            ]
-        )
-
-        # Handle navigator overrides
-        if crawlerRunConfig:
-            if (
-                crawlerRunConfig.override_navigator
-                or crawlerRunConfig.simulate_user
-                or crawlerRunConfig.magic
-            ):
-                await context.add_init_script(load_js_script("navigator_overrider"))        
+        await context.add_init_script(load_js_script("navigator_overrider"))        
 
     async def create_browser_context(self, crawlerRunConfig: CrawlerRunConfig = None):
         """
@@ -917,26 +857,11 @@ class BrowserManager:
             return page, context
 
         # If using a managed browser, just grab the shared default_context
-        if self.config.use_managed_browser:
-            context = self.default_context
-            pages = context.pages
-            page = next((p for p in pages if p.url == crawlerRunConfig.url), None)
-            if not page:
-                page = await context.new_page()
-        else:
-            # Otherwise, check if we have an existing context for this config
-            config_signature = self._make_config_signature(crawlerRunConfig)
-
-            async with self._contexts_lock:
-                if config_signature in self.contexts_by_config:
-                    context = self.contexts_by_config[config_signature]
-                else:
-                    # Create and setup a new context
-                    context = await self.create_browser_context(crawlerRunConfig)
-                    await self.setup_context(context, crawlerRunConfig)
-                    self.contexts_by_config[config_signature] = context
-
-            # Create a new page from the chosen context
+        # wiseflow only use managed browser
+        context = self.default_context
+        pages = context.pages
+        page = next((p for p in pages if p.url == crawlerRunConfig.url), None)
+        if not page:
             page = await context.new_page()
 
         # If a session_id is specified, store this session so we can reuse later
