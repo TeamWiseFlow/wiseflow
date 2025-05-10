@@ -12,7 +12,6 @@ from .config import (
     SOCIAL_MEDIA_DOMAINS,
 )
 
-from .user_agent_generator import UAGen, ValidUAGenerator  # , OnlineUAGenerator
 from .extraction_strategy import ExtractionStrategy, LLMExtractionStrategy
 from .chunking_strategy import ChunkingStrategy, RegexChunking
 
@@ -412,12 +411,7 @@ class BrowserConfig:
         verbose: bool = True,
         cookies: list = None,
         headers: dict = None,
-        user_agent: str = (
-            # "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) AppleWebKit/537.36 "
-            # "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
-            # "(KHTML, like Gecko) Chrome/116.0.5845.187 Safari/604.1 Edg/117.0.2045.47"
-            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/116.0.0.0 Safari/537.36"
-        ),
+        user_agent: str = "",
         user_agent_mode: str = "",
         user_agent_generator_config: dict = {},
         text_mode: bool = False,
@@ -440,8 +434,6 @@ class BrowserConfig:
             self.chrome_channel = ""
         self.proxy = proxy
         self.proxy_config = proxy_config
-
-
         self.viewport_width = viewport_width
         self.viewport_height = viewport_height
         self.viewport = viewport
@@ -466,33 +458,7 @@ class BrowserConfig:
         self.debugging_port = debugging_port
         self.host = host
 
-        fa_user_agenr_generator = ValidUAGenerator()
-        if self.user_agent_mode == "random":
-            self.user_agent = fa_user_agenr_generator.generate(
-                **(self.user_agent_generator_config or {})
-            )
-        else:
-            pass
-
-        self.browser_hint = UAGen.generate_client_hints(self.user_agent)
-        self.headers.setdefault("sec-ch-ua", self.browser_hint)
-
-        # Set appropriate browser management flags based on browser_mode
-        if self.browser_mode == "builtin":
-            # Builtin mode uses managed browser connecting to builtin CDP endpoint
-            self.use_managed_browser = True
-            # cdp_url will be set later by browser_manager
-        elif self.browser_mode == "docker":
-            # Docker mode uses managed browser with CDP to connect to browser in container
-            self.use_managed_browser = True
-            # cdp_url will be set later by docker browser strategy
-        elif self.browser_mode == "custom" and self.cdp_url:
-            # Custom mode with explicit CDP URL
-            self.use_managed_browser = True
-        elif self.browser_mode == "dedicated":
-            # Dedicated mode uses a new browser instance each time
-            pass
-
+        self.use_managed_browser = True
         # If persistent context is requested, ensure managed browser is enabled
         if self.use_persistent_context:
             self.use_managed_browser = True
