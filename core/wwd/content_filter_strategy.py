@@ -16,7 +16,7 @@ from .utils import (
     extract_xml_data,
     merge_chunks,
 )
-from .types import LLMConfig
+from .wwd_types import LLMConfig
 from .config import DEFAULT_PROVIDER, OVERLAP_RATE, WORD_TOKEN_RATE
 from abc import ABC, abstractmethod
 import math

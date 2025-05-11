@@ -17,7 +17,7 @@ from .field import AccountInfoModel, AccountStatusEnum, AccountWithIpModel
 from wwd.pkg.proxy import IpInfoModel
 from wwd.pkg.proxy.proxy_ip_pool import ProxyIpPool
 from wwd.pkg.tools import utils
-from .cookie_exporter import CookieExporter
+from wwd.nodriver_helper import CookieExporter
 
 
 class AccountPoolManager:

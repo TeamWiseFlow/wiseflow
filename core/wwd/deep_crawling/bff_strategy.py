@@ -10,7 +10,7 @@ from .filters import FilterChain
 from .scorers import URLScorer
 from . import DeepCrawlStrategy
 
-from ..types import AsyncWebCrawler, CrawlerRunConfig, CrawlResult, RunManyReturn
+from ..wwd_types import AsyncWebCrawler, CrawlerRunConfig, CrawlResult, RunManyReturn
 from ..utils import normalize_url_for_deep_crawl
 
 from math import inf as infinity

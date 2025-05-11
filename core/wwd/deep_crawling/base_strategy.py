@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from typing import AsyncGenerator, Optional, Set, List, Dict
 from functools import wraps
 from contextvars import ContextVar
-from ..types import AsyncWebCrawler, CrawlerRunConfig, CrawlResult, RunManyReturn
+from ..wwd_types import AsyncWebCrawler, CrawlerRunConfig, CrawlResult, RunManyReturn
 
 
 class DeepCrawlDecorator:

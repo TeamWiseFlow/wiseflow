@@ -391,7 +391,6 @@ class BrowserConfig:
         browser_type: str = "chromium",
         headless: bool = True,
         browser_mode: str = "dedicated",
-        use_managed_browser: bool = False,
         cdp_url: str = None,
         use_persistent_context: bool = False,
         user_data_dir: str = None,
@@ -412,18 +411,13 @@ class BrowserConfig:
         cookies: list = None,
         headers: dict = None,
         user_agent: str = "",
-        user_agent_mode: str = "",
-        user_agent_generator_config: dict = {},
         text_mode: bool = False,
         light_mode: bool = False,
         extra_args: list = None,
-        debugging_port: int = 9222,
-        host: str = "localhost",
     ):
         self.browser_type = browser_type
         self.headless = headless 
         self.browser_mode = browser_mode
-        self.use_managed_browser = use_managed_browser
         self.cdp_url = cdp_url
         self.use_persistent_context = use_persistent_context
         self.user_data_dir = user_data_dir
@@ -448,15 +442,11 @@ class BrowserConfig:
         self.cookies = cookies if cookies is not None else []
         self.headers = headers if headers is not None else {}
         self.user_agent = user_agent
-        self.user_agent_mode = user_agent_mode
-        self.user_agent_generator_config = user_agent_generator_config
         self.text_mode = text_mode
         self.light_mode = light_mode
         self.extra_args = extra_args if extra_args is not None else []
         self.sleep_on_close = sleep_on_close
         self.verbose = verbose
-        self.debugging_port = debugging_port
-        self.host = host
 
         self.use_managed_browser = True
         # If persistent context is requested, ensure managed browser is enabled

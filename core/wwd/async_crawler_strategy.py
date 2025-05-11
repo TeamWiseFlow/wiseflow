@@ -19,6 +19,7 @@ from .async_configs import BrowserConfig, CrawlerRunConfig
 from .async_logger import AsyncLogger
 from .ssl_certificate import SSLCertificate
 from .browser_manager import BrowserManager
+from .nodriver_helper import NodriverHelper
 
 
 class AsyncCrawlerStrategy(ABC):
@@ -723,6 +724,64 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 status_code = 200
                 response_headers = {}
 
+            # 在这里插入验证检测
+            is_verification_page = await self._check_verification_page(
+                page=page,
+                status_code=status_code
+            )
+
+            if is_verification_page:
+                self.logger.warning(
+                    message="Detected verification page, page_url: {page_url}",
+                    tag="VERIFICATION",
+                    params={
+                        "page_url": page.url,
+                        "status_code": status_code
+                    }
+                )
+
+                async with NodriverHelper(platform='temp') as verification_helper:
+                    navigate_url, cookies, local_storage = await verification_helper.for_page_verification(page.url)
+
+                # 1. 注入 cookies
+                await context.add_cookies(cookies)
+
+                # 2. 安全地注入 localStorage
+                if local_storage:
+                    await page.evaluate("""(storage) => {
+                        try {
+                            for (const [key, value] of Object.entries(storage)) {
+                                if (value !== null && value !== undefined) {
+                                    localStorage.setItem(
+                                        JSON.stringify(key), 
+                                        JSON.stringify(value)
+                                    );
+                                }
+                            }
+                        } catch (e) {
+                            console.error('Error setting localStorage:', e);
+                        }
+                    }""", local_storage)
+
+                # 3. 导航到验证后的页面
+                try:
+                    response = await page.goto(
+                        navigate_url,
+                        wait_until=config.wait_until,
+                        timeout=config.page_timeout
+                    )
+                    
+                    # 4. 验证导航是否成功
+                    if not response:
+                        status_code = 200
+                        response_headers = {}
+                    else:
+                        status_code = response.status
+                        response_headers = response.headers
+                    redirected_url = page.url
+                except Error as e:
+                    raise RuntimeError(f"Failed to navigate after verification: {str(e)}")
+
             # Wait for body element and visibility
             try:
                 await page.wait_for_selector("body", state="attached", timeout=30000)
@@ -758,48 +817,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
 
                 if not config.ignore_body_visibility:
                     raise Error(f"Body element is hidden: {visibility_info}")
-
-            # try:
-            #     await page.wait_for_selector("body", state="attached", timeout=30000)
-
-            #     await page.wait_for_function(
-            #         """
-            #         () => {
-            #             const body = document.body;
-            #             const style = window.getComputedStyle(body);
-            #             return style.display !== 'none' &&
-            #                 style.visibility !== 'hidden' &&
-            #                 style.opacity !== '0';
-            #         }
-            #     """,
-            #         timeout=30000,
-            #     )
-            # except Error as e:
-            #     visibility_info = await page.evaluate(
-            #         """
-            #         () => {
-            #             const body = document.body;
-            #             const style = window.getComputedStyle(body);
-            #             return {
-            #                 display: style.display,
-            #                 visibility: style.visibility,
-            #                 opacity: style.opacity,
-            #                 hasContent: body.innerHTML.length,
-            #                 classList: Array.from(body.classList)
-            #             }
-            #         }
-            #     """
-            #     )
-
-            #     if self.config.verbose:
-            #         self.logger.debug(
-            #             message="Body visibility info: {info}",
-            #             tag="DEBUG",
-            #             params={"info": visibility_info},
-            #         )
-
-            #     if not config.ignore_body_visibility:
-            #         raise Error(f"Body element is hidden: {visibility_info}")
 
             # Handle content loading and viewport adjustment
             if not self.browser_config.text_mode and (
@@ -863,14 +880,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             if config.scan_full_page:
                 await self._handle_full_page_scan(page, config.scroll_delay)
 
-            # Execute JavaScript if provided
-            # if config.js_code:
-            #     if isinstance(config.js_code, str):
-            #         await page.evaluate(config.js_code)
-            #     elif isinstance(config.js_code, list):
-            #         for js in config.js_code:
-            #             await page.evaluate(js)
-
             if config.js_code:
                 # execution_result = await self.execute_user_script(page, config.js_code)
                 execution_result = await self.robust_execute_user_script(
@@ -888,6 +897,7 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 await self.execute_hook("on_execution_ended", page, context=context, config=config, result=execution_result)
 
             # Handle user simulation
+            # possible to cause 'Error updating image dimensions' error
             if config.simulate_user or config.magic:
                 await page.mouse.move(100, 100)
                 await page.mouse.down()
@@ -1871,3 +1881,68 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 params={"error": str(e)},
             )
             return True  # Default to scrolling if check fails
+
+    async def _check_verification_page(self, page: Page, status_code: int) -> bool:
+        """
+        检查当前页面是否是验证页面
+        
+        Args:
+            page: Playwright page 对象
+            status_code: HTTP 状态码
+            
+        Returns:
+            bool: 是否是验证页面
+        """
+        try:
+            # 1. 检查状态码
+            verification_status_codes = [401, 403, 429]
+            if status_code in verification_status_codes:
+                self.logger.info(
+                    message="Detected verification status code: {code}",
+                    tag="VERIFICATION",
+                    params={"code": status_code}
+                )
+                return True
+            
+            # 2. 检查 URL
+            verification_keywords = ['captcha', 'verify', 'security', 'challenge', 'recaptcha', 'hcaptcha']
+            if any(keyword in page.url.lower() for keyword in verification_keywords):
+                self.logger.info(
+                    message="Detected verification keyword in URL: {url}",
+                    tag="VERIFICATION",
+                    params={"url": page.url}
+                )
+                return True
+            
+            # 3. 检查页面内容是否包含验证相关的元素
+            verification_selectors = [
+                'iframe[src*="captcha"]',
+                'iframe[src*="recaptcha"]',
+                'iframe[src*="hcaptcha"]',
+                'div[class*="captcha"]',
+                'div[class*="verify"]',
+                'form[action*="verify"]',
+                'div[class*="recaptcha"]',
+                'div[class*="hcaptcha"]',
+                'div[class*="security"]',
+                'div[class*="challenge"]'
+            ]
+            
+            for selector in verification_selectors:
+                if await page.query_selector(selector):
+                    self.logger.info(
+                        message="Detected verification element: {selector}",
+                        tag="VERIFICATION",
+                        params={"selector": selector}
+                    )
+                    return True
+            
+            return False
+        
+        except Exception as e:
+            self.logger.error(
+                message="Error checking verification page: {error}",
+                tag="VERIFICATION",
+                params={"error": str(e)}
+            )
+            return False

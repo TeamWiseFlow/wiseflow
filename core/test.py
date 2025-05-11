@@ -21,16 +21,18 @@ else:
 async def main():
     
     browser_config = BrowserConfig(
-        user_data_dir="core/work_dir/browser_data",
+        user_data_dir="work_dir/browser_data",
         verbose=True
     )
     crawler_config = CrawlerRunConfig(
         capture_network_requests=True,
-        capture_console_messages=True,
-        magic=True
+        # capture_console_messages=True,
+        scan_full_page=True,
+        # 慎用magic，可能会造成页面上下文损坏，
+        # magic=True
     )
     logger = AsyncLogger(
-        log_file=os.path.join("core/work_dir", "wiseflow_web_driver.log"),
+        log_file=os.path.join("work_dir", "wiseflow_web_driver.log"),
         verbose=browser_config.verbose,
         tag_width=10,
     )
@@ -38,13 +40,12 @@ async def main():
     crawler = AsyncPlaywrightCrawlerStrategy(browser_config=browser_config, logger=logger)
     test_list = [
         "https://www.crunchbase.com/",
-        "https://www.yesdotnet.com/archive/post/1634324393.html",
-        "https://bot.sannysoft.com/"
+        # "https://www.yesdotnet.com/archive/post/1634324393.html",
+        # "https://bot.sannysoft.com/"
     ]
     
     try:
         await crawler.start()
-        input("Press Enter to start crawling...")
 
         for i, url in enumerate(test_list):
             result = await crawler.crawl(url=url, config=crawler_config)
@@ -55,7 +56,6 @@ async def main():
                     "console_messages": result.console_messages or []
                 }, f, indent=4)
             print(f"Exported detailed capture data to network_capture_{i+1}.json")
-            input("Press Enter to continue...")
 
     except Exception as e:
         logger.error(f"Error during crawling: {str(e)}", tag="ERROR")

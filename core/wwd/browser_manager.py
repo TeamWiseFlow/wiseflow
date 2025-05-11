@@ -133,13 +133,9 @@ class ManagedBrowser:
 
     def __init__(
         self,
-        browser_type: str = "chromium",
-        user_data_dir: Optional[str] = None,
-        headless: bool = False,
         logger=None,
         host: str = "127.0.0.1",
         debugging_port: int = free_port(),
-        cdp_url: Optional[str] = None, 
         browser_config: Optional[BrowserConfig] = None,
     ):
         """
@@ -164,7 +160,7 @@ class ManagedBrowser:
         self.browser_process = None
         self.temp_dir = None
         self.debugging_port = debugging_port
-        self.host = browser_config.host
+        self.host = host
         self.logger = logger
         self.shutting_down = False
         self.cdp_url = browser_config.cdp_url
@@ -510,12 +506,7 @@ class BrowserManager:
         self._contexts_lock = asyncio.Lock() 
 
         self.managed_browser = ManagedBrowser(
-            browser_type=self.config.browser_type,
-            user_data_dir=self.config.user_data_dir,
-            headless=self.config.headless,
             logger=self.logger,
-            debugging_port=self.config.debugging_port,
-            cdp_url=self.config.cdp_url,
             browser_config=self.config,
         )
         
@@ -645,12 +636,12 @@ class BrowserManager:
             # Create a temporary page to evaluate navigator.userAgent
             temp_page = await context.new_page()
             current_ua = await temp_page.evaluate('() => navigator.userAgent')
-            self.logger.info(f"Current User-Agent: {current_ua}", tag="USER_AGENT")
 
             # Handle User-Agent
             if 'Headless' in current_ua:
                 new_ua = current_ua.replace('Headless', '').strip()
                 await context.set_extra_http_headers({'User-Agent': new_ua})
+                self.logger.info(f"User-Agent Modified: \n{current_ua} \n-> \n{new_ua}", tag="USER_AGENT")
 
         except Exception as e:
             if self.logger:

@@ -9,7 +9,7 @@ from ..models import TraversalStats
 from .filters import FilterChain
 from .scorers import URLScorer
 from . import DeepCrawlStrategy  
-from ..types import AsyncWebCrawler, CrawlerRunConfig, CrawlResult
+from ..wwd_types import AsyncWebCrawler, CrawlerRunConfig, CrawlResult
 from ..utils import normalize_url_for_deep_crawl, efficient_normalize_url_for_deep_crawl
 from math import inf as infinity
 
