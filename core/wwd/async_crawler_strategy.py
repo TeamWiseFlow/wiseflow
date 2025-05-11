@@ -187,30 +187,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 return hook(*args, **kwargs)
         return args[0] if args else None
 
-    def update_user_agent(self, user_agent: str):
-        """
-        Update the user agent for the browser.
-
-        Args:
-            user_agent (str): The new user agent string.
-
-        Returns:
-            None
-        """
-        self.user_agent = user_agent
-
-    def set_custom_headers(self, headers: Dict[str, str]):
-        """
-        Set custom headers for the browser.
-
-        Args:
-            headers (Dict[str, str]): A dictionary of headers to set.
-
-        Returns:
-            None
-        """
-        self.headers = headers
-
     async def smart_wait(self, page: Page, wait_for: str, timeout: float = 30000):
         """
         Wait for a condition in a smart way. This functions works as below:

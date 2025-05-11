@@ -56,6 +56,8 @@ async def main():
                     "console_messages": result.console_messages or []
                 }, f, indent=4)
             print(f"Exported detailed capture data to network_capture_{i+1}.json")
+            print('final html: ', result.html)
+            print('final response headers: ', result.response_headers)
 
     except Exception as e:
         logger.error(f"Error during crawling: {str(e)}", tag="ERROR")
