@@ -81,6 +81,17 @@ SOCIAL_MEDIA_DOMAINS = [
     "tiktok.com",
     "snapchat.com",
     "reddit.com",
+    "weibo.com",
+    "m.weibo.cn",
+    "m.weibo.com",
+    "zhihu.com",
+    "zhuanlan.zhihu.com",
+    "douyin.com",
+    "bilibili.com",
+    "xiaohongshu.com",
+    "kuaishou.com",
+    "kuaishou.com",
+    "kuaishou.com",
 ]
 
 # Threshold for the Image extraction - Range is 1 to 6

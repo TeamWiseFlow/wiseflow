@@ -115,7 +115,7 @@ class AsyncWebCrawler:
         self,
         crawler_strategy: AsyncCrawlerStrategy = None,
         config: BrowserConfig = None,
-        base_directory: str = str(Path(__file__).parent.parent / os.getenv("PROJECT_DIR", "work_dir")),
+        base_directory: str = '.',
         thread_safe: bool = False,
         logger: AsyncLoggerBase = None,
         **kwargs,
@@ -138,7 +138,7 @@ class AsyncWebCrawler:
         # Initialize logger first since other components may need it
         self.logger = logger or AsyncLogger(
             log_file=os.path.join(base_directory, "wiseflow_web_driver.log"),
-            verbose=self.browser_config.verbose,
+            verbose=os.getenv("VERBOSE", "False"),
             tag_width=10,
         )
 

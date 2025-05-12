@@ -126,6 +126,8 @@ class NodriverHelper:
                 if input_text.strip() == "":
                     print("检测到用户确认，登录成功")
                     break
+
+        await asyncio.sleep(7)
         # await self.page.open_external_inspector()
         selected_cookies = await self._get_cookies()
         playwright_cookies = []
@@ -289,4 +291,3 @@ class NodriverHelper:
         finally:
             self.browser = None
             self.page = None
-            

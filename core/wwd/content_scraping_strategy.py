@@ -1,4 +1,4 @@
-import re
+import regex as re
 from itertools import chain
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional

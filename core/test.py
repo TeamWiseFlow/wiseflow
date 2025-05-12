@@ -25,7 +25,7 @@ async def main():
         verbose=True
     )
     crawler_config = CrawlerRunConfig(
-        capture_network_requests=True,
+        # capture_network_requests=True,
         # capture_console_messages=True,
         scan_full_page=True,
         # 慎用magic，可能会造成页面上下文损坏，
@@ -39,9 +39,10 @@ async def main():
 
     crawler = AsyncPlaywrightCrawlerStrategy(browser_config=browser_config, logger=logger)
     test_list = [
-        "https://www.crunchbase.com/",
+        # "https://www.crunchbase.com/",
         # "https://www.yesdotnet.com/archive/post/1634324393.html",
         # "https://bot.sannysoft.com/"
+        "https://www.baidu.com/"
     ]
     
     try:

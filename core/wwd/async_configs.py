@@ -16,7 +16,7 @@ from .extraction_strategy import ExtractionStrategy, LLMExtractionStrategy
 from .chunking_strategy import ChunkingStrategy, RegexChunking
 
 from .markdown_generation_strategy import MarkdownGenerationStrategy, DefaultMarkdownGenerator
-from .content_scraping_strategy import ContentScrapingStrategy, WebScrapingStrategy
+from .content_scraping_strategy import ContentScrapingStrategy, LXMLWebScrapingStrategy
 from .deep_crawling import DeepCrawlStrategy
 
 from .cache_context import CacheMode
@@ -839,7 +839,7 @@ class CrawlerRunConfig():
         remove_forms: bool = False,
         prettiify: bool = False,
         parser_type: str = "lxml",
-        scraping_strategy: ContentScrapingStrategy = None,
+        scraping_strategy: ContentScrapingStrategy = LXMLWebScrapingStrategy(),
         proxy_config: Union[ProxyConfig, dict, None] = None,
         proxy_rotation_strategy: Optional[ProxyRotationStrategy] = None,
         # Browser Location and Identity Parameters
@@ -931,7 +931,7 @@ class CrawlerRunConfig():
         self.remove_forms = remove_forms
         self.prettiify = prettiify
         self.parser_type = parser_type
-        self.scraping_strategy = scraping_strategy or WebScrapingStrategy()
+        self.scraping_strategy = scraping_strategy
         self.proxy_config = proxy_config
         self.proxy_rotation_strategy = proxy_rotation_strategy
         

@@ -6,14 +6,12 @@ import json
 from scrapers import *
 from utils.jina_search import search_with_jina
 from urllib.parse import urlparse
-from crawl4ai import AsyncWebCrawler, CacheMode
+from wwd import AsyncWebCrawler, BrowserConfig, CacheMode
 from datetime import datetime
 import feedparser
 
 
 project_dir = os.environ.get("PROJECT_DIR", "work_dir")
-if project_dir:
-    os.makedirs(project_dir, exist_ok=True)
 
 wiseflow_logger = get_logger('wiseflow', project_dir)
 pb = PbTalker(wiseflow_logger)
@@ -105,8 +103,21 @@ async def main_process(focus: dict, sites: list):
             if site['url'] not in existing_urls and isURL(site['url']):
                 working_list.add(site['url'])
 
-    crawler = AsyncWebCrawler(config=browser_cfg)
+    # for wiseflow 4.x only need to config the logger, BrowserConfig for crawler
+    # for BrowserConfig, only need to specify the user_data_dir and whether to accept_downloads(default is False, if True, also need to specify downloads_path: str)
+    # for crawler initialization, only need to specify the base_directory and whether to swith the thread_safe mode(default is False)
+    # In case you have complex flow or you need to deep modify the fetching and scraping process, 
+    # use crawler.crawler_strategy.set_hook(hook_type: str, hook: Callable) _ for 99% situation, you don't need to do this
+    crawler = AsyncWebCrawler(
+        browser_config=BrowserConfig(
+            user_data_dir=os.path.join(project_dir, 'browser_data'),
+            verbose=os.getenv("VERBOSE", "False")
+        ),
+        base_directory=project_dir, 
+        logger=wiseflow_logger
+    )
     await crawler.start()
+
     while working_list:
         url = working_list.pop()
         existing_urls.add(url)
