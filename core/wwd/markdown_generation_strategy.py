@@ -4,7 +4,7 @@ from .models import MarkdownGenerationResult
 from .html2text import CustomHTML2Text
 # from .types import RelevantContentFilter
 from .content_filter_strategy import RelevantContentFilter
-import re
+import regex as re
 from urllib.parse import urljoin
 
 # Pre-compile the regex pattern
@@ -95,7 +95,12 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
 
         Args:
             markdown (str): Markdown text.
-            base_url (str): Base URL for URL joins.
+            base_url (str): Base URL for URL joins. 
+            
+            (!!! Note: here the base_url is the entire page.url !!!
+            bigbrother666sh: 
+            in fact when we got the cleaned_html, we got the links dict in which all the links is already normalized.
+            but in the html code, it's still the original links.)
 
         Returns:
             Tuple[str, str]: Converted markdown and references markdown.

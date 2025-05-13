@@ -39,10 +39,10 @@ async def main():
 
     crawler = AsyncPlaywrightCrawlerStrategy(browser_config=browser_config, logger=logger)
     test_list = [
-        # "https://www.crunchbase.com/",
+        "https://www.crunchbase.com/",
         # "https://www.yesdotnet.com/archive/post/1634324393.html",
         # "https://bot.sannysoft.com/"
-        "https://www.baidu.com/"
+        # "https://www.baidu.com/"
     ]
     
     try:

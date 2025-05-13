@@ -5,7 +5,6 @@ from .__version__ import __version__ as crawl4ai_version
 import os
 import sys
 import time
-from colorama import Fore
 from pathlib import Path
 from typing import Optional, List
 import json
@@ -38,7 +37,7 @@ from .markdown_generation_strategy import (
     MarkdownGenerationStrategy,
 )
 from .deep_crawling import DeepCrawlDecorator
-from .async_logger import AsyncLogger, AsyncLoggerBase
+from .async_logger import AsyncLogger, AsyncLoggerBase, LogColor
 from .async_configs import BrowserConfig, CrawlerRunConfig, ProxyConfig
 from .async_dispatcher import *  # noqa: F403
 from .async_dispatcher import BaseDispatcher, MemoryAdaptiveDispatcher, RateLimiter
@@ -47,7 +46,6 @@ from .utils import (
     sanitize_input_encode,
     InvalidCSSSelectorError,
     fast_format_html,
-    create_box_message,
     get_error_context,
     RobotsParser,
     preprocess_html_for_schema,
@@ -417,7 +415,7 @@ class AsyncWebCrawler:
 
                 self.logger.error_status(
                     url=url,
-                    error=create_box_message(error_message, type="error"),
+                    error=error_message,
                     tag="ERROR",
                 )
 
@@ -504,6 +502,8 @@ class AsyncWebCrawler:
             links = result.links.model_dump()
             metadata = result.metadata
 
+        fit_html = preprocess_html_for_schema(html_content=html, text_threshold= 500, max_size= 300_000)
+
         ################################
         # Generate Markdown            #
         ################################
@@ -519,7 +519,7 @@ class AsyncWebCrawler:
         html_source_selector = {
             "raw_html": lambda: html,  # The original raw HTML
             "cleaned_html": lambda: cleaned_html,  # The HTML after scraping strategy
-            "fit_html": lambda: preprocess_html_for_schema(html_content=html),  # Preprocessed raw HTML
+            "fit_html": lambda: fit_html,  # The HTML after preprocessing for schema
         }
 
         markdown_input_html = cleaned_html  # Default to cleaned_html
@@ -593,6 +593,7 @@ class AsyncWebCrawler:
             content = {
                 "markdown": markdown_result.raw_markdown,
                 "html": html,
+                "fit_html": fit_html,
                 "cleaned_html": cleaned_html,
                 "fit_markdown": markdown_result.fit_markdown,
             }.get(content_format, markdown_result.raw_markdown)
@@ -600,7 +601,7 @@ class AsyncWebCrawler:
             # Use IdentityChunking for HTML input, otherwise use provided chunking strategy
             chunking = (
                 IdentityChunking()
-                if content_format in ["html", "cleaned_html"]
+                if content_format in ["html", "cleaned_html", "fit_html"]
                 else config.chunking_strategy
             )
             sections = chunking.chunk(content)
@@ -624,6 +625,7 @@ class AsyncWebCrawler:
         return CrawlResult(
             url=url,
             html=html,
+            fit_html=fit_html,
             cleaned_html=cleaned_html,
             markdown=markdown_result,
             media=media,

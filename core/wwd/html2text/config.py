@@ -1,4 +1,4 @@
-import re
+import regex as re
 
 # Use Unicode characters instead of their ascii pseudo-replacements
 UNICODE_SNOB = False

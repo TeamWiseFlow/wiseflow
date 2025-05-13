@@ -42,6 +42,7 @@ class NodriverHelper:
         # 设置浏览器配置
         config = {
             'user_data_dir': str(self.browser_data),  # 使用单一的浏览器数据目录
+            'headless': True,
             'browser_args': [
                 '--lang=zh-CN',
                 #'--no-sandbox',

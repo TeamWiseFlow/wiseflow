@@ -2,7 +2,7 @@
 
 import html.entities
 import html.parser
-import re
+import regex as re
 import string
 import urllib.parse as urlparse
 from textwrap import wrap

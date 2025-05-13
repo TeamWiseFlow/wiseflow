@@ -17,6 +17,8 @@ from .config import DOWNLOAD_PAGE_TIMEOUT
 from .async_configs import BrowserConfig, CrawlerRunConfig
 from playwright_stealth import StealthConfig
 from .utils import free_port
+import shlex
+import psutil
 
 # 根据平台导入信号模块
 if sys.platform != 'win32':
@@ -192,6 +194,8 @@ class ManagedBrowser:
             args.extend(self.browser_config.extra_args)
 
         # Start browser process
+        # not same from v0.6.3
+        # refer https://github.com/unclecode/crawl4ai/commit/9499164d3c0d9912316c9876f32843360865aa57#diff-5e5a07356c04082c88fb203355252e3f14b9441c642350e98b6b3c17101cf682
         try:
             # Use DETACHED_PROCESS flag on Windows to fully detach the process
             # On Unix, we'll use preexec_fn=os.setpgrp to start the process in a new process group
@@ -803,7 +807,8 @@ class BrowserManager:
         pages = context.pages
         page = next((p for p in pages if p.url == crawlerRunConfig.url), None)
         if not page:
-            page = await context.new_page()
+            # page = await context.new_page()
+            page = context.pages[0] # changed in 0.6.3, not sure whether adpator to wiseflow
 
         # If a session_id is specified, store this session so we can reuse later
         if crawlerRunConfig.session_id:
