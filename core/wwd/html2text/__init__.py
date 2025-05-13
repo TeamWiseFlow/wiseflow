@@ -4,7 +4,7 @@ import html.entities
 import html.parser
 import regex as re
 import string
-import urllib.parse as urlparse
+# import urllib.parse as urlparse
 from textwrap import wrap
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -504,9 +504,9 @@ class HTML2Text(html.parser.HTMLParser):
             self.quote = not self.quote
 
         def link_url(self: HTML2Text, link: str, title: str = "") -> None:
-            url = urlparse.urljoin(self.baseurl, link)
+            # url = urlparse.urljoin(self.baseurl, link)
             title = ' "{}"'.format(title) if title.strip() else ""
-            self.o("]({url}{title})".format(url=escape_md(url), title=title))
+            self.o("]({url}{title})".format(url=escape_md(link), title=title))
 
         if tag == "a" and not self.ignore_links:
             if start:
@@ -522,8 +522,8 @@ class HTML2Text(html.parser.HTMLParser):
                     self.astack.append(attrs)
                     self.maybe_automatic_link = attrs["href"]
                     self.empty_link = True
-                    if self.protect_links:
-                        attrs["href"] = "<" + attrs["href"] + ">"
+                    # if self.protect_links:
+                        # attrs["href"] = "<" + attrs["href"] + ">"
                 else:
                     self.astack.append(None)
             else:
@@ -599,7 +599,7 @@ class HTML2Text(html.parser.HTMLParser):
                     if self.inline_links:
                         href = attrs.get("href") or ""
                         self.o(
-                            "(" + escape_md(urlparse.urljoin(self.baseurl, href)) + ")"
+                            "(" + escape_md(href) + ")"
                         )
                     else:
                         i = self.previousIndex(attrs)
@@ -853,7 +853,7 @@ class HTML2Text(html.parser.HTMLParser):
                             "   ["
                             + str(link.count)
                             + "]: "
-                            + urlparse.urljoin(self.baseurl, link.attrs["href"])
+                            + link.attrs["href"]
                         )
                         if "title" in link.attrs and link.attrs["title"] is not None:
                             self.out(" (" + link.attrs["title"] + ")")

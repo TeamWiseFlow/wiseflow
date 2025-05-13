@@ -510,8 +510,11 @@ class AsyncWebCrawler:
         markdown_generator: Optional[MarkdownGenerationStrategy] = (
             config.markdown_generator or DefaultMarkdownGenerator()
         )
-
+       
+        """
         # --- SELECT HTML SOURCE BASED ON CONTENT_SOURCE ---
+        # bigbrother666sh: is it necessary to have this? Let's see.
+
         # Get the desired source from the generator config, default to 'cleaned_html'
         selected_html_source = getattr(markdown_generator, 'content_source', 'cleaned_html')
 
@@ -549,10 +552,11 @@ class AsyncWebCrawler:
         # Uncomment if by default we want to use PruningContentFilter
         # if not config.content_filter and not markdown_generator.content_filter:
         #     markdown_generator.content_filter = PruningContentFilter()
-
+        """
         markdown_result: MarkdownGenerationResult = (
-            markdown_generator.generate_markdown(
-                input_html=markdown_input_html,
+            await markdown_generator.generate_markdown(
+                # input_html=markdown_input_html,  # will track to see whether enought.....
+                input_html=cleaned_html,
                 base_url=params.get("redirected_url", url)
                 # html2text_options=kwargs.get('html2text', {})
             )

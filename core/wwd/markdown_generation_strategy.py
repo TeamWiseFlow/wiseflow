@@ -6,22 +6,29 @@ from .html2text import CustomHTML2Text
 from .content_filter_strategy import RelevantContentFilter
 import regex as re
 from urllib.parse import urljoin
+from .utils import normalize_url, url_pattern, is_valid_img_url
+import os
 
 # Pre-compile the regex pattern
-LINK_PATTERN = re.compile(r'!?\[([^\]]+)\]\(([^)]+?)(?:\s+"([^"]*)")?\)')
+# LINK_PATTERN = re.compile(r'!?\[([^\]]+)\]\(([^)]+?)(?:\s+"([^"]*)")?\)')
 
+vl_model = os.environ.get("VL_MODEL", "")
+if not vl_model:
+    print("VL_MODEL not set, will skip extracting info from img, some info may be lost!")
 
-def fast_urljoin(base: str, url: str) -> str:
-    """Fast URL joining for common cases."""
-    if url.startswith(("http://", "https://", "mailto:", "//")):
-        return url
-    if url.startswith("/"):
-        # Handle absolute paths
-        if base.endswith("/"):
-            return base[:-1] + url
-        return base + url
-    return urljoin(base, url)
+recognized_img_cache = {}
 
+async def extract_info_from_img(url: str) -> str:
+    if not vl_model:
+        return '§to_be_recognized_by_visual_llm§'
+    """
+    llm_output = await llm([{"role": "user",
+        "content": [{"type": "image_url", "image_url": {"url": url, "detail": "high"}},
+        {"type": "text", "text": "提取图片中的所有文字，如果图片不包含文字或者文字很少或者你判断图片仅是网站logo、商标、图标等，则输出NA。注意请仅输出提取出的文字，不要输出别的任何内容。"}]}],
+        model=vl_model)
+
+    return llm_output
+    """
 
 class MarkdownGenerationStrategy(ABC):
     """Abstract base class for markdown generation strategies."""
@@ -79,85 +86,131 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
     ):
         super().__init__(content_filter, options, verbose=False, content_source=content_source)
 
-    def convert_links_to_citations(
-        self, markdown: str, base_url: str = ""
-    ) -> Tuple[str, str]:
+    async def convert_links_to_citations(self, markdown: str, base_url: str = "") -> Tuple[str, dict]:
         """
-        Convert links in markdown to citations.
-
-        How it works:
-        1. Find all links in the markdown.
-        2. Convert links to citations.
-        3. Return converted markdown and references markdown.
-
-        Note:
-        This function uses a regex pattern to find links in markdown.
-
-        Args:
-            markdown (str): Markdown text.
-            base_url (str): Base URL for URL joins. 
-            
-            (!!! Note: here the base_url is the entire page.url !!!
-            bigbrother666sh: 
-            in fact when we got the cleaned_html, we got the links dict in which all the links is already normalized.
-            but in the html code, it's still the original links.)
-
-        Returns:
-            Tuple[str, str]: Converted markdown and references markdown.
+        bigbrother666sh modified:
+        use wisefow V3.9's preprocess instead
         """
-        link_map = {}
-        url_cache = {}  # Cache for URL joins
-        parts = []
-        last_end = 0
-        counter = 1
+        link_dict = {}
 
-        for match in LINK_PATTERN.finditer(markdown):
-            parts.append(markdown[last_end : match.start()])
-            text, url, title = match.groups()
+        # for special url formate from craw4ai-de 0.4.247
+        markdown = re.sub(r'<javascript:.*?>', '<javascript:>', markdown).strip()
 
-            # Use cached URL if available, otherwise compute and cache
-            if base_url and not url.startswith(("http://", "https://", "mailto:")):
-                if url not in url_cache:
-                    url_cache[url] = fast_urljoin(base_url, url)
-                url = url_cache[url]
+        # 处理图片标记 ![alt](src)，使用非贪婪匹配并考虑嵌套括号的情况
+        i_pattern = r'(!\[(.*?)\]\(((?:[^()]*|\([^()]*\))*)\))'
+        matches = re.findall(i_pattern, markdown, re.DOTALL)
+        for _sec, alt, src in matches:
+            # 替换为新格式 §alt||src§
+            markdown = markdown.replace(_sec, f'§{alt}||{src}§', 1)
 
-            if url not in link_map:
-                desc = []
-                if title:
-                    desc.append(title)
-                if text and text != title:
-                    desc.append(text)
-                link_map[url] = (counter, ": " + " - ".join(desc) if desc else "")
-                counter += 1
+        async def check_url_text(text) -> str:
+            # 找到所有[part0](part1)格式的片段，使用非贪婪匹配并考虑嵌套括号的情况
+            link_pattern = r'(\[(.*?)\]\(((?:[^()]*|\([^()]*\))*)\))'
+            matches = re.findall(link_pattern, text, re.DOTALL)
+            for _sec, link_text, link_url in matches:
+                # 存在“”嵌套情况，需要先提取出url
+                _title = re.sub(url_pattern, '', link_url, re.DOTALL).strip()
+                _title = _title.strip('"')
+                link_text = link_text.strip()
+                if _title and _title not in link_text:
+                    link_text = f"{_title} - {link_text}"
+                """
+                # for protecting_links model
+                real_url_pattern = r'<(.*?)>'
+                real_url = re.search(real_url_pattern, link_url, re.DOTALL)
+                if real_url:
+                    _url = real_url.group(1).strip()
+                else:
+                    _url = re.sub(quote_pattern, '', link_url, re.DOTALL).strip()
+                """
+                _url = re.findall(url_pattern, link_url)
+                if not _url or _url[0].startswith(('#', 'javascript:')):
+                    text = text.replace(_sec, link_text, 1)
+                    continue
+                url = normalize_url(_url[0], base_url)
+                
+                # 分离§§内的内容和后面的内容
+                img_marker_pattern = r'§(.*?)\|\|(.*?)§'
+                inner_matches = re.findall(img_marker_pattern, link_text, re.DOTALL)
+                for alt, src in inner_matches:
+                    link_text = link_text.replace(f'§{alt}||{src}§', '')
 
-            num = link_map[url][0]
-            parts.append(
-                f"{text}⟨{num}⟩"
-                if not match.group(0).startswith("!")
-                else f"![{text}⟨{num}⟩]"
-            )
-            last_end = match.end()
+                if not link_text and inner_matches:
+                    img_alt = inner_matches[0][0].strip()
+                    img_src = inner_matches[0][1].strip()
+                    if img_src and not img_src.startswith('#'):
+                        img_src = normalize_url(img_src, base_url)
+                        if not img_src:
+                            link_text = img_alt
+                        elif len(img_alt) > 2:
+                            _key = f"[img{len(link_dict)+1}]"
+                            link_dict[_key] = img_src
+                            link_text = img_alt
+                        elif not is_valid_img_url(img_src):
+                            _key = f"[img{len(link_dict)+1}]"
+                            link_dict[_key] = img_src
+                            link_text = img_alt
+                        else:
+                            if img_src not in recognized_img_cache:
+                                recognized_img_cache[img_src] = await extract_info_from_img(img_src)
+                            _key = f"[img{len(link_dict)+1}]"
+                            link_dict[_key] = img_src
+                            link_text = recognized_img_cache[img_src]
+                    else:
+                        link_text = img_alt
 
-        parts.append(markdown[last_end:])
-        converted_text = "".join(parts)
+                _key = f"[{len(link_dict)+1}]"
+                link_dict[_key] = url
+                text = text.replace(_sec, link_text + _key, 1)
+    
+            # 处理文本中的其他图片标记
+            img_pattern = r'(§(.*?)\|\|(.*?)§)'
+            matches = re.findall(img_pattern, text, re.DOTALL)
+            remained_text = re.sub(img_pattern, '', text, re.DOTALL).strip()
+            remained_text_len = len(remained_text)
+            for _sec, alt, src in matches:
+                if not src or src.startswith('#'):
+                    text = text.replace(_sec, alt, 1)
+                    continue
+                img_src = normalize_url(src, base_url)
+                if not img_src:
+                    text = text.replace(_sec, alt, 1)
+                elif remained_text_len > 5 or len(alt) > 2:
+                    _key = f"[{len(link_dict)+1}]"
+                    link_dict[_key] = img_src
+                    text = text.replace(_sec, alt + _key, 1)
+                elif not is_valid_img_url(img_src):
+                    _key = f"[{len(link_dict)+1}]"
+                    link_dict[_key] = img_src
+                    text = text.replace(_sec, alt + _key, 1)
+                else:
+                    if img_src not in recognized_img_cache:
+                        recognized_img_cache[img_src] = await extract_info_from_img(img_src)
+                    _key = f"[{len(link_dict)+1}]"
+                    link_dict[_key] = img_src
+                    text = text.replace(_sec, recognized_img_cache[img_src] + _key, 1)
 
-        # Pre-build reference strings
-        references = ["\n\n## References\n\n"]
-        references.extend(
-            f"⟨{num}⟩ {url}{desc}\n"
-            for url, (num, desc) in sorted(link_map.items(), key=lambda x: x[1][0])
-        )
+            # 处理文本中的"野 url"，使用更精确的正则表达式
+            matches = re.findall(url_pattern, text)
+            for url in matches:
+                url = normalize_url(url, base_url)
+                _key = f"[{len(link_dict)+1}]"
+                link_dict[_key] = url
+                text = text.replace(url, _key, 1)
 
-        return converted_text, "".join(references)
+            return text
 
-    def generate_markdown(
+        sections = await check_url_text(markdown)
+
+        return sections, link_dict
+
+    async def generate_markdown(
         self,
         input_html: str,
         base_url: str = "",
         html2text_options: Optional[Dict[str, Any]] = None,
         options: Optional[Dict[str, Any]] = None,
         content_filter: Optional[RelevantContentFilter] = None,
-        citations: bool = True,
         **kwargs,
     ) -> MarkdownGenerationResult:
         """
@@ -179,6 +232,9 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
 
         Returns:
             MarkdownGenerationResult: Result containing raw markdown, fit markdown, fit HTML, and references markdown.
+        
+        bigbrother666sh modified:
+        add raw markdown preprocess as a must process
         """
         try:
             # Initialize HTML2Text with default options for better conversion
@@ -219,19 +275,15 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             raw_markdown = raw_markdown.replace("    ```", "```")
 
             # Convert links to citations
-            markdown_with_citations: str = raw_markdown
-            references_markdown: str = ""
-            if citations:
-                try:
-                    (
-                        markdown_with_citations,
-                        references_markdown,
-                    ) = self.convert_links_to_citations(raw_markdown, base_url)
-                except Exception as e:
-                    markdown_with_citations = raw_markdown
-                    references_markdown = f"Error generating citations: {str(e)}"
+            link_dict: dict = {}
+            try:
+                raw_markdown, link_dict = await self.convert_links_to_citations(raw_markdown, base_url)
+            except Exception as e:
+                raw_markdown = f"Error generating citations[wiseflow preprocess]: {str(e)}"
 
             # Generate fit markdown if content filter is provided
+            # bigbrothe666sh: here in V0.6.0 it's a seperate process from raw markdown generation\citation process…………
+            # bigbrother666sh: if need it, it should be before the conver_links_to_citations process...
             fit_markdown: Optional[str] = ""
             filtered_html: Optional[str] = ""
             if content_filter or self.content_filter:
@@ -248,8 +300,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
 
             return MarkdownGenerationResult(
                 raw_markdown=raw_markdown or "",
-                markdown_with_citations=markdown_with_citations or "",
-                references_markdown=references_markdown or "",
+                link_dict=link_dict or {},
                 fit_markdown=fit_markdown or "",
                 fit_html=filtered_html or "",
             )
@@ -258,8 +309,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             error_msg = f"Error in markdown generation: {str(e)}"
             return MarkdownGenerationResult(
                 raw_markdown=error_msg,
-                markdown_with_citations=error_msg,
-                references_markdown="",
+                link_dict={},
                 fit_markdown="",
                 fit_html="",
             )

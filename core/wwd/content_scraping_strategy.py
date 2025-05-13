@@ -1049,7 +1049,7 @@ class LXMLWebScrapingStrategy(WebScrapingStrategy):
                 continue
 
             try:
-                normalized_href = normalize_url(href, url)
+                normalized_href = url # to avoid duplicate processing, we will do the normalization in the markdown citationgeneration
                 link_data = {
                     "href": normalized_href,
                     "text": link.text_content().strip(),
@@ -1099,6 +1099,8 @@ class LXMLWebScrapingStrategy(WebScrapingStrategy):
                 continue
 
             # Otherwise, process the image as usual.
+            # it seems wiseflow don't need isolate image dicts
+        """
             try:
                 processed_images = self.process_image(
                     img, url, idx, total_images, **kwargs
@@ -1107,7 +1109,7 @@ class LXMLWebScrapingStrategy(WebScrapingStrategy):
                     media["images"].extend(processed_images)
             except Exception as e:
                 self._log("error", f"Error processing image: {str(e)}", "SCRAPE")
-
+        """
         # Process videos and audios
         for media_type in ["video", "audio"]:
             for elem in element.xpath(f".//{media_type}"):

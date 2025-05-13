@@ -44,6 +44,20 @@ from typing import  Generator, Iterable
 from urllib.parse import urlparse, urljoin, urlunparse, parse_qs, urlencode
 
 
+common_file_exts = [
+    'jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'svg', 'm3u8',
+    'mp4', 'mp3', 'wav', 'avi', 'mov', 'wmv', 'flv', 'webp', 'webm',
+    'zip', 'rar', '7z', 'tar', 'gz', 'bz2',
+    'txt', 'csv', 'xls', 'xlsx', 'ppt', 'pptx',
+    'json', 'xml', 'yaml', 'yml', 'css', 'js', 'php', 'asp', 'jsp'
+]
+common_tlds = [
+    '.com', '.cn', '.net', '.org', '.edu', '.gov', '.io', '.co',
+    '.info', '.biz', '.me', '.tv', '.cc', '.xyz', '.app', '.dev',
+    '.cloud', '.ai', '.tech', '.online', '.store', '.shop', '.site',
+    '.top', '.vip', '.pro', '.ltd', '.group', '.team', '.work'
+]
+
 url_pattern = r'((?:https?://|www\.)[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|])'
 
 params_to_remove = [
@@ -123,6 +137,18 @@ def normalize_url(url: str, base_url: str = None) -> str:
         else:
             return _ss[0] + '//' + '/'.join(_ss[1:])
 
+def is_valid_img_url(url: str) -> bool:
+    """
+    Check if a URL is a valid image URL.
+    """
+    if url.startswith('data:image'):
+        return True
+    if any(url.endswith(tld) or url.endswith(tld + '/') for tld in common_tlds):
+        return False
+    if any(url.endswith(ext) for ext in common_file_exts if ext not in ['jpg', 'jpeg', 'png']):
+        return False
+    
+    return True
 
 def free_port() -> int:
     """
