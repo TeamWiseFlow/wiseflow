@@ -19,29 +19,19 @@ from .utils import *  # noqa: F403
 from .utils import (
     sanitize_html,
     escape_json_string,
-    perform_completion_with_backoff,
     extract_xml_data,
     split_and_parse_json_objects,
     sanitize_input_encode,
     merge_chunks,
 )
-from .models import * # noqa: F403
+from .base.crawl4ai_models import * # noqa: F403
 
-from .models import TokenUsage
+from .base.crawl4ai_models import TokenUsage
 
-from .model_loader import * # noqa: F403
-from .model_loader import (
-    get_device,
-    load_HF_embedding_model,
-    load_text_multilabel_classifier,
-    calculate_batch_size
-)
-
-from .types import LLMConfig, create_llm_config
+# from .base.crawl4ai_types import LLMConfig, create_llm_config
 
 from functools import partial
-import numpy as np
-import re
+import regex as re
 from bs4 import BeautifulSoup
 from lxml import html, etree
 
@@ -111,367 +101,6 @@ class NoExtractionStrategy(ExtractionStrategy):
             {"index": i, "tags": [], "content": section}
             for i, section in enumerate(sections)
         ]
-
-
-#######################################################
-# Strategies using clustering for text data extraction #
-#######################################################
-
-
-class CosineStrategy(ExtractionStrategy):
-    """
-    Extract meaningful blocks or chunks from the given HTML using cosine similarity.
-
-    How it works:
-    1. Pre-filter documents using embeddings and semantic_filter.
-    2. Perform clustering using cosine similarity.
-    3. Organize texts by their cluster labels, retaining order.
-    4. Filter clusters by word count.
-    5. Extract meaningful blocks or chunks from the filtered clusters.
-
-    Attributes:
-        semantic_filter (str): A keyword filter for document filtering.
-        word_count_threshold (int): Minimum number of words per cluster.
-        max_dist (float): The maximum cophenetic distance on the dendrogram to form clusters.
-        linkage_method (str): The linkage method for hierarchical clustering.
-        top_k (int): Number of top categories to extract.
-        model_name (str): The name of the sentence-transformers model.
-        sim_threshold (float): The similarity threshold for clustering.
-    """
-
-    def __init__(
-        self,
-        semantic_filter=None,
-        word_count_threshold=10,
-        max_dist=0.2,
-        linkage_method="ward",
-        top_k=3,
-        model_name="sentence-transformers/all-MiniLM-L6-v2",
-        sim_threshold=0.3,
-        **kwargs,
-    ):
-        """
-        Initialize the strategy with clustering parameters.
-
-        Args:
-            semantic_filter (str): A keyword filter for document filtering.
-            word_count_threshold (int): Minimum number of words per cluster.
-            max_dist (float): The maximum cophenetic distance on the dendrogram to form clusters.
-            linkage_method (str): The linkage method for hierarchical clustering.
-            top_k (int): Number of top categories to extract.
-        """
-        super().__init__(**kwargs)
-
-        import numpy as np
-
-        self.semantic_filter = semantic_filter
-        self.word_count_threshold = word_count_threshold
-        self.max_dist = max_dist
-        self.linkage_method = linkage_method
-        self.top_k = top_k
-        self.sim_threshold = sim_threshold
-        self.timer = time.time()
-        self.verbose = kwargs.get("verbose", False)
-
-        self.buffer_embeddings = np.array([])
-        self.get_embedding_method = "direct"
-
-        self.device = get_device()
-        # import torch
-        # self.device = torch.device('cpu')
-
-        self.default_batch_size = calculate_batch_size(self.device)
-
-        if self.verbose:
-            print(f"[LOG] Loading Extraction Model for {self.device.type} device.")
-
-        # if False and self.device.type == "cpu":
-        #     self.model = load_onnx_all_MiniLM_l6_v2()
-        #     self.tokenizer = self.model.tokenizer
-        #     self.get_embedding_method = "direct"
-        # else:
-
-        self.tokenizer, self.model = load_HF_embedding_model(model_name)
-        self.model.to(self.device)
-        self.model.eval()
-
-        self.get_embedding_method = "batch"
-
-        self.buffer_embeddings = np.array([])
-
-        # if model_name == "bert-base-uncased":
-        #     self.tokenizer, self.model = load_bert_base_uncased()
-        #     self.model.eval()  # Ensure the model is in evaluation mode
-        #     self.get_embedding_method = "batch"
-        # elif model_name == "BAAI/bge-small-en-v1.5":
-        #     self.tokenizer, self.model = load_bge_small_en_v1_5()
-        #     self.model.eval()  # Ensure the model is in evaluation mode
-        #     self.get_embedding_method = "batch"
-        # elif model_name == "sentence-transformers/all-MiniLM-L6-v2":
-        #     self.model = load_onnx_all_MiniLM_l6_v2()
-        #     self.tokenizer = self.model.tokenizer
-        #     self.get_embedding_method = "direct"
-
-        if self.verbose:
-            print(f"[LOG] Loading Multilabel Classifier for {self.device.type} device.")
-
-        self.nlp, _ = load_text_multilabel_classifier()
-        # self.default_batch_size = 16 if self.device.type == 'cpu' else 64
-
-        if self.verbose:
-            print(
-                f"[LOG] Model loaded {model_name}, models/reuters, took "
-                + str(time.time() - self.timer)
-                + " seconds"
-            )
-
-    def filter_documents_embeddings(
-        self, documents: List[str], semantic_filter: str, at_least_k: int = 20
-    ) -> List[str]:
-        """
-        Filter and sort documents based on the cosine similarity of their embeddings with the semantic_filter embedding.
-
-        Args:
-            documents (List[str]): A list of document texts.
-            semantic_filter (str): A keyword filter for document filtering.
-            at_least_k (int): The minimum number of documents to return.
-
-        Returns:
-            List[str]: A list of filtered and sorted document texts.
-        """
-
-        if not semantic_filter:
-            return documents
-
-        if len(documents) < at_least_k:
-            at_least_k = len(documents) // 2
-
-        from sklearn.metrics.pairwise import cosine_similarity
-
-        # Compute embedding for the keyword filter
-        query_embedding = self.get_embeddings([semantic_filter])[0]
-
-        # Compute embeddings for the documents
-        document_embeddings = self.get_embeddings(documents)
-
-        # Calculate cosine similarity between the query embedding and document embeddings
-        similarities = cosine_similarity(
-            [query_embedding], document_embeddings
-        ).flatten()
-
-        # Filter documents based on the similarity threshold
-        filtered_docs = [
-            (doc, sim)
-            for doc, sim in zip(documents, similarities)
-            if sim >= self.sim_threshold
-        ]
-
-        # If the number of filtered documents is less than at_least_k, sort remaining documents by similarity
-        if len(filtered_docs) < at_least_k:
-            remaining_docs = [
-                (doc, sim)
-                for doc, sim in zip(documents, similarities)
-                if sim < self.sim_threshold
-            ]
-            remaining_docs.sort(key=lambda x: x[1], reverse=True)
-            filtered_docs.extend(remaining_docs[: at_least_k - len(filtered_docs)])
-
-        # Extract the document texts from the tuples
-        filtered_docs = [doc for doc, _ in filtered_docs]
-
-        return filtered_docs[:at_least_k]
-
-    def get_embeddings(
-        self, sentences: List[str], batch_size=None, bypass_buffer=False
-    ):
-        """
-        Get BERT embeddings for a list of sentences.
-
-        Args:
-            sentences (List[str]): A list of text chunks (sentences).
-
-        Returns:
-            NumPy array of embeddings.
-        """
-        # if self.buffer_embeddings.any() and not bypass_buffer:
-        #     return self.buffer_embeddings
-
-        if self.device.type in ["cpu", "gpu", "cuda", "mps"]:
-            import torch
-
-            # Tokenize sentences and convert to tensor
-            if batch_size is None:
-                batch_size = self.default_batch_size
-
-            all_embeddings = []
-            for i in range(0, len(sentences), batch_size):
-                batch_sentences = sentences[i : i + batch_size]
-                encoded_input = self.tokenizer(
-                    batch_sentences, padding=True, truncation=True, return_tensors="pt"
-                )
-                encoded_input = {
-                    key: tensor.to(self.device) for key, tensor in encoded_input.items()
-                }
-
-                # Ensure no gradients are calculated
-                with torch.no_grad():
-                    model_output = self.model(**encoded_input)
-
-                # Get embeddings from the last hidden state (mean pooling)
-                embeddings = model_output.last_hidden_state.mean(dim=1).cpu().numpy()
-                all_embeddings.append(embeddings)
-
-            self.buffer_embeddings = np.vstack(all_embeddings)
-        elif self.device.type == "cpu":
-            # self.buffer_embeddings = self.model(sentences)
-            if batch_size is None:
-                batch_size = self.default_batch_size
-
-            all_embeddings = []
-            for i in range(0, len(sentences), batch_size):
-                batch_sentences = sentences[i : i + batch_size]
-                embeddings = self.model(batch_sentences)
-                all_embeddings.append(embeddings)
-
-            self.buffer_embeddings = np.vstack(all_embeddings)
-        return self.buffer_embeddings
-
-    def hierarchical_clustering(self, sentences: List[str], embeddings=None):
-        """
-        Perform hierarchical clustering on sentences and return cluster labels.
-
-        Args:
-            sentences (List[str]): A list of text chunks (sentences).
-
-        Returns:
-            NumPy array of cluster labels.
-        """
-        # Get embeddings
-        from scipy.cluster.hierarchy import linkage, fcluster
-        from scipy.spatial.distance import pdist
-
-        self.timer = time.time()
-        embeddings = self.get_embeddings(sentences, bypass_buffer=True)
-        # print(f"[LOG] 🚀 Embeddings computed in {time.time() - self.timer:.2f} seconds")
-        # Compute pairwise cosine distances
-        distance_matrix = pdist(embeddings, "cosine")
-        # Perform agglomerative clustering respecting order
-        linked = linkage(distance_matrix, method=self.linkage_method)
-        # Form flat clusters
-        labels = fcluster(linked, self.max_dist, criterion="distance")
-        return labels
-
-    def filter_clusters_by_word_count(
-        self, clusters: Dict[int, List[str]]
-    ) -> Dict[int, List[str]]:
-        """
-        Filter clusters to remove those with a word count below the threshold.
-
-        Args:
-            clusters (Dict[int, List[str]]): Dictionary of clusters.
-
-        Returns:
-            Dict[int, List[str]]: Filtered dictionary of clusters.
-        """
-        filtered_clusters = {}
-        for cluster_id, texts in clusters.items():
-            # Concatenate texts for analysis
-            full_text = " ".join(texts)
-            # Count words
-            word_count = len(full_text.split())
-
-            # Keep clusters with word count above the threshold
-            if word_count >= self.word_count_threshold:
-                filtered_clusters[cluster_id] = texts
-
-        return filtered_clusters
-
-    def extract(self, url: str, html: str, *q, **kwargs) -> List[Dict[str, Any]]:
-        """
-        Extract clusters from HTML content using hierarchical clustering.
-
-        Args:
-            url (str): The URL of the webpage.
-            html (str): The HTML content of the webpage.
-
-        Returns:
-            List[Dict[str, Any]]: A list of processed JSON blocks.
-        """
-        # Assume `html` is a list of text chunks for this strategy
-        t = time.time()
-        text_chunks = html.split(self.DEL)  # Split by lines or paragraphs as needed
-
-        # Pre-filter documents using embeddings and semantic_filter
-        text_chunks = self.filter_documents_embeddings(
-            text_chunks, self.semantic_filter
-        )
-
-        if not text_chunks:
-            return []
-
-        # Perform clustering
-        labels = self.hierarchical_clustering(text_chunks)
-        # print(f"[LOG] 🚀 Clustering done in {time.time() - t:.2f} seconds")
-
-        # Organize texts by their cluster labels, retaining order
-        t = time.time()
-        clusters = {}
-        for index, label in enumerate(labels):
-            clusters.setdefault(label, []).append(text_chunks[index])
-
-        # Filter clusters by word count
-        filtered_clusters = self.filter_clusters_by_word_count(clusters)
-
-        # Convert filtered clusters to a sorted list of dictionaries
-        cluster_list = [
-            {"index": int(idx), "tags": [], "content": " ".join(filtered_clusters[idx])}
-            for idx in sorted(filtered_clusters)
-        ]
-
-        if self.verbose:
-            print(f"[LOG] 🚀 Assign tags using {self.device}")
-
-        if self.device.type in ["gpu", "cuda", "mps", "cpu"]:
-            labels = self.nlp([cluster["content"] for cluster in cluster_list])
-
-            for cluster, label in zip(cluster_list, labels):
-                cluster["tags"] = label
-        # elif self.device.type == "cpu":
-        #     # Process the text with the loaded model
-        #     texts = [cluster['content'] for cluster in cluster_list]
-        #     # Batch process texts
-        #     docs = self.nlp.pipe(texts, disable=["tagger", "parser", "ner", "lemmatizer"])
-
-        #     for doc, cluster in zip(docs, cluster_list):
-        #         tok_k = self.top_k
-        #         top_categories = sorted(doc.cats.items(), key=lambda x: x[1], reverse=True)[:tok_k]
-        #         cluster['tags'] = [cat for cat, _ in top_categories]
-
-        # for cluster in  cluster_list:
-        #     doc = self.nlp(cluster['content'])
-        #     tok_k = self.top_k
-        #     top_categories = sorted(doc.cats.items(), key=lambda x: x[1], reverse=True)[:tok_k]
-        #     cluster['tags'] = [cat for cat, _ in top_categories]
-
-        if self.verbose:
-            print(f"[LOG] 🚀 Categorization done in {time.time() - t:.2f} seconds")
-
-        return cluster_list
-
-    def run(self, url: str, sections: List[str], *q, **kwargs) -> List[Dict[str, Any]]:
-        """
-        Process sections using hierarchical clustering.
-
-        Args:
-            url (str): The URL of the webpage.
-            sections (List[str]): List of sections (strings) to process.
-
-        Returns:
-        """
-        # This strategy processes all sections together
-
-        return self.extract(url, self.DEL.join(sections), **kwargs)
-
 
 #######################################################
 # Strategies using LLM-based extraction for text data #
@@ -543,7 +172,7 @@ class LLMExtractionStrategy(ExtractionStrategy):
             api_base: The base URL for the API request.
             extra_args: Additional arguments for the API request, such as temprature, max_tokens, etc.
         """
-        super().__init__( input_format=input_format, **kwargs)
+        super().__init__(input_format=input_format, **kwargs)
         self.llm_config = llm_config
         if not self.llm_config:
             self.llm_config = create_llm_config(
@@ -755,7 +384,7 @@ class LLMExtractionStrategy(ExtractionStrategy):
             # for ix, section in enumerate(merged_sections):
             #     extracted_content.append(extract_func(ix, section))
 
-            with ThreadPoolExecutor(max_workers=4) as executor:
+            with ThreadPoolExecutor(max_workers=os.getenv("LLM_CONCURRENT_NUMBER", 4)) as executor:
                 extract_func = partial(self.extract, url)
                 futures = [
                     executor.submit(extract_func, ix, sanitize_input_encode(section))
@@ -1669,10 +1298,10 @@ class JsonXPathExtractionStrategy(JsonElementExtractionStrategy):
     def _get_element_attribute(self, element, attribute: str):
         return element.get(attribute)
 
-"""
-RegexExtractionStrategy
-Fast, zero-LLM extraction of common entities via regular expressions.
-"""
+#######################################################
+# RegexExtractionStrategy
+# Fast, zero-LLM extraction of common entities via regular expressions.
+#######################################################
 
 _CTRL = {c: rf"\x{ord(c):02x}" for c in map(chr, range(32)) if c not in "\t\n\r"}
 

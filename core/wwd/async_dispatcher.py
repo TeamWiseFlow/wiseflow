@@ -1,6 +1,6 @@
 from typing import Dict, Optional, List, Tuple
 from .async_configs import CrawlerRunConfig
-from .models import (
+from .base.crawl4ai_models import (
     CrawlResult,
     CrawlerTaskResult,
     CrawlStatus,
@@ -9,7 +9,7 @@ from .models import (
 
 from .components.crawler_monitor import CrawlerMonitor
 
-from .wwd_types import AsyncWebCrawler
+from .base.crawl4ai_types import AsyncWebCrawler
 
 from collections.abc import AsyncGenerator
 

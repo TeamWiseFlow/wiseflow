@@ -807,8 +807,8 @@ class BrowserManager:
         pages = context.pages
         page = next((p for p in pages if p.url == crawlerRunConfig.url), None)
         if not page:
-            # page = await context.new_page()
-            page = context.pages[0] # changed in 0.6.3, not sure whether adpator to wiseflow
+            page = await context.new_page()
+            # page = context.pages[0] # changed in 0.6.3, not sure whether adpator to wiseflow
 
         # If a session_id is specified, store this session so we can reuse later
         if crawlerRunConfig.session_id:

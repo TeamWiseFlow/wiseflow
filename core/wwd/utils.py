@@ -1,5 +1,4 @@
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from bs4 import BeautifulSoup, Comment, element, Tag, NavigableString
 import json
 import html
@@ -7,7 +6,6 @@ import lxml
 import regex as re
 import os
 import platform
-from .prompts import PROMPT_EXTRACT_BLOCKS
 from array import array
 from .html2text import html2text, CustomHTML2Text
 # from .config import *
@@ -91,9 +89,19 @@ params_to_remove = [
     'xpw', 'xpx', 'xpy', 'xpz'
 ]
 
-
+@lru_cache(maxsize=1000)
 def normalize_url(url: str, base_url: str = None) -> str:
+    if not url:
+        return ""
+
     url = url.strip()
+    if not url:
+        return ""
+    # Handle special URL schemes that shouldn't be modified
+    special_schemes = ['mailto:', 'tel:', 'javascript:', 'data:']
+    if any(url.lower().startswith(scheme) for scheme in special_schemes):
+        return url
+
     if url.startswith(('www.', 'WWW.')):
         _url = f"https://{url}"
     elif url.startswith('/www.'):
@@ -110,7 +118,7 @@ def normalize_url(url: str, base_url: str = None) -> str:
         _url = urljoin(base_url, url)
 
     try:
-        parsed = urlparse(url)
+        parsed = urlparse(_url)
         query_params = parse_qs(parsed.query)
     
         for param in params_to_remove:
@@ -130,19 +138,29 @@ def normalize_url(url: str, base_url: str = None) -> str:
         return cleaned_url
 
     except Exception as e:
-        print(f"Error cleaning URL: {e}")
-        _ss = _url.split('//')
-        if len(_ss) == 2:
-            return '//'.join(_ss)
-        else:
-            return _ss[0] + '//' + '/'.join(_ss[1:])
+        print(f"Error cleaning URL '{_url}': {e}")
+        try:
+            # More robust fallback that preserves the original URL structure
+            _ss = _url.split('//')
+            if len(_ss) == 2:
+                return '//'.join(_ss)
+            else:
+                return _ss[0] + '//' + '/'.join(_ss[1:])
+        except Exception as fallback_error:
+            print(f"Fallback error for URL '{_url}': {fallback_error}")
+            # Ultimate fallback - return the input
+            return _url
 
 def is_valid_img_url(url: str) -> bool:
     """
     Check if a URL is a valid image URL.
     """
+    if not url:
+        return False
     if url.startswith('data:image'):
         return True
+    if not url.startswith('http'):
+        return False
     if any(url.endswith(tld) or url.endswith(tld + '/') for tld in common_tlds):
         return False
     if any(url.endswith(ext) for ext in common_file_exts if ext not in ['jpg', 'jpeg', 'png']):
@@ -1727,92 +1745,9 @@ def extract_xml_data(tags, string):
             data[tag] = ""
 
     return data
-
-
-def perform_completion_with_backoff(
-    provider,
-    prompt_with_variables,
-    api_token,
-    json_response=False,
-    base_url=None,
-    **kwargs,
-):
-    """
-    Perform an API completion request with exponential backoff.
-
-    How it works:
-    1. Sends a completion request to the API.
-    2. Retries on rate-limit errors with exponential delays.
-    3. Returns the API response or an error after all retries.
-
-    Args:
-        provider (str): The name of the API provider.
-        prompt_with_variables (str): The input prompt for the completion request.
-        api_token (str): The API token for authentication.
-        json_response (bool): Whether to request a JSON response. Defaults to False.
-        base_url (Optional[str]): The base URL for the API. Defaults to None.
-        **kwargs: Additional arguments for the API request.
-
-    Returns:
-        dict: The API response or an error message after all retries.
-    """
-
-    from litellm import completion
-    from litellm.exceptions import RateLimitError
-
-    max_attempts = 3
-    base_delay = 2  # Base delay in seconds, you can adjust this based on your needs
-
-    extra_args = {"temperature": 0.01, "api_key": api_token, "base_url": base_url}
-    if json_response:
-        extra_args["response_format"] = {"type": "json_object"}
-
-    if kwargs.get("extra_args"):
-        extra_args.update(kwargs["extra_args"])
-
-    for attempt in range(max_attempts):
-        try:
-            response = completion(
-                model=provider,
-                messages=[{"role": "user", "content": prompt_with_variables}],
-                **extra_args,
-            )
-            return response  # Return the successful response
-        except RateLimitError as e:
-            print("Rate limit error:", str(e))
-
-            # Check if we have exhausted our max attempts
-            if attempt < max_attempts - 1:
-                # Calculate the delay and wait
-                delay = base_delay * (2**attempt)  # Exponential backoff formula
-                print(f"Waiting for {delay} seconds before retrying...")
-                time.sleep(delay)
-            else:
-                # Return an error response after exhausting all retries
-                return [
-                    {
-                        "index": 0,
-                        "tags": ["error"],
-                        "content": ["Rate limit error. Please try again later."],
-                    }
-                ]
-        except Exception as e:
-            raise e  # Raise any other exceptions immediately
-            # print("Error during completion request:", str(e))
-            # error_message = e.message
-            # return [
-            #     {
-            #         "index": 0,
-            #         "tags": ["error"],
-            #         "content": [
-            #             f"Error during LLM completion request. {error_message}"
-            #         ],
-            #     }
-            # ]
-
-
+"""
 def extract_blocks(url, html, provider=DEFAULT_PROVIDER, api_token=None, base_url=None):
-    """
+    
     Extract content blocks from website HTML using an AI provider.
 
     How it works:
@@ -1829,7 +1764,7 @@ def extract_blocks(url, html, provider=DEFAULT_PROVIDER, api_token=None, base_ur
 
     Returns:
         List[dict]: A list of extracted content blocks.
-    """
+
 
     # api_token = os.getenv('GROQ_API_KEY', None) if not api_token else api_token
     api_token = PROVIDER_MODELS.get(provider, None) if not api_token else api_token
@@ -1871,7 +1806,7 @@ def extract_blocks(url, html, provider=DEFAULT_PROVIDER, api_token=None, base_ur
 
 
 def extract_blocks_batch(batch_data, provider="groq/llama3-70b-8192", api_token=None):
-    """
+
     Extract content blocks from a batch of website HTMLs.
 
     How it works:
@@ -1886,7 +1821,7 @@ def extract_blocks_batch(batch_data, provider="groq/llama3-70b-8192", api_token=
 
     Returns:
         List[dict]: A list of extracted content blocks from all batch items.
-    """
+
 
     api_token = os.getenv("GROQ_API_KEY", None) if not api_token else api_token
     from litellm import batch_completion
@@ -1933,7 +1868,7 @@ def extract_blocks_batch(batch_data, provider="groq/llama3-70b-8192", api_token=
         all_blocks.append(blocks)
 
     return sum(all_blocks, [])
-
+"""
 
 def merge_chunks_based_on_token_threshold(chunks, token_threshold):
     """
@@ -1966,11 +1901,11 @@ def merge_chunks_based_on_token_threshold(chunks, token_threshold):
 
     return merged_sections
 
-
+"""
 def process_sections(
     url: str, sections: list, provider: str, api_token: str, base_url=None
 ) -> list:
-    """
+    
     Process sections of HTML content sequentially or in parallel.
 
     How it works:
@@ -1987,7 +1922,7 @@ def process_sections(
 
     Returns:
         List[dict]: The list of extracted content blocks from all sections.
-    """
+
 
     extracted_content = []
     if provider.startswith("groq/"):
@@ -2010,7 +1945,7 @@ def process_sections(
                 extracted_content.extend(future.result())
 
     return extracted_content
-
+"""
 
 def wrap_text(draw, text, font, max_width):
     """
@@ -2868,4 +2803,23 @@ def preprocess_html_for_schema(html_content, text_threshold=100, attr_value_thre
     except Exception as e:
         # Fallback for parsing errors
         return html_content[:max_size] if len(html_content) > max_size else html_content
-    
+
+@lru_cache(maxsize=1000)
+def extract_extension(url: str) -> str:
+    """Extracts file extension from a URL."""
+    # Remove scheme (http://, https://) if present
+    if "://" in url:
+        url = url.split("://", 1)[-1]  # Get everything after '://'
+
+    # Remove domain (everything up to the first '/')
+    path_start = url.find("/")
+    path = url[path_start:] if path_start != -1 else ""
+
+    # Extract last filename in path
+    filename = path.rsplit("/", 1)[-1] if "/" in path else ""
+
+    # Extract and validate extension
+    if "." not in filename:
+        return ""
+
+    return filename.rpartition(".")[-1].lower()

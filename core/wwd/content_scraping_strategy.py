@@ -27,7 +27,7 @@ from .utils import (
 from lxml import etree
 from lxml import html as lhtml
 from typing import List
-from .models import ScrapingResult, MediaItem, Link, Media, Links
+from .base.crawl4ai_models import ScrapingResult, MediaItem, Link, Media, Links
 import copy
 
 # Pre-compile regular expressions for Open Graph and Twitter metadata

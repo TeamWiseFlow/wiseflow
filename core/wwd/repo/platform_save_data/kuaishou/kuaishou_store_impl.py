@@ -22,7 +22,7 @@ from typing import Dict
 
 import aiofiles
 
-from base.base_crawler import AbstractStore
+from core.wwd.base.mc_base_crawler import AbstractStore
 from wwd.pkg.tools import utils
 from wwd.var import crawler_type_var
 

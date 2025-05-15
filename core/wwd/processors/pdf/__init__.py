@@ -3,7 +3,7 @@ import asyncio
 from dataclasses import asdict
 from wwd.async_logger import AsyncLogger
 from wwd.async_crawler_strategy import AsyncCrawlerStrategy
-from wwd.models import AsyncCrawlResponse, ScrapingResult 
+from core.wwd.base.crawl4ai_models import AsyncCrawlResponse, ScrapingResult 
 from wwd.content_scraping_strategy import ContentScrapingStrategy
 from .processor import NaivePDFProcessorStrategy  # Assuming your current PDF code is in pdf_processor.py
 

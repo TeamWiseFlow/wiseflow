@@ -12,7 +12,7 @@ import asyncio
 
 # from contextlib import nullcontext, asynccontextmanager
 from contextlib import asynccontextmanager
-from .models import (
+from .base.crawl4ai_models import (
     CrawlResult,
     MarkdownGenerationResult,
     DispatchResult,
@@ -23,9 +23,8 @@ from .models import (
 from .async_database import async_db_manager
 from .chunking_strategy import *  # noqa: F403
 from .chunking_strategy import IdentityChunking
-from .content_filter_strategy import *  # noqa: F403
-from .extraction_strategy import *  # noqa: F403
-from .extraction_strategy import NoExtractionStrategy
+# from .extraction_strategy import *  # noqa: F403
+# from .extraction_strategy import NoExtractionStrategy
 from .async_crawler_strategy import (
     AsyncCrawlerStrategy,
     AsyncPlaywrightCrawlerStrategy,
@@ -36,7 +35,7 @@ from .markdown_generation_strategy import (
     DefaultMarkdownGenerator,
     MarkdownGenerationStrategy,
 )
-from .deep_crawling import DeepCrawlDecorator
+
 from .async_logger import AsyncLogger, AsyncLoggerBase, LogColor
 from .async_configs import BrowserConfig, CrawlerRunConfig, ProxyConfig
 from .async_dispatcher import *  # noqa: F403
@@ -161,10 +160,6 @@ class AsyncWebCrawler:
         self.robots_parser = RobotsParser()
 
         self.ready = False
-
-        # Decorate arun method with deep crawling capabilities
-        self._deep_handler = DeepCrawlDecorator(self)
-        self.arun = self._deep_handler(self.arun)
 
     async def start(self):
         """
@@ -576,8 +571,9 @@ class AsyncWebCrawler:
         # )
 
         ################################
-        # Structured Content Extraction           #
+        # Structured Content Extraction#
         ################################
+        """
         if (
             not bool(extracted_content)
             and config.extraction_strategy
@@ -620,7 +616,7 @@ class AsyncWebCrawler:
                 tag="EXTRACT",
                 params={"url": _url, "timing": time.perf_counter() - t1},
             )
-
+        """
         # Apply HTML formatting if requested
         if config.prettiify:
             cleaned_html = fast_format_html(cleaned_html)

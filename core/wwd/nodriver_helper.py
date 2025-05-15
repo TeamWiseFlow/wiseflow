@@ -5,7 +5,7 @@ import json
 from typing import Optional
 import nodriver as uc
 from pathlib import Path
-from wwd.constant import PLATFORM_LOGIN_URLS, WEIBO_PLATFORM_NAME
+from .constant import PLATFORM_LOGIN_URLS, WEIBO_PLATFORM_NAME
 
 
 class NodriverHelper:

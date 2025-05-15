@@ -1,4 +1,4 @@
-from wwd import *
+from ..wwd import DefaultMarkdownGenerator, LXMLWebScrapingStrategy, CrawlerRunConfig
 
 """
 refer this to modify a custom scraper(actully is a CrawlerRunConfig)
@@ -41,4 +41,3 @@ crawler_config = CrawlerRunConfig(
     # fetch_ssl_certificate=True,
     # image_score_threshold=3
 )
-

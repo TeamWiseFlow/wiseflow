@@ -1,8 +1,8 @@
 # __init__.py
 import warnings
 
-#from .async_webcrawler import AsyncWebCrawler, CacheMode
-from .async_configs import BrowserConfig, CrawlerRunConfig, HTTPCrawlerConfig, LLMConfig, ProxyConfig, GeolocationConfig
+from .async_webcrawler import AsyncWebCrawler, CacheMode
+from .async_configs import BrowserConfig, CrawlerRunConfig, ProxyConfig, GeolocationConfig
 
 from .content_scraping_strategy import (
     ContentScrapingStrategy,
@@ -17,23 +17,19 @@ from .proxy_strategy import (
     ProxyRotationStrategy,
     RoundRobinProxyStrategy,
 )
+"""
 from .extraction_strategy import (
     ExtractionStrategy,
     LLMExtractionStrategy,
-    CosineStrategy,
     JsonCssExtractionStrategy,
     JsonXPathExtractionStrategy,
     JsonLxmlExtractionStrategy
 )
 from .chunking_strategy import ChunkingStrategy, RegexChunking
+"""
 from .markdown_generation_strategy import DefaultMarkdownGenerator
-from .content_filter_strategy import (
-    PruningContentFilter,
-    BM25ContentFilter,
-    LLMContentFilter,
-    RelevantContentFilter,
-)
-from .models import CrawlResult, MarkdownGenerationResult, DisplayMode
+
+from .base.crawl4ai_models import CrawlResult, MarkdownGenerationResult, DisplayMode
 from .components.crawler_monitor import CrawlerMonitor
 from .async_dispatcher import (
     MemoryAdaptiveDispatcher,
@@ -41,55 +37,15 @@ from .async_dispatcher import (
     RateLimiter,
     BaseDispatcher,
 )
-from .docker_client import Crawl4aiDockerClient
+
 from .hub import CrawlerHub
-from .browser_profiler import BrowserProfiler
-from .deep_crawling import (
-    DeepCrawlStrategy,
-    BFSDeepCrawlStrategy,
-    FilterChain,
-    URLPatternFilter,
-    DomainFilter,
-    ContentTypeFilter,
-    URLFilter,
-    FilterStats,
-    SEOFilter,
-    KeywordRelevanceScorer,
-    URLScorer,
-    CompositeScorer,
-    DomainAuthorityScorer,
-    FreshnessScorer,
-    PathDepthScorer,
-    BestFirstCrawlingStrategy,
-    DFSDeepCrawlStrategy,
-    DeepCrawlDecorator,
-)
+
 
 __all__ = [
     "AsyncLoggerBase",
     "AsyncLogger",
     "AsyncWebCrawler",
-    "BrowserProfiler",
-    "LLMConfig",
     "GeolocationConfig",
-    "DeepCrawlStrategy",
-    "BFSDeepCrawlStrategy",
-    "BestFirstCrawlingStrategy",
-    "DFSDeepCrawlStrategy",
-    "FilterChain",
-    "URLPatternFilter",
-    "ContentTypeFilter",
-    "DomainFilter",
-    "FilterStats",
-    "URLFilter",
-    "SEOFilter",
-    "KeywordRelevanceScorer",
-    "URLScorer",
-    "CompositeScorer",
-    "DomainAuthorityScorer",
-    "FreshnessScorer",
-    "PathDepthScorer",
-    "DeepCrawlDecorator",
     "CrawlResult",
     "CrawlerHub",
     "CacheMode",
@@ -98,20 +54,14 @@ __all__ = [
     "LXMLWebScrapingStrategy",
     "BrowserConfig",
     "CrawlerRunConfig",
-    "HTTPCrawlerConfig",
     "ExtractionStrategy",
     "LLMExtractionStrategy",
-    "CosineStrategy",
     "JsonCssExtractionStrategy",
     "JsonXPathExtractionStrategy",
     "JsonLxmlExtractionStrategy",
     "ChunkingStrategy",
     "RegexChunking",
     "DefaultMarkdownGenerator",
-    "RelevantContentFilter",
-    "PruningContentFilter",
-    "BM25ContentFilter",
-    "LLMContentFilter",
     "BaseDispatcher",
     "MemoryAdaptiveDispatcher",
     "SemaphoreDispatcher",
@@ -119,7 +69,6 @@ __all__ = [
     "CrawlerMonitor",
     "DisplayMode",
     "MarkdownGenerationResult",
-    "Crawl4aiDockerClient",
     "ProxyRotationStrategy",
     "RoundRobinProxyStrategy",
     "ProxyConfig"

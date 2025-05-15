@@ -13,7 +13,7 @@ from PIL import Image, ImageDraw, ImageFont
 import hashlib
 import uuid
 from .js_snippet import load_js_script
-from .models import AsyncCrawlResponse
+from .base.crawl4ai_models import AsyncCrawlResponse
 from .config import SCREENSHOT_HEIGHT_TRESHOLD
 from .async_configs import BrowserConfig, CrawlerRunConfig
 from .async_logger import AsyncLogger

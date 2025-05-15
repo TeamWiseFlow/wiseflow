@@ -12,7 +12,7 @@ from rich.table import Table
 from rich.text import Text
 from rich.live import Live
 from rich import box
-from ..models import CrawlStatus
+from ..base.crawl4ai_models import CrawlStatus
 
 class TerminalUI:
     """Terminal user interface for CrawlerMonitor using rich library."""

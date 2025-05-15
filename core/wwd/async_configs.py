@@ -12,12 +12,11 @@ from .config import (
     SOCIAL_MEDIA_DOMAINS,
 )
 
-from .extraction_strategy import ExtractionStrategy, LLMExtractionStrategy
+# from .extraction_strategy import ExtractionStrategy, LLMExtractionStrategy
 from .chunking_strategy import ChunkingStrategy, RegexChunking
 
 from .markdown_generation_strategy import MarkdownGenerationStrategy, DefaultMarkdownGenerator
 from .content_scraping_strategy import ContentScrapingStrategy, LXMLWebScrapingStrategy
-from .deep_crawling import DeepCrawlStrategy
 
 from .cache_context import CacheMode
 from .proxy_strategy import ProxyRotationStrategy
@@ -28,7 +27,6 @@ from typing import Any, Dict, Optional
 from enum import Enum
 
 # from .proxy_strategy import ProxyConfig
-
 
 
 def to_serializable_dict(obj: Any, ignore_default_value : bool = False) -> Dict:
@@ -104,11 +102,11 @@ def to_serializable_dict(obj: Any, ignore_default_value : bool = False) -> Dict:
         
     return str(obj)
 
-
+"""
 def from_serializable_dict(data: Any) -> Any:
-    """
+
     Recursively convert a serializable dictionary back to an object instance.
-    """
+
     if data is None:
         return None
 
@@ -148,7 +146,7 @@ def from_serializable_dict(data: Any) -> Any:
         return {k: from_serializable_dict(v) for k, v in data.items()}
 
     return data
-
+"""
 
 def is_empty_value(value: Any) -> bool:
     """Check if a value is effectively empty/null."""
@@ -316,7 +314,6 @@ class ProxyConfig:
         config_dict = self.to_dict()
         config_dict.update(kwargs)
         return ProxyConfig.from_dict(config_dict)
-
 
 
 class BrowserConfig:
@@ -547,84 +544,10 @@ class BrowserConfig:
 
     @staticmethod
     def load(data: dict) -> "BrowserConfig":
-        # Deserialize the object from a dictionary
-        config = from_serializable_dict(data)
-        if isinstance(config, BrowserConfig):
-            return config
-        return BrowserConfig.from_kwargs(config)
+        return BrowserConfig.from_kwargs(data)
 
 
-class HTTPCrawlerConfig:
-    """HTTP-specific crawler configuration"""
-
-    method: str = "GET"
-    headers: Optional[Dict[str, str]] = None
-    data: Optional[Dict[str, Any]] = None
-    json: Optional[Dict[str, Any]] = None
-    follow_redirects: bool = True
-    verify_ssl: bool = True
-
-    def __init__(
-        self,
-        method: str = "GET",
-        headers: Optional[Dict[str, str]] = None,
-        data: Optional[Dict[str, Any]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        follow_redirects: bool = True,
-        verify_ssl: bool = True,
-    ):
-        self.method = method
-        self.headers = headers
-        self.data = data
-        self.json = json
-        self.follow_redirects = follow_redirects
-        self.verify_ssl = verify_ssl
-
-    @staticmethod
-    def from_kwargs(kwargs: dict) -> "HTTPCrawlerConfig":
-        return HTTPCrawlerConfig(
-            method=kwargs.get("method", "GET"),
-            headers=kwargs.get("headers"),
-            data=kwargs.get("data"),
-            json=kwargs.get("json"),
-            follow_redirects=kwargs.get("follow_redirects", True),
-            verify_ssl=kwargs.get("verify_ssl", True),
-        )
-
-    def to_dict(self):
-        return {
-            "method": self.method,
-            "headers": self.headers,
-            "data": self.data,
-            "json": self.json,
-            "follow_redirects": self.follow_redirects,
-            "verify_ssl": self.verify_ssl,
-        }
-
-    def clone(self, **kwargs):
-        """Create a copy of this configuration with updated values.
-
-        Args:
-            **kwargs: Key-value pairs of configuration options to update
-
-        Returns:
-            HTTPCrawlerConfig: A new instance with the specified updates
-        """
-        config_dict = self.to_dict()
-        config_dict.update(kwargs)
-        return HTTPCrawlerConfig.from_kwargs(config_dict)
-
-    def dump(self) -> dict:
-        return to_serializable_dict(self)
-
-    @staticmethod
-    def load(data: dict) -> "HTTPCrawlerConfig":
-        config = from_serializable_dict(data)
-        if isinstance(config, HTTPCrawlerConfig):
-            return config
-        return HTTPCrawlerConfig.from_kwargs(config)
-
-class CrawlerRunConfig():
+class CrawlerRunConfig:
     _UNWANTED_PROPS = {
         'disable_cache' : 'Instead, use cache_mode=CacheMode.DISABLED',
         'bypass_cache' : 'Instead, use cache_mode=CacheMode.BYPASS',
@@ -641,8 +564,6 @@ class CrawlerRunConfig():
     By using this class, you have a single place to understand and adjust the crawling options.
 
     Attributes:
-        # Deep Crawl Parameters
-        deep_crawl_strategy (DeepCrawlStrategy or None): Strategy to use for deep crawling.
 
         # Content Processing Parameters
         word_count_threshold (int): Minimum word count threshold before processing content.
@@ -826,7 +747,7 @@ class CrawlerRunConfig():
         self,
         # Content Processing Parameters
         word_count_threshold: int = MIN_WORD_THRESHOLD,
-        extraction_strategy: ExtractionStrategy = None,
+        # extraction_strategy: ExtractionStrategy = None,
         chunking_strategy: ChunkingStrategy = RegexChunking(),
         markdown_generator: MarkdownGenerationStrategy = DefaultMarkdownGenerator(),
         only_text: bool = False,
@@ -908,8 +829,6 @@ class CrawlerRunConfig():
         user_agent: str = None,
         user_agent_mode: str = None,
         user_agent_generator_config: dict = {},
-        # Deep Crawl Parameters
-        deep_crawl_strategy: Optional[DeepCrawlStrategy] = None,
         # Experimental Parameters
         experimental: Dict[str, Any] = None,
     ):
@@ -918,7 +837,7 @@ class CrawlerRunConfig():
 
         # Content Processing Parameters
         self.word_count_threshold = word_count_threshold
-        self.extraction_strategy = extraction_strategy
+        # self.extraction_strategy = extraction_strategy
         self.chunking_strategy = chunking_strategy
         self.markdown_generator = markdown_generator
         self.only_text = only_text
@@ -1017,6 +936,7 @@ class CrawlerRunConfig():
         self.user_agent_generator_config = user_agent_generator_config
 
         # Validate type of extraction strategy and chunking strategy if they are provided
+        """
         if self.extraction_strategy is not None and not isinstance(
             self.extraction_strategy, ExtractionStrategy
         ):
@@ -1029,14 +949,13 @@ class CrawlerRunConfig():
             raise ValueError(
                 "chunking_strategy must be an instance of ChunkingStrategy"
             )
+        """
+        self.extraction_strategy = None
 
         # Set default chunking strategy if None
         if self.chunking_strategy is None:
             self.chunking_strategy = RegexChunking()
 
-        # Deep Crawl Parameters
-        self.deep_crawl_strategy = deep_crawl_strategy
-        
         # Experimental Parameters
         self.experimental = experimental or {}
 
@@ -1153,8 +1072,6 @@ class CrawlerRunConfig():
             user_agent=kwargs.get("user_agent"),
             user_agent_mode=kwargs.get("user_agent_mode"),
             user_agent_generator_config=kwargs.get("user_agent_generator_config", {}),
-            # Deep Crawl Parameters
-            deep_crawl_strategy=kwargs.get("deep_crawl_strategy"),
             url=kwargs.get("url"),
             # Experimental Parameters 
             experimental=kwargs.get("experimental"),
@@ -1168,10 +1085,7 @@ class CrawlerRunConfig():
     @staticmethod
     def load(data: dict) -> "CrawlerRunConfig":
         # Deserialize the object from a dictionary
-        config = from_serializable_dict(data)
-        if isinstance(config, CrawlerRunConfig):
-            return config
-        return CrawlerRunConfig.from_kwargs(config)
+        return CrawlerRunConfig.from_kwargs(data)
 
     def to_dict(self):
         return {
@@ -1247,7 +1161,6 @@ class CrawlerRunConfig():
             "user_agent": self.user_agent,
             "user_agent_mode": self.user_agent_mode,
             "user_agent_generator_config": self.user_agent_generator_config,
-            "deep_crawl_strategy": self.deep_crawl_strategy,
             "url": self.url,
             "experimental": self.experimental,
         }
@@ -1362,5 +1275,3 @@ class LLMConfig:
         config_dict = self.to_dict()
         config_dict.update(kwargs)
         return LLMConfig.from_kwargs(config_dict)
-
-

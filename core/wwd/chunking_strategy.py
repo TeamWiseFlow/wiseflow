@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import re
 from collections import Counter
 import string
-from .model_loader import load_nltk_punkt
+
 
 # Define the abstract base class for chunking strategies
 class ChunkingStrategy(ABC):
@@ -59,34 +59,6 @@ class RegexChunking(ChunkingStrategy):
                 new_paragraphs.extend(re.split(pattern, paragraph))
             paragraphs = new_paragraphs
         return paragraphs
-
-
-# NLP-based sentence chunking
-class NlpSentenceChunking(ChunkingStrategy):
-    """
-    Chunking strategy that splits text into sentences using NLTK's sentence tokenizer.
-    """
-
-    def __init__(self, **kwargs):
-        """
-        Initialize the NlpSentenceChunking object.
-        """
-        from crawl4ai.le.legacy.model_loader import load_nltk_punkt
-        load_nltk_punkt()
-
-    def chunk(self, text: str) -> list:
-        # Improved regex for sentence splitting
-        # sentence_endings = re.compile(
-        #     r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<![A-Z][A-Z]\.)(?<![A-Za-z]\.)(?<=\.|\?|\!|\n)\s'
-        # )
-        # sentences = sentence_endings.split(text)
-        # sens =  [sent.strip() for sent in sentences if sent]
-        from nltk.tokenize import sent_tokenize
-
-        sentences = sent_tokenize(text)
-        sens = [sent.strip() for sent in sentences]
-
-        return list(set(sens))
 
 
 # Topic-based segmentation using TextTiling

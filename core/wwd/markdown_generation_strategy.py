@@ -1,13 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Dict, Any, Tuple
-from .models import MarkdownGenerationResult
+from .base.crawl4ai_models import MarkdownGenerationResult
 from .html2text import CustomHTML2Text
-# from .types import RelevantContentFilter
-from .content_filter_strategy import RelevantContentFilter
 import regex as re
-from urllib.parse import urljoin
 from .utils import normalize_url, url_pattern, is_valid_img_url
 import os
+from async_lru import alru_cache
 
 # Pre-compile the regex pattern
 # LINK_PATTERN = re.compile(r'!?\[([^\]]+)\]\(([^)]+?)(?:\s+"([^"]*)")?\)')
@@ -16,8 +14,7 @@ vl_model = os.environ.get("VL_MODEL", "")
 if not vl_model:
     print("VL_MODEL not set, will skip extracting info from img, some info may be lost!")
 
-recognized_img_cache = {}
-
+@alru_cache(maxsize=1000)
 async def extract_info_from_img(url: str) -> str:
     if not vl_model:
         return '§to_be_recognized_by_visual_llm§'
@@ -29,13 +26,14 @@ async def extract_info_from_img(url: str) -> str:
 
     return llm_output
     """
+    return '§to_be_recognized_by_visual_llm§'
 
 class MarkdownGenerationStrategy(ABC):
     """Abstract base class for markdown generation strategies."""
 
     def __init__(
         self,
-        content_filter: Optional[RelevantContentFilter] = None,
+        content_filter = None,
         options: Optional[Dict[str, Any]] = None,
         verbose: bool = False,
         content_source: str = "cleaned_html",
@@ -51,7 +49,6 @@ class MarkdownGenerationStrategy(ABC):
         input_html: str,
         base_url: str = "",
         html2text_options: Optional[Dict[str, Any]] = None,
-        content_filter: Optional[RelevantContentFilter] = None,
         citations: bool = True,
         **kwargs,
     ) -> MarkdownGenerationResult:
@@ -80,7 +77,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
 
     def __init__(
         self,
-        content_filter: Optional[RelevantContentFilter] = None,
+        content_filter = None,
         options: Optional[Dict[str, Any]] = None,
         content_source: str = "cleaned_html",
     ):
@@ -108,7 +105,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             link_pattern = r'(\[(.*?)\]\(((?:[^()]*|\([^()]*\))*)\))'
             matches = re.findall(link_pattern, text, re.DOTALL)
             for _sec, link_text, link_url in matches:
-                # 存在“”嵌套情况，需要先提取出url
+                # 存在""嵌套情况，需要先提取出url
                 _title = re.sub(url_pattern, '', link_url, re.DOTALL).strip()
                 _title = _title.strip('"')
                 link_text = link_text.strip()
@@ -151,11 +148,9 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
                             link_dict[_key] = img_src
                             link_text = img_alt
                         else:
-                            if img_src not in recognized_img_cache:
-                                recognized_img_cache[img_src] = await extract_info_from_img(img_src)
+                            link_text = await extract_info_from_img(img_src)
                             _key = f"[img{len(link_dict)+1}]"
                             link_dict[_key] = img_src
-                            link_text = recognized_img_cache[img_src]
                     else:
                         link_text = img_alt
 
@@ -184,11 +179,9 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
                     link_dict[_key] = img_src
                     text = text.replace(_sec, alt + _key, 1)
                 else:
-                    if img_src not in recognized_img_cache:
-                        recognized_img_cache[img_src] = await extract_info_from_img(img_src)
                     _key = f"[{len(link_dict)+1}]"
                     link_dict[_key] = img_src
-                    text = text.replace(_sec, recognized_img_cache[img_src] + _key, 1)
+                    text = text.replace(_sec, await extract_info_from_img(img_src) + _key, 1)
 
             # 处理文本中的"野 url"，使用更精确的正则表达式
             matches = re.findall(url_pattern, text)
@@ -210,7 +203,6 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
         base_url: str = "",
         html2text_options: Optional[Dict[str, Any]] = None,
         options: Optional[Dict[str, Any]] = None,
-        content_filter: Optional[RelevantContentFilter] = None,
         **kwargs,
     ) -> MarkdownGenerationResult:
         """
@@ -219,7 +211,6 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
         How it works:
         1. Generate raw markdown from the input HTML.
         2. Convert links to citations.
-        3. Generate fit markdown if content filter is provided.
         4. Return MarkdownGenerationResult.
 
         Args:
@@ -227,11 +218,9 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             base_url (str): Base URL for URL joins.
             html2text_options (Optional[Dict[str, Any]]): HTML2Text options.
             options (Optional[Dict[str, Any]]): Additional options for markdown generation.
-            content_filter (Optional[RelevantContentFilter]): Content filter for generating fit markdown.
-            citations (bool): Whether to generate citations.
 
         Returns:
-            MarkdownGenerationResult: Result containing raw markdown, fit markdown, fit HTML, and references markdown.
+            MarkdownGenerationResult: Result containing raw markdown and link dict
         
         bigbrother666sh modified:
         add raw markdown preprocess as a must process
@@ -282,34 +271,15 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
                 raw_markdown = f"Error generating citations[wiseflow preprocess]: {str(e)}"
 
             # Generate fit markdown if content filter is provided
-            # bigbrothe666sh: here in V0.6.0 it's a seperate process from raw markdown generation\citation process…………
-            # bigbrother666sh: if need it, it should be before the conver_links_to_citations process...
-            fit_markdown: Optional[str] = ""
-            filtered_html: Optional[str] = ""
-            if content_filter or self.content_filter:
-                try:
-                    content_filter = content_filter or self.content_filter
-                    filtered_html = content_filter.filter_content(input_html)
-                    filtered_html = "\n".join(
-                        "<div>{}</div>".format(s) for s in filtered_html
-                    )
-                    fit_markdown = h.handle(filtered_html)
-                except Exception as e:
-                    fit_markdown = f"Error generating fit markdown: {str(e)}"
-                    filtered_html = ""
-
+            # bigbrother666sh: content filter is not needed in wiseflow
             return MarkdownGenerationResult(
                 raw_markdown=raw_markdown or "",
-                link_dict=link_dict or {},
-                fit_markdown=fit_markdown or "",
-                fit_html=filtered_html or "",
+                link_dict=link_dict or {}
             )
         except Exception as e:
             # If anything fails, return empty strings with error message
             error_msg = f"Error in markdown generation: {str(e)}"
             return MarkdownGenerationResult(
                 raw_markdown=error_msg,
-                link_dict={},
-                fit_markdown="",
-                fit_html="",
+                link_dict={}
             )

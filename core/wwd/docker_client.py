@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 import asyncio
 
 from .async_configs import BrowserConfig, CrawlerRunConfig
-from .models import CrawlResult
+from .base.crawl4ai_models import CrawlResult
 from .async_logger import AsyncLogger, LogLevel
 
 

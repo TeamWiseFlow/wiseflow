@@ -4,7 +4,7 @@ from typing import AsyncGenerator
 from typing import Generic, TypeVar
 from enum import Enum
 from dataclasses import dataclass
-from .ssl_certificate import SSLCertificate
+from ..ssl_certificate import SSLCertificate
 from datetime import datetime
 from datetime import timedelta
 
@@ -119,8 +119,6 @@ class DispatchResult(BaseModel):
 class MarkdownGenerationResult(BaseModel):
     raw_markdown: str
     link_dict: dict
-    fit_markdown: Optional[str] = None
-    fit_html: Optional[str] = None
 
     def __str__(self):
         return self.raw_markdown
