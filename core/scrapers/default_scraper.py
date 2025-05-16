@@ -28,7 +28,6 @@ crawler_config = CrawlerRunConfig(
     delay_before_return_html=1.0,
     word_count_threshold=10,
     # keep_data_attributes=True,
-    scraping_strategy=LXMLWebScrapingStrategy(),
     markdown_generator=md_generator, 
     # wait_until='commit', 
     # simulate_user=True,

@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Dict, Any, Tuple
-from .base.crawl4ai_models import MarkdownGenerationResult
 from .html2text import CustomHTML2Text
 import regex as re
 from .utils import normalize_url, url_pattern, is_valid_img_url
@@ -33,15 +32,11 @@ class MarkdownGenerationStrategy(ABC):
 
     def __init__(
         self,
-        content_filter = None,
         options: Optional[Dict[str, Any]] = None,
         verbose: bool = False,
-        content_source: str = "cleaned_html",
     ):
-        self.content_filter = content_filter
         self.options = options or {}
         self.verbose = verbose
-        self.content_source = content_source
 
     @abstractmethod
     def generate_markdown(
@@ -51,7 +46,7 @@ class MarkdownGenerationStrategy(ABC):
         html2text_options: Optional[Dict[str, Any]] = None,
         citations: bool = True,
         **kwargs,
-    ) -> MarkdownGenerationResult:
+    ) -> Tuple[str, str, dict]:
         """Generate markdown from the selected input HTML."""
         pass
 
@@ -64,7 +59,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
     1. Generate raw markdown from cleaned HTML.
     2. Convert links to citations.
     3. Generate fit markdown if content filter is provided.
-    4. Return MarkdownGenerationResult.
+    4. Return error message, markdown, and link dict.
 
     Args:
         content_filter (Optional[RelevantContentFilter]): Content filter for generating fit markdown.
@@ -72,16 +67,15 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
         content_source (str): Source of content to generate markdown from. Options: "cleaned_html", "raw_html", "fit_html". Defaults to "cleaned_html".
 
     Returns:
-        MarkdownGenerationResult: Result containing raw markdown, fit markdown, fit HTML, and references markdown.
+        Tuple[str, str, dict]: Result containing error message, raw markdown, and link dict.
     """
 
     def __init__(
         self,
         content_filter = None,
         options: Optional[Dict[str, Any]] = None,
-        content_source: str = "cleaned_html",
     ):
-        super().__init__(content_filter, options, verbose=False, content_source=content_source)
+        super().__init__(content_filter, options, verbose=False)
 
     async def convert_links_to_citations(self, markdown: str, base_url: str = "") -> Tuple[str, dict]:
         """
@@ -204,14 +198,14 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
         html2text_options: Optional[Dict[str, Any]] = None,
         options: Optional[Dict[str, Any]] = None,
         **kwargs,
-    ) -> MarkdownGenerationResult:
+    ) -> Tuple[str, str, dict]:
         """
         Generate markdown with citations from the provided input HTML.
 
         How it works:
         1. Generate raw markdown from the input HTML.
         2. Convert links to citations.
-        4. Return MarkdownGenerationResult.
+        3. Return raw markdown and link dict.
 
         Args:
             input_html (str): The HTML content to process (selected based on content_source).
@@ -220,7 +214,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             options (Optional[Dict[str, Any]]): Additional options for markdown generation.
 
         Returns:
-            MarkdownGenerationResult: Result containing raw markdown and link dict
+            Tuple[str, str, dict]: Result containing error message, raw markdown, and link dict.
         
         bigbrother666sh modified:
         add raw markdown preprocess as a must process
@@ -259,27 +253,21 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             try:
                 raw_markdown = h.handle(input_html)
             except Exception as e:
-                raw_markdown = f"Error converting HTML to markdown: {str(e)}"
+                error_msg = f"Error converting HTML to raw markdown: {str(e)}"
+                return error_msg, '', {}
 
             raw_markdown = raw_markdown.replace("    ```", "```")
 
             # Convert links to citations
             link_dict: dict = {}
             try:
-                raw_markdown, link_dict = await self.convert_links_to_citations(raw_markdown, base_url)
+                markdown, link_dict = await self.convert_links_to_citations(raw_markdown, base_url)
             except Exception as e:
-                raw_markdown = f"Error generating citations[wiseflow preprocess]: {str(e)}"
+                error_msg = f"Error converting links to citations: {str(e)}"
+                return error_msg, '', {}
 
-            # Generate fit markdown if content filter is provided
-            # bigbrother666sh: content filter is not needed in wiseflow
-            return MarkdownGenerationResult(
-                raw_markdown=raw_markdown or "",
-                link_dict=link_dict or {}
-            )
+            return '', markdown, link_dict
         except Exception as e:
             # If anything fails, return empty strings with error message
             error_msg = f"Error in markdown generation: {str(e)}"
-            return MarkdownGenerationResult(
-                raw_markdown=error_msg,
-                link_dict={}
-            )
+            return error_msg, '', {}

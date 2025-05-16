@@ -1739,10 +1739,11 @@ def extract_xml_data(tags, string):
         
         if matches:
             # Find the longest content for this tag
-            longest_content = max(matches, key=len).strip()
-            data[tag] = longest_content
+            # longest_content = max(matches, key=len).strip()
+            # 改为返回所有匹配
+            data[tag] = matches
         else:
-            data[tag] = ""
+            data[tag] = []
 
     return data
 """
@@ -2743,15 +2744,15 @@ def preprocess_html_for_schema(html_content, text_threshold=100, attr_value_thre
                 continue
                 
             # Clean non-essential attributes but preserve structural ones
-            # attribs_to_keep = {'id', 'class', 'name', 'href', 'src', 'type', 'value', 'data-'}
+            attribs_to_keep = {'id', 'class', 'name', 'href', 'src', 'type', 'value', 'data-'}
 
             # This is more aggressive than the previous version
-            attribs_to_keep = {'id', 'class', 'name', 'type', 'value'}
+            # attribs_to_keep = {'id', 'class', 'name', 'type', 'value'}
 
             # attributes_hates_truncate = ['id', 'class', "data-"]
 
             # This means, I don't care, if an attribute is too long, truncate it, go and find a better css selector to build a schema
-            attributes_hates_truncate = []
+            attributes_hates_truncate = ['href', 'src', 'data-']
             
             # Process each attribute
             for attrib in list(element.attrib.keys()):
@@ -2763,12 +2764,12 @@ def preprocess_html_for_schema(html_content, text_threshold=100, attr_value_thre
                     element.attrib[attrib] = element.attrib[attrib][:attr_value_threshold] + '...'
             
             # Truncate text content if it's too long
-            if element.text and len(element.text.strip()) > text_threshold:
-                element.text = element.text.strip()[:text_threshold] + '...'
+            #if element.text and len(element.text.strip()) > text_threshold:
+            #    element.text = element.text.strip()[:text_threshold] + '...'
                 
             # Also truncate tail text if present
-            if element.tail and len(element.tail.strip()) > text_threshold:
-                element.tail = element.tail.strip()[:text_threshold] + '...'
+            # if element.tail and len(element.tail.strip()) > text_threshold:
+            #    element.tail = element.tail.strip()[:text_threshold] + '...'
         
         # 4. Detect duplicates and drop them in a single pass
         seen: dict[tuple, None] = {}
@@ -2795,15 +2796,16 @@ def preprocess_html_for_schema(html_content, text_threshold=100, attr_value_thre
         result = etree.tostring(tree, encoding='unicode', method='html')
         
         # If still over the size limit, apply more aggressive truncation
-        if len(result) > max_size:
-            return result[:max_size] + "..."
+        # if len(result) > max_size:
+        #    return result[:max_size] + "..."
             
         return result
     
     except Exception as e:
         # Fallback for parsing errors
-        return html_content[:max_size] if len(html_content) > max_size else html_content
-
+        # return html_content[:max_size] if len(html_content) > max_size else html_content
+        return ''
+    
 @lru_cache(maxsize=1000)
 def extract_extension(url: str) -> str:
     """Extracts file extension from a URL."""

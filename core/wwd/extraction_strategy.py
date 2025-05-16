@@ -6,10 +6,8 @@ import json
 import time
 from enum import IntFlag, auto
 
-from .prompts import PROMPT_EXTRACT_BLOCKS, PROMPT_EXTRACT_BLOCKS_WITH_INSTRUCTION, PROMPT_EXTRACT_SCHEMA_WITH_INSTRUCTION, JSON_SCHEMA_BUILDER_XPATH, PROMPT_EXTRACT_INFERRED_SCHEMA
+from .llmuse import *
 from .config import (
-    DEFAULT_PROVIDER,
-    DEFAULT_PROVIDER_API_KEY,
     CHUNK_TOKEN_THRESHOLD,
     OVERLAP_RATE,
     WORD_TOKEN_RATE,
@@ -35,19 +33,27 @@ import regex as re
 from bs4 import BeautifulSoup
 from lxml import html, etree
 
+# bigbrother666sh:
+# for default case, we use a LLMExtractionStrategy to extract information fragments and the protion urls from the html
+# the result should be a list of dicts, each dict contains the information fragment and the portion url in a dict format
+# how many dicts you get depends on the length of the input html sections(which is come from the chunking strategy
+# for special case, you can also use the LLMExtractionStrategy with a additional schema input which describe what you want to extract and the result format
+# but for thess case, a JsonExtractionStrategy or RegexExtractionStrategy is more recommended if you can explore the xpath or regex pattern from the page source
+# all the strategies need a chuncked html section as input, and the result format is list of dicts
+
 
 class ExtractionStrategy(ABC):
     """
     Abstract base class for all extraction strategies.
     """
 
-    def __init__(self, input_format: str = "markdown", **kwargs):
+    def __init__(self, input_format: str = "cleaned_html", **kwargs):
         """
         Initialize the extraction strategy.
 
         Args:
             input_format: Content format to use for extraction.
-                         Options: "markdown" (default), "html", "fit_markdown"
+                         Options: "html", "cleaned_html"
             **kwargs: Additional keyword arguments
         """
         self.input_format = input_format
@@ -110,7 +116,6 @@ class LLMExtractionStrategy(ExtractionStrategy):
     A strategy that uses an LLM to extract meaningful content from the HTML.
 
     Attributes:
-        llm_config: The LLM configuration object.
         instruction: The instruction to use for the LLM model.
         schema: Pydantic model schema for structured data.
         extraction_type: "block" or "schema".
@@ -130,16 +135,13 @@ class LLMExtractionStrategy(ExtractionStrategy):
         }
     def __init__(
         self,
-        llm_config: 'LLMConfig' = None,
-        instruction: str = None,
+        model: str,
         schema: Dict = None,
-        extraction_type="block",
         chunk_token_threshold=CHUNK_TOKEN_THRESHOLD,
         overlap_rate=OVERLAP_RATE,
         word_token_rate=WORD_TOKEN_RATE,
         apply_chunking=True,
-        input_format: str = "markdown",
-        force_json_response=False,
+        # force_json_response=False, # we do not introduce json format response for this version
         verbose=False,
         # Deprecated arguments
         provider: str = DEFAULT_PROVIDER,
@@ -173,18 +175,16 @@ class LLMExtractionStrategy(ExtractionStrategy):
             extra_args: Additional arguments for the API request, such as temprature, max_tokens, etc.
         """
         super().__init__(input_format=input_format, **kwargs)
-        self.llm_config = llm_config
-        if not self.llm_config:
-            self.llm_config = create_llm_config(
-                provider=DEFAULT_PROVIDER,
-                api_token=os.environ.get(DEFAULT_PROVIDER_API_KEY),
-            )
-        self.instruction = instruction
-        self.extract_type = extraction_type
-        self.schema = schema
         if schema:
             self.extract_type = "schema"
-        self.force_json_response = force_json_response
+            self.schema = schema
+            self.instruction = EXTRACT_SCHEMA_INSTRUCTION
+        else:
+            self.extract_type = "block"
+            self.instruction = EXTRACT_BLOCKS_INSTRUCTION
+            self.schema = None
+        self.model = model
+        # self.force_json_response = force_json_response
         self.chunk_token_threshold = chunk_token_threshold or CHUNK_TOKEN_THRESHOLD
         self.overlap_rate = overlap_rate
         self.word_token_rate = word_token_rate
@@ -196,12 +196,6 @@ class LLMExtractionStrategy(ExtractionStrategy):
         self.usages = []  # Store individual usages
         self.total_usage = TokenUsage()  # Accumulated usage
 
-        self.provider = provider
-        self.api_token = api_token
-        self.base_url = base_url
-        self.api_base = api_base
-
-    
     def __setattr__(self, name, value):
         """Handle attribute setting."""
         # TODO: Planning to set properties dynamically based on the __init__ signature
@@ -234,37 +228,20 @@ class LLMExtractionStrategy(ExtractionStrategy):
             # print("[LOG] Extracting blocks from URL:", url)
             print(f"[LOG] Call LLM for {url} - block index: {ix}")
 
-        variable_values = {
-            "URL": url,
-            "HTML": escape_json_string(sanitize_html(html)),
-        }
+        # 构建消息
+        messages = [
+            {"role": "system", "content": self.instruction},
+        ]
+        
 
-        prompt_with_variables = PROMPT_EXTRACT_BLOCKS
-        if self.instruction:
-            variable_values["REQUEST"] = self.instruction
-            prompt_with_variables = PROMPT_EXTRACT_BLOCKS_WITH_INSTRUCTION
 
-        if self.extract_type == "schema" and self.schema:
-            variable_values["SCHEMA"] = json.dumps(self.schema, indent=2) # if type of self.schema is dict else self.schema
-            prompt_with_variables = PROMPT_EXTRACT_SCHEMA_WITH_INSTRUCTION
+        response = perform_completion_with_backoff(
+            messages,
+            self.model,
+            **self.extra_args,
+        )
 
-        if self.extract_type == "schema" and not self.schema:
-            prompt_with_variables = PROMPT_EXTRACT_INFERRED_SCHEMA
-
-        for variable in variable_values:
-            prompt_with_variables = prompt_with_variables.replace(
-                "{" + variable + "}", variable_values[variable]
-            )
-
-        try:
-            response = perform_completion_with_backoff(
-                self.llm_config.provider,
-                prompt_with_variables,
-                self.llm_config.api_token,
-                base_url=self.llm_config.base_url,
-                json_response=self.force_json_response,
-                extra_args=self.extra_args,
-            )  # , json_response=self.extract_type == "schema")
+        if response:
             # Track usage
             usage = TokenUsage(
                 completion_tokens=response.usage.completion_tokens,
@@ -284,38 +261,32 @@ class LLMExtractionStrategy(ExtractionStrategy):
             self.total_usage.prompt_tokens += usage.prompt_tokens
             self.total_usage.total_tokens += usage.total_tokens
 
-            try:
-                response = response.choices[0].message.content
-                blocks = None
-
-                if self.force_json_response:
-                    blocks = json.loads(response)
-                    if isinstance(blocks, dict):
-                        # If it has only one key which calue is list then assign that to blocks, exampled: {"news": [..]}
-                        if len(blocks) == 1 and isinstance(list(blocks.values())[0], list):
-                            blocks = list(blocks.values())[0]
-                        else:
-                            # If it has only one key which value is not list then assign that to blocks, exampled: { "article_id": "1234", ... }
-                            blocks = [blocks]
-                    elif isinstance(blocks, list):
-                        # If it is a list then assign that to blocks
-                        blocks = blocks
-                else: 
-                    # blocks = extract_xml_data(["blocks"], response.choices[0].message.content)["blocks"]
-                    blocks = extract_xml_data(["blocks"], response)["blocks"]
-                    blocks = json.loads(blocks)
+            response = response.choices[0].message.content
+            # schema mode parsing
+            if self.schema:
+                try:
+                    blocks = extract_xml_data(["result"], response)["result"]
+                    if not blocks:
+                        blocks = []
+                    else:
+                        blocks = json.loads(blocks)
+                except Exception:
+                    parsed, unparsed = split_and_parse_json_objects(
+                        response.choices[0].message.content
+                    )
+                    blocks = parsed
+                    if unparsed:
+                        blocks.append(
+                            {"error": True, "tags": ["error"], "content": unparsed}
+                        )
+            # infos and links mode parsing
+            else: 
+                blocks = extract_xml_data(["result"], response)["result"]
+                blocks = json.loads(blocks)
 
                 for block in blocks:
                     block["error"] = False
-            except Exception:
-                parsed, unparsed = split_and_parse_json_objects(
-                    response.choices[0].message.content
-                )
-                blocks = parsed
-                if unparsed:
-                    blocks.append(
-                        {"index": 0, "error": True, "tags": ["error"], "content": unparsed}
-                    )
+
 
             if self.verbose:
                 print(
@@ -327,16 +298,16 @@ class LLMExtractionStrategy(ExtractionStrategy):
                     ix,
                 )
             return blocks
-        except Exception as e:
+        else:
             if self.verbose:
-                print(f"[LOG] Error in LLM extraction: {e}")
+                print(f"[LOG] failed to call LLM, error: {response}\ninput:\n {messages}")
             # Add error information to extracted_content
             return [
                 {
                     "index": ix,
                     "error": True,
                     "tags": ["error"],
-                    "content": str(e),
+                    "content": str(response),
                 }
             ]
 
@@ -719,10 +690,8 @@ class JsonElementExtractionStrategy(ExtractionStrategy):
         html: str,
         schema_type: str = "CSS", # or XPATH
         query: str = None,
+        model: str = None,
         target_json_example: str = None,
-        llm_config: 'LLMConfig' = create_llm_config(),
-        provider: str = None,
-        api_token: str = None,
         **kwargs
     ) -> dict:
         """
@@ -740,8 +709,6 @@ class JsonElementExtractionStrategy(ExtractionStrategy):
         Returns:
             dict: Generated schema following the JsonElementExtractionStrategy format
         """
-        from .prompts import JSON_SCHEMA_BUILDER
-        from .utils import perform_completion_with_backoff
         for name, message in JsonElementExtractionStrategy._GENERATE_SCHEMA_UNWANTED_PROPS.items():
             if locals()[name] is not None:
                 raise AttributeError(f"Setting '{name}' is deprecated. {message}")
@@ -805,11 +772,9 @@ In this scenario, use your best judgment to generate the schema. You need to exa
         try:
             # Call LLM with backoff handling
             response = perform_completion_with_backoff(
-                provider=llm_config.provider,
-                prompt_with_variables="\n\n".join([system_message["content"], user_message["content"]]),
+                messages=[system_message, user_message],
+                model=model,
                 json_response = True,                
-                api_token=llm_config.api_token,
-                base_url=llm_config.base_url,
                 extra_args=kwargs
             )
             
@@ -1450,7 +1415,7 @@ class RegexExtractionStrategy(ExtractionStrategy):
         pattern: "_B" = _B.NOTHING,
         *,
         custom: Optional[Union[Dict[str, str], List[Tuple[str, str]]]] = None,
-        input_format: str = "fit_html",
+        input_format: str = "cleaned_html",
         **kwargs,
     ) -> None:
         """
@@ -1520,7 +1485,7 @@ class RegexExtractionStrategy(ExtractionStrategy):
         *,
         query: Optional[str] = None,
         examples: Optional[List[str]] = None,
-        llm_config: Optional[LLMConfig] = None,
+        model: str = None,
         **kwargs,
     ) -> Dict[str, str]:
         """
@@ -1534,10 +1499,6 @@ class RegexExtractionStrategy(ExtractionStrategy):
                 raise AttributeError(
                     f"{k} is deprecated, {RegexExtractionStrategy._UNWANTED_PROPS[k]}"
                 )
-
-        # ── default LLM config
-        if llm_config is None:
-            llm_config = create_llm_config()
 
         # ── system prompt – hardened
         system_msg = (
@@ -1572,20 +1533,16 @@ class RegexExtractionStrategy(ExtractionStrategy):
 
         # ── LLM call (with retry/backoff)
         resp = perform_completion_with_backoff(
-            provider=llm_config.provider,
-            prompt_with_variables="\n\n".join([system_msg, user_msg]),
+            messages=[{"role": "system", "content": system_msg}, {"role": "user", "content": user_msg}],
+            model=model,
             json_response=True,
-            api_token=llm_config.api_token,
-            base_url=llm_config.base_url,
             extra_args=kwargs,
         )
-
-        # ── clean & load JSON (fix common escape mistakes *before* json.loads)
-        raw = resp.choices[0].message.content
-        raw = raw.replace("\x08", "\\b")                     # stray back-space → \b
-        raw = re.sub(r'(?<!\\)\\(?![\\u"])', r"\\\\", raw)   # lone \ → \\
-
         try:
+            # ── clean & load JSON (fix common escape mistakes *before* json.loads)
+            raw = resp.choices[0].message.content
+            raw = raw.replace("\x08", "\\b")                     # stray back-space → \b
+            raw = re.sub(r'(?<!\\)\\(?![\\u"])', r"\\\\", raw)   # lone \ → \\
             pattern_dict = json.loads(raw)
         except Exception as exc:
             raise ValueError(f"LLM did not return valid JSON: {raw}") from exc

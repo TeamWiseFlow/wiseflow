@@ -5,7 +5,6 @@ from .__version__ import __version__ as crawl4ai_version
 import os
 import sys
 import time
-from pathlib import Path
 from typing import Optional, List
 import json
 import asyncio
@@ -14,17 +13,16 @@ import asyncio
 from contextlib import asynccontextmanager
 from .base.crawl4ai_models import (
     CrawlResult,
-    MarkdownGenerationResult,
     DispatchResult,
-    ScrapingResult,
     CrawlResultContainer,
     RunManyReturn
 )
 from .async_database import async_db_manager
+from .content_scraping_strategy import LXMLWebScrapingStrategy
 from .chunking_strategy import *  # noqa: F403
 from .chunking_strategy import IdentityChunking
-# from .extraction_strategy import *  # noqa: F403
-# from .extraction_strategy import NoExtractionStrategy
+from .extraction_strategy import *  # noqa: F403
+from .extraction_strategy import NoExtractionStrategy
 from .async_crawler_strategy import (
     AsyncCrawlerStrategy,
     AsyncPlaywrightCrawlerStrategy,
@@ -44,7 +42,6 @@ from .async_dispatcher import BaseDispatcher, MemoryAdaptiveDispatcher, RateLimi
 from .utils import (
     sanitize_input_encode,
     InvalidCSSSelectorError,
-    fast_format_html,
     get_error_context,
     RobotsParser,
     preprocess_html_for_schema,
@@ -428,7 +425,6 @@ class AsyncWebCrawler:
         config: CrawlerRunConfig,
         screenshot_data: str,
         pdf_data: str,
-        verbose: bool,
         **kwargs,
     ) -> CrawlResult:
         """
@@ -447,13 +443,19 @@ class AsyncWebCrawler:
         Returns:
             CrawlResult: Processed result containing extracted and formatted content
         """
-        cleaned_html = ""
-        try:
-            _url = url if not kwargs.get("is_raw_html", False) else "Raw HTML"
-            t1 = time.perf_counter()
+        _url = url if not kwargs.get("is_raw_html", False) else "Raw HTML"
+        metadata = result.metadata # todo seperate from LXMLWebScrapingStrategy()
 
+        t1 = time.perf_counter()
+        cleaned_html = preprocess_html_for_schema(html_content=html, text_threshold= 500, max_size= 300_000)
+        if not cleaned_html:
+            self.logger.error_status(
+                url=url,
+                error="Failed to clean html by fit html method, try to use lxml web scraping strategy",
+                tag="WARNING",
+            )
             # Get scraping strategy and ensure it has a logger
-            scraping_strategy = config.scraping_strategy
+            scraping_strategy = LXMLWebScrapingStrategy()
             if not scraping_strategy.logger:
                 scraping_strategy.logger = self.logger
 
@@ -464,146 +466,67 @@ class AsyncWebCrawler:
             params.update({k: v for k, v in kwargs.items()
                           if k not in params.keys()})
 
-            ################################
-            # Scraping Strategy Execution  #
-            ################################
-            result: ScrapingResult = scraping_strategy.scrap(
-                url, html, **params)
-
-            if result is None:
-                raise ValueError(
-                    f"Process HTML, Failed to extract content from the website: {url}"
+            try:
+                cleaned_html = scraping_strategy.scrap(url, html, **params)
+            except InvalidCSSSelectorError as e:
+                self.logger.error_status(
+                    url=url,
+                    error=str(e),
+                    tag="ERROR",
                 )
-
-        except InvalidCSSSelectorError as e:
-            raise ValueError(str(e))
-        except Exception as e:
-            raise ValueError(
-                f"Process HTML, Failed to extract content from the website: {url}, error: {str(e)}"
-            )
-
-        # Extract results - handle both dict and ScrapingResult
-        if isinstance(result, dict):
-            cleaned_html = sanitize_input_encode(
-                result.get("cleaned_html", ""))
-            media = result.get("media", {})
-            tables = media.pop("tables", []) if isinstance(media, dict) else []
-            links = result.get("links", {})
-            metadata = result.get("metadata", {})
-        else:
-            cleaned_html = sanitize_input_encode(result.cleaned_html)
-            media = result.media.model_dump()
-            tables = media.pop("tables", [])
-            links = result.links.model_dump()
-            metadata = result.metadata
-
-        fit_html = preprocess_html_for_schema(html_content=html, text_threshold= 500, max_size= 300_000)
-
-        ################################
-        # Generate Markdown            #
-        ################################
-        markdown_generator: Optional[MarkdownGenerationStrategy] = (
-            config.markdown_generator or DefaultMarkdownGenerator()
-        )
-       
-        """
-        # --- SELECT HTML SOURCE BASED ON CONTENT_SOURCE ---
-        # bigbrother666sh: is it necessary to have this? Let's see.
-
-        # Get the desired source from the generator config, default to 'cleaned_html'
-        selected_html_source = getattr(markdown_generator, 'content_source', 'cleaned_html')
-
-        # Define the source selection logic using dict dispatch
-        html_source_selector = {
-            "raw_html": lambda: html,  # The original raw HTML
-            "cleaned_html": lambda: cleaned_html,  # The HTML after scraping strategy
-            "fit_html": lambda: fit_html,  # The HTML after preprocessing for schema
-        }
-
-        markdown_input_html = cleaned_html  # Default to cleaned_html
-
-        try:
-            # Get the appropriate lambda function, default to returning cleaned_html if key not found
-            source_lambda = html_source_selector.get(selected_html_source, lambda: cleaned_html)
-            # Execute the lambda to get the selected HTML
-            markdown_input_html = source_lambda()
-
-            # Log which source is being used (optional, but helpful for debugging)
-            # if self.logger and verbose:
-            #     actual_source_used = selected_html_source if selected_html_source in html_source_selector else 'cleaned_html (default)'
-            #     self.logger.debug(f"Using '{actual_source_used}' as source for Markdown generation for {url}", tag="MARKDOWN_SRC")
-
-        except Exception as e:
-            # Handle potential errors, especially from preprocess_html_for_schema
-            if self.logger:
-                self.logger.warning(
-                    f"Error getting/processing '{selected_html_source}' for markdown source: {e}. Falling back to cleaned_html.",
-                    tag="MARKDOWN_SRC"
+            except Exception as e:
+                self.logger.error_status(
+                    url=url,
+                    error=f"Process HTML, Failed to extract content from the website: {url}, error: {str(e)}",
+                    tag="ERROR",
                 )
-            # Ensure markdown_input_html is still the default cleaned_html in case of error
-            markdown_input_html = cleaned_html
-        # --- END: HTML SOURCE SELECTION ---
-
-        # Uncomment if by default we want to use PruningContentFilter
-        # if not config.content_filter and not markdown_generator.content_filter:
-        #     markdown_generator.content_filter = PruningContentFilter()
-        """
-        markdown_result: MarkdownGenerationResult = (
-            await markdown_generator.generate_markdown(
-                # input_html=markdown_input_html,  # will track to see whether enought.....
-                input_html=cleaned_html,
-                base_url=params.get("redirected_url", url)
-                # html2text_options=kwargs.get('html2text', {})
+        if not cleaned_html:
+            self.logger.error_status(
+                url=url,
+                error="Failed to clean html, fallback to raw html",
+                tag="WARNING",
             )
-        )
+            cleaned_html = html
 
         # Log processing completion
         self.logger.url_status(
             url=_url,
             success=True,
             timing=int((time.perf_counter() - t1) * 1000) / 1000,
-            tag="SCRAPE"
+            tag="PREPROCESS_HTML"
         )
-        # self.logger.info(
-        #     message="{url:.50}... | Time: {timing}s",
-        #     tag="SCRAPE",
-        #     params={"url": _url, "timing": int((time.perf_counter() - t1) * 1000) / 1000},
-        # )
+
+        if (
+            extracted_content 
+            or not config.extraction_strategy 
+            or isinstance(config.extraction_strategy, NoExtractionStrategy)
+        ):
+            # Return complete crawl result
+            return CrawlResult(
+                url=url,
+                html=html,
+                cleaned_html=cleaned_html,
+                metadata=metadata,
+                screenshot=screenshot_data,
+                pdf=pdf_data,
+                extracted_content=extracted_content,
+                success=True,
+                error_message="",
+            )
 
         ################################
         # Structured Content Extraction#
         ################################
-        """
-        if (
-            not bool(extracted_content)
-            and config.extraction_strategy
-            and not isinstance(config.extraction_strategy, NoExtractionStrategy)
-        ):
+        if not isinstance(config.extraction_strategy, LLMExtractionStrategy):
             t1 = time.perf_counter()
             # Choose content based on input_format
             content_format = config.extraction_strategy.input_format
-            if content_format == "fit_markdown" and not markdown_result.fit_markdown:
-                self.logger.warning(
-                    message="Fit markdown requested but not available. Falling back to raw markdown.",
-                    tag="EXTRACT",
-                    params={"url": _url},
-                )
-                content_format = "markdown"
+            if content_format in ["fit_html", "cleaned_html", "markdown"]:
+                content = cleaned_html
+            else:
+                content = html
 
-            content = {
-                "markdown": markdown_result.raw_markdown,
-                "html": html,
-                "fit_html": fit_html,
-                "cleaned_html": cleaned_html,
-                "fit_markdown": markdown_result.fit_markdown,
-            }.get(content_format, markdown_result.raw_markdown)
-
-            # Use IdentityChunking for HTML input, otherwise use provided chunking strategy
-            chunking = (
-                IdentityChunking()
-                if content_format in ["html", "cleaned_html", "fit_html"]
-                else config.chunking_strategy
-            )
+            chunking = IdentityChunking()
             sections = chunking.chunk(content)
             extracted_content = config.extraction_strategy.run(url, sections)
             extracted_content = json.dumps(
@@ -616,21 +539,57 @@ class AsyncWebCrawler:
                 tag="EXTRACT",
                 params={"url": _url, "timing": time.perf_counter() - t1},
             )
-        """
-        # Apply HTML formatting if requested
-        if config.prettiify:
-            cleaned_html = fast_format_html(cleaned_html)
+            return CrawlResult(
+                url=url,
+                html=html,
+                cleaned_html=cleaned_html,
+                extracted_content=extracted_content,
+                success=True,
+                error_message="",
+            )
+        
+        # if use LLMExtractionStrategy, then we need to generate markdown
+        ################################
+        # Generate Markdown            #
+        ################################
+        markdown_generator: Optional[MarkdownGenerationStrategy] = (
+            config.markdown_generator or DefaultMarkdownGenerator()
+        )
+       
+        error_msg, markdown, link_dict = (
+            await markdown_generator.generate_markdown(
+                input_html=cleaned_html,
+                base_url=params.get("redirected_url", url)
+            )
+        )
+        if error_msg:
+            self.logger.error_status(
+                url=url,
+                error=error_msg,
+                tag="ERROR",
+            )
+            extracted_content = ""
+        else:
+            chunking = config.chunking_strategy or RegexChunking()
+            sections = chunking.chunk(markdown)
+            extracted_content = config.extraction_strategy.run(link_dict, sections)
+            extracted_content = json.dumps(
+                extracted_content, indent=4, default=str, ensure_ascii=False
+            )
+
+        self.logger.info(
+            message="Completed for {url:.50}... | Time: {timing}s",
+            tag="SCRAPE",
+            params={"url": _url, "timing": int((time.perf_counter() - t1) * 1000) / 1000},
+        )
 
         # Return complete crawl result
         return CrawlResult(
             url=url,
             html=html,
-            fit_html=fit_html,
             cleaned_html=cleaned_html,
-            markdown=markdown_result,
-            media=media,
-            tables=tables,                       # NEW
-            links=links,
+            markdown=markdown,
+            link_dict=link_dict,
             metadata=metadata,
             screenshot=screenshot_data,
             pdf=pdf_data,

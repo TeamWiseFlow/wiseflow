@@ -22,13 +22,13 @@ standard_sites = ['http://www.chinastone.cn',
                   'http://www.chinastone.cn/news/7659.html',
                   'https://www.stone365.com/news/channel-1.html']
 
-crawler = AsyncWebCrawler(
-    config=BrowserConfig(
-        # user_data_dir=os.path.join(root_path, 'work_dir', 'browser_data'),
-        verbose=True
-    ),
-    base_directory=os.path.join(root_path, 'work_dir'), 
+
+browser_config = BrowserConfig(
+    user_data_dir=os.path.join(root_path, 'work_dir', 'browser_data'),
+    verbose=True
 )
+
+base_directory=os.path.join(root_path, 'work_dir')
 
 crawler_config.cache_mode = CacheMode.DISABLED
 # browser_cfg.proxy = 'http://202.117.115.6:80'
@@ -47,39 +47,37 @@ async def main(sites: list):
             peak_memory = current_mem
         print(f"{prefix} Current Memory: {current_mem // (1024 * 1024)} MB, Peak: {peak_memory // (1024 * 1024)} MB")
 
-    await crawler.start()
-    for site in sites:
-        # Check memory usage prior to launching tasks
-        log_memory(prefix="Before crawling: ")
-        print(f"Crawling {site}")
-        try:
-            result = await crawler.arun(url=site, config=crawler_config)
-        except Exception as e:
-            print(e)
-            continue
-        if not result or not result.success:
-            print(f'{site} failed to crawl, skip')
-            continue
-        print('raw html: \n', result.html)
-        print('\n\n')
-        print('cleaned html: \n', result.cleaned_html)
-        print('\n\n')
-        print('fit html: \n', result.fit_html)
-        print('\n\n')
-        print('markdown: \n', result.markdown.raw_markdown)
-        print('\n\n')
-        print('*' * 24)
+    with AsyncWebCrawler(browser_config=browser_config, base_directory=base_directory) as crawler:
+        for site in sites:
+            # Check memory usage prior to launching tasks
+            log_memory(prefix="Before crawling: ")
+            print(f"Crawling {site}")
+            try:
+                result = await crawler.arun(url=site, config=crawler_config)
+            except Exception as e:
+                print(e)
+                continue
+            if not result or not result.success:
+                print(f'{site} failed to crawl, skip')
+                continue
+            """
+            print('cleaned html: \n', result.cleaned_html)
+            print('\n\n')
+            print('fit html: \n', result.fit_html)
+            print('\n\n')
+            print('markdown: \n', result.markdown.raw_markdown)
+            print('\n\n')
+            print('*' * 24)
+            """
+            record_file = os.path.join(save_dir, f"{hashlib.sha256(site.encode()).hexdigest()[-6:]}.json")
+            with open(record_file, 'w', encoding='utf-8') as f:
+                json.dump(result.model_dump(), f, indent=4, ensure_ascii=False)
+            print(f'saved to {record_file}')
 
-        record_file = os.path.join(save_dir, f"{hashlib.sha256(site.encode()).hexdigest()[-6:]}.json")
-        with open(record_file, 'w', encoding='utf-8') as f:
-            json.dump(result.model_dump(), f, indent=4, ensure_ascii=False)
-        print(f'saved to {record_file}')
+            # Check memory usage after tasks complete
+            # maybe we can use this to check memory usage, if exceed settings, we can close and restart the crawler...
+            log_memory(prefix="After crawling: ")
 
-        # Check memory usage after tasks complete
-        # maybe we can use this to check memory usage, if exceed settings, we can close and restart the crawler...
-        log_memory(prefix="After crawling: ")
-
-    await crawler.close()
     # Final memory log
     log_memory(prefix="Final: ")
     print(f"\nPeak memory usage (MB): {peak_memory // (1024 * 1024)}")

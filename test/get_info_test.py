@@ -6,17 +6,17 @@ import time
 from datetime import datetime
 
 # 将core目录添加到Python路径
-core_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'core')
+core_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 sys.path.append(core_path)
 
 from dotenv import load_dotenv
-env_path = os.path.join(core_path, '.env')
+env_path = os.path.join(core_path, 'core', '.env')
 if os.path.exists(env_path):
     load_dotenv(env_path)
 
-from utils.general_utils import is_chinese
-from agents.get_info import get_author_and_publish_date, get_info, get_more_related_urls
-from agents.get_info_prompts import *
+# from utils.general_utils import is_chinese
+# from agents.get_info import get_author_and_publish_date, get_info, get_more_related_urls
+# from agents.get_info_prompts import *
 
 
 benchmark_model = 'Qwen/Qwen3-14B'
@@ -88,11 +88,12 @@ async def main(sample: dict, include_ap: bool, prompts: list, record_file: str):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--sample_dir', '-D', type=str, default='')
+    parser.add_argument('--sample_dir', '-D', type=str, default='test/webpage_samples')
     parser.add_argument('--include_ap', '-I', type=bool, default=False)
     args = parser.parse_args()
 
     sample_dir = args.sample_dir
+    print(f"sample_dir: {sample_dir}")
     include_ap = args.include_ap
     if not os.path.exists(os.path.join(sample_dir, 'focus_point.json')):
         raise ValueError(f'{sample_dir} focus_point.json not found')
@@ -100,41 +101,26 @@ if __name__ == '__main__':
     focus_point = json.load(open(os.path.join(sample_dir, 'focus_point.json'), 'r'))
     focus_statement = f"{focus_point[0]['focuspoint']}"
     date_stamp = '2025-04-27'
-    if is_chinese(focus_statement):
-        focus_statement = f"{focus_statement}\n注：{focus_point[0]['explanation']}（今天日期是{date_stamp}）"
-    else:
-        focus_statement = f"{focus_statement}\nNote: {focus_point[0]['explanation']}(today is {date_stamp})"
 
-    if is_chinese(focus_statement):
-        get_link_sys_prompt = get_link_system.replace('{focus_statement}', focus_statement)
-        # get_link_sys_prompt = f"今天的日期是{date_stamp}，{get_link_sys_prompt}"
-        get_link_suffix_prompt = get_link_suffix
-        get_info_sys_prompt = get_info_system.replace('{focus_statement}', focus_statement)
-        # get_info_sys_prompt = f"今天的日期是{date_stamp}，{get_info_sys_prompt}"
-        get_info_suffix_prompt = get_info_suffix
-    else:
-        get_link_sys_prompt = get_link_system_en.replace('{focus_statement}', focus_statement)
-        # get_link_sys_prompt = f"today is {date_stamp}, {get_link_sys_prompt}"
-        get_link_suffix_prompt = get_link_suffix_en
-        get_info_sys_prompt = get_info_system_en.replace('{focus_statement}', focus_statement)
-        # get_info_sys_prompt = f"today is {date_stamp}, {get_info_sys_prompt}"
-        get_info_suffix_prompt = get_info_suffix_en
 
-    prompts = [get_link_sys_prompt, get_link_suffix_prompt, get_info_sys_prompt, get_info_suffix_prompt]
+    # prompts = [get_link_sys_prompt, get_link_suffix_prompt, get_info_sys_prompt, get_info_suffix_prompt]
 
-    time_stamp = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime())
-    record_file = os.path.join(sample_dir, f'record-{time_stamp}.txt')
-    with open(record_file, 'w') as f:
-        f.write(f"focus statement: \n{focus_statement}\n\n")
+    #time_stamp = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime())
+    #record_file = os.path.join(sample_dir, f'record-{time_stamp}.txt')
+    #with open(record_file, 'w') as f:
+    #    f.write(f"focus statement: \n{focus_statement}\n\n")
 
     for file in os.listdir(sample_dir):
-        if not file.endswith('_processed.json'):
-            continue
-        sample = json.load(open(os.path.join(sample_dir, file), 'r'))
-        if 'links_part' not in sample or 'link_dict' not in sample or 'contents' not in sample:
-            print(f'{file} not valid sample, skip')
-            continue
-        with open(record_file, 'a') as f:
-            f.write(f"raw materials: {file}\n\n")
-        print(f'start testing {file}')
-        asyncio.run(main(sample, include_ap, prompts, record_file))
+        if not file.endswith('.json'): continue
+        if file == 'focus_point.json': continue
+        print(f"processing {file} ...")
+        with open(os.path.join(sample_dir, file), 'r') as f:
+            _sample = json.load(f)
+        #record_file = os.path.join(record_folder, f'{os.path.basename(file)}_processed.json')
+        #with open(record_file, 'a') as f:
+        #    f.write(f"raw materials: {file}\n\n")
+        print(f'html length: {len(_sample["html"])}')
+        print(f'fit html length: {len(_sample["fit_html"])}')
+        print(f'markdown length: {len(_sample["markdown"]["raw_markdown"])}')
+        print(_sample["markdown"]["raw_markdown"])
+        #asyncio.run(main(sample, include_ap, prompts, record_file))
