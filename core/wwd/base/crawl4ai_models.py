@@ -128,7 +128,7 @@ class CrawlResult(BaseModel):
     mhtml: Optional[str] = None
     markdown: Optional[str] = ''
     link_dict: Optional[dict] = None
-    extracted_content: Optional[str] = None
+    extracted_content: Optional[List[Dict[str, Any]]] = None
     metadata: Optional[dict] = None
     error_message: Optional[str] = None
     session_id: Optional[str] = None

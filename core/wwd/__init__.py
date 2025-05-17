@@ -1,8 +1,8 @@
 # __init__.py
 import warnings
 
-from .async_webcrawler import AsyncWebCrawler, CacheMode
-from .async_configs import BrowserConfig, CrawlerRunConfig, ProxyConfig, GeolocationConfig
+#from .async_webcrawler import AsyncWebCrawler, CacheMode
+#from .async_configs import BrowserConfig, CrawlerRunConfig, ProxyConfig, GeolocationConfig
 
 from .content_scraping_strategy import (
     ContentScrapingStrategy,
@@ -17,19 +17,20 @@ from .proxy_strategy import (
     ProxyRotationStrategy,
     RoundRobinProxyStrategy,
 )
-"""
+
 from .extraction_strategy import (
     ExtractionStrategy,
     LLMExtractionStrategy,
     JsonCssExtractionStrategy,
     JsonXPathExtractionStrategy,
-    JsonLxmlExtractionStrategy
+    JsonLxmlExtractionStrategy,
+    RegexExtractionStrategy
 )
-from .chunking_strategy import ChunkingStrategy, RegexChunking
-"""
-from .markdown_generation_strategy import DefaultMarkdownGenerator
+from .chunking_strategy import ChunkingStrategy, RegexChunking, IdentityChunking, MaxLengthChunking
 
-from .base.crawl4ai_models import CrawlResult, MarkdownGenerationResult, DisplayMode
+from .markdown_generation_strategy import DefaultMarkdownGenerator, MarkdownGenerationStrategy
+
+from .base.crawl4ai_models import CrawlResult, DisplayMode
 from .components.crawler_monitor import CrawlerMonitor
 from .async_dispatcher import (
     MemoryAdaptiveDispatcher,
@@ -59,16 +60,19 @@ __all__ = [
     "JsonCssExtractionStrategy",
     "JsonXPathExtractionStrategy",
     "JsonLxmlExtractionStrategy",
+    "RegexExtractionStrategy",
     "ChunkingStrategy",
     "RegexChunking",
+    "IdentityChunking",
+    "MaxLengthChunking",
     "DefaultMarkdownGenerator",
+    "MarkdownGenerationStrategy",
     "BaseDispatcher",
     "MemoryAdaptiveDispatcher",
     "SemaphoreDispatcher",
     "RateLimiter",
     "CrawlerMonitor",
     "DisplayMode",
-    "MarkdownGenerationResult",
     "ProxyRotationStrategy",
     "RoundRobinProxyStrategy",
     "ProxyConfig"

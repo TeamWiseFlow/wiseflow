@@ -115,6 +115,32 @@ class TopicSegmentationChunking(ChunkingStrategy):
         return segments_with_topics
 
 
+# max-length chunks (based on string)
+class MaxLengthChunking(ChunkingStrategy):
+    """
+    Chunking strategy that splits text into max-length word chunks.
+    just for avoiding llm context length limited
+    """
+    def __init__(self, max_size=30000, **kwargs):
+        self.max_size = max_size
+        self._size = max_size * 0.95
+
+    def chunk(self, text: str) -> list:
+        contents = []
+        if len(text) > self.max_size:
+            lines = text.split('\n')
+            _text = ''
+            while lines:
+                l = lines.pop(0)
+                _text = f'{_text}{l}\n'
+                if len(_text) > self._size or len(lines) == 0:
+                    contents.append(_text)
+                    _text = ''
+        else:
+            contents.append(text)
+        return contents
+        
+
 # Fixed-length word chunks
 class FixedLengthWordChunking(ChunkingStrategy):
     """

@@ -3,30 +3,18 @@ import inspect
 from typing import Any, List, Dict, Optional, Tuple, Pattern, Union
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
-import time
 from enum import IntFlag, auto
+from datetime import datetime
 
 from .llmuse import *
-from .config import (
-    CHUNK_TOKEN_THRESHOLD,
-    OVERLAP_RATE,
-    WORD_TOKEN_RATE,
-)
-from .utils import *  # noqa: F403
 
+from .utils import *  # noqa: F403
 from .utils import (
-    sanitize_html,
-    escape_json_string,
     extract_xml_data,
     split_and_parse_json_objects,
-    sanitize_input_encode,
-    merge_chunks,
 )
 from .base.crawl4ai_models import * # noqa: F403
-
 from .base.crawl4ai_models import TokenUsage
-
-# from .base.crawl4ai_types import LLMConfig, create_llm_config
 
 from functools import partial
 import regex as re
@@ -114,18 +102,7 @@ class NoExtractionStrategy(ExtractionStrategy):
 class LLMExtractionStrategy(ExtractionStrategy):
     """
     A strategy that uses an LLM to extract meaningful content from the HTML.
-
-    Attributes:
-        instruction: The instruction to use for the LLM model.
-        schema: Pydantic model schema for structured data.
-        extraction_type: "block" or "schema".
-        chunk_token_threshold: Maximum tokens per chunk.
-        overlap_rate: Overlap between chunks.
-        word_token_rate: Word to token conversion rate.
-        apply_chunking: Whether to apply chunking.
-        verbose: Whether to print verbose output.
-        usages: List of individual token usages.
-        total_usage: Accumulated token usage.
+    modified special for extract related infos and links
     """
     _UNWANTED_PROPS = {
             'provider' : 'Instead, use llm_config=LLMConfig(provider="...")',
@@ -135,66 +112,34 @@ class LLMExtractionStrategy(ExtractionStrategy):
         }
     def __init__(
         self,
-        model: str,
-        schema: Dict = None,
-        chunk_token_threshold=CHUNK_TOKEN_THRESHOLD,
-        overlap_rate=OVERLAP_RATE,
-        word_token_rate=WORD_TOKEN_RATE,
-        apply_chunking=True,
-        # force_json_response=False, # we do not introduce json format response for this version
-        verbose=False,
-        # Deprecated arguments
-        provider: str = DEFAULT_PROVIDER,
-        api_token: Optional[str] = None,
-        base_url: str = None,
-        api_base: str = None,
-        **kwargs,
+        model:str,
+        focuspoint: str = None, 
+        restrictions: str = None, 
+        schema: dict = None,
+        extra_args: dict = {},
+        verbose: bool=False,
+        logger=None,
+        **kwargs
     ):
-        """
-        Initialize the strategy with clustering parameters.
+        self.input_format = 'markdown' # only consume markdown input
+        super().__init__(input_format=self.input_format, verbose=verbose, **kwargs)
 
-        Args:
-            llm_config: The LLM configuration object.
-            instruction: The instruction to use for the LLM model.
-            schema: Pydantic model schema for structured data.
-            extraction_type: "block" or "schema".
-            chunk_token_threshold: Maximum tokens per chunk.
-            overlap_rate: Overlap between chunks.
-            word_token_rate: Word to token conversion rate.
-            apply_chunking: Whether to apply chunking.
-            input_format: Content format to use for extraction.
-                            Options: "markdown" (default), "html", "fit_markdown"
-            force_json_response: Whether to force a JSON response from the LLM.
-            verbose: Whether to print verbose output.
-
-            # Deprecated arguments, will be removed very soon
-            provider: The provider to use for extraction. It follows the format <provider_name>/<model_name>, e.g., "ollama/llama3.3".
-            api_token: The API token for the provider.
-            base_url: The base URL for the API request.
-            api_base: The base URL for the API request.
-            extra_args: Additional arguments for the API request, such as temprature, max_tokens, etc.
-        """
-        super().__init__(input_format=input_format, **kwargs)
-        if schema:
-            self.extract_type = "schema"
-            self.schema = schema
-            self.instruction = EXTRACT_SCHEMA_INSTRUCTION
-        else:
-            self.extract_type = "block"
-            self.instruction = EXTRACT_BLOCKS_INSTRUCTION
-            self.schema = None
-        self.model = model
-        # self.force_json_response = force_json_response
-        self.chunk_token_threshold = chunk_token_threshold or CHUNK_TOKEN_THRESHOLD
-        self.overlap_rate = overlap_rate
-        self.word_token_rate = word_token_rate
-        self.apply_chunking = apply_chunking
-        self.extra_args = kwargs.get("extra_args", {})
-        if not self.apply_chunking:
-            self.chunk_token_threshold = 1e9
+        # self.force_json_response = force_json_response # do not support in this version
         self.verbose = verbose
+        self.logger = logger
+        self.schema = schema
         self.usages = []  # Store individual usages
         self.total_usage = TokenUsage()  # Accumulated usage
+        self.extract_func = partial(self.extract, model=model, extra_args=extra_args)
+        if schema:
+            self.schema_mode = True
+            self.prompt = PROMPT_EXTRACT_SCHEMA_WITH_INSTRUCTION.replace('{SCHEMA}', schema) 
+        else:
+            self.schema_mode = False
+            focus_statement = f"<focus_point>{focuspoint}</focus_point>"
+            if restrictions:
+                focus_statement += f"\nAdhering to the specified restrictions:\n<restrictions>{restrictions}</restrictions>"
+            self.prompt = PROMPT_EXTRACT_BLOCKS.replace('{FOCUS_POINT}', focus_statement)
 
     def __setattr__(self, name, value):
         """Handle attribute setting."""
@@ -207,38 +152,16 @@ class LLMExtractionStrategy(ExtractionStrategy):
         
         super().__setattr__(name, value)  
         
-    def extract(self, url: str, ix: int, html: str) -> List[Dict[str, Any]]:
-        """
-        Extract meaningful blocks or chunks from the given HTML using an LLM.
-
-        How it works:
-        1. Construct a prompt with variables.
-        2. Make a request to the LLM using the prompt.
-        3. Parse the response and extract blocks or chunks.
-
-        Args:
-            url: The URL of the webpage.
-            ix: Index of the block.
-            html: The HTML content of the webpage.
-
-        Returns:
-            A list of extracted blocks or chunks.
-        """
-        if self.verbose:
-            # print("[LOG] Extracting blocks from URL:", url)
-            print(f"[LOG] Call LLM for {url} - block index: {ix}")
-
-        # 构建消息
-        messages = [
-            {"role": "system", "content": self.instruction},
-        ]
-        
-
+    def extract(self,
+                messages: List[Dict[str, str]],
+                model: str,
+                extra_args: dict = {}) -> List[Dict[str, Any]]:
 
         response = perform_completion_with_backoff(
-            messages,
-            self.model,
-            **self.extra_args,
+            messages=messages,
+            model=model,
+            temperature=0.1,
+            **extra_args,
         )
 
         if response:
@@ -262,8 +185,10 @@ class LLMExtractionStrategy(ExtractionStrategy):
             self.total_usage.total_tokens += usage.total_tokens
 
             response = response.choices[0].message.content
+            if self.verbose:
+                print(f"response: {response}")
             # schema mode parsing
-            if self.schema:
+            if self.schema_mode:
                 try:
                     blocks = extract_xml_data(["result"], response)["result"]
                     if not blocks:
@@ -271,59 +196,40 @@ class LLMExtractionStrategy(ExtractionStrategy):
                     else:
                         blocks = json.loads(blocks)
                 except Exception:
+                    if self.logger:
+                        self.logger.debug("Failed to parse schema mode response, fallback to use split_and_parse")
                     parsed, unparsed = split_and_parse_json_objects(
                         response.choices[0].message.content
                     )
                     blocks = parsed
                     if unparsed:
                         blocks.append(
-                            {"error": True, "tags": ["error"], "content": unparsed}
+                            {"tags": ["error"], "content": unparsed}
                         )
             # infos and links mode parsing
             else: 
-                blocks = extract_xml_data(["result"], response)["result"]
-                blocks = json.loads(blocks)
-
-                for block in blocks:
-                    block["error"] = False
-
-
-            if self.verbose:
-                print(
-                    "[LOG] Extracted",
-                    len(blocks),
-                    "blocks from URL:",
-                    url,
-                    "block index:",
-                    ix,
-                )
+                result = extract_xml_data(["info", "links"], response)
+                blocks = [result]
             return blocks
         else:
-            if self.verbose:
+            if self.logger:
+                self.logger.error(f"failed to call LLM, error: {response}\ninput:\n {messages}")
+            else:
                 print(f"[LOG] failed to call LLM, error: {response}\ninput:\n {messages}")
             # Add error information to extracted_content
             return [
                 {
-                    "index": ix,
-                    "error": True,
                     "tags": ["error"],
                     "content": str(response),
                 }
             ]
 
-    def _merge(self, documents, chunk_token_threshold, overlap) -> List[str]:
-        """
-        Merge documents into sections based on chunk_token_threshold and overlap.
-        """
-        sections =  merge_chunks(
-            docs = documents,
-            target_size= chunk_token_threshold,
-            overlap=overlap,
-            word_token_ratio=self.word_token_rate
-        )
-        return sections
-
-    def run(self, url: str, sections: List[str]) -> List[Dict[str, Any]]:
+    def run(self, 
+            url: str, 
+            sections: List[str], 
+            date_stamp: str = datetime.now().strftime("%Y-%m-%d"),
+            **kwargs
+        ) -> List[Dict[str, Any]]:
         """
         Process sections sequentially with a delay for rate limiting issues, specifically for LLMExtractionStrategy.
 
@@ -334,68 +240,60 @@ class LLMExtractionStrategy(ExtractionStrategy):
         Returns:
             A list of extracted blocks or chunks.
         """
-
-        merged_sections = self._merge(
-            sections,
-            self.chunk_token_threshold,
-            overlap=int(self.chunk_token_threshold * self.overlap_rate),
-        )
+        date_time_notify = f"The additional information provided, use as needed: Today is {date_stamp}"
         extracted_content = []
-        if self.llm_config.provider.startswith("groq/"):
-            # Sequential processing with a delay
-            for ix, section in enumerate(merged_sections):
-                extract_func = partial(self.extract, url)
-                extracted_content.extend(
-                    extract_func(ix, sanitize_input_encode(section))
-                )
-                time.sleep(0.5)  # 500 ms delay between each processing
+        if self.schema_mode:
+            msg_list = [
+                self.prompt.replace('{URL}', url).replace('{HTML}', sec) + date_time_notify for sec in sections]
         else:
-            # Parallel processing using ThreadPoolExecutor
-            # extract_func = partial(self.extract, url)
-            # for ix, section in enumerate(merged_sections):
-            #     extracted_content.append(extract_func(ix, section))
+            msg_list = [
+                self.prompt.replace('{HTML}', sec) + date_time_notify for sec in sections]
 
-            with ThreadPoolExecutor(max_workers=os.getenv("LLM_CONCURRENT_NUMBER", 4)) as executor:
-                extract_func = partial(self.extract, url)
-                futures = [
-                    executor.submit(extract_func, ix, sanitize_input_encode(section))
-                    for ix, section in enumerate(merged_sections)
-                ]
-
-                for future in as_completed(futures):
-                    try:
-                        extracted_content.extend(future.result())
-                    except Exception as e:
-                        if self.verbose:
-                            print(f"Error in thread execution: {e}")
-                        # Add error information to extracted_content
-                        extracted_content.append(
-                            {
-                                "index": 0,
-                                "error": True,
-                                "tags": ["error"],
-                                "content": str(e),
+        with ThreadPoolExecutor(max_workers=int(os.getenv("LLM_CONCURRENT_NUMBER", 3))) as executor:
+            futures = [
+                executor.submit(self.extract_func, messages=[{"role": "user", "content": msg}])
+                for msg in msg_list
+            ]
+            for future in as_completed(futures):
+                try:
+                    extracted_content.extend(future.result())
+                except Exception as e:
+                    if self.logger:
+                        self.logger.error(f"Error in thread execution: {e}")
+                    else:
+                        print(f"Error in thread execution: {e}")
+                    # Add error information to extracted_content
+                    extracted_content.append(
+                        {
+                            "tags": ["error"],
+                            "content": str(e),
                             }
                         )
-
+        self.show_usage() 
         return extracted_content
 
     def show_usage(self) -> None:
         """Print a detailed token usage report showing total and per-request usage."""
-        print("\n=== Token Usage Summary ===")
-        print(f"{'Type':<15} {'Count':>12}")
-        print("-" * 30)
-        print(f"{'Completion':<15} {self.total_usage.completion_tokens:>12,}")
-        print(f"{'Prompt':<15} {self.total_usage.prompt_tokens:>12,}")
-        print(f"{'Total':<15} {self.total_usage.total_tokens:>12,}")
+        if self.logger:
+            self.logger.debug("Token Usage till now:")
+            self.logger.debug(f"Completion: {self.total_usage.completion_tokens:>12,}")
+            self.logger.debug(f"Prompt: {self.total_usage.prompt_tokens:>12,}")
+            self.logger.debug(f"Total: {self.total_usage.total_tokens:>12,}")
+        if self.verbose:
+            print("\n=== Token Usage Summary ===")
+            print(f"{'Type':<15} {'Count':>12}")
+            print("-" * 30)
+            print(f"{'Completion':<15} {self.total_usage.completion_tokens:>12,}")
+            print(f"{'Prompt':<15} {self.total_usage.prompt_tokens:>12,}")
+            print(f"{'Total':<15} {self.total_usage.total_tokens:>12,}")
 
-        print("\n=== Usage History ===")
-        print(f"{'Request #':<10} {'Completion':>12} {'Prompt':>12} {'Total':>12}")
-        print("-" * 48)
-        for i, usage in enumerate(self.usages, 1):
-            print(
+            print("\n=== Usage History ===")
+            print(f"{'Request #':<10} {'Completion':>12} {'Prompt':>12} {'Total':>12}")
+            print("-" * 48)
+            for i, usage in enumerate(self.usages, 1):
+                print(
                 f"{i:<10} {usage.completion_tokens:>12,} {usage.prompt_tokens:>12,} {usage.total_tokens:>12,}"
-            )
+                )
 
 
 #######################################################

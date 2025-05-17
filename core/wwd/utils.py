@@ -1720,7 +1720,6 @@ def extract_xml_data(tags, string):
 
     How it works:
     1. Finds all occurrences of each tag in the string using regex.
-    2. For each tag, selects the occurrence with the longest content.
     3. Returns a dictionary of tag-content pairs.
 
     Args:

@@ -5,7 +5,7 @@ import asyncio
 from typing import Optional, Dict
 from contextlib import asynccontextmanager
 import json  
-from .base.crawl4ai_models import CrawlResult, MarkdownGenerationResult, StringCompatibleMarkdown
+from .base.crawl4ai_models import CrawlResult, StringCompatibleMarkdown
 import aiofiles
 from .async_logger import AsyncLogger
 

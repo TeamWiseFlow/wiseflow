@@ -20,7 +20,7 @@ from .base.crawl4ai_models import (
 from .async_database import async_db_manager
 from .content_scraping_strategy import LXMLWebScrapingStrategy
 from .chunking_strategy import *  # noqa: F403
-from .chunking_strategy import IdentityChunking
+from .chunking_strategy import IdentityChunking, MaxLengthChunking
 from .extraction_strategy import *  # noqa: F403
 from .extraction_strategy import NoExtractionStrategy
 from .async_crawler_strategy import (
@@ -489,11 +489,10 @@ class AsyncWebCrawler:
             cleaned_html = html
 
         # Log processing completion
-        self.logger.url_status(
-            url=_url,
-            success=True,
-            timing=int((time.perf_counter() - t1) * 1000) / 1000,
-            tag="PREPROCESS_HTML"
+        self.logger.debug(
+            message="Completed for {url:.50}... | Time: {timing}s",
+            tag="PREPROCESS HTML",
+            params={"url": _url, "timing": int((time.perf_counter() - t1) * 1000) / 1000},
         )
 
         if (
@@ -517,11 +516,11 @@ class AsyncWebCrawler:
         ################################
         # Structured Content Extraction#
         ################################
+        t1 = time.perf_counter()
         if not isinstance(config.extraction_strategy, LLMExtractionStrategy):
-            t1 = time.perf_counter()
             # Choose content based on input_format
             content_format = config.extraction_strategy.input_format
-            if content_format in ["fit_html", "cleaned_html", "markdown"]:
+            if content_format in ["fit_html", "cleaned_html"]:
                 content = cleaned_html
             else:
                 content = html
@@ -529,15 +528,12 @@ class AsyncWebCrawler:
             chunking = IdentityChunking()
             sections = chunking.chunk(content)
             extracted_content = config.extraction_strategy.run(url, sections)
-            extracted_content = json.dumps(
-                extracted_content, indent=4, default=str, ensure_ascii=False
-            )
 
             # Log extraction completion
-            self.logger.info(
+            self.logger.debug(
                 message="Completed for {url:.50}... | Time: {timing}s",
                 tag="EXTRACT",
-                params={"url": _url, "timing": time.perf_counter() - t1},
+                params={"url": _url, "timing": int((time.perf_counter() - t1) * 1000) / 1000},
             )
             return CrawlResult(
                 url=url,
@@ -562,6 +558,13 @@ class AsyncWebCrawler:
                 base_url=params.get("redirected_url", url)
             )
         )
+        self.logger.debug(
+            message="Completed for {url:.50}... | Time: {timing}s",
+            tag="SCRAPE",
+            params={"url": _url, "timing": int((time.perf_counter() - t1) * 1000) / 1000},
+        )
+
+        t1 = time.perf_counter()
         if error_msg:
             self.logger.error_status(
                 url=url,
@@ -570,18 +573,78 @@ class AsyncWebCrawler:
             )
             extracted_content = ""
         else:
-            chunking = config.chunking_strategy or RegexChunking()
+            chunking = config.chunking_strategy or MaxLengthChunking()
             sections = chunking.chunk(markdown)
-            extracted_content = config.extraction_strategy.run(link_dict, sections)
-            extracted_content = json.dumps(
-                extracted_content, indent=4, default=str, ensure_ascii=False
-            )
+            extracted_content = config.extraction_strategy.run(sections)
 
-        self.logger.info(
+        self.logger.debug(
             message="Completed for {url:.50}... | Time: {timing}s",
-            tag="SCRAPE",
+            tag="EXTRACT",
             params={"url": _url, "timing": int((time.perf_counter() - t1) * 1000) / 1000},
         )
+        # post process for default extraction task --- sellection related links and infos
+        if link_dict and not config.extraction_strategy.schema_mode:
+            more_links = set()
+            infos = []
+            hallucination_times = 0
+            total_parsed = 0
+            for block in extracted_content:
+                results = block.get("links", [])
+                for result in results:
+                    links = re.findall(r'\[\d+]', result)
+                    total_parsed += len(links)
+                    for link in links:
+                        if link not in link_dict:
+                            hallucination_times += 1
+                            continue
+                        more_links.add(link_dict[link])
+
+                results = block.get("infos", [])
+                for res in results:
+                    res = res.strip()
+                    if len(res) < 3:
+                        continue
+                    url_tags = re.findall(r'\[\d+]', res)
+                    refences = {}
+                    for _tag in url_tags:
+                        total_parsed += 1
+                        if _tag in link_dict:
+                            refences[_tag] = link_dict[_tag]
+                        else:
+                            if _tag not in markdown:
+                                hallucination_times += 1
+                                res = res.replace(_tag, '') 
+                            # case:original text contents, eg [2025]文
+                        infos.append({'content': res, 'references': refences})
+            hallucination_rate = round((hallucination_times / total_parsed) * 100, 2) if total_parsed > 0 else 'NA'
+            self.logger.info(
+                message="related finding by llm, hallucination times: {hallucination_times}, hallucination rate: {hallucination_rate} %",
+                tag="QualityAssessment",
+                params={"hallucination_times": hallucination_times, "hallucination_rate": hallucination_rate},
+            )
+            extracted_content = [{'infos': infos, 'links': more_links}]
+        
+        if config.extraction_strategy.schema_mode:
+            hallucination_times = 0
+            total_parsed = 0
+            schema_keys = config.extraction_strategy.schema.keys()
+
+            for block in extracted_content:
+                total_parsed += len(block)
+                for key in block.keys():
+                    if key not in schema_keys:
+                        hallucination_times += 1
+                        del block[key]
+                for key in schema_keys:
+                    if key not in block:
+                        hallucination_times += 1
+                        block[key] = None
+            hallucination_rate = round((hallucination_times / total_parsed) * 100, 2) if total_parsed > 0 else 'NA'
+            self.logger.info(
+                message="schema extraction by llm, hallucination times: {hallucination_times}, hallucination rate: {hallucination_rate} %",
+                tag="QualityAssessment",
+                params={"hallucination_times": hallucination_times, "hallucination_rate": hallucination_rate},
+            )
 
         # Return complete crawl result
         return CrawlResult(

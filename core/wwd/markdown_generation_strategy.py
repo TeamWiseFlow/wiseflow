@@ -33,10 +33,9 @@ class MarkdownGenerationStrategy(ABC):
     def __init__(
         self,
         options: Optional[Dict[str, Any]] = None,
-        verbose: bool = False,
+        **kwargs,
     ):
         self.options = options or {}
-        self.verbose = verbose
 
     @abstractmethod
     def generate_markdown(
@@ -72,10 +71,9 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
 
     def __init__(
         self,
-        content_filter = None,
         options: Optional[Dict[str, Any]] = None,
     ):
-        super().__init__(content_filter, options, verbose=False)
+        super().__init__(options)
 
     async def convert_links_to_citations(self, markdown: str, base_url: str = "") -> Tuple[str, dict]:
         """

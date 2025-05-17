@@ -17,20 +17,6 @@ else:
     client = OpenAI(api_key=token, base_url=base_url)
 
 def perform_completion_with_backoff(messages: List, model: str, logger=None, **kwargs):
-    """
-    使用OpenAI API同步调用
-    
-    Args:
-        messages: 消息列表
-        model: 模型名称
-        json_response: 是否返回JSON响应
-        extra_args: 其他参数
-        logger: 日志记录器
-        **kwargs: 其他参数
-        
-    Returns:
-        str: API返回的内容
-    """
 
     # 最大重试次数
     max_retries = 3
@@ -100,27 +86,26 @@ def perform_completion_with_backoff(messages: List, model: str, logger=None, **k
     return None
 
 
-PROMPT_EXTRACT_BLOCKS = """Extract all text information and link addresses worth further exploration related to the following focus point, and adhering to the specified restrictions(if not None), from the given HTML:
-<focus_point>{FOCUS_POINT}</focus_point>
-<restrictions>{RESTRICTIONS}</restrictions>
+PROMPT_EXTRACT_BLOCKS = """Extract all information related to the following focus points from the given markdown content, and find all links worth further exploration based on the focus points (represented by a citation mark like [x]):
+{FOCUS_POINT}
 
-And here is the cleaned HTML content of that webpage:
-<html>
+And here is the markdown content:
+<markdown>
 {HTML}
-</html>
+</markdown>
 
-The HTML above may have been processed in chunks, so the overall structure may not be complete. Just ignore this.
+The above markdown content is derived from the HTML of a webpage and may have been chunked.
+All links in the original HTML (a elements or img elements) have been converted to citation marks (something like "[x]")
 
 For text information extraction, please adhere to the following notes:
-- All information should be extracted from the given HTML, do not make up any information.
-- It is not guaranteed that the given HTML will always be relevant to the focus point. Do not generate any information that is not relevant to the focus point.
-- All selected text information must comply with restriction point constraints (if any), such as time limit, value limit, subject limit, etc.
+- All information should be extracted from the given markdown, do not make up any information.
+- It is not guaranteed that the given markdown will always be relevant to the focus point, if that is the case, please output an empty string.
+- All selected text information must comply with restrictions (if given), such as time limit, value limit, subject limit, etc.
 - If multiple information are extracted, merge them into one coherent message that contains all the key points.
 
-For link addresses extraction, please adhere to the following notes:
-- The link format contained in the given HTML may be an absolute path or a relative path (especially when extracted from the href attribute in the a element). Regardless of the format, be sure to extract it as is.
-- Always consider the context to determine if the link is likely to be relevant to the focus point and meet the restriction constraints (if any) and is worth further exploration.
-- Output extracted links in a line-by-line format.
+For links extraction, please adhere to the following notes:
+- Always consider the context to determine if the link is likely to be relevant to the focus point and is worth further exploration.
+- For the selected link citation mark, output them along with the sentence they are in, one per line.
 
 Please provide your output within <info></info> tag and <links></links> tag, like this:
 
@@ -129,8 +114,8 @@ Extracted information (if there are multiple pieces of information, merge them i
 </info>
 
 <links>
-link1
-link2
+sentence1 with the selected citation mark
+sentence2 with the selected citation mark
 ...
 </links>
 """
