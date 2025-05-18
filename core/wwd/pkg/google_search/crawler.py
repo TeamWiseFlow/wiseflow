@@ -1,7 +1,7 @@
-from crawl4ai import BrowserConfig, AsyncWebCrawler, CrawlerRunConfig, CacheMode
-from crawl4ai.hub import BaseCrawler
-from crawl4ai.utils import optimize_html, get_home_folder, preprocess_html_for_schema
-from crawl4ai.extraction_strategy import JsonCssExtractionStrategy
+from wwd.base.crawl4ai_models import BrowserConfig, AsyncWebCrawler, CrawlerRunConfig, CacheMode
+from wwd.hub import BaseCrawler
+from wwd.utils import optimize_html, get_home_folder, preprocess_html_for_schema
+from wwd.extraction_strategy import JsonCssExtractionStrategy
 from pathlib import Path
 import json
 import os
@@ -23,7 +23,7 @@ class GoogleSearchCrawler(BaseCrawler):
 
     async def run(self, url="", query: str = "", search_type: str = "text", schema_cache_path = None, **kwargs) -> str:
         """Crawl Google Search results for a query"""
-        url = f"https://www.google.com/search?q={query}&gl=sg&hl=en" if search_type == "text" else f"https://www.google.com/search?q={query}&gl=sg&hl=en&tbs=qdr:d&udm=2"
+        url = f"https://www.google.com/search?q={query}&gl=sg" if search_type == "text" else f"https://www.google.com/search?q={query}&gl=sg&tbs=qdr:d&udm=2"
         if kwargs.get("page_start", 1) > 1:
             url = f"{url}&start={kwargs['page_start'] * 10}"
         if kwargs.get("page_length", 1) > 1:

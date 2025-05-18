@@ -9,6 +9,9 @@ from typing import Optional, List
 import json
 import asyncio
 
+from .utils import configure_windows_event_loop
+configure_windows_event_loop()
+
 # from contextlib import nullcontext, asynccontextmanager
 from contextlib import asynccontextmanager
 from .base.crawl4ai_models import (
@@ -18,7 +21,6 @@ from .base.crawl4ai_models import (
     RunManyReturn
 )
 from .async_database import async_db_manager
-from .content_scraping_strategy import LXMLWebScrapingStrategy
 from .chunking_strategy import *  # noqa: F403
 from .chunking_strategy import IdentityChunking, MaxLengthChunking
 from .extraction_strategy import *  # noqa: F403
@@ -29,10 +31,7 @@ from .async_crawler_strategy import (
     AsyncCrawlResponse,
 )
 from .cache_context import CacheMode, CacheContext
-from .markdown_generation_strategy import (
-    DefaultMarkdownGenerator,
-    MarkdownGenerationStrategy,
-)
+from .markdown_generation_strategy import DefaultMarkdownGenerator
 
 from .async_logger import AsyncLogger, AsyncLoggerBase, LogColor
 from .async_configs import BrowserConfig, CrawlerRunConfig, ProxyConfig
@@ -41,10 +40,11 @@ from .async_dispatcher import BaseDispatcher, MemoryAdaptiveDispatcher, RateLimi
 
 from .utils import (
     sanitize_input_encode,
-    InvalidCSSSelectorError,
     get_error_context,
     RobotsParser,
     preprocess_html_for_schema,
+    get_content_of_website,
+    extract_metadata,
 )
 
 
@@ -108,7 +108,7 @@ class AsyncWebCrawler:
     def __init__(
         self,
         crawler_strategy: AsyncCrawlerStrategy = None,
-        config: BrowserConfig = None,
+        verbose: bool = False,
         base_directory: str = '.',
         thread_safe: bool = False,
         logger: AsyncLoggerBase = None,
@@ -125,24 +125,22 @@ class AsyncWebCrawler:
             **kwargs: Additional arguments for backwards compatibility
         """
         # Handle browser configuration
-        browser_config = config or BrowserConfig()
+        browser_config = BrowserConfig(verbose=verbose)
 
         self.browser_config = browser_config
 
         # Initialize logger first since other components may need it
         self.logger = logger or AsyncLogger(
             log_file=os.path.join(base_directory, "wiseflow_web_driver.log"),
-            verbose=os.getenv("VERBOSE", "False"),
+            verbose=verbose,
             tag_width=10,
         )
 
         # Initialize crawler strategy
-        params = {k: v for k, v in kwargs.items() if k in [
-            "browser_config", "logger"]}
+
         self.crawler_strategy = crawler_strategy or AsyncPlaywrightCrawlerStrategy(
             browser_config=browser_config,
-            logger=self.logger,
-            **params,  # Pass remaining kwargs for backwards compatibility
+            logger=self.logger, # Pass remaining kwargs for backwards compatibility
         )
 
         # Thread safety setup
@@ -166,7 +164,8 @@ class AsyncWebCrawler:
             AsyncWebCrawler: The initialized crawler instance
         """
         await self.crawler_strategy.__aenter__()
-        self.logger.info(f"Crawl4AI {crawl4ai_version}", tag="INIT")
+        self.logger.info(f"WiseflowWebDriver {crawl4ai_version}", tag="INIT")
+        self.logger.info("Modified based on crawl4ai 0.6.4\MediaCrawler, intergrate NoDriver", tag="INIT")
         self.ready = True
         return self
 
@@ -444,42 +443,34 @@ class AsyncWebCrawler:
             CrawlResult: Processed result containing extracted and formatted content
         """
         _url = url if not kwargs.get("is_raw_html", False) else "Raw HTML"
-        metadata = result.metadata # todo seperate from LXMLWebScrapingStrategy()
 
-        t1 = time.perf_counter()
-        cleaned_html = preprocess_html_for_schema(html_content=html, text_threshold= 500, max_size= 300_000)
-        if not cleaned_html:
+        try:
+            metadata = extract_metadata_using_lxml(html)  # Using same function as BeautifulSoup version
+        except Exception as e:
             self.logger.error_status(
                 url=url,
-                error="Failed to clean html by fit html method, try to use lxml web scraping strategy",
+                error=f"Error extracting metadata: {str(e)}, try to use beatifulsoup method",
                 tag="WARNING",
             )
-            # Get scraping strategy and ensure it has a logger
-            scraping_strategy = LXMLWebScrapingStrategy()
-            if not scraping_strategy.logger:
-                scraping_strategy.logger = self.logger
-
-            # Process HTML content
-            params = config.__dict__.copy()
-            params.pop("url", None)
-            # add keys from kwargs to params that doesn't exist in params
-            params.update({k: v for k, v in kwargs.items()
-                          if k not in params.keys()})
-
             try:
-                cleaned_html = scraping_strategy.scrap(url, html, **params)
-            except InvalidCSSSelectorError as e:
-                self.logger.error_status(
-                    url=url,
-                    error=str(e),
-                    tag="ERROR",
-                )
+                metadata = extract_metadata(html)
             except Exception as e:
                 self.logger.error_status(
                     url=url,
-                    error=f"Process HTML, Failed to extract content from the website: {url}, error: {str(e)}",
+                    error=f"Error extracting metadata: {str(e)}, fallback to empty metadata",
                     tag="ERROR",
                 )
+                metadata = {}
+
+        t1 = time.perf_counter()
+        cleaned_html = preprocess_html_for_schema(html_content=html, tags_to_remove=config.excluded_tags)
+        if not cleaned_html:
+            self.logger.error_status(
+                url=url,
+                error="Failed to clean html by fit html method, try to use beatifulsoup method",
+                tag="WARNING",
+            )
+            cleaned_html = get_content_of_website(html, tags_to_remove=config.excluded_tags)
         if not cleaned_html:
             self.logger.error_status(
                 url=url,
@@ -548,14 +539,13 @@ class AsyncWebCrawler:
         ################################
         # Generate Markdown            #
         ################################
-        markdown_generator: Optional[MarkdownGenerationStrategy] = (
-            config.markdown_generator or DefaultMarkdownGenerator()
-        )
+        markdown_generator = DefaultMarkdownGenerator()
        
         error_msg, markdown, link_dict = (
             await markdown_generator.generate_markdown(
                 input_html=cleaned_html,
-                base_url=params.get("redirected_url", url)
+                base_url=kwargs.get("redirected_url", url),
+                exclude_external_links=config.exclude_external_links,
             )
         )
         self.logger.debug(
@@ -575,7 +565,7 @@ class AsyncWebCrawler:
         else:
             chunking = config.chunking_strategy or MaxLengthChunking()
             sections = chunking.chunk(markdown)
-            extracted_content = config.extraction_strategy.run(sections)
+            extracted_content = config.extraction_strategy.run(url, sections)
 
         self.logger.debug(
             message="Completed for {url:.50}... | Time: {timing}s",
@@ -599,7 +589,7 @@ class AsyncWebCrawler:
                             continue
                         more_links.add(link_dict[link])
 
-                results = block.get("infos", [])
+                results = block.get("info", [])
                 for res in results:
                     res = res.strip()
                     if len(res) < 3:
@@ -628,17 +618,20 @@ class AsyncWebCrawler:
             hallucination_times = 0
             total_parsed = 0
             schema_keys = config.extraction_strategy.schema.keys()
-
-            for block in extracted_content:
-                total_parsed += len(block)
-                for key in block.keys():
-                    if key not in schema_keys:
-                        hallucination_times += 1
-                        del block[key]
-                for key in schema_keys:
-                    if key not in block:
-                        hallucination_times += 1
-                        block[key] = None
+            plained_extracted_content = []
+            for blocks in extracted_content:
+                for block in blocks:
+                    total_parsed += len(block)
+                    for key in block.keys():
+                        if key not in schema_keys:
+                            hallucination_times += 1
+                            del block[key]
+                    for key in schema_keys:
+                        if key not in block:
+                            hallucination_times += 1
+                            block[key] = None
+                    plained_extracted_content.append(block)
+            extracted_content = plained_extracted_content
             hallucination_rate = round((hallucination_times / total_parsed) * 100, 2) if total_parsed > 0 else 'NA'
             self.logger.info(
                 message="schema extraction by llm, hallucination times: {hallucination_times}, hallucination rate: {hallucination_rate} %",

@@ -2,9 +2,11 @@ from abc import ABC, abstractmethod
 from typing import Optional, Dict, Any, Tuple
 from .html2text import CustomHTML2Text
 import regex as re
-from .utils import normalize_url, url_pattern, is_valid_img_url
+from .utils import normalize_url, url_pattern, is_valid_img_url, is_external_url, get_base_domain
 import os
 from async_lru import alru_cache
+from ..llms.openai_wrapper import openai_llm as llm
+from .config import SOCIAL_MEDIA_DOMAINS
 
 # Pre-compile the regex pattern
 # LINK_PATTERN = re.compile(r'!?\[([^\]]+)\]\(([^)]+?)(?:\s+"([^"]*)")?\)')
@@ -17,15 +19,14 @@ if not vl_model:
 async def extract_info_from_img(url: str) -> str:
     if not vl_model:
         return '§to_be_recognized_by_visual_llm§'
-    """
+    
     llm_output = await llm([{"role": "user",
         "content": [{"type": "image_url", "image_url": {"url": url, "detail": "high"}},
         {"type": "text", "text": "提取图片中的所有文字，如果图片不包含文字或者文字很少或者你判断图片仅是网站logo、商标、图标等，则输出NA。注意请仅输出提取出的文字，不要输出别的任何内容。"}]}],
         model=vl_model)
 
     return llm_output
-    """
-    return '§to_be_recognized_by_visual_llm§'
+
 
 class MarkdownGenerationStrategy(ABC):
     """Abstract base class for markdown generation strategies."""
@@ -75,7 +76,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
     ):
         super().__init__(options)
 
-    async def convert_links_to_citations(self, markdown: str, base_url: str = "") -> Tuple[str, dict]:
+    async def convert_links_to_citations(self, markdown: str, base_url: str = "", exclude_external_links: bool = False) -> Tuple[str, dict]:
         """
         bigbrother666sh modified:
         use wisefow V3.9's preprocess instead
@@ -116,8 +117,17 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
                 if not _url or _url[0].startswith(('#', 'javascript:')):
                     text = text.replace(_sec, link_text, 1)
                     continue
+
+                if exclude_external_links and is_external_url(_url[0], base_url):
+                    text = text.replace(_sec, link_text, 1)
+                    continue
+
+                if get_base_domain(_url[0]) in SOCIAL_MEDIA_DOMAINS:
+                    text = text.replace(_sec, link_text, 1)
+                    continue
+
                 url = normalize_url(_url[0], base_url)
-                
+
                 # 分离§§内的内容和后面的内容
                 img_marker_pattern = r'§(.*?)\|\|(.*?)§'
                 inner_matches = re.findall(img_marker_pattern, link_text, re.DOTALL)
@@ -145,6 +155,11 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
                             link_dict[_key] = img_src
                     else:
                         link_text = img_alt
+
+                # 处理mailto和tel链接, 将值添加到文本中
+                if url.startswith(('mailto:', 'tel:')):
+                    text = text.replace(_sec, link_text + url, 1)
+                    continue
 
                 _key = f"[{len(link_dict)+1}]"
                 link_dict[_key] = url
@@ -178,6 +193,12 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             # 处理文本中的"野 url"，使用更精确的正则表达式
             matches = re.findall(url_pattern, text)
             for url in matches:
+                if exclude_external_links and is_external_url(url, base_url):
+                    text = text.replace(url, '', 1)
+                    continue
+                if get_base_domain(url) in SOCIAL_MEDIA_DOMAINS:
+                    text = text.replace(url, '', 1)
+                    continue
                 url = normalize_url(url, base_url)
                 _key = f"[{len(link_dict)+1}]"
                 link_dict[_key] = url
@@ -195,6 +216,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
         base_url: str = "",
         html2text_options: Optional[Dict[str, Any]] = None,
         options: Optional[Dict[str, Any]] = None,
+        exclude_external_links: bool = False,
         **kwargs,
     ) -> Tuple[str, str, dict]:
         """
@@ -259,7 +281,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             # Convert links to citations
             link_dict: dict = {}
             try:
-                markdown, link_dict = await self.convert_links_to_citations(raw_markdown, base_url)
+                markdown, link_dict = await self.convert_links_to_citations(raw_markdown, base_url, exclude_external_links)
             except Exception as e:
                 error_msg = f"Error converting links to citations: {str(e)}"
                 return error_msg, '', {}

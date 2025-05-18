@@ -250,11 +250,3 @@ class Media(BaseModel):
 class Links(BaseModel):
     internal: List[Link] = []
     external: List[Link] = []
-
-
-class ScrapingResult(BaseModel):
-    cleaned_html: str
-    success: bool
-    media: Media = Media()
-    links: Links = Links()
-    metadata: Dict[str, Any] = {}

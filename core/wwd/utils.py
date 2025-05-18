@@ -706,7 +706,6 @@ def get_system_memory():
     else:
         raise OSError("Unsupported operating system")
 
-
 def get_home_folder():
     """
     Get or create the home folder for Crawl4AI configuration and cache.
@@ -985,134 +984,50 @@ def replace_inline_tags(soup, tags, only_text=False):
 
 
 def get_content_of_website(
-    url, html, word_count_threshold=MIN_WORD_THRESHOLD, css_selector=None, **kwargs
-):
+    html, word_count_threshold=MIN_WORD_THRESHOLD, tags_to_remove=None):
     """
-    Extract structured content, media, and links from website HTML.
+    bigbrother666 modified this function, 2025-05-18
+    an alternative to preprocess_html_for_schema, just return cleaned_html
 
     How it works:
     1. Parses the HTML content using BeautifulSoup.
     2. Extracts internal/external links and media (images, videos, audios).
     3. Cleans the content by removing unwanted tags and attributes.
-    4. Converts cleaned HTML to Markdown.
-    5. Collects metadata and returns the extracted information.
 
     Args:
         url (str): The website URL.
         html (str): The HTML content of the website.
         word_count_threshold (int): Minimum word count for content inclusion. Defaults to MIN_WORD_THRESHOLD.
-        css_selector (Optional[str]): CSS selector to extract specific content. Defaults to None.
+        tags_to_remove (Optional[str]): tags to remove. Defaults to None.
 
     Returns:
-        Dict[str, Any]: Extracted content including Markdown, cleaned HTML, media, links, and metadata.
+        str: cleaned_html
     """
 
     try:
         if not html:
-            return None
+            return ""
         # Parse HTML content with BeautifulSoup
         soup = BeautifulSoup(html, "html.parser")
 
         # Get the content within the <body> tag
         body = soup.body
 
-        # If css_selector is provided, extract content based on the selector
-        if css_selector:
-            selected_elements = body.select(css_selector)
-            if not selected_elements:
-                raise InvalidCSSSelectorError(
-                    f"Invalid CSS selector , No elements found for CSS selector: {css_selector}"
-                )
-            div_tag = soup.new_tag("div")
-            for el in selected_elements:
-                div_tag.append(el)
-            body = div_tag
+        if not tags_to_remove:
+            tags_to_remove = [
+                'script', 'style', 'noscript', 'iframe', 'canvas', 'svg',
+                'video', 'audio', 'source', 'track', 'map', 'area',
+                'form', 'input', 'textarea', 'select', 'option', 'button',
+                'fieldset', 'legend', 'label', 'datalist', 'output'
+            ]
 
-        links = {"internal": [], "external": []}
-
-        # Extract all internal and external links
-        for a in body.find_all("a", href=True):
-            href = a["href"]
-            url_base = url.split("/")[2]
-            if href.startswith("http") and url_base not in href:
-                links["external"].append({"href": href, "text": a.get_text()})
-            else:
-                links["internal"].append({"href": href, "text": a.get_text()})
-
-        # Remove script, style, and other tags that don't carry useful content from body
-        for tag in body.find_all(["script", "style", "link", "meta", "noscript"]):
+        for tag in body.find_all(tags_to_remove):
             tag.decompose()
 
-        # Remove all attributes from remaining tags in body, except for img tags
+        # Remove all attributes from remaining tags in body, except for img and a tags
         for tag in body.find_all():
-            if tag.name != "img":
+            if tag.name not in ["img", "a"]:
                 tag.attrs = {}
-
-        # Extract all img tgas int0 [{src: '', alt: ''}]
-        media = {"images": [], "videos": [], "audios": []}
-        for img in body.find_all("img"):
-            media["images"].append(
-                {"src": img.get("src"), "alt": img.get("alt"), "type": "image"}
-            )
-
-        # Extract all video tags into [{src: '', alt: ''}]
-        for video in body.find_all("video"):
-            media["videos"].append(
-                {"src": video.get("src"), "alt": video.get("alt"), "type": "video"}
-            )
-
-        # Extract all audio tags into [{src: '', alt: ''}]
-        for audio in body.find_all("audio"):
-            media["audios"].append(
-                {"src": audio.get("src"), "alt": audio.get("alt"), "type": "audio"}
-            )
-
-        # Replace images with their alt text or remove them if no alt text is available
-        for img in body.find_all("img"):
-            alt_text = img.get("alt")
-            if alt_text:
-                img.replace_with(soup.new_string(alt_text))
-            else:
-                img.decompose()
-
-        # Create a function that replace content of all"pre" tag with its inner text
-        def replace_pre_tags_with_text(node):
-            for child in node.find_all("pre"):
-                # set child inner html to its text
-                child.string = child.get_text()
-            return node
-
-        # Replace all "pre" tags with their inner text
-        body = replace_pre_tags_with_text(body)
-
-        # Replace inline tags with their text content
-        body = replace_inline_tags(
-            body,
-            [
-                "b",
-                "i",
-                "u",
-                "span",
-                "del",
-                "ins",
-                "sub",
-                "sup",
-                "strong",
-                "em",
-                "code",
-                "kbd",
-                "var",
-                "s",
-                "q",
-                "abbr",
-                "cite",
-                "dfn",
-                "time",
-                "small",
-                "mark",
-            ],
-            only_text=kwargs.get("only_text", False),
-        )
 
         # Recursively remove empty elements, their parent elements, and elements with word count below threshold
         def remove_empty_and_low_word_count_elements(node, word_count_threshold):
@@ -1207,336 +1122,11 @@ def get_content_of_website(
         cleaned_html = str(body).replace("\n\n", "\n").replace("  ", " ")
 
         # Sanitize the cleaned HTML content
-        cleaned_html = sanitize_html(cleaned_html)
-        # sanitized_html = escape_json_string(cleaned_html)
-
-        # Convert cleaned HTML to Markdown
-        h = html2text.HTML2Text()
-        h = CustomHTML2Text()
-        h.ignore_links = True
-        markdown = h.handle(cleaned_html)
-        markdown = markdown.replace("    ```", "```")
-
-        try:
-            meta = extract_metadata(html, soup)
-        except Exception as e:
-            print("Error extracting metadata:", str(e))
-            meta = {}
-
-        # Return the Markdown content
-        return {
-            "markdown": markdown,
-            "cleaned_html": cleaned_html,
-            "success": True,
-            "media": media,
-            "links": links,
-            "metadata": meta,
-        }
+        return sanitize_html(cleaned_html)
 
     except Exception as e:
         print("Error processing HTML content:", str(e))
-        raise InvalidCSSSelectorError(f"Invalid CSS selector: {css_selector}") from e
-
-
-def get_content_of_website_optimized(
-    url: str,
-    html: str,
-    word_count_threshold: int = MIN_WORD_THRESHOLD,
-    css_selector: str = None,
-    **kwargs,
-) -> Dict[str, Any]:
-    if not html:
-        return None
-
-    soup = BeautifulSoup(html, "html.parser")
-    body = soup.body
-
-    image_description_min_word_threshold = kwargs.get(
-        "image_description_min_word_threshold", IMAGE_DESCRIPTION_MIN_WORD_THRESHOLD
-    )
-
-    for tag in kwargs.get("excluded_tags", []) or []:
-        for el in body.select(tag):
-            el.decompose()
-
-    if css_selector:
-        selected_elements = body.select(css_selector)
-        if not selected_elements:
-            raise InvalidCSSSelectorError(
-                f"Invalid CSS selector, No elements found for CSS selector: {css_selector}"
-            )
-        body = soup.new_tag("div")
-        for el in selected_elements:
-            body.append(el)
-
-    links = {"internal": [], "external": []}
-    media = {"images": [], "videos": [], "audios": []}
-
-    # Extract meaningful text for media files from closest parent
-    def find_closest_parent_with_useful_text(tag):
-        current_tag = tag
-        while current_tag:
-            current_tag = current_tag.parent
-            # Get the text content from the parent tag
-            if current_tag:
-                text_content = current_tag.get_text(separator=" ", strip=True)
-                # Check if the text content has at least word_count_threshold
-                if len(text_content.split()) >= image_description_min_word_threshold:
-                    return text_content
-        return None
-
-    def process_image(img, url, index, total_images):
-        # Check if an image has valid display and inside undesired html elements
-        def is_valid_image(img, parent, parent_classes):
-            style = img.get("style", "")
-            src = img.get("src", "")
-            classes_to_check = ["button", "icon", "logo"]
-            tags_to_check = ["button", "input"]
-            return all(
-                [
-                    "display:none" not in style,
-                    src,
-                    not any(
-                        s in var
-                        for var in [src, img.get("alt", ""), *parent_classes]
-                        for s in classes_to_check
-                    ),
-                    parent.name not in tags_to_check,
-                ]
-            )
-
-        # Score an image for it's usefulness
-        def score_image_for_usefulness(img, base_url, index, images_count):
-            # Function to parse image height/width value and units
-            def parse_dimension(dimension):
-                if dimension:
-                    match = re.match(r"(\d+)(\D*)", dimension)
-                    if match:
-                        number = int(match.group(1))
-                        unit = (
-                            match.group(2) or "px"
-                        )  # Default unit is 'px' if not specified
-                        return number, unit
-                return None, None
-
-            # Fetch image file metadata to extract size and extension
-            def fetch_image_file_size(img, base_url):
-                # If src is relative path construct full URL, if not it may be CDN URL
-                img_url = urljoin(base_url, img.get("src"))
-                try:
-                    response = requests.head(img_url)
-                    if response.status_code == 200:
-                        return response.headers.get("Content-Length", None)
-                    else:
-                        print(f"Failed to retrieve file size for {img_url}")
-                        return None
-                except InvalidSchema:
-                    return None
-                finally:
-                    return
-
-            image_height = img.get("height")
-            height_value, height_unit = parse_dimension(image_height)
-            image_width = img.get("width")
-            width_value, width_unit = parse_dimension(image_width)
-            image_size = 0  # int(fetch_image_file_size(img,base_url) or 0)
-            image_format = os.path.splitext(img.get("src", ""))[1].lower()
-            # Remove . from format
-            image_format = image_format.strip(".")
-            score = 0
-            if height_value:
-                if height_unit == "px" and height_value > 150:
-                    score += 1
-                if height_unit in ["%", "vh", "vmin", "vmax"] and height_value > 30:
-                    score += 1
-            if width_value:
-                if width_unit == "px" and width_value > 150:
-                    score += 1
-                if width_unit in ["%", "vh", "vmin", "vmax"] and width_value > 30:
-                    score += 1
-            if image_size > 10000:
-                score += 1
-            if img.get("alt") != "":
-                score += 1
-            if any(image_format == format for format in ["jpg", "png", "webp"]):
-                score += 1
-            if index / images_count < 0.5:
-                score += 1
-            return score
-
-        if not is_valid_image(img, img.parent, img.parent.get("class", [])):
-            return None
-        score = score_image_for_usefulness(img, url, index, total_images)
-        if score <= IMAGE_SCORE_THRESHOLD:
-            return None
-        return {
-            "src": img.get("src", "").replace('\\"', '"').strip(),
-            "alt": img.get("alt", ""),
-            "desc": find_closest_parent_with_useful_text(img),
-            "score": score,
-            "type": "image",
-        }
-
-    def process_element(element: element.PageElement) -> bool:
-        try:
-            if isinstance(element, NavigableString):
-                if isinstance(element, Comment):
-                    element.extract()
-                return False
-
-            if element.name in ["script", "style", "link", "meta", "noscript"]:
-                element.decompose()
-                return False
-
-            keep_element = False
-
-            if element.name == "a" and element.get("href"):
-                href = element["href"]
-                url_base = url.split("/")[2]
-                link_data = {"href": href, "text": element.get_text()}
-                if href.startswith("http") and url_base not in href:
-                    links["external"].append(link_data)
-                else:
-                    links["internal"].append(link_data)
-                keep_element = True
-
-            elif element.name == "img":
-                return True  # Always keep image elements
-
-            elif element.name in ["video", "audio"]:
-                media[f"{element.name}s"].append(
-                    {
-                        "src": element.get("src"),
-                        "alt": element.get("alt"),
-                        "type": element.name,
-                        "description": find_closest_parent_with_useful_text(element),
-                    }
-                )
-                source_tags = element.find_all("source")
-                for source_tag in source_tags:
-                    media[f"{element.name}s"].append(
-                        {
-                            "src": source_tag.get("src"),
-                            "alt": element.get("alt"),
-                            "type": element.name,
-                            "description": find_closest_parent_with_useful_text(
-                                element
-                            ),
-                        }
-                    )
-                return True  # Always keep video and audio elements
-
-            if element.name != "pre":
-                if element.name in [
-                    "b",
-                    "i",
-                    "u",
-                    "span",
-                    "del",
-                    "ins",
-                    "sub",
-                    "sup",
-                    "strong",
-                    "em",
-                    "code",
-                    "kbd",
-                    "var",
-                    "s",
-                    "q",
-                    "abbr",
-                    "cite",
-                    "dfn",
-                    "time",
-                    "small",
-                    "mark",
-                ]:
-                    if kwargs.get("only_text", False):
-                        element.replace_with(element.get_text())
-                    else:
-                        element.unwrap()
-                elif element.name != "img":
-                    element.attrs = {}
-
-            # Process children
-            for child in list(element.children):
-                if isinstance(child, NavigableString) and not isinstance(
-                    child, Comment
-                ):
-                    if len(child.strip()) > 0:
-                        keep_element = True
-                else:
-                    if process_element(child):
-                        keep_element = True
-
-            # Check word count
-            if not keep_element:
-                word_count = len(element.get_text(strip=True).split())
-                keep_element = word_count >= word_count_threshold
-
-            if not keep_element:
-                element.decompose()
-
-            return keep_element
-        except Exception as e:
-            print("Error processing element:", str(e))
-            return False
-
-    # process images by filtering and extracting contextual text from the page
-    imgs = body.find_all("img")
-    media["images"] = [
-        result
-        for result in (
-            process_image(img, url, i, len(imgs)) for i, img in enumerate(imgs)
-        )
-        if result is not None
-    ]
-
-    process_element(body)
-
-    def flatten_nested_elements(node):
-        if isinstance(node, NavigableString):
-            return node
-        if (
-            len(node.contents) == 1
-            and isinstance(node.contents[0], element.Tag)
-            and node.contents[0].name == node.name
-        ):
-            return flatten_nested_elements(node.contents[0])
-        node.contents = [flatten_nested_elements(child) for child in node.contents]
-        return node
-
-    body = flatten_nested_elements(body)
-    base64_pattern = re.compile(r'data:image/[^;]+;base64,([^"]+)')
-    for img in imgs:
-        try:
-            src = img.get("src", "")
-            if base64_pattern.match(src):
-                img["src"] = base64_pattern.sub("", src)
-        except Exception as _ex:
-            pass
-
-    cleaned_html = str(body).replace("\n\n", "\n").replace("  ", " ")
-    cleaned_html = sanitize_html(cleaned_html)
-
-    h = CustomHTML2Text()
-    h.ignore_links = True
-    markdown = h.handle(cleaned_html)
-    markdown = markdown.replace("    ```", "```")
-
-    try:
-        meta = extract_metadata(html, soup)
-    except Exception as e:
-        print("Error extracting metadata:", str(e))
-        meta = {}
-
-    return {
-        "markdown": markdown,
-        "cleaned_html": cleaned_html,
-        "success": True,
-        "media": media,
-        "links": links,
-        "metadata": meta,
-    }
+        return ""
 
 
 def extract_metadata_using_lxml(html, doc=None):
@@ -1745,130 +1335,6 @@ def extract_xml_data(tags, string):
             data[tag] = []
 
     return data
-"""
-def extract_blocks(url, html, provider=DEFAULT_PROVIDER, api_token=None, base_url=None):
-    
-    Extract content blocks from website HTML using an AI provider.
-
-    How it works:
-    1. Prepares a prompt by sanitizing and escaping HTML.
-    2. Sends the prompt to an AI provider with optional retries.
-    3. Parses the response to extract structured blocks or errors.
-
-    Args:
-        url (str): The website URL.
-        html (str): The HTML content of the website.
-        provider (str): The AI provider for content extraction. Defaults to DEFAULT_PROVIDER.
-        api_token (Optional[str]): The API token for authentication. Defaults to None.
-        base_url (Optional[str]): The base URL for the API. Defaults to None.
-
-    Returns:
-        List[dict]: A list of extracted content blocks.
-
-
-    # api_token = os.getenv('GROQ_API_KEY', None) if not api_token else api_token
-    api_token = PROVIDER_MODELS.get(provider, None) if not api_token else api_token
-
-    variable_values = {
-        "URL": url,
-        "HTML": escape_json_string(sanitize_html(html)),
-    }
-
-    prompt_with_variables = PROMPT_EXTRACT_BLOCKS
-    for variable in variable_values:
-        prompt_with_variables = prompt_with_variables.replace(
-            "{" + variable + "}", variable_values[variable]
-        )
-
-    response = perform_completion_with_backoff(
-        provider, prompt_with_variables, api_token, base_url=base_url
-    )
-
-    try:
-        blocks = extract_xml_data(["blocks"], response.choices[0].message.content)[
-            "blocks"
-        ]
-        blocks = json.loads(blocks)
-        ## Add error: False to the blocks
-        for block in blocks:
-            block["error"] = False
-    except Exception:
-        parsed, unparsed = split_and_parse_json_objects(
-            response.choices[0].message.content
-        )
-        blocks = parsed
-        # Append all unparsed segments as onr error block and content is list of unparsed segments
-        if unparsed:
-            blocks.append(
-                {"index": 0, "error": True, "tags": ["error"], "content": unparsed}
-            )
-    return blocks
-
-
-def extract_blocks_batch(batch_data, provider="groq/llama3-70b-8192", api_token=None):
-
-    Extract content blocks from a batch of website HTMLs.
-
-    How it works:
-    1. Prepares prompts for each URL and HTML pair.
-    2. Sends the prompts to the AI provider in a batch request.
-    3. Parses the responses to extract structured blocks or errors.
-
-    Args:
-        batch_data (List[Tuple[str, str]]): A list of (URL, HTML) pairs.
-        provider (str): The AI provider for content extraction. Defaults to "groq/llama3-70b-8192".
-        api_token (Optional[str]): The API token for authentication. Defaults to None.
-
-    Returns:
-        List[dict]: A list of extracted content blocks from all batch items.
-
-
-    api_token = os.getenv("GROQ_API_KEY", None) if not api_token else api_token
-    from litellm import batch_completion
-
-    messages = []
-
-    for url, _html in batch_data:
-        variable_values = {
-            "URL": url,
-            "HTML": _html,
-        }
-
-        prompt_with_variables = PROMPT_EXTRACT_BLOCKS
-        for variable in variable_values:
-            prompt_with_variables = prompt_with_variables.replace(
-                "{" + variable + "}", variable_values[variable]
-            )
-
-        messages.append([{"role": "user", "content": prompt_with_variables}])
-
-    responses = batch_completion(model=provider, messages=messages, temperature=0.01)
-
-    all_blocks = []
-    for response in responses:
-        try:
-            blocks = extract_xml_data(["blocks"], response.choices[0].message.content)[
-                "blocks"
-            ]
-            blocks = json.loads(blocks)
-
-        except Exception:
-            blocks = [
-                {
-                    "index": 0,
-                    "tags": ["error"],
-                    "content": [
-                        "Error extracting blocks from the HTML content. Choose another provider/model or try again."
-                    ],
-                    "questions": [
-                        "What went wrong during the block extraction process?"
-                    ],
-                }
-            ]
-        all_blocks.append(blocks)
-
-    return sum(all_blocks, [])
-"""
 
 def merge_chunks_based_on_token_threshold(chunks, token_threshold):
     """
@@ -1901,52 +1367,6 @@ def merge_chunks_based_on_token_threshold(chunks, token_threshold):
 
     return merged_sections
 
-"""
-def process_sections(
-    url: str, sections: list, provider: str, api_token: str, base_url=None
-) -> list:
-    
-    Process sections of HTML content sequentially or in parallel.
-
-    How it works:
-    1. Sequentially processes sections with delays for "groq/" providers.
-    2. Uses ThreadPoolExecutor for parallel processing with other providers.
-    3. Extracts content blocks for each section.
-
-    Args:
-        url (str): The website URL.
-        sections (List[str]): The list of HTML sections to process.
-        provider (str): The AI provider for content extraction.
-        api_token (str): The API token for authentication.
-        base_url (Optional[str]): The base URL for the API. Defaults to None.
-
-    Returns:
-        List[dict]: The list of extracted content blocks from all sections.
-
-
-    extracted_content = []
-    if provider.startswith("groq/"):
-        # Sequential processing with a delay
-        for section in sections:
-            extracted_content.extend(
-                extract_blocks(url, section, provider, api_token, base_url=base_url)
-            )
-            time.sleep(0.5)  # 500 ms delay between each processing
-    else:
-        # Parallel processing using ThreadPoolExecutor
-        with ThreadPoolExecutor() as executor:
-            futures = [
-                executor.submit(
-                    extract_blocks, url, section, provider, api_token, base_url=base_url
-                )
-                for section in sections
-            ]
-            for future in as_completed(futures):
-                extracted_content.extend(future.result())
-
-    return extracted_content
-"""
-
 def wrap_text(draw, text, font, max_width):
     """
     Wrap text to fit within a specified width for rendering.
@@ -1978,7 +1398,6 @@ def wrap_text(draw, text, font, max_width):
         lines.append(line)
     return "\n".join(lines)
 
-
 def format_html(html_string):
     """
     Prettify an HTML string using BeautifulSoup.
@@ -1997,7 +1416,6 @@ def format_html(html_string):
 
     soup = BeautifulSoup(html_string, "lxml.parser")
     return soup.prettify()
-
 
 def fast_format_html(html_string):
     """
@@ -2044,117 +1462,6 @@ def fast_format_html(html_string):
 
     return "\n".join(formatted)
 
-def normalize_url_for_deep_crawl(href, base_url):
-    """Normalize URLs to ensure consistent format"""
-    from urllib.parse import urljoin, urlparse, urlunparse, parse_qs, urlencode
-
-    # Handle None or empty values
-    if not href:
-        return None
-
-    # Use urljoin to handle relative URLs
-    full_url = urljoin(base_url, href.strip())
-    
-    # Parse the URL for normalization
-    parsed = urlparse(full_url)
-    
-    # Convert hostname to lowercase
-    netloc = parsed.netloc.lower()
-    
-    # Remove fragment entirely
-    fragment = ''
-    
-    # Normalize query parameters if needed
-    query = parsed.query
-    if query:
-        # Parse query parameters
-        params = parse_qs(query)
-        
-        # Remove tracking parameters (example - customize as needed)
-        tracking_params = ['utm_source', 'utm_medium', 'utm_campaign', 'ref', 'fbclid']
-        for param in tracking_params:
-            if param in params:
-                del params[param]
-                
-        # Rebuild query string, sorted for consistency
-        query = urlencode(params, doseq=True) if params else ''
-    
-    # Build normalized URL
-    normalized = urlunparse((
-        parsed.scheme,
-        netloc,
-        parsed.path.rstrip('/'),  # Normalize trailing slash
-        parsed.params,
-        query,
-        fragment
-    ))
-    
-    return normalized
-
-@lru_cache(maxsize=10000)
-def efficient_normalize_url_for_deep_crawl(href, base_url):
-    """Efficient URL normalization with proper parsing"""
-    from urllib.parse import urljoin
-    
-    if not href:
-        return None
-    
-    # Resolve relative URLs
-    full_url = urljoin(base_url, href.strip())
-    
-    # Use proper URL parsing
-    parsed = urlparse(full_url)
-    
-    # Only perform the most critical normalizations
-    # 1. Lowercase hostname
-    # 2. Remove fragment
-    normalized = urlunparse((
-        parsed.scheme,
-        parsed.netloc.lower(),
-        parsed.path.rstrip('/'),
-        parsed.params,
-        parsed.query,
-        ''  # Remove fragment
-    ))
-    
-    return normalized
-
-
-def normalize_url_tmp(href, base_url):
-    """Normalize URLs to ensure consistent format"""
-    # Extract protocol and domain from base URL
-    try:
-        base_parts = base_url.split("/")
-        protocol = base_parts[0]
-        domain = base_parts[2]
-    except IndexError:
-        raise ValueError(f"Invalid base URL format: {base_url}")
-
-    # Handle special protocols
-    special_protocols = {"mailto:", "tel:", "ftp:", "file:", "data:", "javascript:"}
-    if any(href.lower().startswith(proto) for proto in special_protocols):
-        return href.strip()
-
-    # Handle anchor links
-    if href.startswith("#"):
-        return f"{base_url}{href}"
-
-    # Handle protocol-relative URLs
-    if href.startswith("//"):
-        return f"{protocol}{href}"
-
-    # Handle root-relative URLs
-    if href.startswith("/"):
-        return f"{protocol}//{domain}{href}"
-
-    # Handle relative URLs
-    if not href.startswith(("http://", "https://")):
-        # Remove leading './' if present
-        href = href.lstrip("./")
-        return f"{protocol}//{domain}/{href}"
-
-    return href.strip()
-
 
 def get_base_domain(url: str) -> str:
     """
@@ -2164,6 +1471,7 @@ def get_base_domain(url: str) -> str:
     1. Parses the URL to extract the domain.
     2. Removes the port number and 'www' prefix.
     3. Handles special domains (e.g., 'co.uk') to extract the correct base.
+    4. Correctly identifies and returns IP addresses.
 
     Args:
         url (str): The URL to extract the base domain from.
@@ -2172,72 +1480,91 @@ def get_base_domain(url: str) -> str:
         str: The extracted base domain or an empty string if parsing fails.
     """
     try:
-        # Get domain from URL
-        domain = urlparse(url).netloc.lower()
-        if not domain:
+        parsed_url = urlparse(url)
+        domain_from_url = parsed_url.netloc.lower()
+        if not domain_from_url:
             return ""
 
         # Remove port if present
-        domain = domain.split(":")[0]
+        domain_no_port = domain_from_url.split(":")[0]
 
-        # Remove www
-        domain = re.sub(r"^www\.", "", domain)
+        # Check if domain_no_port is an IP address
+        is_ip_address = False
+        if domain_no_port.count('.') == 3:
+            parts_for_ip_check = domain_no_port.split('.')
+            # Ensure all parts are digits and within the valid IP address range (0-255)
+            if all(part.isdigit() and 0 <= int(part) <= 255 for part in parts_for_ip_check):
+                is_ip_address = True
+        
+        if is_ip_address:
+            return domain_no_port
 
-        # Extract last two parts of domain (handles co.uk etc)
-        parts = domain.split(".")
-        if len(parts) > 2 and parts[-2] in {
-            "co",
-            "com",
-            "org",
-            "gov",
-            "edu",
-            "net",
-            "mil",
-            "int",
-            "ac",
-            "ad",
-            "ae",
-            "af",
-            "ag",
-        }:
-            return ".".join(parts[-3:])
+        # Remove www prefix
+        domain_no_www = re.sub(r"^www\\.", "", domain_no_port)
+        
+        parts = domain_no_www.split(".")
+        
+        # This set is from the original code; for robust TLD extraction, a dedicated library is better.
+        special_second_level_domains = { 
+            "co", "com", "org", "gov", "edu", "net", "mil", "int", "ac", 
+            "ad", "ae", "af", "ag" 
+        }
 
-        return ".".join(parts[-2:])
+        if len(parts) > 2 and parts[-2] in special_second_level_domains:
+            return ".".join(parts[-3:]) # e.g., example.co.uk
+        elif len(parts) >= 2: 
+            return ".".join(parts[-2:]) # e.g., example.com
+        elif len(parts) == 1: 
+            return parts[0] # e.g., localhost or a single-label domain
+        else:
+            # Fallback for empty or near-empty domain strings after processing
+            return domain_no_www 
+            
     except Exception:
         return ""
 
 
-def is_external_url(url: str, base_domain: str) -> bool:
+def is_external_url(url: str, base_url: str) -> bool:
     """
-    Extract the base domain from a given URL, handling common edge cases.
+    Determines if a URL is external to a given base URL.
 
     How it works:
-    1. Parses the URL to extract the domain.
-    2. Removes the port number and 'www' prefix.
-    3. Handles special domains (e.g., 'co.uk') to extract the correct base.
+    1. Normalizes both the target URL and base URL to their base domains using `get_base_domain`.
+    2. Compares these normalized base domains.
+    3. Relative URLs are considered internal.
+    4. URLs that cannot be parsed into a valid domain are typically considered internal or non-comparable based on test expectations.
 
     Args:
-        url (str): The URL to extract the base domain from.
+        url (str): The URL to check.
+        base_url (str): The base URL to compare against.
 
     Returns:
-        str: The extracted base domain or an empty string if parsing fails.
+        bool: True if the URL is external, False otherwise.
     """
-    special = {"mailto:", "tel:", "ftp:", "file:", "data:", "javascript:"}
-    if any(url.lower().startswith(p) for p in special):
-        return True
+    normalized_base_domain = get_base_domain(base_url)
+
+    if not normalized_base_domain:
+        # If the base_url doesn't yield a valid domain, behavior is per original tests.
+        # e.g. is_external_url("https://other.com", "") is expected to be False.
+        return False
 
     try:
-        parsed = urlparse(url)
-        if not parsed.netloc:  # Relative URL
-            return False
+        # Check if the target URL is relative (has no netloc)
+        parsed_target_url = urlparse(url)
+        if not parsed_target_url.netloc:  # e.g., "/path/page", "file.html", "not-a-url", "https://"
+            return False # Relative URLs (or those parsed as having no domain) are internal
 
-        # Strip 'www.' from both domains for comparison
-        url_domain = parsed.netloc.lower().replace("www.", "")
-        base = base_domain.lower().replace("www.", "")
-
-        # Check if URL domain ends with base domain
-        return not url_domain.endswith(base)
+        normalized_target_domain = get_base_domain(url)
+        
+        # If normalized_target_domain is empty (e.g. for an invalid URL scheme that had a netloc but get_base_domain couldn't process)
+        # This path is less likely if `if not parsed_target_url.netloc:` already caught it.
+        # However, if `get_base_domain` returns "" for some valid netlocs, then comparison "" != "example.com" is True.
+        # The existing tests seem to rely on the initial `parsed_target_url.netloc` check for most problematic cases.
+        
+        return normalized_target_domain != normalized_base_domain
+        
     except Exception:
+        # Fallback consistent with original behavior on parsing errors for the target URL
         return False
 
 
@@ -2699,7 +2026,7 @@ class HeadPeekr:
         title_match = re.search(r'<title>(.*?)</title>', head_content, re.IGNORECASE | re.DOTALL)
         return title_match.group(1) if title_match else None
 
-def preprocess_html_for_schema(html_content, text_threshold=100, attr_value_threshold=200, max_size=100000):
+def preprocess_html_for_schema(html_content, tags_to_remove: list[str] = None):
     """
     Preprocess HTML to reduce size while preserving structure for schema generation.
     
@@ -2724,10 +2051,13 @@ def preprocess_html_for_schema(html_content, text_threshold=100, attr_value_thre
                 head.getparent().remove(head)
         
         # 2. Define tags to remove completely
-        tags_to_remove = [
-            'script', 'style', 'noscript', 'iframe', 'canvas', 'svg',
-            'video', 'audio', 'source', 'track', 'map', 'area'
-        ]
+        if not tags_to_remove:
+            tags_to_remove = [
+                'script', 'style', 'noscript', 'iframe', 'canvas', 'svg',
+                'video', 'audio', 'source', 'track', 'map', 'area',
+                'form', 'input', 'textarea', 'select', 'option', 'button',
+                'fieldset', 'legend', 'label', 'datalist', 'output'
+            ]
         
         # Remove unwanted elements
         for tag in tags_to_remove:
@@ -2759,8 +2089,8 @@ def preprocess_html_for_schema(html_content, text_threshold=100, attr_value_thre
                 if not (attrib in attribs_to_keep or attrib.startswith('data-')):
                     element.attrib.pop(attrib)
                 # Truncate long attribute values except for selectors
-                elif attrib not in attributes_hates_truncate and len(element.attrib[attrib]) > attr_value_threshold:
-                    element.attrib[attrib] = element.attrib[attrib][:attr_value_threshold] + '...'
+                elif attrib not in attributes_hates_truncate and len(element.attrib[attrib]) > 200:
+                    element.attrib[attrib] = element.attrib[attrib][:200] + '...'
             
             # Truncate text content if it's too long
             #if element.text and len(element.text.strip()) > text_threshold:

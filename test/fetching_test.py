@@ -14,19 +14,11 @@ from core.scrapers.default_scraper import crawler_config
 
 save_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'webpage_samples')
 # which include some standard sites with different html structure
-standard_sites = ['http://www.chinastone.cn',
-                  'https://cg.shenzhenmc.com/zzbgg/83524.jhtml',
+standard_sites = ['https://cg.shenzhenmc.com/zzbgg/83524.jhtml',
                   'https://www.jimei123.com/cn/news/plate-information',
                   'https://cg.shenzhenmc.com/zzzgg/85093.jhtml',
                   'https://www.mee.gov.cn/xxgk2018/xxgk/xxgk15/201809/t20180928_661943.html',
-                  'http://www.chinastone.cn/news/7659.html',
                   'https://www.stone365.com/news/channel-1.html']
-
-
-browser_config = BrowserConfig(
-    user_data_dir=os.path.join(root_path, 'work_dir', 'browser_data'),
-    verbose=True
-)
 
 base_directory=os.path.join(root_path, 'work_dir')
 
@@ -47,7 +39,7 @@ async def main(sites: list):
             peak_memory = current_mem
         print(f"{prefix} Current Memory: {current_mem // (1024 * 1024)} MB, Peak: {peak_memory // (1024 * 1024)} MB")
 
-    with AsyncWebCrawler(browser_config=browser_config, base_directory=base_directory) as crawler:
+    async with AsyncWebCrawler(verbose=True, base_directory=base_directory) as crawler:
         for site in sites:
             # Check memory usage prior to launching tasks
             log_memory(prefix="Before crawling: ")
@@ -60,15 +52,6 @@ async def main(sites: list):
             if not result or not result.success:
                 print(f'{site} failed to crawl, skip')
                 continue
-            """
-            print('cleaned html: \n', result.cleaned_html)
-            print('\n\n')
-            print('fit html: \n', result.fit_html)
-            print('\n\n')
-            print('markdown: \n', result.markdown.raw_markdown)
-            print('\n\n')
-            print('*' * 24)
-            """
             record_file = os.path.join(save_dir, f"{hashlib.sha256(site.encode()).hexdigest()[-6:]}.json")
             with open(record_file, 'w', encoding='utf-8') as f:
                 json.dump(result.model_dump(), f, indent=4, ensure_ascii=False)

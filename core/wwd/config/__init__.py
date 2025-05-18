@@ -14,3 +14,16 @@ from .db_config import *
 from .proxy_config import *
 from .sign_srv_config import *
 from .web_config import *
+
+# Constants for word thresholds
+MIN_WORD_THRESHOLD = 3
+IMAGE_DESCRIPTION_MIN_WORD_THRESHOLD = 5
+IMAGE_SCORE_THRESHOLD = 0.5
+
+# Provider settings
+DEFAULT_PROVIDER = "openai"
+PROVIDER_MODELS = {
+    "openai": ["gpt-3.5-turbo", "gpt-4"],
+    "anthropic": ["claude-2", "claude-instant"],
+    "google": ["gemini-pro"]
+}

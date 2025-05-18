@@ -128,12 +128,22 @@ class LLMExtractionStrategy(ExtractionStrategy):
         self.verbose = verbose
         self.logger = logger
         self.schema = schema
+
         self.usages = []  # Store individual usages
         self.total_usage = TokenUsage()  # Accumulated usage
         self.extract_func = partial(self.extract, model=model, extra_args=extra_args)
         if schema:
+            try:
+                # Convert schema dict to formatted string with proper indentation
+                schema_str = json.dumps(schema, indent=2, ensure_ascii=False)
+                # Remove the outer braces and first/last line to get just the content
+                # schema_str = schema_str.strip('{}').strip()
+                # Add proper indentation for each line
+                schema_str = '\n'.join('    ' + line for line in schema_str.split('\n'))
+            except Exception as e:
+                raise ValueError(f"Invalid Schema, can not be dumps:{e}")
             self.schema_mode = True
-            self.prompt = PROMPT_EXTRACT_SCHEMA_WITH_INSTRUCTION.replace('{SCHEMA}', schema) 
+            self.prompt = PROMPT_EXTRACT_SCHEMA_WITH_INSTRUCTION.replace('{SCHEMA}', schema_str) 
         else:
             self.schema_mode = False
             focus_statement = f"<focus_point>{focuspoint}</focus_point>"
@@ -189,23 +199,22 @@ class LLMExtractionStrategy(ExtractionStrategy):
                 print(f"response: {response}")
             # schema mode parsing
             if self.schema_mode:
-                try:
-                    blocks = extract_xml_data(["result"], response)["result"]
-                    if not blocks:
-                        blocks = []
-                    else:
-                        blocks = json.loads(blocks)
-                except Exception:
-                    if self.logger:
-                        self.logger.debug("Failed to parse schema mode response, fallback to use split_and_parse")
-                    parsed, unparsed = split_and_parse_json_objects(
-                        response.choices[0].message.content
-                    )
-                    blocks = parsed
-                    if unparsed:
-                        blocks.append(
-                            {"tags": ["error"], "content": unparsed}
-                        )
+                results = extract_xml_data(["result"], response)["result"]
+                blocks = []
+                for res in results:
+                    try:
+                        blocks.append(json.loads(res))
+                    except json.JSONDecodeError:
+                        if self.logger:
+                            self.logger.debug("json loads from response failed, fallback to use split_and_parse")
+                        else:
+                            print("json loads from response failed, fallback to use split_and_parse")
+                        parsed, unparsed = split_and_parse_json_objects(res)
+                        blocks.extend(parsed)
+                        if unparsed:
+                            blocks.append(
+                                {"tags": ["error"], "content": unparsed}
+                            )
             # infos and links mode parsing
             else: 
                 result = extract_xml_data(["info", "links"], response)

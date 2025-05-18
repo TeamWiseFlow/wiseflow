@@ -17,25 +17,34 @@ if os.path.exists(env_path):
 from core.wwd import MaxLengthChunking, LLMExtractionStrategy
 
 benchmark_model = 'Qwen/Qwen3-14B'
-models = ['Qwen/Qwen3-30B-A3B', 'THUDM/GLM-4-32B-0414', 'deepseek-ai/DeepSeek-R1-Distill-Qwen-14B']
+models = ['Qwen/Qwen3-30B-A3B', 'Qwen/Qwen3-32B']
+
+schema = {"request_information": "仅限石材相关的采购信息",
+          "contact": "",
+          "publish_date": "YYYY-MM-DD formate"}
+from pprint import pprint
 
 def main(focus_point: dict, sections: list, link_dict: dict, date_stamp: str, record_file: str):
     raw_markdown = '\n'.join(sections)
     for model in [benchmark_model] + models:
         contents = sections.copy()
         extractor = LLMExtractionStrategy(model=model,
-                                          focuspoint=focus_point['focuspoint'],
-                                          restrictions=focus_point['explanation'],
+                                          schema=schema,
+                                          #focuspoint=focus_point['focuspoint'],
+                                          #restrictions=focus_point['explanation'],
                                           verbose=True)
-        print('prompt template:')
-        print(extractor.prompt)
-        print('\n')
+        if model == benchmark_model:
+            print('prompt template:')
+            print(extractor.prompt)
+            print('\n')
         print(f"running {model} ...")
         start_time = time.time()
         extracted_content = extractor.run(url='sample', sections=contents, date_stamp=date_stamp)
         time_cost = int((time.time() - start_time) * 1000) / 1000
         print(f"time cost: {time_cost}s")
-
+        for block in extracted_content:
+            pprint(block)
+        """
         more_links = set()
         infos = []
         hallucination_times = 0
@@ -43,22 +52,26 @@ def main(focus_point: dict, sections: list, link_dict: dict, date_stamp: str, re
         for block in extracted_content:
             results = block.get("links", [])
             for result in results:
-                more_links.add(result.strip())
+                result = result.strip()
+                if not result: continue
+                more_links.add(result)
                 links = re.findall(r'\[\d+]', result)
                 total_parsed += len(links)
                 for link in links:
                     if link not in link_dict:
                         hallucination_times += 1
 
-            results = block.get("infos", [])
+            results = block.get("info", [])
             for res in results:
                 res = res.strip()
-                infos.append(res)
+                if not res: continue
                 url_tags = re.findall(r'\[\d+]', res)
                 for _tag in url_tags:
                     total_parsed += 1
                     if _tag not in link_dict and _tag not in raw_markdown:
                         hallucination_times += 1
+                        res += f' (hallucination: {_tag})'
+                infos.append(res)
 
         hallucination_rate = round((hallucination_times / total_parsed) * 100, 2) if total_parsed > 0 else 'NA'
         print(f"hallucination rate: {hallucination_rate} %")
@@ -81,6 +94,7 @@ def main(focus_point: dict, sections: list, link_dict: dict, date_stamp: str, re
             f.write(f"related urls: \n{more_links_text}\n")
             f.write(f"related infos: \n{infos_text}\n")
             f.write('\n\n')
+    """
         print('\n\n')
 
 
@@ -108,7 +122,7 @@ if __name__ == '__main__':
     for file in os.listdir(sample_dir):
         if not file.endswith('.json'): continue
         if file == 'focus_point.json': continue
-        print(f"processing {file} ...")
+        print(f"processing {file} ...\n")
         with open(os.path.join(sample_dir, file), 'r') as f:
             _sample = json.load(f)
         sections = chunking.chunk(_sample["markdown"]["raw_markdown"])

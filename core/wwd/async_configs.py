@@ -1,22 +1,15 @@
 import os
 from .config import (
-    DEFAULT_PROVIDER,
-    DEFAULT_PROVIDER_API_KEY,
     MIN_WORD_THRESHOLD,
     IMAGE_DESCRIPTION_MIN_WORD_THRESHOLD,
-    PROVIDER_MODELS,
-    PROVIDER_MODELS_PREFIXES,
     SCREENSHOT_HEIGHT_TRESHOLD,
     PAGE_TIMEOUT,
     IMAGE_SCORE_THRESHOLD,
     SOCIAL_MEDIA_DOMAINS,
 )
 
-# from .extraction_strategy import ExtractionStrategy, LLMExtractionStrategy
+from .extraction_strategy import ExtractionStrategy
 from .chunking_strategy import ChunkingStrategy, RegexChunking
-
-from .markdown_generation_strategy import MarkdownGenerationStrategy, DefaultMarkdownGenerator
-from .content_scraping_strategy import ContentScrapingStrategy, LXMLWebScrapingStrategy
 
 from .cache_context import CacheMode
 from .proxy_strategy import ProxyRotationStrategy
@@ -26,7 +19,7 @@ import inspect
 from typing import Any, Dict, Optional
 from enum import Enum
 
-# from .proxy_strategy import ProxyConfig
+from .proxy_strategy import ProxyConfig
 
 
 def to_serializable_dict(obj: Any, ignore_default_value : bool = False) -> Dict:
@@ -548,12 +541,6 @@ class BrowserConfig:
 
 
 class CrawlerRunConfig:
-    _UNWANTED_PROPS = {
-        'disable_cache' : 'Instead, use cache_mode=CacheMode.DISABLED',
-        'bypass_cache' : 'Instead, use cache_mode=CacheMode.BYPASS',
-        'no_cache_read' : 'Instead, use cache_mode=CacheMode.WRITE_ONLY',
-        'no_cache_write' : 'Instead, use cache_mode=CacheMode.READ_ONLY',
-    }
 
     """
     Configuration class for controlling how the crawler runs each crawl operation.
@@ -570,39 +557,9 @@ class CrawlerRunConfig:
                                     Default: MIN_WORD_THRESHOLD (typically 200).
         extraction_strategy (ExtractionStrategy or None): Strategy to extract structured data from crawled pages.
                                                           Default: None (NoExtractionStrategy is used if None).
-        chunking_strategy (ChunkingStrategy): Strategy to chunk content before extraction.
-                                              Default: RegexChunking().
-        markdown_generator (MarkdownGenerationStrategy): Strategy for generating markdown.
-                                                         Default: None.
-        only_text (bool): If True, attempt to extract text-only content where applicable.
-                          Default: False.
-        css_selector (str or None): CSS selector to extract a specific portion of the page.
-                                    Default: None.
-        
-        target_elements (list of str or None): List of CSS selectors for specific elements for Markdown generation 
-                                                and structured data extraction. When you set this, only the contents 
-                                                of these elements are processed for extraction and Markdown generation. 
-                                                If you do not set any value, the entire page is processed. 
-                                                The difference between this and css_selector is that this will shrink 
-                                                the initial raw HTML to the selected element, while this will only affect 
-                                                the extraction and Markdown generation.
-                                    Default: None
+
         excluded_tags (list of str or None): List of HTML tags to exclude from processing.
                                              Default: None.
-        excluded_selector (str or None): CSS selector to exclude from processing.
-                                         Default: None.
-        keep_data_attributes (bool): If True, retain `data-*` attributes while removing unwanted attributes.
-                                     Default: False.
-        keep_attrs (list of str): List of HTML attributes to keep during processing.
-                                      Default: [].
-        remove_forms (bool): If True, remove all `<form>` elements from the HTML.
-                             Default: False.
-        prettiify (bool): If True, apply `fast_format_html` to produce prettified HTML output.
-                          Default: False.
-        parser_type (str): Type of parser to use for HTML parsing.
-                           Default: "lxml".
-        scraping_strategy (ContentScrapingStrategy): Scraping strategy to use.
-                           Default: WebScrapingStrategy.
         proxy_config (ProxyConfig or dict or None): Detailed proxy configuration, e.g. {"server": "...", "username": "..."}.
                                      If None, no additional proxy config. Default: None.
 
@@ -747,20 +704,10 @@ class CrawlerRunConfig:
         self,
         # Content Processing Parameters
         word_count_threshold: int = MIN_WORD_THRESHOLD,
-        # extraction_strategy: ExtractionStrategy = None,
+        extraction_strategy: ExtractionStrategy = None,
         chunking_strategy: ChunkingStrategy = RegexChunking(),
-        markdown_generator: MarkdownGenerationStrategy = DefaultMarkdownGenerator(),
-        only_text: bool = False,
-        css_selector: str = None,
-        target_elements: List[str] = None,
         excluded_tags: list = None,
-        excluded_selector: str = None,
-        keep_data_attributes: bool = False,
-        keep_attrs: list = None,
-        remove_forms: bool = False,
-        prettiify: bool = False,
         parser_type: str = "lxml",
-        scraping_strategy: ContentScrapingStrategy = LXMLWebScrapingStrategy(),
         proxy_config: Union[ProxyConfig, dict, None] = None,
         proxy_rotation_strategy: Optional[ProxyRotationStrategy] = None,
         # Browser Location and Identity Parameters
@@ -826,31 +773,18 @@ class CrawlerRunConfig:
         stream: bool = False,
         url: str = None,
         check_robots_txt: bool = False,
-        user_agent: str = None,
-        user_agent_mode: str = None,
-        user_agent_generator_config: dict = {},
         # Experimental Parameters
         experimental: Dict[str, Any] = None,
     ):
         # TODO: Planning to set properties dynamically based on the __init__ signature
         self.url = url
-
+        self.css_selector = None # just for compatibility, not used
         # Content Processing Parameters
         self.word_count_threshold = word_count_threshold
         # self.extraction_strategy = extraction_strategy
         self.chunking_strategy = chunking_strategy
-        self.markdown_generator = markdown_generator
-        self.only_text = only_text
-        self.css_selector = css_selector
-        self.target_elements = target_elements or []
         self.excluded_tags = excluded_tags or []
-        self.excluded_selector = excluded_selector or ""
-        self.keep_data_attributes = keep_data_attributes
-        self.keep_attrs = keep_attrs or []
-        self.remove_forms = remove_forms
-        self.prettiify = prettiify
         self.parser_type = parser_type
-        self.scraping_strategy = scraping_strategy
         self.proxy_config = proxy_config
         self.proxy_rotation_strategy = proxy_rotation_strategy
         
@@ -930,27 +864,7 @@ class CrawlerRunConfig:
         # Robots.txt Handling Parameters
         self.check_robots_txt = check_robots_txt
 
-        # User Agent Parameters
-        self.user_agent = user_agent
-        self.user_agent_mode = user_agent_mode
-        self.user_agent_generator_config = user_agent_generator_config
-
-        # Validate type of extraction strategy and chunking strategy if they are provided
-        """
-        if self.extraction_strategy is not None and not isinstance(
-            self.extraction_strategy, ExtractionStrategy
-        ):
-            raise ValueError(
-                "extraction_strategy must be an instance of ExtractionStrategy"
-            )
-        if self.chunking_strategy is not None and not isinstance(
-            self.chunking_strategy, ChunkingStrategy
-        ):
-            raise ValueError(
-                "chunking_strategy must be an instance of ChunkingStrategy"
-            )
-        """
-        self.extraction_strategy = None
+        self.extraction_strategy = extraction_strategy
 
         # Set default chunking strategy if None
         if self.chunking_strategy is None:
@@ -959,24 +873,6 @@ class CrawlerRunConfig:
         # Experimental Parameters
         self.experimental = experimental or {}
 
-
-    def __getattr__(self, name):
-        """Handle attribute access."""
-        if name in self._UNWANTED_PROPS:
-            raise AttributeError(f"Getting '{name}' is deprecated. {self._UNWANTED_PROPS[name]}")
-        raise AttributeError(f"'{self.__class__.__name__}' has no attribute '{name}'")
-
-    def __setattr__(self, name, value):
-        """Handle attribute setting."""
-        # TODO: Planning to set properties dynamically based on the __init__ signature
-        sig = inspect.signature(self.__init__)
-        all_params = sig.parameters  # Dictionary of parameter names and their details
-
-        if name in self._UNWANTED_PROPS and value is not all_params[name].default:
-            raise AttributeError(f"Setting '{name}' is deprecated. {self._UNWANTED_PROPS[name]}")
-        
-        super().__setattr__(name, value)
-
     @staticmethod
     def from_kwargs(kwargs: dict) -> "CrawlerRunConfig":
         return CrawlerRunConfig(
@@ -984,18 +880,8 @@ class CrawlerRunConfig:
             word_count_threshold=kwargs.get("word_count_threshold", 200),
             extraction_strategy=kwargs.get("extraction_strategy"),
             chunking_strategy=kwargs.get("chunking_strategy", RegexChunking()),
-            markdown_generator=kwargs.get("markdown_generator"),
-            only_text=kwargs.get("only_text", False),
-            css_selector=kwargs.get("css_selector"),
-            target_elements=kwargs.get("target_elements", []),
             excluded_tags=kwargs.get("excluded_tags", []),
-            excluded_selector=kwargs.get("excluded_selector", ""),
-            keep_data_attributes=kwargs.get("keep_data_attributes", False),
-            keep_attrs=kwargs.get("keep_attrs", []),
-            remove_forms=kwargs.get("remove_forms", False),
-            prettiify=kwargs.get("prettiify", False),
             parser_type=kwargs.get("parser_type", "lxml"),
-            scraping_strategy=kwargs.get("scraping_strategy"),
             proxy_config=kwargs.get("proxy_config"),
             proxy_rotation_strategy=kwargs.get("proxy_rotation_strategy"),
             # Browser Location and Identity Parameters
@@ -1069,9 +955,6 @@ class CrawlerRunConfig:
             method=kwargs.get("method", "GET"),
             stream=kwargs.get("stream", False),
             check_robots_txt=kwargs.get("check_robots_txt", False),
-            user_agent=kwargs.get("user_agent"),
-            user_agent_mode=kwargs.get("user_agent_mode"),
-            user_agent_generator_config=kwargs.get("user_agent_generator_config", {}),
             url=kwargs.get("url"),
             # Experimental Parameters 
             experimental=kwargs.get("experimental"),
@@ -1092,18 +975,8 @@ class CrawlerRunConfig:
             "word_count_threshold": self.word_count_threshold,
             "extraction_strategy": self.extraction_strategy,
             "chunking_strategy": self.chunking_strategy,
-            "markdown_generator": self.markdown_generator,
-            "only_text": self.only_text,
-            "css_selector": self.css_selector,
-            "target_elements": self.target_elements,
             "excluded_tags": self.excluded_tags,
-            "excluded_selector": self.excluded_selector,
-            "keep_data_attributes": self.keep_data_attributes,
-            "keep_attrs": self.keep_attrs,
-            "remove_forms": self.remove_forms,
-            "prettiify": self.prettiify,
             "parser_type": self.parser_type,
-            "scraping_strategy": self.scraping_strategy,
             "proxy_config": self.proxy_config,
             "proxy_rotation_strategy": self.proxy_rotation_strategy,
             "locale": self.locale,
@@ -1158,9 +1031,6 @@ class CrawlerRunConfig:
             "method": self.method,
             "stream": self.stream,
             "check_robots_txt": self.check_robots_txt,
-            "user_agent": self.user_agent,
-            "user_agent_mode": self.user_agent_mode,
-            "user_agent_generator_config": self.user_agent_generator_config,
             "url": self.url,
             "experimental": self.experimental,
         }
@@ -1190,88 +1060,3 @@ class CrawlerRunConfig:
         config_dict = self.to_dict()
         config_dict.update(kwargs)
         return CrawlerRunConfig.from_kwargs(config_dict)
-
-
-class LLMConfig:
-    def __init__(
-        self,
-        provider: str = DEFAULT_PROVIDER,
-        api_token: Optional[str] = None,
-        base_url: Optional[str] = None,
-        temprature: Optional[float] = None,
-        max_tokens: Optional[int] = None,
-        top_p: Optional[float] = None,
-        frequency_penalty: Optional[float] = None,
-        presence_penalty: Optional[float] = None,
-        stop: Optional[List[str]] = None,
-        n: Optional[int] = None,    
-    ):
-        """Configuaration class for LLM provider and API token."""
-        self.provider = provider
-        if api_token and not api_token.startswith("env:"):
-            self.api_token = api_token
-        elif api_token and api_token.startswith("env:"):
-            self.api_token = os.getenv(api_token[4:])
-        else:
-            # Check if given provider starts with any of key in PROVIDER_MODELS_PREFIXES
-            # If not, check if it is in PROVIDER_MODELS
-            prefixes = PROVIDER_MODELS_PREFIXES.keys()
-            if any(provider.startswith(prefix) for prefix in prefixes):
-                selected_prefix = next(
-                    (prefix for prefix in prefixes if provider.startswith(prefix)),
-                    None,
-                )
-                self.api_token = PROVIDER_MODELS_PREFIXES.get(selected_prefix)                    
-            else:
-                self.provider = DEFAULT_PROVIDER
-                self.api_token = os.getenv(DEFAULT_PROVIDER_API_KEY)
-        self.base_url = base_url
-        self.temprature = temprature
-        self.max_tokens = max_tokens
-        self.top_p = top_p
-        self.frequency_penalty = frequency_penalty
-        self.presence_penalty = presence_penalty
-        self.stop = stop
-        self.n = n
-
-    @staticmethod
-    def from_kwargs(kwargs: dict) -> "LLMConfig":
-        return LLMConfig(
-            provider=kwargs.get("provider", DEFAULT_PROVIDER),
-            api_token=kwargs.get("api_token"),
-            base_url=kwargs.get("base_url"),
-            temprature=kwargs.get("temprature"),
-            max_tokens=kwargs.get("max_tokens"),
-            top_p=kwargs.get("top_p"),
-            frequency_penalty=kwargs.get("frequency_penalty"),
-            presence_penalty=kwargs.get("presence_penalty"),
-            stop=kwargs.get("stop"),
-            n=kwargs.get("n")
-        )
-
-    def to_dict(self):
-        return {
-            "provider": self.provider,
-            "api_token": self.api_token,
-            "base_url": self.base_url,
-            "temprature": self.temprature,
-            "max_tokens": self.max_tokens,
-            "top_p": self.top_p,
-            "frequency_penalty": self.frequency_penalty,
-            "presence_penalty": self.presence_penalty,
-            "stop": self.stop,
-            "n": self.n
-        }
-
-    def clone(self, **kwargs):
-        """Create a copy of this configuration with updated values.
-
-        Args:
-            **kwargs: Key-value pairs of configuration options to update
-
-        Returns:
-            llm_config: A new instance with the specified updates
-        """
-        config_dict = self.to_dict()
-        config_dict.update(kwargs)
-        return LLMConfig.from_kwargs(config_dict)

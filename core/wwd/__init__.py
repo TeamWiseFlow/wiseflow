@@ -1,14 +1,9 @@
 # __init__.py
 import warnings
 
-#from .async_webcrawler import AsyncWebCrawler, CacheMode
-#from .async_configs import BrowserConfig, CrawlerRunConfig, ProxyConfig, GeolocationConfig
+from .async_webcrawler import AsyncWebCrawler, CacheMode
+from .async_configs import BrowserConfig, CrawlerRunConfig, ProxyConfig, GeolocationConfig
 
-from .content_scraping_strategy import (
-    ContentScrapingStrategy,
-    WebScrapingStrategy,
-    LXMLWebScrapingStrategy,
-)
 from .async_logger import (
     AsyncLoggerBase,
     AsyncLogger,
@@ -28,8 +23,6 @@ from .extraction_strategy import (
 )
 from .chunking_strategy import ChunkingStrategy, RegexChunking, IdentityChunking, MaxLengthChunking
 
-from .markdown_generation_strategy import DefaultMarkdownGenerator, MarkdownGenerationStrategy
-
 from .base.crawl4ai_models import CrawlResult, DisplayMode
 from .components.crawler_monitor import CrawlerMonitor
 from .async_dispatcher import (
@@ -38,8 +31,6 @@ from .async_dispatcher import (
     RateLimiter,
     BaseDispatcher,
 )
-
-from .hub import CrawlerHub
 
 
 __all__ = [
@@ -50,9 +41,6 @@ __all__ = [
     "CrawlResult",
     "CrawlerHub",
     "CacheMode",
-    "ContentScrapingStrategy",
-    "WebScrapingStrategy",
-    "LXMLWebScrapingStrategy",
     "BrowserConfig",
     "CrawlerRunConfig",
     "ExtractionStrategy",
@@ -65,8 +53,6 @@ __all__ = [
     "RegexChunking",
     "IdentityChunking",
     "MaxLengthChunking",
-    "DefaultMarkdownGenerator",
-    "MarkdownGenerationStrategy",
     "BaseDispatcher",
     "MemoryAdaptiveDispatcher",
     "SemaphoreDispatcher",

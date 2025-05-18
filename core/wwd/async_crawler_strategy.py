@@ -889,9 +889,9 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
 
             # Handle wait_for condition
             # Todo: Decide how to handle this
-            if not config.wait_for and config.css_selector and False:
+            # if not config.wait_for and config.css_selector and False:
             # if not config.wait_for and config.css_selector:
-                config.wait_for = f"css:{config.css_selector}"
+            #    config.wait_for = f"css:{config.css_selector}"
 
             if config.wait_for:
                 try:

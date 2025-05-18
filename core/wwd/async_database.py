@@ -11,10 +11,10 @@ from .async_logger import AsyncLogger
 
 from .utils import ensure_content_dirs, generate_content_hash
 from .utils import VersionManager
-from .utils import get_error_context, create_box_message
+from .utils import get_error_context
 
 base_directory = DB_PATH = os.path.join(
-    os.getenv("CRAWL4_AI_BASE_DIRECTORY", Path.home()), ".crawl4ai"
+    os.getenv("PROJECT_DIR", "work_dir"), ".crawl4ai"
 )
 os.makedirs(DB_PATH, exist_ok=True)
 DB_PATH = os.path.join(base_directory, "crawl4ai.db")

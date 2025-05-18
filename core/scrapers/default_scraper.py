@@ -1,4 +1,4 @@
-from ..wwd import DefaultMarkdownGenerator, LXMLWebScrapingStrategy, CrawlerRunConfig
+from ..wwd import CrawlerRunConfig
 
 """
 refer this to modify a custom scraper(actully is a CrawlerRunConfig)
@@ -8,35 +8,23 @@ refer this to modify a custom scraper(actully is a CrawlerRunConfig)
 4. config other base options, particularly the proxy
 """
 
-md_generator = DefaultMarkdownGenerator(
-        options={
-            "skip_internal_links": True,
-            "escape_html": True,
-            "include_sup_sub": True
-        }
-    )
-
-
-
-# recommended to use the LXMLWebScrapingStrategy for efficient scraping, no need to config it
-# if you just want some elements or just want to exclude some elements, directly config the CrawlerRunConfig with following options:
-# target_elements, exclude_all_images, remove_comments, excluded_tags, excluded_selector, remove_forms, exclude_domains, only_text
-# these options are automatically passed to the LXMLWebScrapingStrategy
-
 crawler_config = CrawlerRunConfig(
     # session_id="my_session123",
     delay_before_return_html=1.0,
     word_count_threshold=10,
-    # keep_data_attributes=True,
-    markdown_generator=md_generator, 
-    # wait_until='commit', 
-    # simulate_user=True,
-    magic=True, 
+    # locale=None,
+    # timezone_id=None,
+    # geolocation=None,
+    # SSL Parameters
+    # fetch_ssl_certificate=False,
+    # page_timeout=30000,
+    # wait_for=None,
+    # check_robots_txt=False,
     scan_full_page=True,
-    scroll_delay=0.5,
-    # adjust_viewport_to_content=True,
-    # verbose=False,
-    # keep_data_attributes=True,
-    # fetch_ssl_certificate=True,
-    # image_score_threshold=3
+    # exclude_external_links=False, # if you want the info collection only in the site's domain, set this to True
+    # excluded_tags = []  # 唯一可以在 preprocess 阶段配置的，如果不配置默认移除所有非顶级的'script', 'style', 'noscript', 'iframe', 'canvas', 'svg', 'video', 'audio', 'source', 'track', 'map', 'area'
+    extraction_strategy=None # 使用自定义 scraper config需要配置的地方，default 会自动在主进程使用 LLMExtractionStrategy， 并填入 focuspoint
+    # for internet codebug, you can capture the network requests and console messages
+    # capture_network_requests=False,
+    # capture_console_messages=False,
 )
