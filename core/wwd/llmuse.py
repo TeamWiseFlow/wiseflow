@@ -98,14 +98,16 @@ The above markdown content is derived from the HTML of a webpage and may have be
 All links in the original HTML (a elements or img elements) have been converted to citation marks (something like "[x]")
 
 For text information extraction, please adhere to the following notes:
-- All information should be extracted from the given markdown, do not make up any information.
+- Only extract information from the main article area, if there is no main article area, please output an empty string.
+- All information should be extracted from the main article area(if any), do not make up any information.
 - It is not guaranteed that the given markdown will always be relevant to the focus point, if that is the case, please output an empty string.
-- All selected text information must comply with restrictions (if given), such as time limit, value limit, subject limit, etc.
+- All extracted text information must comply with restrictions (if given), such as time limit, value limit, subject limit, etc.
 - If multiple information are extracted, merge them into one coherent message that contains all the key points.
 
-For links extraction, please adhere to the following notes:
+For links finding, please adhere to the following notes:
+- Only find possible links(represented by a citation mark like [x]) from the link-list area (there may be more than one).
 - Always consider the context to determine if the link is likely to be relevant to the focus point and is worth further exploration.
-- For the selected link citation mark, output them along with the sentence they are in, one per line.
+- For the found link citation mark, output them along with the sentence they are in, one per line.
 
 Please provide your output within <info></info> tag and <links></links> tag, like this:
 
@@ -114,8 +116,8 @@ Extracted information (if there are multiple pieces of information, merge them i
 </info>
 
 <links>
-sentence1 with the selected citation mark
-sentence2 with the selected citation mark
+sentence1 with the found citation mark
+sentence2 with the found citation mark
 ...
 </links>
 """

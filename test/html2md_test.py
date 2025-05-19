@@ -55,6 +55,7 @@ if __name__ == '__main__':
     for file in os.listdir(sample_dir):
         if not file.endswith('.json'): continue
         if file == 'focus_point.json': continue
+        if file.endswith('_processed.json'): continue
         print(f"processing {file} ...\n")
         with open(os.path.join(sample_dir, file), 'r') as f:
             _sample = json.load(f)

@@ -19,19 +19,14 @@ from core.wwd import MaxLengthChunking, LLMExtractionStrategy
 benchmark_model = 'Qwen/Qwen3-14B'
 models = ['Qwen/Qwen3-30B-A3B', 'Qwen/Qwen3-32B']
 
-schema = {"request_information": "仅限石材相关的采购信息",
-          "contact": "",
-          "publish_date": "YYYY-MM-DD formate"}
-from pprint import pprint
-
 def main(focus_point: dict, sections: list, link_dict: dict, date_stamp: str, record_file: str):
     raw_markdown = '\n'.join(sections)
     for model in [benchmark_model] + models:
         contents = sections.copy()
         extractor = LLMExtractionStrategy(model=model,
-                                          schema=schema,
-                                          #focuspoint=focus_point['focuspoint'],
-                                          #restrictions=focus_point['explanation'],
+                                          # schema=schema,
+                                          focuspoint=focus_point['focuspoint'],
+                                          restrictions=focus_point['explanation'],
                                           verbose=True)
         if model == benchmark_model:
             print('prompt template:')
@@ -42,9 +37,6 @@ def main(focus_point: dict, sections: list, link_dict: dict, date_stamp: str, re
         extracted_content = extractor.run(url='sample', sections=contents, date_stamp=date_stamp)
         time_cost = int((time.time() - start_time) * 1000) / 1000
         print(f"time cost: {time_cost}s")
-        for block in extracted_content:
-            pprint(block)
-        """
         more_links = set()
         infos = []
         hallucination_times = 0
@@ -94,7 +86,7 @@ def main(focus_point: dict, sections: list, link_dict: dict, date_stamp: str, re
             f.write(f"related urls: \n{more_links_text}\n")
             f.write(f"related infos: \n{infos_text}\n")
             f.write('\n\n')
-    """
+
         print('\n\n')
 
 
@@ -120,12 +112,11 @@ if __name__ == '__main__':
         f.write(f"focus statement: \n{focus_point}\n\n")
 
     for file in os.listdir(sample_dir):
-        if not file.endswith('.json'): continue
-        if file == 'focus_point.json': continue
+        if not file.endswith('_processed.json'): continue
         print(f"processing {file} ...\n")
         with open(os.path.join(sample_dir, file), 'r') as f:
             _sample = json.load(f)
-        sections = chunking.chunk(_sample["markdown"]["raw_markdown"])
+        sections = chunking.chunk(_sample["markdown"])
         with open(record_file, 'a') as f:
             f.write(f"raw materials: {file}\n\n")
-        main(focus_point, sections, _sample["markdown"]["link_dict"], date_stamp, record_file)
+        main(focus_point, sections, _sample["link_dict"], date_stamp, record_file)

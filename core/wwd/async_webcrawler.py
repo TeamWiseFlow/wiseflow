@@ -165,7 +165,7 @@ class AsyncWebCrawler:
         """
         await self.crawler_strategy.__aenter__()
         self.logger.info(f"WiseflowWebDriver {crawl4ai_version}", tag="INIT")
-        self.logger.info("Modified based on crawl4ai 0.6.4\MediaCrawler, intergrate NoDriver", tag="INIT")
+        self.logger.info("Modified based on crawl4ai 0.6.4, MediaCrawler, intergrate NoDriver", tag="INIT")
         self.ready = True
         return self
 
