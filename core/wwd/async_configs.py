@@ -13,7 +13,7 @@ from .chunking_strategy import ChunkingStrategy, RegexChunking
 
 from .cache_context import CacheMode
 from .proxy_strategy import ProxyRotationStrategy
-
+from .user_agent_generator import UAGen, ValidUAGenerator  # , OnlineUAGenerator
 from typing import Union, List
 import inspect
 from typing import Any, Dict, Optional
@@ -95,11 +95,11 @@ def to_serializable_dict(obj: Any, ignore_default_value : bool = False) -> Dict:
         
     return str(obj)
 
-"""
+
 def from_serializable_dict(data: Any) -> Any:
-
+    """
     Recursively convert a serializable dictionary back to an object instance.
-
+    """
     if data is None:
         return None
 
@@ -139,7 +139,7 @@ def from_serializable_dict(data: Any) -> Any:
         return {k: from_serializable_dict(v) for k, v in data.items()}
 
     return data
-"""
+
 
 def is_empty_value(value: Any) -> bool:
     """Check if a value is effectively empty/null."""
@@ -381,6 +381,7 @@ class BrowserConfig:
         browser_type: str = "chromium",
         headless: bool = True,
         browser_mode: str = "dedicated",
+        use_managed_browser: bool = False,
         cdp_url: str = None,
         use_persistent_context: bool = False,
         user_data_dir: str = None,
@@ -400,14 +401,24 @@ class BrowserConfig:
         verbose: bool = True,
         cookies: list = None,
         headers: dict = None,
-        user_agent: str = "",
+        user_agent: str = (
+            # "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) AppleWebKit/537.36 "
+            # "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+            # "(KHTML, like Gecko) Chrome/116.0.5845.187 Safari/604.1 Edg/117.0.2045.47"
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/116.0.0.0 Safari/537.36"
+        ),
+        user_agent_mode: str = "",
+        user_agent_generator_config: dict = {},
         text_mode: bool = False,
         light_mode: bool = False,
         extra_args: list = None,
+        debugging_port: int = 9222,
+        host: str = "localhost",
     ):
         self.browser_type = browser_type
         self.headless = headless 
         self.browser_mode = browser_mode
+        self.use_managed_browser = use_managed_browser
         self.cdp_url = cdp_url
         self.use_persistent_context = use_persistent_context
         self.user_data_dir = user_data_dir
@@ -418,6 +429,8 @@ class BrowserConfig:
             self.chrome_channel = ""
         self.proxy = proxy
         self.proxy_config = proxy_config
+
+
         self.viewport_width = viewport_width
         self.viewport_height = viewport_height
         self.viewport = viewport
@@ -432,13 +445,43 @@ class BrowserConfig:
         self.cookies = cookies if cookies is not None else []
         self.headers = headers if headers is not None else {}
         self.user_agent = user_agent
+        self.user_agent_mode = user_agent_mode
+        self.user_agent_generator_config = user_agent_generator_config
         self.text_mode = text_mode
         self.light_mode = light_mode
         self.extra_args = extra_args if extra_args is not None else []
         self.sleep_on_close = sleep_on_close
         self.verbose = verbose
+        self.debugging_port = debugging_port
+        self.host = host
 
-        self.use_managed_browser = True
+        fa_user_agenr_generator = ValidUAGenerator()
+        if self.user_agent_mode == "random":
+            self.user_agent = fa_user_agenr_generator.generate(
+                **(self.user_agent_generator_config or {})
+            )
+        else:
+            pass
+
+        self.browser_hint = UAGen.generate_client_hints(self.user_agent)
+        self.headers.setdefault("sec-ch-ua", self.browser_hint)
+
+        # Set appropriate browser management flags based on browser_mode
+        if self.browser_mode == "builtin":
+            # Builtin mode uses managed browser connecting to builtin CDP endpoint
+            self.use_managed_browser = True
+            # cdp_url will be set later by browser_manager
+        elif self.browser_mode == "docker":
+            # Docker mode uses managed browser with CDP to connect to browser in container
+            self.use_managed_browser = True
+            # cdp_url will be set later by docker browser strategy
+        elif self.browser_mode == "custom" and self.cdp_url:
+            # Custom mode with explicit CDP URL
+            self.use_managed_browser = True
+        elif self.browser_mode == "dedicated":
+            # Dedicated mode uses a new browser instance each time
+            pass
+
         # If persistent context is requested, ensure managed browser is enabled
         if self.use_persistent_context:
             self.use_managed_browser = True
@@ -537,7 +580,11 @@ class BrowserConfig:
 
     @staticmethod
     def load(data: dict) -> "BrowserConfig":
-        return BrowserConfig.from_kwargs(data)
+        # Deserialize the object from a dictionary
+        config = from_serializable_dict(data)
+        if isinstance(config, BrowserConfig):
+            return config
+        return BrowserConfig.from_kwargs(config)
 
 
 class CrawlerRunConfig:
@@ -773,6 +820,9 @@ class CrawlerRunConfig:
         stream: bool = False,
         url: str = None,
         check_robots_txt: bool = False,
+        user_agent: str = None,
+        user_agent_mode: str = None,
+        user_agent_generator_config: dict = {},
         # Experimental Parameters
         experimental: Dict[str, Any] = None,
     ):
@@ -863,6 +913,10 @@ class CrawlerRunConfig:
 
         # Robots.txt Handling Parameters
         self.check_robots_txt = check_robots_txt
+        # User Agent Parameters
+        self.user_agent = user_agent
+        self.user_agent_mode = user_agent_mode
+        self.user_agent_generator_config = user_agent_generator_config
 
         self.extraction_strategy = extraction_strategy
 
@@ -955,6 +1009,9 @@ class CrawlerRunConfig:
             method=kwargs.get("method", "GET"),
             stream=kwargs.get("stream", False),
             check_robots_txt=kwargs.get("check_robots_txt", False),
+            user_agent=kwargs.get("user_agent"),
+            user_agent_mode=kwargs.get("user_agent_mode"),
+            user_agent_generator_config=kwargs.get("user_agent_generator_config", {}),
             url=kwargs.get("url"),
             # Experimental Parameters 
             experimental=kwargs.get("experimental"),
@@ -1031,6 +1088,9 @@ class CrawlerRunConfig:
             "method": self.method,
             "stream": self.stream,
             "check_robots_txt": self.check_robots_txt,
+            "user_agent": self.user_agent,
+            "user_agent_mode": self.user_agent_mode,
+            "user_agent_generator_config": self.user_agent_generator_config,
             "url": self.url,
             "experimental": self.experimental,
         }

@@ -1,6 +1,3 @@
-# main change by bigbrother666sh: only use local real browser... no chromium, onlye your own browser
-# 2025-05-09
-
 import asyncio
 import time
 from typing import List, Optional
@@ -8,29 +5,32 @@ import os
 import sys
 import shutil
 import tempfile
+import psutil  
+import signal
 import subprocess
-import atexit
-from contextlib import asynccontextmanager
+import shlex
 from playwright.async_api import BrowserContext
+import hashlib
 from .js_snippet import load_js_script
 from .config import DOWNLOAD_PAGE_TIMEOUT
 from .async_configs import BrowserConfig, CrawlerRunConfig
 from playwright_stealth import StealthConfig
-from .utils import free_port
-import shlex
-import psutil
+from .utils import get_chromium_path
 
-# 根据平台导入信号模块
-if sys.platform != 'win32':
-    import signal
-else:
-    # Windows 下使用 win32api 处理信号
-    try:
-        import win32api
-        import win32con
-    except ImportError:
-        win32api = None
-
+stealth_config = StealthConfig(
+    webdriver=True,
+    chrome_app=True,
+    chrome_csi=True,
+    chrome_load_times=True,
+    chrome_runtime=True,
+    navigator_languages=True,
+    navigator_plugins=True,
+    navigator_permissions=True,
+    webgl_vendor=True,
+    outerdimensions=True,
+    navigator_hardware_concurrency=True,
+    media_codecs=True,
+)
 
 BROWSER_DISABLE_OPTIONS = [
     "--disable-background-networking",
@@ -87,7 +87,7 @@ class ManagedBrowser:
             "--disable-gpu",
             "--disable-gpu-compositing",
             "--disable-software-rasterizer",
-            # "--no-sandbox",
+            "--no-sandbox",
             "--disable-dev-shm-usage",
             "--no-first-run",
             "--no-default-browser-check",
@@ -135,9 +135,13 @@ class ManagedBrowser:
 
     def __init__(
         self,
+        browser_type: str = "chromium",
+        user_data_dir: Optional[str] = None,
+        headless: bool = False,
         logger=None,
-        host: str = "127.0.0.1",
-        debugging_port: int = free_port(),
+        host: str = "localhost",
+        debugging_port: int = 9222,
+        cdp_url: Optional[str] = None, 
         browser_config: Optional[BrowserConfig] = None,
     ):
         """
@@ -161,8 +165,8 @@ class ManagedBrowser:
         self.headless = browser_config.headless
         self.browser_process = None
         self.temp_dir = None
-        self.debugging_port = debugging_port
-        self.host = host
+        self.debugging_port = browser_config.debugging_port
+        self.host = browser_config.host
         self.logger = logger
         self.shutting_down = False
         self.cdp_url = browser_config.cdp_url
@@ -192,10 +196,47 @@ class ManagedBrowser:
         
         if self.browser_config.extra_args:
             args.extend(self.browser_config.extra_args)
+            
+
+        # ── make sure no old Chromium instance is owning the same port/profile ──
+        try:
+            if sys.platform == "win32":
+                if psutil is None:
+                    raise RuntimeError("psutil not available, cannot clean old browser")
+                for p in psutil.process_iter(["pid", "name", "cmdline"]):
+                    cl = " ".join(p.info.get("cmdline") or [])
+                    if (
+                        f"--remote-debugging-port={self.debugging_port}" in cl
+                        and f"--user-data-dir={self.user_data_dir}" in cl
+                    ):
+                        p.kill()
+                        p.wait(timeout=5)
+            else:  # macOS / Linux
+                # kill any process listening on the same debugging port
+                pids = (
+                    subprocess.check_output(shlex.split(f"lsof -t -i:{self.debugging_port}"))
+                    .decode()
+                    .strip()
+                    .splitlines()
+                )
+                for pid in pids:
+                    try:
+                        os.kill(int(pid), signal.SIGTERM)
+                    except ProcessLookupError:
+                        pass
+
+                # remove Chromium singleton locks, or new launch exits with
+                # “Opening in existing browser session.”
+                for f in ("SingletonLock", "SingletonSocket", "SingletonCookie"):
+                    fp = os.path.join(self.user_data_dir, f)
+                    if os.path.exists(fp):
+                        os.remove(fp)
+        except Exception as _e:
+            # non-fatal — we'll try to start anyway, but log what happened
+            self.logger.warning(f"pre-launch cleanup failed: {_e}", tag="BROWSER")            
+            
 
         # Start browser process
-        # not same from v0.6.3
-        # refer https://github.com/unclecode/crawl4ai/commit/9499164d3c0d9912316c9876f32843360865aa57#diff-5e5a07356c04082c88fb203355252e3f14b9441c642350e98b6b3c17101cf682
         try:
             # Use DETACHED_PROCESS flag on Windows to fully detach the process
             # On Unix, we'll use preexec_fn=os.setpgrp to start the process in a new process group
@@ -322,22 +363,32 @@ class ManagedBrowser:
         return paths.get(self.browser_type)
 
     async def _get_browser_path(self) -> str:
-        # browser_path = await get_chromium_path(self.browser_type)
-        browser_path = self._get_browser_path_WIP()
+        browser_path = await get_chromium_path(self.browser_type)
         return browser_path
 
     async def _get_browser_args(self) -> List[str]:
         """Returns full CLI args for launching the browser"""
         base = [await self._get_browser_path()]
-        flags = [
-            f"--remote-debugging-port={self.debugging_port}",
-            f"--user-data-dir={self.user_data_dir}",
-        ]
-        if self.headless:
-            flags.append("--headless=new")
-        # merge common launch flags
-        flags.extend(self.build_browser_flags(self.browser_config))
-
+        if self.browser_type == "chromium":
+            flags = [
+                f"--remote-debugging-port={self.debugging_port}",
+                f"--user-data-dir={self.user_data_dir}",
+            ]
+            if self.headless:
+                flags.append("--headless=new")
+            # merge common launch flags
+            flags.extend(self.build_browser_flags(self.browser_config))
+        elif self.browser_type == "firefox":
+            flags = [
+                "--remote-debugging-port",
+                str(self.debugging_port),
+                "--profile",
+                self.user_data_dir,
+            ]
+            if self.headless:
+                flags.append("--headless")
+        else:
+            raise NotImplementedError(f"Browser type {self.browser_type} not supported")
         return base + flags
 
     async def cleanup(self):
@@ -386,6 +437,80 @@ class ManagedBrowser:
                     tag="ERROR",
                     params={"error": str(e)},
                 )
+                
+    # These methods have been moved to BrowserProfiler class
+    @staticmethod
+    async def create_profile(browser_config=None, profile_name=None, logger=None):
+        """
+        This method has been moved to the BrowserProfiler class.
+        
+        Creates a browser profile by launching a browser for interactive user setup
+        and waits until the user closes it. The profile is stored in a directory that
+        can be used later with BrowserConfig.user_data_dir.
+        
+        Please use BrowserProfiler.create_profile() instead.
+        
+        Example:
+            ```python
+            from crawl4ai.browser_profiler import BrowserProfiler
+            
+            profiler = BrowserProfiler()
+            profile_path = await profiler.create_profile(profile_name="my-login-profile")
+            ```
+        """
+        from .browser_profiler import BrowserProfiler
+        
+        # Create a BrowserProfiler instance and delegate to it
+        profiler = BrowserProfiler(logger=logger)
+        return await profiler.create_profile(profile_name=profile_name, browser_config=browser_config)
+    
+    @staticmethod
+    def list_profiles():
+        """
+        This method has been moved to the BrowserProfiler class.
+        
+        Lists all available browser profiles in the Crawl4AI profiles directory.
+        
+        Please use BrowserProfiler.list_profiles() instead.
+        
+        Example:
+            ```python
+            from crawl4ai.browser_profiler import BrowserProfiler
+            
+            profiler = BrowserProfiler()
+            profiles = profiler.list_profiles()
+            ```
+        """
+        from .browser_profiler import BrowserProfiler
+        
+        # Create a BrowserProfiler instance and delegate to it
+        profiler = BrowserProfiler()
+        return profiler.list_profiles()
+        
+    @staticmethod
+    def delete_profile(profile_name_or_path):
+        """
+        This method has been moved to the BrowserProfiler class.
+        
+        Delete a browser profile by name or path.
+        
+        Please use BrowserProfiler.delete_profile() instead.
+        
+        Example:
+            ```python
+            from crawl4ai.browser_profiler import BrowserProfiler
+            
+            profiler = BrowserProfiler()
+            success = profiler.delete_profile("my-profile")
+            ```
+        """
+        from .browser_profiler import BrowserProfiler
+        
+        # Create a BrowserProfiler instance and delegate to it
+        profiler = BrowserProfiler()
+        return profiler.delete_profile(profile_name_or_path)
+
+
 
 
 class BrowserManager:
@@ -404,7 +529,6 @@ class BrowserManager:
     """
 
     _playwright_instance = None
-    _active_instances = set()
     
     @classmethod
     async def get_playwright(cls):
@@ -437,74 +561,17 @@ class BrowserManager:
         self.contexts_by_config = {}
         self._contexts_lock = asyncio.Lock() 
 
-        self.managed_browser = ManagedBrowser(
-            logger=self.logger,
-            browser_config=self.config,
-        )
-        
-        # Register this instance for cleanup
-        BrowserManager._active_instances.add(self)
-        
-        # Register cleanup handlers
-        self._register_cleanup_handlers()
-
-    def _register_cleanup_handlers(self):
-        """Register cleanup handlers for various exit scenarios"""
-        # Register for normal program exit
-        atexit.register(self._cleanup_handler)
-        
-        if sys.platform != 'win32':
-            # Unix-like systems: register signal handlers
-            for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGABRT):
-                signal.signal(sig, self._signal_handler)
-        else:
-            # Windows: register console handler
-            if win32api:
-                def win32_handler(ctrl_type):
-                    if ctrl_type in (win32con.CTRL_C_EVENT, win32con.CTRL_BREAK_EVENT):
-                        self._cleanup_handler()
-                        return True
-                    return False
-                win32api.SetConsoleCtrlHandler(win32_handler, True)
-            
-        # Register for Python's sys.exit
-        sys.exitfunc = self._cleanup_handler
-
-    def _signal_handler(self, signum, frame):
-        """Handle system signals (Unix-like systems only)"""
-        self.logger.info(f"Received signal {signum}, cleaning up...", tag="CLEANUP")
-        asyncio.create_task(self.close())
-        sys.exit(0)
-
-    def _cleanup_handler(self):
-        """Handle normal program exit"""
-        self.logger.info("Program exiting, cleaning up...", tag="CLEANUP")
-        try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                asyncio.create_task(self.close())
-            else:
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                loop.run_until_complete(self.close())
-                loop.close()
-        except RuntimeError:
-            # If there's no event loop, create a new one
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            try:
-                loop.run_until_complete(self.close())
-            finally:
-                loop.close()
-
-    @asynccontextmanager
-    async def managed(self):
-        """Context manager for BrowserManager"""
-        try:
-            await self.start()
-            yield self
-        finally:
-            await self.close()
+        # Initialize ManagedBrowser if needed
+        if self.config.use_managed_browser:
+            self.managed_browser = ManagedBrowser(
+                browser_type=self.config.browser_type,
+                user_data_dir=self.config.user_data_dir,
+                headless=self.config.headless,
+                logger=self.logger,
+                debugging_port=self.config.debugging_port,
+                cdp_url=self.config.cdp_url,
+                browser_config=self.config,
+            )
 
     async def start(self):
         """
@@ -525,30 +592,142 @@ class BrowserManager:
 
         self.playwright = await async_playwright().start()
 
-        # force to use builtin model
-        self.config.use_managed_browser = True
-        cdp_url = await self.managed_browser.start() if not self.config.cdp_url else self.config.cdp_url
-        self.browser = await self.playwright.chromium.connect_over_cdp(cdp_url)
-        contexts = self.browser.contexts
-        if contexts:
-            self.default_context = contexts[0]
+        if self.config.cdp_url or self.config.use_managed_browser:
+            self.config.use_managed_browser = True
+            cdp_url = await self.managed_browser.start() if not self.config.cdp_url else self.config.cdp_url
+            self.browser = await self.playwright.chromium.connect_over_cdp(cdp_url)
+            contexts = self.browser.contexts
+            if contexts:
+                self.default_context = contexts[0]
+            else:
+                self.default_context = await self.create_browser_context()
+            await self.setup_context(self.default_context)
         else:
-            self.default_context = await self.create_browser_context()
+            browser_args = self._build_browser_args()
 
-        await self.setup_context(self.default_context)
+            # Launch appropriate browser type
+            if self.config.browser_type == "firefox":
+                self.browser = await self.playwright.firefox.launch(**browser_args)
+            elif self.config.browser_type == "webkit":
+                self.browser = await self.playwright.webkit.launch(**browser_args)
+            else:
+                self.browser = await self.playwright.chromium.launch(**browser_args)
+
+            self.default_context = self.browser
+
+
+    def _build_browser_args(self) -> dict:
+        """Build browser launch arguments from config."""
+        args = [
+            "--disable-gpu",
+            "--disable-gpu-compositing",
+            "--disable-software-rasterizer",
+            "--no-sandbox",
+            "--disable-dev-shm-usage",
+            "--no-first-run",
+            "--no-default-browser-check",
+            "--disable-infobars",
+            "--window-position=0,0",
+            "--ignore-certificate-errors",
+            "--ignore-certificate-errors-spki-list",
+            "--disable-blink-features=AutomationControlled",
+            "--window-position=400,0",
+            "--disable-renderer-backgrounding",
+            "--disable-ipc-flooding-protection",
+            "--force-color-profile=srgb",
+            "--mute-audio",
+            "--disable-background-timer-throttling",
+            # "--single-process",
+            f"--window-size={self.config.viewport_width},{self.config.viewport_height}",
+        ]
+
+        if self.config.light_mode:
+            args.extend(BROWSER_DISABLE_OPTIONS)
+
+        if self.config.text_mode:
+            args.extend(
+                [
+                    "--blink-settings=imagesEnabled=false",
+                    "--disable-remote-fonts",
+                    "--disable-images",
+                    "--disable-javascript",
+                    "--disable-software-rasterizer",
+                    "--disable-dev-shm-usage",
+                ]
+            )
+
+        if self.config.extra_args:
+            args.extend(self.config.extra_args)
+
+        # Deduplicate args
+        args = list(dict.fromkeys(args))
+        
+        browser_args = {"headless": self.config.headless, "args": args}
+
+        if self.config.chrome_channel:
+            browser_args["channel"] = self.config.chrome_channel
+
+        if self.config.accept_downloads:
+            browser_args["downloads_path"] = self.config.downloads_path or os.path.join(
+                os.getcwd(), "downloads"
+            )
+            os.makedirs(browser_args["downloads_path"], exist_ok=True)
+
+        if self.config.proxy or self.config.proxy_config:
+            from playwright.async_api import ProxySettings
+
+            proxy_settings = (
+                ProxySettings(server=self.config.proxy)
+                if self.config.proxy
+                else ProxySettings(
+                    server=self.config.proxy_config.server,
+                    username=self.config.proxy_config.username,
+                    password=self.config.proxy_config.password,
+                )
+            )
+            browser_args["proxy"] = proxy_settings
+
+        return browser_args
 
     async def setup_context(
         self,
         context: BrowserContext,
+        crawlerRunConfig: CrawlerRunConfig = None,
+        is_default=False,
     ):
         """
-        Set up a browser context with the configured options for local Chrome browser.
+        Set up a browser context with the configured options.
+
+        How it works:
+        1. Set extra HTTP headers if provided.
+        2. Add cookies if provided.
+        3. Load storage state if provided.
+        4. Accept downloads if enabled.
+        5. Set default timeouts for navigation and download.
+        6. Set user agent if provided.
+        7. Set browser hints if provided.
+        8. Set proxy if provided.
+        9. Set downloads path if provided.
+        10. Set storage state if provided.
+        11. Set cache if provided.
+        12. Set extra HTTP headers if provided.
+        13. Add cookies if provided.
+        14. Set default timeouts for navigation and download if enabled.
+        15. Set user agent if provided.
+        16. Set browser hints if provided.
 
         Args:
             context (BrowserContext): The browser context to set up
+            crawlerRunConfig (CrawlerRunConfig): Configuration object containing all browser settings
+            is_default (bool): Flag indicating if this is the default context
         Returns:
             None
-        """ 
+        """
+        if self.config.headers:
+            await context.set_extra_http_headers(self.config.headers)
+
+        if self.config.cookies:
+            await context.add_cookies(self.config.cookies)
 
         if self.config.storage_state:
             await context.storage_state(path=None)
@@ -562,31 +741,36 @@ class BrowserManager:
                     "downloads_path"
                 ] = self.config.downloads_path
 
-        # Sanitize User-Agent by removing Headless identifier
-        temp_page = None
-        try:
-            # Create a temporary page to evaluate navigator.userAgent
-            temp_page = await context.new_page()
-            current_ua = await temp_page.evaluate('() => navigator.userAgent')
+        # Handle user agent and browser hints
+        if self.config.user_agent:
+            combined_headers = {
+                "User-Agent": self.config.user_agent,
+                "sec-ch-ua": self.config.browser_hint,
+            }
+            combined_headers.update(self.config.headers)
+            await context.set_extra_http_headers(combined_headers)
 
-            # Handle User-Agent
-            if 'Headless' in current_ua:
-                new_ua = current_ua.replace('Headless', '').strip()
-                await context.set_extra_http_headers({'User-Agent': new_ua})
-                self.logger.info(f"User-Agent Modified: \n{current_ua} \n-> \n{new_ua}", tag="USER_AGENT")
+        # Add default cookie
+        await context.add_cookies(
+            [
+                {
+                    "name": "cookiesEnabled",
+                    "value": "true",
+                    "url": crawlerRunConfig.url
+                    if crawlerRunConfig and crawlerRunConfig.url
+                    else "https://crawl4ai.com/",
+                }
+            ]
+        )
 
-        except Exception as e:
-            if self.logger:
-                self.logger.error(
-                    message="Error sanitizing browser headers for context: {error}",
-                    tag="HEADERS_SANITIZE_ERROR",
-                    params={"context_id": context.guid if context else "N/A", "error": str(e)}
-                )
-        finally:
-            if temp_page:
-                await temp_page.close()
-
-        await context.add_init_script(load_js_script("navigator_overrider"))
+        # Handle navigator overrides
+        if crawlerRunConfig:
+            if (
+                crawlerRunConfig.override_navigator
+                or crawlerRunConfig.simulate_user
+                or crawlerRunConfig.magic
+            ):
+                await context.add_init_script(load_js_script("navigator_overrider"))        
 
     async def create_browser_context(self, crawlerRunConfig: CrawlerRunConfig = None):
         """
@@ -596,8 +780,14 @@ class BrowserManager:
         Returns:
             Context: Browser context object with the specified configurations
         """
-        # only setting proxy for wiseflow
+        # Base settings
+        user_agent = self.config.headers.get("User-Agent", self.config.user_agent) 
+        viewport_settings = {
+            "width": self.config.viewport_width,
+            "height": self.config.viewport_height,
+        }
         proxy_settings = {"server": self.config.proxy} if self.config.proxy else None
+
         blocked_extensions = [
             # Images
             "jpg",
@@ -655,6 +845,8 @@ class BrowserManager:
 
         # Common context settings
         context_settings = {
+            "user_agent": user_agent,
+            "viewport": viewport_settings,
             "proxy": proxy_settings,
             "accept_downloads": self.config.accept_downloads,
             "storage_state": self.config.storage_state,
@@ -711,6 +903,42 @@ class BrowserManager:
                 await context.route(f"**/*.{ext}", lambda route: route.abort())
         return context
 
+    def _make_config_signature(self, crawlerRunConfig: CrawlerRunConfig) -> str:
+        """
+        Converts the crawlerRunConfig into a dict, excludes ephemeral fields,
+        then returns a hash of the sorted JSON. This yields a stable signature
+        that identifies configurations requiring a unique browser context.
+        """
+        import json
+
+        config_dict = crawlerRunConfig.__dict__.copy()
+        # Exclude items that do not affect browser-level setup.
+        # Expand or adjust as needed, e.g. chunking_strategy is purely for data extraction, not for browser config.
+        ephemeral_keys = [
+            "session_id",
+            "js_code",
+            "scraping_strategy",
+            "extraction_strategy",
+            "chunking_strategy",
+            "cache_mode",
+            "content_filter",
+            "semaphore_count",
+            "url"
+        ]
+        
+        # Do NOT exclude locale, timezone_id, or geolocation as these DO affect browser context
+        # and should cause a new context to be created if they change
+        
+        for key in ephemeral_keys:
+            if key in config_dict:
+                del config_dict[key]
+        # Convert to canonical JSON string
+        signature_json = json.dumps(config_dict, sort_keys=True, default=str)
+
+        # Hash the JSON so we get a compact, unique string
+        signature_hash = hashlib.sha256(signature_json.encode("utf-8")).hexdigest()
+        return signature_hash
+
     async def get_page(self, crawlerRunConfig: CrawlerRunConfig):
         """
         Get a page for the given session ID, creating a new one if needed.
@@ -730,13 +958,28 @@ class BrowserManager:
             self.sessions[crawlerRunConfig.session_id] = (context, page, time.time())
             return page, context
 
-        # wiseflow only use managed browser
-        context = self.default_context
-        pages = context.pages
-        page = next((p for p in pages if p.url == crawlerRunConfig.url), None)
-        if not page:
+        # If using a managed browser, just grab the shared default_context
+        if self.config.use_managed_browser:
+            context = self.default_context
+            pages = context.pages
+            page = next((p for p in pages if p.url == crawlerRunConfig.url), None)
+            if not page:
+                page = context.pages[0] # await context.new_page()
+        else:
+            # Otherwise, check if we have an existing context for this config
+            config_signature = self._make_config_signature(crawlerRunConfig)
+
+            async with self._contexts_lock:
+                if config_signature in self.contexts_by_config:
+                    context = self.contexts_by_config[config_signature]
+                else:
+                    # Create and setup a new context
+                    context = await self.create_browser_context(crawlerRunConfig)
+                    await self.setup_context(context, crawlerRunConfig)
+                    self.contexts_by_config[config_signature] = context
+
+            # Create a new page from the chosen context
             page = await context.new_page()
-            # page = context.pages[0] # changed in 0.6.3, not sure whether adpator to wiseflow
 
         # If a session_id is specified, store this session so we can reuse later
         if crawlerRunConfig.session_id:
@@ -771,9 +1014,6 @@ class BrowserManager:
 
     async def close(self):
         """Close all browser resources and clean up."""
-        if self in BrowserManager._active_instances:
-            BrowserManager._active_instances.remove(self)
-            
         if self.config.cdp_url:
             return
         

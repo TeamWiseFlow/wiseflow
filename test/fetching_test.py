@@ -23,7 +23,25 @@ standard_sites = ['https://cg.shenzhenmc.com/zzbgg/83524.jhtml',
 base_directory=os.path.join(root_path, 'work_dir')
 
 crawler_config.cache_mode = CacheMode.DISABLED
-# browser_cfg.proxy = 'http://202.117.115.6:80'
+browser_cfg = BrowserConfig(
+    # browser_type="chromium",
+    # headless=True,
+    viewport_width=1920,
+    viewport_height=1080,
+    # proxy="http://user:pass@proxy:8080",
+    # use_managed_browser=True,
+    # If you need authentication storage or repeated sessions, consider use_persistent_context=True and specify user_data_dir.
+    # use_persistent_context=True, # must be used with use_managed_browser=True
+    # user_data_dir="/tmp/crawl4ai_chromium_profile",
+    # java_script_enabled=True,
+    # cookies=[]
+    # headers={}
+    user_agent_mode="random",
+    # user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/116.0.0.0 Safari/537.36",
+    light_mode=True,
+    # text_mode=True,
+    extra_args=["--disable-gpu", "--disable-extensions"]
+)
 
 async def main(sites: list):
     print("\n=== Crawling Test with Memory Check ===")
@@ -39,7 +57,7 @@ async def main(sites: list):
             peak_memory = current_mem
         print(f"{prefix} Current Memory: {current_mem // (1024 * 1024)} MB, Peak: {peak_memory // (1024 * 1024)} MB")
 
-    async with AsyncWebCrawler(verbose=True, base_directory=base_directory) as crawler:
+    async with AsyncWebCrawler(config=browser_cfg) as crawler:
         for site in sites:
             # Check memory usage prior to launching tasks
             log_memory(prefix="Before crawling: ")

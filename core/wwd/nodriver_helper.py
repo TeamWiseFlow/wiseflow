@@ -22,7 +22,7 @@ class NodriverHelper:
         
         # 使用单一的浏览器数据目录
         data_dir = Path(work_dir) if work_dir else Path(__file__).parent.parent / 'work_dir'
-        self.browser_data = data_dir / 'nodriver_browser_data'
+        self.browser_data = data_dir / 'browser_data'
         self.export_dir = data_dir / 'nodriver_exported' / platform
 
         self.export_dir.mkdir(parents=True, exist_ok=True)
@@ -42,7 +42,7 @@ class NodriverHelper:
         # 设置浏览器配置
         config = {
             'user_data_dir': str(self.browser_data),  # 使用单一的浏览器数据目录
-            'headless': True,
+            'headless': False,
             'browser_args': [
                 '--lang=zh-CN',
                 #'--no-sandbox',

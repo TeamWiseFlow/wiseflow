@@ -1,0 +1,5 @@
+127.0.0.1 - - [19/May/2025 18:05:18] "GET /tables HTTP/1.1" 200 -
+127.0.0.1 - - [19/May/2025 18:05:41] "GET /tables/infos/schema HTTP/1.1" 200 -
+127.0.0.1 - - [19/May/2025 18:05:46] "GET /tables/infos/data?limit=2 HTTP/1.1" 200 -
+127.0.0.1 - - [19/May/2025 18:05:51] "GET /tables/infos/data?content=poker&limit=1 HTTP/1.1" 200 -
+127.0.0.1 - - [19/May/2025 18:05:57] "GET /tables/sites/data?limit=2 HTTP/1.1" 200 -
