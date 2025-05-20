@@ -113,23 +113,6 @@ def from_serializable_dict(data: Any) -> Any:
         if data["type"] == "dict" and "value" in data:
             return {k: from_serializable_dict(v) for k, v in data["value"].items()}
 
-        # Import from crawl4ai for class instances
-        import crawl4ai
-
-        if hasattr(crawl4ai, data["type"]):
-            cls = getattr(crawl4ai, data["type"])
-
-            # Handle Enum
-            if issubclass(cls, Enum):
-                return cls(data["params"])
-
-            if "params" in data:
-                # Handle class instances
-                constructor_args = {
-                    k: from_serializable_dict(v) for k, v in data["params"].items()
-                }
-                return cls(**constructor_args)
-
     # Handle lists
     if isinstance(data, list):
         return [from_serializable_dict(item) for item in data]
@@ -380,7 +363,6 @@ class BrowserConfig:
         self,
         browser_type: str = "chromium",
         headless: bool = True,
-        browser_mode: str = "dedicated",
         use_managed_browser: bool = False,
         cdp_url: str = None,
         use_persistent_context: bool = False,
@@ -388,13 +370,12 @@ class BrowserConfig:
         chrome_channel: str = "chromium",
         channel: str = "chromium",
         proxy: str = None,
-        proxy_config: Union[ProxyConfig, dict, None] = None,
+        proxy_config: dict = None,
         viewport_width: int = 1080,
         viewport_height: int = 600,
-        viewport: dict = None,
         accept_downloads: bool = False,
         downloads_path: str = None,
-        storage_state: Union[str, dict, None] = None,
+        storage_state : Union[str, dict, None]=None,
         ignore_https_errors: bool = True,
         java_script_enabled: bool = True,
         sleep_on_close: bool = False,
@@ -416,8 +397,7 @@ class BrowserConfig:
         host: str = "localhost",
     ):
         self.browser_type = browser_type
-        self.headless = headless 
-        self.browser_mode = browser_mode
+        self.headless = headless
         self.use_managed_browser = use_managed_browser
         self.cdp_url = cdp_url
         self.use_persistent_context = use_persistent_context
@@ -429,14 +409,8 @@ class BrowserConfig:
             self.chrome_channel = ""
         self.proxy = proxy
         self.proxy_config = proxy_config
-
-
         self.viewport_width = viewport_width
         self.viewport_height = viewport_height
-        self.viewport = viewport
-        if self.viewport is not None:
-            self.viewport_width = self.viewport.get("width", 1080)
-            self.viewport_height = self.viewport.get("height", 600)
         self.accept_downloads = accept_downloads
         self.downloads_path = downloads_path
         self.storage_state = storage_state
@@ -453,7 +427,6 @@ class BrowserConfig:
         self.sleep_on_close = sleep_on_close
         self.verbose = verbose
         self.debugging_port = debugging_port
-        self.host = host
 
         fa_user_agenr_generator = ValidUAGenerator()
         if self.user_agent_mode == "random":
@@ -462,25 +435,9 @@ class BrowserConfig:
             )
         else:
             pass
-
+        
         self.browser_hint = UAGen.generate_client_hints(self.user_agent)
         self.headers.setdefault("sec-ch-ua", self.browser_hint)
-
-        # Set appropriate browser management flags based on browser_mode
-        if self.browser_mode == "builtin":
-            # Builtin mode uses managed browser connecting to builtin CDP endpoint
-            self.use_managed_browser = True
-            # cdp_url will be set later by browser_manager
-        elif self.browser_mode == "docker":
-            # Docker mode uses managed browser with CDP to connect to browser in container
-            self.use_managed_browser = True
-            # cdp_url will be set later by docker browser strategy
-        elif self.browser_mode == "custom" and self.cdp_url:
-            # Custom mode with explicit CDP URL
-            self.use_managed_browser = True
-        elif self.browser_mode == "dedicated":
-            # Dedicated mode uses a new browser instance each time
-            pass
 
         # If persistent context is requested, ensure managed browser is enabled
         if self.use_persistent_context:
@@ -491,7 +448,6 @@ class BrowserConfig:
         return BrowserConfig(
             browser_type=kwargs.get("browser_type", "chromium"),
             headless=kwargs.get("headless", True),
-            browser_mode=kwargs.get("browser_mode", "dedicated"),
             use_managed_browser=kwargs.get("use_managed_browser", False),
             cdp_url=kwargs.get("cdp_url"),
             use_persistent_context=kwargs.get("use_persistent_context", False),
@@ -499,7 +455,7 @@ class BrowserConfig:
             chrome_channel=kwargs.get("chrome_channel", "chromium"),
             channel=kwargs.get("channel", "chromium"),
             proxy=kwargs.get("proxy"),
-            proxy_config=kwargs.get("proxy_config", None),
+            proxy_config=kwargs.get("proxy_config"),
             viewport_width=kwargs.get("viewport_width", 1080),
             viewport_height=kwargs.get("viewport_height", 600),
             accept_downloads=kwargs.get("accept_downloads", False),
@@ -519,15 +475,12 @@ class BrowserConfig:
             text_mode=kwargs.get("text_mode", False),
             light_mode=kwargs.get("light_mode", False),
             extra_args=kwargs.get("extra_args", []),
-            debugging_port=kwargs.get("debugging_port", 9222),
-            host=kwargs.get("host", "localhost"),
         )
 
     def to_dict(self):
-        result = {
+        return {
             "browser_type": self.browser_type,
             "headless": self.headless,
-            "browser_mode": self.browser_mode,
             "use_managed_browser": self.use_managed_browser,
             "cdp_url": self.cdp_url,
             "use_persistent_context": self.use_persistent_context,
@@ -554,12 +507,7 @@ class BrowserConfig:
             "sleep_on_close": self.sleep_on_close,
             "verbose": self.verbose,
             "debugging_port": self.debugging_port,
-            "host": self.host,
         }
-
-                
-        return result
-
     def clone(self, **kwargs):
         """Create a copy of this configuration with updated values.
 

@@ -14,6 +14,7 @@ crawler_config = CrawlerRunConfig(
     word_count_threshold=10,
     magic=True, 
     scan_full_page=True,
+    scroll_delay=0.3,
     # locale=None,
     # timezone_id=None,
     # geolocation=None,

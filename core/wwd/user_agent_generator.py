@@ -1,13 +1,13 @@
-import random
-from typing import Optional, Literal, List, Dict, Tuple
+from typing import Literal, Tuple
 import re
 
 from abc import ABC, abstractmethod
+import random
 from fake_useragent import UserAgent
 import requests
 from lxml import html
 import json
-from typing import Union
+from typing import Optional, List, Union, Dict
 
 class UAGen(ABC):
    @abstractmethod
