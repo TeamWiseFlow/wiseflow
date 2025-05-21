@@ -85,7 +85,6 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
 
         # for special url formate from craw4ai-de 0.4.247
         markdown = re.sub(r'<javascript:.*?>', '<javascript:>', markdown).strip()
-
         # 处理图片标记 ![alt](src)，使用非贪婪匹配并考虑嵌套括号的情况
         i_pattern = r'(!\[(.*?)\]\(((?:[^()]*|\([^()]*\))*)\))'
         matches = re.findall(i_pattern, markdown, re.DOTALL)
@@ -93,12 +92,16 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             # 替换为新格式 §alt||src§
             markdown = markdown.replace(_sec, f'§{alt}||{src}§', 1)
 
-        async def check_url_text(text) -> str:
+        sections = re.split(r'\n{2,}', markdown)
+        async def check_url_text(text) -> Tuple[float, str]:
             # 找到所有[part0](part1)格式的片段，使用非贪婪匹配并考虑嵌套括号的情况
+            valid_link_num = 0
+            len_without_link = len(text)
             link_pattern = r'(\[(.*?)\]\(((?:[^()]*|\([^()]*\))*)\))'
             matches = re.findall(link_pattern, text, re.DOTALL)
             for _sec, link_text, link_url in matches:
                 # 存在""嵌套情况，需要先提取出url
+                len_without_link -= len(_sec)
                 _title = re.sub(url_pattern, '', link_url, re.DOTALL).strip()
                 _title = _title.strip('"')
                 link_text = link_text.strip()
@@ -116,14 +119,17 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
                 _url = re.findall(url_pattern, link_url)
                 if not _url or _url[0].startswith(('#', 'javascript:')):
                     text = text.replace(_sec, link_text, 1)
+                    len_without_link += len(link_text)
+                    continue
+
+                if get_base_domain(_url[0]) in SOCIAL_MEDIA_DOMAINS:
+                    text = text.replace(_sec, link_text + _url[0], 1)
+                    len_without_link += len(link_text)
                     continue
 
                 if exclude_external_links and is_external_url(_url[0], base_url):
                     text = text.replace(_sec, link_text, 1)
-                    continue
-
-                if get_base_domain(_url[0]) in SOCIAL_MEDIA_DOMAINS:
-                    text = text.replace(_sec, link_text, 1)
+                    valid_link_num += 1
                     continue
 
                 url = normalize_url(_url[0], base_url)
@@ -159,10 +165,12 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
                 # 处理mailto和tel链接, 将值添加到文本中
                 if url.startswith(('mailto:', 'tel:')):
                     text = text.replace(_sec, link_text + url, 1)
+                    len_without_link += len(link_text)
                     continue
 
                 _key = f"[{len(link_dict)+1}]"
                 link_dict[_key] = url
+                valid_link_num += 1
                 text = text.replace(_sec, link_text + _key, 1)
     
             # 处理文本中的其他图片标记
@@ -171,8 +179,10 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             remained_text = re.sub(img_pattern, '', text, re.DOTALL).strip()
             remained_text_len = len(remained_text)
             for _sec, alt, src in matches:
+                len_without_link -= len(_sec)
                 if not src or src.startswith('#'):
                     text = text.replace(_sec, alt, 1)
+                    len_without_link += len(alt)
                     continue
                 img_src = normalize_url(src, base_url)
                 if not img_src:
@@ -188,15 +198,16 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
                 else:
                     _key = f"[{len(link_dict)+1}]"
                     link_dict[_key] = img_src
-                    text = text.replace(_sec, await extract_info_from_img(img_src) + _key, 1)
+                    alt = await extract_info_from_img(img_src)
+                    text = text.replace(_sec, alt + _key, 1)
+                len_without_link += len(alt)
 
             # 处理文本中的"野 url"，使用更精确的正则表达式
             matches = re.findall(url_pattern, text)
             for url in matches:
+                len_without_link -= len(url)
+                valid_link_num += 1
                 if exclude_external_links and is_external_url(url, base_url):
-                    text = text.replace(url, '', 1)
-                    continue
-                if get_base_domain(url) in SOCIAL_MEDIA_DOMAINS:
                     text = text.replace(url, '', 1)
                     continue
                 url = normalize_url(url, base_url)
@@ -204,11 +215,55 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
                 link_dict[_key] = url
                 text = text.replace(url, _key, 1)
 
-            return text
+            score = valid_link_num / len_without_link if len_without_link > 0 else 999
+            # print(text)
+            # print(f"score: {score}")
+            # print('\n\n')
+            return score, text
 
-        sections = await check_url_text(markdown)
+        sections = [await check_url_text(section) for section in sections if section.strip()]
+        """
+        we don't need more complex logic here, llm will extract link from the whole html
+        that's the benifit of putting-all-and-extract-once strategy in 4.x
+        if len(sections) < 3:
+            threshold = 0.016
+            max_variance = 0.003
+        else:
+            scores = sorted([score for score, _ in sections])
+            gaps = [(scores[i+1] - scores[i], i) for i in range(len(scores)-1)]
+            max_gap, max_gap_index = max(gaps, key=lambda x: x[0])
+            threshold = min(scores[max_gap_index], 0.016)
+            max_variance = abs(threshold - scores[0])
+        """
+        main_content_started = False
+        threshold = 0.016
+        markdown = ''
+        for score, text in sections:
+            # Check if the text contains any letters, Chinese characters, or numbers.
+            # If not (i.e., it might only contain punctuation, spaces, or other symbols), skip this section.
+            if not re.search(r'[a-zA-Z0-9\u4e00-\u9fff]', text):
+                continue
 
-        return sections, link_dict
+            if main_content_started:
+                if score >= threshold:
+                    # main content area has ended
+                    markdown += f"\n</main-content>\n\n{text.strip()}"
+                    main_content_started = False
+                else:
+                    # main content area is continuing
+                    markdown += f"\n\n{text.strip()}"
+            else:
+                if score < threshold:
+                    # main content area has started
+                    markdown += f"\n\n<main-content>\n{text.strip()}"
+                    main_content_started = True
+                else:
+                    # links area still
+                    markdown += f"\n\n{text.strip()}"
+
+        if main_content_started:
+            markdown += f"\n</main-content>"
+        return markdown.strip(), link_dict
 
     async def generate_markdown(
         self,

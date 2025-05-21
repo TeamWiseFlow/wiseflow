@@ -17,7 +17,7 @@ if os.path.exists(env_path):
 from core.wwd import MaxLengthChunking, LLMExtractionStrategy
 
 benchmark_model = 'Qwen/Qwen3-14B'
-models = ['Qwen/Qwen3-30B-A3B', 'Qwen/Qwen3-32B']
+models = []
 
 def main(focus_point: dict, sections: list, link_dict: dict, date_stamp: str, record_file: str):
     raw_markdown = '\n'.join(sections)
@@ -28,10 +28,10 @@ def main(focus_point: dict, sections: list, link_dict: dict, date_stamp: str, re
                                           focuspoint=focus_point['focuspoint'],
                                           restrictions=focus_point['explanation'],
                                           verbose=True)
-        if model == benchmark_model:
-            print('prompt template:')
-            print(extractor.prompt)
-            print('\n')
+        # if model == benchmark_model:
+            # print('prompt template:')
+            # print(extractor.prompt)
+            # print('\n')
         print(f"running {model} ...")
         start_time = time.time()
         extracted_content = extractor.run(url='sample', sections=contents, date_stamp=date_stamp)

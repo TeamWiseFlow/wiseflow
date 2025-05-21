@@ -4,7 +4,7 @@ focus statement:
 
 评估结果：8b>14b>a3b=deepseek-distrill-14b>GLM-4-32b-0414
 主要是 a3b 比照欧派的 FP8 版本下降很多，而8b 又改善太多……
-(换 httpx请求，加上三个参数，14b 和 a3b 均有改善)
+(llm api 换 httpx请求，加上三个参数，14b 和 a3b 均有改善)
 综合来看14b 比较稳
 
 

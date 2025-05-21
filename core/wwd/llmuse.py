@@ -86,26 +86,31 @@ def perform_completion_with_backoff(messages: List, model: str, logger=None, **k
     return None
 
 
-PROMPT_EXTRACT_BLOCKS = """Extract all information related to the following focus points from the given markdown content, and find all links worth further exploration based on the focus points (represented by a citation mark like [x]):
+PROMPT_EXTRACT_BLOCKS = """Extract all information related to the following focus points from the main-content of given markdown, and find all links worth further exploration based on the focus points (represented by a citation mark like [x]) from the whole markdown:
 {FOCUS_POINT}
 
-And here is the markdown content:
+And here is the markdown:
 <markdown>
+<meta>
+{TITLE}
+{AUTHOR}
+{PUBLISHED_DATE}
+</meta>
 {HTML}
 </markdown>
 
 The above markdown content is derived from the HTML of a webpage and may have been chunked.
 All links in the original HTML (a elements or img elements) have been converted to citation marks (something like "[x]")
 
-For text information extraction, please adhere to the following notes:
-- Only extract information from the main article area, if there is no main article area, please output an empty string.
-- All information should be extracted from the main article area(if any), do not make up any information.
-- It is not guaranteed that the given markdown will always be relevant to the focus point, if that is the case, please output an empty string.
-- All extracted text information must comply with restrictions (if given), such as time limit, value limit, subject limit, etc.
+For information extraction, please adhere to the following notes:
+- Only extract information from the markdown's main-content area(if any), if there is no main-content area, keep it empty.
+- All information should be extracted from the main-content area(if any), do not make up any information.
+- It is not guaranteed that the main-content will always be relevant to the focus point, if that is the case, keep it empty.
+- All extracted information must comply with restrictions (if given), such as time limit, value limit, subject limit, etc.
 - If multiple information are extracted, merge them into one coherent message that contains all the key points.
 
 For links finding, please adhere to the following notes:
-- Only find possible links(represented by a citation mark like [x]) from the link-list area (there may be more than one).
+- Find possible links(represented by a citation mark like [x]) from the whole markdown.
 - Always consider the context to determine if the link is likely to be relevant to the focus point and is worth further exploration.
 - For the found link citation mark, output them along with the sentence they are in, one per line.
 

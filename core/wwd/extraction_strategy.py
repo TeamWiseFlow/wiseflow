@@ -236,6 +236,9 @@ class LLMExtractionStrategy(ExtractionStrategy):
     def run(self, 
             url: str, 
             sections: List[str], 
+            title: str = '',
+            author: str = '',
+            published_date: str = '',
             date_stamp: str = datetime.now().strftime("%Y-%m-%d"),
             **kwargs
         ) -> List[Dict[str, Any]]:
@@ -255,6 +258,7 @@ class LLMExtractionStrategy(ExtractionStrategy):
             msg_list = [
                 self.prompt.replace('{URL}', url).replace('{HTML}', sec) + date_time_notify for sec in sections]
         else:
+            self.prompt = self.prompt.replace('{TITLE}', title).replace('{AUTHOR}', author).replace('{PUBLISHED_DATE}', published_date)
             msg_list = [
                 self.prompt.replace('{HTML}', sec) + date_time_notify for sec in sections]
 

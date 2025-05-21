@@ -134,6 +134,20 @@ class MaxLengthChunking(ChunkingStrategy):
                 l = lines.pop(0)
                 _text = f'{_text}{l}\n'
                 if len(_text) > self._size or len(lines) == 0:
+                    main_content_open_count = _text.count("<main-content>")
+                    main_content_close_count = _text.count("</main-content>")
+
+                    if main_content_open_count > main_content_close_count:
+                        # If there are more opening tags than closing tags,
+                        # append a closing tag.
+                        # _text usually ends with a newline due to the loop: _text = f'{_text}{l}\n'
+                        # We aim for <content>\n</main-content>
+                        _text = f"{_text.rstrip()}\n</main-content>"
+                    elif main_content_close_count > main_content_open_count:
+                        # If there are more closing tags than opening tags,
+                        # prepend an opening tag.
+                        # We aim for <main-content>\n<content>
+                        _text = f"<main-content>\n{_text.lstrip()}"
                     contents.append(_text)
                     _text = ''
         else:

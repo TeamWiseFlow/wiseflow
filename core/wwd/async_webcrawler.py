@@ -565,7 +565,10 @@ class AsyncWebCrawler:
         else:
             chunking = config.chunking_strategy or MaxLengthChunking()
             sections = chunking.chunk(markdown)
-            extracted_content = config.extraction_strategy.run(url, sections)
+            title = ''
+            author = ''
+            published_date = ''
+            extracted_content = config.extraction_strategy.run(url, sections, title, author, published_date)
 
         self.logger.debug(
             message="Completed for {url:.50}... | Time: {timing}s",
@@ -605,7 +608,7 @@ class AsyncWebCrawler:
                                 hallucination_times += 1
                                 res = res.replace(_tag, '') 
                             # case:original text contents, eg [2025]文
-                        infos.append({'content': res, 'references': refences})
+                        infos.append({'content': f'//{author} {published_date}//{res}', 'references': refences})
             hallucination_rate = round((hallucination_times / total_parsed) * 100, 2) if total_parsed > 0 else 'NA'
             self.logger.info(
                 message="related finding by llm, hallucination times: {hallucination_times}, hallucination rate: {hallucination_rate} %",
