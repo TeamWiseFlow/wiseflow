@@ -1,4 +1,10 @@
 import unittest
+import os
+import sys
+
+# 将core目录添加到Python路径
+core_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
+sys.path.append(core_path)
 from core.wwd.utils import get_base_domain, is_external_url
 
 class TestURLUtils(unittest.TestCase):
@@ -112,4 +118,10 @@ class TestURLUtils(unittest.TestCase):
                                f"Failed for base domain: {base_domain}, URL: {url}")
 
 if __name__ == '__main__':
-    unittest.main() 
+    # unittest.main() 
+    test_list = ['https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzIxMzkyNjE5OQ==&action=getalbum&album_id=3313733712991387654',
+                 'https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392066&idx=1&sn=c46a35c0158fb83ea69405dc87806c87',
+                 ]
+    for url in test_list:
+        print(get_base_domain(url))
+        print(is_external_url(url, 'https://mp.weixin.qq.com'))

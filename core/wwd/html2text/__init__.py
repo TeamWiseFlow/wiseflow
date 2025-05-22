@@ -554,9 +554,11 @@ class HTML2Text(html.parser.HTMLParser):
                             self.o("][" + str(a_props.count) + "]")
 
         if tag == "img" and start and not self.ignore_images:
-            if "src" in attrs and attrs["src"] is not None:
+            if "data_type" in attrs and attrs["data_type"] in ['gif', 'svg']:
+                return
+            if self.img_src_attr in attrs and attrs[self.img_src_attr] is not None:
                 if not self.images_to_alt:
-                    attrs["href"] = attrs["src"]
+                    attrs["href"] = attrs[self.img_src_attr]
                 alt = attrs.get("alt") or self.default_image_alt
 
                 # If we have images_with_size, write raw html including width,
@@ -1033,7 +1035,7 @@ def html2text(html: str, baseurl: str = "", bodywidth: Optional[int] = None) -> 
 
 
 class CustomHTML2Text(HTML2Text):
-    def __init__(self, *args, handle_code_in_pre=False, **kwargs):
+    def __init__(self, *args, img_src_attr="src", handle_code_in_pre=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.inside_pre = False
         self.inside_code = False
@@ -1043,7 +1045,7 @@ class CustomHTML2Text(HTML2Text):
         self.preserved_content = []
         self.preserve_depth = 0
         self.handle_code_in_pre = handle_code_in_pre
-
+        self.img_src_attr = img_src_attr
         # Configuration options
         self.skip_internal_links = False
         self.single_line_break = False

@@ -7,6 +7,7 @@ import os
 from async_lru import alru_cache
 from ..llms.openai_wrapper import openai_llm as llm
 from .config import SOCIAL_MEDIA_DOMAINS
+from bs4 import BeautifulSoup
 
 # Pre-compile the regex pattern
 # LINK_PATTERN = re.compile(r'!?\[([^\]]+)\]\(([^)]+?)(?:\s+"([^"]*)")?\)')
@@ -187,7 +188,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
                 img_src = normalize_url(src, base_url)
                 if not img_src:
                     text = text.replace(_sec, alt, 1)
-                elif remained_text_len > 5 or len(alt) > 2:
+                elif remained_text_len > 150 or len(alt) > 5:
                     _key = f"[{len(link_dict)+1}]"
                     link_dict[_key] = img_src
                     text = text.replace(_sec, alt + _key, 1)
@@ -196,7 +197,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
                     link_dict[_key] = img_src
                     text = text.replace(_sec, alt + _key, 1)
                 else:
-                    _key = f"[{len(link_dict)+1}]"
+                    _key = f"[img{len(link_dict)+1}]"
                     link_dict[_key] = img_src
                     alt = await extract_info_from_img(img_src)
                     text = text.replace(_sec, alt + _key, 1)
@@ -267,13 +268,15 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
 
     async def generate_markdown(
         self,
-        input_html: str,
+        raw_html: str,
+        cleaned_html: str,
         base_url: str = "",
+        metadata: Optional[Dict[str, Any]] = None,
         html2text_options: Optional[Dict[str, Any]] = None,
         options: Optional[Dict[str, Any]] = None,
         exclude_external_links: bool = False,
         **kwargs,
-    ) -> Tuple[str, str, dict]:
+    ) -> Tuple[str, str, str, str, str, dict]:
         """
         Generate markdown with citations from the provided input HTML.
 
@@ -289,11 +292,14 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             options (Optional[Dict[str, Any]]): Additional options for markdown generation.
 
         Returns:
-            Tuple[str, str, dict]: Result containing error message, raw markdown, and link dict.
+            Tuple[str, str, dict]: Result containing error message, title, author, publish_date, raw markdown, and link dict.
         
         bigbrother666sh modified:
         add raw markdown preprocess as a must process
         """
+        title = metadata.get("title", "") if metadata else ""
+        author = metadata.get("author", "") if metadata else ""
+        publish_date = ''
         try:
             # Initialize HTML2Text with default options for better conversion
             h = CustomHTML2Text(baseurl=base_url)
@@ -319,30 +325,226 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             h.update_params(**default_options)
 
             # Ensure we have valid input
-            if not input_html:
-                input_html = ""
-            elif not isinstance(input_html, str):
-                input_html = str(input_html)
+            if not cleaned_html:
+                cleaned_html = raw_html
+            elif not isinstance(cleaned_html, str):
+                cleaned_html = str(cleaned_html)
 
             # Generate raw markdown
-            try:
-                raw_markdown = h.handle(input_html)
-            except Exception as e:
-                error_msg = f"Error converting HTML to raw markdown: {str(e)}"
-                return error_msg, '', {}
-
+            raw_markdown = h.handle(cleaned_html)
             raw_markdown = raw_markdown.replace("    ```", "```")
 
             # Convert links to citations
             link_dict: dict = {}
-            try:
-                markdown, link_dict = await self.convert_links_to_citations(raw_markdown, base_url, exclude_external_links)
-            except Exception as e:
-                error_msg = f"Error converting links to citations: {str(e)}"
-                return error_msg, '', {}
+            markdown, link_dict = await self.convert_links_to_citations(raw_markdown, base_url, exclude_external_links)
 
-            return '', markdown, link_dict
+            return '', title, author, publish_date, markdown, link_dict
         except Exception as e:
             # If anything fails, return empty strings with error message
             error_msg = f"Error in markdown generation: {str(e)}"
-            return error_msg, '', {}
+            return error_msg, title, author, publish_date, '', {}
+
+
+class WeixinArticleMarkdownGenerator(DefaultMarkdownGenerator):
+    def __init__(self, options: Optional[Dict[str, Any]] = None):
+        self.options = options or {}
+
+    async def generate_markdown(
+        self, 
+        raw_html: str,
+        cleaned_html: str,
+        base_url: str = "",
+        metadata: Optional[Dict[str, Any]] = None,
+        html2text_options: Optional[Dict[str, Any]] = None,
+        options: Optional[Dict[str, Any]] = None,
+        exclude_external_links: bool = False,
+        **kwargs,) -> Tuple[str, str, str, str, str, dict]:
+        """
+        Generate markdown for weixin official accout artilces(mp.weixin.qq.com).
+        include every style....
+
+        returns:
+        error_msg,
+        title,
+        author,
+        published_time,
+        content,
+        link_dict
+        """
+
+        title = ''
+        author = ''
+        publish_date = ''
+        content = ''
+        error_msg = ''
+
+        h = CustomHTML2Text(baseurl=base_url, img_src_attr="data-src")
+        default_options = {
+            "body_width": 0,  # Disable text wrapping
+            "ignore_emphasis": False,
+            "ignore_links": False,
+            "ignore_images": False,
+            "protect_links": False,
+            "single_line_break": True,
+            "mark_code": True,
+            "escape_snob": False,
+        }
+
+        # Update with custom options if provided
+        if html2text_options:
+            default_options.update(html2text_options)
+        elif options:
+            default_options.update(options)
+        elif self.options:
+            default_options.update(self.options)
+
+        h.update_params(**default_options)
+
+        if base_url.startswith('https://mp.weixin.qq.com/mp/appmsgalbum'):
+            # album page type
+            soup = BeautifulSoup(raw_html, 'html.parser')
+            for li in soup.find_all('li', class_='album__list-item'):
+                u_text = li.get_text(strip=True)
+                u_title = li.attrs['data-title'].strip()
+                _url = li.attrs['data-link'].replace("http://", "https://", 1)
+                if not _url or _url.startswith(('javascript', 'about:blank')):
+                    continue
+
+                cut_off_point = _url.find('chksm=')
+                if cut_off_point != -1:
+                    _url = _url[:cut_off_point - 1]
+                
+                if u_title in u_text:
+                    description = u_text
+                else:
+                    description = f'{u_title}-{u_text}'
+                content += f'[{description}]({_url})\n'
+        else:
+            soup = BeautifulSoup(raw_html, 'html.parser')
+
+            # 1. 查找第一个包含 <h1> 元素的 div 块，提取 title
+            h1_tag = soup.find('h1')
+            if h1_tag:
+                h1_div = h1_tag.parent
+                title = h1_tag.get_text(strip=True)
+                
+                # 2. 判断这个子块下面包含几个非空 div 子块
+                sub_divs = [div for div in h1_div.find_all('div', recursive=False) if len(div.contents) > 0]
+                num_sub_divs = len(sub_divs)
+                    
+                if num_sub_divs == 1:
+                    # 2.1 如果只包含一个子块
+                    strong_tag = sub_divs[0].find('strong')
+                    if strong_tag:
+                        author = strong_tag.get_text(strip=True)
+                        # 查找包含日期和时间的span标签
+                        date_span = sub_divs[0].find('span', string=re.compile(r'\d{4}年\d{2}月\d{2}日\s+\d{2}:\d{2}'))
+                        # 如果找到日期，只提取日期部分
+                        if date_span:
+                            publish_date = date_span.get_text(strip=True).split()[0]  # 只取日期部分
+                        else:
+                            publish_date = ''
+                            error_msg = 'new_type_article, type 2'
+                    else:
+                        author = ''
+                        publish_date = ''
+                        
+                elif num_sub_divs >= 2:
+                    # 2.2 如果包含两个及以上子块
+                    a_tag = sub_divs[0].find('a', href="javascript:void(0);")
+                    if a_tag:
+                        author = a_tag.get_text(strip=True)
+                        # 查找下一个包含日期时间的em标签
+                        date_em = sub_divs[0].find('em', string=re.compile(r'\d{4}年\d{2}月\d{2}日\s+\d{2}:\d{2}'))
+                        if date_em:
+                            # 只提取日期部分
+                            publish_date = date_em.get_text(strip=True).split()[0]
+                        else:
+                            publish_date = None
+                            error_msg = 'maybe a new_type_article, type 1'
+                    else:
+                        # 2025-03-17 found
+                        # a photo-alumbs page, just get every link with the description, formate as [description](url) as the content
+                        des = metadata.get('description', '')
+                        # 使用正则表达式匹配所有的链接和描述对
+                        pattern = r'href=\\x26quot;(.*?)\\x26quot;.*?\\x26gt;(.*?)\\x26lt;/a'
+                        matches = re.findall(pattern, des)
+                        # 处理每个匹配项
+                        for url, description in matches:
+                            # 清理URL中的转义字符
+                            cleaned_url = self._clean_weixin_url(url)
+                            # 添加到内容中，格式为 [描述](URL)
+                            content += f'[{description.strip()}]({cleaned_url})\n'
+                else:
+                    author = ''
+                    publish_date = ''
+                    error_msg = 'new_type_article, type 0'
+
+            else:
+                # 如果找不到的话 说明是已删除或者分享页
+                soup = BeautifulSoup(raw_html, 'html.parser')
+                # 从 original_panel_tool 中找到 data-url
+                share_source = soup.find('span', id='js_share_source')
+                if share_source and share_source.get('data-url'):
+                    data_url = share_source['data-url']
+                    # 替换 http 为 https
+                    data_url = data_url.replace('http://', 'https://', 1)
+                    if not data_url or not data_url.startswith('https://mp.weixin.qq.com'):
+                        # maybe a new_type_article
+                        error_msg = 'new_type_article, type 4'
+                    # 从 js_content 中获取描述文本
+                    content_div = soup.find('div', id='js_content')
+                    if not content_div:
+                        # maybe a new_type_article
+                        error_msg = 'new_type_article, type 3'
+                    else:
+                        des = content_div.get_text(strip=True)
+                        content = f'[{des}]({data_url})'
+                else:
+                    # a deleted page
+                    error_msg = "it's a deleted page"
+        
+        if error_msg:
+            return error_msg, title, author, publish_date, content, {}
+        
+        try:
+            if not content:
+                # Ensure we have valid input
+                if not raw_html:
+                    raw_html = cleaned_html
+                elif not isinstance(raw_html, str):
+                    raw_html = str(raw_html)
+                # Generate raw markdown
+                content = h.handle(raw_html)
+                content = content.replace("    ```", "```")
+            # Convert links to citations
+            link_dict: dict = {}
+            markdown, link_dict = await self.convert_links_to_citations(content, base_url, exclude_external_links)
+            return '', title, author, publish_date, markdown, link_dict
+        except Exception as e:
+            # If anything fails, return empty strings with error message
+            error_msg = f"Error in markdown generation: {str(e)}"
+            return error_msg, title, author, publish_date, '', {}
+
+    def _clean_weixin_url(self, url):
+        """
+        清理微信URL，将转义字符替换为正常字符
+        
+        Args:
+            url (str): 包含转义字符的微信URL
+            
+        Returns:
+            str: 清理后的URL
+        """
+        # 替换常见的转义序列
+        replacements = {
+            '\\x26amp;amp;': '&',
+            '\\x26amp;': '&',
+            '\\x26quot': '',
+            '\\x26': '&'
+        }
+        
+        for old, new in replacements.items():
+            url = url.replace(old, new)
+        
+        return url

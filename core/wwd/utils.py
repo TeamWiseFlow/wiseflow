@@ -1484,6 +1484,9 @@ def get_base_domain(url: str) -> str:
         domain_from_url = parsed_url.netloc.lower()
         if not domain_from_url:
             return ""
+        # special domain
+        if domain_from_url.startswith('mp.weixin.qq.com'):
+            return 'mp.weixin.qq.com'
 
         # Remove port if present
         domain_no_port = domain_from_url.split(":")[0]

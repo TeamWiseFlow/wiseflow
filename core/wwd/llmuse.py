@@ -91,11 +91,6 @@ PROMPT_EXTRACT_BLOCKS = """Extract all information related to the following focu
 
 And here is the markdown:
 <markdown>
-<meta>
-{TITLE}
-{AUTHOR}
-{PUBLISHED_DATE}
-</meta>
 {HTML}
 </markdown>
 
@@ -103,9 +98,9 @@ The above markdown content is derived from the HTML of a webpage and may have be
 All links in the original HTML (a elements or img elements) have been converted to citation marks (something like "[x]")
 
 For information extraction, please adhere to the following notes:
-- Only extract information from the markdown's main-content area(if any), if there is no main-content area, keep it empty.
+- Only extract information from the markdown's main-content area(if any), if there is no main-content area, output nothing.
 - All information should be extracted from the main-content area(if any), do not make up any information.
-- It is not guaranteed that the main-content will always be relevant to the focus point, if that is the case, keep it empty.
+- It is not guaranteed that the main-content will always be relevant to the focus point, if that is the case, output nothing.
 - All extracted information must comply with restrictions (if given), such as time limit, value limit, subject limit, etc.
 - If multiple information are extracted, merge them into one coherent message that contains all the key points.
 

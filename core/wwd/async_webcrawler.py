@@ -6,7 +6,6 @@ import os
 import sys
 import time
 from typing import Optional, List
-import json
 import asyncio
 
 from .utils import configure_windows_event_loop
@@ -31,7 +30,8 @@ from .async_crawler_strategy import (
     AsyncCrawlResponse,
 )
 from .cache_context import CacheMode, CacheContext
-from .markdown_generation_strategy import DefaultMarkdownGenerator
+from .markdown_generation_strategy import *
+markdown_generation_hub = {'mp.weixin.qq.com': WeixinArticleMarkdownGenerator}
 
 from .async_logger import AsyncLogger, AsyncLoggerBase, LogColor
 from .async_configs import BrowserConfig, CrawlerRunConfig, ProxyConfig
@@ -45,6 +45,7 @@ from .utils import (
     preprocess_html_for_schema,
     get_content_of_website,
     extract_metadata,
+    get_base_domain,
 )
 
 
@@ -259,6 +260,7 @@ class AsyncWebCrawler:
 
                 if cached_result:
                     html = sanitize_input_encode(cached_result.html)
+                    publish_date = cached_result.response_headers.get("last-modified", "")
                     extracted_content = sanitize_input_encode(
                         cached_result.extracted_content or ""
                     )
@@ -325,6 +327,7 @@ class AsyncWebCrawler:
                     )
 
                     html = sanitize_input_encode(async_response.html)
+                    publish_date = async_response.response_headers.get("last-modified", "")
                     screenshot_data = async_response.screenshot
                     pdf_data = async_response.pdf_data
                     js_execution_result = async_response.js_execution_result
@@ -347,6 +350,7 @@ class AsyncWebCrawler:
                         config=config,  # Pass the config object instead of individual parameters
                         screenshot_data=screenshot_data,
                         pdf_data=pdf_data,
+                        publish_date=publish_date,
                         verbose=config.verbose,
                         is_raw_html=True if url.startswith("raw:") else False,
                         redirected_url=async_response.redirected_url, 
@@ -424,6 +428,7 @@ class AsyncWebCrawler:
         config: CrawlerRunConfig,
         screenshot_data: str,
         pdf_data: str,
+        publish_date: str = "",
         **kwargs,
     ) -> CrawlResult:
         """
@@ -539,12 +544,14 @@ class AsyncWebCrawler:
         ################################
         # Generate Markdown            #
         ################################
-        markdown_generator = DefaultMarkdownGenerator()
-       
-        error_msg, markdown, link_dict = (
+        domain = get_base_domain(url)
+        markdown_generator = markdown_generation_hub.get(domain, DefaultMarkdownGenerator)()
+        error_msg, title, author, publish, markdown, link_dict = (
             await markdown_generator.generate_markdown(
-                input_html=cleaned_html,
+                raw_html=html,
+                cleaned_html=cleaned_html,
                 base_url=kwargs.get("redirected_url", url),
+                metadata=metadata,
                 exclude_external_links=config.exclude_external_links,
             )
         )
@@ -563,12 +570,10 @@ class AsyncWebCrawler:
             )
             extracted_content = ""
         else:
+            content_date = publish or publish_date
             chunking = config.chunking_strategy or MaxLengthChunking()
             sections = chunking.chunk(markdown)
-            title = ''
-            author = ''
-            published_date = ''
-            extracted_content = config.extraction_strategy.run(url, sections, title, author, published_date)
+            extracted_content = config.extraction_strategy.run(url, sections, title, author, content_date)
 
         self.logger.debug(
             message="Completed for {url:.50}... | Time: {timing}s",
@@ -579,6 +584,7 @@ class AsyncWebCrawler:
         if link_dict and not config.extraction_strategy.schema_mode:
             more_links = set()
             infos = []
+            info_prefix = f'//{author} {content_date}//' if (author or content_date) else ''
             hallucination_times = 0
             total_parsed = 0
             for block in extracted_content:
@@ -608,7 +614,7 @@ class AsyncWebCrawler:
                                 hallucination_times += 1
                                 res = res.replace(_tag, '') 
                             # case:original text contents, eg [2025]文
-                        infos.append({'content': f'//{author} {published_date}//{res}', 'references': refences})
+                        infos.append({'content': f'{info_prefix}{res}', 'references': refences})
             hallucination_rate = round((hallucination_times / total_parsed) * 100, 2) if total_parsed > 0 else 'NA'
             self.logger.info(
                 message="related finding by llm, hallucination times: {hallucination_times}, hallucination rate: {hallucination_rate} %",

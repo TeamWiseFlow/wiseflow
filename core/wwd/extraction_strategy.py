@@ -254,13 +254,22 @@ class LLMExtractionStrategy(ExtractionStrategy):
         """
         date_time_notify = f"The additional information provided, use as needed: Today is {date_stamp}"
         extracted_content = []
+        sec_pre = ''
+        if title:
+            sec_pre += f'{title}\n'
+        if author:
+            sec_pre += f'author: {author}\n'
+        if published_date:
+            sec_pre += f'last-modified: {published_date}\n'
+        if sec_pre:
+            sec_pre += '\n'
+
         if self.schema_mode:
             msg_list = [
-                self.prompt.replace('{URL}', url).replace('{HTML}', sec) + date_time_notify for sec in sections]
+                self.prompt.replace('{URL}', url).replace('{HTML}', sec_pre + sec) + date_time_notify for sec in sections]
         else:
-            self.prompt = self.prompt.replace('{TITLE}', title).replace('{AUTHOR}', author).replace('{PUBLISHED_DATE}', published_date)
             msg_list = [
-                self.prompt.replace('{HTML}', sec) + date_time_notify for sec in sections]
+                self.prompt.replace('{HTML}', sec_pre + sec) + date_time_notify for sec in sections]
 
         with ThreadPoolExecutor(max_workers=int(os.getenv("LLM_CONCURRENT_NUMBER", 3))) as executor:
             futures = [

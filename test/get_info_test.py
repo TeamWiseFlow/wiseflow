@@ -19,8 +19,13 @@ from core.wwd import MaxLengthChunking, LLMExtractionStrategy
 benchmark_model = 'Qwen/Qwen3-14B'
 models = []
 
-def main(focus_point: dict, sections: list, link_dict: dict, date_stamp: str, record_file: str):
+def main(focus_point: dict, sections: list, sample: dict, date_stamp: str, record_file: str):
     raw_markdown = '\n'.join(sections)
+    url = sample.get("url", "")
+    link_dict = sample.get("link_dict", {})
+    author = sample.get("author", "")
+    published_date = sample.get("published_date", "")
+    title = sample.get("title", "")
     for model in [benchmark_model] + models:
         contents = sections.copy()
         extractor = LLMExtractionStrategy(model=model,
@@ -34,7 +39,12 @@ def main(focus_point: dict, sections: list, link_dict: dict, date_stamp: str, re
             # print('\n')
         print(f"running {model} ...")
         start_time = time.time()
-        extracted_content = extractor.run(url='sample', sections=contents, date_stamp=date_stamp)
+        extracted_content = extractor.run(url='sample', 
+                                          sections=contents, 
+                                          title=title, 
+                                          author=author, 
+                                          published_date=published_date, 
+                                          date_stamp=date_stamp)
         time_cost = int((time.time() - start_time) * 1000) / 1000
         print(f"time cost: {time_cost}s")
         more_links = set()
@@ -115,8 +125,9 @@ if __name__ == '__main__':
         if not file.endswith('_processed.json'): continue
         print(f"processing {file} ...\n")
         with open(os.path.join(sample_dir, file), 'r') as f:
-            _sample = json.load(f)
-        sections = chunking.chunk(_sample["markdown"])
+            sample = json.load(f)
+        sections = chunking.chunk(sample.pop("markdown"))
         with open(record_file, 'a') as f:
             f.write(f"raw materials: {file}\n\n")
-        main(focus_point, sections, _sample["link_dict"], date_stamp, record_file)
+            f.write(f"url: {sample['url']}\n")
+        main(focus_point, sections, sample, date_stamp, record_file)
