@@ -166,7 +166,10 @@ class AsyncWebCrawler:
         """
         await self.crawler_strategy.__aenter__()
         self.logger.info(f"WiseflowWebDriver {crawl4ai_version}", tag="INIT")
-        self.logger.info("Modified based on crawl4ai 0.6.4, MediaCrawler, intergrate NoDriver", tag="INIT")
+        self.logger.info("Modified by bigbrother666sh based on Crawl4ai 0.6.4 (https://github.com/unclecode/crawl4ai)", tag="INIT")
+        self.logger.info("                                     MediaCrawler(https://github.com/NanmiCoder/MediaCrawler)", tag="INIT")
+        self.logger.info("                    with enhanced by NoDriver(https://github.com/ultrafunkamsterdam/nodriver)", tag="INIT")
+        self.logger.info("2025-05-23", tag="INIT")
         self.ready = True
         return self
 
@@ -668,18 +671,7 @@ class AsyncWebCrawler:
         urls: List[str],
         config: Optional[CrawlerRunConfig] = None,
         dispatcher: Optional[BaseDispatcher] = None,
-        # Legacy parameters maintained for backwards compatibility
-        # word_count_threshold=MIN_WORD_THRESHOLD,
-        # extraction_strategy: ExtractionStrategy = None,
-        # chunking_strategy: ChunkingStrategy = RegexChunking(),
-        # content_filter: RelevantContentFilter = None,
-        # cache_mode: Optional[CacheMode] = None,
-        # bypass_cache: bool = False,
-        # css_selector: str = None,
-        # screenshot: bool = False,
-        # pdf: bool = False,
-        # user_agent: str = None,
-        # verbose=True,
+        stream: bool = True,
         **kwargs,
     ) -> RunManyReturn:
         """
@@ -713,21 +705,6 @@ class AsyncWebCrawler:
             print(f"Processed {result.url}: {len(result.markdown)} chars")
         """
         config = config or CrawlerRunConfig()
-        # if config is None:
-        #     config = CrawlerRunConfig(
-        #         word_count_threshold=word_count_threshold,
-        #         extraction_strategy=extraction_strategy,
-        #         chunking_strategy=chunking_strategy,
-        #         content_filter=content_filter,
-        #         cache_mode=cache_mode,
-        #         bypass_cache=bypass_cache,
-        #         css_selector=css_selector,
-        #         screenshot=screenshot,
-        #         pdf=pdf,
-        #         verbose=verbose,
-        #         **kwargs,
-        #     )
-
         if dispatcher is None:
             dispatcher = MemoryAdaptiveDispatcher(
                 rate_limiter=RateLimiter(
@@ -736,6 +713,11 @@ class AsyncWebCrawler:
             )
 
         def transform_result(task_result):
+            self.logger.debug(
+                message="memory_usage: {memory_usage}MB, peak_memory: {peak_memory}MB, retry_count: {retry_count}",
+                tag="STATUS",
+                params={"memory_usage": task_result.memory_usage, "peak_memory": task_result.peak_memory, "retry_count": task_result.retry_count},
+            )
             return (
                 setattr(
                     task_result.result,
@@ -752,10 +734,9 @@ class AsyncWebCrawler:
                 or task_result.result
             )
 
-        stream = config.stream
+        # stream = config.stream
 
         if stream:
-
             async def result_transformer():
                 async for task_result in dispatcher.run_urls_stream(
                     crawler=self, urls=urls, config=config

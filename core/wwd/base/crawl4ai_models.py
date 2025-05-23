@@ -75,10 +75,6 @@ class CrawlStats:
         duration = end - start
         return str(timedelta(seconds=int(duration.total_seconds())))
 
-class DisplayMode(Enum):
-    DETAILED = "DETAILED"
-    AGGREGATED = "AGGREGATED"
-
 
 ###############################
 # Crawler Models

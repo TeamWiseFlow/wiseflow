@@ -23,8 +23,8 @@ from .extraction_strategy import (
 )
 from .chunking_strategy import ChunkingStrategy, RegexChunking, IdentityChunking, MaxLengthChunking
 
-from .base.crawl4ai_models import CrawlResult, DisplayMode
-from .components.crawler_monitor import CrawlerMonitor
+from .base.crawl4ai_models import CrawlResult
+# from .components.crawler_monitor import CrawlerMonitor
 from .async_dispatcher import (
     MemoryAdaptiveDispatcher,
     SemaphoreDispatcher,
@@ -57,8 +57,6 @@ __all__ = [
     "MemoryAdaptiveDispatcher",
     "SemaphoreDispatcher",
     "RateLimiter",
-    "CrawlerMonitor",
-    "DisplayMode",
     "ProxyRotationStrategy",
     "RoundRobinProxyStrategy",
     "ProxyConfig"

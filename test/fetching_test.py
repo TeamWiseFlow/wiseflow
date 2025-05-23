@@ -22,48 +22,19 @@ standard_sites = ['https://cg.shenzhenmc.com/zzbgg/83524.jhtml',
 
 base_directory=os.path.join(root_path, 'work_dir')
 
-default_crawler_config.cache_mode = CacheMode.DISABLED
+crawler_config = default_crawler_config.clone()
+crawler_config.cache_mode = CacheMode.DISABLED
 
 async def main(sites: list):
-    print("\n=== Crawling Test with Memory Check ===")
-
-    # We'll keep track of peak memory usage across all tasks
-    peak_memory = 0
-    process = psutil.Process(os.getpid())
-
-    def log_memory(prefix: str = ""):
-        nonlocal peak_memory
-        current_mem = process.memory_info().rss  # in bytes
-        if current_mem > peak_memory:
-            peak_memory = current_mem
-        print(f"{prefix} Current Memory: {current_mem // (1024 * 1024)} MB, Peak: {peak_memory // (1024 * 1024)} MB")
-
-    async with AsyncWebCrawler(config=default_browser_config, base_directory=base_directory) as crawler:
-        for site in sites:
-            # Check memory usage prior to launching tasks
-            log_memory(prefix="Before crawling: ")
-            print(f"Crawling {site}")
-            try:
-                result = await crawler.arun(url=site, config=default_crawler_config)
-            except Exception as e:
-                print(e)
-                continue
-            if not result or not result.success:
-                print(f'{site} failed to crawl, skip')
-                continue
-            record_file = os.path.join(save_dir, f"{hashlib.sha256(site.encode()).hexdigest()[-6:]}.json")
-            with open(record_file, 'w', encoding='utf-8') as f:
-                json.dump(result.model_dump(), f, indent=4, ensure_ascii=False)
-            print(f'saved to {record_file}')
-
-            # Check memory usage after tasks complete
-            # maybe we can use this to check memory usage, if exceed settings, we can close and restart the crawler...
-            log_memory(prefix="After crawling: ")
-            print('\n')
-
-    # Final memory log
-    log_memory(prefix="Final: ")
-    print(f"\nPeak memory usage (MB): {peak_memory // (1024 * 1024)}")
+    async with AsyncWebCrawler(config=default_browser_config, base_directory=base_directory, verbose=True) as crawler:
+        async for result in await crawler.arun_many(sites, crawler_config):
+            if result.success:
+                record_file = os.path.join(save_dir, f"{hashlib.sha256(result.url.encode()).hexdigest()[-6:]}.json")
+                with open(record_file, 'w', encoding='utf-8') as f:
+                    json.dump(result.model_dump(), f, indent=4, ensure_ascii=False)
+                print(f'saved to {record_file}')
+            else:
+                print(f'{result.url} failed to crawl: {result.error_message}')
 
 if __name__ == '__main__':
 

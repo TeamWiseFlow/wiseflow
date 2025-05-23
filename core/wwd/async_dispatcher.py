@@ -7,10 +7,9 @@ from .base.crawl4ai_models import (
     DomainState,
 )
 
-from .components.crawler_monitor import CrawlerMonitor
+#from .components.crawler_monitor import CrawlerMonitor
 
 from .base.crawl4ai_types import AsyncWebCrawler
-
 from collections.abc import AsyncGenerator
 
 import time
@@ -83,18 +82,17 @@ class RateLimiter:
         return True
 
 
-
 class BaseDispatcher(ABC):
     def __init__(
         self,
         rate_limiter: Optional[RateLimiter] = None,
-        monitor: Optional[CrawlerMonitor] = None,
+        #monitor: Optional[CrawlerMonitor] = None,
     ):
         self.crawler = None
         self._domain_last_hit: Dict[str, float] = {}
         self.concurrent_sessions = 0
         self.rate_limiter = rate_limiter
-        self.monitor = monitor
+        self.monitor = None
 
     @abstractmethod
     async def crawl_url(
@@ -102,7 +100,7 @@ class BaseDispatcher(ABC):
         url: str,
         config: CrawlerRunConfig,
         task_id: str,
-        monitor: Optional[CrawlerMonitor] = None,
+        #monitor: Optional[CrawlerMonitor] = None,
     ) -> CrawlerTaskResult:
         pass
 
@@ -112,7 +110,7 @@ class BaseDispatcher(ABC):
         urls: List[str],
         crawler: AsyncWebCrawler,  # noqa: F821
         config: CrawlerRunConfig,
-        monitor: Optional[CrawlerMonitor] = None,
+        #monitor: Optional[CrawlerMonitor] = None,
     ) -> List[CrawlerTaskResult]:
         pass
 
@@ -127,9 +125,9 @@ class MemoryAdaptiveDispatcher(BaseDispatcher):
         max_session_permit: int = 20,
         fairness_timeout: float = 600.0,  # 10 minutes before prioritizing long-waiting URLs
         rate_limiter: Optional[RateLimiter] = None,
-        monitor: Optional[CrawlerMonitor] = None,
+        #monitor: Optional[CrawlerMonitor] = None,
     ):
-        super().__init__(rate_limiter, monitor)
+        super().__init__(rate_limiter)
         self.memory_threshold_percent = memory_threshold_percent
         self.critical_threshold_percent = critical_threshold_percent
         self.recovery_threshold_percent = recovery_threshold_percent
@@ -530,9 +528,9 @@ class SemaphoreDispatcher(BaseDispatcher):
         semaphore_count: int = 5,
         max_session_permit: int = 20,
         rate_limiter: Optional[RateLimiter] = None,
-        monitor: Optional[CrawlerMonitor] = None,
+        #monitor: Optional[CrawlerMonitor] = None,
     ):
-        super().__init__(rate_limiter, monitor)
+        super().__init__(rate_limiter)
         self.semaphore_count = semaphore_count
         self.max_session_permit = max_session_permit
 
