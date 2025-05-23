@@ -1478,24 +1478,39 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             # Handle page navigation and content loading
             if not config.js_only:
                 await self.execute_hook("before_goto", page, context=context, url=url, config=config)
+                # Generate a unique nonce for this request
+                nonce = hashlib.sha256(os.urandom(32)).hexdigest()
+                # Add CSP headers to the request
+                await page.set_extra_http_headers(
+                    {
+                        "Content-Security-Policy": f"default-src 'self'; script-src 'self' 'nonce-{nonce}' 'strict-dynamic'"
+                    }
+                )
+                for attempt in range(2):
+                    try:
+                        response = await page.goto(
+                            url, wait_until=config.wait_until, timeout=config.page_timeout
+                        )
+                        redirected_url = page.url
 
-                try:
-                    # Generate a unique nonce for this request
-                    nonce = hashlib.sha256(os.urandom(32)).hexdigest()
+                        if (url.startswith("https://mp.weixin.qq.com") 
+                            and redirected_url != url 
+                            and "poc_token" in redirected_url
+                            and "target_url=" in redirected_url):
 
-                    # Add CSP headers to the request
-                    await page.set_extra_http_headers(
-                        {
-                            "Content-Security-Policy": f"default-src 'self'; script-src 'self' 'nonce-{nonce}' 'strict-dynamic'"
-                        }
-                    )
-
-                    response = await page.goto(
-                        url, wait_until=config.wait_until, timeout=config.page_timeout
-                    )
-                    redirected_url = page.url
-                except Error as e:
-                    raise RuntimeError(f"Failed on navigating ACS-GOTO:\n{str(e)}")
+                            if attempt < 1:
+                                self.logger.debug("weixin official platform risk control, wait 2s then retry...")
+                                await asyncio.sleep(2)
+                                continue
+                            else:
+                                raise RuntimeError("weixin official platform risk control, can not fetch")
+                        break
+                    except Error as e:
+                        if attempt < 1 and "net::ERR_CERT_VERIFIER_CHANGED" in str(e):
+                            self.logger.debug("net::ERR_CERT_VERIFIER_CHANGED error, retrying...")
+                            await asyncio.sleep(1)
+                        else:
+                            raise RuntimeError(f"Failed on navigating ACS-GOTO: {str(e)}")
 
                 await self.execute_hook(
                     "after_goto", page, context=context, url=url, response=response, config=config

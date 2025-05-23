@@ -197,7 +197,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
                     link_dict[_key] = img_src
                     text = text.replace(_sec, alt + _key, 1)
                 else:
-                    _key = f"[img{len(link_dict)+1}]"
+                    _key = f"[{len(link_dict)+1}]"
                     link_dict[_key] = img_src
                     alt = await extract_info_from_img(img_src)
                     text = text.replace(_sec, alt + _key, 1)
@@ -217,9 +217,6 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
                 text = text.replace(url, _key, 1)
 
             score = valid_link_num / len_without_link if len_without_link > 0 else 999
-            # print(text)
-            # print(f"score: {score}")
-            # print('\n\n')
             return score, text
 
         sections = [await check_url_text(section) for section in sections if section.strip()]

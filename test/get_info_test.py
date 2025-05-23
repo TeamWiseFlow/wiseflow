@@ -19,7 +19,7 @@ from core.wwd import MaxLengthChunking, LLMExtractionStrategy
 benchmark_model = 'Qwen/Qwen3-14B'
 models = []
 
-def main(focus_point: dict, sections: list, sample: dict, date_stamp: str, record_file: str):
+def main(focus_point: dict, sections: list, sample: dict, record_file: str):
     raw_markdown = '\n'.join(sections)
     url = sample.get("url", "")
     link_dict = sample.get("link_dict", {})
@@ -43,8 +43,8 @@ def main(focus_point: dict, sections: list, sample: dict, date_stamp: str, recor
                                           sections=contents, 
                                           title=title, 
                                           author=author, 
-                                          published_date=published_date, 
-                                          date_stamp=date_stamp)
+                                          published_date=published_date)
+                                          #date_stamp=published_date)
         time_cost = int((time.time() - start_time) * 1000) / 1000
         print(f"time cost: {time_cost}s")
         more_links = set()
@@ -114,7 +114,7 @@ if __name__ == '__main__':
         raise ValueError(f'{sample_dir} focus_point.json not found')
     
     focus_point = json.load(open(os.path.join(sample_dir, 'focus_point.json'), 'r'))
-    date_stamp = '2025-04-27'
+    #date_stamp = '2025-04-27'
     chunking = MaxLengthChunking()
     time_stamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     record_file = os.path.join(sample_dir, f'record-{time_stamp}.txt')
@@ -130,4 +130,4 @@ if __name__ == '__main__':
         with open(record_file, 'a') as f:
             f.write(f"raw materials: {file}\n\n")
             f.write(f"url: {sample['url']}\n")
-        main(focus_point, sections, sample, date_stamp, record_file)
+        main(focus_point, sections, sample, record_file)

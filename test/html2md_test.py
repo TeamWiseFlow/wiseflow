@@ -28,7 +28,7 @@ async def main(sample: dict, exclude_external_links: bool, record_file: str):
     error_msg, title, author, publish, markdown, link_dict = (
         await markdown_generator.generate_markdown(
             raw_html=sample["html"],
-            cleaned_html=sample["html"],
+            cleaned_html=sample["cleaned_html"],
             base_url=base_url,
             metadata=sample["metadata"],
             exclude_external_links=exclude_external_links,
