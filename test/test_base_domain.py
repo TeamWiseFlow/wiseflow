@@ -5,7 +5,7 @@ import sys
 # 将core目录添加到Python路径
 core_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 sys.path.append(core_path)
-from core.wwd.utils import get_base_domain, is_external_url
+from core.wis.utils import get_base_domain, is_external_url
 
 class TestURLUtils(unittest.TestCase):
     def test_get_base_domain(self):

@@ -8,8 +8,8 @@ import psutil
 
 root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 sys.path.append(root_path)
-from core.wwd import AsyncWebCrawler, CacheMode
-from core.scrapers import default_browser_config, default_crawler_config
+from core.wis import AsyncWebCrawler, CacheMode
+from core.crawler_configs import default_browser_config, default_crawler_config
 
 
 save_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'webpage_samples')
@@ -20,7 +20,7 @@ standard_sites = ['https://cg.shenzhenmc.com/zzbgg/83524.jhtml',
                   'https://www.mee.gov.cn/xxgk2018/xxgk/xxgk15/201809/t20180928_661943.html',
                   'https://www.stone365.com/news/channel-1.html']
 
-base_directory=os.path.join(root_path, 'work_dir')
+base_directory=os.path.join(root_path, 'work_dir_for_test')
 
 crawler_config = default_crawler_config.clone()
 crawler_config.cache_mode = CacheMode.DISABLED

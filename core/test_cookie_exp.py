@@ -1,5 +1,5 @@
 import asyncio
-from wwd.nodriver_helper import NodriverHelper
+from wis.nodriver_helper import NodriverHelper
 
 
 async def main():

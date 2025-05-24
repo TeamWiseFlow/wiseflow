@@ -11,3 +11,4 @@ pb/pocketbase
 work_dir
 test/webpage_samples/
 /docker
+work_dir_for_test

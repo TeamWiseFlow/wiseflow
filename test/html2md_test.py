@@ -13,9 +13,9 @@ env_path = os.path.join(core_path, 'core', '.env')
 if os.path.exists(env_path):
     load_dotenv(env_path)
 
-from core.wwd.markdown_generation_strategy import *
+from core.wis.markdown_generation_strategy import *
 markdown_generation_hub = {'mp.weixin.qq.com': WeixinArticleMarkdownGenerator}
-from core.wwd.utils import get_base_domain
+from core.wis.utils import get_base_domain
 
 async def main(sample: dict, exclude_external_links: bool, record_file: str):
     # cleaned_html = sample["cleaned_html"]

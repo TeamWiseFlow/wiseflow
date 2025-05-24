@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from utils.pb_api import PbTalker
-from utils.general_utils import get_logger, extract_and_convert_dates, is_chinese, isURL
+from tools.pb_api import PbTalker
+from tools.general_utils import get_logger, extract_and_convert_dates, is_chinese, isURL
 from agents.get_info import *
 import json
-from scrapers import *
-from utils.jina_search import search_with_jina
+from crawler_configs import *
+from tools.jina_search import search_with_jina
 from urllib.parse import urlparse
-from wwd import AsyncWebCrawler, BrowserConfig, CacheMode
+from wis import AsyncWebCrawler, BrowserConfig, CacheMode
 from datetime import datetime
 import feedparser
 

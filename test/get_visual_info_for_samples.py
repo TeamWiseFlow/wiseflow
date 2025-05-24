@@ -5,7 +5,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)  # get parent dir
 sys.path.append(project_root)
 
-from core.llms.openai_wrapper import openai_llm as llm
+from core.tools.openai_wrapper import openai_llm as llm
 
 async def main(task: list):
     vl_model = os.environ.get("VL_MODEL", "")

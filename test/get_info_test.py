@@ -14,7 +14,7 @@ env_path = os.path.join(core_path, 'core', '.env')
 if os.path.exists(env_path):
     load_dotenv(env_path)
 
-from core.wwd import MaxLengthChunking, LLMExtractionStrategy
+from core.wis import MaxLengthChunking, LLMExtractionStrategy
 
 benchmark_model = 'Qwen/Qwen3-14B'
 models = []
