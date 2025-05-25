@@ -3,6 +3,7 @@ import os
 import time
 from typing import Optional, List
 import asyncio
+from datetime import datetime, timedelta
 
 from .utils import configure_windows_event_loop
 configure_windows_event_loop()
@@ -15,7 +16,7 @@ from .base.crawl4ai_models import (
     CrawlResultContainer,
     RunManyReturn
 )
-from ..async_database import async_db_manager
+from ..async_database import db_manager, wis_logger, base_directory
 from .chunking_strategy import *  # noqa: F403
 from .chunking_strategy import IdentityChunking, MaxLengthChunking
 from .extraction_strategy import *  # noqa: F403
@@ -32,7 +33,6 @@ markdown_generation_hub = {'mp.weixin.qq.com': WeixinArticleMarkdownGenerator}
 from .async_configs import BrowserConfig, CrawlerRunConfig, ProxyConfig
 from .async_dispatcher import *  # noqa: F403
 from .async_dispatcher import BaseDispatcher, MemoryAdaptiveDispatcher, RateLimiter
-from ..tools.general_utils import get_logger
 from .utils import (
     sanitize_input_encode,
     RobotsParser,
@@ -41,6 +41,36 @@ from .utils import (
     extract_metadata,
     get_base_domain,
 )
+
+
+def is_cache_expired(updated_at: str, days_threshold: int = 30) -> bool:
+    """
+    检查缓存是否过期
+    
+    Args:
+        updated_at: 更新时间字符串，格式为 'YYYY-MM-DD HH:MM:SS'
+        days_threshold: 过期天数阈值，默认30天
+        
+    Returns:
+        bool: True表示已过期，False表示未过期
+    """
+    if not updated_at:
+        return True
+        
+    try:
+        # 解析时间字符串
+        cache_time = datetime.strptime(updated_at, '%Y-%m-%d %H:%M:%S')
+        current_time = datetime.now()
+        
+        # 计算时间差
+        time_diff = current_time - cache_time
+        
+        # 检查是否超过阈值
+        return time_diff > timedelta(days=days_threshold)
+        
+    except (ValueError, TypeError) as e:
+        # 如果时间格式解析失败，认为缓存已过期
+        return True
 
 
 class AsyncWebCrawler:
@@ -98,16 +128,13 @@ class AsyncWebCrawler:
             print(result.markdown)
     """
 
-    _domain_last_hit = {}
 
     def __init__(
         self,
         config: BrowserConfig = None,
         crawler_strategy: AsyncCrawlerStrategy = None,
         verbose: bool = False,
-        base_directory: str = '.',
         thread_safe: bool = False,
-        logger = None,
         **kwargs,
     ):
         """
@@ -124,7 +151,7 @@ class AsyncWebCrawler:
         self.browser_config = config or BrowserConfig(verbose=verbose)
 
         # Initialize logger first since other components may need it
-        self.logger = logger or get_logger("AsyncWebCrawler", os.path.join(base_directory, "WiseflowWebDriver.log"))
+        self.logger = wis_logger
 
         # Initialize crawler strategy
         self.crawler_strategy = crawler_strategy or AsyncPlaywrightCrawlerStrategy(
@@ -137,8 +164,8 @@ class AsyncWebCrawler:
 
         # Initialize directories
         self.crawl4ai_folder = os.path.join(base_directory, ".crawl4ai")
-        os.makedirs(self.crawl4ai_folder, exist_ok=True)
-        os.makedirs(f"{self.crawl4ai_folder}/cache", exist_ok=True)
+        # os.makedirs(self.crawl4ai_folder, exist_ok=True)
+        os.makedirs(os.path.join(self.crawl4ai_folder, "cache"), exist_ok=True)
 
         # Initialize robots parser
         self.robots_parser = RobotsParser()
@@ -153,12 +180,14 @@ class AsyncWebCrawler:
             AsyncWebCrawler: The initialized crawler instance
         """
         await self.crawler_strategy.__aenter__()
-        self.logger.info(f"WiseflowInfoScraper {__version__}")
-        self.logger.info("Modified by bigbrother666sh based on:") 
-        self.logger.info("Crawl4ai 0.6.4 (https://github.com/unclecode/crawl4ai)")
-        self.logger.info("MediaCrawler(https://github.com/NanmiCoder/MediaCrawler)")
-        self.logger.info("with enhanced by NoDriver(https://github.com/ultrafunkamsterdam/nodriver)")
-        self.logger.info("2025-05-23")
+        print("\n########################")
+        print(f"Wiseflow Info Scraper {__version__}")
+        print("Modified by bigbrother666sh based on:") 
+        print("Crawl4ai 0.6.3 (https://github.com/unclecode/crawl4ai)")
+        print("MediaCrawler(https://github.com/NanmiCoder/MediaCrawler)")
+        print("with enhanced by NoDriver(https://github.com/ultrafunkamsterdam/nodriver)")
+        print("2025-05-23")
+        print("########################\n")
         self.ready = True
         return self
 
@@ -243,34 +272,39 @@ class AsyncWebCrawler:
                 cached_result: CrawlResult = None
                 screenshot_data = None
                 pdf_data = None
-                extracted_content = None
                 start_time = time.perf_counter()
 
                 # Try to get cached result if appropriate
                 if cache_context.should_read():
-                    cached_result = await async_db_manager.aget_cached_url(url)
+                    cached_result = await db_manager.get_cached_url(url)
 
+                # important: here the crawler cache do not contain the extracted_content,
+                # extracted_content is related with the focus point, and stored in the infos table
+                # here we only got the html, markdown, link_dict, metadata, updated_at
+                # for the use case of same url and different focus point
                 if cached_result:
-                    html = sanitize_input_encode(cached_result.html)
-                    publish_date = cached_result.response_headers.get("last-modified", "")
-                    extracted_content = sanitize_input_encode(
-                        cached_result.extracted_content or ""
-                    )
-                    extracted_content = (
-                        None
-                        if not extracted_content or extracted_content == "[]"
-                        else extracted_content
-                    )
-                    # If screenshot is requested but its not in cache, then set cache_result to None
-                    screenshot_data = cached_result.screenshot
-                    pdf_data = cached_result.pdf
-                    # if config.screenshot and not screenshot or config.pdf and not pdf:
+                    updated_at = cached_result.updated_at or ""
+                    # 检查缓存是否过期（30天）
+                    if is_cache_expired(updated_at, days_threshold=30):
+                        self.logger.debug(f"[CACHE EXPIRED] {cache_context.display_url} | updated_at: {updated_at}")
+                        cached_result = None
+                    else:
+                        html = sanitize_input_encode(cached_result.html)
+                        markdown = cached_result.markdown or ""
+                        link_dict = cached_result.link_dict or {}
+                        metadata = cached_result.metadata or {}
+                        publish_date = metadata.get("publish_date", "")
+                        # If screenshot is requested but its not in cache, then set cache_result to None
+                        screenshot_data = cached_result.screenshot
+                        pdf_data = cached_result.pdf
+                        # if config.screenshot and not screenshot or config.pdf and not pdf:
                     if config.screenshot and not screenshot_data:
                         cached_result = None
 
                     if config.pdf and not pdf_data:
                         cached_result = None
-                    
+                        
+                if cached_result:  # 只有在缓存仍然有效时才记录
                     status_marker = "✓" if bool(html) else "✗"
                     self.logger.debug(f"[CACHE FETCH] {status_marker} {cache_context.display_url} | ⏱: {time.perf_counter() - start_time:.2f}s")
 
@@ -310,7 +344,7 @@ class AsyncWebCrawler:
                         config=config,  # Pass the entire config object
                     )
 
-                    html = sanitize_input_encode(async_response.html)
+                    html = "" if async_response.status_code == 403 else sanitize_input_encode(async_response.html)
                     publish_date = async_response.response_headers.get("last-modified", "")
                     screenshot_data = async_response.screenshot
                     pdf_data = async_response.pdf_data
@@ -320,13 +354,9 @@ class AsyncWebCrawler:
                     status_marker = "✓" if bool(html) else "✗"
                     self.logger.debug(f"[FETCH] {status_marker} {cache_context.display_url} | ⏱: {t2 - t1:.2f}s")
 
-                    ###############################################################
-                    # Process the HTML content, Call CrawlerStrategy.process_html #
-                    ###############################################################
                     crawl_result: CrawlResult = await self.aprocess_html(
                         url=url,
                         html=html,
-                        extracted_content=extracted_content,
                         config=config,  # Pass the config object instead of individual parameters
                         screenshot_data=screenshot_data,
                         pdf_data=pdf_data,
@@ -347,26 +377,37 @@ class AsyncWebCrawler:
                     # Add captured network and console data if available
                     crawl_result.network_requests = async_response.network_requests
                     crawl_result.console_messages = async_response.console_messages
-
-                    crawl_result.success = bool(html)
+                    # crawl_result.success = bool(html)
                     crawl_result.session_id = getattr(
                         config, "session_id", None)
 
                     status_marker = "✓" if crawl_result.success else "✗"
-                    self.logger.debug(f"[COMPLETE] {status_marker} {cache_context.display_url} | ⏱: {time.perf_counter() - start_time:.2f}s")
-
+                    self.logger.debug(
+                        f"[COMPLETE] {status_marker} {url:.30}... | ⏱: {time.perf_counter() - start_time:.2f}s")
                     # Update cache if appropriate
-                    if cache_context.should_write() and not bool(cached_result):
-                        await async_db_manager.acache_url(crawl_result)
-
+                    if cache_context.should_write() and bool(html):
+                        await db_manager.cache_url(crawl_result)
                     return CrawlResultContainer(crawl_result)
-
                 else:
-                    self.logger.debug(f"[COMPLETE From Cache] {cache_context.display_url} | ⏱: {time.perf_counter() - start_time:.2f}s")
-                    cached_result.success = True
+                    crawl_result: CrawlResult = await self.aprocess_html(
+                        url=cached_result.url,
+                        html=html,
+                        markdown=markdown,
+                        link_dict=link_dict,
+                        config=config,  # Pass the config object instead of individual parameters
+                        screenshot_data=screenshot_data,
+                        metadata=metadata,
+                        pdf_data=pdf_data,
+                        publish_date=publish_date,
+                        verbose=config.verbose,
+                        **kwargs,
+                    )
+                    status_marker = "✓" if crawl_result.success else "✗"
+                    self.logger.debug(
+                        f"[COMPLETE] {status_marker} {url:.30}... | ⏱: {time.perf_counter() - start_time:.2f}s")
                     cached_result.session_id = getattr(
                         config, "session_id", None)
-                    cached_result.redirected_url = cached_result.redirected_url or url
+                    # cached_result.redirected_url = cached_result.redirected_url or url
                     return CrawlResultContainer(cached_result)
 
             except Exception as e:
@@ -382,41 +423,48 @@ class AsyncWebCrawler:
         self,
         url: str,
         html: str,
-        extracted_content: str,
         config: CrawlerRunConfig,
-        screenshot_data: str,
-        pdf_data: str,
+        markdown: str = "",
+        link_dict: dict = {},
+        screenshot_data: str = "",
+        pdf_data: str = "",
+        metadata: dict = {},
         publish_date: str = "",
         **kwargs,
     ) -> CrawlResult:
         """
         Process HTML content using the provided configuration.
-
-        Args:
-            url: The URL being processed
-            html: Raw HTML content
-            extracted_content: Previously extracted content (if any)
-            config: Configuration object controlling processing behavior
-            screenshot_data: Screenshot data (if any)
-            pdf_data: PDF data (if any)
-            verbose: Whether to enable verbose logging
-            **kwargs: Additional parameters for backwards compatibility
-
         Returns:
             CrawlResult: Processed result containing extracted and formatted content
         """
         _url = url if not kwargs.get("is_raw_html", False) else "Raw HTML"
 
-        try:
-            metadata = extract_metadata_using_lxml(html)  # Using same function as BeautifulSoup version
-        except Exception as e:
-            self.logger.warning(f"when extracting metadata, error: {str(e)}\ntry to use beatifulsoup method")
+        if not html:
+            # Return complete crawl result
+            return CrawlResult(
+                url=url,
+                html=html,
+                cleaned_html='',
+                metadata=metadata,
+                screenshot=screenshot_data,
+                pdf=pdf_data,
+                extracted_content=[],
+                success=False,
+                error_message="null html, can do nothing",
+            )
+        
+        if not metadata:
             try:
-                metadata = extract_metadata(html)
+                metadata = extract_metadata_using_lxml(html)  # Using same function as BeautifulSoup version
             except Exception as e:
-                self.logger.error(f"when extracting metadata by beatifulsoup, error: {str(e)}\nfallback to empty metadata")
-                metadata = {}
-
+                self.logger.warning(f"when extracting metadata, error: {str(e)}\ntry to use beatifulsoup method")
+                try:
+                    metadata = extract_metadata(html)
+                except Exception as e:
+                    self.logger.error(
+                        f"when extracting metadata by beatifulsoup, error: {str(e)}\nfallback to empty metadata")
+                    metadata = {}
+        
         t1 = time.perf_counter()
         cleaned_html = preprocess_html_for_schema(html_content=html, tags_to_remove=config.excluded_tags)
         if not cleaned_html:
@@ -427,11 +475,10 @@ class AsyncWebCrawler:
             cleaned_html = html
 
         # Log processing completion
-        self.logger.debug(f"[PREPROCESS] {_url} | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
+        self.logger.debug(f"[PREPROCESS] {_url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
 
         if (
-            extracted_content 
-            or not config.extraction_strategy 
+            not config.extraction_strategy 
             or isinstance(config.extraction_strategy, NoExtractionStrategy)
         ):
             # Return complete crawl result
@@ -442,7 +489,7 @@ class AsyncWebCrawler:
                 metadata=metadata,
                 screenshot=screenshot_data,
                 pdf=pdf_data,
-                extracted_content=extracted_content,
+                extracted_content=[],
                 success=True,
                 error_message="",
             )
@@ -464,7 +511,7 @@ class AsyncWebCrawler:
             extracted_content = config.extraction_strategy.run(url, sections)
 
             # Log extraction completion
-            self.logger.debug(f"[EXTRACT] {_url} | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
+            self.logger.debug(f"[EXTRACT] {_url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
             return CrawlResult(
                 url=url,
                 html=html,
@@ -478,30 +525,39 @@ class AsyncWebCrawler:
         ################################
         # Generate Markdown            #
         ################################
-        domain = get_base_domain(url)
-        markdown_generator = markdown_generation_hub.get(domain, DefaultMarkdownGenerator)()
-        error_msg, title, author, publish, markdown, link_dict = (
-            await markdown_generator.generate_markdown(
-                raw_html=html,
-                cleaned_html=cleaned_html,
-                base_url=kwargs.get("redirected_url", url),
-                metadata=metadata,
-                exclude_external_links=config.exclude_external_links,
+        if not markdown:
+            domain = get_base_domain(url)
+            markdown_generator = markdown_generation_hub.get(domain, DefaultMarkdownGenerator)()
+            error_msg, title, author, publish, markdown, link_dict = (
+                await markdown_generator.generate_markdown(
+                    raw_html=html,
+                    cleaned_html=cleaned_html,
+                    base_url=kwargs.get("redirected_url", url),
+                    metadata=metadata,
+                    exclude_external_links=config.exclude_external_links,
+                )
             )
-        )
-        self.logger.debug(f"[HTML TO MARKDOWN] {_url} | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
+            self.logger.debug(f"[HTML TO MARKDOWN] {_url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
+            metadata["title"] = title
+            metadata["author"] = author
+            metadata["publish_date"] = publish or publish_date
+        else:
+            title = metadata.get("title", "")
+            author = metadata.get("author", "")
+            publish = metadata.get("publish_date", "")
+            error_msg = ""
 
         t1 = time.perf_counter()
         if error_msg:
             self.logger.error(f"[HTML TO MARKDOWN] FAILED {_url}\n{error_msg}")
-            extracted_content = ""
+            extracted_content = []
         else:
             content_date = publish or publish_date
             chunking = config.chunking_strategy or MaxLengthChunking()
             sections = chunking.chunk(markdown)
             extracted_content = config.extraction_strategy.run(url, sections, title, author, content_date)
+            self.logger.debug(f"[EXTRACT] {_url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
 
-        self.logger.debug(f"[EXTRACT] {_url} | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
         # post process for default extraction task --- sellection related links and infos
         if link_dict and not config.extraction_strategy.schema_mode:
             more_links = set()
@@ -538,7 +594,8 @@ class AsyncWebCrawler:
                             # case:original text contents, eg [2025]文
                         infos.append({'content': f'{info_prefix}{res}', 'references': refences})
             hallucination_rate = round((hallucination_times / total_parsed) * 100, 2) if total_parsed > 0 else 'NA'
-            self.logger.info(f"[QualityAssessment] task: link and info extraction, hallucination times: {hallucination_times}, hallucination rate: {hallucination_rate} %")
+            self.logger.info(
+                f"[QualityAssessment] task: link and info extraction, hallucination times: {hallucination_times}, hallucination rate: {hallucination_rate} %")
             extracted_content = [{'infos': infos, 'links': more_links}]
         
         if config.extraction_strategy.schema_mode:
@@ -560,7 +617,8 @@ class AsyncWebCrawler:
                     plained_extracted_content.append(block)
             extracted_content = plained_extracted_content
             hallucination_rate = round((hallucination_times / total_parsed) * 100, 2) if total_parsed > 0 else 'NA'
-            self.logger.info(f"[QualityAssessment] task: schema extraction, hallucination times: {hallucination_times}, hallucination rate: {hallucination_rate} %")
+            self.logger.info(
+                f"[QualityAssessment] task: schema extraction, hallucination times: {hallucination_times}, hallucination rate: {hallucination_rate} %")
 
         # Return complete crawl result
         return CrawlResult(
@@ -573,8 +631,8 @@ class AsyncWebCrawler:
             screenshot=screenshot_data,
             pdf=pdf_data,
             extracted_content=extracted_content,
-            success=True,
-            error_message="",
+            success=True if not error_msg else False,
+            error_message=error_msg,
         )
 
     async def arun_many(
@@ -624,7 +682,8 @@ class AsyncWebCrawler:
             )
 
         def transform_result(task_result):
-            self.logger.debug(f"[SYS STATUS] memory_usage: {task_result.memory_usage}MB, peak_memory: {task_result.peak_memory}MB, retry_count: {task_result.retry_count}")
+            self.logger.debug(
+                f"[SYS STATUS] memory_usage: {task_result.memory_usage}MB, peak_memory: {task_result.peak_memory}MB, retry_count: {task_result.retry_count}")
             return (
                 setattr(
                     task_result.result,

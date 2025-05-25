@@ -7,15 +7,12 @@ import regex as re
 import os
 import platform
 from array import array
-from .html2text import html2text, CustomHTML2Text
-# from .config import *
-from .config import MIN_WORD_THRESHOLD, IMAGE_DESCRIPTION_MIN_WORD_THRESHOLD, IMAGE_SCORE_THRESHOLD, DEFAULT_PROVIDER, PROVIDER_MODELS
+from .config import MIN_WORD_THRESHOLD
 import httpx
 from socket import gaierror
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Callable
 from urllib.parse import urljoin
-import requests
 from requests.exceptions import InvalidSchema
 import xxhash
 import textwrap
@@ -32,7 +29,6 @@ import aiohttp
 from urllib.parse import urlparse, urlunparse
 from functools import lru_cache
 
-from packaging import version
 from . import __version__
 from typing import Sequence
 
@@ -1832,11 +1828,9 @@ def ensure_content_dirs(base_path: str) -> Dict[str, str]:
     """Create content directories if they don't exist"""
     dirs = {
         "html": "html_content",
-        "cleaned": "cleaned_html",
-        "markdown": "markdown_content",
-        "extracted": "extracted_content",
-        "screenshots": "screenshots",
-        "screenshot": "screenshots",
+        "markdown": "markdown",
+        "link_dict": "link_dict",
+        "screenshots": "screenshot",
     }
 
     content_paths = {}

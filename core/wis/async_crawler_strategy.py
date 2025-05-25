@@ -188,7 +188,8 @@ class ManagedBrowser:
                 # Check shutting_down flag BEFORE logging anything
                 if self.browser_process.poll() is not None:
                     if not self.shutting_down:
-                        self.logger.error(f"Browser process terminated unexpectedly | Code: {self.browser_process.returncode} | STDOUT: {stdout.decode()} | STDERR: {stderr.decode()}")
+                        self.logger.error(
+                            f"Browser process terminated unexpectedly | Code: {self.browser_process.returncode} | STDOUT: {stdout.decode()} | STDERR: {stderr.decode()}")
                         await self.cleanup()
                     else:
                         self.logger.info(f"Browser process terminated normally | Code: {self.browser_process.returncode}")
@@ -2214,10 +2215,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                     results.append({"success": False, "error": str(e)})
 
             return {"success": True, "results": results}
-
-        except Exception as e:
-            self.logger.error(f"[JS_EXEC] Script execution failed: {str(e)}")
-            return {"success": False, "error": str(e)}
 
         except Exception as e:
             self.logger.error(f"[JS_EXEC] Script execution failed: {str(e)}")

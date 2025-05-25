@@ -1,12 +1,17 @@
+# copied from crawl4ai 0.6.3
+# should be modified
+# but till now, I'm not sure how to...
+# maybe it have some potential to be used in the future
+
 from typing import List, Optional, Union, AsyncGenerator, Dict, Any
 import httpx
 import json
 from urllib.parse import urljoin
 import asyncio
 
-from .async_configs import BrowserConfig, CrawlerRunConfig
-from .base.crawl4ai_models import CrawlResult
-from .async_logger import AsyncLogger, LogLevel
+from .core.wis.async_configs import BrowserConfig, CrawlerRunConfig
+from .core.wis.base.crawl4ai_models import CrawlResult
+from .core.tools.general_utils import get_logger
 
 
 class Crawl4aiClientError(Exception):

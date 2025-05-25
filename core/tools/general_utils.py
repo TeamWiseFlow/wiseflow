@@ -94,7 +94,7 @@ def extract_and_convert_dates(input_string):
 # 全局字典，用于跟踪已创建的 logger 处理器
 _logger_handlers = {}
 
-def get_logger(logger_name: str, logger_file_path: str):
+def get_logger(logger_file_path: str, logger_name: str):
     """
     创建一个配置好的 loguru 日志记录器，包含文件和控制台输出
     
@@ -128,10 +128,11 @@ def get_logger(logger_name: str, logger_file_path: str):
         enqueue=True,  # 启用异步文件写入
         encoding="utf-8",
         filter=logger_filter,
-        format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {extra[name]} | {function}:{line} | {message}\n{exception}"
+        # format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {extra[name]} | {function}:{line} | {message}\n{exception}"
     )
     
     # 添加控制台处理器
+    """
     console_handler_id = logger.add(
         lambda msg: print(msg, end=""),  # 使用 lambda 避免重复输出
         level=level,
@@ -141,9 +142,9 @@ def get_logger(logger_name: str, logger_file_path: str):
         format="<green>{time:HH:mm:ss}</green> | <level>{level}</level> | <cyan>{extra[name]}</cyan> | <yellow>{function}:{line}</yellow> | {message}\n{exception}",
         colorize=True
     )
-    
+    """
     # 记录处理器 ID（存储为列表）
-    _logger_handlers[logger_name] = [file_handler_id, console_handler_id]
+    _logger_handlers[logger_name] = file_handler_id
     
     # 返回绑定了名称的 logger 实例
     return logger.bind(name=logger_name)

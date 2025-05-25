@@ -1,4 +1,4 @@
-from pydantic import BaseModel, HttpUrl, PrivateAttr, Field
+from pydantic import BaseModel, HttpUrl
 from typing import List, Dict, Optional, Callable, Awaitable, Union, Any
 from typing import AsyncGenerator
 from typing import Generic, TypeVar

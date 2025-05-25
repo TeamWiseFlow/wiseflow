@@ -1,5 +1,7 @@
+# need to be modified to a customer crawler config
+# todo in 4.1 version
+
 from wis.base.crawl4ai_models import BrowserConfig, AsyncWebCrawler, CrawlerRunConfig, CacheMode
-from wwd.hub import BaseCrawler
 from wis.utils import optimize_html, get_home_folder, preprocess_html_for_schema
 from wis.extraction_strategy import JsonCssExtractionStrategy
 from pathlib import Path
@@ -8,7 +10,7 @@ import os
 from typing import Dict
 
 
-class GoogleSearchCrawler(BaseCrawler):
+class GoogleSearchCrawler():
     __meta__ = {
         "version": "1.0.0",
         "tested_on": ["google.com/search*"],

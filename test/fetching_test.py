@@ -4,13 +4,12 @@ import os
 import hashlib
 import json
 import sys
-import psutil
 
 root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 sys.path.append(root_path)
 from core.wis import AsyncWebCrawler, CacheMode
 from core.crawler_configs import default_browser_config, default_crawler_config
-
+from core.async_database import init_database, cleanup_database
 
 save_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'webpage_samples')
 # which include some standard sites with different html structure
@@ -20,13 +19,13 @@ standard_sites = ['https://cg.shenzhenmc.com/zzbgg/83524.jhtml',
                   'https://www.mee.gov.cn/xxgk2018/xxgk/xxgk15/201809/t20180928_661943.html',
                   'https://www.stone365.com/news/channel-1.html']
 
-base_directory=os.path.join(root_path, 'work_dir_for_test')
-
 crawler_config = default_crawler_config.clone()
 crawler_config.cache_mode = CacheMode.DISABLED
 
 async def main(sites: list):
-    async with AsyncWebCrawler(config=default_browser_config, base_directory=base_directory, verbose=True) as crawler:
+    # for test with db
+    await init_database()
+    async with AsyncWebCrawler(config=default_browser_config, verbose=True) as crawler:
         async for result in await crawler.arun_many(sites, crawler_config):
             if result.success:
                 record_file = os.path.join(save_dir, f"{hashlib.sha256(result.url.encode()).hexdigest()[-6:]}.json")
@@ -35,6 +34,7 @@ async def main(sites: list):
                 print(f'saved to {record_file}')
             else:
                 print(f'{result.url} failed to crawl: {result.error_message}')
+    await cleanup_database()
 
 if __name__ == '__main__':
 

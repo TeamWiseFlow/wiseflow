@@ -9,7 +9,7 @@ from .base.crawl4ai_models import (
 
 #from .components.crawler_monitor import CrawlerMonitor
 
-from .base.crawl4ai_types import AsyncWebCrawler
+from .crawl4ai_types import AsyncWebCrawler
 from collections.abc import AsyncGenerator
 
 import time

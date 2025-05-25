@@ -1,156 +1,228 @@
-# copied from crawl4ai 0.6.3
-# modified by bigbrother666sh 2025-05-24
-
 import os
 import aiosqlite
 import asyncio
-from typing import Optional, Dict
+from typing import Optional, List, Any
 from contextlib import asynccontextmanager
-import json  
+import json
+from dataclasses import dataclass
+from concurrent.futures import ThreadPoolExecutor
 from .wis.base.crawl4ai_models import CrawlResult
-import aiofiles
 from .tools.general_utils import get_logger
 from .wis.utils import ensure_content_dirs, generate_content_hash
 
 
-base_directory = os.path.join(
-    os.getenv("PROJECT_DIR", "work_dir"), ".wis"
-)
+base_directory = os.path.join(".", os.getenv("PROJECT_DIR", "work_dir"))
 os.makedirs(base_directory, exist_ok=True)
 wis_logger = get_logger(base_directory, "wiseflow_info_scraper")
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "pb", "pb_data")
 
-class AsyncDatabaseManager:
-    def __init__(self, pool_size: int = 12, max_retries: int = 3):
-        self.content_paths = ensure_content_dirs(DB_PATH)
-        self.db_path = os.path.join(DB_PATH, "wiseflow_info_scraper.db")
-        self.pool_size = pool_size
-        self.max_retries = max_retries
-        self.connection_pool: Dict[int, aiosqlite.Connection] = {}
-        self.pool_lock = asyncio.Lock()
-        self.init_lock = asyncio.Lock()
-        self.connection_semaphore = asyncio.Semaphore(pool_size)
-        self._initialized = False
 
+@dataclass
+class ContentMapping:
+    """内容类型映射配置"""
+    field_name: str
+    store_as_file: bool      # True表示存储为文件, False表示直接存DB
+    content_type_for_file: Optional[str] = None # 如果 store_as_file=True, 这是文件类型/目录名
+    is_json_content: bool = False # 内容本身是否为JSON (影响序列化/反序列化)
+
+
+class AsyncDatabaseManager:
+    """优化后的异步数据库管理器"""
+    
+    # 内容字段映射配置
+    CONTENT_MAPPINGS = [
+        # 文件存储的字段
+        ContentMapping("html", store_as_file=True, content_type_for_file="html"),
+        ContentMapping("markdown", store_as_file=True, content_type_for_file="markdown"),
+        ContentMapping("screenshot", store_as_file=True, content_type_for_file="screenshots"),
+        # 数据库存储的JSON字段
+        ContentMapping("link_dict", store_as_file=True, content_type_for_file="link_dict", is_json_content=True),
+        ContentMapping("metadata", store_as_file=False, is_json_content=True),
+        ContentMapping("downloaded_files", store_as_file=False, is_json_content=True),
+    ]
+    
+    def __init__(self, pool_size: int = 5, max_retries: int = 3):
+        self.content_paths = ensure_content_dirs(os.path.join(base_directory, ".wis"))
+        self.db_path = os.path.join(DB_PATH, "data.db")
+        self.max_retries = max_retries
+        
+        # 真正的连接池
+        self._connection_pool: List[aiosqlite.Connection] = []
+        self._pool_size = pool_size
+        self._available_connections = asyncio.Queue(maxsize=pool_size)
+        self._pool_initialized = False
+        self._init_lock = asyncio.Lock()
+        
+        # 文件I/O线程池
+        self._file_executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="db_file_io")
+        
+        # 内容字段映射字典，提高查找效率
+        self._content_field_map = {cm.field_name: cm for cm in self.CONTENT_MAPPINGS}
+        self._file_storage_fields = {cm.field_name: cm for cm in self.CONTENT_MAPPINGS if cm.store_as_file}
+        self._db_storage_json_fields = {cm.field_name: cm for cm in self.CONTENT_MAPPINGS if not cm.store_as_file and cm.is_json_content}
 
     async def initialize(self):
-        """Initialize the database and connection pool"""
-        try:
-            wis_logger.debug("Initializing database")
+        """初始化数据库和连接池"""
+        async with self._init_lock:
+            if self._pool_initialized:
+                return
+                
+            try:
+                wis_logger.debug("Initializing optimized database manager")
+                
+                # 确保数据库表存在
+                await self._init_db_schema()
+                
+                # 初始化真正的连接池
+                await self._init_connection_pool()
+                
+                self._pool_initialized = True
+                wis_logger.debug("Database manager initialized successfully")
+                
+            except Exception as e:
+                wis_logger.error(f"Database initialization failed: {str(e)}")
+                raise
 
-            # Always ensure base table exists
-            await self.ainit_db()
-
-            # Verify the table exists
-            async with aiosqlite.connect(self.db_path, timeout=30.0) as db:
-                async with db.execute(
-                    "SELECT name FROM sqlite_master WHERE type='table' AND name='crawled_data'"
-                ) as cursor:
-                    result = await cursor.fetchone()
-                    if not result:
-                        # todo try to create the table
-                        raise Exception("crawled_data table was not created")
-            """
-            if needs_update:
-                self.logger.info("New version detected, running updates", tag="INIT")
-                await self.update_db_schema()
-                from .wis.migrations import (
-                    run_migration,
-                )  # Import here to avoid circular imports
-
-                await run_migration()
-                self.version_manager.update_version()  # Update stored version after successful migration
-                self.logger.success(
-                    "Version update completed successfully", tag="COMPLETE"
+    async def _init_db_schema(self):
+        """初始化数据库模式，包含表结构校验和缺失列自动补充"""
+        async with aiosqlite.connect(self.db_path, timeout=30.0) as db:
+            # 定义期望的表结构
+            expected_columns = {
+                'url': 'TEXT PRIMARY KEY',
+                'html': 'TEXT',
+                'markdown': 'TEXT DEFAULT ""',
+                'link_dict': 'TEXT DEFAULT ""',
+                'metadata': 'TEXT DEFAULT "{}"',
+                'screenshot': 'TEXT DEFAULT ""',
+                'downloaded_files': 'TEXT DEFAULT "{}"',
+                'created_at': 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'updated_at': 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP'
+            }
+            
+            # 首先创建表（如果不存在）
+            create_table_sql = f"""
+                CREATE TABLE IF NOT EXISTS crawled_data (
+                    {', '.join([f'{col} {definition}' for col, definition in expected_columns.items()])}
                 )
-            else:
-                self.logger.success(
-                    "Database initialization completed successfully", tag="COMPLETE"
-                )
             """
-        except Exception as e:
-            wis_logger.error(f"Database initialization error: {str(e)}")
-            wis_logger.info("Database will be initialized on first use")
-            raise
+            await db.execute(create_table_sql)
+            
+            # 检查表是否存在
+            async with db.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='crawled_data'"
+            ) as cursor:
+                table_exists = await cursor.fetchone()
+            
+            if table_exists:
+                # 获取当前表的列信息
+                async with db.execute("PRAGMA table_info(crawled_data)") as cursor:
+                    current_columns_info = await cursor.fetchall()
+                
+                # 构建当前列的详细信息 {列名: (类型, 是否非空, 默认值, 是否主键)}
+                current_columns = {}
+                for row in current_columns_info:
+                    col_name = row[1]
+                    col_type = row[2]
+                    current_columns[col_name] = {
+                        'type': col_type,
+                        'not_null': bool(row[3]),
+                        'default_value': row[4],
+                        'is_primary_key': bool(row[5])
+                    }
+                
+                expected_column_names = set(expected_columns.keys())
+                current_column_names = set(current_columns.keys())
+                
+                # 找出缺失的列
+                missing_columns = expected_column_names - current_column_names
+                
+                if missing_columns:
+                    wis_logger.info(f"Found missing columns in crawled_data table: {missing_columns}")
+                    
+                    # 添加缺失的列
+                    for column_name in missing_columns:
+                        column_definition = expected_columns[column_name]
+                        # 移除PRIMARY KEY约束（只能在CREATE TABLE时使用）
+                        if 'PRIMARY KEY' in column_definition:
+                            column_definition = column_definition.replace(' PRIMARY KEY', '')
+                        
+                        try:
+                            alter_sql = f"ALTER TABLE crawled_data ADD COLUMN {column_name} {column_definition}"
+                            await db.execute(alter_sql)
+                            wis_logger.info(f"Successfully added column '{column_name}' to crawled_data table")
+                        except Exception as e:
+                            wis_logger.error(f"Failed to add column '{column_name}': {str(e)}")
+                else:
+                    wis_logger.debug("All expected columns exist in crawled_data table")
+                
+                # 检查现有列的类型是否匹配期望
+                type_mismatches = []
+                for col_name in current_column_names & expected_column_names:
+                    expected_def = expected_columns[col_name]
+                    # 提取期望的类型（去掉约束和默认值）
+                    expected_type = expected_def.split()[0]  # 取第一个词作为类型
+                    current_type = current_columns[col_name]['type']
+                    
+                    # SQLite类型比较（不区分大小写）
+                    if expected_type.upper() != current_type.upper():
+                        type_mismatches.append({
+                            'column': col_name,
+                            'expected': expected_type,
+                            'current': current_type
+                        })
+                
+                if type_mismatches:
+                    wis_logger.warning("Found column type mismatches (SQLite is flexible with types, but this may indicate schema evolution):")
+                    for mismatch in type_mismatches:
+                        wis_logger.warning(f"  Column '{mismatch['column']}': expected {mismatch['expected']}, found {mismatch['current']}")
+            
+            # 添加索引提高查询性能
+            indexes = [
+                ("idx_crawled_data_updated_at", "updated_at"),
+                ("idx_crawled_data_created_at", "created_at")
+            ]
+            
+            for index_name, column_name in indexes:
+                try:
+                    await db.execute(f"""
+                        CREATE INDEX IF NOT EXISTS {index_name} 
+                        ON crawled_data({column_name})
+                    """)
+                except Exception as e:
+                    wis_logger.warning(f"Failed to create index {index_name}: {str(e)}")
+            
+            await db.commit()
+            wis_logger.debug("Database schema initialization completed")
 
-    async def cleanup(self):
-        """Cleanup connections when shutting down"""
-        async with self.pool_lock:
-            for conn in self.connection_pool.values():
-                await conn.close()
-            self.connection_pool.clear()
+    async def _init_connection_pool(self):
+        """初始化真正的连接池"""
+        for _ in range(self._pool_size):
+            conn = await aiosqlite.connect(self.db_path, timeout=30.0)
+            await conn.execute("PRAGMA journal_mode = WAL")
+            await conn.execute("PRAGMA busy_timeout = 5000")
+            await conn.execute("PRAGMA cache_size = -64000")  # 64MB cache
+            await conn.execute("PRAGMA synchronous = NORMAL")
+            
+            self._connection_pool.append(conn)
+            await self._available_connections.put(conn)
 
     @asynccontextmanager
     async def get_connection(self):
-        """Connection pool manager with enhanced error handling"""
-        if not self._initialized:
-            async with self.init_lock:
-                if not self._initialized:
-                    try:
-                        await self.initialize()
-                        self._initialized = True
-                    except Exception as e:
-                        wis_logger.error(f"Database initialization failed: {str(e)}")
-                        raise
-
-        await self.connection_semaphore.acquire()
-        task_id = id(asyncio.current_task())
-
+        """获取连接池中的连接"""
+        if not self._pool_initialized:
+            await self.initialize()
+            
+        # 从池中获取连接
+        conn = await self._available_connections.get()
         try:
-            async with self.pool_lock:
-                if task_id not in self.connection_pool:
-                    try:
-                        conn = await aiosqlite.connect(self.db_path, timeout=30.0)
-                        await conn.execute("PRAGMA journal_mode = WAL")
-                        await conn.execute("PRAGMA busy_timeout = 5000")
-
-                        # Verify database structure
-                        async with conn.execute(
-                            "PRAGMA table_info(crawled_data)"
-                        ) as cursor:
-                            columns = await cursor.fetchall()
-                            column_names = [col[1] for col in columns]
-                            expected_columns = {
-                                "url",
-                                "html",
-                                "cleaned_html",
-                                "markdown",
-                                "extracted_content",
-                                "success",
-                                "link_dict",
-                                "metadata",
-                                "screenshot",
-                                "response_headers",
-                                "downloaded_files",
-                                "redirected_url"
-                            }
-                            missing_columns = expected_columns - set(column_names)
-                            if missing_columns:
-                                raise ValueError(
-                                    f"Database missing columns: {missing_columns}"
-                                )
-                        self.connection_pool[task_id] = conn
-                    except Exception as e:
-                        error_message = f"Unexpected error in db get_connection: {str(e)}"
-                        wis_logger.error(error_message)
-                        raise
-
-            yield self.connection_pool[task_id]
-
-        except Exception as e:
-            error_message = f"Unexpected error in db get_connection: {str(e)}"
-            wis_logger.error(error_message)
-            raise
+            yield conn
         finally:
-            async with self.pool_lock:
-                if task_id in self.connection_pool:
-                    await self.connection_pool[task_id].close()
-                    del self.connection_pool[task_id]
-            self.connection_semaphore.release()
+            # 归还连接到池中
+            await self._available_connections.put(conn)
 
     async def execute_with_retry(self, operation, *args):
-        """Execute database operations with retry logic"""
+        """带重试的数据库操作执行"""
         for attempt in range(self.max_retries):
             try:
                 async with self.get_connection() as db:
@@ -161,68 +233,75 @@ class AsyncDatabaseManager:
                 if attempt == self.max_retries - 1:
                     wis_logger.error(f"Operation failed after {self.max_retries} attempts: {str(e)}")
                     raise
-                await asyncio.sleep(1 * (attempt + 1))  # Exponential backoff
+                await asyncio.sleep(0.5 * (2 ** attempt))  # 指数退避
 
-    async def ainit_db(self):
-        """Initialize database schema"""
-        async with aiosqlite.connect(self.db_path, timeout=30.0) as db:
-            await db.execute(
-                """
-                CREATE TABLE IF NOT EXISTS crawled_data (
-                    url TEXT PRIMARY KEY,
-                    html TEXT,
-                    cleaned_html TEXT,
-                    markdown TEXT,
-                    extracted_content TEXT,
-                    success BOOLEAN,
-                    link_dict TEXT DEFAULT "{}",
-                    metadata TEXT DEFAULT "{}",
-                    screenshot TEXT DEFAULT "",
-                    response_headers TEXT DEFAULT "{}",
-                    downloaded_files TEXT DEFAULT "{}",
-                    redirected_url TEXT DEFAULT ""
+    async def cache_url(self, result: CrawlResult):
+        """缓存URL数据 - 优化版本"""
+        # 如果有重定向URL，使用重定向URL作为主键
+        cache_url = result.redirected_url if result.redirected_url else result.url
+        if not cache_url:
+            return
+        
+        # 并发存储需要文件存储的内容
+        content_tasks = []
+        for field_name, mapping in self._file_storage_fields.items():
+            if hasattr(result, field_name):
+                content = getattr(result, field_name)
+                # 处理空值和None值的统一化
+                if field_name == "markdown":
+                    content = content or ""
+                elif field_name == "link_dict":
+                    content = content or {}
+                
+                if content:
+                    task = self._store_content_async(content, mapping.content_type_for_file)
+                    content_tasks.append((field_name, task))
+        
+        # 等待所有文件存储完成
+        content_hashes = {}
+        if content_tasks:
+            results = await asyncio.gather(*[task for _, task in content_tasks], return_exceptions=True)
+            for (field_name, _), result_hash in zip(content_tasks, results):
+                if isinstance(result_hash, Exception):
+                    wis_logger.error(f"Failed to store {field_name}: {result_hash}")
+                    content_hashes[field_name] = ""
+                else:
+                    content_hashes[field_name] = result_hash or ""
+        
+        # 数据库操作
+        async def _cache(db):
+            await db.execute("""
+                INSERT INTO crawled_data (
+                    url, html, markdown,
+                    link_dict, metadata, screenshot, 
+                    downloaded_files, updated_at
                 )
-            """
-            )
-            await db.commit()
+                VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(url) DO UPDATE SET
+                    html = excluded.html,
+                    markdown = excluded.markdown,
+                    link_dict = excluded.link_dict,
+                    metadata = excluded.metadata,
+                    screenshot = excluded.screenshot,
+                    downloaded_files = excluded.downloaded_files,
+                    updated_at = CURRENT_TIMESTAMP
+            """, (
+                cache_url,
+                content_hashes.get("html", ""),
+                content_hashes.get("markdown", ""),
+                content_hashes.get("link_dict", ""),
+                self._serialize_json(result.metadata),
+                content_hashes.get("screenshot", ""),
+                self._serialize_json(result.downloaded_files)
+            ))
 
-    async def update_db_schema(self):
-        """Update database schema if needed"""
-        async with aiosqlite.connect(self.db_path, timeout=30.0) as db:
-            cursor = await db.execute("PRAGMA table_info(crawled_data)")
-            columns = await cursor.fetchall()
-            column_names = [column[1] for column in columns]
+        try:
+            await self.execute_with_retry(_cache)
+        except Exception as e:
+            wis_logger.error(f"Error caching URL {cache_url}: {str(e)}")
 
-            # List of new columns to add
-            new_columns = [
-                "link_dict",
-                "metadata",
-                "screenshot",
-                "response_headers",
-                "downloaded_files",
-                "redirected_url"
-            ]
-
-            for column in new_columns:
-                if column not in column_names:
-                    await self.aalter_db_add_column(column, db)
-            await db.commit()
-
-    async def aalter_db_add_column(self, new_column: str, db):
-        """Add new column to the database"""
-        if new_column == "response_headers":
-            await db.execute(
-                f'ALTER TABLE crawled_data ADD COLUMN {new_column} TEXT DEFAULT "{{}}"'
-            )
-        else:
-            await db.execute(
-                f'ALTER TABLE crawled_data ADD COLUMN {new_column} TEXT DEFAULT ""'
-            )
-        wis_logger.info(f"Added column '{new_column}' to the database")
-
-    async def aget_cached_url(self, url: str) -> Optional[CrawlResult]:
-        """Retrieve cached URL data as CrawlResult"""
-
+    async def get_cached_url(self, url: str) -> Optional[CrawlResult]:
+        """获取缓存的URL数据 - 优化版本"""
         async def _get(db):
             async with db.execute(
                 "SELECT * FROM crawled_data WHERE url = ?", (url,)
@@ -231,130 +310,140 @@ class AsyncDatabaseManager:
                 if not row:
                     return None
 
-                # Get column names
-                columns = [description[0] for description in cursor.description]
-                # Create dict from row data
+                # 构建行数据字典
+                columns = [desc[0] for desc in cursor.description]
                 row_dict = dict(zip(columns, row))
-
-                # Load content from files using stored hashes
-                content_fields = {
-                    "html": row_dict["html"],
-                    "cleaned_html": row_dict["cleaned_html"],
-                    "markdown": row_dict["markdown"],
-                    "link_dict": row_dict["link_dict"],
-                    "redirected_url": row_dict["redirected_url"],
-                    "extracted_content": row_dict["extracted_content"],
-                    "screenshot": row_dict["screenshot"],
-                }
-
-                for field, hash_value in content_fields.items():
-                    if hash_value:
-                        content = await self._load_content(
-                            hash_value,
-                            field.split("_")[0],  # Get content type from field name
-                        )
-                        row_dict[field] = content or ""
-                    else:
-                        row_dict[field] = ""
-
-                # Parse JSON fields
-                json_fields = [
-                    "link_dict",
-                    "metadata",
-                    "response_headers",
-                ]
-                for field in json_fields:
-                    try:
-                        row_dict[field] = (
-                            json.loads(row_dict[field]) if row_dict[field] else {}
-                        )
-                    except json.JSONDecodeError:
-                        row_dict[field] = {}
-
-                # Parse downloaded_files
-                try:
-                    row_dict["downloaded_files"] = (
-                        json.loads(row_dict["downloaded_files"])
-                        if row_dict["downloaded_files"]
-                        else []
-                    )
-                except json.JSONDecodeError:
-                    row_dict["downloaded_files"] = []
-
-                # Remove any fields not in CrawlResult model
+                
+                # 并发加载文件存储的内容
+                load_tasks = []
+                for field_name, mapping in self._file_storage_fields.items():
+                    if field_name in row_dict and row_dict[field_name]:
+                        task = self._load_content_async(row_dict[field_name], mapping.content_type_for_file)
+                        load_tasks.append((field_name, mapping, task))
+                
+                # 等待所有文件加载完成
+                if load_tasks:
+                    results = await asyncio.gather(*[task for _, _, task in load_tasks], return_exceptions=True)
+                    for (field_name, mapping, _), content in zip(load_tasks, results):
+                        if isinstance(content, Exception):
+                            wis_logger.error(f"Failed to load {field_name}: {content}")
+                            if mapping.is_json_content:
+                                if field_name == "link_dict":
+                                    row_dict[field_name] = {}
+                                else:
+                                    row_dict[field_name] = ""
+                            else:
+                                row_dict[field_name] = ""
+                        else:
+                            if mapping.is_json_content:
+                                deserialized = self._deserialize_json(content)
+                                # 为不同字段设置正确的默认值
+                                if field_name == "link_dict" and not deserialized:
+                                    row_dict[field_name] = {}
+                                else:
+                                    row_dict[field_name] = deserialized
+                            else:
+                                row_dict[field_name] = content or ""
+                
+                # 处理数据库存储的JSON字段
+                for field_name, mapping in self._db_storage_json_fields.items():
+                    if field_name in row_dict:
+                        row_dict[field_name] = self._deserialize_json(row_dict[field_name])
+                
+                # 过滤并构建CrawlResult
                 valid_fields = CrawlResult.__annotations__.keys()
                 filtered_dict = {k: v for k, v in row_dict.items() if k in valid_fields}
-                # filtered_dict["markdown"] = row_dict["markdown"]
                 return CrawlResult(**filtered_dict)
 
         try:
             return await self.execute_with_retry(_get)
         except Exception as e:
-            wis_logger.error(f"Error retrieving cached URL: {str(e)}")
+            wis_logger.error(f"Error retrieving cached URL {url}: {str(e)}")
             return None
 
-    async def acache_url(self, result: CrawlResult):
-        """Cache CrawlResult data"""
-        # Store content files and get hashes
-        content_map = {
-            "html": (result.html, "html"),
-            "cleaned_html": (result.cleaned_html or "", "cleaned"),
-            "markdown": (result.markdown or "", "markdown"),
-            "link_dict": (result.link_dict or {}, "link_dict"),
-            "extracted_content": (result.extracted_content or "", "extracted"),
-            "screenshot": (result.screenshot or "", "screenshots"),
-        }
-
-        content_hashes = {}
-        for field, (content, content_type) in content_map.items():
-            content_hashes[field] = await self._store_content(content, content_type)
-
-        async def _cache(db):
-            await db.execute(
-                """
-                INSERT INTO crawled_data (
-                    url, html, cleaned_html, markdown,
-                    extracted_content, success, link_dict, metadata,
-                    screenshot, response_headers, downloaded_files, redirected_url
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(url) DO UPDATE SET
-                    html = excluded.html,
-                    cleaned_html = excluded.cleaned_html,
-                    markdown = excluded.markdown,
-                    extracted_content = excluded.extracted_content,
-                    success = excluded.success,
-                    link_dict = excluded.link_dict,
-                    metadata = excluded.metadata,
-                    screenshot = excluded.screenshot,
-                    response_headers = excluded.response_headers,
-                    downloaded_files = excluded.downloaded_files,
-                    redirected_url = excluded.redirected_url
-            """,
-                (
-                    result.url,
-                    content_hashes["html"],
-                    content_hashes["cleaned_html"],
-                    content_hashes["markdown"],
-                    content_hashes["extracted_content"],
-                    result.success,
-                    content_hashes["link_dict"],
-                    json.dumps(result.metadata or {}),
-                    content_hashes["screenshot"],
-                    json.dumps(result.response_headers or {}),
-                    json.dumps(result.downloaded_files or []),
-                    result.redirected_url or ""
-                ),
+    async def _store_content_async(self, content: Any, content_type: str) -> str:
+        """异步存储内容到文件系统"""
+        if not content:
+            return ""
+            
+        # 处理不同类型的内容
+        if isinstance(content, dict) or isinstance(content, list):
+            content_str = json.dumps(content, ensure_ascii=False)
+        else:
+            content_str = str(content)
+            
+        content_hash = generate_content_hash(content_str)
+        file_path = os.path.join(self.content_paths[content_type], content_hash)
+        
+        # 异步检查文件是否已存在（避免重复写入）
+        loop = asyncio.get_event_loop()
+        file_exists = await loop.run_in_executor(
+            self._file_executor,
+            os.path.exists,
+            file_path
+        )
+        
+        if not file_exists:
+            # 使用线程池进行文件I/O操作
+            await loop.run_in_executor(
+                self._file_executor,
+                self._write_file_sync,
+                file_path,
+                content_str
             )
+        
+        return content_hash
 
+    async def _load_content_async(self, content_hash: str, content_type: str) -> Optional[str]:
+        """异步从文件系统加载内容"""
+        if not content_hash:
+            return None
+            
+        file_path = os.path.join(self.content_paths[content_type], content_hash)
+        
+        # 使用线程池进行文件I/O操作
+        loop = asyncio.get_event_loop()
         try:
-            await self.execute_with_retry(_cache)
+            return await loop.run_in_executor(
+                self._file_executor,
+                self._read_file_sync,
+                file_path
+            )
         except Exception as e:
-            wis_logger.error(f"Error caching URL: {str(e)}")
+            wis_logger.error(f"Failed to load content from {file_path}: {e}")
+            return None
 
-    async def aget_total_count(self) -> int:
-        """Get total number of cached URLs"""
+    def _write_file_sync(self, file_path: str, content: str):
+        """同步写文件（在线程池中执行）"""
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(content)
 
+    def _read_file_sync(self, file_path: str) -> str:
+        """同步读文件（在线程池中执行）"""
+        with open(file_path, "r", encoding="utf-8") as f:
+            return f.read()
+
+    def _serialize_json(self, data: Any, default_as_list: bool = False) -> str:
+        """序列化JSON数据"""
+        if data is None:
+            return "[]" if default_as_list else "{}"
+        try:
+            return json.dumps(data, ensure_ascii=False)
+        except (TypeError, ValueError):
+            return "[]" if default_as_list else "{}"
+
+    def _deserialize_json(self, data: str) -> Any:
+        """反序列化JSON数据"""
+        if not data:
+            return {}
+        try:
+            return json.loads(data)
+        except json.JSONDecodeError:
+            return {}
+
+    async def get_total_count(self) -> int:
+        """获取缓存总数"""
         async def _count(db):
             async with db.execute("SELECT COUNT(*) FROM crawled_data") as cursor:
                 result = await cursor.fetchone()
@@ -366,9 +455,8 @@ class AsyncDatabaseManager:
             wis_logger.error(f"Error getting total count: {str(e)}")
             return 0
 
-    async def aclear_db(self):
-        """Clear all data from the database"""
-
+    async def clear_db(self):
+        """清空数据库"""
         async def _clear(db):
             await db.execute("DELETE FROM crawled_data")
 
@@ -377,46 +465,38 @@ class AsyncDatabaseManager:
         except Exception as e:
             wis_logger.error(f"Error clearing database: {str(e)}")
 
-    async def aflush_db(self):
-        """Drop the entire table"""
+    async def cleanup(self):
+        """清理资源"""
+        # 关闭所有连接
+        for conn in self._connection_pool:
+            await conn.close()
+        self._connection_pool.clear()
+        
+        # 关闭线程池
+        self._file_executor.shutdown(wait=True)
 
-        async def _flush(db):
-            await db.execute("DROP TABLE IF EXISTS crawled_data")
 
-        try:
-            await self.execute_with_retry(_flush)
-        except Exception as e:
-            wis_logger.error(f"Error flushing database: {str(e)}")
+# 创建优化后的单例实例
+db_manager = AsyncDatabaseManager()
 
-    async def _store_content(self, content: str, content_type: str) -> str:
-        """Store content in filesystem and return hash"""
-        if not content:
-            return ""
+async def init_database():
+    """
+    应用启动时调用此函数来预初始化数据库
+    这样可以避免第一次数据库操作时的初始化延迟
+    """
+    try:
+        await db_manager.initialize()
+        wis_logger.debug("Database pre-initialized successfully")
+    except Exception as e:
+        wis_logger.error(f"Database pre-initialization failed: {e}")
+        raise
 
-        content_hash = generate_content_hash(content)
-        file_path = os.path.join(self.content_paths[content_type], content_hash)
-
-        # Only write if file doesn't exist
-        if not os.path.exists(file_path):
-            async with aiofiles.open(file_path, "w", encoding="utf-8") as f:
-                await f.write(content)
-
-        return content_hash
-
-    async def _load_content(
-        self, content_hash: str, content_type: str
-    ) -> Optional[str]:
-        """Load content from filesystem by hash"""
-        if not content_hash:
-            return None
-
-        file_path = os.path.join(self.content_paths[content_type], content_hash)
-        try:
-            async with aiofiles.open(file_path, "r", encoding="utf-8") as f:
-                return await f.read()
-        except:
-            wis_logger.error(f"Failed to load content: {file_path}")
-            return None
-
-# Create a singleton instance
-async_db_manager = AsyncDatabaseManager()
+async def cleanup_database():
+    """
+    应用关闭时调用此函数来清理数据库资源
+    """
+    try:
+        await db_manager.cleanup()
+        wis_logger.debug("Database cleanup completed")
+    except Exception as e:
+        wis_logger.error(f"Database cleanup failed: {e}")
