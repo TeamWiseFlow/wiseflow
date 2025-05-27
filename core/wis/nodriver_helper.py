@@ -5,11 +5,12 @@ import json
 from typing import Optional
 import nodriver as uc
 from pathlib import Path
-from .constant import PLATFORM_LOGIN_URLS, WEIBO_PLATFORM_NAME
+from .config.mc_config import PLATFORM_LOGIN_URLS, WEIBO_PLATFORM_NAME
+from ..async_database import wis_logger, base_directory
 
 
 class NodriverHelper:
-    def __init__(self, platform: str, work_dir: str = None, logger=None):
+    def __init__(self, platform: str):
         """
         initialize NodriverHelper
         
@@ -21,14 +22,12 @@ class NodriverHelper:
         self.page: Optional[uc.Tab] = None
         
         # 使用单一的浏览器数据目录
-        data_dir = Path(work_dir) if work_dir else Path(__file__).parent.parent / 'work_dir'
+        data_dir = Path(base_directory)
         self.browser_data = data_dir / 'browser_data'
         self.export_dir = data_dir / 'nodriver_exported' / platform
 
         self.export_dir.mkdir(parents=True, exist_ok=True)
         self.browser_data.mkdir(parents=True, exist_ok=True)
-
-        self.logger = logger
 
     async def __aenter__(self):
         """异步上下文管理器入口"""
@@ -106,9 +105,9 @@ class NodriverHelper:
             try:
                 # 检查 URL 中是否包含验证关键词
                 current_url = await self.page.evaluate("window.location.href")
-                self.logger.info(f"current_url: {current_url}")
+                wis_logger.debug(f"current_url: {current_url}")
                 if any(keyword in current_url.lower() for keyword in verification_keywords):
-                    self.logger.info(f"Detected verification keyword in URL: {current_url}, 7s后再次检查")
+                    print(f"Detected verification keyword in URL: {current_url}, 7s后再次检查")
                     await asyncio.sleep(7)
                     continue
 
@@ -116,18 +115,18 @@ class NodriverHelper:
                 for selector in verification_selectors:
                     element = await self.page.query_selector(selector)
                     if element:
-                        self.logger.info(f"Detected verification element: {selector}, 7s后再次检查")
+                        print(f"Detected verification element: {selector}, 7s后再次检查")
                         await asyncio.sleep(7)
                         continue
                 # 如果没有检测到验证，跳出循环
                 break
 
             except Exception as e:
-                self.logger.error(f"检测到验证操作错误: {str(e)}")
-                self.logger.info("请在浏览器中完成验证操作...完成后请按回车键（不要手动关闭浏览器，程序好了会自己关！！！）")
+                wis_logger.error(f"检测到验证操作错误: {str(e)}")
+                print("请在浏览器中完成验证操作...完成后请按回车键（不要手动关闭浏览器，程序好了会自己关！！！）")
                 input_text = await asyncio.get_event_loop().run_in_executor(None, input, "确认已完成验证操作后，请按回车键继续...")
                 if input_text.strip() == "":
-                    self.logger.info("检测到用户确认，登录成功")
+                    wis_logger.debug("检测到用户确认，登录成功")
                     break
 
         await asyncio.sleep(7)
@@ -156,6 +155,11 @@ class NodriverHelper:
     async def for_mc_login(self, url: str = None, timeout: int = 600, force_login: bool = False) -> tuple[str, str]:
         if not self.browser:
             await self.start()
+        
+        if not url:
+            url = PLATFORM_LOGIN_URLS.get(self.platform)
+            if not url:
+                raise ValueError(f"未找到平台 {self.platform} 的登录URL")
 
         if force_login:
             await self.browser.clear()
@@ -163,7 +167,7 @@ class NodriverHelper:
             if await self._check_login_status():
                 input_text = await asyncio.get_event_loop().run_in_executor(None, input, "请手动操作退出登录，然后再次登录，完成后按回车键继续...")
                 if input_text.strip() == "":
-                    self.logger.info("检测到用户确认，开始检查登录状态")
+                    wis_logger.debug("检测到用户确认，开始检查登录状态")
 
         if not self.page:
             await self.open_page(url)
@@ -185,7 +189,7 @@ class NodriverHelper:
                     print("请在浏览器中完成登录或确认已登录（没有账号先注册，注册后再登录）...完成后请按回车键（不要手动关闭浏览器，程序好了会自己关！！！）")
                     input_text = await asyncio.get_event_loop().run_in_executor(None, input, "确认处于登录状态后，请按回车键继续...")
                     if input_text.strip() == "":
-                        self.logger.info("检测到用户确认，登录成功")
+                        wis_logger.debug("检测到用户确认，登录成功")
                         break
 
                 print("请在浏览器中完成登录（没有账号先注册，注册后再登录）...7s后再次检查")
@@ -193,17 +197,17 @@ class NodriverHelper:
                 continue
 
             except Exception as e:
-                self.logger.error(f"查找'登录'按钮时出错: {str(e)}")
+                wis_logger.error(f"查找'登录'按钮时出错: {str(e)}")
                 if initial_content is None:
                     initial_content = await self.page.get_content()
-                    self.logger.info("等待7s后再次检查...")
+                    wis_logger.debug("等待7s后再次检查...")
                     await asyncio.sleep(7)
                     continue
                 #  报错状态只检查一次，第二次则退回到用户主动触发操作
                 print("请在浏览器中完成登录或确认已登录（没有账号先注册，注册后再登录）...完成后请按回车键（不要手动关闭浏览器，程序好了会自己关！！！）")
                 input_text = await asyncio.get_event_loop().run_in_executor(None, input, "确认处于登录状态后，请按回车键继续...")
                 if input_text.strip() == "":
-                    self.logger.info("检测到用户确认，登录成功")
+                    wis_logger.debug("检测到用户确认，登录成功")
                     break
         
         selected_cookies = await self._get_cookies()
@@ -223,7 +227,7 @@ class NodriverHelper:
         }
         with open(login_token_file, 'w', encoding='utf-8') as f:
             json.dump(save_data, f, ensure_ascii=False, indent=4)
-        self.logger.info(f"Cookies 已保存到: {login_token_file}")
+        wis_logger.info(f"Cookies 已保存到: {login_token_file}")
         
         return header_string, user_agent
 
@@ -249,7 +253,7 @@ class NodriverHelper:
             if login_button.text.strip().lower() in ["login", "login/register"]:
                 return False
 
-        self.logger.info("没有找到登录按钮, 判定登录成功")
+        wis_logger.debug("没有找到登录按钮, 判定登录成功")
         return True
     
     async def _get_cookies(self) -> dict:
@@ -262,8 +266,8 @@ class NodriverHelper:
         # 获取当前页面的 URL 和域名
         current_url = await self.page.evaluate("window.location.href")
         current_domain = await self.page.evaluate("window.location.hostname")
-        self.logger.info(f"当前页面 URL: {current_url}")
-        self.logger.info(f"当前域名: {current_domain}")
+        wis_logger.debug(f"当前页面 URL: {current_url}")
+        wis_logger.debug(f"当前域名: {current_domain}")
         
         # 获取 cookies
         cookies = await self.browser.cookies.get_all()
@@ -290,7 +294,7 @@ class NodriverHelper:
             if self.browser and not self.browser.stopped:
                 self.browser.stop()
         except Exception as e:
-            self.logger.error(f"关闭浏览器时发生错误: {str(e)}")
+            wis_logger.error(f"关闭浏览器时发生错误: {str(e)}")
         finally:
             self.browser = None
             self.page = None

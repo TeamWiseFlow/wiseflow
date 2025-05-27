@@ -1,6 +1,6 @@
 from ..wis import BrowserConfig
 from .default_config import crawler_config as default_crawler_config
-# from .mp_scraper import mp_scraper
+
 
 # do use get_base_domain to get the base domain of the url, and then use the custom_scrapers to scrape the url
 # custom_scrapers = {'mp.weixin.qq.com': mp_scraper}

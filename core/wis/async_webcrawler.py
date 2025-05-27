@@ -3,7 +3,6 @@ import os
 import time
 from typing import Optional, List
 import asyncio
-from datetime import datetime, timedelta
 
 from .utils import configure_windows_event_loop
 configure_windows_event_loop()
@@ -41,36 +40,6 @@ from .utils import (
     extract_metadata,
     get_base_domain,
 )
-
-
-def is_cache_expired(updated_at: str, days_threshold: int = 30) -> bool:
-    """
-    检查缓存是否过期
-    
-    Args:
-        updated_at: 更新时间字符串，格式为 'YYYY-MM-DD HH:MM:SS'
-        days_threshold: 过期天数阈值，默认30天
-        
-    Returns:
-        bool: True表示已过期，False表示未过期
-    """
-    if not updated_at:
-        return True
-        
-    try:
-        # 解析时间字符串
-        cache_time = datetime.strptime(updated_at, '%Y-%m-%d %H:%M:%S')
-        current_time = datetime.now()
-        
-        # 计算时间差
-        time_diff = current_time - cache_time
-        
-        # 检查是否超过阈值
-        return time_diff > timedelta(days=days_threshold)
-        
-    except (ValueError, TypeError) as e:
-        # 如果时间格式解析失败，认为缓存已过期
-        return True
 
 
 class AsyncWebCrawler:
@@ -283,21 +252,14 @@ class AsyncWebCrawler:
                 # here we only got the html, markdown, link_dict, metadata, updated_at
                 # for the use case of same url and different focus point
                 if cached_result:
-                    updated_at = cached_result.updated_at or ""
-                    # 检查缓存是否过期（30天）
-                    if is_cache_expired(updated_at, days_threshold=30):
-                        self.logger.debug(f"[CACHE EXPIRED] {cache_context.display_url} | updated_at: {updated_at}")
-                        cached_result = None
-                    else:
-                        html = sanitize_input_encode(cached_result.html)
-                        markdown = cached_result.markdown or ""
-                        link_dict = cached_result.link_dict or {}
-                        metadata = cached_result.metadata or {}
-                        publish_date = metadata.get("publish_date", "")
-                        # If screenshot is requested but its not in cache, then set cache_result to None
-                        screenshot_data = cached_result.screenshot
-                        pdf_data = cached_result.pdf
-                        # if config.screenshot and not screenshot or config.pdf and not pdf:
+                    html = sanitize_input_encode(cached_result.html)
+                    markdown = cached_result.markdown or ""
+                    link_dict = cached_result.link_dict or {}
+                    metadata = cached_result.metadata or {}
+                    publish_date = metadata.get("publish_date", "")
+                    screenshot_data = cached_result.screenshot
+                    pdf_data = cached_result.pdf
+                    # if config.screenshot and not screenshot or config.pdf and not pdf:
                     if config.screenshot and not screenshot_data:
                         cached_result = None
 

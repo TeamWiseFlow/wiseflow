@@ -1,5 +1,5 @@
-# 声明：本代码仅供学习和研究目的使用。使用者应遵守以下原则：  
-# 1. 不得用于任何商业用途。  
+# 声明：使用者应遵守以下原则：  
+# 1. 商业用途请先联系取得授权
 # 2. 使用时应遵守目标平台的使用条款和robots.txt规则。  
 # 3. 不得进行大规模爬取或对平台造成运营干扰。  
 # 4. 应合理控制请求频率，避免给目标平台带来不必要的负担。   
@@ -9,9 +9,7 @@
 # 使用本代码即表示您同意遵守上述原则和LICENSE中的所有条款。  
 
 
-from .base_config import *
-from .db_config import *
-from .proxy_config import *
+from .mc_config import *
 from .sign_srv_config import *
 from .web_config import *
 
@@ -19,11 +17,3 @@ from .web_config import *
 MIN_WORD_THRESHOLD = 3
 IMAGE_DESCRIPTION_MIN_WORD_THRESHOLD = 5
 IMAGE_SCORE_THRESHOLD = 0.5
-
-# Provider settings
-DEFAULT_PROVIDER = "openai"
-PROVIDER_MODELS = {
-    "openai": ["gpt-3.5-turbo", "gpt-4"],
-    "anthropic": ["claude-2", "claude-instant"],
-    "google": ["gemini-pro"]
-}

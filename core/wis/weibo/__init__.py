@@ -7,14 +7,11 @@
 #   
 # 详细许可条款请参阅项目根目录下的LICENSE文件。  
 # 使用本代码即表示您同意遵守上述原则和LICENSE中的所有条款。  
-from contextvars import ContextVar
 
-import aiomysql  # type: ignore
 
-from async_db import AsyncMysqlDB
-
-request_keyword_var: ContextVar[str] = ContextVar("request_keyword", default="")
-crawler_type_var: ContextVar[str] = ContextVar("crawler_type", default="")
-media_crawler_db_var: ContextVar[AsyncMysqlDB] = ContextVar("media_crawler_db_var")
-db_conn_pool_var: ContextVar[aiomysql.Pool] = ContextVar("db_conn_pool_var")
-source_keyword_var: ContextVar[str] = ContextVar("source_keyword", default="")
+# -*- coding: utf-8 -*-
+# @Author  : relakkes@gmail.com
+# @Time    : 2023/12/23 15:40
+# @Desc    :
+from .client import WeiboClient
+from .core import WeiboCrawler

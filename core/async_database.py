@@ -9,6 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 from .wis.base.crawl4ai_models import CrawlResult
 from .tools.general_utils import get_logger
 from .wis.utils import ensure_content_dirs, generate_content_hash
+from datetime import datetime, timedelta
 
 
 base_directory = os.path.join(".", os.getenv("PROJECT_DIR", "work_dir"))
@@ -95,7 +96,7 @@ class AsyncDatabaseManager:
                 'link_dict': 'TEXT DEFAULT ""',
                 'metadata': 'TEXT DEFAULT "{}"',
                 'screenshot': 'TEXT DEFAULT ""',
-                'downloaded_files': 'TEXT DEFAULT "{}"',
+                'downloaded_files': 'TEXT DEFAULT "[]"',
                 'created_at': 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
                 'updated_at': 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP'
             }
@@ -292,7 +293,7 @@ class AsyncDatabaseManager:
                 content_hashes.get("link_dict", ""),
                 self._serialize_json(result.metadata),
                 content_hashes.get("screenshot", ""),
-                self._serialize_json(result.downloaded_files)
+                self._serialize_json(result.downloaded_files, default_as_list=True)
             ))
 
         try:
@@ -300,7 +301,7 @@ class AsyncDatabaseManager:
         except Exception as e:
             wis_logger.error(f"Error caching URL {cache_url}: {str(e)}")
 
-    async def get_cached_url(self, url: str) -> Optional[CrawlResult]:
+    async def get_cached_url(self, url: str, days_threshold: int = 30) -> Optional[CrawlResult]:
         """获取缓存的URL数据 - 优化版本"""
         async def _get(db):
             async with db.execute(
@@ -312,6 +313,23 @@ class AsyncDatabaseManager:
 
                 # 构建行数据字典
                 columns = [desc[0] for desc in cursor.description]
+                # Check if the cache is expired based on the updated_at timestamp
+                try:
+                    updated_at_index = columns.index('updated_at')
+                    updated_at_str = row[updated_at_index]
+                    if self.is_cache_expired(updated_at_str, days_threshold):
+                        wis_logger.debug(f"Cache for {url} expired (>{days_threshold} days). Returning None.")
+                        return None
+                except ValueError:
+                    # 'updated_at' column not found, treat as not expired (or log a warning)
+                    # This case should ideally not happen with schema initialization, but as a fallback
+                    wis_logger.warning("Column 'updated_at' not found in crawled_data table. Cannot check cache expiration.")
+                    return None
+                except Exception as e:
+                    # Handle potential errors during date parsing or comparison
+                    wis_logger.error(f"Error checking cache expiration for {url}: {str(e)}")
+                    return None
+
                 row_dict = dict(zip(columns, row))
                 
                 # 并发加载文件存储的内容
@@ -337,7 +355,6 @@ class AsyncDatabaseManager:
                         else:
                             if mapping.is_json_content:
                                 deserialized = self._deserialize_json(content)
-                                # 为不同字段设置正确的默认值
                                 if field_name == "link_dict" and not deserialized:
                                     row_dict[field_name] = {}
                                 else:
@@ -345,14 +362,22 @@ class AsyncDatabaseManager:
                             else:
                                 row_dict[field_name] = content or ""
                 
-                # 处理数据库存储的JSON字段
-                for field_name, mapping in self._db_storage_json_fields.items():
-                    if field_name in row_dict:
-                        row_dict[field_name] = self._deserialize_json(row_dict[field_name])
+                # If link_dict is an empty string (default from DB or failed load of empty content),
+                # ensure it's an empty dictionary for CrawlResult.
+                if row_dict.get("link_dict") == "":
+                    row_dict["link_dict"] = {}
+
+                if "downloaded_files" in row_dict:
+                    row_dict["downloaded_files"] = self._deserialize_json(row_dict["downloaded_files"], default_as_list=True)
+                
+                if "metadata" in row_dict:
+                    row_dict["metadata"] = self._deserialize_json(row_dict["metadata"], default_as_list=False)
                 
                 # 过滤并构建CrawlResult
                 valid_fields = CrawlResult.__annotations__.keys()
+                # print(f"row_dict: {row_dict}")
                 filtered_dict = {k: v for k, v in row_dict.items() if k in valid_fields}
+                filtered_dict["success"] = True
                 return CrawlResult(**filtered_dict)
 
         try:
@@ -360,6 +385,35 @@ class AsyncDatabaseManager:
         except Exception as e:
             wis_logger.error(f"Error retrieving cached URL {url}: {str(e)}")
             return None
+    
+    def is_cache_expired(self, updated_at: str, days_threshold: int = 30) -> bool:
+        """
+        检查缓存是否过期
+        
+        Args:
+            updated_at: 更新时间字符串，格式为 'YYYY-MM-DD HH:MM:SS'
+            days_threshold: 过期天数阈值，默认30天
+            
+        Returns:
+            bool: True表示已过期，False表示未过期
+        """
+        if not updated_at:
+            return True
+            
+        try:
+            # 解析时间字符串
+            cache_time = datetime.strptime(updated_at, '%Y-%m-%d %H:%M:%S')
+            current_time = datetime.now()
+            
+            # 计算时间差
+            time_diff = current_time - cache_time
+            
+            # 检查是否超过阈值
+            return time_diff > timedelta(days=days_threshold)
+            
+        except (ValueError, TypeError) as e:
+            # 如果时间格式解析失败，认为缓存已过期
+            return True
 
     async def _store_content_async(self, content: Any, content_type: str) -> str:
         """异步存储内容到文件系统"""
@@ -433,14 +487,14 @@ class AsyncDatabaseManager:
         except (TypeError, ValueError):
             return "[]" if default_as_list else "{}"
 
-    def _deserialize_json(self, data: str) -> Any:
+    def _deserialize_json(self, data: str, default_as_list: bool = False) -> Any:
         """反序列化JSON数据"""
         if not data:
-            return {}
+            return [] if default_as_list else {}
         try:
             return json.loads(data)
         except json.JSONDecodeError:
-            return {}
+            return [] if default_as_list else {}
 
     async def get_total_count(self) -> int:
         """获取缓存总数"""
@@ -458,10 +512,10 @@ class AsyncDatabaseManager:
     async def clear_db(self):
         """清空数据库"""
         async def _clear(db):
-            await db.execute("DELETE FROM crawled_data")
-
+            await db.execute("DROP TABLE IF EXISTS crawled_data")
         try:
             await self.execute_with_retry(_clear)
+            wis_logger.debug("table crawled_data dropped successfully")
         except Exception as e:
             wis_logger.error(f"Error clearing database: {str(e)}")
 

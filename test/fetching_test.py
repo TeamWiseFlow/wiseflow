@@ -25,6 +25,7 @@ crawler_config.cache_mode = CacheMode.DISABLED
 async def main(sites: list):
     # for test with db
     await init_database()
+    # await db_manager.clear_db()
     async with AsyncWebCrawler(config=default_browser_config, verbose=True) as crawler:
         async for result in await crawler.arun_many(sites, crawler_config):
             if result.success:

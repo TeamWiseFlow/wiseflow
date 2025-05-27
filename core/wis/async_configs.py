@@ -712,7 +712,7 @@ class CrawlerRunConfig:
         # SSL Parameters
         fetch_ssl_certificate: bool = False,
         # Caching Parameters
-        cache_mode: CacheMode = CacheMode.BYPASS,
+        cache_mode: CacheMode = None,
         session_id: str = None,
         bypass_cache: bool = False,
         disable_cache: bool = False,

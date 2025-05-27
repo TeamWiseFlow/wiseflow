@@ -22,6 +22,7 @@ crawler_config = CrawlerRunConfig(
     # fetch_ssl_certificate=False,
     # page_timeout=30000,
     # wait_for=None,
+    # js_code=None, # to execute some js code in the page
     # check_robots_txt=False,
     # exclude_external_links=False, # if you want the info collection only in the site's domain, set this to True
     # excluded_tags = []  # 如果不配置默认移除所有非顶级的'script', 'style', 'noscript', 'iframe', 'canvas', 'svg', 'video', 'audio', 'source', 'track', 'map', 'area'
