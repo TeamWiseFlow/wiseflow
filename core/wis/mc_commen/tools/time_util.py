@@ -104,7 +104,69 @@ def rfc2822_to_timestamp(rfc2822_time):
     return timestamp
 
 
+def is_cacheup(millisecond_timestamp: int | str, nhour: int) -> bool:
+    """
+    判断给定的毫秒级时间戳是否在当前时间的 nhour 小时之内（基于时间间隔）。
+
+    Args:
+        millisecond_timestamp: 毫秒级时间戳 (13 位整数)。
+        nhour: 小时数（非负整数），用于判断时间戳是否在此小时数范围内。
+
+    Returns:
+        如果时间戳在当前时间的 nhour 小时之内，返回 True；否则返回 False。
+    """
+
+    if not isinstance(nhour, int) or nhour < 0:
+        return False
+    
+    if not isinstance(millisecond_timestamp, int):
+        try:
+            millisecond_timestamp = int(millisecond_timestamp)
+        except Exception as e:
+            return False
+        
+    if millisecond_timestamp < 1000000000000:
+        millisecond_timestamp = millisecond_timestamp * 1000
+
+    try:
+        # 获取当前的毫秒级时间戳
+        current_timestamp = get_current_timestamp()
+
+        if millisecond_timestamp > current_timestamp:
+            return False
+
+        # 计算时间戳之间的差值（取绝对值）
+        time_difference_ms = abs(millisecond_timestamp - current_timestamp)
+
+        # 将 nhour 转换为毫秒
+        hour_threshold_ms = nhour * 60 * 60 * 1000
+
+        # 判断差值是否在 nhour 小时之内
+        return time_difference_ms <= hour_threshold_ms
+    except Exception as e:
+        # 处理可能的异常
+        print(f"Error processing timestamp {millisecond_timestamp} or nhour {nhour}: {e}")
+        return False
+
+
 if __name__ == '__main__':
     # 示例用法
     _rfc2822_time = "Sat Dec 23 17:12:54 +0800 2023"
     print(rfc2822_to_china_datetime(_rfc2822_time))
+
+    # 示例：判断毫秒级时间戳是否在当前时间的 nhour 小时之内
+    _current_timestamp = get_current_timestamp() # 当前时间戳
+    _one_hour_ago = _current_timestamp - 60 * 60 * 1000 # 一小时前的时间戳
+    _two_hours_ago = _current_timestamp - 2 * 60 * 60 * 1000 # 两小时前的时间戳
+    _one_hour_later = _current_timestamp + 60 * 60 * 1000 # 一小时后的时间戳
+
+    nhour_test = 1
+
+    print(f"判断时间戳 {_current_timestamp} (现在) 是否在距今 {nhour_test} 小时内: {is_cacheup(_current_timestamp, nhour_test)}")
+    print(f"判断时间戳 {_one_hour_ago} (一小时前) 是否在距今 {nhour_test} 小时内: {is_cacheup(_one_hour_ago, nhour_test)}")
+    print(f"判断时间戳 {_two_hours_ago} (两小时前) 是否在距今 {nhour_test} 小时内: {is_cacheup(_two_hours_ago, nhour_test)}")
+    print(f"判断时间戳 {_one_hour_later} (一小时后) 是否在距今 {nhour_test} 小时内: {is_cacheup(_one_hour_later, nhour_test)}")
+
+    nhour_test_zero = 0
+    print(f"判断时间戳 {_current_timestamp} (现在) 是否在距今 {nhour_test_zero} 小时内: {is_cacheup(_current_timestamp, nhour_test_zero)}")
+    print(f"判断时间戳 {_one_hour_ago} (一小时前) 是否在距今 {nhour_test_zero} 小时内: {is_cacheup(_one_hour_ago, nhour_test_zero)}")

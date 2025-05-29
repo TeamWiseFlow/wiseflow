@@ -9,9 +9,8 @@ import httpx
 from httpx import Response
 from tenacity import RetryError, retry, stop_after_attempt, wait_fixed
 
-import config
 from ..base.mc_crawler import AbstractApiClient
-from ..config.mc_config import KUAISHOU_API, PER_NOTE_MAX_COMMENTS_COUNT
+from ..config.mc_config import KUAISHOU_API, PER_NOTE_MAX_COMMENTS_COUNT, ENABLE_GET_SUB_COMMENTS
 from ..mc_commen.account_pool import *
 from .exception import DataFetchError
 from .graphql import KuaiShouGraphQL
@@ -61,7 +60,7 @@ class KuaiShouApiClient(AbstractApiClient):
     def _cookies(self):
         return self.account_info.account.cookies
 
-    async def update_account_info(self):
+    async def update_account_info(self, force_login: bool = False):
         """
         更新客户端的账号信息, 该方法会一直尝试获取新的账号信息，直到获取到一个有效的账号信息
         Returns:
@@ -72,7 +71,7 @@ class KuaiShouApiClient(AbstractApiClient):
             wis_logger.info(
                 f"[KuaiShouApiClient.update_account_info] try to get a new account"
             )
-            account_info = await self.account_with_ip_pool.get_account_with_ip_info()
+            account_info = await self.account_with_ip_pool.get_account_with_ip_info(force_login)
             self.account_info = account_info
             have_account = await self.pong()
             if not have_account:
@@ -178,20 +177,22 @@ class KuaiShouApiClient(AbstractApiClient):
                 return await self.request(
                     method="GET", url=f"{KUAISHOU_API}{final_uri}", **kwargs
                 )
-            except RetryError as ee:
+            except Exception as ee:
                 # 获取原始异常
+                """
+                # in version 4.0, we do not have ip proxy yet
                 original_exception = ee.last_attempt.exception()
                 traceback.print_exception(
                     type(original_exception),
                     original_exception,
                     original_exception.__traceback__,
                 )
-
+                """
                 wis_logger.error(
                     f"[KuaiShouApiClient.get] 请求uri:{uri}，IP更换后还是失败，尝试更换账号与IP再次发起重试"
                 )
                 await self.mark_account_invalid(self.account_info)
-                await self.update_account_info()
+                await self.update_account_info(force_login=True)
                 return await self.request(
                     method="GET", url=f"{KUAISHOU_API}{final_uri}", **kwargs
                 )
@@ -234,30 +235,32 @@ class KuaiShouApiClient(AbstractApiClient):
                 await self.account_with_ip_pool.mark_ip_invalid(
                     self.account_info.ip_info
                 )
-                if self.account_with_ip_pool.proxy_ip_pool:
-                    self.account_info.ip_info = (
-                        await self.account_with_ip_pool.proxy_ip_pool.get_proxy()
-                    )
-                    return await self.request(
-                        method="POST",
-                        url=f"{KUAISHOU_API}{uri}",
-                        data=json_str,
-                        **kwargs,
-                    )
-            except RetryError as ee:
+                self.account_info.ip_info = (
+                    await self.account_with_ip_pool.proxy_ip_pool.get_proxy()
+                )
+
+                return await self.request(
+                    method="POST",
+                    url=f"{KUAISHOU_API}{uri}",
+                    data=json_str,
+                    **kwargs,
+                )
+            except Exception as ee:
                 # 获取原始异常
+                """
+                # in version 4.0, we do not have ip proxy yet
                 original_exception = ee.last_attempt.exception()
                 traceback.print_exception(
                     type(original_exception),
                     original_exception,
                     original_exception.__traceback__,
                 )
-
+                """
                 wis_logger.error(
-                    f"[KuaiShouApiClient.post]请求uri:{uri}，IP更换后还是失败，尝试更换账号与IP再次发起重试"
+                    "[KuaiShouApiClient.post]no IP proxy available, try to get a new account"
                 )
                 await self.mark_account_invalid(self.account_info)
-                await self.update_account_info()
+                await self.update_account_info(force_login=True)
                 return await self.request(
                     method="POST", url=f"{KUAISHOU_API}{uri}", data=json_str, **kwargs
                 )
@@ -426,28 +429,34 @@ class KuaiShouApiClient(AbstractApiClient):
         """
         result = []
         pcursor = ""
-
         while pcursor != "no_more":
-            comments_res = await self.get_video_comments(photo_id, pcursor)
-            vision_commen_list = comments_res.get("visionCommentList", {})
-            pcursor = vision_commen_list.get("pcursor", "")
-            comments = vision_commen_list.get("rootComments", [])
-            if callback:
-                await callback(photo_id, comments)
-            result.extend(comments)
-            if (
-                PER_NOTE_MAX_COMMENTS_COUNT
-                and len(result) >= PER_NOTE_MAX_COMMENTS_COUNT
-            ):
-                wis_logger.info(
-                    f"[KuaiShouApiClient.get_note_all_comments] The number of comments exceeds the limit: {PER_NOTE_MAX_COMMENTS_COUNT}"
+            try:
+                comments_res = await self.get_video_comments(photo_id, pcursor)
+                vision_commen_list = comments_res.get("visionCommentList", {})
+                pcursor = vision_commen_list.get("pcursor", "")
+                comments = vision_commen_list.get("rootComments", [])
+                if callback:
+                    await callback(photo_id, comments)
+                result.extend(comments)
+                if (
+                    PER_NOTE_MAX_COMMENTS_COUNT
+                    and len(result) >= PER_NOTE_MAX_COMMENTS_COUNT
+                ):
+                    wis_logger.debug(
+                        f"[KuaiShouApiClient.get_note_all_comments] The number of comments exceeds the limit: {PER_NOTE_MAX_COMMENTS_COUNT}"
+                    )
+                    break
+                await asyncio.sleep(crawl_interval)
+                sub_comments = await self.get_comments_all_sub_comments(
+                    comments, photo_id, crawl_interval, callback
+                )
+                result.extend(sub_comments)
+            except Exception as e:
+                wis_logger.error(
+                    f"[KuaiShouApiClient.get_video_all_comments] get video_id:{photo_id} comments not finished, but paused by error: {e}"
                 )
                 break
-            await asyncio.sleep(crawl_interval)
-            sub_comments = await self.get_comments_all_sub_comments(
-                comments, photo_id, crawl_interval, callback
-            )
-            result.extend(sub_comments)
+
         return result
 
     async def get_comments_all_sub_comments(
@@ -467,7 +476,7 @@ class KuaiShouApiClient(AbstractApiClient):
         Returns:
 
         """
-        if not config.ENABLE_GET_SUB_COMMENTS:
+        if not ENABLE_GET_SUB_COMMENTS:
             wis_logger.info(
                 f"[KuaiShouApiClient.get_comments_all_sub_comments] Crawling sub_comment mode is not enabled"
             )

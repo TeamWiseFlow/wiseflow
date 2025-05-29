@@ -125,14 +125,14 @@ class AccountWithIpPoolManager(AccountPoolManager):
         """
         await super().async_initialize()
 
-    async def get_account_with_ip_info(self) -> AccountWithIpModel:
+    async def get_account_with_ip_info(self, force_login: bool = False) -> AccountWithIpModel:
         """
         get account with ip, if proxy_ip_pool is None, then return account only
         Returns:
 
         """
         ip_info: Optional[IpInfoModel] = None
-        account: AccountInfoModel = await self.get_active_account()
+        account: AccountInfoModel = await self.get_active_account(force_login)
         if self.proxy_ip_pool:
             ip_info = await self.proxy_ip_pool.get_proxy()
             wis_logger.info(

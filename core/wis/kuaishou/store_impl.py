@@ -1,207 +1,52 @@
-
-from ..base.mc_crawler import AbstractStore
 from ..mc_commen.tools import utils
-from typing import Dict, List
-from db import AsyncMysqlDB
-from ..var import media_crawler_db_var
+from typing import Dict
 
 
-async def query_content_by_content_id(content_id: str) -> Dict:
-    """
-    查询一条内容记录（xhs的帖子 ｜ 抖音的视频 ｜ 微博 ｜ 快手视频 ...）
-    Args:
-        content_id:
+def update_kuaishou_video(video_item: Dict, keyword: str = "", limit_hours: int = 48) -> Dict:
+    photo_info: Dict = video_item.get("photo", {})
+    video_id = photo_info.get("id")
+    if not video_id:
+        return None
+    user_info = video_item.get("author", {})
+    create_time = photo_info.get("timestamp")
 
-    Returns:
+    if not utils.is_cacheup(create_time, limit_hours):
+        return None
+    create_time = utils.get_date_str_from_unix_time(create_time)
 
-    """
-    async_db_conn: AsyncMysqlDB = media_crawler_db_var.get()
-    sql: str = f"select * from kuaishou_video where video_id = '{content_id}'"
-    rows: List[Dict] = await async_db_conn.query(sql)
-    if len(rows) > 0:
-        return rows[0]
-    return dict()
+    return {
+        "video_id": video_id,
+        "video_type": str(video_item.get("type")),
+        "title": photo_info.get("caption", ""),
+        "desc": photo_info.get("caption", ""),
+        "create_time": create_time,
+        "user_id": user_info.get("id"),
+        "nickname": user_info.get("name"),
+        # "avatar": user_info.get("headerUrl", ""),
+        "liked_count": str(photo_info.get("realLikeCount")),
+        "viewd_count": str(photo_info.get("viewCount")),
+        # "last_modify_ts": utils.get_current_timestamp(),
+        "video_url": f"https://www.kuaishou.com/short-video/{video_id}",
+        # "video_cover_url": photo_info.get("coverUrl", ""),
+        "video_play_url": photo_info.get("photoUrl", ""),
+        "source_keyword": keyword,
+    }
 
-
-async def add_new_content(content_item: Dict) -> int:
-    """
-    新增一条内容记录（xhs的帖子 ｜ 抖音的视频 ｜ 微博 ｜ 快手视频 ...）
-    Args:
-        content_item:
-
-    Returns:
-
-    """
-    async_db_conn: AsyncMysqlDB = media_crawler_db_var.get()
-    last_row_id: int = await async_db_conn.item_to_table("kuaishou_video", content_item)
-    return last_row_id
-
-
-async def update_content_by_content_id(content_id: str, content_item: Dict) -> int:
-    """
-    更新一条记录（xhs的帖子 ｜ 抖音的视频 ｜ 微博 ｜ 快手视频 ...）
-    Args:
-        content_id:
-        content_item:
-
-    Returns:
-
-    """
-    async_db_conn: AsyncMysqlDB = media_crawler_db_var.get()
-    effect_row: int = await async_db_conn.update_table(
-        "kuaishou_video", content_item, "video_id", content_id
-    )
-    return effect_row
-
-
-async def query_comment_by_comment_id(comment_id: str) -> Dict:
-    """
-    查询一条评论内容
-    Args:
-        comment_id:
-
-    Returns:
-
-    """
-    async_db_conn: AsyncMysqlDB = media_crawler_db_var.get()
-    sql: str = f"select * from kuaishou_video_comment where comment_id = '{comment_id}'"
-    rows: List[Dict] = await async_db_conn.query(sql)
-    if len(rows) > 0:
-        return rows[0]
-    return dict()
-
-
-async def add_new_comment(comment_item: Dict) -> int:
-    """
-    新增一条评论记录
-    Args:
-        comment_item:
-
-    Returns:
-
-    """
-    async_db_conn: AsyncMysqlDB = media_crawler_db_var.get()
-    last_row_id: int = await async_db_conn.item_to_table(
-        "kuaishou_video_comment", comment_item
-    )
-    return last_row_id
-
-
-async def update_comment_by_comment_id(comment_id: str, comment_item: Dict) -> int:
-    """
-    更新增一条评论记录
-    Args:
-        comment_id:
-        comment_item:
-
-    Returns:
-
-    """
-    async_db_conn: AsyncMysqlDB = media_crawler_db_var.get()
-    effect_row: int = await async_db_conn.update_table(
-        "kuaishou_video_comment", comment_item, "comment_id", comment_id
-    )
-    return effect_row
-
-
-async def query_creator_by_user_id(user_id: str) -> Dict:
-    """
-    查询一条创作者记录
-    Args:
-        user_id:
-
-    Returns:
-
-    """
-    async_db_conn: AsyncMysqlDB = media_crawler_db_var.get()
-    sql: str = f"select * from kuaishou_creator where user_id = '{user_id}'"
-    rows: List[Dict] = await async_db_conn.query(sql)
-    if len(rows) > 0:
-        return rows[0]
-    return dict()
-
-
-async def add_new_creator(creator_item: Dict) -> int:
-    """
-    新增一条创作者信息
-    Args:
-        creator_item:
-
-    Returns:
-
-    """
-    async_db_conn: AsyncMysqlDB = media_crawler_db_var.get()
-    last_row_id: int = await async_db_conn.item_to_table(
-        "kuaishou_creator", creator_item
-    )
-    return last_row_id
-
-
-async def update_creator_by_user_id(user_id: str, creator_item: Dict) -> int:
-    """
-    更新一条创作者信息
-    Args:
-        user_id:
-        creator_item:
-
-    Returns:
-
-    """
-    async_db_conn: AsyncMysqlDB = media_crawler_db_var.get()
-    effect_row: int = await async_db_conn.update_table(
-        "kuaishou_creator", creator_item, "user_id", user_id
-    )
-    return effect_row
-
-
-class KuaishouDbStoreImplement(AbstractStore):
-    async def store_creator(self, creator: Dict):
-        """
-        Kuaishou creator DB storage implementation
-        Args:
-            creator: creator item dict
-
-        Returns:
-
-        """
-        user_id = creator.get("user_id")
-        creator_detail: Dict = await query_creator_by_user_id(user_id=user_id)
-        if not creator_detail:
-            creator["add_ts"] = utils.get_current_timestamp()
-            await add_new_creator(creator)
-        else:
-            await update_creator_by_user_id(user_id, creator)
-
-    async def store_content(self, content_item: Dict):
-        """
-        Kuaishou content DB storage implementation
-        Args:
-            content_item: content item dict
-
-        Returns:
-
-        """
-        video_id = content_item.get("video_id")
-        video_detail: Dict = await query_content_by_content_id(content_id=video_id)
-        if not video_detail:
-            content_item["add_ts"] = utils.get_current_timestamp()
-            await add_new_content(content_item)
-        else:
-            await update_content_by_content_id(video_id, content_item=content_item)
-
-    async def store_comment(self, comment_item: Dict):
-        """
-        Kuaishou content DB storage implementation
-        Args:
-            comment_item: comment item dict
-
-        Returns:
-
-        """
-        comment_id = comment_item.get("comment_id")
-        comment_detail: Dict = await query_comment_by_comment_id(comment_id=comment_id)
-        if not comment_detail:
-            comment_item["add_ts"] = utils.get_current_timestamp()
-            await add_new_comment(comment_item)
-        else:
-            await update_comment_by_comment_id(comment_id, comment_item=comment_item)
+def update_ks_video_comment(comment_item: Dict):
+    # comment_id = comment_item.get("commentId")
+    return {
+        # "comment_id": comment_id,
+        "create_time": utils.get_date_str_from_unix_time(comment_item.get("timestamp")),
+        # "video_id": video_id,
+        "content": comment_item.get("content"),
+        "user_id": comment_item.get("authorId"),
+        "nickname": comment_item.get("authorName"),
+        # "avatar": comment_item.get("headurl"),
+        "sub_comment_count": str(comment_item.get("subCommentCount", 0)),
+        # "last_modify_ts": utils.get_current_timestamp(),
+        "like_count": (
+            comment_item.get("realLikedCount")
+            if comment_item.get("realLikedCount")
+            else 0
+        ),
+    }
