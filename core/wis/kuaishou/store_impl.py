@@ -2,7 +2,7 @@ from ..mc_commen.tools import utils
 from typing import Dict
 
 
-def update_kuaishou_video(video_item: Dict, keyword: str = "", limit_hours: int = 48) -> Dict:
+def update_kuaishou_video(video_item: Dict, limit_hours: int = 48) -> Dict:
     photo_info: Dict = video_item.get("photo", {})
     video_id = photo_info.get("id")
     if not video_id:
@@ -28,8 +28,7 @@ def update_kuaishou_video(video_item: Dict, keyword: str = "", limit_hours: int 
         # "last_modify_ts": utils.get_current_timestamp(),
         "video_url": f"https://www.kuaishou.com/short-video/{video_id}",
         # "video_cover_url": photo_info.get("coverUrl", ""),
-        "video_play_url": photo_info.get("photoUrl", ""),
-        "source_keyword": keyword,
+        "video_play_url": photo_info.get("photoUrl", "")
     }
 
 def update_ks_video_comment(comment_item: Dict):

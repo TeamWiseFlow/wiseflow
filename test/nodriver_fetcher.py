@@ -8,7 +8,7 @@ from pathlib import Path
 import random
 
 
-class NodriverHelper:
+class NodriverFetcher:
     def __init__(self, work_dir: str = None):
         """
         initialize NodriverHelper
@@ -138,9 +138,9 @@ if __name__ == "__main__":
     test_urls = ['https://www.cat.com/',
                  'https://www.komatsu.com/']
     async def main():
-        async with NodriverHelper() as helper:
+        async with NodriverFetcher() as fetcher:
             for url in test_urls:
-                content = await helper.get_content(url)
+                content = await fetcher.get_content(url)
                 print(f"url: {url}")
                 print(content)
                 print("-"*100)

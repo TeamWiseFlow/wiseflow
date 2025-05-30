@@ -20,7 +20,7 @@ class KuaiShouApiClient(AbstractApiClient):
     def __init__(
         self,
         timeout: int = 10,
-        user_agent: str = None,
+        # user_agent: str = None,
         account_with_ip_pool: AccountWithIpPoolManager = None,
     ):
         """
@@ -31,8 +31,8 @@ class KuaiShouApiClient(AbstractApiClient):
             account_with_ip_pool: 账号池管理器
         """
         self.timeout = timeout
-        self._user_agent = user_agent or utils.get_user_agent()
-        #self._sign_client = SignServerClient()
+        # self._user_agent = user_agent or utils.get_user_agent()
+        # self._sign_client = SignServerClient()
         self._graphql = KuaiShouGraphQL()
         self.account_with_ip_pool = account_with_ip_pool
         self.account_info: Optional[AccountWithIpModel] = None
@@ -45,7 +45,8 @@ class KuaiShouApiClient(AbstractApiClient):
             "Cookie": self._cookies,
             "origin": "https://www.kuaishou.com",
             "referer": "https://www.kuaishou.com/",
-            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+            "user-agent": self.account_info.account.user_agent,
+            # "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
         }
 
     @property
@@ -67,17 +68,19 @@ class KuaiShouApiClient(AbstractApiClient):
 
         """
         have_account = False
-        while not have_account:
-            wis_logger.info(
-                f"[KuaiShouApiClient.update_account_info] try to get a new account"
-            )
-            account_info = await self.account_with_ip_pool.get_account_with_ip_info(force_login)
-            self.account_info = account_info
-            have_account = await self.pong()
-            if not have_account:
-                wis_logger.info(
-                    f"[KuaiShouApiClient.update_account_info] current account {account_info.account.account_name} is invalid, try to get a new one"
-                )
+        wis_logger.debug("try to get a new account")
+        account_info = await self.account_with_ip_pool.get_account_with_ip_info(force_login)
+        self.account_info = account_info
+        have_account = await self.pong()
+        if have_account:
+            return
+        wis_logger.info(f"current account {account_info.account.account_name} is invalid, try to get a new one")
+        await self.mark_account_invalid(account_info)
+        account_info = await self.account_with_ip_pool.get_account_with_ip_info(force_login=True)
+        self.account_info = account_info
+        have_account = await self.pong()
+        if not have_account:
+            raise DataFetchError("cannot get any valid account, we have to quit")
 
     async def mark_account_invalid(self, account_with_ip: AccountWithIpModel):
         """
@@ -127,7 +130,7 @@ class KuaiShouApiClient(AbstractApiClient):
         Returns:
 
         """
-        async with httpx.AsyncClient(proxies=self._proxies) as client:
+        async with httpx.AsyncClient(proxy=self._proxies) as client:
             response = await client.request(method, url, timeout=self.timeout, **kwargs)
         data: Dict = response.json()
         if data.get("errors"):
@@ -162,11 +165,11 @@ class KuaiShouApiClient(AbstractApiClient):
                 original_exception.__traceback__,
             )
             wis_logger.error(
-                f"[KuaiShouApiClient.get] 请求uri:{uri} 重试均失败了，尝试更换账号与IP再次发起重试"
+                f"请求uri:{uri} 重试均失败了，尝试更换账号与IP再次发起重试"
             )
             try:
                 wis_logger.info(
-                    f"[KuaiShouApiClient.get] 请求uri:{uri} 尝试更换IP再次发起重试..."
+                    f"请求uri:{uri} 尝试更换IP再次发起重试..."
                 )
                 await self.account_with_ip_pool.mark_ip_invalid(
                     self.account_info.ip_info
@@ -189,7 +192,7 @@ class KuaiShouApiClient(AbstractApiClient):
                 )
                 """
                 wis_logger.error(
-                    f"[KuaiShouApiClient.get] 请求uri:{uri}，IP更换后还是失败，尝试更换账号与IP再次发起重试"
+                    f"请求uri:{uri}，IP更换后还是失败，尝试更换账号与IP再次发起重试"
                 )
                 await self.mark_account_invalid(self.account_info)
                 await self.update_account_info(force_login=True)
@@ -226,11 +229,11 @@ class KuaiShouApiClient(AbstractApiClient):
             )
 
             wis_logger.error(
-                f"[KuaiShouApiClient.post] 请求uri:{uri} 重试均失败了，尝试更换账号与IP再次发起重试"
+                f"请求uri:{uri} 重试均失败了，尝试更换账号与IP再次发起重试"
             )
             try:
                 wis_logger.info(
-                    f"[KuaiShouApiClient.post] 请求uri:{uri} 尝试更换IP再次发起重试..."
+                    f"请求uri:{uri} 尝试更换IP再次发起重试..."
                 )
                 await self.account_with_ip_pool.mark_ip_invalid(
                     self.account_info.ip_info
@@ -257,7 +260,7 @@ class KuaiShouApiClient(AbstractApiClient):
                 )
                 """
                 wis_logger.error(
-                    "[KuaiShouApiClient.post]no IP proxy available, try to get a new account"
+                    "no IP proxy available, try to get a new account"
                 )
                 await self.mark_account_invalid(self.account_info)
                 await self.update_account_info(force_login=True)
@@ -271,7 +274,7 @@ class KuaiShouApiClient(AbstractApiClient):
         Returns:
 
         """
-        wis_logger.debug("[KuaiShouApiClient.pong] Begin pong kuaishou...")
+        wis_logger.debug("Begin pong kuaishou...")
         ping_flag = False
         try:
             post_data = {
@@ -281,17 +284,20 @@ class KuaiShouApiClient(AbstractApiClient):
                 },
                 "query": self._graphql.get("vision_profile_user_list"),
             }
-            async with httpx.AsyncClient(proxies=self._proxies) as client:
+
+            async with httpx.AsyncClient(proxy=self._proxies) as client:
                 response = await client.post(
                     f"{KUAISHOU_API}", json=post_data, headers=self.headers
                 )
             res = response.json()
+            # print(res)
             vision_profile_user_list = res.get("data", {}).get("visionProfileUserList")
             if vision_profile_user_list and vision_profile_user_list.get("result") == 1:
+                # wis_logger.debug(f"pong kuaishou success as user: {vision_profile_user_list.get('fols')[0]['user_name']}")
                 ping_flag = True
         except Exception as e:
             wis_logger.error(
-                f"[KuaiShouApiClient.pong] Pong kuaishou failed: {e}, and try to login again..."
+                f"Pong kuaishou failed: {e}, and try to login again..."
             )
             ping_flag = False
         return ping_flag
@@ -435,6 +441,8 @@ class KuaiShouApiClient(AbstractApiClient):
                 vision_commen_list = comments_res.get("visionCommentList", {})
                 pcursor = vision_commen_list.get("pcursor", "")
                 comments = vision_commen_list.get("rootComments", [])
+                if not comments:
+                    continue
                 if callback:
                     await callback(photo_id, comments)
                 result.extend(comments)
@@ -443,17 +451,18 @@ class KuaiShouApiClient(AbstractApiClient):
                     and len(result) >= PER_NOTE_MAX_COMMENTS_COUNT
                 ):
                     wis_logger.debug(
-                        f"[KuaiShouApiClient.get_note_all_comments] The number of comments exceeds the limit: {PER_NOTE_MAX_COMMENTS_COUNT}"
+                        f"The number of comments exceeds the limit: {PER_NOTE_MAX_COMMENTS_COUNT}"
                     )
                     break
                 await asyncio.sleep(crawl_interval)
                 sub_comments = await self.get_comments_all_sub_comments(
                     comments, photo_id, crawl_interval, callback
                 )
-                result.extend(sub_comments)
+                if sub_comments:
+                    result.extend(sub_comments)
             except Exception as e:
                 wis_logger.error(
-                    f"[KuaiShouApiClient.get_video_all_comments] get video_id:{photo_id} comments not finished, but paused by error: {e}"
+                    f"get video_id:{photo_id} comments not finished, but paused by error: {e}"
                 )
                 break
 
@@ -478,7 +487,7 @@ class KuaiShouApiClient(AbstractApiClient):
         """
         if not ENABLE_GET_SUB_COMMENTS:
             wis_logger.info(
-                f"[KuaiShouApiClient.get_comments_all_sub_comments] Crawling sub_comment mode is not enabled"
+                f"Crawling sub_comment mode is not enabled"
             )
             return []
 
@@ -502,11 +511,12 @@ class KuaiShouApiClient(AbstractApiClient):
                 vision_sub_comment_list = comments_res.get("visionSubCommentList", {})
                 sub_comment_pcursor = vision_sub_comment_list.get("pcursor", "no_more")
 
-                comments = vision_sub_comment_list.get("subComments", {})
+                comments = vision_sub_comment_list.get("subComments", [])
                 if callback:
                     await callback(photo_id, comments)
                 await asyncio.sleep(crawl_interval)
-                result.extend(comments)
+                if comments:
+                    result.extend(comments)
         return result
 
     async def get_creator_info(self, user_id: str) -> Dict:
@@ -545,7 +555,7 @@ class KuaiShouApiClient(AbstractApiClient):
             videos_res = await self.get_video_by_creater(user_id, pcursor)
             if not videos_res:
                 wis_logger.error(
-                    f"[KuaiShouApiClient.get_all_videos_by_creator] The current creator may have been banned by ks, so they cannot access the data."
+                    f"The current creator may have been banned by ks, so they cannot access the data."
                 )
                 break
 
@@ -554,7 +564,7 @@ class KuaiShouApiClient(AbstractApiClient):
 
             videos = vision_profile_photo_list.get("feeds", [])
             wis_logger.debug(
-                f"[KuaiShouApiClient.get_all_videos_by_creator] got user_id:{user_id} videos len : {len(videos)}"
+                f"got user_id:{user_id} videos len : {len(videos)}"
             )
 
             if callback:

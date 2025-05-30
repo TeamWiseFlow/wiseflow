@@ -26,16 +26,13 @@ class IpInfoModel(BaseModel):
     password: str = Field(title="IP代理认证用户的密码")
     expired_time_ts: int = Field(title="IP过期时间时间戳，单位秒")
 
-    def format_httpx_proxy(self) -> Dict:
+    def format_httpx_proxy(self) -> str:
         """
-        Get the httpx proxy dict
+        Get the httpx proxy string for new httpx version
         Returns:
-
+            str: proxy URL string like "http://user:password@ip:port"
         """
-        httpx_proxy = {
-            f"{self.protocol}": f"http://{self.user}:{self.password}@{self.ip}:{self.port}"
-        }
-        return httpx_proxy
+        return f"{self.protocol}://{self.user}:{self.password}@{self.ip}:{self.port}"
 
     @property
     def is_expired(self) -> bool:

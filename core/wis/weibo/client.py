@@ -131,7 +131,8 @@ class WeiboClient:
         if "return_response" in kwargs:
             del kwargs["return_response"]
         headers = kwargs.pop("headers", None) or self.headers
-        async with httpx.AsyncClient(proxies=self._proxies) as client:
+        
+        async with httpx.AsyncClient(proxy=self._proxies) as client:
             response = await client.request(
                 method, url, timeout=self.timeout, headers=headers, **kwargs
             )
@@ -258,7 +259,7 @@ class WeiboClient:
         ping_flag = False
         try:
             uri = "/api/config"
-            async with httpx.AsyncClient(proxies=self._proxies) as client:
+            async with httpx.AsyncClient(proxy=self._proxies) as client:
                 response = await client.request(
                     method="GET",
                     url=f"{WEIBO_API_URL}{uri}",

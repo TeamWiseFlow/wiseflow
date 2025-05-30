@@ -69,7 +69,7 @@ class NodriverHelper:
             raise ValueError(f"未找到平台 {self.platform} 的登录URL")
         self.page = await self.browser.get(login_url)
     
-    async def for_page_verification(self, url: str, timeout: int = 600) -> tuple[str, list, dict]:
+    async def for_page_verification(self, url: str = None, timeout: int = 600):
         """
         等待用户完成验证
         
@@ -128,7 +128,7 @@ class NodriverHelper:
                 if input_text.strip() == "":
                     wis_logger.debug("检测到用户确认，登录成功")
                     break
-
+        """
         await asyncio.sleep(7)
         # await self.page.open_external_inspector()
         selected_cookies = await self._get_cookies()
@@ -150,27 +150,19 @@ class NodriverHelper:
         current_url = await self.page.evaluate("window.location.href")
         #print(f"redirected_url: {current_url}")
         return current_url, playwright_cookies, await self.page.get_local_storage()
-
+        """
 
     async def for_mc_login(self, url: str = None, timeout: int = 600, force_login: bool = False) -> tuple[str, str]:
-        if not self.browser:
-            await self.start()
-        
-        if not url:
-            url = PLATFORM_LOGIN_URLS.get(self.platform)
-            if not url:
-                raise ValueError(f"未找到平台 {self.platform} 的登录URL")
+        if not self.page:
+            await self.open_page(url)
 
         if force_login:
-            await self.browser.clear()
-            await self.open_page(url)
+            await self.browser.cookies.clear()
+            await self.page.reload()
             if await self._check_login_status():
                 input_text = await asyncio.get_event_loop().run_in_executor(None, input, "请手动操作退出登录，然后再次登录，完成后按回车键继续...")
                 if input_text.strip() == "":
                     wis_logger.debug("检测到用户确认，开始检查登录状态")
-
-        if not self.page:
-            await self.open_page(url)
 
         start_time = asyncio.get_event_loop().time()
         # 获取初始页面内容

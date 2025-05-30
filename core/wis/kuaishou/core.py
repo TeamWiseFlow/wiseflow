@@ -1,60 +1,18 @@
 import asyncio
 import random
 from asyncio import Task
-from typing import Dict, List, Optional
-from ..config.mc_config import *
-from ..base.mc_crawler import AbstractCrawler
-from ..mc_commen import AccountWithIpPoolManager, ProxyIpPool, wis_logger, create_ip_pool
+from typing import Dict, List, Optional, Tuple
+from ..config.mc_config import CRAWLER_MAX_NOTES_COUNT, START_PAGE, MAX_CONCURRENCY_NUM, ENABLE_GET_COMMENTS, KUAISHOU_PLATFORM_NAME
+# from ..base.mc_crawler import AbstractCrawler
+from ..mc_commen import AccountWithIpPoolManager, ProxyIpPool, wis_logger, create_ip_pool, NodriverHelper
 from .store_impl import *
-from ..base.crawl4ai_models import CrawlResult
 from .client import KuaiShouApiClient
 from .exception import DataFetchError
 
 
-
-
-class KuaiShouCrawler(AbstractCrawler):
+class KuaiShouCrawler:
     def __init__(self):
         self.ks_client = KuaiShouApiClient()
-    
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        pass
-
-    async def __aenter__(self):
-        return self
-    
-    async def __aexit__(self, exc_type, exc_value, traceback):
-        pass
-
-    async def run(self,
-                  keywords: List[str],
-                  existings: set[str] = set(),
-                  limit_hours: int = 48,
-                  creator_ids: set[str] = set(),
-                  further_fetch_mode: str = "creator_info",
-                  ):
-        # 1. first get fresh videos
-        fresh_videos = []
-        if creator_ids:
-            fresh_videos.extend(await self.get_videos_by_creators(creator_ids, existings, limit_hours))
-        else:
-            fresh_videos.extend(await self.get_homefeed_videos(existings, limit_hours))
-        if keywords:
-            fresh_videos.extend(await self.search_videos(keywords, existings, limit_hours))
-        
-        # 2. format the markdown content(filter our the repeated videos)
-
-        # 3. use default LLMExtractor to extract infos and videos need further processing
-
-        # 4. for each video that need further processing, fetching the creator info or comments(depends on further_fetch_mode)
-
-        # 4.1 formate the markdown content with further fetch content
-
-        # 4.2 use modified LLMExtractor to extract infos
-
 
     async def async_initialize(self):
         """
@@ -80,19 +38,65 @@ class KuaiShouCrawler(AbstractCrawler):
         self.ks_client.account_with_ip_pool = account_with_ip_pool
         await self.ks_client.update_account_info()
 
+    async def get_new_videos(self,
+                  keywords: List[str],
+                  existings: set[str] = set(),
+                  limit_hours: int = 48,
+                  creator_ids: set[str] = set(),
+                  ) -> Tuple[str, dict]:
+
+        fresh_videos = []
+        if "homefeed" in creator_ids:
+            creator_ids.remove("homefeed")
+            fresh_videos.extend(await self.get_homefeed_videos(existings, limit_hours))
+
+        if creator_ids:
+            fresh_videos.extend(await self.get_videos_by_creators(creator_ids, existings, limit_hours))
+
+        if keywords:
+            fresh_videos.extend(await self.search_videos(keywords, existings, limit_hours))
+
+        markdown = ""
+        link_dict = {}
+
+        for video in fresh_videos:
+            title = video.get("title")
+            desc = video.get("desc")
+            create_time = video.get("create_time")
+            liked_count = video.get("liked_count")
+            viewd_count = video.get("viewd_count")
+            _key = f"[{len(link_dict)+1}]"
+            link_dict[_key] = video
+            markdown += f"* 标题：{title} 发布时间：{create_time} 点赞数：{liked_count} 播放数：{viewd_count} 描述：{desc} {_key}\n\n"
+
+        return markdown.replace("#", ""), link_dict
+    
+    async def get_video_as_article(self, video: Dict) -> Tuple[str, Dict]:
+        article = f"{video.get('title')}\n作者：{video.get('nickname')}(id: {video.get('user_id')}) 发布时间：{video.get('create_time')}\n{video.get('desc')}\n点赞量：{video.get('liked_count')} 播放量：{video.get('viewd_count')}\n\n"
+        ref = {"video_url": video.get("video_url"), "video_play_url": video.get("video_play_url")}
+
+        comments = await self.get_video_comments(video.get("video_id"))
+        if not comments:
+            return article, ref
+
+        article += "评论区："
+        for comment in comments:
+            article += f"\n{comment.get('nickname')}(id: {comment.get('user_id')}) 评论于：{comment.get('create_time')}\n{comment.get('content')}\n获赞：{comment.get('like_count')}\n"
+        return article, ref
+
     async def get_creators_info(self, creator_id: str) -> Optional[str]:
         # get creator detail info from web html content
         try:
             createor_info: Dict = await self.ks_client.get_creator_info(creator_id)
         except Exception as e:
             wis_logger.error(
-                f"[KuaiShouCrawler.get_creators_info] get creator: {creator_id} info error: {e}"
+                f"get creator: {creator_id} info error: {e}"
             )
             return None
         
         if not createor_info:
             wis_logger.warning(
-                f"[KuaiShouCrawler.get_creators_info] get creator: {creator_id} info error: {createor_info}"
+                f"get creator: {creator_id} info error: {createor_info}"
             )
             return None
         
@@ -100,7 +104,7 @@ class KuaiShouCrawler(AbstractCrawler):
         profile = createor_info.get("profile", {})
         if not profile and not owner_count:
             wis_logger.warning(
-                f"[KuaiShouCrawler.get_creators_info] get creator: {creator_id} info error: {createor_info}"
+                f"get creator: {creator_id} info error: {createor_info}"
             )
             return None
         
@@ -118,27 +122,25 @@ class KuaiShouCrawler(AbstractCrawler):
         Returns:
 
         """
-        wis_logger.debug("[KuaiShouCrawler.search] Begin search kuaishou keywords")
+        wis_logger.debug("Begin search kuaishou keywords")
         ks_limit_count = 20  # kuaishou limit page fixed value
-        if CRAWLER_MAX_NOTES_COUNT < ks_limit_count:
-            CRAWLER_MAX_NOTES_COUNT = ks_limit_count
         start_page = START_PAGE
         videos = []
         for keyword in keywords:
             search_session_id = ""
             wis_logger.debug(
-                f"[KuaiShouCrawler.search] Current search keyword: {keyword}"
+                f"Current search keyword: {keyword}"
             )
             page = 1
             while (
                 page - start_page + 1
             ) * ks_limit_count <= CRAWLER_MAX_NOTES_COUNT:
                 if page < start_page:
-                    wis_logger.debug(f"[KuaiShouCrawler.search] Skip page: {page}")
+                    wis_logger.debug(f"Skip page: {page}")
                     page += 1
                     continue
                 wis_logger.debug(
-                    f"[KuaiShouCrawler.search] search kuaishou keyword: {keyword}, page: {page}"
+                    f"search kuaishou keyword: {keyword}, page: {page}"
                 )
                 try:
                     videos_res = await self.ks_client.search_info_by_keyword(
@@ -148,20 +150,20 @@ class KuaiShouCrawler(AbstractCrawler):
                     )
                 except Exception as e:
                     wis_logger.error(
-                        f"[KuaiShouCrawler.search] search info by keyword:{keyword} not finished, but paused by error: {e}"
+                        f"search info by keyword:{keyword} not finished, but paused by error: {e}"
                     )
                     break
 
                 if not videos_res:
                     wis_logger.warning(
-                        f"[KuaiShouCrawler.search] search info by keyword:{keyword} not found data"
+                        f"search info by keyword:{keyword} not found data"
                     )
                     break
 
                 vision_search_photo: Dict = videos_res.get("visionSearchPhoto")
                 if vision_search_photo.get("result") != 1:
                     wis_logger.warning(
-                        f"[KuaiShouCrawler.search] search info by keyword:{keyword} not found data "
+                        f"search info by keyword:{keyword} not found data "
                     )
                     break
                 search_session_id = vision_search_photo.get("searchSessionId", "")
@@ -170,7 +172,7 @@ class KuaiShouCrawler(AbstractCrawler):
                     if not _video_id or _video_id in existings:
                         continue
                     existings.add(_video_id)
-                    _video = update_kuaishou_video(video_item=video_detail, limit_hours=limit_hours, keyword=keyword)
+                    _video = update_kuaishou_video(video_item=video_detail, limit_hours=limit_hours)
                     if _video:
                         videos.append(_video)
                 page += 1
@@ -212,18 +214,25 @@ class KuaiShouCrawler(AbstractCrawler):
         async with semaphore:
             try:
                 result = await self.ks_client.get_video_info(video_id)
-                wis_logger.debug(
-                    f"[KuaiShouCrawler.get_video_info_task] Get video_id:{video_id} info result: {result} ..."
-                )
+                if not result:
+                    wis_logger.debug(f"Get video_id:{video_id} info result is None")
+                    return None
+                if result.get('result', 0) == 400002:
+                    wis_logger.debug(f"Get video_id:{video_id} info result: {result} ...")
+                    wis_logger.debug("will call user verify")
+                    async with NodriverHelper(KUAISHOU_PLATFORM_NAME) as nodriver_helper:
+                        await nodriver_helper.for_page_verification()
+                    await asyncio.sleep(random.random())
+                    result = await self.ks_client.get_video_info(video_id)
                 return result.get("visionVideoDetail")
             except DataFetchError as ex:
                 wis_logger.error(
-                    f"[KuaiShouCrawler.get_video_info_task] Get video detail error: {ex}"
+                    f"Get video detail error: {ex}"
                 )
                 return None
             except KeyError as ex:
                 wis_logger.error(
-                    f"[KuaiShouCrawler.get_video_info_task] have not fund video detail video_id:{video_id}, err: {ex}"
+                    f"have not fund video detail video_id:{video_id}, err: {ex}"
                 )
                 return None
 
@@ -237,25 +246,24 @@ class KuaiShouCrawler(AbstractCrawler):
         Returns:
             set[Dict]: crawl results
         """
-        wis_logger.debug(
-            "[KuaiShouCrawler.get_videos_by_creators] Begin get kuaishou creators' videos"
-        )
+        wis_logger.debug("Begin get kuaishou creators' videos")
         video_ids = set()
         for user_id in creator_ids:
             # Get all video information of the creator
             pcursor = ""
-            while pcursor != "no_more":
+            # 最多获取前三页
+            for _ in range(3):
                 try:
                     videos_res = await self.ks_client.get_video_by_creater(user_id, pcursor)
                 except Exception as e:
                     wis_logger.error(
-                        f"[KuaiShouApiClient.get_all_videos_by_creator] get user_id:{user_id} videos not finished, but paused by error: {e}"
+                        f"get user_id:{user_id} videos not finished, but paused by error: {e}"
                     )
                     break
                 
                 if not videos_res:
                     wis_logger.error(
-                        f"[KuaiShouApiClient.get_all_videos_by_creator] The current creator may have been banned by ks, so they cannot access the data."
+                        f"The current creator may have been banned by ks, so they cannot access the data."
                     )
                     break
 
@@ -264,7 +272,7 @@ class KuaiShouCrawler(AbstractCrawler):
 
                 videos = vision_profile_photo_list.get("feeds", [])
                 wis_logger.debug(
-                    f"[KuaiShouApiClient.get_all_videos_by_creator] got user_id:{user_id} videos len : {len(videos)}"
+                    f"got user_id:{user_id} videos len : {len(videos)}"
                 )
                 for video in videos:
                     _video_id = video.get("photo", {}).get("id")
@@ -272,16 +280,18 @@ class KuaiShouCrawler(AbstractCrawler):
                         continue
                     existings.add(_video_id)
                     video_ids.add(_video_id)
+                if pcursor == "no_more":
+                    break
                 await asyncio.sleep(random.random())
 
         semaphore = asyncio.Semaphore(MAX_CONCURRENCY_NUM)
         task_list = [
             self.get_video_info_task(video_id, semaphore)
             for video_id in video_ids]
-
-        video_details = await asyncio.gather(*task_list)
+        # Process tasks as they complete (stream-like)
         videos = []
-        for video_detail in video_details:
+        for task in asyncio.as_completed(task_list):
+            video_detail = await task
             if not video_detail:
                 continue
             _video = update_kuaishou_video(video_item=video_detail, limit_hours=limit_hours)
@@ -293,9 +303,7 @@ class KuaiShouCrawler(AbstractCrawler):
         """
         Get homefeed videos and comments
         """
-        wis_logger.debug(
-            "[KuaiShouCrawler.get_homefeed_videos] Begin get kuaishou homefeed videos"
-        )
+        wis_logger.debug("Begin get kuaishou homefeed videos")
         pcursor = ""
         saved_video_count = 0
         videos = []
@@ -304,23 +312,19 @@ class KuaiShouCrawler(AbstractCrawler):
                 homefeed_videos_res = await self.ks_client.get_homefeed_videos(pcursor)
             except Exception as e:
                 wis_logger.error(
-                    f"[KuaiShouCrawler.get_homefeed_videos] get homefeed not finished, but paused by error: {e}"
+                    f"get homefeed not finished, but paused by error: {e}"
                 )
                 break
             
             if not homefeed_videos_res:
-                wis_logger.debug(
-                    "[KuaiShouCrawler.get_homefeed_videos] No more content!"
-                )
+                wis_logger.debug("No more content!")
                 break
 
             brilliant_type_data: Dict = homefeed_videos_res.get("brilliantTypeData")
             pcursor = brilliant_type_data.get("pcursor", "")
             videos_list: List[Dict] = brilliant_type_data.get("feeds", [])
             if not videos_list:
-                wis_logger.debug(
-                    "[KuaiShouCrawler.get_homefeed_videos] No more content!"
-                )
+                wis_logger.debug("No more content!")
                 break
 
             for video_detail in videos_list:
@@ -333,21 +337,15 @@ class KuaiShouCrawler(AbstractCrawler):
                     videos.append(_video)
                     saved_video_count += 1
 
-        wis_logger.info(
-            f"[KuaiShouCrawler.get_homefeed_videos] Kuaishou homefeed videos crawler finished, saved_video_count: {saved_video_count}"
-        )
+        wis_logger.debug(f"Kuaishou homefeed videos crawler finished, saved_video_count: {saved_video_count}")
 
         return videos
 
     async def get_video_comments(self, video_id: str) -> List[Dict]:
         if not ENABLE_GET_COMMENTS:
-            wis_logger.info(
-                f"[KuaiShouCrawler.batch_get_video_comments] Crawling comment mode is not enabled"
-            )
+            wis_logger.debug("Crawling comment mode is not enabled")
             return []
         
-        wis_logger.debug(
-            f"[KuaiShouCrawler.get_comments_async_task] begin get video_id: {video_id} comments ..."
-        )
+        wis_logger.debug(f"begin get video_id: {video_id} comments ...")
         results =  await self.ks_client.get_video_all_comments(photo_id=video_id, crawl_interval=random.random())
         return [update_ks_video_comment(comment_item) for comment_item in results]
