@@ -15,11 +15,11 @@ from PIL import Image, ImageDraw, ImageFont
 import hashlib
 import uuid
 from .js_snippet import load_js_script
-from .base.crawl4ai_models import AsyncCrawlResponse
+from .c4a_commen.basemodels import AsyncCrawlResponse
 from .config import SCREENSHOT_HEIGHT_TRESHOLD, DOWNLOAD_PAGE_TIMEOUT
 from .async_configs import BrowserConfig, CrawlerRunConfig
 from playwright_stealth import StealthConfig
-from .ssl_certificate import SSLCertificate
+from .c4a_commen.ssl_certificate import SSLCertificate
 from .utils import get_chromium_path
 from .user_agent_generator import ValidUAGenerator
 import json, hashlib

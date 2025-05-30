@@ -21,7 +21,7 @@ class WeiboClient:
     def __init__(
         self,
         timeout: int = 10,
-        user_agent: str = None,
+        # user_agent: str = None,
         account_with_ip_pool: AccountWithIpPoolManager = None,
     ):
         """
@@ -32,7 +32,7 @@ class WeiboClient:
             account_with_ip_pool: 账号池管理器
         """
         self.timeout = timeout
-        self._user_agent = user_agent or utils.get_user_agent()
+        # self._user_agent = user_agent or utils.get_user_agent()
         self.account_with_ip_pool = account_with_ip_pool
 
     @property
@@ -43,7 +43,8 @@ class WeiboClient:
             "Cookie": self._cookies,
             "origin": "https://m.weibo.cn/",
             "referer": "https://m.weibo.cn/",
-            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+            "user-agent": self.account_info.account.user_agent,
+            # "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
         }
 
     @property
@@ -58,25 +59,26 @@ class WeiboClient:
     def _cookies(self):
         return self.account_info.account.cookies
 
-    async def update_account_info(self):
+    async def update_account_info(self, force_login: bool = False):
         """
         更新客户端的账号信息, 该方法会一直尝试获取新的账号信息，直到获取到一个有效的账号信息
         Returns:
 
         """
         have_account = False
-        while not have_account:
-            wis_logger.info(
-                f"[WeiboClient.update_account_info] try to get a new account"
-            )
-            self.account_info = (
-                await self.account_with_ip_pool.get_account_with_ip_info()
-            )
-            have_account = await self.pong()
-            if not have_account:
-                wis_logger.info(
-                    f"[WeiboClient.update_account_info] current account {self.account_info.account.account_name} is invalid, try to get a new one"
-                )
+        wis_logger.debug("try to get a new account")
+        account_info = await self.account_with_ip_pool.get_account_with_ip_info(force_login)
+        self.account_info = account_info
+        have_account = await self.pong()
+        if have_account:
+            return
+        wis_logger.info(f"current account {account_info.account.account_name} is invalid, try to get a new one")
+        await self.mark_account_invalid(account_info)
+        account_info = await self.account_with_ip_pool.get_account_with_ip_info(force_login=True)
+        self.account_info = account_info
+        have_account = await self.pong()
+        if not have_account:
+            raise DataFetchError("cannot get any valid account, we have to quit")
 
     async def mark_account_invalid(self, account_with_ip: AccountWithIpModel):
         """
@@ -106,7 +108,7 @@ class WeiboClient:
             and self.account_info.ip_info.is_expired
         ):
             wis_logger.info(
-                f"[BaiduTieBaClient.request] current ip {self.account_info.ip_info.ip} is expired, "
+                f"[WeiboClient.request] current ip {self.account_info.ip_info.ip} is expired, "
                 f"mark it invalid and try to get a new one"
             )
             await self.account_with_ip_pool.mark_ip_invalid(self.account_info.ip_info)
@@ -144,7 +146,7 @@ class WeiboClient:
         if data.get("ok") not in [1, 0]:
             # 0和1是正常的返回码，其他的都是异常，0代表无数据，1代表有数据
             wis_logger.error(
-                f"[WeiboClient.request] request {method}:{url} err, res:{data}"
+                f"[WeiboClient.request] {method}:{url} err, res:{data}"
             )
             raise DataFetchError(data.get("msg", "unkonw error"))
         else:
@@ -173,32 +175,25 @@ class WeiboClient:
             wis_logger.error(
                 f"[WeiboClient.get] 请求uri:{uri} 重试均失败了，尝试更换账号与IP再次发起重试"
             )
-            if self.account_with_ip_pool.proxy_ip_pool:
-                try:
-                    wis_logger.info(
-                        f"[WeiboClient.get] 请求uri:{uri} 尝试更换IP再次发起重试..."
-                    )
-                    await self.account_with_ip_pool.mark_ip_invalid(
-                        cast(IpInfoModel, self.account_info.ip_info)
-                    )
-                    proxy_ip_pool: ProxyIpPool = cast(
-                        ProxyIpPool, self.account_with_ip_pool.proxy_ip_pool
-                    )
-                    self.account_info.ip_info = await proxy_ip_pool.get_proxy()
-                    return await self.request(
-                        method="GET", url=f"{WEIBO_API_URL}{final_uri}", **kwargs
-                    )
-                except RetryError:
-                    pass
-
-            wis_logger.error(
-                f"[WeiboClient.get]请求uri:{uri}，IP更换后还是失败，尝试更换账号与IP再次发起重试"
-            )
-            await self.mark_account_invalid(self.account_info)
-            await self.update_account_info()
-            return await self.request(
-                method="GET", url=f"{WEIBO_API_URL}{final_uri}", **kwargs
-            )
+            try:
+                wis_logger.info("尝试更换IP再次发起重试...")
+                await self.account_with_ip_pool.mark_ip_invalid(
+                    cast(IpInfoModel, self.account_info.ip_info)
+                )
+                proxy_ip_pool: ProxyIpPool = cast(
+                    ProxyIpPool, self.account_with_ip_pool.proxy_ip_pool
+                )
+                self.account_info.ip_info = await proxy_ip_pool.get_proxy()
+                return await self.request(
+                    method="GET", url=f"{WEIBO_API_URL}{final_uri}", **kwargs
+                )
+            except Exception as e:
+                wis_logger.error(f"尝试更换账号再次发起重试, err:{e}")
+                await self.mark_account_invalid(self.account_info)
+                await self.update_account_info(force_login=True)
+                return await self.request(
+                    method="GET", url=f"{WEIBO_API_URL}{final_uri}", **kwargs
+                )
 
     async def post(self, uri: str, data: Dict, **kwargs) -> Union[Response, Dict]:
         """
@@ -218,44 +213,33 @@ class WeiboClient:
             return res
         except RetryError:
             wis_logger.error(
-                f"[WeiboClient.post] 请求uri:{uri} 重试均失败了，尝试更换账号与IP再次发起重试"
+                f"[WeiboClient.post] 请求uri:{uri} 重试均失败了，尝试更换IP再次发起重试"
             )
-            if self.account_with_ip_pool.proxy_ip_pool:
-                wis_logger.info(
-                    f"[WeiboClient.post] 请求uri:{uri} 尝试更换IP再次发起重试..."
+            try:
+                await self.account_with_ip_pool.mark_ip_invalid(
+                    cast(IpInfoModel, self.account_info.ip_info)
                 )
-                try:
-                    await self.account_with_ip_pool.mark_ip_invalid(
-                        cast(IpInfoModel, self.account_info.ip_info)
-                    )
-                    proxy_ip_pool: ProxyIpPool = cast(
-                        ProxyIpPool, self.account_with_ip_pool.proxy_ip_pool
-                    )
-                    self.account_info.ip_info = await proxy_ip_pool.get_proxy()
-                    return await self.request(
-                        method="POST",
-                        url=f"{WEIBO_API_URL}{uri}",
-                        data=json_str,
-                        **kwargs,
-                    )
-
-                except RetryError:
-                    pass
-
-            wis_logger.error(
-                f"[WeiboClient.post]请求uri:{uri}，IP更换后还是失败，尝试更换账号与IP再次发起重试"
-            )
-            await self.mark_account_invalid(self.account_info)
-            await self.update_account_info()
-            return await self.request(
-                method="POST", url=f"{WEIBO_API_URL}{uri}", data=json_str, **kwargs
-            )
+                proxy_ip_pool: ProxyIpPool = cast(
+                    ProxyIpPool, self.account_with_ip_pool.proxy_ip_pool
+                )
+                self.account_info.ip_info = await proxy_ip_pool.get_proxy()
+                return await self.request(
+                    method="POST",
+                    url=f"{WEIBO_API_URL}{uri}",
+                    data=json_str,
+                    **kwargs,
+                )
+            except Exception as e:
+                wis_logger.error(f"尝试更换账号再次发起重试, err:{e}")
+                await self.mark_account_invalid(self.account_info)
+                await self.update_account_info(force_login=True)
+                return await self.request(
+                    method="POST", url=f"{WEIBO_API_URL}{uri}", data=json_str, **kwargs
+                )
 
     async def pong(self) -> bool:
         """get a note to check if login state is ok"""
-        wis_logger.debug(
-            f"[WeiboClient.pong] Begin to check account: {self.account_info.account.account_name} login state..."
-        )
+        wis_logger.debug(f"Begin to check account weibo login state...")
         ping_flag = False
         try:
             uri = "/api/config"
@@ -266,7 +250,6 @@ class WeiboClient:
                     headers=self.headers,
                 )
             resp_data: Dict = cast(Dict, response.json())
-            print(resp_data)
             if resp_data and resp_data.get("data", {}).get("login"):
                 ping_flag = True
             else:
@@ -275,7 +258,7 @@ class WeiboClient:
                 )
         except Exception as e:
             wis_logger.error(
-                f"[WeiboClient.pong] Ping xhs failed: {e},current account: {self.account_info.account.account_name} and try to login again..."
+                f"[WeiboClient.pong] Ping weibo failed: {e}"
             )
             ping_flag = False
         return ping_flag

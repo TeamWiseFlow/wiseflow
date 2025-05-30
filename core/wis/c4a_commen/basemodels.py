@@ -4,7 +4,7 @@ from typing import AsyncGenerator
 from typing import Generic, TypeVar
 from enum import Enum
 from dataclasses import dataclass
-from ..ssl_certificate import SSLCertificate
+from .ssl_certificate import SSLCertificate
 from datetime import datetime
 from datetime import timedelta
 

@@ -9,7 +9,7 @@ configure_windows_event_loop()
 
 # from contextlib import nullcontext, asynccontextmanager
 from contextlib import asynccontextmanager
-from .base.crawl4ai_models import (
+from .c4a_commen.basemodels import (
     CrawlResult,
     DispatchResult,
     CrawlResultContainer,
@@ -25,7 +25,7 @@ from .async_crawler_strategy import (
     AsyncPlaywrightCrawlerStrategy,
     AsyncCrawlResponse,
 )
-from .cache_context import CacheMode, CacheContext
+from .c4a_commen.cache_context import CacheMode, CacheContext
 from .markdown_generation_strategy import *
 markdown_generation_hub = {'mp.weixin.qq.com': WeixinArticleMarkdownGenerator}
 

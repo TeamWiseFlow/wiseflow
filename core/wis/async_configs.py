@@ -11,7 +11,7 @@ from .config import (
 from .extraction_strategy import ExtractionStrategy
 from .chunking_strategy import ChunkingStrategy, RegexChunking
 
-from .cache_context import CacheMode
+from .c4a_commen.cache_context import CacheMode
 from .proxy_strategy import ProxyRotationStrategy
 from .user_agent_generator import UAGen, ValidUAGenerator  # , OnlineUAGenerator
 from typing import Union, List

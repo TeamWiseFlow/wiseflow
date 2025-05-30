@@ -13,8 +13,8 @@ from .utils import (
     extract_xml_data,
     split_and_parse_json_objects,
 )
-from .base.crawl4ai_models import * # noqa: F403
-from .base.crawl4ai_models import TokenUsage
+from .c4a_commen.basemodels import * # noqa: F403
+from .c4a_commen.basemodels import TokenUsage
 
 from functools import partial
 import regex as re

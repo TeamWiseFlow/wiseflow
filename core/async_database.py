@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 import json
 from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor
-from .wis.base.crawl4ai_models import CrawlResult
+from .wis.c4a_commen.basemodels import CrawlResult
 from .tools.general_utils import get_logger
 from .wis.utils import ensure_content_dirs, generate_content_hash
 from datetime import datetime, timedelta

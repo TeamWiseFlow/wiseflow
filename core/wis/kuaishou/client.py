@@ -9,14 +9,13 @@ import httpx
 from httpx import Response
 from tenacity import RetryError, retry, stop_after_attempt, wait_fixed
 
-from ..base.mc_crawler import AbstractApiClient
 from ..config.mc_config import KUAISHOU_API, PER_NOTE_MAX_COMMENTS_COUNT, ENABLE_GET_SUB_COMMENTS
 from ..mc_commen.account_pool import *
 from .exception import DataFetchError
 from .graphql import KuaiShouGraphQL
 
 
-class KuaiShouApiClient(AbstractApiClient):
+class KuaiShouApiClient:
     def __init__(
         self,
         timeout: int = 10,
@@ -180,7 +179,7 @@ class KuaiShouApiClient(AbstractApiClient):
                 return await self.request(
                     method="GET", url=f"{KUAISHOU_API}{final_uri}", **kwargs
                 )
-            except Exception as ee:
+            except Exception as e:
                 # 获取原始异常
                 """
                 # in version 4.0, we do not have ip proxy yet
@@ -422,7 +421,7 @@ class KuaiShouApiClient(AbstractApiClient):
         photo_id: str,
         crawl_interval: float = 1.0,
         callback: Optional[Callable] = None,
-    ):
+    ) -> List[Dict]:
         """
         获取视频所有评论，包括一级评论和二级评论
         Args:
@@ -435,16 +434,23 @@ class KuaiShouApiClient(AbstractApiClient):
         """
         result = []
         pcursor = ""
-        while pcursor != "no_more":
+        for _ in range(3):
             try:
                 comments_res = await self.get_video_comments(photo_id, pcursor)
                 vision_commen_list = comments_res.get("visionCommentList", {})
                 pcursor = vision_commen_list.get("pcursor", "")
                 comments = vision_commen_list.get("rootComments", [])
+
                 if not comments:
                     continue
+
                 if callback:
                     await callback(photo_id, comments)
+
+                await self.get_comments_all_sub_comments(
+                    comments, photo_id, crawl_interval, callback
+                )
+
                 result.extend(comments)
                 if (
                     PER_NOTE_MAX_COMMENTS_COUNT
@@ -454,12 +460,11 @@ class KuaiShouApiClient(AbstractApiClient):
                         f"The number of comments exceeds the limit: {PER_NOTE_MAX_COMMENTS_COUNT}"
                     )
                     break
+
+                if pcursor == "no_more":
+                    break
+
                 await asyncio.sleep(crawl_interval)
-                sub_comments = await self.get_comments_all_sub_comments(
-                    comments, photo_id, crawl_interval, callback
-                )
-                if sub_comments:
-                    result.extend(sub_comments)
             except Exception as e:
                 wis_logger.error(
                     f"get video_id:{photo_id} comments not finished, but paused by error: {e}"
@@ -474,7 +479,7 @@ class KuaiShouApiClient(AbstractApiClient):
         photo_id,
         crawl_interval: float = 1.0,
         callback: Optional[Callable] = None,
-    ) -> List[Dict]:
+    ):
         """
         获取指定一级评论下的所有二级评论, 该方法会一直查找一级评论下的所有二级评论信息
         Args:
@@ -489,35 +494,36 @@ class KuaiShouApiClient(AbstractApiClient):
             wis_logger.info(
                 f"Crawling sub_comment mode is not enabled"
             )
-            return []
+            return
 
-        result = []
         for comment in comments:
-            sub_comments = comment.get("subComments")
-            if sub_comments and callback:
-                await callback(photo_id, sub_comments)
-
+            # print("root comment", comment)
+            sub_comments = []
             sub_comment_pcursor = comment.get("subCommentsPcursor")
-            if sub_comment_pcursor == "no_more":
+            if not sub_comment_pcursor or sub_comment_pcursor == "no_more":
                 continue
-
             root_comment_id = comment.get("commentId")
-            sub_comment_pcursor = ""
-
-            while sub_comment_pcursor != "no_more":
+            for _ in range(3):
+                # print("sub comments pcursor", sub_comment_pcursor)
+                # print("root comment id", root_comment_id)
+                # print("photo id", photo_id)
                 comments_res = await self.get_video_sub_comments(
                     photo_id, root_comment_id, sub_comment_pcursor
                 )
+                # print("sub comments response", comments_res)
+                # print('-'*10)
                 vision_sub_comment_list = comments_res.get("visionSubCommentList", {})
                 sub_comment_pcursor = vision_sub_comment_list.get("pcursor", "no_more")
-
-                comments = vision_sub_comment_list.get("subComments", [])
-                if callback:
-                    await callback(photo_id, comments)
-                await asyncio.sleep(crawl_interval)
-                if comments:
-                    result.extend(comments)
-        return result
+                subs = vision_sub_comment_list.get("subComments", [])
+                if callback and subs:
+                    await callback(photo_id, subs)
+                if subs:
+                    sub_comments.extend(subs)
+                if not sub_comment_pcursor or sub_comment_pcursor == "no_more":
+                    break
+            if sub_comments:
+                comment["subComments"] = sub_comments
+            await asyncio.sleep(crawl_interval)
 
     async def get_creator_info(self, user_id: str) -> Dict:
         """

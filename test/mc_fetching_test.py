@@ -19,7 +19,7 @@ async def main(keywords: list, existings: set[str] = set(), limit_hours: int = 4
     except Exception as e:
         print(e)
         return
-    albums, posts = await crawler.get_new_videos(keywords=keywords, creator_ids=creator_ids, existings=existings, limit_hours=limit_hours)
+    albums, posts = await crawler.posts_list(keywords=keywords, creator_ids=creator_ids, existings=existings, limit_hours=limit_hours)
     print(albums)
     albums_json = {
         "markdown": albums,
@@ -36,10 +36,10 @@ async def main(keywords: list, existings: set[str] = set(), limit_hours: int = 4
         print("\n--- No videos found in posts to select from ---")
         return
     
-    article, ref = await crawler.get_video_as_article(selected_video)
+    article, ref = await crawler.post_as_article(selected_video)
     print(article)
     print(ref)
-    creator_info = await crawler.get_creators_info(selected_video.get("user_id"))
+    creator_info = await crawler.creator_as_article(selected_video.get("user_id"))
     print(creator_info)
     article_json = {
         "article": article,

@@ -19,7 +19,7 @@ from .extraction_strategy import (
 )
 from .chunking_strategy import ChunkingStrategy, RegexChunking, IdentityChunking, MaxLengthChunking
 
-from .base.crawl4ai_models import CrawlResult
+from .c4a_commen.basemodels import CrawlResult
 # from .components.crawler_monitor import CrawlerMonitor
 from .async_dispatcher import (
     MemoryAdaptiveDispatcher,
@@ -28,6 +28,8 @@ from .async_dispatcher import (
     BaseDispatcher,
 )
 
+from .kuaishou.core import KuaiShouCrawler
+from .weibo.core import WeiboCrawler
 
 __all__ = [
     "AsyncWebCrawler",
@@ -52,7 +54,9 @@ __all__ = [
     "RateLimiter",
     "ProxyRotationStrategy",
     "RoundRobinProxyStrategy",
-    "ProxyConfig"
+    "ProxyConfig",
+    "KuaiShouCrawler",
+    "WeiboCrawler"
 ]
 
 

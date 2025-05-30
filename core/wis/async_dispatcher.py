@@ -1,6 +1,6 @@
 from typing import Dict, Optional, List, Tuple
 from .async_configs import CrawlerRunConfig
-from .base.crawl4ai_models import (
+from .c4a_commen.basemodels import (
     CrawlResult,
     CrawlerTaskResult,
     CrawlStatus,
