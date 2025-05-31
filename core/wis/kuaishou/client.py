@@ -437,39 +437,37 @@ class KuaiShouApiClient:
         for _ in range(3):
             try:
                 comments_res = await self.get_video_comments(photo_id, pcursor)
-                vision_commen_list = comments_res.get("visionCommentList", {})
-                pcursor = vision_commen_list.get("pcursor", "")
-                comments = vision_commen_list.get("rootComments", [])
-
-                if not comments:
-                    continue
-
-                if callback:
-                    await callback(photo_id, comments)
-
-                await self.get_comments_all_sub_comments(
-                    comments, photo_id, crawl_interval, callback
-                )
-
-                result.extend(comments)
-                if (
-                    PER_NOTE_MAX_COMMENTS_COUNT
-                    and len(result) >= PER_NOTE_MAX_COMMENTS_COUNT
-                ):
-                    wis_logger.debug(
-                        f"The number of comments exceeds the limit: {PER_NOTE_MAX_COMMENTS_COUNT}"
-                    )
-                    break
-
-                if pcursor == "no_more":
-                    break
-
-                await asyncio.sleep(crawl_interval)
             except Exception as e:
-                wis_logger.error(
-                    f"get video_id:{photo_id} comments not finished, but paused by error: {e}"
-                )
+                wis_logger.warning(f"get video_id:{photo_id} comments failed by error: {e}, will retry for max 3 times")
+                continue
+            if not comments_res:
+                wis_logger.warning(f"get video_id:{photo_id} comments is empty, will retry for max 3 times")
+                continue
+
+            vision_commen_list = comments_res.get("visionCommentList", {})
+            pcursor = vision_commen_list.get("pcursor", "")
+            comments = vision_commen_list.get("rootComments", [])
+
+            if callback:
+                await callback(photo_id, comments)
+
+            await self.get_comments_all_sub_comments(
+                comments, photo_id, crawl_interval, callback
+            )
+
+            result.extend(comments)
+            if (
+                PER_NOTE_MAX_COMMENTS_COUNT
+                and len(result) >= PER_NOTE_MAX_COMMENTS_COUNT
+            ):
+                wis_logger.debug(
+                    f"The number of comments exceeds the limit: {PER_NOTE_MAX_COMMENTS_COUNT}"
+                    )
+
+            if pcursor == "no_more":
                 break
+
+            await asyncio.sleep(crawl_interval)
 
         return result
 
@@ -504,14 +502,16 @@ class KuaiShouApiClient:
                 continue
             root_comment_id = comment.get("commentId")
             for _ in range(3):
-                # print("sub comments pcursor", sub_comment_pcursor)
-                # print("root comment id", root_comment_id)
-                # print("photo id", photo_id)
-                comments_res = await self.get_video_sub_comments(
-                    photo_id, root_comment_id, sub_comment_pcursor
-                )
-                # print("sub comments response", comments_res)
-                # print('-'*10)
+                try:
+                    comments_res = await self.get_video_sub_comments(
+                        photo_id, root_comment_id, sub_comment_pcursor
+                    )
+                except Exception as e:
+                    wis_logger.warning(f"get video_id:{photo_id} sub comments failed by error: {e}, will retry for max 3 times")
+                    continue
+                if not comments_res:
+                    wis_logger.warning(f"get video_id:{photo_id} sub comments is empty, will retry for max 3 times")
+                    continue
                 vision_sub_comment_list = comments_res.get("visionSubCommentList", {})
                 sub_comment_pcursor = vision_sub_comment_list.get("pcursor", "no_more")
                 subs = vision_sub_comment_list.get("subComments", [])

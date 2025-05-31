@@ -28,8 +28,9 @@ from .async_dispatcher import (
     BaseDispatcher,
 )
 
-from .kuaishou.core import KuaiShouCrawler
-from .weibo.core import WeiboCrawler
+from .kuaishou import *
+from .weibo import *
+from .config.mc_config import WEIBO_PLATFORM_NAME, KUAISHOU_PLATFORM_NAME
 
 __all__ = [
     "AsyncWebCrawler",
@@ -56,7 +57,10 @@ __all__ = [
     "RoundRobinProxyStrategy",
     "ProxyConfig",
     "KuaiShouCrawler",
-    "WeiboCrawler"
+    "WeiboCrawler",
+    "WeiboSearchType",
+    "WEIBO_PLATFORM_NAME",
+    "KUAISHOU_PLATFORM_NAME"
 ]
 
 

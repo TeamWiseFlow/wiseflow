@@ -8,7 +8,7 @@ import regex as re
 import httpx
 from httpx import Response
 from tenacity import RetryError, retry, stop_after_attempt, wait_fixed
-from ..config.mc_config import WEIBO_API_URL, PER_NOTE_MAX_COMMENTS_COUNT, ENABLE_GET_SUB_COMMENTS
+from ..config.mc_config import WEIBO_API_URL, PER_NOTE_MAX_COMMENTS_COUNT
 from ..mc_commen.account_pool import *
 from .exception import DataFetchError
 from .field import SearchType
@@ -311,7 +311,7 @@ class WeiboClient:
         note_id: str,
         crawl_interval: float = 1.0,
         callback: Optional[Callable] = None,
-    ):
+    ) -> List[Dict]:
         """
         get note all comments include sub comments
         :param note_id:
@@ -319,65 +319,40 @@ class WeiboClient:
         :param callback:
         :return:
         """
-
         result = []
         is_end = False
         max_id = -1
         max_id_type = 0
-        while not is_end:
-            comments_res = await self.get_note_comments(note_id, max_id, max_id_type)
-            if not comments_res:
-                break
+        for _ in range(3):
+            try:
+                comments_res = await self.get_note_comments(note_id, max_id, max_id_type)
+                if not comments_res:
+                    wis_logger.debug(f"note_id:{note_id} has no comments")
+                    break
+            except Exception as e:
+                wis_logger.warning(f"get note_id:{note_id} comments failed by error: {e}, will retry for max 3 times")
+                continue
             max_id = comments_res.get("max_id", 0)
             max_id_type = comments_res.get("max_id_type", 0)
             comment_list: List[Dict] = comments_res.get("data", [])
             is_end = max_id == 0
+
             if callback:  # 如果有回调函数，就执行回调函数
                 await callback(note_id, comment_list)
-            await asyncio.sleep(crawl_interval)
+
             result.extend(comment_list)
+            if is_end:
+                break
             if (
                 PER_NOTE_MAX_COMMENTS_COUNT
                 and len(result) >= PER_NOTE_MAX_COMMENTS_COUNT
             ):
                 wis_logger.info(
-                    f"[WeiboClient.get_note_all_comments] The number of comments exceeds the limit: {PER_NOTE_MAX_COMMENTS_COUNT}"
+                    f"The number of comments exceeds the limit: {PER_NOTE_MAX_COMMENTS_COUNT}"
                 )
                 break
-            sub_comment_result = await self.get_comments_all_sub_comments(
-                note_id, comment_list, callback
-            )
-            result.extend(sub_comment_result)
+            await asyncio.sleep(crawl_interval)
         return result
-
-    @staticmethod
-    async def get_comments_all_sub_comments(
-        note_id: str, comment_list: List[Dict], callback: Optional[Callable] = None
-    ) -> List[Dict]:
-        """
-        获取评论的所有子评论
-        Args:
-            note_id:
-            comment_list:
-            callback:
-
-        Returns:
-
-        """
-        if not ENABLE_GET_SUB_COMMENTS:
-            wis_logger.info(
-                f"[WeiboClient.get_comments_all_sub_comments] Crawling sub_comment mode is not enabled"
-            )
-            return []
-
-        res_sub_comments = []
-        for comment in comment_list:
-            sub_comments = comment.get("comments")
-            if sub_comments and isinstance(sub_comments, list):
-                if callback:
-                    await callback(note_id, sub_comments)
-                res_sub_comments.extend(sub_comments)
-        return res_sub_comments
 
     async def get_note_info_by_id(self, note_id: str) -> Dict:
         """
@@ -480,57 +455,3 @@ class WeiboClient:
             "since_id": since_id,
         }
         return await self.get(uri, params)
-
-    async def get_all_notes_by_creator_id(
-        self,
-        creator_id: str,
-        container_id: str,
-        crawl_interval: float = 1.0,
-        callback: Optional[Callable] = None,
-    ) -> List[Dict]:
-        """
-        获取指定用户下的所有发过的帖子，该方法会一直查找一个用户下的所有帖子信息
-        Args:
-            creator_id:
-            container_id:
-            crawl_interval:
-            callback:
-
-        Returns:
-
-        """
-        result = []
-        notes_has_more = True
-        since_id = ""
-        crawler_total_count = 0
-        while notes_has_more:
-            notes_res = await self.get_notes_by_creator(
-                creator_id, container_id, since_id
-            )
-            if not notes_res:
-                wis_logger.error(
-                    f"[WeiboClient.get_notes_by_creator] The current creator may have been banned by xhs, so they cannot access the data."
-                )
-                break
-
-            since_id = notes_res.get("cardlistInfo", {}).get("since_id", "0")
-            if "cards" not in notes_res:
-                wis_logger.info(
-                    f"[WeiboClient.get_all_notes_by_creator] No 'notes' key found in response: {notes_res}"
-                )
-                break
-
-            notes = notes_res["cards"]
-            wis_logger.info(
-                f"[WeiboClient.get_all_notes_by_creator] got user_id:{creator_id} notes len : {len(notes)}"
-            )
-            notes = [note for note in notes if note.get("card_type") == 9]
-            if callback:
-                await callback(notes)
-            await asyncio.sleep(crawl_interval)
-            result.extend(notes)
-            crawler_total_count += 10
-            notes_has_more = (
-                notes_res.get("cardlistInfo", {}).get("total", 0) > crawler_total_count
-            )
-        return result

@@ -96,10 +96,10 @@ def rfc2822_to_timestamp(rfc2822_time):
     dt_object = datetime.strptime(rfc2822_time, rfc2822_format)
 
     # 将datetime对象转换为UTC时间
-    dt_utc = dt_object.replace(tzinfo=timezone.utc)
+    # dt_utc = dt_object.replace(tzinfo=timezone.utc)
 
     # 计算UTC时间对应的Unix时间戳
-    timestamp = int(dt_utc.timestamp())
+    timestamp = int(dt_object.timestamp())
 
     return timestamp
 

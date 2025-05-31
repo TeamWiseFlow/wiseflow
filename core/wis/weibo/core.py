@@ -1,7 +1,7 @@
 import asyncio
 import random
 from typing import Dict, List, Optional, Tuple
-
+from ..mc_commen.tools.time_util import rfc2822_to_timestamp, rfc2822_to_china_datetime, is_cacheup
 from ..config.mc_config import WEIBO_PLATFORM_NAME, ENABLE_GET_COMMENTS, MAX_CONCURRENCY_NUM, START_PAGE, CRAWLER_MAX_NOTES_COUNT
 from ..mc_commen import AccountWithIpPoolManager, ProxyIpPool, wis_logger, create_ip_pool
 from .store_impl import update_weibo_note, update_weibo_note_comment
@@ -9,6 +9,7 @@ from .client import WeiboClient
 from .exception import DataFetchError
 from .field import SearchType
 from .help import filter_search_result_card
+from ..mc_commen.tools.utils import process_html_string
 
 
 class WeiboCrawler:
@@ -51,6 +52,7 @@ class WeiboCrawler:
         fresh_notes = []
 
         if creator_ids:
+            creator_ids.discard("homefeed")
             fresh_notes.extend(await self.get_notes_by_creators(creator_ids, existings, limit_hours))
 
         if keywords:
@@ -59,29 +61,57 @@ class WeiboCrawler:
         markdown = ""
         link_dict = {}
 
-        for video in fresh_videos:
-            title = video.get("title").replace("\n", "  ")
-            desc = video.get("desc").replace("\n", " ")
-            create_time = video.get("create_time")
-            liked_count = video.get("liked_count")
-            viewd_count = video.get("viewd_count")
+        for note in fresh_notes:
+            content = note.get("content").replace("\n", " ")
+            create_time = note.get("create_time")
+            liked_count = note.get("liked_count")
+            comments_count = note.get("comments_count")
+            shared_count = note.get("shared_count")
+            # ip_location = note.get("ip_location")
+            # user_id = note.get("user_id")
+            # nickname = note.get("nickname")
+            # gender = note.get("gender")
             _key = f"[{len(link_dict)+1}]"
-            link_dict[_key] = video
-            markdown += f"* 标题：{title} 发布时间：{create_time} 点赞量：{liked_count} 播放量：{viewd_count} 描述：{desc} {_key}\n\n"
+            link_dict[_key] = note
+            markdown += f"* {content} (发布时间： {create_time} 点赞量：{liked_count} 评论量：{comments_count} 转发量：{shared_count}) {_key}\n"
 
         return markdown.replace("#", ""), link_dict
     
-    async def post_as_article(self, video: Dict) -> Tuple[str, Dict]:
-        article = f"{video.get('title')}\n作者：{video.get('nickname')}(id: {video.get('user_id')}) 发布时间：{video.get('create_time')}\n{video.get('desc')}\n点赞量：{video.get('liked_count')} 播放量：{video.get('viewd_count')}\n\n"
-        ref = {"video_url": video.get("video_url"), "video_play_url": video.get("video_play_url")}
+    async def post_as_article(self, note: Dict) -> Tuple[str, Dict]:
+        # content = note.get("content")
+        note_id = note.get("note_id")
+        note_detail = await self.get_note_info(note_id)
+        detail_content = None
+        title = ''
+        if note_detail:
+            mblog: Dict = note_detail.get("mblog", {})
+            if mblog and mblog.get("text"):
+                detail_content = mblog.get("text")
+                title = mblog.get("status_title")
+        
+        content = detail_content if detail_content else note.get("content")
+        create_time = note.get("create_time")
+        liked_count = note.get("liked_count")
+        comments_count = note.get("comments_count")
+        shared_count = note.get("shared_count")
+        ip_location = note.get("ip_location")
+        user_id = note.get("user_id")
+        nickname = note.get("nickname")
+        gender = note.get("gender")
 
-        comments = await self.get_video_comments(video.get("video_id"))
-        if not comments:
-            return article, ref
+        markdown = f"{title}\n发布者： {nickname} ({user_id}) "
+        if gender:
+            markdown += f"({gender}) "
+        if ip_location:
+            markdown += f"{ip_location} "
+        markdown += f"发布时间： {create_time}\n\n{content}\n点赞量：{liked_count} 评论量：{comments_count} 转发量：{shared_count}"
 
-        article += "评论区：\n"
-        article += "\n\n".join(comments)
-        return article, ref
+        comments = await self.get_note_comments(note_id)
+        if comments:
+            markdown += f"\n\n评论区：\n{comments}"
+        # todo save as crawresult to db first
+        # note_url = note.get("note_url")
+        return process_html_string(markdown)
 
     async def creator_as_article(self, creator_id: str) -> Optional[str]:
         try:
@@ -108,13 +138,19 @@ class WeiboCrawler:
             return None
         
         nickname = user_info.get('screen_name')
-        gender = '女' if user_info.get('gender') == "f" else '男',
+        gender = '女' if user_info.get('gender') == "f" else '男'
         desc = user_info.get('description')
         ip_location = user_info.get("source", "")
-        follows = user_info.get('follow_count', '')
+        verify = user_info.get('verified_reason')
         fans = user_info.get('followers_count', '')
 
-        return f"昵称:{nickname}\n性别:{gender}\n来自:{ip_location}\n简介:{desc}\n粉丝量:{fans} {follows}"
+        markdown = f"昵称:{nickname}({creator_id})\n性别:{gender}\n"
+        if verify:
+            markdown += f"认证:{verify}\n"
+        if ip_location:
+            markdown += f"来自:{ip_location}\n"
+        markdown += f"简介:{desc}\n粉丝量:{fans}"
+        return markdown
 
     async def search_notes(self, 
                            keywords: List[str], 
@@ -131,15 +167,12 @@ class WeiboCrawler:
         start_page = START_PAGE
         notes = []
         for keyword in keywords:
-            wis_logger.debug(
-                f"Current search keyword: {keyword}"
-            )
             page = 1
             while (
                 page - start_page + 1
             ) * weibo_limit_count <= CRAWLER_MAX_NOTES_COUNT:
                 if page < start_page:
-                    wis_logger.debug(f"Skip page: {page}")
+                    wis_logger.debug(f"Current search keyword: {keyword}, Skip page: {page} as setting")
                     page += 1
                     continue
                 wis_logger.debug(
@@ -158,69 +191,36 @@ class WeiboCrawler:
                 
                 note_list = filter_search_result_card(search_res.get("cards", []))
                 for note_item in note_list:
-                    if note_item:
-                        mblog: Dict = note_item.get("mblog", {})
-                        if mblog:
-                            note_id = mblog.get("id", "")
-                            if note_id and note_id not in existings:
-                                existings.add(note_id)
-                                note_item = update_weibo_note(note_item, limit_hours=limit_hours, keyword=keyword)
-                                if note_item:
-                                    notes.append(note_item)
+                    mblog: Dict = note_item.get("mblog", {})
+                    if not mblog:
+                        continue
+                    note_id = mblog.get("id", "")
+                    if not note_id or note_id in existings:
+                        continue
+                    existings.add(note_id)
+                    # print("create_time", str(rfc2822_to_china_datetime(mblog.get("created_at"))))
+                    if is_cacheup(rfc2822_to_timestamp(mblog.get("created_at")), limit_hours):
+                        notes.append(update_weibo_note(mblog))
                 page += 1
         return notes
 
-    async def get_specified_notes(self, note_ids: List[str], limit_hours: int = 48):
-        """
-        get specified notes info
-        Returns:
-
-        """
-        semaphore = asyncio.Semaphore(MAX_CONCURRENCY_NUM)
-        task_list = [
-            self.get_note_info_task(note_id=note_id, semaphore=semaphore)
-            for note_id in note_ids
-        ]
-        # Process tasks as they complete (stream-like)
-        notes = []
-        for task in asyncio.as_completed(task_list):
-            note_detail = await task
-            if not note_detail:
-                continue
-            note_item = update_weibo_note(note_item=note_detail, limit_hours=limit_hours)
-            if note_item:
-                notes.append(note_item)
-        return notes
-
-    async def get_note_info_task(
-        self, note_id: str, semaphore: asyncio.Semaphore
-    ) -> Optional[Dict]:
-        """
-        get note detail task
-        Args:
-            note_id:
-            semaphore:
-
-        Returns:
-
-        """
-        async with semaphore:
-            # todo should read first from db for cache
-            try:
-                result = await self.wb_client.get_note_info_by_id(note_id)
-                return result
-            except DataFetchError as ex:
-                wis_logger.error(
-                    f"Get note detail error: {ex}"
-                )
-                return None
-            except KeyError as ex:
-                wis_logger.error(
-                    f"have not fund note detail note_id:{note_id}, err: {ex}"
-                )
-                return None
+    async def get_note_info(self, note_id: str) -> Optional[Dict]:
+        # todo should read first from db for cache
+        try:
+            result = await self.wb_client.get_note_info_by_id(note_id)
+            return result
+        except DataFetchError as ex:
+            wis_logger.error(
+                f"Get note detail error: {ex}"
+            )
+            return None
+        except KeyError as ex:
+            wis_logger.error(
+                f"have not fund note detail note_id:{note_id}, err: {ex}"
+            )
+            return None
  
-    async def get_note_comments(self, note_id: str) -> List[str]:
+    async def get_note_comments(self, note_id: str) -> str:
         """
         get note comments by note id
         Args:
@@ -234,7 +234,7 @@ class WeiboCrawler:
             wis_logger.info(
                 f"Crawling comment mode is not enabled"
             )
-            return []
+            return ""
         
         # todo should read first from db for cache
         wis_logger.debug(f"begin get note_id: {note_id} comments ...")
@@ -242,7 +242,7 @@ class WeiboCrawler:
             note_id=note_id,
             crawl_interval=random.randint(1, 3)
         )
-        return [update_weibo_note_comment(comment_item) for comment_item in results]
+        return update_weibo_note_comment(results)
 
     async def get_notes_by_creators(self, creator_ids: List[str], existings: set[str] = set(), limit_hours: int = 48) -> List[Dict]:
         """
@@ -255,7 +255,7 @@ class WeiboCrawler:
             List[Dict]: crawl results
         """
         wis_logger.debug("Begin get weibo creators' notes")
-        note_ids = set()
+        results = []
         for user_id in creator_ids:
             # Get all note information of the creator
             try:
@@ -274,16 +274,54 @@ class WeiboCrawler:
                 )
                 continue
             
-            try:
-                # Get all note information of the creator
-                all_notes_list = await self.wb_client.get_all_notes_by_creator_id(
-                    creator_id=user_id,
-                    container_id=createor_info_res.get("lfid_container_id"),
-                    crawl_interval=0,
-                )
-            except Exception as e:
-                wis_logger.error(
-                    f"get creator: {user_id} all_notes_list error: {e}"
-                )
-                continue
+            since_id = ""
+            crawler_total_count = 0
+            for _ in range(3):
+                try:
+                    notes_res = await self.wb_client.get_notes_by_creator(
+                        user_id, createor_info_res.get("lfid_container_id", ""), since_id
+                    )
+                except Exception as e:
+                    wis_logger.warning(f"get user_id:{user_id} notes failed by error: {e}, will retry for max 3 times")
+                    continue
+                if not notes_res:
+                    wis_logger.warning(
+                        f"get user_id:{user_id} notes is empty, will retry for max 3 times"
+                    )
+                    continue
 
+                since_id = notes_res.get("cardlistInfo", {}).get("since_id", "0")
+                if "cards" not in notes_res:
+                    wis_logger.warning(
+                        f"get user_id:{user_id} notes no 'notes' key found in response: {notes_res}, will retry for max 3 times"
+                    )
+                    continue
+
+                notes = notes_res["cards"]
+                wis_logger.debug(
+                    f"got user_id:{user_id} notes len : {len(notes)}"
+                )
+                notes = [note for note in notes if note.get("card_type") == 9]
+                for idx, note in enumerate(notes):
+                    mblog: Dict = note.get("mblog", {})
+                    if not mblog:
+                        continue
+                    note_id = mblog.get("id", "")
+                    if not note_id or note_id in existings:
+                        continue
+
+                    existings.add(note_id)
+                    # print("create_time", str(rfc2822_to_china_datetime(mblog.get("created_at"))))
+                    if is_cacheup(rfc2822_to_timestamp(mblog.get("created_at")), limit_hours):
+                        results.append(update_weibo_note(mblog))
+                    else:
+                        if idx >= 3:
+                            wis_logger.debug("too old notes, will discard this and the rest...")
+                            crawler_total_count += 10000
+                            break
+                    
+                crawler_total_count += 10
+                if notes_res.get("cardlistInfo", {}).get("total", 0) <= crawler_total_count:
+                    break
+                await asyncio.sleep(0.2)
+        return results

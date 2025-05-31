@@ -3,7 +3,7 @@ import random
 from asyncio import Task
 from typing import Dict, List, Optional, Tuple
 from ..config.mc_config import CRAWLER_MAX_NOTES_COUNT, START_PAGE, MAX_CONCURRENCY_NUM, ENABLE_GET_COMMENTS, KUAISHOU_PLATFORM_NAME
-# from ..base.mc_crawler import AbstractCrawler
+from ..mc_commen.tools.time_util import is_cacheup
 from ..mc_commen import AccountWithIpPoolManager, ProxyIpPool, wis_logger, create_ip_pool
 from .store_impl import *
 from .client import KuaiShouApiClient
@@ -42,7 +42,8 @@ class KuaiShouCrawler:
                          keywords: List[str],
                          existings: set[str] = set(),
                          limit_hours: int = 48,
-                         creator_ids: set[str] = set()) -> Tuple[str, dict]:
+                         creator_ids: set[str] = set(),
+                         **kwargs) -> Tuple[str, dict]:
 
         fresh_videos = []
         if "homefeed" in creator_ids:
@@ -71,15 +72,13 @@ class KuaiShouCrawler:
         return markdown.replace("#", ""), link_dict
     
     async def post_as_article(self, video: Dict) -> Tuple[str, Dict]:
-        article = f"{video.get('title')}\n作者：{video.get('nickname')}(id: {video.get('user_id')}) 发布时间：{video.get('create_time')}\n{video.get('desc')}\n点赞量：{video.get('liked_count')} 播放量：{video.get('viewd_count')}\n\n"
+        article = f"{video.get('title')}\n作者：{video.get('nickname')}(id: {video.get('user_id')}) 发布时间：{video.get('create_time')}\n{video.get('desc')}\n点赞量：{video.get('liked_count')} 播放量：{video.get('viewd_count')}"
         ref = {"video_url": video.get("video_url"), "video_play_url": video.get("video_play_url")}
 
         comments = await self.get_video_comments(video.get("video_id"))
-        if not comments:
-            return article, ref
-
-        article += "评论区：\n"
-        article += "\n\n".join(comments)
+        if comments:
+            article += f"\n\n评论区：\n{comments}"
+        # todo save as a crawlresult to db
         return article, ref
 
     async def creator_as_article(self, creator_id: str) -> Optional[str]:
@@ -112,7 +111,8 @@ class KuaiShouCrawler:
         # follows = owner_count.get("follow")
         fans = owner_count.get("fan")
         videos_count = owner_count.get("photo_public")
-        return f"昵称:{nickname}\n性别:{gender}\n简介:{desc}\n粉丝量:{fans}\n已发布视频数量:{videos_count}"
+        # todo save as a crawlresult to db
+        return f"昵称:{nickname}({creator_id})\n性别:{gender}\n简介:{desc}\n粉丝量:{fans}\n已发布视频数量:{videos_count}"
 
     async def search_videos(self, keywords: List[str], existings: set[str] = set(), limit_hours: int = 48) -> List[Dict]:
         """
@@ -126,15 +126,12 @@ class KuaiShouCrawler:
         videos = []
         for keyword in keywords:
             search_session_id = ""
-            wis_logger.debug(
-                f"Current search keyword: {keyword}"
-            )
             page = 1
             while (
                 page - start_page + 1
             ) * ks_limit_count <= CRAWLER_MAX_NOTES_COUNT:
                 if page < start_page:
-                    wis_logger.debug(f"Skip page: {page}")
+                    wis_logger.debug(f"Current search keyword: {keyword}, Skip page: {page} as setting")
                     page += 1
                     continue
                 wis_logger.debug(
@@ -171,9 +168,10 @@ class KuaiShouCrawler:
                     if not _video_id or _video_id in existings:
                         continue
                     existings.add(_video_id)
-                    _video = update_kuaishou_video(video_item=video_detail, limit_hours=limit_hours, keyword=keyword)
-                    if _video:
-                        videos.append(_video)
+                    _create_time = video_detail.get("photo", {}).get("timestamp")
+                    if not is_cacheup(_create_time, limit_hours):
+                        continue
+                    videos.append(update_kuaishou_video(video_item=video_detail, keyword=keyword))
                 page += 1
 
         return videos
@@ -193,9 +191,10 @@ class KuaiShouCrawler:
         videos = []
         for video_detail in video_details:
             if video_detail is not None:
-                _video = update_kuaishou_video(video_item=video_detail, limit_hours=limit_hours)
-                if _video:
-                    videos.append(_video)
+                _create_time = video_detail.get("photo", {}).get("timestamp")
+                if not _create_time or not is_cacheup(_create_time, limit_hours):
+                    continue
+                videos.append(update_kuaishou_video(video_item=video_detail))
         return videos
 
     async def get_video_info_task(
@@ -275,12 +274,18 @@ class KuaiShouCrawler:
 
                 vision_profile_photo_list = videos_res.get("visionProfilePhotoList", {})
                 pcursor = vision_profile_photo_list.get("pcursor", "")
-
                 videos = vision_profile_photo_list.get("feeds", [])
                 wis_logger.debug(
-                    f"got user_id:{user_id} videos len : {len(videos)}"
+                    f"got user_id:{user_id} videos res len : {len(videos)}"
                 )
-                for video in videos:
+                for idx, video in enumerate(videos):
+                    _create_time = video.get("photo", {}).get("timestamp")
+                    if not is_cacheup(_create_time, limit_hours):
+                        if idx >= 3:
+                            wis_logger.debug("too old videos, will discard this and the rest...")
+                            pcursor = "no_more"
+                            break
+                        continue
                     _video_id = video.get("photo", {}).get("id")
                     if not _video_id or _video_id in existings:
                         continue
@@ -300,9 +305,10 @@ class KuaiShouCrawler:
             video_detail = await task
             if not video_detail:
                 continue
-            _video = update_kuaishou_video(video_item=video_detail, limit_hours=limit_hours)
-            if _video:
-                videos.append(_video)
+            _create_time = video_detail.get("photo", {}).get("timestamp")
+            if not _create_time or not is_cacheup(_create_time, limit_hours):
+                continue
+            videos.append(update_kuaishou_video(video_item=video_detail))
         return videos
 
     async def get_homefeed_videos(self, existings: set[str] = set(), limit_hours: int = 48) -> List[Dict]:
@@ -338,21 +344,23 @@ class KuaiShouCrawler:
                 if not _video_id or _video_id in existings:
                     continue
                 existings.add(_video_id)
-                _video = update_kuaishou_video(video_item=video_detail, limit_hours=limit_hours)
-                if _video:
-                    videos.append(_video)
-                    saved_video_count += 1
+                _create_time = video_detail.get("photo", {}).get("timestamp")
+                # print("create_time", _create_time)
+                if not is_cacheup(_create_time, limit_hours):
+                    continue
+                videos.append(update_kuaishou_video(video_item=video_detail))
+                saved_video_count += 1
 
         wis_logger.debug(f"Kuaishou homefeed videos crawler finished, saved_video_count: {saved_video_count}")
-
         return videos
 
-    async def get_video_comments(self, video_id: str) -> List[str]:
+    async def get_video_comments(self, video_id: str) -> str:
         if not ENABLE_GET_COMMENTS:
             wis_logger.info("Crawling comment mode is not enabled")
-            return []
+            return ""
         
         # todo should read first from db for cache
         wis_logger.debug(f"begin get video_id: {video_id} comments ...")
         results =  await self.ks_client.get_video_all_comments(photo_id=video_id, crawl_interval=random.random())
-        return [update_ks_video_comment(comment_item) for comment_item in results]
+        return update_ks_video_comment(results)
+    
