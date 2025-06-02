@@ -6,6 +6,7 @@ from typing import List
 
 base_url = os.environ.get('LLM_API_BASE', "")
 token = os.environ.get('LLM_API_KEY', "")
+primary_model = os.environ.get("PRIMARY_MODEL", "")
 
 if not base_url and not token:
     raise ValueError("LLM_API_BASE or LLM_API_KEY must be set")
@@ -16,13 +17,15 @@ elif not base_url and token:
 else:
     client = OpenAI(api_key=token, base_url=base_url)
 
-def perform_completion_with_backoff(messages: List, model: str, logger=None, **kwargs):
-
+def perform_completion_with_backoff(messages: List, model: str = '', logger=None, **kwargs):
+    model = model if model else primary_model
     # 最大重试次数
     max_retries = 3
     # 初始等待时间（秒）
     wait_time = 20
-    
+    print("########################")
+    print(messages[0]['content'])
+    print("########################")
     for retry in range(max_retries):
         try:
             response = client.chat.completions.create(
@@ -122,6 +125,55 @@ sentence2 with the found citation mark
 </links>
 """
 
+PROMPT_EXTRACT_BLOCKS_ONLY_INFO = """Extract all information related to the following focus points from the given markdown:
+{FOCUS_POINT}
+
+And here is the markdown:
+<markdown>
+{HTML}
+</markdown>
+
+The above markdown content is derived from the HTML of a webpage and may have been chunked.
+All reference links in the original HTML (a elements or img elements) have been converted to citation marks (something like "[x]")
+
+please adhere to the following notes:
+- All information should be extracted from the given markdown, do not make up any information.
+- It is not guaranteed that the given markdown will always be relevant to the focus point, if that is the case, output nothing.
+- All extracted information must comply with restrictions (if given), such as time limit, value limit, subject limit, etc.
+- If multiple information are extracted, merge them into one coherent message that contains all the key points.
+
+Please provide your output within <info></info> tag, like this:
+
+<info>
+Extracted information (if there are multiple pieces of information, merge them into one; if there are none, keep it empty)
+</info>
+"""
+
+PROMPT_EXTRACT_BLOCKS_ONLY_LINKS = """Find all links(represented by a citation mark like [x]) worth further exploration based on the focus points from the given markdown:
+{FOCUS_POINT}
+
+And here is the markdown:
+<markdown>
+{HTML}
+</markdown>
+
+The above markdown content is derived from the HTML of a webpage and may have been chunked.
+All links in the original HTML (a elements or img elements) have been converted to citation marks (something like "[x]")
+
+Please adhere to the following notes:
+- Find possible links(represented by a citation mark like [x]) from the given markdown.
+- Always consider the context to determine if the link is likely to be relevant to the focus point and is worth further exploration.
+- For the found link citation mark, output them along with the sentence they are in, one per line.
+
+Please provide your output within <links></links> tag, like this:
+
+<links>
+sentence1 with the found citation mark
+sentence2 with the found citation mark
+...
+</links>
+"""
+
 PROMPT_EXTRACT_SCHEMA_WITH_INSTRUCTION = """Here is the content from the URL:
 <url>{URL}</url>
 
@@ -138,7 +190,7 @@ The user has made the following schema for what information to extract from the 
 Please carefully read the URL content and the user's schema, extract the requested information from the URL content according to that schema. 
 
 Extraction instructions:
-Return the extracted information as a list of JSON objects, with each object in the list corresponding to a block of content from the URL, in the same order as it appears on the page. Wrap the entire JSON list in <result>...</result> XML tags.
+Return the extracted information as a list of JSON objects, with each object in the list corresponding to a block of content from the URL, in the same order as it appears on the page. Wrap the entire JSON list in <json>...</json> XML tags.
 
 Quality Reflection:
 Before outputting your final answer, double check that the JSON you are returning is complete, containing all the information requested by the user, and is valid JSON that could be parsed by json.loads() with no errors or omissions. The outputted JSON objects should fully match the schema.
@@ -149,11 +201,11 @@ After reflecting, score the quality and completeness of the JSON data you are ab
 Avoid Common Mistakes:
 - Do NOT add any comments using "//" or "#" in the JSON output. It causes parsing errors.
 - Make sure the JSON is properly formatted with curly braces, square brackets, and commas in the right places.
-- Do not miss closing </result> tag at the end of the JSON output.
+- Do not miss closing </json> tag at the end of the JSON output.
 - Do not generate the Python code show me how to do the task, this is your task to extract the information and return it in JSON format.
 
 Result
-Output the final list of JSON objects, wrapped in <result>...</result> XML tags. Make sure to close the tag properly."""
+Output the final list of JSON objects, wrapped in <json>...</json> XML tags. Make sure to close the tag properly."""
 
 PROMPT_FILTER_CONTENT = """Your task is to filter and convert HTML content into clean, focused markdown that's optimized for use with LLMs and information retrieval systems.
 

@@ -10,10 +10,8 @@ from array import array
 from .config import MIN_WORD_THRESHOLD
 import httpx
 from socket import gaierror
-from pathlib import Path
-from typing import Dict, Any, List, Optional, Callable
+from typing import Dict, List, Optional, Callable
 from urllib.parse import urljoin
-from requests.exceptions import InvalidSchema
 import xxhash
 import textwrap
 import cProfile

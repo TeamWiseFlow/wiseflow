@@ -46,7 +46,7 @@ if TYPE_CHECKING:
         AsyncWebCrawler as AsyncWebCrawlerType,
         CacheMode as CacheModeType,
     )
-    from .c4a_commen.basemodels import CrawlResult as CrawlResultType
+    from .basemodels import CrawlResult as CrawlResultType
 
     # Configuration imports
     from .async_configs import (

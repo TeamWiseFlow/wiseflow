@@ -1,17 +1,15 @@
 import httpx
 import os
 import asyncio
-import time
+from typing import Tuple
+from global_config import wis_logger
 
 jina_api_key = os.getenv('JINA_API_KEY', '')
 
-async def search_with_jina(query: str, _logger=None):
+async def search_with_jina(query: str) -> Tuple[str, dict]:
     if not jina_api_key:
-        if _logger:
-            _logger.warning("JINA_API_KEY is not set")
-        else:
-            print("JINA_API_KEY is not set")
-        return []
+        wis_logger.warning("JINA_API_KEY is not set")
+        return '', {}
 
     url = 'https://s.jina.ai/'
     headers = {
@@ -26,7 +24,8 @@ async def search_with_jina(query: str, _logger=None):
 
     max_retries = 2
     base_delay = 10  # initial delay in seconds
-
+    markdown = ''
+    link_dict = {}
     for attempt in range(max_retries + 1):
         try:
             async with httpx.AsyncClient(timeout=30) as client:
@@ -37,42 +36,40 @@ async def search_with_jina(query: str, _logger=None):
                     timeout=30
                 )
                 result = response.json()
-                
                 # Check if the response is successful
                 if response.status_code == 200 and result.get('status') == 20000:
-                    return result.get('data', [])
+                    for item in result.get('data', []):
+                        _url = item.get('url', '')
+                        if not _url:
+                            continue
+                        if _url in link_dict:
+                            continue
+                        title = item.get('title', '')
+                        description = item.get('description', '')
+                        key = f"[{len(link_dict)+1}]"
+                        markdown += f"* title:{title} {key}\ndescription:{description} {key}\n\n"
+                        link_dict[key] = _url
+                    return markdown, link_dict
                 
                 # If not successful and not the last attempt, wait and retry
                 if attempt < max_retries:
                     delay = base_delay * (2 ** attempt)  # exponential backoff
-                    if _logger:
-                        _logger.warning(f"Jina search attempt {attempt + 1} failed, retrying in {delay} seconds")
-                    else:
-                        print(f"Jina search attempt {attempt + 1} failed, retrying in {delay} seconds")
+                    wis_logger.warning(f"Jina search attempt {attempt + 1} failed, retrying in {delay} seconds")
                     await asyncio.sleep(delay)
                 else:
-                    if _logger:
-                        _logger.error(f"Jina search failed after {max_retries + 1} attempts")
-                    else:
-                        print(f"Jina search failed after {max_retries + 1} attempts")
-                    return []
+                    wis_logger.error(f"Jina search failed after {max_retries + 1} attempts")
+                    return markdown, link_dict
 
         except Exception as e:
             if attempt < max_retries:
                 delay = base_delay * (2 ** attempt)
-                if _logger:
-                    _logger.warning(f"Jina search attempt {attempt + 1} failed with error: {str(e)}, retrying in {delay} seconds")
-                else:
-                    print(f"Jina search attempt {attempt + 1} failed with error: {str(e)}, retrying in {delay} seconds")
+                wis_logger.warning(f"Jina search attempt {attempt + 1} failed with error: {str(e)}, retrying in {delay} seconds")
                 await asyncio.sleep(delay)
             else:
-                if _logger:
-                    _logger.error(f"Jina search failed after {max_retries + 1} attempts with error: {str(e)}")
-                else:
-                    print(f"Jina search failed after {max_retries + 1} attempts with error: {str(e)}")
-                return []
+                wis_logger.error(f"Jina search failed after {max_retries + 1} attempts with error: {str(e)}")
+                return markdown, link_dict
 
-    return []
+    return markdown, link_dict
 
 if __name__ == '__main__':
     test_list = ['大语言模型(LLM)最新技术(包括新模型发布，新技术的提出，新的引用等等)',

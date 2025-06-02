@@ -4,8 +4,8 @@ from .html2text import CustomHTML2Text
 import regex as re
 from .utils import normalize_url, url_pattern, is_valid_img_url, is_external_url, get_base_domain
 import os
-from async_lru import alru_cache
-from ..tools.openai_wrapper import openai_llm as llm
+from functools import lru_cache
+from .llmuse import perform_completion_with_backoff as llm
 from .config import SOCIAL_MEDIA_DOMAINS
 from bs4 import BeautifulSoup
 
@@ -16,12 +16,12 @@ vl_model = os.environ.get("VL_MODEL", "")
 if not vl_model:
     print("VL_MODEL not set, will skip extracting info from img, some info may be lost!")
 
-@alru_cache(maxsize=1000)
+@lru_cache(maxsize=1000)
 async def extract_info_from_img(url: str) -> str:
     if not vl_model:
         return '§to_be_recognized_by_visual_llm§'
     
-    llm_output = await llm([{"role": "user",
+    llm_output = llm([{"role": "user",
         "content": [{"type": "image_url", "image_url": {"url": url, "detail": "high"}},
         {"type": "text", "text": "提取图片中的所有文字，如果图片不包含文字或者文字很少或者你判断图片仅是网站logo、商标、图标等，则输出NA。注意请仅输出提取出的文字，不要输出别的任何内容。"}]}],
         model=vl_model)
@@ -82,8 +82,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
         bigbrother666sh modified:
         use wisefow V3.9's preprocess instead
         """
-        link_dict = {}
-
+        link_dict: dict = {}
         # for special url formate from craw4ai-de 0.4.247
         markdown = re.sub(r'<javascript:.*?>', '<javascript:>', markdown).strip()
         # 处理图片标记 ![alt](src)，使用非贪婪匹配并考虑嵌套括号的情况
@@ -220,6 +219,10 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             return score, text
 
         sections = [await check_url_text(section) for section in sections if section.strip()]
+        if not link_dict:
+            markdown = '\n\n'.join(text.strip() for _, text in sections)
+            return markdown, link_dict
+
         """
         we don't need more complex logic here, llm will extract link from the whole html
         that's the benifit of putting-all-and-extract-once strategy in 4.x
@@ -296,7 +299,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
         """
         title = metadata.get("title", "") if metadata else ""
         author = metadata.get("author", "") if metadata else ""
-        publish_date = ''
+        publish_date = metadata.get("publish_date", "") if metadata else ""
         try:
             # Initialize HTML2Text with default options for better conversion
             h = CustomHTML2Text(baseurl=base_url)
@@ -332,7 +335,6 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             raw_markdown = raw_markdown.replace("    ```", "```")
 
             # Convert links to citations
-            link_dict: dict = {}
             markdown, link_dict = await self.convert_links_to_citations(raw_markdown, base_url, exclude_external_links)
 
             return '', title, author, publish_date, markdown, link_dict
@@ -515,7 +517,6 @@ class WeixinArticleMarkdownGenerator(DefaultMarkdownGenerator):
                 content = h.handle(raw_html)
                 content = content.replace("    ```", "```")
             # Convert links to citations
-            link_dict: dict = {}
             markdown, link_dict = await self.convert_links_to_citations(content, base_url, exclude_external_links)
             return '', title, author, publish_date, markdown, link_dict
         except Exception as e:

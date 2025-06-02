@@ -1,27 +1,29 @@
 # -*- coding: utf-8 -*-
-from tools.pb_api import PbTalker
-from tools.general_utils import get_logger, extract_and_convert_dates, is_chinese, isURL
-from agents.get_info import *
-import json
+from async_database import base_directory, wis_logger, db_manager
+from tools.general_utils import extract_and_convert_dates, is_chinese, isURL
+import time
+import regex as re
+import asyncio
 from crawler_configs import *
 from tools.jina_search import search_with_jina
-from urllib.parse import urlparse
-from wis import AsyncWebCrawler, BrowserConfig, CacheMode
 from datetime import datetime
-import feedparser
+from tools.rss_parsor import fetch_rss
+import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from wis import (
+    AsyncWebCrawler,
+    LLMExtractionStrategy,
+    KUAISHOU_PLATFORM_NAME,
+    WEIBO_PLATFORM_NAME,
+    KuaiShouCrawler,
+    WeiboCrawler,
+    MaxLengthChunking,
+    WeiboSearchType
+)
 
 
-project_dir = os.environ.get("PROJECT_DIR", "work_dir")
 
-wiseflow_logger = get_logger('wiseflow', project_dir)
-pb = PbTalker(wiseflow_logger)
-
-model = os.environ.get("PRIMARY_MODEL", "")
-if not model:
-    raise ValueError("PRIMARY_MODEL not set, please set it in environment variables or edit core/.env")
-secondary_model = os.environ.get("SECONDARY_MODEL", model)
-
-
+"""
 async def info_process(url: str, 
                        url_title: str, 
                        author: str, 
@@ -30,93 +32,172 @@ async def info_process(url: str,
                        link_dict: dict, 
                        focus_id: str,
                        get_info_prompts: list[str]):
-    wiseflow_logger.debug('info summarising by llm...')
-    infos = await get_info(contents, link_dict, get_info_prompts, author, publish_date, _logger=wiseflow_logger)
-    if infos:
-        wiseflow_logger.debug(f'get {len(infos)} infos, will save to pb')
+    wis_logger.debug('info summarising by llm...')
 
     for info in infos:
         info['url'] = url
         info['url_title'] = url_title
         info['tag'] = focus_id
         _ = pb.add(collection_name='infos', body=info)
-        if not _:
-            wiseflow_logger.error('add info failed, writing to cache_file')
-            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-            with open(os.path.join(project_dir, f'{timestamp}_cache_infos.json'), 'w', encoding='utf-8') as f:
-                json.dump(info, f, ensure_ascii=False, indent=4)
+"""
 
-
-async def main_process(focus: dict, sites: list):
-    wiseflow_logger.debug('new task initializing...')
+async def main_process(focus: dict, sites: list, platforms: dict):
+    # 0. prepare the work
+    wis_logger.debug('new task initializing...')
     focus_id = focus["id"]
-    focus_point = focus["focuspoint"].strip()
-    explanation = focus["explanation"].strip() if focus["explanation"] else ''
-    wiseflow_logger.debug(f'focus_id: {focus_id}, focus_point: {focus_point}, explanation: {explanation}, search_engine: {focus["search_engine"]}')
-    existing_urls = {url['url'] for url in pb.read(collection_name='infos', fields=['url'], filter=f"tag='{focus_id}'")}
-    sites_urls = {site['url'] for site in sites}
-    focus_statement = f"{focus_point}"
-    date_stamp = datetime.now().strftime('%Y-%m-%d')
-    if is_chinese(focus_point):
-        focus_statement = f"{focus_statement}\n注：{explanation}（今天日期是{date_stamp}）"
-    else:
-        focus_statement = f"{focus_statement}\nNote: {explanation}(today is {date_stamp})"
+    focuspoint = focus["focuspoint"].strip()
+    restrictions = focus["restrictions"].strip() if focus["restrictions"] else ''
+    # TODO: use a llm to generate the query
+    query = focuspoint if not restrictions else f"{focuspoint}({restrictions})"
 
-    if is_chinese(focus_statement):
-        get_link_sys_prompt = get_link_system.replace('{focus_statement}', focus_statement)
-        # get_link_sys_prompt = f"今天的日期是{date_stamp}，{get_link_sys_prompt}"
-        get_link_suffix_prompt = get_link_suffix
-        get_info_sys_prompt = get_info_system.replace('{focus_statement}', focus_statement)
-        # get_info_sys_prompt = f"今天的日期是{date_stamp}，{get_info_sys_prompt}"
-        get_info_suffix_prompt = get_info_suffix
-    else:
-        get_link_sys_prompt = get_link_system_en.replace('{focus_statement}', focus_statement)
-        # get_link_sys_prompt = f"today is {date_stamp}, {get_link_sys_prompt}"
-        get_link_suffix_prompt = get_link_suffix_en
-        get_info_sys_prompt = get_info_system_en.replace('{focus_statement}', focus_statement)
-        # get_info_sys_prompt = f"today is {date_stamp}, {get_info_sys_prompt}"
-        get_info_suffix_prompt = get_info_suffix_en
-    
-    get_link_prompts = [get_link_sys_prompt, get_link_suffix_prompt, secondary_model]
-    get_info_prompts = [get_info_sys_prompt, get_info_suffix_prompt, model]
+    wis_logger.debug(f'focus_id: {focus_id}, focus_point: {focuspoint}, restrictions: {restrictions}, search_engine: {focus["search_engine"]}')
+    # TODO: read from the database
+    # existing_urls = {url['url'] for url in db_manager.get_cached_url(url=url, days_threshold=30)}
+    existing_urls = set()
+    to_crawl_urls = set()
+    extractor = LLMExtractionStrategy(
+        focus_point=focuspoint,
+        restrictions=restrictions,
+        verbose=os.getenv("VERBOSE", "False"),
+        logger=wis_logger
+    )
 
-    working_list = set()
-    if focus.get('search_engine', False):
-        query = focus_point if not explanation else f"{focus_point}({explanation})"
-        search_results = await search_with_jina(query, _logger=wiseflow_logger)
-        search_urls = {d['url'] for d in search_results if d.get('url', '') and isURL(d['url'])}
-        wiseflow_logger.info(f'get {len(search_urls)} urls from Jina search engine')
-        working_list.update(search_urls - existing_urls)
-
-    recognized_img_cache = {}
+    # 1. get the posts list from the sources (to parse more related urls)
+    tasks = set()
+    def wrap_task(coro, meta):
+        async def wrapper():
+            result = await coro
+            return meta, result
+        return asyncio.create_task(wrapper())
+    # Add RSS feed tasks
     for site in sites:
         if site.get('type', 'web') == 'rss':
-            try:
-                feed = feedparser.parse(site['url'])
-            except Exception as e:
-                wiseflow_logger.warning(f"{site['url']} RSS feed is not valid: {e}")
-                continue
-            rss_urls = {entry.link for entry in feed.entries if entry.link and isURL(entry.link)}
-            wiseflow_logger.debug(f'get {len(rss_urls)} urls from rss source {site["url"]}')
-            working_list.update(rss_urls - existing_urls)
+            tasks.add(wrap_task(fetch_rss(site['url']), ('rss', site['url'])))
         else:
             if site['url'] not in existing_urls and isURL(site['url']):
-                working_list.add(site['url'])
+                to_crawl_urls.add(site['url'])
+    
+    # Add Kuaishou tasks
+    if KUAISHOU_PLATFORM_NAME in platforms:
+        ks_crawler = KuaiShouCrawler()
+        try:
+            await ks_crawler.async_initialize()
+            if focus.get('search_engine', False):
+                kwags = {"keywords": [query], "existings": existing_urls, **platforms[KUAISHOU_PLATFORM_NAME]}
+            else:
+                kwags = {"existings": existing_urls, **platforms[KUAISHOU_PLATFORM_NAME]}
+            tasks.add(wrap_task(ks_crawler.posts_list(**kwags), (KUAISHOU_PLATFORM_NAME, KUAISHOU_PLATFORM_NAME)))
+        except Exception as e:
+            wis_logger.error(f"initialize kuaishou crawler failed: {e}, will abort all the sources for kuaishou platform")
+            
+    # Add Weibo tasks
+    if WEIBO_PLATFORM_NAME in platforms:
+        wb_crawler = WeiboCrawler()
+        try:
+            await wb_crawler.async_initialize()
+            if focus.get('search_engine', False):
+                kwags = {"keywords": [query], "existings": existing_urls, **platforms[WEIBO_PLATFORM_NAME]}
+            else:
+                kwags = {"existings": existing_urls, **platforms[WEIBO_PLATFORM_NAME]}
+            tasks.add(wrap_task(wb_crawler.posts_list(**kwags), (WEIBO_PLATFORM_NAME, WEIBO_PLATFORM_NAME)))
+        except Exception as e:
+            wis_logger.error(f"initialize weibo crawler failed: {e}, will abort all the sources for weibo platform")
 
-    # for wiseflow 4.x only need to config the logger, BrowserConfig for crawler
-    # for BrowserConfig, only need to specify the user_data_dir and whether to accept_downloads(default is False, if True, also need to specify downloads_path: str)
-    # for crawler initialization, only need to specify the base_directory and whether to swith the thread_safe mode(default is False)
-    # In case you have complex flow or you need to deep modify the fetching and scraping process, 
-    # use crawler.crawler_strategy.set_hook(hook_type: str, hook: Callable) _ for 99% situation, you don't need to do this
-    crawler = AsyncWebCrawler(
-        browser_config=BrowserConfig(
-            user_data_dir=os.path.join(project_dir, 'browser_data'),
-            verbose=os.getenv("VERBOSE", "False")
-        ),
-        base_directory=project_dir, 
-        logger=wiseflow_logger
-    )
-    await crawler.start()
+    # Add search engine task
+    if focus.get('search_engine', False):
+        tasks.add(wrap_task(search_with_jina(query), ('search', 'Jina Search Engine')))
+    
+    to_scrap_articles = []
+    posts = []
+    t1 = time.perf_counter()
+    # 使用 as_completed 并发执行所有任务
+    for coro in asyncio.as_completed(tasks):
+        (task_type, source_name), result = await coro
+        wis_logger.debug(f'from {task_type} source: {source_name}')
+        if task_type == 'rss':
+            results, markdown, link_dict = result
+            if results:
+                wis_logger.debug(f'get {len(results)} articles, add to to_scrap_articles')
+                to_scrap_articles.extend(results)
+                for result in results:
+                    print(result)
+                    print('-'*100)
+            if markdown:
+                wis_logger.debug(f'get {len(link_dict)} articles, add to posts list')
+                posts.append((markdown, link_dict, 'web'))
+                # TODO: LLM extract the posts
+        elif task_type == 'search':
+            markdown, link_dict = result
+            wis_logger.debug(f'get {len(link_dict)} items, add to posts list')
+            posts.append((markdown, link_dict, 'web'))
+            # TODO: LLM extract the posts
+        else:
+            markdown, link_dict = result
+            wis_logger.debug(f'get {len(link_dict)} items, add to posts list')
+            posts.append((markdown, link_dict, source_name))
+            # TODO: LLM extract the posts
+    
+    wis_logger.debug(f"scource parsing finished, time cost: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
+    
+    # 2. fetching mediacrawler posts and analyzing search engine results
+    chunking = MaxLengthChunking()
+    def wrap_post_task(post):
+        def wrapper():
+            markdown, link_dict, source_name = post
+            sections = chunking.chunk(markdown)
+            result = extractor.run(sections=sections, mode='only_link', link_dict=link_dict)
+            return source_name, result
+        return wrapper
+        
+    t1 = time.perf_counter()
+    tasks = set()
+    with ThreadPoolExecutor(max_workers=min(os.getenv("CONCURRENT_NUMBER", 12), len(posts))) as executor:
+        futures = [executor.submit(wrap_post_task(post)) for post in posts]
+        for future in as_completed(futures):
+            source_name, result = future.result()
+            if source_name == 'web':
+                for more in result:
+                    to_crawl_urls.update(more['links'])
+            elif source_name == WEIBO_PLATFORM_NAME:
+                for more in result:
+                    for note in more['links']:
+                        tasks.add(asyncio.create_task(wb_crawler.post_as_article(note)))
+            elif source_name == KUAISHOU_PLATFORM_NAME:
+                for more in result:
+                    for video in more['links']:
+                        tasks.add(asyncio.create_task(ks_crawler.post_as_article(video)))
+
+    for coro in asyncio.as_completed(tasks):
+        article = await coro
+        if article:
+            to_scrap_articles.append(article)
+
+    wis_logger.debug(f"Posts fetching finished, time cost: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
+
+    # 3. tik-tok style processing: 
+    # use multiple threads to scrape the articles -- get more related urls add to to_crawl_urls...
+    # use asyncio loop to crawl the urls -- get articles -- add to to_scrap_articles...
+
+    """
+    web_crawler = AsyncWebCrawler(config=default_browser_config, verbose=os.getenv("VERBOSE", "False"))
+    await web_crawler.start()
+    """
+
+
+
+if __name__ == "__main__":
+    import asyncio
+    focus_point = "流行趋势花型设计"
+    restrictions = "适用于家纺产业"
+    focus = {"id": "1", "focuspoint": focus_point, "restrictions": restrictions, "search_engine": False}
+    sites = [{"url": "http://jxjyxy.hunnu.edu.cn/xsxw.htm", "type": "web"}, {"url": "https://www.tmtpost.com/feed", "type": "rss"}]
+    platforms = {KUAISHOU_PLATFORM_NAME: {"limit_hours": 48}, 
+                 WEIBO_PLATFORM_NAME: {"creator_ids": ("1896456970",), "search_type": WeiboSearchType.DEFAULT, "limit_hours": 48}}
+    asyncio.run(main_process(focus, sites, platforms))
+
+    """         
+    date_stamp = datetime.now().strftime('%Y-%m-%d')
+    working_list = set()
 
     while working_list:
         url = working_list.pop()
@@ -204,4 +285,4 @@ async def main_process(focus: dict, sites: list):
 
     await crawler.close()
     wiseflow_logger.debug(f'task finished, focus_id: {focus_id}')
-    
+    """  

@@ -42,12 +42,12 @@ class KuaiShouCrawler:
                          keywords: List[str],
                          existings: set[str] = set(),
                          limit_hours: int = 48,
-                         creator_ids: set[str] = set(),
+                         creator_ids: List[str] = [],
                          **kwargs) -> Tuple[str, dict]:
-
         fresh_videos = []
+        creator_ids = set(creator_ids)
         if "homefeed" in creator_ids:
-            creator_ids.remove("homefeed")
+            creator_ids.discard("homefeed")
             fresh_videos.extend(await self.get_homefeed_videos(existings, limit_hours))
 
         if creator_ids:

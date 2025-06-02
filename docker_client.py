@@ -9,9 +9,9 @@ import json
 from urllib.parse import urljoin
 import asyncio
 
-from .core.wis.async_configs import BrowserConfig, CrawlerRunConfig
-from .core.wis.c4a_commen.basemodels import CrawlResult
-from .core.tools.general_utils import get_logger
+from core.wis.async_configs import BrowserConfig, CrawlerRunConfig
+from core.wis.basemodels import CrawlResult
+from core.tools.general_utils import get_logger
 
 
 class Crawl4aiClientError(Exception):

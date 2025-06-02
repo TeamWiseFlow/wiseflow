@@ -1,7 +1,7 @@
 # __init__.py
 import warnings
 
-from .async_webcrawler import AsyncWebCrawler, CacheMode
+from .async_webcrawler import AsyncWebCrawler
 from .async_configs import BrowserConfig, CrawlerRunConfig, ProxyConfig, GeolocationConfig
 
 from .proxy_strategy import (
@@ -19,7 +19,7 @@ from .extraction_strategy import (
 )
 from .chunking_strategy import ChunkingStrategy, RegexChunking, IdentityChunking, MaxLengthChunking
 
-from .c4a_commen.basemodels import CrawlResult
+from .basemodels import CrawlResult
 # from .components.crawler_monitor import CrawlerMonitor
 from .async_dispatcher import (
     MemoryAdaptiveDispatcher,

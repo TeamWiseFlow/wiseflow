@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
+import asyncio
 import inspect
 from typing import Any, List, Dict, Optional, Tuple, Pattern, Union
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 from enum import IntFlag, auto
 from datetime import datetime
@@ -13,13 +13,13 @@ from .utils import (
     extract_xml_data,
     split_and_parse_json_objects,
 )
-from .c4a_commen.basemodels import * # noqa: F403
-from .c4a_commen.basemodels import TokenUsage
+from .basemodels import * # noqa: F403
+from .basemodels import TokenUsage
 
-from functools import partial
 import regex as re
 from bs4 import BeautifulSoup
 from lxml import html, etree
+
 
 # bigbrother666sh:
 # for default case, we use a LLMExtractionStrategy to extract information fragments and the protion urls from the html
@@ -68,16 +68,7 @@ class ExtractionStrategy(ABC):
         :param sections: List of sections (strings) to process.
         :return: A list of processed JSON blocks.
         """
-        extracted_content = []
-        with ThreadPoolExecutor() as executor:
-            futures = [
-                executor.submit(self.extract, url, section, **kwargs)
-                for section in sections
-            ]
-            for future in as_completed(futures):
-                extracted_content.extend(future.result())
-        return extracted_content
-
+        pass
 
 class NoExtractionStrategy(ExtractionStrategy):
     """
@@ -112,7 +103,6 @@ class LLMExtractionStrategy(ExtractionStrategy):
         }
     def __init__(
         self,
-        model:str,
         focuspoint: str = None, 
         restrictions: str = None, 
         schema: dict = None,
@@ -128,10 +118,9 @@ class LLMExtractionStrategy(ExtractionStrategy):
         self.verbose = verbose
         self.logger = logger
         self.schema = schema
-
-        self.usages = []  # Store individual usages
-        self.total_usage = TokenUsage()  # Accumulated usage
-        self.extract_func = partial(self.extract, model=model, extra_args=extra_args)
+        self.extra_args = extra_args
+        self.usages = []
+        self.total_usage = TokenUsage()
         if schema:
             try:
                 # Convert schema dict to formatted string with proper indentation
@@ -150,6 +139,8 @@ class LLMExtractionStrategy(ExtractionStrategy):
             if restrictions:
                 focus_statement += f"\nAdhering to the specified restrictions:\n<restrictions>{restrictions}</restrictions>"
             self.prompt = PROMPT_EXTRACT_BLOCKS.replace('{FOCUS_POINT}', focus_statement)
+            self.prompt_only_links = PROMPT_EXTRACT_BLOCKS_ONLY_LINKS.replace('{FOCUS_POINT}', focus_statement)
+            self.prompt_only_info = PROMPT_EXTRACT_BLOCKS_ONLY_INFO.replace('{FOCUS_POINT}', focus_statement)
 
     def __setattr__(self, name, value):
         """Handle attribute setting."""
@@ -162,15 +153,17 @@ class LLMExtractionStrategy(ExtractionStrategy):
         
         super().__setattr__(name, value)  
         
-    def extract(self,
+    def extract(self, # Make extract an async method
                 messages: List[Dict[str, str]],
-                model: str,
-                extra_args: dict = {}) -> List[Dict[str, Any]]:
+                model: str = '',
+                extra_args: dict = {}) -> list | dict:
 
-        response = perform_completion_with_backoff(
+        # Replace perform_completion_with_backoff with openai_llm
+        response = perform_completion_with_backoff( # Call openai_llm
             messages=messages,
             model=model,
-            temperature=0.1,
+            temperature=0.1, # Assuming temperature is still a valid param for openai_llm
+            logger=self.logger, # Pass logger
             **extra_args,
         )
 
@@ -199,7 +192,7 @@ class LLMExtractionStrategy(ExtractionStrategy):
                 print(f"response: {response}")
             # schema mode parsing
             if self.schema_mode:
-                results = extract_xml_data(["result"], response)["result"]
+                results = extract_xml_data(["json"], response)["json"]
                 blocks = []
                 for res in results:
                     try:
@@ -212,34 +205,30 @@ class LLMExtractionStrategy(ExtractionStrategy):
                         parsed, unparsed = split_and_parse_json_objects(res)
                         blocks.extend(parsed)
                         if unparsed:
-                            blocks.append(
-                                {"tags": ["error"], "content": unparsed}
-                            )
+                            self.logger.info(f"some generated parts can not be parsed: {unparsed}")
             # infos and links mode parsing
             else: 
-                result = extract_xml_data(["info", "links"], response)
-                blocks = [result]
+                blocks = extract_xml_data(["info", "links"], response)
+
             return blocks
         else:
             if self.logger:
                 self.logger.error(f"failed to call LLM, error: {response}\ninput:\n {messages}")
             else:
-                print(f"[LOG] failed to call LLM, error: {response}\ninput:\n {messages}")
+                print(f"failed to call LLM, error: {response}\ninput:\n {messages}")
             # Add error information to extracted_content
-            return [
-                {
-                    "tags": ["error"],
-                    "content": str(response),
-                }
-            ]
+            return None
 
-    def run(self, 
-            url: str, 
+    async def run(self, # Make run an async method
             sections: List[str], 
+            url: str = '',
             title: str = '',
             author: str = '',
-            published_date: str = '',
+            publish_date: str = '',
+            mode: str = 'both',
             date_stamp: str = datetime.now().strftime("%Y-%m-%d"),
+            model: str = '',
+            link_dict: dict = {},
             **kwargs
         ) -> List[Dict[str, Any]]:
         """
@@ -252,6 +241,9 @@ class LLMExtractionStrategy(ExtractionStrategy):
         Returns:
             A list of extracted blocks or chunks.
         """
+        if not sections:
+            return []
+        
         date_time_notify = f"The additional information provided, use as needed: Today is {date_stamp}"
         extracted_content = []
         sec_pre = ''
@@ -259,38 +251,89 @@ class LLMExtractionStrategy(ExtractionStrategy):
             sec_pre += f'{title}\n'
         if author:
             sec_pre += f'author: {author}\n'
-        if published_date:
-            sec_pre += f'last-modified: {published_date}\n'
+        if publish_date:
+            sec_pre += f'publish date: {publish_date}\n'
         if sec_pre:
             sec_pre += '\n'
+        
+        if not link_dict:
+            mode = 'only_info'
 
         if self.schema_mode:
             msg_list = [
                 self.prompt.replace('{URL}', url).replace('{HTML}', sec_pre + sec) + date_time_notify for sec in sections]
+        elif mode == 'only_info':
+            msg_list = [
+                self.prompt_only_info.replace('{HTML}', sec_pre + sec) + date_time_notify for sec in sections]
+        elif mode == 'only_link':
+            msg_list = [
+                self.prompt_only_links.replace('{HTML}', sec_pre + sec) + date_time_notify for sec in sections]
         else:
             msg_list = [
                 self.prompt.replace('{HTML}', sec_pre + sec) + date_time_notify for sec in sections]
 
-        with ThreadPoolExecutor(max_workers=int(os.getenv("LLM_CONCURRENT_NUMBER", 3))) as executor:
-            futures = [
-                executor.submit(self.extract_func, messages=[{"role": "user", "content": msg}])
-                for msg in msg_list
-            ]
-            for future in as_completed(futures):
-                try:
-                    extracted_content.extend(future.result())
-                except Exception as e:
-                    if self.logger:
-                        self.logger.error(f"Error in thread execution: {e}")
-                    else:
-                        print(f"Error in thread execution: {e}")
-                    # Add error information to extracted_content
-                    extracted_content.append(
-                        {
-                            "tags": ["error"],
-                            "content": str(e),
-                            }
-                        )
+        for msg in msg_list:
+            result = self.extract(messages=[{"role": "user", "content": msg}], model=model, extra_args=self.extra_args)
+            if not result:
+                continue
+            # wiseflow post process
+            if not self.schema_mode:
+                more_links = set()
+                infos = []
+                info_prefix = f'//{author} {publish_date}//' if (author or publish_date) else ''
+                hallucination_times = 0
+                total_parsed = 0
+                for block in extracted_content:
+                    results = block.get("links", [])
+                    for result in results:
+                        links = re.findall(r'\[\d+]', result)
+                        total_parsed += len(links)
+                        for link in links:
+                            if link not in link_dict:
+                                hallucination_times += 1
+                                continue
+                            more_links.add(link_dict[link])
+
+                    results = block.get("info", [])
+                    for res in results:
+                        res = res.strip()
+                        if len(res) < 3:
+                            continue
+                        url_tags = re.findall(r'\[\d+]', res)
+                        refences = {}
+                        for _tag in url_tags:
+                            total_parsed += 1
+                            if _tag in link_dict:
+                                refences[_tag] = link_dict[_tag]
+                            else:
+                                if _tag not in msg:
+                                    hallucination_times += 1
+                                    res = res.replace(_tag, '') 
+                                # case:original text contents, eg [2025]文
+                            infos.append({'content': f'{info_prefix}{res}', 'references': refences})
+                hallucination_rate = round((hallucination_times / total_parsed) * 100, 2) if total_parsed > 0 else 'NA'
+                self.logger.info(
+                    f"[QualityAssessment] task: link and info extraction, hallucination times: {hallucination_times}, hallucination rate: {hallucination_rate} %")
+                extracted_content.append({'infos': infos, 'links': more_links})
+            else:
+                hallucination_times = 0
+                total_parsed = len(result)
+                schema_keys = self.schema.keys()
+                extracted_content = []
+                for block in result:
+                    for key in block.keys():
+                        if key not in schema_keys:
+                            hallucination_times += 1
+                            del block[key]
+                    for key in schema_keys:
+                        if key not in block:
+                            hallucination_times += 1
+                            block[key] = None
+                    extracted_content.append(block)
+                hallucination_rate = round((hallucination_times / total_parsed) * 100, 2) if total_parsed > 0 else 'NA'
+                self.logger.info(
+                    f"[QualityAssessment] task: schema extraction, hallucination times: {hallucination_times}, hallucination rate: {hallucination_rate} %")
+
         self.show_usage() 
         return extracted_content
 
@@ -1207,7 +1250,7 @@ def _sanitize_schema(schema: Dict[str, str]) -> Dict[str, str]:
         try:
             re.compile(pat)
         except re.error as e:
-            raise ValueError(f"Regex for '{label}' won’t compile after fix: {e}") from None
+            raise ValueError(f"Regex for '{label}' won't compile after fix: {e}") from None
 
         safe[label] = pat
     return safe

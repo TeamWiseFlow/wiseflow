@@ -11,7 +11,6 @@ from .config import (
 from .extraction_strategy import ExtractionStrategy
 from .chunking_strategy import ChunkingStrategy, RegexChunking
 
-from .c4a_commen.cache_context import CacheMode
 from .proxy_strategy import ProxyRotationStrategy
 from .user_agent_generator import UAGen, ValidUAGenerator  # , OnlineUAGenerator
 from typing import Union, List
@@ -569,20 +568,6 @@ class CrawlerRunConfig:
         # SSL Parameters
         fetch_ssl_certificate: bool = False,
         # Caching Parameters
-        cache_mode (CacheMode or None): Defines how caching is handled.
-                                        If None, defaults to CacheMode.ENABLED internally.
-                                        Default: CacheMode.BYPASS.
-        session_id (str or None): Optional session ID to persist the browser context and the created
-                                  page instance. If the ID already exists, the crawler does not
-                                  create a new page and uses the current page to preserve the state.
-        bypass_cache (bool): Legacy parameter, if True acts like CacheMode.BYPASS.
-                             Default: False.
-        disable_cache (bool): Legacy parameter, if True acts like CacheMode.DISABLED.
-                              Default: False.
-        no_cache_read (bool): Legacy parameter, if True acts like CacheMode.WRITE_ONLY.
-                              Default: False.
-        no_cache_write (bool): Legacy parameter, if True acts like CacheMode.READ_ONLY.
-                               Default: False.
         shared_data (dict or None): Shared data to be passed between hooks.
                                      Default: None.
 
@@ -712,12 +697,7 @@ class CrawlerRunConfig:
         # SSL Parameters
         fetch_ssl_certificate: bool = False,
         # Caching Parameters
-        cache_mode: CacheMode = None,
         session_id: str = None,
-        bypass_cache: bool = False,
-        disable_cache: bool = False,
-        no_cache_read: bool = False,
-        no_cache_write: bool = False,
         shared_data: dict = None,
         # Page Navigation and Timing Parameters
         wait_until: str = "domcontentloaded",
@@ -795,12 +775,7 @@ class CrawlerRunConfig:
         self.fetch_ssl_certificate = fetch_ssl_certificate
 
         # Caching Parameters
-        self.cache_mode = cache_mode
         self.session_id = session_id
-        self.bypass_cache = bypass_cache
-        self.disable_cache = disable_cache
-        self.no_cache_read = no_cache_read
-        self.no_cache_write = no_cache_write
         self.shared_data = shared_data
 
         # Page Navigation and Timing Parameters
@@ -893,12 +868,7 @@ class CrawlerRunConfig:
             # SSL Parameters
             fetch_ssl_certificate=kwargs.get("fetch_ssl_certificate", False),
             # Caching Parameters
-            cache_mode=kwargs.get("cache_mode", CacheMode.BYPASS),
             session_id=kwargs.get("session_id"),
-            bypass_cache=kwargs.get("bypass_cache", False),
-            disable_cache=kwargs.get("disable_cache", False),
-            no_cache_read=kwargs.get("no_cache_read", False),
-            no_cache_write=kwargs.get("no_cache_write", False),
             shared_data=kwargs.get("shared_data", None),
             # Page Navigation and Timing Parameters
             wait_until=kwargs.get("wait_until", "domcontentloaded"),
@@ -988,12 +958,7 @@ class CrawlerRunConfig:
             "timezone_id": self.timezone_id,
             "geolocation": self.geolocation,
             "fetch_ssl_certificate": self.fetch_ssl_certificate,
-            "cache_mode": self.cache_mode,
             "session_id": self.session_id,
-            "bypass_cache": self.bypass_cache,
-            "disable_cache": self.disable_cache,
-            "no_cache_read": self.no_cache_read,
-            "no_cache_write": self.no_cache_write,
             "shared_data": self.shared_data,
             "wait_until": self.wait_until,
             "page_timeout": self.page_timeout,

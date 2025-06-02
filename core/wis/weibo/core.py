@@ -2,7 +2,7 @@ import asyncio
 import random
 from typing import Dict, List, Optional, Tuple
 from ..mc_commen.tools.time_util import rfc2822_to_timestamp, rfc2822_to_china_datetime, is_cacheup
-from ..config.mc_config import WEIBO_PLATFORM_NAME, ENABLE_GET_COMMENTS, MAX_CONCURRENCY_NUM, START_PAGE, CRAWLER_MAX_NOTES_COUNT
+from ..config.mc_config import WEIBO_PLATFORM_NAME, ENABLE_GET_COMMENTS, START_PAGE, CRAWLER_MAX_NOTES_COUNT
 from ..mc_commen import AccountWithIpPoolManager, ProxyIpPool, wis_logger, create_ip_pool
 from .store_impl import update_weibo_note, update_weibo_note_comment
 from .client import WeiboClient
@@ -46,12 +46,18 @@ class WeiboCrawler:
                          keywords: List[str],
                          existings: set[str] = set(),
                          limit_hours: int = 48,
-                         creator_ids: set[str] = set(),
+                         creator_ids: List[str] = [],
                          search_type: SearchType = SearchType.DEFAULT) -> Tuple[str, dict]:
+        try:
+            await self.async_initialize()
+        except Exception as e:
+            wis_logger.error(f"initialize weibo crawler failed: {e}")
+            return "", {}
 
         fresh_notes = []
 
         if creator_ids:
+            creator_ids = set(creator_ids)
             creator_ids.discard("homefeed")
             fresh_notes.extend(await self.get_notes_by_creators(creator_ids, existings, limit_hours))
 

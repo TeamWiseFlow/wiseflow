@@ -9,13 +9,13 @@ configure_windows_event_loop()
 
 # from contextlib import nullcontext, asynccontextmanager
 from contextlib import asynccontextmanager
-from .c4a_commen.basemodels import (
+from .basemodels import (
     CrawlResult,
     DispatchResult,
     CrawlResultContainer,
     RunManyReturn
 )
-from ..async_database import db_manager, wis_logger, base_directory
+from global_config import wis_logger, base_directory
 from .chunking_strategy import *  # noqa: F403
 from .chunking_strategy import IdentityChunking, MaxLengthChunking
 from .extraction_strategy import *  # noqa: F403
@@ -25,7 +25,7 @@ from .async_crawler_strategy import (
     AsyncPlaywrightCrawlerStrategy,
     AsyncCrawlResponse,
 )
-from .c4a_commen.cache_context import CacheMode, CacheContext
+
 from .markdown_generation_strategy import *
 markdown_generation_hub = {'mp.weixin.qq.com': WeixinArticleMarkdownGenerator}
 
@@ -227,25 +227,12 @@ class AsyncWebCrawler:
 
         async with self._lock or self.nullcontext():
             try:
-                # self.logger.verbose = config.verbose
-
-                # Default to ENABLED if no cache mode specified
-                if config.cache_mode is None:
-                    config.cache_mode = CacheMode.ENABLED
-
-                # Create cache context
-                cache_context = CacheContext(url, config.cache_mode, False)
-
                 # Initialize processing variables
                 async_response: AsyncCrawlResponse = None
                 cached_result: CrawlResult = None
                 screenshot_data = None
                 pdf_data = None
                 start_time = time.perf_counter()
-
-                # Try to get cached result if appropriate
-                if cache_context.should_read():
-                    cached_result = await db_manager.get_cached_url(url)
 
                 # important: here the crawler cache do not contain the extracted_content,
                 # extracted_content is related with the focus point, and stored in the infos table
@@ -268,7 +255,7 @@ class AsyncWebCrawler:
                         
                 if cached_result:  # 只有在缓存仍然有效时才记录
                     status_marker = "✓" if bool(html) else "✗"
-                    self.logger.debug(f"[CACHE FETCH] {status_marker} {cache_context.display_url} | ⏱: {time.perf_counter() - start_time:.2f}s")
+                    self.logger.debug(f"[CACHE FETCH] {status_marker} {url} | ⏱: {time.perf_counter() - start_time:.2f}s")
 
                 # Update proxy configuration from rotation strategy if available
                 if config and config.proxy_rotation_strategy:
@@ -314,8 +301,8 @@ class AsyncWebCrawler:
 
                     t2 = time.perf_counter()
                     status_marker = "✓" if bool(html) else "✗"
-                    self.logger.debug(f"[FETCH] {status_marker} {cache_context.display_url} | ⏱: {t2 - t1:.2f}s")
-
+                    self.logger.debug(f"[FETCH] {status_marker} {url} | ⏱: {t2 - t1:.2f}s")
+                    # 要把解析 metadate 过程放这里
                     crawl_result: CrawlResult = await self.aprocess_html(
                         url=url,
                         html=html,
@@ -346,9 +333,6 @@ class AsyncWebCrawler:
                     status_marker = "✓" if crawl_result.success else "✗"
                     self.logger.debug(
                         f"[COMPLETE] {status_marker} {url:.30}... | ⏱: {time.perf_counter() - start_time:.2f}s")
-                    # Update cache if appropriate
-                    if cache_context.should_write() and bool(html):
-                        await db_manager.cache_url(crawl_result)
                     return CrawlResultContainer(crawl_result)
                 else:
                     crawl_result: CrawlResult = await self.aprocess_html(
@@ -410,7 +394,7 @@ class AsyncWebCrawler:
                 metadata=metadata,
                 screenshot=screenshot_data,
                 pdf=pdf_data,
-                extracted_content=[],
+                # extracted_content=[],
                 success=False,
                 error_message="null html, can do nothing",
             )
@@ -451,7 +435,7 @@ class AsyncWebCrawler:
                 metadata=metadata,
                 screenshot=screenshot_data,
                 pdf=pdf_data,
-                extracted_content=[],
+                # extracted_content=[],
                 success=True,
                 error_message="",
             )
@@ -478,7 +462,7 @@ class AsyncWebCrawler:
                 url=url,
                 html=html,
                 cleaned_html=cleaned_html,
-                extracted_content=extracted_content,
+                # extracted_content=extracted_content,
                 success=True,
                 error_message="",
             )
@@ -517,70 +501,15 @@ class AsyncWebCrawler:
             content_date = publish or publish_date
             chunking = config.chunking_strategy or MaxLengthChunking()
             sections = chunking.chunk(markdown)
-            extracted_content = config.extraction_strategy.run(url, sections, title, author, content_date)
+            extracted_content = config.extraction_strategy.run(url=url, 
+                                                               sections=sections, 
+                                                               title=title, 
+                                                               author=author, 
+                                                               publish_date=content_date,
+                                                               mode='both' if link_dict else 'only_info')
             self.logger.debug(f"[EXTRACT] {_url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
 
         # post process for default extraction task --- sellection related links and infos
-        if link_dict and not config.extraction_strategy.schema_mode:
-            more_links = set()
-            infos = []
-            info_prefix = f'//{author} {content_date}//' if (author or content_date) else ''
-            hallucination_times = 0
-            total_parsed = 0
-            for block in extracted_content:
-                results = block.get("links", [])
-                for result in results:
-                    links = re.findall(r'\[\d+]', result)
-                    total_parsed += len(links)
-                    for link in links:
-                        if link not in link_dict:
-                            hallucination_times += 1
-                            continue
-                        more_links.add(link_dict[link])
-
-                results = block.get("info", [])
-                for res in results:
-                    res = res.strip()
-                    if len(res) < 3:
-                        continue
-                    url_tags = re.findall(r'\[\d+]', res)
-                    refences = {}
-                    for _tag in url_tags:
-                        total_parsed += 1
-                        if _tag in link_dict:
-                            refences[_tag] = link_dict[_tag]
-                        else:
-                            if _tag not in markdown:
-                                hallucination_times += 1
-                                res = res.replace(_tag, '') 
-                            # case:original text contents, eg [2025]文
-                        infos.append({'content': f'{info_prefix}{res}', 'references': refences})
-            hallucination_rate = round((hallucination_times / total_parsed) * 100, 2) if total_parsed > 0 else 'NA'
-            self.logger.info(
-                f"[QualityAssessment] task: link and info extraction, hallucination times: {hallucination_times}, hallucination rate: {hallucination_rate} %")
-            extracted_content = [{'infos': infos, 'links': more_links}]
-        
-        if config.extraction_strategy.schema_mode:
-            hallucination_times = 0
-            total_parsed = 0
-            schema_keys = config.extraction_strategy.schema.keys()
-            plained_extracted_content = []
-            for blocks in extracted_content:
-                for block in blocks:
-                    total_parsed += len(block)
-                    for key in block.keys():
-                        if key not in schema_keys:
-                            hallucination_times += 1
-                            del block[key]
-                    for key in schema_keys:
-                        if key not in block:
-                            hallucination_times += 1
-                            block[key] = None
-                    plained_extracted_content.append(block)
-            extracted_content = plained_extracted_content
-            hallucination_rate = round((hallucination_times / total_parsed) * 100, 2) if total_parsed > 0 else 'NA'
-            self.logger.info(
-                f"[QualityAssessment] task: schema extraction, hallucination times: {hallucination_times}, hallucination rate: {hallucination_rate} %")
 
         # Return complete crawl result
         return CrawlResult(
@@ -592,7 +521,7 @@ class AsyncWebCrawler:
             metadata=metadata,
             screenshot=screenshot_data,
             pdf=pdf_data,
-            extracted_content=extracted_content,
+            # extracted_content=extracted_content,
             success=True if not error_msg else False,
             error_message=error_msg,
         )

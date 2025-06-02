@@ -115,7 +115,7 @@ class DispatchResult(BaseModel):
 class CrawlResult(BaseModel):
     url: str
     html: str
-    success: bool
+    success: Optional[bool] = True
     cleaned_html: Optional[str] = None
     downloaded_files: Optional[List[str]] = None
     js_execution_result: Optional[Dict[str, Any]] = None
@@ -123,10 +123,13 @@ class CrawlResult(BaseModel):
     pdf: Optional[bytes] = None
     mhtml: Optional[str] = None
     markdown: Optional[str] = ''
-    link_dict: Optional[dict] = None
-    extracted_content: Optional[List[Dict[str, Any]]] = None
-    metadata: Optional[dict] = None
-    error_message: Optional[str] = None
+    link_dict: Optional[dict] = {}
+    title: Optional[str] = ''
+    author: Optional[str] = ''
+    publish_date: Optional[str] = ''
+    # extracted_content: Optional[List[Dict[str, Any]]] = None
+    # metadata: Optional[dict] = None
+    error_message: Optional[str] = ''
     session_id: Optional[str] = None
     response_headers: Optional[dict] = None
     status_code: Optional[int] = None

@@ -126,12 +126,16 @@ class MaxLengthChunking(ChunkingStrategy):
         self._size = max_size * 0.95
 
     def chunk(self, text: str) -> list:
+        if not text:
+            return []
         contents = []
         if len(text) > self.max_size:
             lines = text.split('\n')
             _text = ''
             while lines:
                 l = lines.pop(0)
+                if not l:
+                    continue
                 _text = f'{_text}{l}\n'
                 if len(_text) > self._size or len(lines) == 0:
                     main_content_open_count = _text.count("<main-content>")

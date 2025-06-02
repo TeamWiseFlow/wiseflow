@@ -6,15 +6,11 @@ from contextlib import asynccontextmanager
 import json
 from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor
-from .wis.c4a_commen.basemodels import CrawlResult
-from .tools.general_utils import get_logger
-from .wis.utils import ensure_content_dirs, generate_content_hash
+from wis.basemodels import CrawlResult
+from wis.utils import ensure_content_dirs, generate_content_hash
 from datetime import datetime, timedelta
+from global_config import base_directory, wis_logger
 
-
-base_directory = os.path.join(".", os.getenv("PROJECT_DIR", "work_dir"))
-os.makedirs(base_directory, exist_ok=True)
-wis_logger = get_logger(base_directory, "wiseflow_info_scraper")
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "pb", "pb_data")
 

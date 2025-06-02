@@ -1,4 +1,4 @@
-from ..wis import CrawlerRunConfig
+from wis import CrawlerRunConfig
 
 """
 refer this to modify a custom scraper(actully is a CrawlerRunConfig)

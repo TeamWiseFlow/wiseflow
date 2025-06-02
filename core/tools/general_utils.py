@@ -1,7 +1,7 @@
 from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
 import os
 import regex as re
-from ..wis.utils import params_to_remove, url_pattern
+from wis.utils import params_to_remove, url_pattern
 from loguru import logger
 
 

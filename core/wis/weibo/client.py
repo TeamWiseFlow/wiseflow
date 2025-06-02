@@ -253,7 +253,7 @@ class WeiboClient:
             if resp_data and resp_data.get("data", {}).get("login"):
                 ping_flag = True
             else:
-                wis_logger.error(
+                wis_logger.info(
                     f"[WeiboClient.pong] cookie may be invalid and again login..."
                 )
         except Exception as e:

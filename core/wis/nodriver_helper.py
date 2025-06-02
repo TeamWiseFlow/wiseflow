@@ -6,7 +6,7 @@ from typing import Optional
 import nodriver as uc
 from pathlib import Path
 from .config.mc_config import PLATFORM_LOGIN_URLS, WEIBO_PLATFORM_NAME
-from ..async_database import wis_logger, base_directory
+from global_config import wis_logger, base_directory
 
 
 class NodriverHelper:

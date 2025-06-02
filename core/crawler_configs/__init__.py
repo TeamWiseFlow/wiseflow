@@ -1,4 +1,4 @@
-from ..wis import BrowserConfig
+from wis import BrowserConfig
 from .default_config import crawler_config as default_crawler_config
 
 

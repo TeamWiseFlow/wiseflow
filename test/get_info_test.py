@@ -16,10 +16,14 @@ if os.path.exists(env_path):
 
 from core.wis import MaxLengthChunking, LLMExtractionStrategy
 
-benchmark_model = 'Qwen/Qwen3-14B'
-models = []
+benchmark_model = 'deepseek-ai/DeepSeek-R1-0528-Qwen3-8B'
+models = ['Qwen/Qwen3-14B']
 
-def main(focus_point: dict, sections: list, sample: dict, record_file: str):
+def main(sections: list,
+         sample: dict, 
+         record_file: str,
+         schema: dict = None, 
+         focus_point: dict = None):
     raw_markdown = '\n'.join(sections)
     url = sample.get("url", "")
     link_dict = sample.get("link_dict", {})
@@ -29,9 +33,9 @@ def main(focus_point: dict, sections: list, sample: dict, record_file: str):
     for model in [benchmark_model] + models:
         contents = sections.copy()
         extractor = LLMExtractionStrategy(model=model,
-                                          # schema=schema,
-                                          focuspoint=focus_point['focuspoint'],
-                                          restrictions=focus_point['explanation'],
+                                          schema=schema,
+                                          focuspoint=focus_point['focuspoint'] if focus_point else None,
+                                          restrictions=focus_point['explanation'] if focus_point else None,
                                           verbose=True)
         # if model == benchmark_model:
             # print('prompt template:')
@@ -43,10 +47,26 @@ def main(focus_point: dict, sections: list, sample: dict, record_file: str):
                                           sections=contents, 
                                           title=title, 
                                           author=author, 
-                                          published_date=published_date)
+                                          published_date=published_date,
+                                          mode='both' if link_dict else 'only_info')
                                           #date_stamp=published_date)
         time_cost = int((time.time() - start_time) * 1000) / 1000
         print(f"time cost: {time_cost}s")
+        if schema:
+            Completion_tokens = extractor.total_usage.completion_tokens
+            Prompt_tokens = extractor.total_usage.prompt_tokens
+            Total_tokens = extractor.total_usage.total_tokens
+            with open(record_file, 'a') as f:
+                f.write(f"model: {model}\n")
+                f.write(f"time cost: {time_cost}s\n")
+                f.write(f"tokens usage: {Total_tokens} (completion: {Completion_tokens}, prompt: {Prompt_tokens})\n\n")
+                f.write('\n\n')
+                f.write(f"schema: {schema}\n")
+                f.write(f"extracted_content: {extracted_content}\n")
+                f.write('\n\n')
+            print("\n\n")
+            continue
+
         more_links = set()
         infos = []
         hallucination_times = 0
@@ -114,20 +134,26 @@ if __name__ == '__main__':
         raise ValueError(f'{sample_dir} focus_point.json not found')
     
     focus_point = json.load(open(os.path.join(sample_dir, 'focus_point.json'), 'r'))
+    if 'focuspoint' in focus_point and 'explanation' in focus_point:
+        focus_point = focus_point
+        schema = None
+    else:
+        schema = focus_point
+        focus_point = None
     #date_stamp = '2025-04-27'
     chunking = MaxLengthChunking()
     time_stamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     record_file = os.path.join(sample_dir, f'record-{time_stamp}.txt')
     with open(record_file, 'w') as f:
         f.write(f"focus statement: \n{focus_point}\n\n")
-
     for file in os.listdir(sample_dir):
-        if not file.endswith('_processed.json'): continue
+        # if not file.endswith('_processed.json'): continue
+        if not file.startswith(('ks_', 'wb_')): continue
         print(f"processing {file} ...\n")
         with open(os.path.join(sample_dir, file), 'r') as f:
             sample = json.load(f)
         sections = chunking.chunk(sample.pop("markdown"))
         with open(record_file, 'a') as f:
             f.write(f"raw materials: {file}\n\n")
-            f.write(f"url: {sample['url']}\n")
-        main(focus_point, sections, sample, record_file)
+            # f.write(f"url: {sample['url']}\n")
+        main(sections, sample, record_file, schema, focus_point)
