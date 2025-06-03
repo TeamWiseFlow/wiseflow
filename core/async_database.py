@@ -8,8 +8,8 @@ from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor
 from wis.basemodels import CrawlResult
 from wis.utils import ensure_content_dirs, generate_content_hash
-from datetime import datetime, timedelta
-from global_config import base_directory, wis_logger
+from datetime import datetime, timedelta, timezone
+from async_logger import base_directory, wis_logger
 
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "pb", "pb_data")
@@ -33,13 +33,54 @@ class AsyncDatabaseManager:
         ContentMapping("html", store_as_file=True, content_type_for_file="html"),
         ContentMapping("markdown", store_as_file=True, content_type_for_file="markdown"),
         ContentMapping("screenshot", store_as_file=True, content_type_for_file="screenshots"),
+        ContentMapping("cleaned_html", store_as_file=True, content_type_for_file="cleaned_html"),
         # 数据库存储的JSON字段
         ContentMapping("link_dict", store_as_file=True, content_type_for_file="link_dict", is_json_content=True),
-        ContentMapping("metadata", store_as_file=False, is_json_content=True),
         ContentMapping("downloaded_files", store_as_file=False, is_json_content=True),
     ]
+
+    # 表结构定义
+    TABLE_SCHEMAS = {
+        'crawled_data': {
+            'id': 'TEXT PRIMARY KEY',
+            'url': 'TEXT NOT NULL',
+            'html': 'TEXT DEFAULT ""',
+            'markdown': 'TEXT DEFAULT ""',
+            'link_dict': 'TEXT DEFAULT ""',
+            'cleaned_html': 'TEXT DEFAULT ""',
+            'screenshot': 'TEXT DEFAULT ""',
+            'downloaded_files': 'JSON DEFAULT "[]"',
+            'title': 'TEXT DEFAULT ""',
+            'author': 'TEXT DEFAULT ""',
+            'publish_date': 'TEXT DEFAULT ""',
+            'updated': 'TEXT'
+        },
+        'infos': {
+            'id': 'TEXT PRIMARY KEY',
+            'content': 'TEXT NOT NULL',
+            'focuspoint': 'TEXT',
+            'crawled_data': 'TEXT',
+            'references': 'JSON DEFAULT "{}"',
+            'updated': 'TEXT'
+        },
+        'focus_points': {
+            'id': 'TEXT PRIMARY KEY',
+            'focuspoint': 'TEXT NOT NULL',
+            'restrictions': 'TEXT DEFAULT ""',
+            'activated': 'BOOLEAN DEFAULT 1',
+            'search': 'BOOLEAN DEFAULT 0',
+            'sources': 'JSON DEFAULT "[]"',
+        },
+        'sources': {
+            'id': 'TEXT PRIMARY KEY',
+            'type': 'TEXT CHECK(type IN ("web", "rss", "ks", "wb", "mp"))',
+            'creators': 'TEXT DEFAULT ""',
+            'freq': 'NUMERIC DEFAULT 24',
+            'url': 'TEXT'
+        }
+    }
     
-    def __init__(self, pool_size: int = 5, max_retries: int = 3):
+    def __init__(self, pool_size: int = 6, max_retries: int = 3):
         self.content_paths = ensure_content_dirs(os.path.join(base_directory, ".wis"))
         self.db_path = os.path.join(DB_PATH, "data.db")
         self.max_retries = max_retries
@@ -57,7 +98,8 @@ class AsyncDatabaseManager:
         # 内容字段映射字典，提高查找效率
         self._content_field_map = {cm.field_name: cm for cm in self.CONTENT_MAPPINGS}
         self._file_storage_fields = {cm.field_name: cm for cm in self.CONTENT_MAPPINGS if cm.store_as_file}
-        self._db_storage_json_fields = {cm.field_name: cm for cm in self.CONTENT_MAPPINGS if not cm.store_as_file and cm.is_json_content}
+        # self._db_storage_json_fields = {cm.field_name: cm for cm in self.CONTENT_MAPPINGS if not cm.store_as_file and cm.is_json_content}
+        self.ready = False
 
     async def initialize(self):
         """初始化数据库和连接池"""
@@ -80,117 +122,71 @@ class AsyncDatabaseManager:
             except Exception as e:
                 wis_logger.error(f"Database initialization failed: {str(e)}")
                 raise
+        self.ready = True
 
     async def _init_db_schema(self):
         """初始化数据库模式，包含表结构校验和缺失列自动补充"""
         async with aiosqlite.connect(self.db_path, timeout=30.0) as db:
-            # 定义期望的表结构
-            expected_columns = {
-                'url': 'TEXT PRIMARY KEY',
-                'html': 'TEXT',
-                'markdown': 'TEXT DEFAULT ""',
-                'link_dict': 'TEXT DEFAULT ""',
-                'metadata': 'TEXT DEFAULT "{}"',
-                'screenshot': 'TEXT DEFAULT ""',
-                'downloaded_files': 'TEXT DEFAULT "[]"',
-                'created_at': 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
-                'updated_at': 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP'
-            }
-            
-            # 首先创建表（如果不存在）
-            create_table_sql = f"""
-                CREATE TABLE IF NOT EXISTS crawled_data (
-                    {', '.join([f'{col} {definition}' for col, definition in expected_columns.items()])}
-                )
-            """
-            await db.execute(create_table_sql)
-            
-            # 检查表是否存在
-            async with db.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' AND name='crawled_data'"
-            ) as cursor:
-                table_exists = await cursor.fetchone()
-            
-            if table_exists:
+            # 检查所有必需的表是否存在
+            for table_name, expected_columns in self.TABLE_SCHEMAS.items():
+                # 检查表是否存在
+                async with db.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name=?", 
+                    (table_name,)
+                ) as cursor:
+                    table_exists = await cursor.fetchone()
+                
+                if not table_exists:
+                    raise ValueError(f"Required table '{table_name}' does not exist")
+                
                 # 获取当前表的列信息
-                async with db.execute("PRAGMA table_info(crawled_data)") as cursor:
+                async with db.execute(f"PRAGMA table_info({table_name})") as cursor:
                     current_columns_info = await cursor.fetchall()
                 
-                # 构建当前列的详细信息 {列名: (类型, 是否非空, 默认值, 是否主键)}
+                # 构建当前列的详细信息 {列名: (类型, 是否非空)}
                 current_columns = {}
                 for row in current_columns_info:
                     col_name = row[1]
                     col_type = row[2]
                     current_columns[col_name] = {
                         'type': col_type,
-                        'not_null': bool(row[3]),
-                        'default_value': row[4],
-                        'is_primary_key': bool(row[5])
+                        'not_null': bool(row[3])
                     }
                 
-                expected_column_names = set(expected_columns.keys())
-                current_column_names = set(current_columns.keys())
-                
-                # 找出缺失的列
-                missing_columns = expected_column_names - current_column_names
-                
-                if missing_columns:
-                    wis_logger.info(f"Found missing columns in crawled_data table: {missing_columns}")
+                # 检查所有必需的列是否存在
+                for col_name, col_def in expected_columns.items():
+                    if col_name not in current_columns:
+                        raise ValueError(f"Required column '{col_name}' missing in table '{table_name}'")
                     
-                    # 添加缺失的列
-                    for column_name in missing_columns:
-                        column_definition = expected_columns[column_name]
-                        # 移除PRIMARY KEY约束（只能在CREATE TABLE时使用）
-                        if 'PRIMARY KEY' in column_definition:
-                            column_definition = column_definition.replace(' PRIMARY KEY', '')
-                        
-                        try:
-                            alter_sql = f"ALTER TABLE crawled_data ADD COLUMN {column_name} {column_definition}"
-                            await db.execute(alter_sql)
-                            wis_logger.info(f"Successfully added column '{column_name}' to crawled_data table")
-                        except Exception as e:
-                            wis_logger.error(f"Failed to add column '{column_name}': {str(e)}")
-                else:
-                    wis_logger.debug("All expected columns exist in crawled_data table")
-                
-                # 检查现有列的类型是否匹配期望
-                type_mismatches = []
-                for col_name in current_column_names & expected_column_names:
-                    expected_def = expected_columns[col_name]
-                    # 提取期望的类型（去掉约束和默认值）
-                    expected_type = expected_def.split()[0]  # 取第一个词作为类型
-                    current_type = current_columns[col_name]['type']
+                    # 检查列类型是否匹配
+                    expected_type = col_def.split()[0].upper()  # 获取类型部分并转为大写
+                    current_type = current_columns[col_name]['type'].upper()
                     
-                    # SQLite类型比较（不区分大小写）
-                    if expected_type.upper() != current_type.upper():
-                        type_mismatches.append({
-                            'column': col_name,
-                            'expected': expected_type,
-                            'current': current_type
-                        })
-                
-                if type_mismatches:
-                    wis_logger.warning("Found column type mismatches (SQLite is flexible with types, but this may indicate schema evolution):")
-                    for mismatch in type_mismatches:
-                        wis_logger.warning(f"  Column '{mismatch['column']}': expected {mismatch['expected']}, found {mismatch['current']}")
+                    # 类型匹配检查（包括 BOOLEAN 类型）
+                    if expected_type != current_type:
+                        raise ValueError(f"Column '{col_name}' in table '{table_name}' has incorrect type. Expected {expected_type}, got {current_type}")
+                    
+                    # 检查 NOT NULL 约束
+                    if 'NOT NULL' in col_def.upper() and not current_columns[col_name]['not_null']:
+                        raise ValueError(f"Column '{col_name}' in table '{table_name}' should be NOT NULL")
             
             # 添加索引提高查询性能
             indexes = [
-                ("idx_crawled_data_updated_at", "updated_at"),
-                ("idx_crawled_data_created_at", "created_at")
+                ("idx_crawled_data_updated_at", "crawled_data", "updated"),
+                ("idx_infos_created", "infos", "updated")
             ]
             
-            for index_name, column_name in indexes:
+            for index_name, table_name, column_name in indexes:
                 try:
                     await db.execute(f"""
                         CREATE INDEX IF NOT EXISTS {index_name} 
-                        ON crawled_data({column_name})
+                        ON {table_name}({column_name})
                     """)
                 except Exception as e:
                     wis_logger.warning(f"Failed to create index {index_name}: {str(e)}")
             
             await db.commit()
-            wis_logger.debug("Database schema initialization completed")
+            wis_logger.debug("Database schema validation completed")
 
     async def _init_connection_pool(self):
         """初始化真正的连接池"""
@@ -245,7 +241,7 @@ class AsyncDatabaseManager:
             if hasattr(result, field_name):
                 content = getattr(result, field_name)
                 # 处理空值和None值的统一化
-                if field_name == "markdown":
+                if field_name in ["markdown", "html", "cleaned_html"]:
                     content = content or ""
                 elif field_name == "link_dict":
                     content = content or {}
@@ -270,26 +266,31 @@ class AsyncDatabaseManager:
             await db.execute("""
                 INSERT INTO crawled_data (
                     url, html, markdown,
-                    link_dict, metadata, screenshot, 
-                    downloaded_files, updated_at
+                    link_dict, cleaned_html, screenshot,
+                    downloaded_files, title, author, publish_date
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(url) DO UPDATE SET
                     html = excluded.html,
                     markdown = excluded.markdown,
                     link_dict = excluded.link_dict,
-                    metadata = excluded.metadata,
+                    cleaned_html = excluded.cleaned_html,
                     screenshot = excluded.screenshot,
                     downloaded_files = excluded.downloaded_files,
-                    updated_at = CURRENT_TIMESTAMP
+                    title = excluded.title,
+                    author = excluded.author,
+                    publish_date = excluded.publish_date
             """, (
                 cache_url,
                 content_hashes.get("html", ""),
                 content_hashes.get("markdown", ""),
                 content_hashes.get("link_dict", ""),
-                self._serialize_json(result.metadata),
+                content_hashes.get("cleaned_html", ""),
                 content_hashes.get("screenshot", ""),
-                self._serialize_json(result.downloaded_files, default_as_list=True)
+                self._serialize_json(result.downloaded_files, default_as_list=True),
+                result.title or "",
+                result.author or "",
+                result.publish_date or ""
             ))
 
         try:
@@ -311,15 +312,15 @@ class AsyncDatabaseManager:
                 columns = [desc[0] for desc in cursor.description]
                 # Check if the cache is expired based on the updated_at timestamp
                 try:
-                    updated_at_index = columns.index('updated_at')
-                    updated_at_str = row[updated_at_index]
-                    if self.is_cache_expired(updated_at_str, days_threshold):
+                    updated_index = columns.index('updated')
+                    updated_str = row[updated_index]
+                    if self.is_cache_expired(updated_str, days_threshold):
                         wis_logger.debug(f"Cache for {url} expired (>{days_threshold} days). Returning None.")
                         return None
                 except ValueError:
-                    # 'updated_at' column not found, treat as not expired (or log a warning)
+                    # 'updated' column not found, treat as not expired (or log a warning)
                     # This case should ideally not happen with schema initialization, but as a fallback
-                    wis_logger.warning("Column 'updated_at' not found in crawled_data table. Cannot check cache expiration.")
+                    wis_logger.warning("Column 'updated' not found in crawled_data table. Cannot check cache expiration.")
                     return None
                 except Exception as e:
                     # Handle potential errors during date parsing or comparison
@@ -366,9 +367,6 @@ class AsyncDatabaseManager:
                 if "downloaded_files" in row_dict:
                     row_dict["downloaded_files"] = self._deserialize_json(row_dict["downloaded_files"], default_as_list=True)
                 
-                if "metadata" in row_dict:
-                    row_dict["metadata"] = self._deserialize_json(row_dict["metadata"], default_as_list=False)
-                
                 # 过滤并构建CrawlResult
                 valid_fields = CrawlResult.__annotations__.keys()
                 # print(f"row_dict: {row_dict}")
@@ -387,7 +385,7 @@ class AsyncDatabaseManager:
         检查缓存是否过期
         
         Args:
-            updated_at: 更新时间字符串，格式为 'YYYY-MM-DD HH:MM:SS'
+            updated_at: 更新时间字符串，格式为 'YYYY-MM-DD HH:MM:SS UTC'
             days_threshold: 过期天数阈值，默认30天
             
         Returns:
@@ -397,9 +395,10 @@ class AsyncDatabaseManager:
             return True
             
         try:
-            # 解析时间字符串
-            cache_time = datetime.strptime(updated_at, '%Y-%m-%d %H:%M:%S')
-            current_time = datetime.now()
+            # 解析时间字符串，先去掉可能的 UTC 后缀
+            time_str = updated_at.replace(' UTC', '').strip()
+            cache_time = datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
+            current_time = datetime.now(timezone.utc).replace(tzinfo=None)
             
             # 计算时间差
             time_diff = current_time - cache_time
@@ -525,6 +524,134 @@ class AsyncDatabaseManager:
         # 关闭线程池
         self._file_executor.shutdown(wait=True)
 
+    async def add_info(self, content: str, focuspoint_id: str, crawled_data_id: str, references: dict):
+        """
+        向 infos 表添加一条记录
+
+        Args:
+            content: 内容文本
+            focuspoint_id: 关联的 focus_points 表的 id
+            crawled_data_id: 关联的 crawled_data 表的 id
+            references: 引用信息，字典格式
+            url: 关联的url，可选
+        """
+        # info_id = str(os.urandom(16).hex()) # 生成一个新的唯一ID
+        # updated_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        references_json = self._serialize_json(references)
+
+        async def _add(db):
+            await db.execute("""
+                INSERT INTO infos (content, focuspoint, crawled_data, references)
+                VALUES (?, ?, ?, ?)
+            """, (content, focuspoint_id, crawled_data_id, references_json))
+
+        try:
+            await self.execute_with_retry(_add)
+            wis_logger.debug("Successfully added info")
+        except Exception as e:
+            wis_logger.error(f"Error adding info for focuspoint {focuspoint_id}: {str(e)}")
+
+    async def get_urls_for_focuspoint(self, focuspoint_id: str, days_threshold: int) -> set[str]:
+        """
+        根据 focuspoint_id 从 infos 表关联 crawled_data 表获取所有相关的 url
+
+        Args:
+            focuspoint_id: focus_points 表的 id
+            days_threshold: int: 只选择 updated 在 N 天内的条目
+
+        Returns:
+            一个包含相关 URL 的集合
+        """
+        urls = set()
+
+        async def _get_urls(db):
+            query = """
+                SELECT cd.url
+                FROM infos i
+                JOIN crawled_data cd ON i.crawled_data = cd.id
+                WHERE i.focuspoint = ? AND datetime(REPLACE(i.updated, ' UTC', '')) >= datetime('now', '-' || CAST(? AS TEXT) || ' days', 'utc')
+            """
+            async with db.execute(query, (focuspoint_id, days_threshold)) as cursor:
+                async for row in cursor:
+                    if row[0]: #确保 URL 不为 None
+                        urls.add(row[0])
+        
+        try:
+            await self.execute_with_retry(_get_urls)
+            wis_logger.debug(f"Retrieved {len(urls)} URLs for focuspoint_id {focuspoint_id} within {days_threshold} days")
+        except Exception as e:
+            wis_logger.error(f"Error retrieving URLs for focuspoint_id {focuspoint_id} within {days_threshold} days: {str(e)}")
+            # 在出错时返回空集合，而不是None，以保持类型一致性
+        return urls
+
+    async def get_activated_focus_points_with_sources(self) -> List[dict]:
+        """
+        获取所有激活的 focus_points 及其关联的 sources
+        
+        Returns:
+            List[dict]: 包含 focus_point 和关联 sources 的字典列表
+                每个字典包含:
+                - focus_point: focus_point 的所有字段
+                - sources: 关联的 sources 列表
+        """
+        result = []
+        
+        async def _get_focus_points_with_sources(db):
+            # 首先获取所有激活的 focus_points
+            focus_points_query = """
+                SELECT id, focuspoint, restrictions, activated, per_hour, search_engine, keywords, sources
+                FROM focus_points 
+                WHERE activated = 1
+            """
+            
+            async with db.execute(focus_points_query) as cursor:
+                focus_points_rows = await cursor.fetchall()
+                focus_points_columns = [desc[0] for desc in cursor.description]
+            
+            # 为每个 focus_point 获取关联的 sources
+            for fp_row in focus_points_rows:
+                # 构建 focus_point 字典
+                focus_point_dict = dict(zip(focus_points_columns, fp_row))
+                
+                # 解析 sources JSON 字段
+                sources_ids = self._deserialize_json(focus_point_dict.get('sources', '[]'), default_as_list=True)
+                
+                # 获取关联的 sources 详细信息
+                sources_list = []
+                if sources_ids:
+                    # 构建 IN 查询的占位符
+                    placeholders = ','.join(['?' for _ in sources_ids])
+                    sources_query = f"""
+                        SELECT id, type, creators, limit_hours, url
+                        FROM sources 
+                        WHERE id IN ({placeholders})
+                    """
+                    
+                    async with db.execute(sources_query, sources_ids) as sources_cursor:
+                        sources_rows = await sources_cursor.fetchall()
+                        sources_columns = [desc[0] for desc in sources_cursor.description]
+                        
+                        for source_row in sources_rows:
+                            source_dict = dict(zip(sources_columns, source_row))
+                            # creators 现在是 TEXT 类型，直接作为字符串处理
+                            source_dict['creators'] = source_dict.get('creators', '') or ''
+                            sources_list.append(source_dict)
+                
+                # 将 focus_point 和关联的 sources 组合
+                result.append({
+                    'focus_point': focus_point_dict,
+                    'sources': sources_list
+                })
+        
+        try:
+            await self.execute_with_retry(_get_focus_points_with_sources)
+            wis_logger.debug(f"Retrieved {len(result)} activated focus points with their sources")
+        except Exception as e:
+            wis_logger.error(f"Error retrieving activated focus points with sources: {str(e)}")
+            # 在出错时返回空列表
+        
+        return result
+
 
 # 创建优化后的单例实例
 db_manager = AsyncDatabaseManager()
@@ -534,12 +661,8 @@ async def init_database():
     应用启动时调用此函数来预初始化数据库
     这样可以避免第一次数据库操作时的初始化延迟
     """
-    try:
-        await db_manager.initialize()
-        wis_logger.debug("Database pre-initialized successfully")
-    except Exception as e:
-        wis_logger.error(f"Database pre-initialization failed: {e}")
-        raise
+    await db_manager.initialize()
+
 
 async def cleanup_database():
     """

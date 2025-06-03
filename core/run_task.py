@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from pathlib import Path
 from dotenv import load_dotenv
+
 env_path = Path(__file__).parent.parent / '.env'
 if env_path.exists():
     load_dotenv(env_path)
@@ -9,8 +10,9 @@ if env_path.exists():
 # logging.getLogger("httpx").setLevel(logging.WARNING)
 
 import asyncio
-from general_process import main_process, wiseflow_logger, pb
-from core.async_database import init_database, cleanup_database
+from general_process import main_process
+from core.async_logger import wis_logger
+from async_database import init_database, cleanup_database, db_manager
 
 counter = 0
 
@@ -18,34 +20,30 @@ async def schedule_task():
     global counter
     
     # 预初始化数据库
-    try:
-        await init_database()
-    except Exception as e:
-        wiseflow_logger.error(f"Failed to initialize database: {e}")
-        return
+    await init_database()
     
     try:
         while True:
-            wiseflow_logger.info(f'task execute loop {counter + 1}')
-            tasks = pb.read('focus_points', filter='activated=True')
-            sites_record = pb.read('sites')
+            wis_logger.info(f'task execute loop {counter + 1}')
+            tasks = await db_manager.get_activated_focus_points_with_sources()
             jobs = []
             for task in tasks:
-                if not task['per_hour'] or not task['focuspoint']:
+                focus = task['focus_point']
+                sources = task['sources']
+                if not focus['per_hour'] or not focus['focuspoint']:
                     continue
-                if counter % task['per_hour'] != 0:
+                if counter % focus['per_hour'] != 0:
                     continue
-                sites = [_record for _record in sites_record if _record['id'] in task['sites']]
-                jobs.append(main_process(task, sites))
+                jobs.append(main_process(focus, sources))
 
             counter += 1
             await asyncio.gather(*jobs)
-            wiseflow_logger.info('task execute loop finished, work after 3600 seconds')
+            wis_logger.info('task execute loop finished, work after 3600 seconds')
             await asyncio.sleep(3600)
     except KeyboardInterrupt:
-        wiseflow_logger.info("Received interrupt signal, shutting down...")
+        wis_logger.info("Received interrupt signal, shutting down...")
     except Exception as e:
-        wiseflow_logger.error(f"Unexpected error in main loop: {e}")
+        wis_logger.error(f"Unexpected error in main loop: {e}")
     finally:
         # 清理数据库资源
         await cleanup_database()

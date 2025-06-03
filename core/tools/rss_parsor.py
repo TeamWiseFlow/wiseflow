@@ -1,12 +1,11 @@
 import httpx
 import feedparser
-from global_config import wis_logger
-from async_database import db_manager
+from async_logger import wis_logger
 from wis import CrawlResult
 from typing import List, Tuple
 
 
-async def fetch_rss(url) -> Tuple[List[CrawlResult], str, dict]:
+async def fetch_rss(url, existings: set=set()) -> Tuple[List[CrawlResult], str, dict]:
     try:
         async with httpx.AsyncClient(timeout=30) as client:
             response = await client.get(url)
@@ -28,6 +27,8 @@ async def fetch_rss(url) -> Tuple[List[CrawlResult], str, dict]:
         html_parts = []
         description = ''
         article_url = entry.get('link', url)
+        if article_url in existings:
+            continue
         # 1. 如果 entry 有 content 字段，遍历每个 content_item
         if 'content' in entry:
             for content_item in entry.content:
@@ -62,10 +63,10 @@ async def fetch_rss(url) -> Tuple[List[CrawlResult], str, dict]:
                 author=author,
                 publish_date=publish_date,
             ))
-            continue
-        if description and article_url != url:
+            existings.add(article_url)
+        elif description and article_url != url:
             key = f"[{len(link_dict)+1}]"
             link_dict[key] = article_url
             markdown += f"* {description} (Author: {author} Publish Date: {publish_date}) {key}\n"
-    # TODO: 需要把 results 写入数据库
+            existings.add(article_url)
     return results, markdown, link_dict

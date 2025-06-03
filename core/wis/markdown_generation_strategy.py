@@ -6,7 +6,7 @@ from .utils import normalize_url, url_pattern, is_valid_img_url, is_external_url
 import os
 from functools import lru_cache
 from .llmuse import perform_completion_with_backoff as llm
-from .config import SOCIAL_MEDIA_DOMAINS
+from .config import SOCIAL_MEDIA_DOMAINS, EXCLUDE_EXTERNAL_LINKS
 from bs4 import BeautifulSoup
 
 # Pre-compile the regex pattern
@@ -274,7 +274,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
         metadata: Optional[Dict[str, Any]] = None,
         html2text_options: Optional[Dict[str, Any]] = None,
         options: Optional[Dict[str, Any]] = None,
-        exclude_external_links: bool = False,
+        exclude_external_links: bool = EXCLUDE_EXTERNAL_LINKS,
         **kwargs,
     ) -> Tuple[str, str, str, str, str, dict]:
         """
@@ -546,3 +546,5 @@ class WeixinArticleMarkdownGenerator(DefaultMarkdownGenerator):
             url = url.replace(old, new)
         
         return url
+
+markdown_generation_hub = {'mp.weixin.qq.com': WeixinArticleMarkdownGenerator}

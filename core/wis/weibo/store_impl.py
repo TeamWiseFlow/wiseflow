@@ -29,7 +29,7 @@ def update_weibo_note(mblog: Dict, keyword: str = "") -> Dict:
         "source_keyword": keyword,
         }
     
-    # todo should save to db first
+    # todo should save to db first - not article, just the base info, used in post_lists stage
     return save_content_item
 
 def update_weibo_note_comment(comment_items: List[Dict]) -> str:

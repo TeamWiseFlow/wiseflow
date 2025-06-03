@@ -1,4 +1,3 @@
-from .__version__ import __version__
 import os
 import time
 from typing import Optional, List
@@ -15,22 +14,13 @@ from .basemodels import (
     CrawlResultContainer,
     RunManyReturn
 )
-from global_config import wis_logger, base_directory
-from .chunking_strategy import *  # noqa: F403
-from .chunking_strategy import IdentityChunking, MaxLengthChunking
-from .extraction_strategy import *  # noqa: F403
-from .extraction_strategy import NoExtractionStrategy
+from async_logger import wis_logger, base_directory
 from .async_crawler_strategy import (
     AsyncCrawlerStrategy,
     AsyncPlaywrightCrawlerStrategy,
     AsyncCrawlResponse,
 )
-
-from .markdown_generation_strategy import *
-markdown_generation_hub = {'mp.weixin.qq.com': WeixinArticleMarkdownGenerator}
-
 from .async_configs import BrowserConfig, CrawlerRunConfig, ProxyConfig
-from .async_dispatcher import *  # noqa: F403
 from .async_dispatcher import BaseDispatcher, MemoryAdaptiveDispatcher, RateLimiter
 from .utils import (
     sanitize_input_encode,
@@ -149,14 +139,6 @@ class AsyncWebCrawler:
             AsyncWebCrawler: The initialized crawler instance
         """
         await self.crawler_strategy.__aenter__()
-        print("\n########################")
-        print(f"Wiseflow Info Scraper {__version__}")
-        print("Modified by bigbrother666sh based on:") 
-        print("Crawl4ai 0.6.3 (https://github.com/unclecode/crawl4ai)")
-        print("MediaCrawler(https://github.com/NanmiCoder/MediaCrawler)")
-        print("with enhanced by NoDriver(https://github.com/ultrafunkamsterdam/nodriver)")
-        print("2025-05-23")
-        print("########################\n")
         self.ready = True
         return self
 
@@ -423,91 +405,9 @@ class AsyncWebCrawler:
         # Log processing completion
         self.logger.debug(f"[PREPROCESS] {_url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
 
-        if (
-            not config.extraction_strategy 
-            or isinstance(config.extraction_strategy, NoExtractionStrategy)
-        ):
-            # Return complete crawl result
-            return CrawlResult(
-                url=url,
-                html=html,
-                cleaned_html=cleaned_html,
-                metadata=metadata,
-                screenshot=screenshot_data,
-                pdf=pdf_data,
-                # extracted_content=[],
-                success=True,
-                error_message="",
-            )
 
-        ################################
-        # Structured Content Extraction#
-        ################################
-        t1 = time.perf_counter()
-        if not isinstance(config.extraction_strategy, LLMExtractionStrategy):
-            # Choose content based on input_format
-            content_format = config.extraction_strategy.input_format
-            if content_format in ["fit_html", "cleaned_html"]:
-                content = cleaned_html
-            else:
-                content = html
 
-            chunking = IdentityChunking()
-            sections = chunking.chunk(content)
-            extracted_content = config.extraction_strategy.run(url, sections)
 
-            # Log extraction completion
-            self.logger.debug(f"[EXTRACT] {_url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
-            return CrawlResult(
-                url=url,
-                html=html,
-                cleaned_html=cleaned_html,
-                # extracted_content=extracted_content,
-                success=True,
-                error_message="",
-            )
-        
-        # if use LLMExtractionStrategy, then we need to generate markdown
-        ################################
-        # Generate Markdown            #
-        ################################
-        if not markdown:
-            domain = get_base_domain(url)
-            markdown_generator = markdown_generation_hub.get(domain, DefaultMarkdownGenerator)()
-            error_msg, title, author, publish, markdown, link_dict = (
-                await markdown_generator.generate_markdown(
-                    raw_html=html,
-                    cleaned_html=cleaned_html,
-                    base_url=kwargs.get("redirected_url", url),
-                    metadata=metadata,
-                    exclude_external_links=config.exclude_external_links,
-                )
-            )
-            self.logger.debug(f"[HTML TO MARKDOWN] {_url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
-            metadata["title"] = title
-            metadata["author"] = author
-            metadata["publish_date"] = publish or publish_date
-        else:
-            title = metadata.get("title", "")
-            author = metadata.get("author", "")
-            publish = metadata.get("publish_date", "")
-            error_msg = ""
-
-        t1 = time.perf_counter()
-        if error_msg:
-            self.logger.error(f"[HTML TO MARKDOWN] FAILED {_url}\n{error_msg}")
-            extracted_content = []
-        else:
-            content_date = publish or publish_date
-            chunking = config.chunking_strategy or MaxLengthChunking()
-            sections = chunking.chunk(markdown)
-            extracted_content = config.extraction_strategy.run(url=url, 
-                                                               sections=sections, 
-                                                               title=title, 
-                                                               author=author, 
-                                                               publish_date=content_date,
-                                                               mode='both' if link_dict else 'only_info')
-            self.logger.debug(f"[EXTRACT] {_url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
 
         # post process for default extraction task --- sellection related links and infos
 

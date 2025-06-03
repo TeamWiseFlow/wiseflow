@@ -377,7 +377,7 @@ class KuaiShouApiClient:
             "variables": {
                 "photoId": photo_id,
                 "pcursor": pcursor,
-                "root_comment_id": root_comment_id,
+                "rootCommentId": root_comment_id,
             },
             "query": self._graphql.get("vision_sub_comment_list"),
         }

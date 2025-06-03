@@ -219,7 +219,7 @@ class LLMExtractionStrategy(ExtractionStrategy):
             # Add error information to extracted_content
             return None
 
-    async def run(self, # Make run an async method
+    def run(self,
             sections: List[str], 
             url: str = '',
             title: str = '',

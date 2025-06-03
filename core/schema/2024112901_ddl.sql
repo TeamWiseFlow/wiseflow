@@ -1,1 +1,0 @@
-alter table xhs_note_comment add column `note_url` varchar(255) NOT NULL DEFAULT '' COMMENT '笔记链接';

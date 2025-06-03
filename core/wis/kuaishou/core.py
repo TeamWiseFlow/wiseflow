@@ -1,13 +1,21 @@
 import asyncio
 import random
-from asyncio import Task
 from typing import Dict, List, Optional, Tuple
-from ..config.mc_config import CRAWLER_MAX_NOTES_COUNT, START_PAGE, MAX_CONCURRENCY_NUM, ENABLE_GET_COMMENTS, KUAISHOU_PLATFORM_NAME
+from ..config.mc_config import (
+    CRAWLER_MAX_NOTES_COUNT, 
+    START_PAGE, 
+    MAX_CONCURRENCY_NUM, 
+    ENABLE_GET_COMMENTS, 
+    KUAISHOU_PLATFORM_NAME, 
+    SEARCH_UP_TIME, 
+    CREATOR_SEARCH_UP_TIME
+)
 from ..mc_commen.tools.time_util import is_cacheup
 from ..mc_commen import AccountWithIpPoolManager, ProxyIpPool, wis_logger, create_ip_pool
 from .store_impl import *
 from .client import KuaiShouApiClient
 from .exception import DataFetchError
+from ..basemodels import CrawlResult
 
 
 class KuaiShouCrawler:
@@ -41,20 +49,18 @@ class KuaiShouCrawler:
     async def posts_list(self,
                          keywords: List[str],
                          existings: set[str] = set(),
-                         limit_hours: int = 48,
-                         creator_ids: List[str] = [],
-                         **kwargs) -> Tuple[str, dict]:
+                         creator_ids: List[str] = []) -> Tuple[str, dict]:
         fresh_videos = []
         creator_ids = set(creator_ids)
         if "homefeed" in creator_ids:
             creator_ids.discard("homefeed")
-            fresh_videos.extend(await self.get_homefeed_videos(existings, limit_hours))
+            fresh_videos.extend(await self.get_homefeed_videos(existings, CREATOR_SEARCH_UP_TIME))
 
         if creator_ids:
-            fresh_videos.extend(await self.get_videos_by_creators(creator_ids, existings, limit_hours))
+            fresh_videos.extend(await self.get_videos_by_creators(creator_ids, existings, CREATOR_SEARCH_UP_TIME))
 
         if keywords:
-            fresh_videos.extend(await self.search_videos(keywords, existings, limit_hours))
+            fresh_videos.extend(await self.search_videos(keywords, existings, SEARCH_UP_TIME))
 
         markdown = ""
         link_dict = {}
@@ -71,15 +77,34 @@ class KuaiShouCrawler:
 
         return markdown.replace("#", ""), link_dict
     
-    async def post_as_article(self, video: Dict) -> Tuple[str, Dict]:
-        article = f"{video.get('title')}\n作者：{video.get('nickname')}(id: {video.get('user_id')}) 发布时间：{video.get('create_time')}\n{video.get('desc')}\n点赞量：{video.get('liked_count')} 播放量：{video.get('viewd_count')}"
-        ref = {"video_url": video.get("video_url"), "video_play_url": video.get("video_play_url")}
+    async def video_as_article(self, video: Dict, db_manager=None) -> Optional[CrawlResult]:
+        if db_manager:
+            cached_result = await db_manager.get_cached_url(video.get("video_url"), days_threshold=365)
+            if cached_result:
+                return cached_result
+        
+        author = f"{video.get('nickname')}(id: {video.get('user_id')})"
+        title = video.get('title')
+        publish_date = video.get('create_time')
+        
+        article = f"{video.get('desc')}\n\n点赞量：{video.get('liked_count')} 播放量：{video.get('viewd_count')} 播放地址：[1]"
+        ref = {"[1]": video.get("video_play_url")}
 
         comments = await self.get_video_comments(video.get("video_id"))
         if comments:
-            article += f"\n\n评论区：\n{comments}"
-        # todo save as a crawlresult to db
-        return article, ref
+            article += f"\n\n## 评论区：\n{comments}"
+        
+        result = CrawlResult(
+            url=video.get("video_url"),
+            markdown=article,
+            link_dict=ref,
+            author=author,
+            publish_date=publish_date,
+            title=title,
+        )
+        if db_manager:
+            await db_manager.cache_url(result)
+        return result
 
     async def creator_as_article(self, creator_id: str) -> Optional[str]:
         # get creator detail info from web html content

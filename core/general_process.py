@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
-from async_database import base_directory, wis_logger, db_manager
+from async_database import db_manager, init_database, cleanup_database
+from async_logger import wis_logger, base_directory
+from typing import List, Dict, Tuple
 from tools.general_utils import extract_and_convert_dates, is_chinese, isURL
-import time
+from wis.utils import get_base_domain
+import time, pickle
 import regex as re
 import asyncio
 from crawler_configs import *
@@ -18,9 +21,22 @@ from wis import (
     KuaiShouCrawler,
     WeiboCrawler,
     MaxLengthChunking,
-    WeiboSearchType
+    WeixinArticleMarkdownGenerator,
+    markdown_generation_hub,
+    DefaultMarkdownGenerator,
+    ExtractionStrategy,
+    NoExtractionStrategy,
+    LLMExtractionStrategy,
+    JsonCssExtractionStrategy,
+    JsonXPathExtractionStrategy,
+    JsonLxmlExtractionStrategy,
+    RegexExtractionStrategy,
+    ChunkingStrategy,
+    RegexChunking,
+    IdentityChunking,
+    MaxLengthChunking,
+    CrawlResult,
 )
-
 
 
 """
@@ -41,19 +57,114 @@ async def info_process(url: str,
         _ = pb.add(collection_name='infos', body=info)
 """
 
-async def main_process(focus: dict, sites: list, platforms: dict):
+def get_existings_for_focus(focus_id: str) -> dict:
+    visited_record_dir = os.path.join(base_directory, ".wis", "visited_record", focus_id)
+    if not os.path.exists(visited_record_dir):
+        os.makedirs(visited_record_dir, exist_ok=True)
+        return {"web": set(), KUAISHOU_PLATFORM_NAME: set(), WEIBO_PLATFORM_NAME: set()}
+    
+    existings = {}
+    for name in ["web", KUAISHOU_PLATFORM_NAME, WEIBO_PLATFORM_NAME]:
+        file_path = os.path.join(visited_record_dir, f"{name}.pkl")
+        if not os.path.exists(file_path):
+            continue
+        with open(file_path, "rb") as f:
+            existings[name] = pickle.load(f)
+
+    return existings
+
+
+def scrap_article(article: CrawlResult, extractor: ExtractionStrategy = None, chunking: ChunkingStrategy = None) -> Tuple[bool, List[Dict]]:
+    article_updated = False
+    url = article.url
+    html = article.html
+    cleaned_html = article.cleaned_html
+    markdown = article.markdown
+    link_dict = article.link_dict
+    metadata = article.metadata
+  
+    if not extractor or isinstance(extractor, NoExtractionStrategy):
+        return article_updated, []
+
+    t1 = time.perf_counter()
+    if not isinstance(extractor, LLMExtractionStrategy):
+        # Choose content based on input_format
+        content_format = extractor.input_format
+        if content_format in ["fit_html", "cleaned_html"]:
+            content = cleaned_html
+        else:
+            content = html
+
+        chunking = chunking or IdentityChunking()
+        sections = chunking.chunk(content)
+        extracted_content = extractor.run(url, sections)
+
+        # Log extraction completion
+        wis_logger.debug(f"[EXTRACT] {url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
+        return article_updated, extracted_content
+        
+    # if use LLMExtractionStrategy, then we need to generate markdown
+    if not markdown:
+        domain = get_base_domain(url)
+        markdown_generator = markdown_generation_hub.get(domain, DefaultMarkdownGenerator)()
+        error_msg, title, author, publish, markdown, link_dict = markdown_generator.generate_markdown(
+            raw_html=html,
+            cleaned_html=cleaned_html,
+            base_url=url,
+            metadata=metadata,
+        )
+        if error_msg:
+            wis_logger.error(f"[HTML TO MARKDOWN] FAILED {url}\n{error_msg}")
+            return article_updated, []
+        
+        wis_logger.debug(f"[HTML TO MARKDOWN] {url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
+        if not article.title:
+            article.title = title
+        if not article.author:
+            article.author = author
+        if not article.publish_date:
+            article.publish_date = publish
+        article.link_dict = link_dict
+        article.markdown = markdown
+        article_updated = True
+
+    t1 = time.perf_counter()
+    if not chunking:
+        chunking = MaxLengthChunking()
+    sections = chunking.chunk(article.markdown)
+    extracted_content = extractor.run(sections=sections,
+                                      url=url,
+                                      title=article.title,
+                                      author=article.author,
+                                      publish_date=article.publish_date,
+                                      mode='both' if article.link_dict else 'only_info',
+                                      link_dict=article.link_dict)
+    wis_logger.debug(f"[EXTRACT] {url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
+    return article_updated, extracted_content
+
+
+async def main_process(focus: dict, sources: list):
     # 0. prepare the work
     wis_logger.debug('new task initializing...')
     focus_id = focus["id"]
     focuspoint = focus["focuspoint"].strip()
     restrictions = focus["restrictions"].strip() if focus["restrictions"] else ''
-    # TODO: use a llm to generate the query
-    query = focuspoint if not restrictions else f"{focuspoint}({restrictions})"
 
-    wis_logger.debug(f'focus_id: {focus_id}, focus_point: {focuspoint}, restrictions: {restrictions}, search_engine: {focus["search_engine"]}')
-    # TODO: read from the database
-    # existing_urls = {url['url'] for url in db_manager.get_cached_url(url=url, days_threshold=30)}
-    existing_urls = set()
+    # TODO: use a llm to generate the query
+    query = focus['keywords']
+    search = focus['search_engine']
+    if search:
+        query = [query.strip()] if query else [focuspoint]
+    else:
+        query = []
+
+    wis_logger.debug(f'focus_id: {focus_id}, focus_point: {focuspoint}, restrictions: {restrictions}, search mode: {search} with keywords: {query}')
+
+    if not db_manager.ready:
+        await init_database()
+
+    existings = get_existings_for_focus(focus_id)
+
     to_crawl_urls = set()
     extractor = LLMExtractionStrategy(
         focus_point=focuspoint,
@@ -69,43 +180,71 @@ async def main_process(focus: dict, sites: list, platforms: dict):
             result = await coro
             return meta, result
         return asyncio.create_task(wrapper())
-    # Add RSS feed tasks
-    for site in sites:
-        if site.get('type', 'web') == 'rss':
-            tasks.add(wrap_task(fetch_rss(site['url']), ('rss', site['url'])))
-        else:
-            if site['url'] not in existing_urls and isURL(site['url']):
-                to_crawl_urls.add(site['url'])
-    
-    # Add Kuaishou tasks
-    if KUAISHOU_PLATFORM_NAME in platforms:
-        ks_crawler = KuaiShouCrawler()
-        try:
-            await ks_crawler.async_initialize()
-            if focus.get('search_engine', False):
-                kwags = {"keywords": [query], "existings": existing_urls, **platforms[KUAISHOU_PLATFORM_NAME]}
-            else:
-                kwags = {"existings": existing_urls, **platforms[KUAISHOU_PLATFORM_NAME]}
-            tasks.add(wrap_task(ks_crawler.posts_list(**kwags), (KUAISHOU_PLATFORM_NAME, KUAISHOU_PLATFORM_NAME)))
-        except Exception as e:
-            wis_logger.error(f"initialize kuaishou crawler failed: {e}, will abort all the sources for kuaishou platform")
-            
-    # Add Weibo tasks
-    if WEIBO_PLATFORM_NAME in platforms:
-        wb_crawler = WeiboCrawler()
-        try:
-            await wb_crawler.async_initialize()
-            if focus.get('search_engine', False):
-                kwags = {"keywords": [query], "existings": existing_urls, **platforms[WEIBO_PLATFORM_NAME]}
-            else:
-                kwags = {"existings": existing_urls, **platforms[WEIBO_PLATFORM_NAME]}
-            tasks.add(wrap_task(wb_crawler.posts_list(**kwags), (WEIBO_PLATFORM_NAME, WEIBO_PLATFORM_NAME)))
-        except Exception as e:
-            wis_logger.error(f"initialize weibo crawler failed: {e}, will abort all the sources for weibo platform")
 
-    # Add search engine task
-    if focus.get('search_engine', False):
-        tasks.add(wrap_task(search_with_jina(query), ('search', 'Jina Search Engine')))
+    for source in sources:
+        if source['type'] == 'rss':
+            if not source.get('url'):
+                wis_logger.warning(f"unvalid rss source {source['id']}: has no url, skip")
+                continue
+            tasks.add(wrap_task(fetch_rss(source['url'], existings['web']), ('rss', source['url'])))
+
+        elif source['type'] == KUAISHOU_PLATFORM_NAME:
+            creators = source.get('creators', '') or ''
+            if not creators:
+                creator_ids = []
+            elif ',' in creators:
+                creator_ids = [_id.strip() for _id in creators.split(',')]
+            elif '，' in creators:
+                creator_ids = [_id.strip() for _id in creators.split('，')]
+            else:
+                creator_ids = [creators]
+            
+            if not search and not creator_ids:
+                wis_logger.warning(f"unvalid kuaishou source {source['id']}: has no keywords and no creators, skip")
+                continue
+
+            ks_crawler = KuaiShouCrawler()
+            try:
+                await ks_crawler.async_initialize()
+                kwags = {"keywords": query, "existings": existings[KUAISHOU_PLATFORM_NAME], "creator_ids": creator_ids}
+                tasks.add(wrap_task(ks_crawler.posts_list(**kwags), (KUAISHOU_PLATFORM_NAME, KUAISHOU_PLATFORM_NAME)))
+            except Exception as e:
+                wis_logger.error(f"initialize kuaishou crawler failed: {e}, will abort all the sources for kuaishou platform")
+                
+        elif source['type'] == WEIBO_PLATFORM_NAME:
+            creators = source.get('creators', '') or ''
+            if not creators:
+                creator_ids = []
+            elif ',' in creators:
+                creator_ids = [_id.strip() for _id in creators.split(',')]
+            elif '，' in creators:
+                creator_ids = [_id.strip() for _id in creators.split('，')]
+            else:
+                creator_ids = [creators]
+
+            if not search and not creator_ids:
+                wis_logger.warning(f"unvalid weibo source {source['id']}: has no keywords and no creators, skip")
+
+            wb_crawler = WeiboCrawler()
+            try:
+                await wb_crawler.async_initialize()
+                kwags = {"keywords": query, "existings": existings[WEIBO_PLATFORM_NAME], "creator_ids": creator_ids}
+                tasks.add(wrap_task(wb_crawler.posts_list(**kwags), (WEIBO_PLATFORM_NAME, WEIBO_PLATFORM_NAME)))
+            except Exception as e:
+                wis_logger.error(f"initialize weibo crawler failed: {e}, will abort all the sources for weibo platform")
+
+        elif source['type'] == 'web':
+            if not source.get('url'):
+                wis_logger.warning(f"unvalid web source {source['id']}: has no url, skip")
+                continue
+            if source['url'] not in existings['web'] and isURL(source['url']):
+                to_crawl_urls.add(source['url'])
+        else:
+            wis_logger.warning(f"unvalid source {source['id']}: has no type, skip")
+            continue
+
+    if search:
+        tasks.add(wrap_task(search_with_jina(query[0]), ('search', 'Jina Search Engine')))
     
     to_scrap_articles = []
     posts = []
@@ -120,23 +259,23 @@ async def main_process(focus: dict, sites: list, platforms: dict):
                 wis_logger.debug(f'get {len(results)} articles, add to to_scrap_articles')
                 to_scrap_articles.extend(results)
                 for result in results:
-                    print(result)
-                    print('-'*100)
+                    await db_manager.cache_url(result)
             if markdown:
                 wis_logger.debug(f'get {len(link_dict)} articles, add to posts list')
                 posts.append((markdown, link_dict, 'web'))
-                # TODO: LLM extract the posts
+
         elif task_type == 'search':
             markdown, link_dict = result
             wis_logger.debug(f'get {len(link_dict)} items, add to posts list')
             posts.append((markdown, link_dict, 'web'))
-            # TODO: LLM extract the posts
+
         else:
             markdown, link_dict = result
             wis_logger.debug(f'get {len(link_dict)} items, add to posts list')
             posts.append((markdown, link_dict, source_name))
-            # TODO: LLM extract the posts
-    
+
+    # save the existings
+    # 这里先验证下，是否 existings 符合预期被更新了
     wis_logger.debug(f"scource parsing finished, time cost: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
     
     # 2. fetching mediacrawler posts and analyzing search engine results
@@ -151,7 +290,7 @@ async def main_process(focus: dict, sites: list, platforms: dict):
         
     t1 = time.perf_counter()
     tasks = set()
-    with ThreadPoolExecutor(max_workers=min(os.getenv("CONCURRENT_NUMBER", 12), len(posts))) as executor:
+    with ThreadPoolExecutor(max_workers=min(int(os.getenv("CONCURRENT_NUMBER", 12)), len(posts))) as executor:
         futures = [executor.submit(wrap_post_task(post)) for post in posts]
         for future in as_completed(futures):
             source_name, result = future.result()
@@ -161,39 +300,68 @@ async def main_process(focus: dict, sites: list, platforms: dict):
             elif source_name == WEIBO_PLATFORM_NAME:
                 for more in result:
                     for note in more['links']:
-                        tasks.add(asyncio.create_task(wb_crawler.post_as_article(note)))
+                        tasks.add(asyncio.create_task(wb_crawler.post_as_article(note, db_manager)))
             elif source_name == KUAISHOU_PLATFORM_NAME:
                 for more in result:
                     for video in more['links']:
-                        tasks.add(asyncio.create_task(ks_crawler.post_as_article(video)))
+                        tasks.add(asyncio.create_task(ks_crawler.video_as_article(video, db_manager)))
 
     for coro in asyncio.as_completed(tasks):
         article = await coro
         if article:
             to_scrap_articles.append(article)
 
-    wis_logger.debug(f"Posts fetching finished, time cost: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
+    wis_logger.debug(f"Posts from sources fetching finished, time cost: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
 
     # 3. tik-tok style processing: 
     # use multiple threads to scrape the articles -- get more related urls add to to_crawl_urls...
     # use asyncio loop to crawl the urls -- get articles -- add to to_scrap_articles...
+    loop_counter = 0
+    while to_scrap_articles:
+        loop_counter += 1
+        wis_logger.debug(f"loop {loop_counter} starting...")
+        t1 = time.perf_counter()
+        with ThreadPoolExecutor(max_workers=min(int(os.getenv("CONCURRENT_NUMBER", 12)), len(to_scrap_articles))) as executor:
+            futures = [executor.submit(scrap_article, article, extractor, chunking) for article in to_scrap_articles]
+            for future in as_completed(futures):
+                article_updated, results = future.result()
+                if article_updated:
+                    await db_manager.cache_url(article)
+                for result in results:
+                    print(result['infos'])
+                    to_crawl_urls.update(result['links'])
+        wis_logger.debug(f"loop {loop_counter} scraping stage finished, time cost: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
 
-    """
-    web_crawler = AsyncWebCrawler(config=default_browser_config, verbose=os.getenv("VERBOSE", "False"))
-    await web_crawler.start()
-    """
-
+        if not to_crawl_urls:
+            wis_logger.debug(f"loop {loop_counter} no more urls to crawl, finished")
+            continue
+            
+        t1 = time.perf_counter()
+        # for each loop we use a new context for better memory usage and avoid potiential problems
+        async with AsyncWebCrawler(config=default_browser_config, verbose=os.getenv("VERBOSE", "False")) as crawler:
+            async for result in await crawler.arun_many(to_crawl_urls, crawler_config):
+                if result.success:
+                    to_scrap_articles.append(result)
+                else:
+                    wis_logger.warning(f'{result.url} failed to crawl')
+        wis_logger.debug(f"loop {loop_counter} crawling stage finished, time cost: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
 
 
 if __name__ == "__main__":
     import asyncio
-    focus_point = "流行趋势花型设计"
-    restrictions = "适用于家纺产业"
-    focus = {"id": "1", "focuspoint": focus_point, "restrictions": restrictions, "search_engine": False}
-    sites = [{"url": "http://jxjyxy.hunnu.edu.cn/xsxw.htm", "type": "web"}, {"url": "https://www.tmtpost.com/feed", "type": "rss"}]
-    platforms = {KUAISHOU_PLATFORM_NAME: {"limit_hours": 48}, 
-                 WEIBO_PLATFORM_NAME: {"creator_ids": ("1896456970",), "search_type": WeiboSearchType.DEFAULT, "limit_hours": 48}}
-    asyncio.run(main_process(focus, sites, platforms))
+    async def main():
+        await init_database()
+        focus_points_data = await db_manager.get_activated_focus_points_with_sources()
+        tasks = set()
+        for focus in focus_points_data:
+            if not focus.get('sources'):
+                continue
+            tasks.add(asyncio.create_task(main_process(focus['focus_point'], focus['sources'])))
+        await asyncio.gather(*tasks)
+        await cleanup_database()
+    asyncio.run(main())
+
+
 
     """         
     date_stamp = datetime.now().strftime('%Y-%m-%d')

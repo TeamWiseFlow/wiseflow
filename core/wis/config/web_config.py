@@ -11,7 +11,7 @@ WORD_TOKEN_RATE = 1.3
 # Threshold for the minimum number of word in a HTML tag to be considered
 MIN_WORD_THRESHOLD = 1
 IMAGE_DESCRIPTION_MIN_WORD_THRESHOLD = 1
-
+EXCLUDE_EXTERNAL_LINKS = False
 IMPORTANT_ATTRS = ["src", "href", "alt", "title", "width", "height", "data-src"]
 ONLY_TEXT_ELIGIBLE_TAGS = [
     "b",

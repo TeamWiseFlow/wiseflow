@@ -2,7 +2,7 @@ import httpx
 import os
 import asyncio
 from typing import Tuple
-from global_config import wis_logger
+from async_logger import wis_logger
 
 jina_api_key = os.getenv('JINA_API_KEY', '')
 

@@ -9,7 +9,7 @@ def update_kuaishou_video(video_item: Dict, keyword: str = "") -> Dict:
     create_time = photo_info.get("timestamp")
     create_time = get_date_str_from_unix_time(create_time)
 
-    # todo should save to db first
+    # todo should save to db first, not article, just the base info, used in post_lists stage
     return {
         "video_id": video_id,
         "video_type": str(video_item.get("type")),

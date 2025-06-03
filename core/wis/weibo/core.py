@@ -1,15 +1,23 @@
 import asyncio
 import random
 from typing import Dict, List, Optional, Tuple
-from ..mc_commen.tools.time_util import rfc2822_to_timestamp, rfc2822_to_china_datetime, is_cacheup
-from ..config.mc_config import WEIBO_PLATFORM_NAME, ENABLE_GET_COMMENTS, START_PAGE, CRAWLER_MAX_NOTES_COUNT
+from ..mc_commen.tools.time_util import rfc2822_to_timestamp, is_cacheup
+from ..config.mc_config import (
+    WEIBO_PLATFORM_NAME, 
+    ENABLE_GET_COMMENTS, 
+    START_PAGE, 
+    CRAWLER_MAX_NOTES_COUNT, 
+    WEIBO_SEARCH_TYPE, 
+    SEARCH_UP_TIME, CREATOR_SEARCH_UP_TIME)
 from ..mc_commen import AccountWithIpPoolManager, ProxyIpPool, wis_logger, create_ip_pool
 from .store_impl import update_weibo_note, update_weibo_note_comment
 from .client import WeiboClient
 from .exception import DataFetchError
 from .field import SearchType
 from .help import filter_search_result_card
-from ..mc_commen.tools.utils import process_html_string
+# from ..mc_commen.tools.utils import process_html_string
+from ..basemodels import CrawlResult
+import regex as re
 
 
 class WeiboCrawler:
@@ -45,9 +53,7 @@ class WeiboCrawler:
     async def posts_list(self,
                          keywords: List[str],
                          existings: set[str] = set(),
-                         limit_hours: int = 48,
-                         creator_ids: List[str] = [],
-                         search_type: SearchType = SearchType.DEFAULT) -> Tuple[str, dict]:
+                         creator_ids: List[str] = []) -> Tuple[str, dict]:
         try:
             await self.async_initialize()
         except Exception as e:
@@ -59,10 +65,11 @@ class WeiboCrawler:
         if creator_ids:
             creator_ids = set(creator_ids)
             creator_ids.discard("homefeed")
-            fresh_notes.extend(await self.get_notes_by_creators(creator_ids, existings, limit_hours))
+            fresh_notes.extend(await self.get_notes_by_creators(creator_ids, existings, CREATOR_SEARCH_UP_TIME))
 
         if keywords:
-            fresh_notes.extend(await self.search_notes(keywords, existings, limit_hours, search_type))
+            search_type = SearchType(WEIBO_SEARCH_TYPE) if WEIBO_SEARCH_TYPE else SearchType.DEFAULT
+            fresh_notes.extend(await self.search_notes(keywords, existings, SEARCH_UP_TIME, search_type))
 
         markdown = ""
         link_dict = {}
@@ -83,8 +90,14 @@ class WeiboCrawler:
 
         return markdown.replace("#", ""), link_dict
     
-    async def post_as_article(self, note: Dict) -> Tuple[str, Dict]:
+    async def post_as_article(self, note: Dict, db_manager=None) -> Optional[CrawlResult]:
         # content = note.get("content")
+        if db_manager:
+            # 社交媒体url 相对固定
+            cached_result = await db_manager.get_cached_url(note.get("note_url"), days_threshold=365)
+            if cached_result:
+                return cached_result
+        
         note_id = note.get("note_id")
         note_detail = await self.get_note_info(note_id)
         detail_content = None
@@ -105,19 +118,31 @@ class WeiboCrawler:
         nickname = note.get("nickname")
         gender = note.get("gender")
 
-        markdown = f"{title}\n发布者： {nickname} ({user_id}) "
+        author = f"{nickname} ({user_id}) "
         if gender:
-            markdown += f"({gender}) "
+            author += f"({gender}) "
         if ip_location:
-            markdown += f"{ip_location} "
-        markdown += f"发布时间： {create_time}\n\n{content}\n点赞量：{liked_count} 评论量：{comments_count} 转发量：{shared_count}"
+            author += f"{ip_location} "
+        html = f"{content}\n\n点赞量：{liked_count} 评论量：{comments_count} 转发量：{shared_count}"
 
         comments = await self.get_note_comments(note_id)
         if comments:
-            markdown += f"\n\n评论区：\n{comments}"
-        # todo save as crawresult to db first
-        # note_url = note.get("note_url")
-        return process_html_string(markdown)
+            html += f"\n\n评论区：\n{comments}"
+
+        pattern = r'<span class="url-icon">.*?</span>'
+        html = re.sub(pattern, '', html, flags=re.DOTALL)
+
+        result = CrawlResult(
+            url=note.get("note_url"),
+            cleaned_html=html,
+            author=author,
+            publish_date=create_time,
+            title=title,
+        )
+
+        if db_manager:
+            await db_manager.cache_url(result)
+        return result
 
     async def creator_as_article(self, creator_id: str) -> Optional[str]:
         try:

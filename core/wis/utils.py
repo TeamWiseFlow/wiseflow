@@ -1829,6 +1829,7 @@ def ensure_content_dirs(base_path: str) -> Dict[str, str]:
         "markdown": "markdown",
         "link_dict": "link_dict",
         "screenshots": "screenshot",
+        "cleaned_html": "cleaned_html",
     }
 
     content_paths = {}

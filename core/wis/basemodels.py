@@ -114,7 +114,7 @@ class DispatchResult(BaseModel):
    
 class CrawlResult(BaseModel):
     url: str
-    html: str
+    html: Optional[str] = ''
     success: Optional[bool] = True
     cleaned_html: Optional[str] = None
     downloaded_files: Optional[List[str]] = None
@@ -128,7 +128,7 @@ class CrawlResult(BaseModel):
     author: Optional[str] = ''
     publish_date: Optional[str] = ''
     # extracted_content: Optional[List[Dict[str, Any]]] = None
-    # metadata: Optional[dict] = None
+    metadata: Optional[dict] = {}
     error_message: Optional[str] = ''
     session_id: Optional[str] = None
     response_headers: Optional[dict] = None

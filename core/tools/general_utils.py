@@ -3,7 +3,16 @@ import os
 import regex as re
 from wis.utils import params_to_remove, url_pattern
 from loguru import logger
+from wis.__version__ import __version__
 
+
+# ANSI color codes
+CYAN = '\033[36m'
+GREEN = '\033[32m'
+YELLOW = '\033[33m'
+BLUE = '\033[34m'
+MAGENTA = '\033[35m'
+RESET = '\033[0m'
 
 def isURL(string):
     if string.startswith("www."):
@@ -145,29 +154,16 @@ def get_logger(logger_file_path: str, logger_name: str):
     """
     # 记录处理器 ID（存储为列表）
     _logger_handlers[logger_name] = file_handler_id
+
+    if logger_name == 'wiseflow_info_scraper':
+        print(f"\n{CYAN}{'#' * 50}{RESET}")
+        print(f"{GREEN}Wiseflow Info Scraper {__version__}{RESET}")
+        print(f"{YELLOW}Modified by bigbrother666sh based on:{RESET}")
+        print(f"{BLUE}Crawl4ai 0.6.3 (https://github.com/unclecode/crawl4ai)")
+        print(f"{BLUE}MediaCrawler (https://github.com/NanmiCoder/MediaCrawler)")
+        print(f"{BLUE}with enhanced by NoDriver (https://github.com/ultrafunkamsterdam/nodriver)")
+        print(f"{MAGENTA}2025-06-04{RESET}")
+        print(f"{CYAN}{'#' * 50}{RESET}\n")
     
     # 返回绑定了名称的 logger 实例
     return logger.bind(name=logger_name)
-
-"""
-def compare_phrase_with_list(target_phrase, phrase_list, threshold):
-
-    Compare the similarity of a target phrase to each phrase in the phrase list.
-
-    : Param target_phrase: target phrase (str)
-    : Param phrase_list: list of str
-    : param threshold: similarity threshold (float)
-    : Return: list of phrases that satisfy the similarity condition (list of str)
-
-    if not target_phrase:
-        return []  # The target phrase is empty, and the empty list is returned directly.
-
-    # Preprocessing: Segmentation of the target phrase and each phrase in the phrase list
-    target_tokens = set(jieba.lcut(target_phrase))
-    tokenized_phrases = {phrase: set(jieba.lcut(phrase)) for phrase in phrase_list}
-
-    similar_phrases = [phrase for phrase, tokens in tokenized_phrases.items()
-                       if len(target_tokens & tokens) / min(len(target_tokens), len(tokens)) > threshold]
-
-    return similar_phrases
-"""
