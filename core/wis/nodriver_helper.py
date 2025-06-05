@@ -46,7 +46,7 @@ class NodriverHelper:
             'headless': False,
             'browser_args': [
                 '--lang=zh-CN',
-                #'--no-sandbox',
+                '--no-sandbox',
                 '--disable-translate',  # 禁用翻译
                 '--no-first-run',  # 禁用首次运行向导
                 '--no-default-browser-check'

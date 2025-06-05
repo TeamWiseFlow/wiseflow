@@ -1,8 +1,3 @@
-import os
-from dotenv import load_dotenv
-
-load_dotenv()  # Load environment variables from .env file
-
 # Chunk token threshold
 CHUNK_TOKEN_THRESHOLD = 2**11  # 2048 tokens
 OVERLAP_RATE = 0.1

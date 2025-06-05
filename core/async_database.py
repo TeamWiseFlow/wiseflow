@@ -1,6 +1,7 @@
 import os
 import aiosqlite
 import asyncio
+import uuid
 from typing import Optional, List, Any
 from contextlib import asynccontextmanager
 import json
@@ -19,24 +20,20 @@ DB_PATH = os.path.join(os.path.dirname(__file__), "..", "pb", "pb_data")
 class ContentMapping:
     """内容类型映射配置"""
     field_name: str
-    store_as_file: bool      # True表示存储为文件, False表示直接存DB
-    content_type_for_file: Optional[str] = None # 如果 store_as_file=True, 这是文件类型/目录名
+    content_type_for_file: str # 文件类型/目录名
     is_json_content: bool = False # 内容本身是否为JSON (影响序列化/反序列化)
 
 
 class AsyncDatabaseManager:
     """优化后的异步数据库管理器"""
     
-    # 内容字段映射配置
+    # 内容字段映射配置 - 所有字段都存储为文件
     CONTENT_MAPPINGS = [
-        # 文件存储的字段
-        ContentMapping("html", store_as_file=True, content_type_for_file="html"),
-        ContentMapping("markdown", store_as_file=True, content_type_for_file="markdown"),
-        ContentMapping("screenshot", store_as_file=True, content_type_for_file="screenshots"),
-        ContentMapping("cleaned_html", store_as_file=True, content_type_for_file="cleaned_html"),
-        # 数据库存储的JSON字段
-        ContentMapping("link_dict", store_as_file=True, content_type_for_file="link_dict", is_json_content=True),
-        ContentMapping("downloaded_files", store_as_file=False, is_json_content=True),
+        ContentMapping("html", content_type_for_file="html"),
+        ContentMapping("markdown", content_type_for_file="markdown"),
+        ContentMapping("screenshot", content_type_for_file="screenshots"),
+        ContentMapping("cleaned_html", content_type_for_file="cleaned_html"),
+        ContentMapping("link_dict", content_type_for_file="link_dict", is_json_content=True),
     ]
 
     # 表结构定义
@@ -53,21 +50,23 @@ class AsyncDatabaseManager:
             'title': 'TEXT DEFAULT ""',
             'author': 'TEXT DEFAULT ""',
             'publish_date': 'TEXT DEFAULT ""',
-            'updated': 'TEXT'
+            'updated': 'TEXT'  # 注意：PocketBase 中实际为 datetime 类型
         },
         'infos': {
             'id': 'TEXT PRIMARY KEY',
             'content': 'TEXT NOT NULL',
             'focuspoint': 'TEXT',
-            'crawled_data': 'TEXT',
-            'references': 'JSON DEFAULT "{}"',
-            'updated': 'TEXT'
+            'source': 'TEXT',
+            'references': 'TEXT DEFAULT ""',
+            'updated': 'TEXT'  # 注意：PocketBase 中实际为 datetime 类型
         },
         'focus_points': {
             'id': 'TEXT PRIMARY KEY',
             'focuspoint': 'TEXT NOT NULL',
             'restrictions': 'TEXT DEFAULT ""',
+            'explanation': 'TEXT DEFAULT ""',
             'activated': 'BOOLEAN DEFAULT 1',
+            'freq': 'NUMERIC DEFAULT 24',
             'search': 'BOOLEAN DEFAULT 0',
             'sources': 'JSON DEFAULT "[]"',
         },
@@ -75,8 +74,38 @@ class AsyncDatabaseManager:
             'id': 'TEXT PRIMARY KEY',
             'type': 'TEXT CHECK(type IN ("web", "rss", "ks", "wb", "mp"))',
             'creators': 'TEXT DEFAULT ""',
-            'freq': 'NUMERIC DEFAULT 24',
             'url': 'TEXT'
+        },
+        'wb_cache': {
+            'id': 'TEXT PRIMARY KEY',  # 对应字典中的 note_id
+            'content': 'TEXT DEFAULT ""',
+            'create_time': 'TEXT DEFAULT ""',
+            'liked_count': 'TEXT DEFAULT ""',
+            'comments_count': 'TEXT DEFAULT ""',
+            'shared_count': 'TEXT DEFAULT ""',
+            'note_url': 'TEXT DEFAULT ""',
+            'ip_location': 'TEXT DEFAULT ""',
+            'user_id': 'TEXT DEFAULT ""',
+            'nickname': 'TEXT DEFAULT ""',
+            'gender': 'TEXT DEFAULT ""',
+            'profile_url': 'TEXT DEFAULT ""',
+            'source_keyword': 'TEXT DEFAULT ""',
+            'updated': 'TEXT'  # 注意：PocketBase 中实际为 datetime 类型
+        },
+        'ks_cache': {
+            'id': 'TEXT PRIMARY KEY',  # 对应字典中的 video_id
+            'video_type': 'TEXT DEFAULT ""',
+            'title': 'TEXT DEFAULT ""',
+            'desc': 'TEXT DEFAULT ""',
+            'create_time': 'TEXT DEFAULT ""',
+            'user_id': 'TEXT DEFAULT ""',
+            'nickname': 'TEXT DEFAULT ""',
+            'liked_count': 'TEXT DEFAULT ""',
+            'viewd_count': 'TEXT DEFAULT ""',
+            'video_url': 'TEXT DEFAULT ""',
+            'video_play_url': 'TEXT DEFAULT ""',
+            'source_keyword': 'TEXT DEFAULT ""',
+            'updated': 'TEXT'  # 注意：PocketBase 中实际为 datetime 类型
         }
     }
     
@@ -97,8 +126,6 @@ class AsyncDatabaseManager:
         
         # 内容字段映射字典，提高查找效率
         self._content_field_map = {cm.field_name: cm for cm in self.CONTENT_MAPPINGS}
-        self._file_storage_fields = {cm.field_name: cm for cm in self.CONTENT_MAPPINGS if cm.store_as_file}
-        # self._db_storage_json_fields = {cm.field_name: cm for cm in self.CONTENT_MAPPINGS if not cm.store_as_file and cm.is_json_content}
         self.ready = False
 
     async def initialize(self):
@@ -170,10 +197,13 @@ class AsyncDatabaseManager:
                     if 'NOT NULL' in col_def.upper() and not current_columns[col_name]['not_null']:
                         raise ValueError(f"Column '{col_name}' in table '{table_name}' should be NOT NULL")
             
+            # 检查并设置 crawled_data 表中 url 字段的唯一约束
+            await self._ensure_url_unique_constraint(db)
+            
             # 添加索引提高查询性能
             indexes = [
-                ("idx_crawled_data_updated_at", "crawled_data", "updated"),
-                ("idx_infos_created", "infos", "updated")
+                ("idx_crawled_data_url", "crawled_data", "url"),
+                # ("idx_infos_created", "infos", "updated"),
             ]
             
             for index_name, table_name, column_name in indexes:
@@ -187,6 +217,99 @@ class AsyncDatabaseManager:
             
             await db.commit()
             wis_logger.debug("Database schema validation completed")
+
+    async def _ensure_url_unique_constraint(self, db):
+        """确保 crawled_data 表中的 url 字段具有唯一约束"""
+        try:
+            # 检查是否已存在 url 字段的唯一索引
+            async with db.execute("PRAGMA index_list('crawled_data')") as cursor:
+                indexes = await cursor.fetchall()
+            
+            # 检查每个索引是否为 url 字段的唯一索引
+            url_unique_exists = False
+            for index_info in indexes:
+                index_name = index_info[1]  # 索引名称
+                is_unique = bool(index_info[2])  # 是否为唯一索引
+                
+                if is_unique:
+                    # 检查索引的列信息
+                    async with db.execute(f"PRAGMA index_info('{index_name}')") as cursor:
+                        index_columns = await cursor.fetchall()
+                    
+                    # 检查是否只包含 url 字段
+                    if (len(index_columns) == 1 and 
+                        index_columns[0][2] == 'url'):  # 第三个元素是列名
+                        url_unique_exists = True
+                        wis_logger.debug(f"Found existing unique constraint on url field: {index_name}")
+                        break
+            
+            # 如果不存在唯一约束，创建一个
+            if not url_unique_exists:
+                wis_logger.info("Url in crawled_data table is not unique, creating unique constraint")
+                try:
+                    await db.execute("""
+                        CREATE UNIQUE INDEX idx_crawled_data_url_unique 
+                        ON crawled_data(url)
+                    """)
+                    wis_logger.info("Successfully created unique constraint on crawled_data.url field")
+                except Exception as e:
+                    # 如果创建失败（可能因为已存在重复数据），记录错误但不中断初始化
+                    wis_logger.error(f"Failed to create unique constraint on url field: {str(e)}")
+                    wis_logger.error("This may be due to existing duplicate URLs in the database")
+                    # 可以选择清理重复数据或提示用户手动处理
+                    await self._handle_duplicate_urls(db)
+            else:
+                wis_logger.debug("URL field unique constraint already exists")
+                
+        except Exception as e:
+            wis_logger.error(f"Error checking/setting url unique constraint: {str(e)}")
+
+    async def _handle_duplicate_urls(self, db):
+        """处理数据库中的重复URL"""
+        try:
+            # 查找重复的URL
+            async with db.execute("""
+                SELECT url, COUNT(*) as count 
+                FROM crawled_data 
+                GROUP BY url 
+                HAVING COUNT(*) > 1
+            """) as cursor:
+                duplicates = await cursor.fetchall()
+            
+            if duplicates:
+                wis_logger.warning(f"Found {len(duplicates)} duplicate URLs in database")
+                
+                # 对于每个重复的URL，保留最新的记录，删除其他的
+                for url, count in duplicates:
+                    wis_logger.debug(f"Cleaning duplicate URL: {url} (found {count} copies)")
+                    
+                    # 保留最新的记录（按updated字段排序）
+                    await db.execute("""
+                        DELETE FROM crawled_data 
+                        WHERE url = ? AND id NOT IN (
+                            SELECT id FROM crawled_data 
+                            WHERE url = ? 
+                            ORDER BY updated DESC 
+                            LIMIT 1
+                        )
+                    """, (url, url))
+                
+                wis_logger.info(f"Cleaned up duplicate URLs, now attempting to create unique constraint")
+                
+                # 再次尝试创建唯一约束
+                try:
+                    await db.execute("""
+                        CREATE UNIQUE INDEX idx_crawled_data_url_unique 
+                        ON crawled_data(url)
+                    """)
+                    wis_logger.info("Successfully created unique constraint on crawled_data.url field after cleanup")
+                except Exception as e:
+                    wis_logger.error(f"Still failed to create unique constraint after cleanup: {str(e)}")
+            else:
+                wis_logger.debug("No duplicate URLs found, unique constraint creation failed for other reasons")
+                
+        except Exception as e:
+            wis_logger.error(f"Error handling duplicate URLs: {str(e)}")
 
     async def _init_connection_pool(self):
         """初始化真正的连接池"""
@@ -224,9 +347,22 @@ class AsyncDatabaseManager:
                     return result
             except Exception as e:
                 if attempt == self.max_retries - 1:
-                    wis_logger.error(f"Operation failed after {self.max_retries} attempts: {str(e)}")
                     raise
                 await asyncio.sleep(0.5 * (2 ** attempt))  # 指数退避
+
+    def _generate_id(self) -> str:
+        """
+        生成符合要求的15位字符串id
+        格式：只包含小写字母和数字 (a-z0-9)
+        """
+        return uuid.uuid4().hex[:15]
+
+    def _get_utc_timestamp(self) -> str:
+        """
+        生成当前UTC时间的字符串，使用 ISO 8601 格式
+        PocketBase datetime 字段兼容格式：YYYY-MM-DDTHH:MM:SS.sssZ
+        """
+        return datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
 
     async def cache_url(self, result: CrawlResult):
         """缓存URL数据 - 优化版本"""
@@ -235,17 +371,17 @@ class AsyncDatabaseManager:
         if not cache_url:
             return
         
-        # 并发存储需要文件存储的内容
+        # 生成15位字符串id
+        record_id = self._generate_id()
+        
+        # 获取当前UTC时间戳
+        current_time = self._get_utc_timestamp()
+        
+        # 并发存储内容到文件系统
         content_tasks = []
-        for field_name, mapping in self._file_storage_fields.items():
+        for field_name, mapping in self._content_field_map.items():
             if hasattr(result, field_name):
                 content = getattr(result, field_name)
-                # 处理空值和None值的统一化
-                if field_name in ["markdown", "html", "cleaned_html"]:
-                    content = content or ""
-                elif field_name == "link_dict":
-                    content = content or {}
-                
                 if content:
                     task = self._store_content_async(content, mapping.content_type_for_file)
                     content_tasks.append((field_name, task))
@@ -263,11 +399,13 @@ class AsyncDatabaseManager:
         
         # 数据库操作
         async def _cache(db):
+            # 不再处理 downloaded_files 字段
+            
             await db.execute("""
                 INSERT INTO crawled_data (
-                    url, html, markdown,
+                    id, url, html, markdown,
                     link_dict, cleaned_html, screenshot,
-                    downloaded_files, title, author, publish_date
+                    title, author, publish_date, updated
                 )
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(url) DO UPDATE SET
@@ -276,21 +414,22 @@ class AsyncDatabaseManager:
                     link_dict = excluded.link_dict,
                     cleaned_html = excluded.cleaned_html,
                     screenshot = excluded.screenshot,
-                    downloaded_files = excluded.downloaded_files,
                     title = excluded.title,
                     author = excluded.author,
-                    publish_date = excluded.publish_date
+                    publish_date = excluded.publish_date,
+                    updated = excluded.updated
             """, (
+                record_id,
                 cache_url,
                 content_hashes.get("html", ""),
                 content_hashes.get("markdown", ""),
                 content_hashes.get("link_dict", ""),
                 content_hashes.get("cleaned_html", ""),
                 content_hashes.get("screenshot", ""),
-                self._serialize_json(result.downloaded_files, default_as_list=True),
                 result.title or "",
                 result.author or "",
-                result.publish_date or ""
+                result.publish_date or "",
+                current_time
             ))
 
         try:
@@ -329,9 +468,9 @@ class AsyncDatabaseManager:
 
                 row_dict = dict(zip(columns, row))
                 
-                # 并发加载文件存储的内容
+                # 并发加载内容从文件系统
                 load_tasks = []
-                for field_name, mapping in self._file_storage_fields.items():
+                for field_name, mapping in self._content_field_map.items():
                     if field_name in row_dict and row_dict[field_name]:
                         task = self._load_content_async(row_dict[field_name], mapping.content_type_for_file)
                         load_tasks.append((field_name, mapping, task))
@@ -364,8 +503,8 @@ class AsyncDatabaseManager:
                 if row_dict.get("link_dict") == "":
                     row_dict["link_dict"] = {}
 
-                if "downloaded_files" in row_dict:
-                    row_dict["downloaded_files"] = self._deserialize_json(row_dict["downloaded_files"], default_as_list=True)
+                # 不再处理 downloaded_files 字段，设置为空列表以符合 CrawlResult 的要求
+                row_dict["downloaded_files"] = []
                 
                 # 过滤并构建CrawlResult
                 valid_fields = CrawlResult.__annotations__.keys()
@@ -385,7 +524,9 @@ class AsyncDatabaseManager:
         检查缓存是否过期
         
         Args:
-            updated_at: 更新时间字符串，格式为 'YYYY-MM-DD HH:MM:SS UTC'
+            updated_at: 更新时间字符串，支持多种格式：
+                       - ISO 8601: 'YYYY-MM-DDTHH:MM:SS.sssZ'
+                       - 旧格式: 'YYYY-MM-DD HH:MM:SS UTC'
             days_threshold: 过期天数阈值，默认30天
             
         Returns:
@@ -395,9 +536,27 @@ class AsyncDatabaseManager:
             return True
             
         try:
-            # 解析时间字符串，先去掉可能的 UTC 后缀
-            time_str = updated_at.replace(' UTC', '').strip()
-            cache_time = datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
+            cache_time = None
+            # 尝试解析 ISO 8601 格式 (新格式)
+            if 'T' in updated_at and updated_at.endswith('Z'):
+                # ISO 8601 格式: 2024-01-01T12:34:56.789Z
+                iso_str = updated_at.rstrip('Z')
+                cache_time = datetime.fromisoformat(iso_str)
+            elif ' UTC' in updated_at:
+                # 旧格式: 2024-01-01 12:34:56 UTC
+                time_str = updated_at.replace(' UTC', '').strip()
+                cache_time = datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
+            else:
+                # 尝试直接解析 ISO 格式（没有 Z 后缀）
+                cache_time = datetime.fromisoformat(updated_at.replace('Z', ''))
+            
+            if cache_time is None:
+                return True
+                
+            # 确保 cache_time 是 naive datetime (无时区信息)
+            if cache_time.tzinfo is not None:
+                cache_time = cache_time.replace(tzinfo=None)
+                
             current_time = datetime.now(timezone.utc).replace(tzinfo=None)
             
             # 计算时间差
@@ -408,6 +567,7 @@ class AsyncDatabaseManager:
             
         except (ValueError, TypeError) as e:
             # 如果时间格式解析失败，认为缓存已过期
+            wis_logger.warning(f"Failed to parse timestamp '{updated_at}': {e}")
             return True
 
     async def _store_content_async(self, content: Any, content_type: str) -> str:
@@ -483,8 +643,8 @@ class AsyncDatabaseManager:
             return "[]" if default_as_list else "{}"
 
     def _deserialize_json(self, data: str, default_as_list: bool = False) -> Any:
-        """反序列化JSON数据"""
-        if not data:
+        """反序列化JSON数据，支持 PocketBase 的 NULL 值"""
+        if data is None or not data:
             return [] if default_as_list else {}
         try:
             return json.loads(data)
@@ -524,65 +684,33 @@ class AsyncDatabaseManager:
         # 关闭线程池
         self._file_executor.shutdown(wait=True)
 
-    async def add_info(self, content: str, focuspoint_id: str, crawled_data_id: str, references: dict):
+    async def add_info(self, content: str, focuspoint_id: str, source: str, references: str):
         """
         向 infos 表添加一条记录
 
         Args:
             content: 内容文本
             focuspoint_id: 关联的 focus_points 表的 id
-            crawled_data_id: 关联的 crawled_data 表的 id
-            references: 引用信息，字典格式
-            url: 关联的url，可选
+            source: 关联的 sources 表的 id
+            references: 引用信息，文本格式
         """
-        # info_id = str(os.urandom(16).hex()) # 生成一个新的唯一ID
-        # updated_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        references_json = self._serialize_json(references)
+        # 生成15位字符串id
+        record_id = self._generate_id()
+        
+        # 获取当前UTC时间戳
+        current_time = self._get_utc_timestamp()
 
         async def _add(db):
             await db.execute("""
-                INSERT INTO infos (content, focuspoint, crawled_data, references)
-                VALUES (?, ?, ?, ?)
-            """, (content, focuspoint_id, crawled_data_id, references_json))
+                INSERT INTO infos (id, content, focuspoint, source, [references], updated)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (record_id, content, focuspoint_id, source, references or "", current_time))
 
         try:
             await self.execute_with_retry(_add)
             wis_logger.debug("Successfully added info")
         except Exception as e:
             wis_logger.error(f"Error adding info for focuspoint {focuspoint_id}: {str(e)}")
-
-    async def get_urls_for_focuspoint(self, focuspoint_id: str, days_threshold: int) -> set[str]:
-        """
-        根据 focuspoint_id 从 infos 表关联 crawled_data 表获取所有相关的 url
-
-        Args:
-            focuspoint_id: focus_points 表的 id
-            days_threshold: int: 只选择 updated 在 N 天内的条目
-
-        Returns:
-            一个包含相关 URL 的集合
-        """
-        urls = set()
-
-        async def _get_urls(db):
-            query = """
-                SELECT cd.url
-                FROM infos i
-                JOIN crawled_data cd ON i.crawled_data = cd.id
-                WHERE i.focuspoint = ? AND datetime(REPLACE(i.updated, ' UTC', '')) >= datetime('now', '-' || CAST(? AS TEXT) || ' days', 'utc')
-            """
-            async with db.execute(query, (focuspoint_id, days_threshold)) as cursor:
-                async for row in cursor:
-                    if row[0]: #确保 URL 不为 None
-                        urls.add(row[0])
-        
-        try:
-            await self.execute_with_retry(_get_urls)
-            wis_logger.debug(f"Retrieved {len(urls)} URLs for focuspoint_id {focuspoint_id} within {days_threshold} days")
-        except Exception as e:
-            wis_logger.error(f"Error retrieving URLs for focuspoint_id {focuspoint_id} within {days_threshold} days: {str(e)}")
-            # 在出错时返回空集合，而不是None，以保持类型一致性
-        return urls
 
     async def get_activated_focus_points_with_sources(self) -> List[dict]:
         """
@@ -599,7 +727,7 @@ class AsyncDatabaseManager:
         async def _get_focus_points_with_sources(db):
             # 首先获取所有激活的 focus_points
             focus_points_query = """
-                SELECT id, focuspoint, restrictions, activated, per_hour, search_engine, keywords, sources
+                SELECT id, focuspoint, restrictions, explanation, activated, freq, search, sources
                 FROM focus_points 
                 WHERE activated = 1
             """
@@ -622,7 +750,7 @@ class AsyncDatabaseManager:
                     # 构建 IN 查询的占位符
                     placeholders = ','.join(['?' for _ in sources_ids])
                     sources_query = f"""
-                        SELECT id, type, creators, limit_hours, url
+                        SELECT id, type, creators, url
                         FROM sources 
                         WHERE id IN ({placeholders})
                     """
@@ -652,24 +780,374 @@ class AsyncDatabaseManager:
         
         return result
 
+    async def get_infos(self, focuspoint_id: Optional[str] = None, 
+                       source: Optional[str] = None, 
+                       daysthreshold: Optional[int] = None) -> List[dict]:
+        """
+        从 infos 表读取数据，支持可选的筛选条件
+        
+        Args:
+            focuspoint_id: 关联的 focus_points 表的 id，可选
+            source: 关联的 sources 表的 id，可选
+            daysthreshold: 时间阈值（天），仅返回指定天数内的记录，可选
+            
+        Returns:
+            List[dict]: 符合条件的 infos 记录列表，每条记录为字典格式
+        """
+        result = []
+        
+        async def _get_infos(db):
+            # 构建查询条件
+            where_conditions = []
+            params = []
+            
+            if focuspoint_id is not None:
+                where_conditions.append("focuspoint = ?")
+                params.append(focuspoint_id)
+            
+            if source is not None:
+                where_conditions.append("source = ?")
+                params.append(source)
+            
+            if daysthreshold is not None:
+                # 计算时间阈值，使用UTC时间与数据库时间戳匹配
+                threshold_time = datetime.now(timezone.utc) - timedelta(days=daysthreshold)
+                threshold_str = threshold_time.strftime('%Y-%m-%d %H:%M:%S')
+                where_conditions.append("updated >= ?")
+                params.append(threshold_str)
+            
+            # 构建完整的查询语句
+            base_query = "SELECT id, content, focuspoint, source, [references], updated FROM infos"
+            if where_conditions:
+                query = f"{base_query} WHERE {' AND '.join(where_conditions)}"
+            else:
+                query = base_query
+            
+            # 按更新时间倒序排列
+            query += " ORDER BY updated DESC"
+            
+            async with db.execute(query, params) as cursor:
+                rows = await cursor.fetchall()
+                columns = [desc[0] for desc in cursor.description]
+                
+                for row in rows:
+                    row_dict = dict(zip(columns, row))
+                    result.append(row_dict)
+        
+        try:
+            await self.execute_with_retry(_get_infos)
+            wis_logger.debug(f"Retrieved {len(result)} info records with filters: "
+                           f"focuspoint_id={focuspoint_id}, source={source}, "
+                           f"daysthreshold={daysthreshold}")
+        except Exception as e:
+            wis_logger.error(f"Error retrieving infos: {str(e)}")
+            # 在出错时返回空列表
+        
+        return result
 
-# 创建优化后的单例实例
-db_manager = AsyncDatabaseManager()
+    async def add_wb_cache(self, wb_data: dict):
+        """
+        向 wb_cache 表添加一条微博记录
+        
+        Args:
+            wb_data: 微博数据字典，包含以下键值：
+                - note_id: 微博ID（会被映射为数据库中的id字段）
+                - content: 微博内容
+                - create_time: 创建时间
+                - liked_count: 点赞数
+                - comments_count: 评论数
+                - shared_count: 转发数
+                - note_url: 微博链接
+                - ip_location: IP位置
+                - user_id: 用户ID
+                - nickname: 用户昵称
+                - gender: 性别
+                - profile_url: 用户主页链接
+                - source_keyword: 来源关键词
+        """
+        if not wb_data.get('note_id'):
+            wis_logger.error("wb_data must contain 'note_id' field")
+            return
 
-async def init_database():
-    """
-    应用启动时调用此函数来预初始化数据库
-    这样可以避免第一次数据库操作时的初始化延迟
-    """
-    await db_manager.initialize()
+        # 获取当前UTC时间戳
+        current_time = self._get_utc_timestamp()
 
+        async def _add_wb(db):
+            await db.execute("""
+                INSERT INTO wb_cache (
+                    id, content, create_time, liked_count, comments_count, 
+                    shared_count, note_url, ip_location, user_id, nickname, 
+                    gender, profile_url, source_keyword, updated
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    content = excluded.content,
+                    create_time = excluded.create_time,
+                    liked_count = excluded.liked_count,
+                    comments_count = excluded.comments_count,
+                    shared_count = excluded.shared_count,
+                    note_url = excluded.note_url,
+                    ip_location = excluded.ip_location,
+                    user_id = excluded.user_id,
+                    nickname = excluded.nickname,
+                    gender = excluded.gender,
+                    profile_url = excluded.profile_url,
+                    source_keyword = excluded.source_keyword,
+                    updated = excluded.updated
+            """, (
+                wb_data.get('note_id', ''),
+                wb_data.get('content', ''),
+                wb_data.get('create_time', ''),
+                wb_data.get('liked_count', ''),
+                wb_data.get('comments_count', ''),
+                wb_data.get('shared_count', ''),
+                wb_data.get('note_url', ''),
+                wb_data.get('ip_location', ''),
+                wb_data.get('user_id', ''),
+                wb_data.get('nickname', ''),
+                wb_data.get('gender', ''),
+                wb_data.get('profile_url', ''),
+                wb_data.get('source_keyword', ''),
+                current_time
+            ))
 
-async def cleanup_database():
-    """
-    应用关闭时调用此函数来清理数据库资源
-    """
-    try:
-        await db_manager.cleanup()
-        wis_logger.debug("Database cleanup completed")
-    except Exception as e:
-        wis_logger.error(f"Database cleanup failed: {e}")
+        try:
+            await self.execute_with_retry(_add_wb)
+            wis_logger.debug(f"Successfully added/updated wb_cache for note_id: {wb_data.get('note_id')}")
+        except Exception as e:
+            wis_logger.error(f"Error adding wb_cache for note_id {wb_data.get('note_id')}: {str(e)}")
+
+    async def get_wb_cache(self, 
+                          note_id: Optional[str] = None,
+                          user_id: Optional[str] = None,
+                          source_keyword: Optional[str] = None,
+                          daysthreshold: Optional[int] = None) -> List[dict]:
+        """
+        从 wb_cache 表读取微博数据，支持可选的筛选条件
+        
+        Args:
+            note_id: 微博ID，可选
+            user_id: 用户ID，可选
+            source_keyword: 来源关键词，可选
+            daysthreshold: 时间阈值（天），仅返回指定天数内的记录，可选
+            
+        Returns:
+            List[dict]: 符合条件的微博记录列表，每条记录为字典格式
+                注意：数据库中的 id 字段会被映射为字典中的 note_id 字段
+        """
+        result = []
+        
+        async def _get_wb_cache(db):
+            # 构建查询条件
+            where_conditions = []
+            params = []
+            
+            if note_id is not None:
+                where_conditions.append("id = ?")
+                params.append(note_id)
+            
+            if user_id is not None:
+                where_conditions.append("user_id = ?")
+                params.append(user_id)
+            
+            if source_keyword is not None:
+                where_conditions.append("source_keyword = ?")
+                params.append(source_keyword)
+            
+            if daysthreshold is not None:
+                # 计算时间阈值，使用UTC时间与数据库时间戳匹配
+                threshold_time = datetime.now(timezone.utc) - timedelta(days=daysthreshold)
+                threshold_str = threshold_time.strftime('%Y-%m-%d %H:%M:%S')
+                where_conditions.append("updated >= ?")
+                params.append(threshold_str)
+            
+            # 构建完整的查询语句
+            base_query = """
+                SELECT id, content, create_time, liked_count, comments_count, 
+                       shared_count, note_url, ip_location, user_id, nickname, 
+                       gender, profile_url, source_keyword, updated 
+                FROM wb_cache
+            """
+            if where_conditions:
+                query = f"{base_query} WHERE {' AND '.join(where_conditions)}"
+            else:
+                query = base_query
+            
+            # 按更新时间倒序排列
+            query += " ORDER BY updated DESC"
+            
+            async with db.execute(query, params) as cursor:
+                rows = await cursor.fetchall()
+                columns = [desc[0] for desc in cursor.description]
+                
+                for row in rows:
+                    row_dict = dict(zip(columns, row))
+                    
+                    # 将数据库中的 id 字段映射为字典中的 note_id 字段
+                    if 'id' in row_dict:
+                        row_dict['note_id'] = row_dict.pop('id')
+                    
+                    result.append(row_dict)
+        
+        try:
+            await self.execute_with_retry(_get_wb_cache)
+            wis_logger.debug(f"Retrieved {len(result)} wb_cache records with filters: "
+                           f"note_id={note_id}, user_id={user_id}, "
+                           f"source_keyword={source_keyword}, daysthreshold={daysthreshold}")
+        except Exception as e:
+            wis_logger.error(f"Error retrieving wb_cache: {str(e)}")
+            # 在出错时返回空列表
+        
+        return result
+
+    async def add_ks_cache(self, ks_data: dict):
+        """
+        向 ks_cache 表添加一条快手视频记录
+        
+        Args:
+            ks_data: 快手视频数据字典，包含以下键值：
+                - video_id: 视频ID（会被映射为数据库中的id字段）
+                - video_type: 视频类型
+                - title: 标题
+                - desc: 描述
+                - create_time: 创建时间
+                - user_id: 用户ID
+                - nickname: 用户昵称
+                - liked_count: 点赞数
+                - viewd_count: 观看数
+                - video_url: 视频链接
+                - video_play_url: 视频播放链接
+                - source_keyword: 来源关键词
+        """
+        if not ks_data.get('video_id'):
+            wis_logger.error("ks_data must contain 'video_id' field")
+            return
+
+        # 获取当前UTC时间戳
+        current_time = self._get_utc_timestamp()
+
+        async def _add_ks(db):
+            await db.execute("""
+                INSERT INTO ks_cache (
+                    id, video_type, title, desc, create_time, user_id, 
+                    nickname, liked_count, viewd_count, video_url, 
+                    video_play_url, source_keyword, updated
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    video_type = excluded.video_type,
+                    title = excluded.title,
+                    desc = excluded.desc,
+                    create_time = excluded.create_time,
+                    user_id = excluded.user_id,
+                    nickname = excluded.nickname,
+                    liked_count = excluded.liked_count,
+                    viewd_count = excluded.viewd_count,
+                    video_url = excluded.video_url,
+                    video_play_url = excluded.video_play_url,
+                    source_keyword = excluded.source_keyword,
+                    updated = excluded.updated
+            """, (
+                ks_data.get('video_id', ''),
+                ks_data.get('video_type', ''),
+                ks_data.get('title', ''),
+                ks_data.get('desc', ''),
+                ks_data.get('create_time', ''),
+                ks_data.get('user_id', ''),
+                ks_data.get('nickname', ''),
+                ks_data.get('liked_count', ''),
+                ks_data.get('viewd_count', ''),
+                ks_data.get('video_url', ''),
+                ks_data.get('video_play_url', ''),
+                ks_data.get('source_keyword', ''),
+                current_time
+            ))
+
+        try:
+            await self.execute_with_retry(_add_ks)
+            wis_logger.debug(f"Successfully added/updated ks_cache for video_id: {ks_data.get('video_id')}")
+        except Exception as e:
+            wis_logger.error(f"Error adding ks_cache for video_id {ks_data.get('video_id')}: {str(e)}")
+
+    async def get_ks_cache(self, 
+                          video_id: Optional[str] = None,
+                          user_id: Optional[str] = None,
+                          source_keyword: Optional[str] = None,
+                          daysthreshold: Optional[int] = None) -> List[dict]:
+        """
+        从 ks_cache 表读取快手视频数据，支持可选的筛选条件
+        
+        Args:
+            video_id: 视频ID，可选
+            user_id: 用户ID，可选
+            source_keyword: 来源关键词，可选
+            daysthreshold: 时间阈值（天），仅返回指定天数内的记录，可选
+            
+        Returns:
+            List[dict]: 符合条件的快手视频记录列表，每条记录为字典格式
+                注意：数据库中的 id 字段会被映射为字典中的 video_id 字段
+        """
+        result = []
+        
+        async def _get_ks_cache(db):
+            # 构建查询条件
+            where_conditions = []
+            params = []
+            
+            if video_id is not None:
+                where_conditions.append("id = ?")
+                params.append(video_id)
+            
+            if user_id is not None:
+                where_conditions.append("user_id = ?")
+                params.append(user_id)
+            
+            if source_keyword is not None:
+                where_conditions.append("source_keyword = ?")
+                params.append(source_keyword)
+            
+            if daysthreshold is not None:
+                # 计算时间阈值，使用UTC时间与数据库时间戳匹配
+                threshold_time = datetime.now(timezone.utc) - timedelta(days=daysthreshold)
+                threshold_str = threshold_time.strftime('%Y-%m-%d %H:%M:%S')
+                where_conditions.append("updated >= ?")
+                params.append(threshold_str)
+            
+            # 构建完整的查询语句
+            base_query = """
+                SELECT id, video_type, title, desc, create_time, user_id, 
+                       nickname, liked_count, viewd_count, video_url, 
+                       video_play_url, source_keyword, updated 
+                FROM ks_cache
+            """
+            if where_conditions:
+                query = f"{base_query} WHERE {' AND '.join(where_conditions)}"
+            else:
+                query = base_query
+            
+            # 按更新时间倒序排列
+            query += " ORDER BY updated DESC"
+            
+            async with db.execute(query, params) as cursor:
+                rows = await cursor.fetchall()
+                columns = [desc[0] for desc in cursor.description]
+                
+                for row in rows:
+                    row_dict = dict(zip(columns, row))
+                    
+                    # 将数据库中的 id 字段映射为字典中的 video_id 字段
+                    if 'id' in row_dict:
+                        row_dict['video_id'] = row_dict.pop('id')
+                    
+                    result.append(row_dict)
+        
+        try:
+            await self.execute_with_retry(_get_ks_cache)
+            wis_logger.debug(f"Retrieved {len(result)} ks_cache records with filters: "
+                           f"video_id={video_id}, user_id={user_id}, "
+                           f"source_keyword={source_keyword}, daysthreshold={daysthreshold}")
+        except Exception as e:
+            wis_logger.error(f"Error retrieving ks_cache: {str(e)}")
+            # 在出错时返回空列表
+        
+        return result

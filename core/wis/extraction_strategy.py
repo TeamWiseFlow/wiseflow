@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-import asyncio
 import inspect
 from typing import Any, List, Dict, Optional, Tuple, Pattern, Union
 import json
@@ -104,7 +103,8 @@ class LLMExtractionStrategy(ExtractionStrategy):
     def __init__(
         self,
         focuspoint: str = None, 
-        restrictions: str = None, 
+        restrictions: str = None,
+        explanation: str = None,
         schema: dict = None,
         extra_args: dict = {},
         verbose: bool=False,
@@ -138,10 +138,12 @@ class LLMExtractionStrategy(ExtractionStrategy):
             focus_statement = f"<focus_point>{focuspoint}</focus_point>"
             if restrictions:
                 focus_statement += f"\nAdhering to the specified restrictions:\n<restrictions>{restrictions}</restrictions>"
+            if explanation:
+                focus_statement += f"\nSpecial note for the focus point: \n<explanation>{explanation}</explanation>"
             self.prompt = PROMPT_EXTRACT_BLOCKS.replace('{FOCUS_POINT}', focus_statement)
             self.prompt_only_links = PROMPT_EXTRACT_BLOCKS_ONLY_LINKS.replace('{FOCUS_POINT}', focus_statement)
             self.prompt_only_info = PROMPT_EXTRACT_BLOCKS_ONLY_INFO.replace('{FOCUS_POINT}', focus_statement)
-
+ 
     def __setattr__(self, name, value):
         """Handle attribute setting."""
         # TODO: Planning to set properties dynamically based on the __init__ signature
@@ -163,7 +165,6 @@ class LLMExtractionStrategy(ExtractionStrategy):
             messages=messages,
             model=model,
             temperature=0.1, # Assuming temperature is still a valid param for openai_llm
-            logger=self.logger, # Pass logger
             **extra_args,
         )
 
@@ -189,7 +190,7 @@ class LLMExtractionStrategy(ExtractionStrategy):
 
             response = response.choices[0].message.content
             if self.verbose:
-                print(f"response: {response}")
+                print(f"\n\033[32mresponse:\033[0m\n \033[34m{response}\033[0m")
             # schema mode parsing
             if self.schema_mode:
                 results = extract_xml_data(["json"], response)["json"]
@@ -206,10 +207,9 @@ class LLMExtractionStrategy(ExtractionStrategy):
                         blocks.extend(parsed)
                         if unparsed:
                             self.logger.info(f"some generated parts can not be parsed: {unparsed}")
-            # infos and links mode parsing
-            else: 
+            else:
+                # infos and links mode parsing
                 blocks = extract_xml_data(["info", "links"], response)
-
             return blocks
         else:
             if self.logger:
@@ -228,8 +228,7 @@ class LLMExtractionStrategy(ExtractionStrategy):
             mode: str = 'both',
             date_stamp: str = datetime.now().strftime("%Y-%m-%d"),
             model: str = '',
-            link_dict: dict = {},
-            **kwargs
+            link_dict: dict = {}
         ) -> List[Dict[str, Any]]:
         """
         Process sections sequentially with a delay for rate limiting issues, specifically for LLMExtractionStrategy.
@@ -261,18 +260,20 @@ class LLMExtractionStrategy(ExtractionStrategy):
 
         if self.schema_mode:
             msg_list = [
-                self.prompt.replace('{URL}', url).replace('{HTML}', sec_pre + sec) + date_time_notify for sec in sections]
+                self.prompt.replace('{URL}', url).replace('{HTML}', sec_pre + sec.strip()) + date_time_notify for sec in sections]
         elif mode == 'only_info':
             msg_list = [
-                self.prompt_only_info.replace('{HTML}', sec_pre + sec) + date_time_notify for sec in sections]
+                self.prompt_only_info.replace('{HTML}', sec_pre + sec.strip()) + date_time_notify for sec in sections]
         elif mode == 'only_link':
             msg_list = [
-                self.prompt_only_links.replace('{HTML}', sec_pre + sec) + date_time_notify for sec in sections]
+                self.prompt_only_links.replace('{HTML}', sec_pre + sec.strip()) + date_time_notify for sec in sections]
         else:
             msg_list = [
-                self.prompt.replace('{HTML}', sec_pre + sec) + date_time_notify for sec in sections]
+                self.prompt.replace('{HTML}', sec_pre + sec.strip()) + date_time_notify for sec in sections]
 
         for msg in msg_list:
+            if self.verbose:
+                print(f"\n\033[32mmsg:\033[0m\n \033[34m{msg}\033[0m")
             result = self.extract(messages=[{"role": "user", "content": msg}], model=model, extra_args=self.extra_args)
             if not result:
                 continue
@@ -283,34 +284,33 @@ class LLMExtractionStrategy(ExtractionStrategy):
                 info_prefix = f'//{author} {publish_date}//' if (author or publish_date) else ''
                 hallucination_times = 0
                 total_parsed = 0
-                for block in extracted_content:
-                    results = block.get("links", [])
-                    for result in results:
-                        links = re.findall(r'\[\d+]', result)
-                        total_parsed += len(links)
-                        for link in links:
-                            if link not in link_dict:
-                                hallucination_times += 1
-                                continue
-                            more_links.add(link_dict[link])
-
-                    results = block.get("info", [])
-                    for res in results:
-                        res = res.strip()
-                        if len(res) < 3:
+                link_blocks = result.get("links", [])
+                for block in link_blocks:
+                    links = re.findall(r'\[\d+]', block)
+                    total_parsed += len(links)
+                    for link in links:
+                        if link not in link_dict:
+                            hallucination_times += 1
                             continue
-                        url_tags = re.findall(r'\[\d+]', res)
-                        refences = {}
-                        for _tag in url_tags:
-                            total_parsed += 1
-                            if _tag in link_dict:
-                                refences[_tag] = link_dict[_tag]
-                            else:
-                                if _tag not in msg:
-                                    hallucination_times += 1
-                                    res = res.replace(_tag, '') 
-                                # case:original text contents, eg [2025]文
-                            infos.append({'content': f'{info_prefix}{res}', 'references': refences})
+                        more_links.add(link_dict[link])
+
+                info_blocks = result.get("info", [])
+                for block in info_blocks:
+                    block = block.strip()
+                    if len(block) < 3:
+                        continue
+                    url_tags = re.findall(r'\[\d+]', block)
+                    refences = ''
+                    for _tag in url_tags:
+                        total_parsed += 1
+                        if _tag in link_dict:
+                            refences += f'{_tag}: {link_dict[_tag]}\n'
+                        else:
+                            if _tag not in msg:
+                                hallucination_times += 1
+                                block = block.replace(_tag, '') 
+                            # case:original text contents, eg [2025]文
+                    infos.append({'content': f'{info_prefix}{block}', 'references': refences, 'source': url})
                 hallucination_rate = round((hallucination_times / total_parsed) * 100, 2) if total_parsed > 0 else 'NA'
                 self.logger.info(
                     f"[QualityAssessment] task: link and info extraction, hallucination times: {hallucination_times}, hallucination rate: {hallucination_rate} %")
@@ -334,7 +334,6 @@ class LLMExtractionStrategy(ExtractionStrategy):
                 self.logger.info(
                     f"[QualityAssessment] task: schema extraction, hallucination times: {hallucination_times}, hallucination rate: {hallucination_rate} %")
 
-        self.show_usage() 
         return extracted_content
 
     def show_usage(self) -> None:
@@ -359,7 +358,6 @@ class LLMExtractionStrategy(ExtractionStrategy):
                 print(
                 f"{i:<10} {usage.completion_tokens:>12,} {usage.prompt_tokens:>12,} {usage.total_tokens:>12,}"
                 )
-
 
 #######################################################
 # New extraction strategies for JSON-based extraction #

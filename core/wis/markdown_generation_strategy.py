@@ -17,17 +17,21 @@ if not vl_model:
     print("VL_MODEL not set, will skip extracting info from img, some info may be lost!")
 
 @lru_cache(maxsize=1000)
-async def extract_info_from_img(url: str) -> str:
+def extract_info_from_img(url: str) -> str:
     if not vl_model:
         return '§to_be_recognized_by_visual_llm§'
-    
+    if not is_valid_img_url(url):
+        return ''
     llm_output = llm([{"role": "user",
         "content": [{"type": "image_url", "image_url": {"url": url, "detail": "high"}},
         {"type": "text", "text": "提取图片中的所有文字，如果图片不包含文字或者文字很少或者你判断图片仅是网站logo、商标、图标等，则输出NA。注意请仅输出提取出的文字，不要输出别的任何内容。"}]}],
         model=vl_model)
-
-    return llm_output
-
+    if not llm_output:
+        return ''
+    try:
+        return llm_output.choices[0].message.content
+    except Exception as e:
+        return ''
 
 class MarkdownGenerationStrategy(ABC):
     """Abstract base class for markdown generation strategies."""
@@ -77,7 +81,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
     ):
         super().__init__(options)
 
-    async def convert_links_to_citations(self, markdown: str, base_url: str = "", exclude_external_links: bool = False) -> Tuple[str, dict]:
+    def convert_links_to_citations(self, markdown: str, base_url: str = "", exclude_external_links: bool = False) -> Tuple[str, dict]:
         """
         bigbrother666sh modified:
         use wisefow V3.9's preprocess instead
@@ -93,7 +97,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             markdown = markdown.replace(_sec, f'§{alt}||{src}§', 1)
 
         sections = re.split(r'\n{2,}', markdown)
-        async def check_url_text(text) -> Tuple[float, str]:
+        def check_url_text(text) -> Tuple[float, str]:
             # 找到所有[part0](part1)格式的片段，使用非贪婪匹配并考虑嵌套括号的情况
             valid_link_num = 0
             len_without_link = len(text)
@@ -156,7 +160,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
                             link_dict[_key] = img_src
                             link_text = img_alt
                         else:
-                            link_text = await extract_info_from_img(img_src)
+                            link_text = extract_info_from_img(img_src)
                             _key = f"[img{len(link_dict)+1}]"
                             link_dict[_key] = img_src
                     else:
@@ -198,7 +202,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
                 else:
                     _key = f"[{len(link_dict)+1}]"
                     link_dict[_key] = img_src
-                    alt = await extract_info_from_img(img_src)
+                    alt = extract_info_from_img(img_src)
                     text = text.replace(_sec, alt + _key, 1)
                 len_without_link += len(alt)
 
@@ -218,7 +222,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             score = valid_link_num / len_without_link if len_without_link > 0 else 999
             return score, text
 
-        sections = [await check_url_text(section) for section in sections if section.strip()]
+        sections = [check_url_text(section) for section in sections if section.strip()]
         if not link_dict:
             markdown = '\n\n'.join(text.strip() for _, text in sections)
             return markdown, link_dict
@@ -266,7 +270,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             markdown += f"\n</main-content>"
         return markdown.strip(), link_dict
 
-    async def generate_markdown(
+    def generate_markdown(
         self,
         raw_html: str,
         cleaned_html: str,
@@ -335,7 +339,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             raw_markdown = raw_markdown.replace("    ```", "```")
 
             # Convert links to citations
-            markdown, link_dict = await self.convert_links_to_citations(raw_markdown, base_url, exclude_external_links)
+            markdown, link_dict = self.convert_links_to_citations(raw_markdown, base_url, exclude_external_links)
 
             return '', title, author, publish_date, markdown, link_dict
         except Exception as e:
@@ -348,7 +352,7 @@ class WeixinArticleMarkdownGenerator(DefaultMarkdownGenerator):
     def __init__(self, options: Optional[Dict[str, Any]] = None):
         self.options = options or {}
 
-    async def generate_markdown(
+    def generate_markdown(
         self, 
         raw_html: str,
         cleaned_html: str,
@@ -517,7 +521,7 @@ class WeixinArticleMarkdownGenerator(DefaultMarkdownGenerator):
                 content = h.handle(raw_html)
                 content = content.replace("    ```", "```")
             # Convert links to citations
-            markdown, link_dict = await self.convert_links_to_citations(content, base_url, exclude_external_links)
+            markdown, link_dict = self.convert_links_to_citations(content, base_url, exclude_external_links)
             return '', title, author, publish_date, markdown, link_dict
         except Exception as e:
             # If anything fails, return empty strings with error message

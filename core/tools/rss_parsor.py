@@ -41,12 +41,14 @@ async def fetch_rss(url, existings: set=set()) -> Tuple[List[CrawlResult], str, 
                             break
         # 2. 如果没有 content 字段，尝试 summary 或 description
         if not html_parts:
-            wis_logger.debug(f"No content found for {article_url} from rss: {url}, using summary or description")
-            for key in ['summary', 'description']:
-                if key in entry:
-                    description = entry[key]
-                    break
-        # 3. 如果还是没有内容，跳过
+            summary = entry.get('summary', '')
+            description = entry.get('description', '')
+            if len(summary) > len(description):
+                description = summary
+            if len(description) > 50:
+                html_parts.append(description)
+                description = ''
+
         if not html_parts and not description:
             wis_logger.debug(f"No content or summary or description found for {article_url} from rss: {url}")
             continue
@@ -63,10 +65,10 @@ async def fetch_rss(url, existings: set=set()) -> Tuple[List[CrawlResult], str, 
                 author=author,
                 publish_date=publish_date,
             ))
-            existings.add(article_url)
+            # existings.add(article_url)  will add when llm extracting finished
         elif description and article_url != url:
             key = f"[{len(link_dict)+1}]"
             link_dict[key] = article_url
-            markdown += f"* {description} (Author: {author} Publish Date: {publish_date}) {key}\n"
-            existings.add(article_url)
+            markdown += f"* {key}{description} (Author: {author} Publish Date: {publish_date}) {key}\n"
+            # existings.add(article_url)  will add when llm extracting finished
     return results, markdown, link_dict

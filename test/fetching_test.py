@@ -8,7 +8,7 @@ import sys
 root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 sys.path.append(root_path)
 from core.wis import AsyncWebCrawler, CacheMode
-from core.crawler_configs import default_browser_config, default_crawler_config
+from core.custom_processes import default_browser_config, default_crawler_config
 from core.async_database import init_database, cleanup_database
 
 save_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'webpage_samples')

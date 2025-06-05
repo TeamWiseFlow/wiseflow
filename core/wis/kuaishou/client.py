@@ -441,8 +441,7 @@ class KuaiShouApiClient:
                 wis_logger.warning(f"get video_id:{photo_id} comments failed by error: {e}, will retry for max 3 times")
                 continue
             if not comments_res:
-                wis_logger.warning(f"get video_id:{photo_id} comments is empty, will retry for max 3 times")
-                continue
+                break
 
             vision_commen_list = comments_res.get("visionCommentList", {})
             pcursor = vision_commen_list.get("pcursor", "")
@@ -510,8 +509,7 @@ class KuaiShouApiClient:
                     wis_logger.warning(f"get video_id:{photo_id} sub comments failed by error: {e}, will retry for max 3 times")
                     continue
                 if not comments_res:
-                    wis_logger.warning(f"get video_id:{photo_id} sub comments is empty, will retry for max 3 times")
-                    continue
+                    break
                 vision_sub_comment_list = comments_res.get("visionSubCommentList", {})
                 sub_comment_pcursor = vision_sub_comment_list.get("pcursor", "no_more")
                 subs = vision_sub_comment_list.get("subComments", [])

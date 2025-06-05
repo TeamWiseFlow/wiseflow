@@ -1,8 +1,6 @@
-# need to be modified to a customer crawler config
-# todo in 4.1 version
-
-from core.wis.c4a_commen.basemodels import BrowserConfig, AsyncWebCrawler, CrawlerRunConfig, CacheMode
-from wis.utils import optimize_html, get_home_folder, preprocess_html_for_schema
+from async_logger import base_directory as home_dir
+from wis.basemodels import BrowserConfig, AsyncWebCrawler, CrawlerRunConfig, CacheMode
+from wis.utils import preprocess_html_for_schema
 from wis.extraction_strategy import JsonCssExtractionStrategy
 from pathlib import Path
 import json
@@ -67,7 +65,7 @@ class GoogleSearchCrawler():
 
     async def _build_schemas(self, html: str, schema_cache_path: str = None) -> Dict[str, Dict]:
         """Build extraction schemas (organic, top stories, etc.)"""
-        home_dir = get_home_folder() if not schema_cache_path else schema_cache_path
+        # home_dir = get_home_folder() if not schema_cache_path else schema_cache_path
         os.makedirs(f"{home_dir}/schema", exist_ok=True)
 
         # cleaned_html = optimize_html(html, threshold=100)

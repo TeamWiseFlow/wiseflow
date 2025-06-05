@@ -2,6 +2,7 @@ import os
 from openai import OpenAI
 from openai import RateLimitError, APIError
 import time
+from async_logger import wis_logger
 from typing import List
 
 base_url = os.environ.get('LLM_API_BASE', "")
@@ -17,15 +18,12 @@ elif not base_url and token:
 else:
     client = OpenAI(api_key=token, base_url=base_url)
 
-def perform_completion_with_backoff(messages: List, model: str = '', logger=None, **kwargs):
+def perform_completion_with_backoff(messages: List, model: str = '', **kwargs):
     model = model if model else primary_model
     # 最大重试次数
     max_retries = 3
     # 初始等待时间（秒）
     wait_time = 20
-    print("########################")
-    print(messages[0]['content'])
-    print("########################")
     for retry in range(max_retries):
         try:
             response = client.chat.completions.create(
@@ -34,45 +32,32 @@ def perform_completion_with_backoff(messages: List, model: str = '', logger=None
                 **kwargs
             )
             return response
-            
         except RateLimitError as e:
             # 速率限制错误需要重试
             error_msg = f"{model} Rate limit error: {str(e)}. Retry {retry+1}/{max_retries}."
-            if logger:
-                logger.warning(error_msg)
-            else:
-                print(error_msg)
+            wis_logger.warning(error_msg)
         except APIError as e:
             if hasattr(e, 'status_code'):
                 if e.status_code in [400, 401]:
                     # 客户端错误不需要重试
                     error_msg = f"{model} Client error: {e.status_code}. Detail: {str(e)}"
-                    if logger:
-                        logger.error(error_msg)
-                    else:
-                        print(error_msg)
-                    return ''
+                    if 'Image url should be a valid url or should like data:image/TYPE;base64' not in str(e):
+                        # image url probility is that server cannot fetch the image, so we don't need to worry about it
+                        wis_logger.error(error_msg)
+                        wis_logger.info(f"messages: {messages}")
+                    return None
                 else:
                     # 其他API错误需要重试
                     error_msg = f"{model} API error: {e.status_code}. Retry {retry+1}/{max_retries}."
-                    if logger:
-                        logger.warning(error_msg)
-                    else:
-                        print(error_msg)
+                    wis_logger.warning(error_msg)
             else:
                 # 未知API错误需要重试
                 error_msg = f"{model} Unknown API error: {str(e)}. Retry {retry+1}/{max_retries}."
-                if logger:
-                    logger.warning(error_msg)
-                else:
-                    print(error_msg)
+                wis_logger.warning(error_msg)
         except Exception as e:
             # 其他异常需要重试
             error_msg = f"{model} Unexpected error: {str(e)}. Retry {retry+1}/{max_retries}."
-            if logger:
-                logger.error(error_msg)
-            else:
-                print(error_msg)
+            wis_logger.error(error_msg)
 
         if retry < max_retries - 1:
             # 指数退避策略
@@ -82,10 +67,7 @@ def perform_completion_with_backoff(messages: List, model: str = '', logger=None
 
     # 如果所有重试都失败
     error_msg = "达到最大重试次数，仍然无法获取有效响应。"
-    if logger:
-        logger.error(error_msg)
-    else:
-        print(error_msg)
+    wis_logger.error(error_msg)
     return None
 
 

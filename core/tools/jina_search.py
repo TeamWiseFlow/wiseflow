@@ -1,15 +1,15 @@
 import httpx
 import os
 import asyncio
-from typing import Tuple
 from async_logger import wis_logger
 
 jina_api_key = os.getenv('JINA_API_KEY', '')
 
-async def search_with_jina(query: str) -> Tuple[str, dict]:
+# Jina search returns accurate results and supports semantic search, so we only return the URL
+async def search_with_jina(query: str, existings: set[str] = set()) -> set[str]:
     if not jina_api_key:
         wis_logger.warning("JINA_API_KEY is not set")
-        return '', {}
+        return set()
 
     url = 'https://s.jina.ai/'
     headers = {
@@ -22,11 +22,10 @@ async def search_with_jina(query: str) -> Tuple[str, dict]:
         'q': query
     }
 
-    max_retries = 2
+    max_retries = 3
     base_delay = 10  # initial delay in seconds
-    markdown = ''
-    link_dict = {}
-    for attempt in range(max_retries + 1):
+    results = set()
+    for attempt in range(max_retries):
         try:
             async with httpx.AsyncClient(timeout=30) as client:
                 response = await client.post(
@@ -42,14 +41,9 @@ async def search_with_jina(query: str) -> Tuple[str, dict]:
                         _url = item.get('url', '')
                         if not _url:
                             continue
-                        if _url in link_dict:
-                            continue
-                        title = item.get('title', '')
-                        description = item.get('description', '')
-                        key = f"[{len(link_dict)+1}]"
-                        markdown += f"* title:{title} {key}\ndescription:{description} {key}\n\n"
-                        link_dict[key] = _url
-                    return markdown, link_dict
+                        if _url not in existings:
+                            results.add(_url)
+                    return results
                 
                 # If not successful and not the last attempt, wait and retry
                 if attempt < max_retries:
@@ -58,7 +52,7 @@ async def search_with_jina(query: str) -> Tuple[str, dict]:
                     await asyncio.sleep(delay)
                 else:
                     wis_logger.error(f"Jina search failed after {max_retries + 1} attempts")
-                    return markdown, link_dict
+                    return results
 
         except Exception as e:
             if attempt < max_retries:
@@ -67,9 +61,7 @@ async def search_with_jina(query: str) -> Tuple[str, dict]:
                 await asyncio.sleep(delay)
             else:
                 wis_logger.error(f"Jina search failed after {max_retries + 1} attempts with error: {str(e)}")
-                return markdown, link_dict
-
-    return markdown, link_dict
+                return results
 
 if __name__ == '__main__':
     test_list = ['大语言模型(LLM)最新技术(包括新模型发布，新技术的提出，新的引用等等)',

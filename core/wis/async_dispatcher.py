@@ -98,8 +98,8 @@ class BaseDispatcher(ABC):
     async def crawl_url(
         self,
         url: str,
-        config: CrawlerRunConfig,
         task_id: str,
+        config: CrawlerRunConfig = None,
         #monitor: Optional[CrawlerMonitor] = None,
     ) -> CrawlerTaskResult:
         pass
@@ -109,7 +109,7 @@ class BaseDispatcher(ABC):
         self,
         urls: List[str],
         crawler: AsyncWebCrawler,  # noqa: F821
-        config: CrawlerRunConfig,
+        config: CrawlerRunConfig = None,
         #monitor: Optional[CrawlerMonitor] = None,
     ) -> List[CrawlerTaskResult]:
         pass
@@ -178,8 +178,8 @@ class MemoryAdaptiveDispatcher(BaseDispatcher):
     async def crawl_url(
         self,
         url: str,
-        config: CrawlerRunConfig,
         task_id: str,
+        config: CrawlerRunConfig = None,
         retry_count: int = 0,
     ) -> CrawlerTaskResult:
         start_time = time.time()
@@ -294,7 +294,7 @@ class MemoryAdaptiveDispatcher(BaseDispatcher):
         self,
         urls: List[str],
         crawler: AsyncWebCrawler,
-        config: CrawlerRunConfig,
+        config: CrawlerRunConfig = None,
     ) -> List[CrawlerTaskResult]:
         self.crawler = crawler
         
@@ -329,7 +329,7 @@ class MemoryAdaptiveDispatcher(BaseDispatcher):
                         
                         # Create and start the task
                         task = asyncio.create_task(
-                            self.crawl_url(url, config, task_id, retry_count)
+                            self.crawl_url(url=url, config=config, task_id=task_id, retry_count=retry_count)
                         )
                         active_tasks.append(task)
                         
@@ -441,7 +441,7 @@ class MemoryAdaptiveDispatcher(BaseDispatcher):
         self,
         urls: List[str],
         crawler: AsyncWebCrawler,
-        config: CrawlerRunConfig,
+        config: CrawlerRunConfig = None,
     ) -> AsyncGenerator[CrawlerTaskResult, None]:
         self.crawler = crawler
         
@@ -475,7 +475,7 @@ class MemoryAdaptiveDispatcher(BaseDispatcher):
                         
                         # Create and start the task
                         task = asyncio.create_task(
-                            self.crawl_url(url, config, task_id, retry_count)
+                            self.crawl_url(url=url, config=config, task_id=task_id, retry_count=retry_count)
                         )
                         active_tasks.append(task)
                         
@@ -537,8 +537,8 @@ class SemaphoreDispatcher(BaseDispatcher):
     async def crawl_url(
         self,
         url: str,
-        config: CrawlerRunConfig,
         task_id: str,
+        config: CrawlerRunConfig = None,
         semaphore: asyncio.Semaphore = None,
     ) -> CrawlerTaskResult:
         start_time = time.time()
@@ -619,7 +619,7 @@ class SemaphoreDispatcher(BaseDispatcher):
         self,
         crawler: AsyncWebCrawler,  # noqa: F821
         urls: List[str],
-        config: CrawlerRunConfig,
+        config: CrawlerRunConfig = None,
     ) -> List[CrawlerTaskResult]:
         self.crawler = crawler
         if self.monitor:
@@ -634,7 +634,7 @@ class SemaphoreDispatcher(BaseDispatcher):
                 if self.monitor:
                     self.monitor.add_task(task_id, url)
                 task = asyncio.create_task(
-                    self.crawl_url(url, config, task_id, semaphore)
+                    self.crawl_url(url=url, config=config, task_id=task_id, semaphore=semaphore)
                 )
                 tasks.append(task)
 

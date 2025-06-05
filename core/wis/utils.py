@@ -21,7 +21,7 @@ import asyncio
 from lxml import etree, html as lhtml
 import sqlite3
 import hashlib
-
+from pathlib import Path
 from urllib.robotparser import RobotFileParser
 import aiohttp
 from urllib.parse import urlparse, urlunparse
@@ -323,8 +323,8 @@ class RobotsParser:
     # Default 7 days cache TTL
     CACHE_TTL = 7 * 24 * 60 * 60
 
-    def __init__(self, cache_dir=None, cache_ttl=None):
-        self.cache_dir = cache_dir or os.path.join(get_home_folder(), ".crawl4ai", "robots")
+    def __init__(self, cache_dir, cache_ttl=None):
+        self.cache_dir = cache_dir
         self.cache_ttl = cache_ttl or self.CACHE_TTL
         os.makedirs(self.cache_dir, exist_ok=True)
         self.db_path = os.path.join(self.cache_dir, "robots_cache.db")
@@ -675,27 +675,6 @@ def get_system_memory():
     else:
         raise OSError("Unsupported operating system")
 
-def get_home_folder():
-    """
-    Get or create the home folder for Crawl4AI configuration and cache.
-
-    How it works:
-    1. Uses environment variables or defaults to the user's home directory.
-    2. Creates `.crawl4ai` and its subdirectories (`cache`, `models`) if they don't exist.
-    3. Returns the path to the home folder.
-
-    Returns:
-        str: The path to the Crawl4AI home folder.
-    """
-
-    home_folder = os.path.join(
-        os.getenv("PROJECT_DIR", "work_dir"),
-        ".crawl4ai",
-    )
-    # os.makedirs(home_folder, exist_ok=True)
-    os.makedirs(os.path.join(home_folder, "cache"), exist_ok=True)
-    os.makedirs(os.path.join(home_folder, "models"), exist_ok=True)
-    return home_folder
 
 async def get_chromium_path(browser_type) -> str:
     """Returns the browser executable path using playwright's browser management.
@@ -720,8 +699,7 @@ async def get_chromium_path(browser_type) -> str:
         raise RuntimeError(f"Unsupported browser type: {browser_type}")
 
     # Check if a path has already been saved for this browser type
-    home_folder = get_home_folder()
-    path_file = os.path.join(home_folder, f"{browser_type.lower()}.path")
+    path_file = os.path.join(str(Path.home()), f"{browser_type.lower()}.path")
     if os.path.exists(path_file):
         with open(path_file, "r") as f:
             return f.read()
@@ -740,12 +718,11 @@ async def get_chromium_path(browser_type) -> str:
             )
             
         # Save the path int the crawl4ai home folder
-        home_folder = get_home_folder()
         browser_path = browsers[browser_type.lower()].executable_path
         if not browser_path:
             raise RuntimeError(f"Browser executable not found for type: {browser_type}")
         # Save the path in a text file with browser type name
-        with open(os.path.join(home_folder, f"{browser_type.lower()}.path"), "w") as f:
+        with open(os.path.join(str(Path.home()), f"{browser_type.lower()}.path"), "w") as f:
             f.write(browser_path)
         
         return browser_path
@@ -1431,7 +1408,7 @@ def fast_format_html(html_string):
 
     return "\n".join(formatted)
 
-
+@lru_cache(maxsize=1000)
 def get_base_domain(url: str) -> str:
     """
     Extract the base domain from a given URL, handling common edge cases.

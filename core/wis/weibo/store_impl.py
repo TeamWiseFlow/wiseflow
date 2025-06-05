@@ -8,7 +8,7 @@ def update_weibo_note(mblog: Dict, keyword: str = "") -> Dict:
     note_id = mblog.get("id")
     content_text = mblog.get("text")
     clean_text = re.sub(r"<.*?>", "", content_text)
-    save_content_item = {
+    return {
         # 微博信息
         "note_id": note_id,
         "content": clean_text,
@@ -19,7 +19,6 @@ def update_weibo_note(mblog: Dict, keyword: str = "") -> Dict:
         # "last_modify_ts": utils.get_current_timestamp(),
         "note_url": f"https://m.weibo.cn/detail/{note_id}",
         "ip_location": mblog.get("region_name", ""),
-        "comments": "",
         # 用户信息
         "user_id": str(user_info.get("id")),
         "nickname": user_info.get("screen_name", ""),
@@ -29,8 +28,6 @@ def update_weibo_note(mblog: Dict, keyword: str = "") -> Dict:
         "source_keyword": keyword,
         }
     
-    # todo should save to db first - not article, just the base info, used in post_lists stage
-    return save_content_item
 
 def update_weibo_note_comment(comment_items: List[Dict]) -> str:
     comment_str = ""

@@ -327,7 +327,6 @@ class WeiboClient:
             try:
                 comments_res = await self.get_note_comments(note_id, max_id, max_id_type)
                 if not comments_res:
-                    wis_logger.debug(f"note_id:{note_id} has no comments")
                     break
             except Exception as e:
                 wis_logger.warning(f"get note_id:{note_id} comments failed by error: {e}, will retry for max 3 times")

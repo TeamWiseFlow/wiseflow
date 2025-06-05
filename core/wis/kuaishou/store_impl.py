@@ -8,8 +8,6 @@ def update_kuaishou_video(video_item: Dict, keyword: str = "") -> Dict:
     user_info = video_item.get("author", {})
     create_time = photo_info.get("timestamp")
     create_time = get_date_str_from_unix_time(create_time)
-
-    # todo should save to db first, not article, just the base info, used in post_lists stage
     return {
         "video_id": video_id,
         "video_type": str(video_item.get("type")),
@@ -25,8 +23,7 @@ def update_kuaishou_video(video_item: Dict, keyword: str = "") -> Dict:
         "video_url": f"https://www.kuaishou.com/short-video/{video_id}",
         # "video_cover_url": photo_info.get("coverUrl", ""),
         "video_play_url": photo_info.get("photoUrl", ""),
-        "source_keyword": keyword,
-        "commnets": ""
+        "source_keyword": keyword
     }
 
 def update_ks_video_comment(comment_items: List[Dict]) -> str:

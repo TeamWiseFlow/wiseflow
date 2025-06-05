@@ -19,8 +19,9 @@ from ..basemodels import CrawlResult
 
 
 class KuaiShouCrawler:
-    def __init__(self):
+    def __init__(self, db_manager=None):
         self.ks_client = KuaiShouApiClient()
+        self.db_manager = db_manager
 
     async def async_initialize(self):
         """
@@ -72,38 +73,42 @@ class KuaiShouCrawler:
             liked_count = video.get("liked_count")
             viewd_count = video.get("viewd_count")
             _key = f"[{len(link_dict)+1}]"
-            link_dict[_key] = video
-            markdown += f"* 标题：{title} 发布时间：{create_time} 点赞量：{liked_count} 播放量：{viewd_count} 描述：{desc} {_key}\n\n"
+            link_dict[_key] = video.get("video_id")
+            markdown += f"* {_key}标题：{title} 发布时间：{create_time} 点赞量：{liked_count} 播放量：{viewd_count} 描述：{desc} {_key}\n\n"
 
         return markdown.replace("#", ""), link_dict
     
-    async def video_as_article(self, video: Dict, db_manager=None) -> Optional[CrawlResult]:
-        if db_manager:
-            cached_result = await db_manager.get_cached_url(video.get("video_url"), days_threshold=365)
+    async def video_as_article(self, video_id: str) -> Optional[CrawlResult]:
+        video_url = f"https://www.kuaishou.com/short-video/{video_id}"
+        if self.db_manager:
+            cached_result = await self.db_manager.get_cached_url(video_url, days_threshold=365)
             if cached_result:
                 return cached_result
+
+        video = await self.get_specified_video(video_id)
+        if not video:
+            return None
         
         author = f"{video.get('nickname')}(id: {video.get('user_id')})"
         title = video.get('title')
         publish_date = video.get('create_time')
         
-        article = f"{video.get('desc')}\n\n点赞量：{video.get('liked_count')} 播放量：{video.get('viewd_count')} 播放地址：[1]"
-        ref = {"[1]": video.get("video_play_url")}
+        article = f"{video.get('desc')}\n\n点赞量：{video.get('liked_count')} 播放量：{video.get('viewd_count')}"
 
         comments = await self.get_video_comments(video.get("video_id"))
         if comments:
             article += f"\n\n## 评论区：\n{comments}"
         
         result = CrawlResult(
-            url=video.get("video_url"),
+            url=video_url,
             markdown=article,
-            link_dict=ref,
+            link_dict={},
             author=author,
             publish_date=publish_date,
             title=title,
         )
-        if db_manager:
-            await db_manager.cache_url(result)
+        if self.db_manager:
+            await self.db_manager.cache_url(result)
         return result
 
     async def creator_as_article(self, creator_id: str) -> Optional[str]:
@@ -162,7 +167,7 @@ class KuaiShouCrawler:
                 wis_logger.debug(
                     f"search kuaishou keyword: {keyword}, page: {page}"
                 )
-                # todo should read first from db for cache
+
                 try:
                     videos_res = await self.ks_client.search_info_by_keyword(
                         keyword=keyword,
@@ -192,35 +197,53 @@ class KuaiShouCrawler:
                     _video_id = video_detail.get("photo", {}).get("id")
                     if not _video_id or _video_id in existings:
                         continue
-                    existings.add(_video_id)
+                    # existings.add(_video_id)  will add when llm extracting finished
                     _create_time = video_detail.get("photo", {}).get("timestamp")
                     if not is_cacheup(_create_time, limit_hours):
                         continue
-                    videos.append(update_kuaishou_video(video_item=video_detail, keyword=keyword))
+                    video = update_kuaishou_video(video_item=video_detail, keyword=keyword)
+                    if self.db_manager:
+                        await self.db_manager.add_ks_cache(video)
+                    videos.append(video)
                 page += 1
 
         return videos
 
-    async def get_specified_videos(self, video_ids: List[str], limit_hours: int = 48):
-        """
-        Get the information and comments of the specified post
-        Returns:
+    async def get_specified_video(self, video_id: str):
+        if self.db_manager:
+            cached_video = await self.db_manager.get_ks_cache(video_id=video_id)
+            if cached_video:
+                return cached_video[0]
 
-        """
-        semaphore = asyncio.Semaphore(MAX_CONCURRENCY_NUM)
-        task_list = [
-            self.get_video_info_task(video_id=video_id, semaphore=semaphore)
-            for video_id in video_ids
-        ]
-        video_details = await asyncio.gather(*task_list)
-        videos = []
-        for video_detail in video_details:
-            if video_detail is not None:
-                _create_time = video_detail.get("photo", {}).get("timestamp")
-                if not _create_time or not is_cacheup(_create_time, limit_hours):
-                    continue
-                videos.append(update_kuaishou_video(video_item=video_detail))
-        return videos
+        try:
+            result = await self.ks_client.get_video_info(video_id)
+            if not result:
+                wis_logger.debug(f"Get video_id:{video_id} info result is None")
+                return None
+            if result.get('result', 0) == 400002:
+                wis_logger.debug(f"Get video_id:{video_id} info result: {result} ...")
+                wis_logger.debug("will call user verify")
+                await self.ks_client.mark_account_invalid(self.ks_client.account_info)
+                await self.ks_client.update_account_info(force_login=True)
+                result = await self.ks_client.get_video_info(video_id)
+                if not result:
+                    wis_logger.debug(f"Get video_id:{video_id} info result is None")
+                    return None
+                if result.get('result', 0) == 400002:
+                    wis_logger.debug(f"Get video_id:{video_id} info result: {result} ...")
+                    wis_logger.info("user accnout has been banned... give out, try tomorrow")
+                    return None
+            return update_kuaishou_video(video_item=result.get("visionVideoDetail"))
+        except DataFetchError as ex:
+            wis_logger.error(
+                f"Get video detail error: {ex}"
+            )
+            return None
+        except KeyError as ex:
+            wis_logger.error(
+                f"have not fund video detail video_id:{video_id}, err: {ex}"
+            )
+            return None
 
     async def get_video_info_task(
         self, video_id: str, semaphore: asyncio.Semaphore
@@ -235,7 +258,11 @@ class KuaiShouCrawler:
 
         """
         async with semaphore:
-            # todo should read first from db for cache
+            if self.db_manager:
+                cached_video = await self.db_manager.get_ks_cache(video_id=video_id)
+                if cached_video:
+                    return cached_video[0]
+
             try:
                 result = await self.ks_client.get_video_info(video_id)
                 if not result:
@@ -254,7 +281,10 @@ class KuaiShouCrawler:
                         wis_logger.debug(f"Get video_id:{video_id} info result: {result} ...")
                         wis_logger.info("user accnout has been banned... give out, try tomorrow")
                         return None
-                return result.get("visionVideoDetail")
+                video = update_kuaishou_video(video_item=result.get("visionVideoDetail"))
+                if self.db_manager:
+                    await self.db_manager.add_ks_cache(video)
+                return video
             except DataFetchError as ex:
                 wis_logger.error(
                     f"Get video detail error: {ex}"
@@ -314,7 +344,7 @@ class KuaiShouCrawler:
                     _video_id = video.get("photo", {}).get("id")
                     if not _video_id or _video_id in existings:
                         continue
-                    existings.add(_video_id)
+                    # existings.add(_video_id)  will add when llm extracting finished
                     video_ids.add(_video_id)
                 if pcursor == "no_more":
                     break
@@ -327,13 +357,10 @@ class KuaiShouCrawler:
         # Process tasks as they complete (stream-like)
         videos = []
         for task in asyncio.as_completed(task_list):
-            video_detail = await task
-            if not video_detail:
+            video = await task
+            if not video:
                 continue
-            _create_time = video_detail.get("photo", {}).get("timestamp")
-            if not _create_time or not is_cacheup(_create_time, limit_hours):
-                continue
-            videos.append(update_kuaishou_video(video_item=video_detail))
+            videos.append(video)
         return videos
 
     async def get_homefeed_videos(self, existings: set[str] = set(), limit_hours: int = 48) -> List[Dict]:
@@ -368,12 +395,15 @@ class KuaiShouCrawler:
                 _video_id = video_detail.get("photo", {}).get("id")
                 if not _video_id or _video_id in existings:
                     continue
-                existings.add(_video_id)
+                # existings.add(_video_id)  will add when llm extracting finished
                 _create_time = video_detail.get("photo", {}).get("timestamp")
                 # print("create_time", _create_time)
                 if not is_cacheup(_create_time, limit_hours):
                     continue
-                videos.append(update_kuaishou_video(video_item=video_detail))
+                video = update_kuaishou_video(video_item=video_detail)
+                if self.db_manager:
+                    await self.db_manager.add_ks_cache(video)
+                videos.append(video)
                 saved_video_count += 1
 
         wis_logger.debug(f"Kuaishou homefeed videos crawler finished, saved_video_count: {saved_video_count}")

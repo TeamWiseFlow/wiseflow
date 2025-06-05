@@ -1,7 +1,7 @@
 import asyncio
 import random
 from typing import Dict, List, Optional, Tuple
-from ..mc_commen.tools.time_util import rfc2822_to_timestamp, is_cacheup
+from ..mc_commen.tools.time_util import rfc2822_to_timestamp, is_cacheup, rfc2822_to_china_datetime
 from ..config.mc_config import (
     WEIBO_PLATFORM_NAME, 
     ENABLE_GET_COMMENTS, 
@@ -21,8 +21,9 @@ import regex as re
 
 
 class WeiboCrawler:
-    def __init__(self):
+    def __init__(self, db_manager=None):
         self.wb_client = WeiboClient()
+        self.db_manager = db_manager
 
     async def async_initialize(self) -> None:
         """
@@ -68,7 +69,14 @@ class WeiboCrawler:
             fresh_notes.extend(await self.get_notes_by_creators(creator_ids, existings, CREATOR_SEARCH_UP_TIME))
 
         if keywords:
-            search_type = SearchType(WEIBO_SEARCH_TYPE) if WEIBO_SEARCH_TYPE else SearchType.DEFAULT
+            if WEIBO_SEARCH_TYPE == "REAL_TIME":
+                search_type = SearchType.REAL_TIME
+            elif WEIBO_SEARCH_TYPE == "POPULAR":
+                search_type = SearchType.POPULAR
+            elif WEIBO_SEARCH_TYPE == "VIDEO":
+                search_type = SearchType.VIDEO
+            else:   
+                search_type = SearchType.DEFAULT
             fresh_notes.extend(await self.search_notes(keywords, existings, SEARCH_UP_TIME, search_type))
 
         markdown = ""
@@ -85,38 +93,36 @@ class WeiboCrawler:
             # nickname = note.get("nickname")
             # gender = note.get("gender")
             _key = f"[{len(link_dict)+1}]"
-            link_dict[_key] = note
-            markdown += f"* {content} (发布时间： {create_time} 点赞量：{liked_count} 评论量：{comments_count} 转发量：{shared_count}) {_key}\n"
+            link_dict[_key] = note.get("note_id")
+            markdown += f"* {_key}{content} (发布时间： {create_time} 点赞量：{liked_count} 评论量：{comments_count} 转发量：{shared_count}) {_key}\n"
 
         return markdown.replace("#", ""), link_dict
     
-    async def post_as_article(self, note: Dict, db_manager=None) -> Optional[CrawlResult]:
-        # content = note.get("content")
-        if db_manager:
+    async def post_as_article(self, note_id: str) -> Optional[CrawlResult]:
+        note_url = f"https://m.weibo.cn/detail/{note_id}"
+        if self.db_manager:
             # 社交媒体url 相对固定
-            cached_result = await db_manager.get_cached_url(note.get("note_url"), days_threshold=365)
+            cached_result = await self.db_manager.get_cached_url(note_url, days_threshold=365)
             if cached_result:
                 return cached_result
-        
-        note_id = note.get("note_id")
+            
         note_detail = await self.get_note_info(note_id)
-        detail_content = None
-        title = ''
-        if note_detail:
+        try:
             mblog: Dict = note_detail.get("mblog", {})
-            if mblog and mblog.get("text"):
-                detail_content = mblog.get("text")
-                title = mblog.get("status_title")
-        
-        content = detail_content if detail_content else note.get("content")
-        create_time = note.get("create_time")
-        liked_count = note.get("liked_count")
-        comments_count = note.get("comments_count")
-        shared_count = note.get("shared_count")
-        ip_location = note.get("ip_location")
-        user_id = note.get("user_id")
-        nickname = note.get("nickname")
-        gender = note.get("gender")
+            content = mblog.get("text")
+            title = mblog.get("status_title")
+            user_info: Dict = mblog.get("user")
+            create_time = str(rfc2822_to_china_datetime(mblog.get("created_at")))
+            liked_count = mblog.get("attitudes_count", 0)
+            comments_count = mblog.get("comments_count", 0)
+            shared_count = mblog.get("reposts_count", 0)
+            ip_location = mblog.get("region_name", "")
+            user_id = user_info.get("id")
+            nickname = user_info.get("screen_name", "")
+            gender = '女' if user_info.get('gender') == "f" else '男'
+        except Exception as e:
+            wis_logger.error(f"get note_id:{note_id} detail failed: {e}")
+            return None
 
         author = f"{nickname} ({user_id}) "
         if gender:
@@ -133,15 +139,15 @@ class WeiboCrawler:
         html = re.sub(pattern, '', html, flags=re.DOTALL)
 
         result = CrawlResult(
-            url=note.get("note_url"),
+            url=note_url,
             cleaned_html=html,
             author=author,
             publish_date=create_time,
             title=title,
         )
 
-        if db_manager:
-            await db_manager.cache_url(result)
+        if self.db_manager:
+            await self.db_manager.cache_url(result)
         return result
 
     async def creator_as_article(self, creator_id: str) -> Optional[str]:
@@ -209,7 +215,7 @@ class WeiboCrawler:
                 wis_logger.debug(
                     f"search weibo keyword: {keyword}, page: {page}"
                 )
-                # todo should read first from db for cache
+
                 try:
                     search_res = await self.wb_client.get_note_by_keyword(
                         keyword=keyword, page=page, search_type=search_type
@@ -228,18 +234,20 @@ class WeiboCrawler:
                     note_id = mblog.get("id", "")
                     if not note_id or note_id in existings:
                         continue
-                    existings.add(note_id)
+                    # existings.add(note_id)  will add when llm extracting finished
                     # print("create_time", str(rfc2822_to_china_datetime(mblog.get("created_at"))))
                     if is_cacheup(rfc2822_to_timestamp(mblog.get("created_at")), limit_hours):
-                        notes.append(update_weibo_note(mblog))
+                        note = update_weibo_note(mblog, keyword)
+                        if self.db_manager:
+                            await self.db_manager.add_wb_cache(note)
+                        notes.append(note)
                 page += 1
         return notes
 
     async def get_note_info(self, note_id: str) -> Optional[Dict]:
         # todo should read first from db for cache
         try:
-            result = await self.wb_client.get_note_info_by_id(note_id)
-            return result
+            return await self.wb_client.get_note_info_by_id(note_id)
         except DataFetchError as ex:
             wis_logger.error(
                 f"Get note detail error: {ex}"
@@ -340,11 +348,13 @@ class WeiboCrawler:
                     note_id = mblog.get("id", "")
                     if not note_id or note_id in existings:
                         continue
-
-                    existings.add(note_id)
+                    # existings.add(note_id)  will add when llm extracting finished
                     # print("create_time", str(rfc2822_to_china_datetime(mblog.get("created_at"))))
                     if is_cacheup(rfc2822_to_timestamp(mblog.get("created_at")), limit_hours):
-                        results.append(update_weibo_note(mblog))
+                        note = update_weibo_note(mblog)
+                        if self.db_manager:
+                            await self.db_manager.add_wb_cache(note)
+                        results.append(note)
                     else:
                         if idx >= 3:
                             wis_logger.debug("too old notes, will discard this and the rest...")
