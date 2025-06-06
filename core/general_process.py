@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from async_logger import wis_logger, base_directory
 from typing import List, Dict, Tuple
-from tools.general_utils import isURL
 from wis.utils import get_base_domain
 import time, pickle
 import asyncio
@@ -15,19 +14,14 @@ from wis import (
     LLMExtractionStrategy,
     KUAISHOU_PLATFORM_NAME,
     WEIBO_PLATFORM_NAME,
+    MAX_EPOCH,
     MaxLengthChunking,
-    WeixinArticleMarkdownGenerator,
     markdown_generation_hub,
     DefaultMarkdownGenerator,
     ExtractionStrategy,
     NoExtractionStrategy,
     LLMExtractionStrategy,
-    JsonCssExtractionStrategy,
-    JsonXPathExtractionStrategy,
-    JsonLxmlExtractionStrategy,
-    RegexExtractionStrategy,
     ChunkingStrategy,
-    RegexChunking,
     IdentityChunking,
     MaxLengthChunking,
     CrawlResult,
@@ -193,7 +187,7 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
         focuspoint=focuspoint,
         restrictions=restrictions,
         explanation=explanation,
-        verbose=os.getenv("VERBOSE", "False"),
+        verbose=os.getenv("VERBOSE", False),
         logger=wis_logger
     )
 
@@ -310,7 +304,7 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
                 try:
                     source_name, related_urls, un_related_urls = future.result()
                     if source_name == 'web':
-                        to_crawl_urls.update(related_urls)
+                        to_crawl_urls.update(related_urls - existings['web'])
                         existings['web'].update(un_related_urls)
                     elif source_name == WEIBO_PLATFORM_NAME:
                         existings[WEIBO_PLATFORM_NAME].update(un_related_urls)
@@ -338,15 +332,22 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
     if search:
         search_results = await search_with_jina(query[0], existings['web'])
         if search_results:
-            to_crawl_urls.update(search_results)
+            to_crawl_urls.update(search_results - existings['web'])
 
-    wis_logger.debug(f" ✓ Posts from sources fetching finished, time cost: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
+    wis_logger.debug(f"[SOURCING] ✓ finished, time cost: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
 
     # 3. tik-tok style processing: 
     # use multiple threads to scrape the articles -- get more related urls add to to_crawl_urls...
     # use asyncio loop to crawl the urls -- get articles -- add to to_scrap_articles...
+    _epoch = 0
     while to_scrap_articles or to_crawl_urls:
+        _epoch += 1
+        if _epoch > MAX_EPOCH:
+            wis_logger.info(f"reach Max Epoch: {MAX_EPOCH}, we have to quit. Still have {len(to_scrap_articles)} articles to extract.")
+            break
+        wis_logger.info(f"Epoch {_epoch} starting, we have {len(to_scrap_articles)} articles to extract.")
         if to_scrap_articles:
+            batch_urls = {article.url for article in to_scrap_articles}
             t1 = time.perf_counter()
             with ThreadPoolExecutor(max_workers=min(int(os.getenv("CONCURRENT_NUMBER", 12)), len(to_scrap_articles))) as executor:
                 futures = [executor.submit(scrap_article, article, extractor, chunking) for article in to_scrap_articles]
@@ -358,7 +359,7 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
                         if article_updated:
                             await db_manager.cache_url(article)
                         for result in results:
-                            to_crawl_urls.update(result['links'] - existings['web'])
+                            to_crawl_urls.update(result['links'] - existings['web'] - batch_urls)
                             for info in result['infos']:
                                 await db_manager.add_info(focuspoint_id=focus_id, **info)
                         existings['web'].add(article.url)
@@ -372,12 +373,12 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
             # 只保留未成功处理的 articles，失败的会在下次循环重试
             to_scrap_articles = [article for article in to_scrap_articles 
                                 if article.url not in processed_urls]
-            wis_logger.debug(f" ✓ batch scraping stage finished, time cost: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
+            wis_logger.debug(f"[BATCH SCRAPING] ✓ finished, time cost: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
 
         if not to_crawl_urls:
             wis_logger.debug(f"no more urls to crawl, finished")
             continue
-            
+        wis_logger.info(f"Epoch {_epoch} web fetching stage starting, we have {len(to_crawl_urls)} urls to crawl")
         # for each loop we use a new context for better memory usage and avoid potiential problems
         async with AsyncWebCrawler(crawler_config_map=crawler_config_map, db_manager=db_manager) as crawler:
             async for result in await crawler.arun_many(list(to_crawl_urls)):

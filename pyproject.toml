@@ -1,0 +1,143 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "wiseflow"
+version = "4.0.0"
+description = "WiseFlow - Use LLMs to dig out what you care about from massive amounts of information and a variety of sources daily"
+authors = [
+    {name = "TeamWiseflow", email = "info@wiseflow.pro"},
+]
+readme = "README.md"
+license = {text = "Apache-2.0"}
+requires-python = ">=3.10,<3.13"
+keywords = ["web-scraping", "llm", "crawler", "ai", "automation"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers", 
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    # Logging system
+    "loguru>=0.7.2",
+    
+    # Async HTTP clients
+    "httpx>=0.28.1",
+    "aiohttp>=3.11.11",
+    "requests>=2.32.3",
+    
+    # Database and storage
+    "aiosqlite>=0.20.0",
+    # "pocketbase>=0.12.0",
+    
+    # Data validation and processing
+    "pydantic>=2.10.3",
+    "pandas>=2.2.3",
+    
+    # LLM API
+    "openai>=1.58.1",
+    
+    # Browser automation
+    "playwright>=1.49.0",
+    "nodriver>=0.37",
+    "tf-playwright-stealth>=1.1.0",
+    
+    # HTML/XML processing
+    "beautifulsoup4>=4.12.3",
+    "lxml>=5.3.0",
+    "cssselect>=1.2.0",
+    
+    # Text processing
+    "regex>=2024.11.6",
+    "snowballstemmer>=2.2.0",
+    
+    # RSS and data parsing
+    "feedparser>=6.0.11",
+    
+    # Image processing
+    "pillow>=10.4.0",
+    "pdf2image>=1.17.0",
+    
+    # Environment and configuration
+    "python-dotenv>=1.0.1",
+    "packaging>=24.2",
+    
+    # File handling
+    "aiofiles>=24.1.0",
+    
+    # User agent and spoofing
+    "fake-useragent>=2.0.3",
+    
+    # Hashing and encryption
+    "xxhash>=3.5.0",
+    "pyOpenSSL>=24.3.0",
+    
+    # System and performance
+    "psutil>=6.1.1",
+    
+    # Terminal and display
+    # "rich>=13.9.4",
+    # "colorama>=0.4.6",
+    
+    # Character encoding detection
+    "faust-cchardet>=2.1.19",
+    
+    # Retry mechanism
+    "tenacity>=8.2.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.4",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.8.4",
+    "mypy>=1.13.0",
+    "black>=24.10.0",
+]
+
+[project.scripts]
+wiseflow = "core.run_task:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["core"]
+
+[project.urls]
+Homepage = "https://github.com/teamwiseflow/wiseflow"
+Repository = "https://github.com/teamwiseflow/wiseflow"
+Issues = "https://github.com/teamwiseflow/wiseflow/issues"
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.3.4",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.8.4",
+    "mypy>=1.13.0",
+    "black>=24.10.0",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "PIE", "SIM"]
+ignore = ["E501", "B008", "B904"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.black]
+line-length = 120
+target-version = ['py310', 'py311', 'py312']
+
+[index]
+url = "https://mirrors.aliyun.com/pypi/simple/"

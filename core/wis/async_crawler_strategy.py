@@ -530,7 +530,11 @@ class BrowserManager:
                 or crawlerRunConfig.simulate_user
                 or crawlerRunConfig.magic
             ):
-                await context.add_init_script(load_js_script("navigator_overrider"))
+                try:
+                    # Context should be freshly created and valid at this point
+                    await context.add_init_script(load_js_script("navigator_overrider"))
+                except Exception as e:
+                    self.logger.warning(f"Failed to add navigator override script: {str(e)}")
 
     async def create_browser_context(self, crawlerRunConfig: CrawlerRunConfig = None):
         """
@@ -692,9 +696,15 @@ class BrowserManager:
         # If a session_id is provided and we already have it, reuse that page + context
         if crawlerRunConfig.session_id and crawlerRunConfig.session_id in self.sessions:
             context, page, _ = self.sessions[crawlerRunConfig.session_id]
-            # Update last-used timestamp
-            self.sessions[crawlerRunConfig.session_id] = (context, page, time.time())
-            return page, context
+            
+            # Check if the existing context is still valid
+            if self.is_context_closed(context):
+                self.logger.debug(f"Session {crawlerRunConfig.session_id} context is closed, removing session")
+                del self.sessions[crawlerRunConfig.session_id]
+            else:
+                # Update last-used timestamp and return existing session
+                self.sessions[crawlerRunConfig.session_id] = (context, page, time.time())
+                return page, context
 
         # If using a managed browser, just grab the shared default_context
         if self.config.use_managed_browser:
@@ -707,7 +717,13 @@ class BrowserManager:
             async with self._contexts_lock:
                 if config_signature in self.contexts_by_config:
                     context = self.contexts_by_config[config_signature]
-                else:
+                    
+                    # Check if the cached context is still valid
+                    if self.is_context_closed(context):
+                        del self.contexts_by_config[config_signature]
+                        context = None
+                    
+                if config_signature not in self.contexts_by_config:
                     # Create and setup a new context
                     context = await self.create_browser_context(crawlerRunConfig)
                     await self.setup_context(context, crawlerRunConfig)
@@ -776,6 +792,56 @@ class BrowserManager:
         if self.playwright:
             await self.playwright.stop()
             self.playwright = None
+
+    def is_context_closed(self, context: BrowserContext) -> bool:
+        """
+        Safely check if a browser context is closed.
+        
+        Args:
+            context: The browser context to check
+            
+        Returns:
+            bool: True if context is closed or inaccessible, False otherwise
+        """
+        if not context:
+            return True
+            
+        try:
+            # First, try to access basic properties
+            try:
+                # This should work if context is valid
+                _ = context.pages
+                # If we can access pages, try to get the length
+                page_count = len(context.pages)
+                
+                # Additional check: try to access browser
+                if hasattr(context, 'browser') and context.browser:
+                    return False  # Context seems valid
+                    
+            except Exception as e:
+                # If accessing pages fails, context is likely closed
+                self.logger.debug(f"Context pages access failed: {str(e)}")
+                return True
+            
+            # Try the transport check as a secondary verification
+            try:
+                if hasattr(context, '_impl_obj') and hasattr(context._impl_obj, '_connection'):
+                    if hasattr(context._impl_obj._connection, '_transport'):
+                        transport_closed = context._impl_obj._connection._transport._closed
+                        if transport_closed:
+                            self.logger.debug("Context transport is closed")
+                            return True
+            except Exception as e:
+                # Transport check failed, but don't immediately assume closed
+                self.logger.debug(f"Context transport check failed: {str(e)}")
+            
+            # If we made it here, context seems accessible
+            return False
+            
+        except Exception as e:
+            # If any exception occurs during checks, assume context is closed
+            self.logger.debug(f"Context validity check failed: {str(e)}")
+            return True
 
 
 class AsyncCrawlerStrategy(ABC):
@@ -1244,14 +1310,77 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
         # Get page for session
         page, context = await self.browser_manager.get_page(crawlerRunConfig=config)
 
-        # Add default cookie
-        await context.add_cookies(
-            [{"name": "cookiesEnabled", "value": "true", "url": url}]
-        )
+        # Ensure we have a valid context for critical setup steps
+        max_context_retries = 3
+        context_retry_count = 0
+        
+        while context_retry_count < max_context_retries:
+            if not self.browser_manager.is_context_closed(context):
+                break
 
-        # Handle navigator overrides
+            # Close the current page if it exists
+            if page:
+                try:
+                    await page.close()
+                except Exception:
+                    pass
+            
+            # Get a new page and context
+            try:
+                page, context = await self.browser_manager.get_page(crawlerRunConfig=config)
+                context_retry_count += 1
+            except Exception as e:
+                self.logger.error(f"Failed to get new page/context on retry {context_retry_count + 1}: {str(e)}")
+                context_retry_count += 1
+                if context_retry_count >= max_context_retries:
+                    break
+
+        # Use a flag to track if we have a valid context instead of raising an error
+        has_valid_context = not self.browser_manager.is_context_closed(context)
+        
+        if not has_valid_context:
+            self.logger.error(f"Failed to obtain valid browser context after {max_context_retries} retries for {url}")
+            # Log the potential impact
+            impact_msg = "This may result in: 1) Missing anti-detection measures, 2) Incomplete content loading, 3) Website blocking"
+            if config.magic:
+                impact_msg += " [CRITICAL: Magic mode requires valid context for optimal results]"
+            self.logger.warning(f"Continuing without valid context for {url}. {impact_msg}")
+
+        # Add default cookie (try to add even with potentially invalid context)
+        try:
+            if has_valid_context:
+                await context.add_cookies(
+                    [{"name": "cookiesEnabled", "value": "true", "url": url}]
+                )
+            else:
+                self.logger.warning(f"Skipping cookie setup due to invalid context for {url}")
+        except Exception as e:
+            self.logger.warning(f"Failed to add default cookies for {url}: {str(e)}")
+
+        # Handle navigator overrides (try to add even with potentially invalid context)
         if config.override_navigator or config.simulate_user or config.magic:
-            await context.add_init_script(load_js_script("navigator_overrider"))
+            try:
+                if has_valid_context:
+                    await context.add_init_script(load_js_script("navigator_overrider"))
+                else:
+                    self.logger.warning(f"Skipping navigator override setup due to invalid context for {url}")
+            except Exception as e:
+                self.logger.warning(f"Failed to add navigator override script for {url}: {str(e)}")
+                # Only log as critical for magic mode, but don't raise error
+                if config.magic:
+                    self.logger.error(f"Critical: Navigator override failed in magic mode for {url}, anti-detection may be compromised")
+
+        # Final context check before proceeding
+        if not has_valid_context:
+            # Try one more time to validate the page at least
+            try:
+                # Basic page validation
+                if page and not page.is_closed():
+                    self.logger.info(f"Page is valid despite context issues for {url}, attempting to continue")
+                else:
+                    self.logger.error(f"Both context and page are invalid for {url}, crawl may fail")
+            except Exception as e:
+                self.logger.error(f"Cannot validate page state for {url}: {str(e)}")
 
         # Call hook after page creation
         await self.execute_hook("on_page_context_created", page, context=context, config=config)
@@ -1507,48 +1636,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
 
                 if not config.ignore_body_visibility:
                     raise Error(f"Body element is hidden: {visibility_info}")
-
-            # try:
-            #     await page.wait_for_selector("body", state="attached", timeout=30000)
-
-            #     await page.wait_for_function(
-            #         """
-            #         () => {
-            #             const body = document.body;
-            #             const style = window.getComputedStyle(body);
-            #             return style.display !== 'none' &&
-            #                 style.visibility !== 'hidden' &&
-            #                 style.opacity !== '0';
-            #         }
-            #     """,
-            #         timeout=30000,
-            #     )
-            # except Error as e:
-            #     visibility_info = await page.evaluate(
-            #         """
-            #         () => {
-            #             const body = document.body;
-            #             const style = window.getComputedStyle(body);
-            #             return {
-            #                 display: style.display,
-            #                 visibility: style.visibility,
-            #                 opacity: style.opacity,
-            #                 hasContent: body.innerHTML.length,
-            #                 classList: Array.from(body.classList)
-            #             }
-            #         }
-            #     """
-            #     )
-
-            #     if self.config.verbose:
-            #         self.logger.debug(
-            #             message="Body visibility info: {info}",
-            #             tag="DEBUG",
-            #             params={"info": visibility_info},
-            #         )
-
-            #     if not config.ignore_body_visibility:
-            #         raise Error(f"Body element is hidden: {visibility_info}")
 
             # Handle content loading and viewport adjustment
             if not self.browser_config.text_mode and (

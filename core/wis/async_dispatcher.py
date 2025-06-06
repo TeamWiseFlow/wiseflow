@@ -186,6 +186,37 @@ class MemoryAdaptiveDispatcher(BaseDispatcher):
         error_message = ""
         memory_usage = peak_memory = 0.0
         
+        # Check if we're in critical memory state BEFORE any resource allocation
+        if self.current_memory_percent >= self.critical_threshold_percent:
+            # Requeue this task with increased priority and retry count
+            enqueue_time = time.time()
+            priority = self._get_priority_score(enqueue_time - start_time, retry_count + 1)
+            await self.task_queue.put((priority, (url, task_id, retry_count + 1, enqueue_time)))
+            
+            # Update monitoring
+            if self.monitor:
+                self.monitor.update_task(
+                    task_id,
+                    status=CrawlStatus.QUEUED,
+                    error_message="Requeued due to critical memory pressure"
+                )
+            
+            # Return placeholder result with requeued status
+            return CrawlerTaskResult(
+                task_id=task_id,
+                url=url,
+                result=CrawlResult(
+                    url=url, html="", metadata={"status": "requeued"}, 
+                    success=False, error_message="Requeued due to critical memory pressure"
+                ),
+                memory_usage=0,
+                peak_memory=0,
+                start_time=start_time,
+                end_time=time.time(),
+                error_message="Requeued due to critical memory pressure",
+                retry_count=retry_count + 1
+            )
+        
         # Get starting memory for accurate measurement
         process = psutil.Process()
         start_memory = process.memory_info().rss / (1024 * 1024)
@@ -203,37 +234,6 @@ class MemoryAdaptiveDispatcher(BaseDispatcher):
             
             if self.rate_limiter:
                 await self.rate_limiter.wait_if_needed(url)
-                
-            # Check if we're in critical memory state
-            if self.current_memory_percent >= self.critical_threshold_percent:
-                # Requeue this task with increased priority and retry count
-                enqueue_time = time.time()
-                priority = self._get_priority_score(enqueue_time - start_time, retry_count + 1)
-                await self.task_queue.put((priority, (url, task_id, retry_count + 1, enqueue_time)))
-                
-                # Update monitoring
-                if self.monitor:
-                    self.monitor.update_task(
-                        task_id,
-                        status=CrawlStatus.QUEUED,
-                        error_message="Requeued due to critical memory pressure"
-                    )
-                
-                # Return placeholder result with requeued status
-                return CrawlerTaskResult(
-                    task_id=task_id,
-                    url=url,
-                    result=CrawlResult(
-                        url=url, html="", metadata={"status": "requeued"}, 
-                        success=False, error_message="Requeued due to critical memory pressure"
-                    ),
-                    memory_usage=0,
-                    peak_memory=0,
-                    start_time=start_time,
-                    end_time=time.time(),
-                    error_message="Requeued due to critical memory pressure",
-                    retry_count=retry_count + 1
-                )
             
             # Execute the crawl
             result = await self.crawler.arun(url, config=config, session_id=task_id)

@@ -168,56 +168,47 @@ class LLMExtractionStrategy(ExtractionStrategy):
             **extra_args,
         )
 
-        if response:
-            # Track usage
-            usage = TokenUsage(
-                completion_tokens=response.usage.completion_tokens,
-                prompt_tokens=response.usage.prompt_tokens,
-                total_tokens=response.usage.total_tokens,
-                completion_tokens_details=response.usage.completion_tokens_details.__dict__
-                if response.usage.completion_tokens_details
-                else {},
-                prompt_tokens_details=response.usage.prompt_tokens_details.__dict__
-                if response.usage.prompt_tokens_details
-                else {},
-            )
-            self.usages.append(usage)
-
-            # Update totals
-            self.total_usage.completion_tokens += usage.completion_tokens
-            self.total_usage.prompt_tokens += usage.prompt_tokens
-            self.total_usage.total_tokens += usage.total_tokens
-
-            response = response.choices[0].message.content
-            if self.verbose:
-                print(f"\n\033[32mresponse:\033[0m\n \033[34m{response}\033[0m")
-            # schema mode parsing
-            if self.schema_mode:
-                results = extract_xml_data(["json"], response)["json"]
-                blocks = []
-                for res in results:
-                    try:
-                        blocks.append(json.loads(res))
-                    except json.JSONDecodeError:
-                        if self.logger:
-                            self.logger.debug("json loads from response failed, fallback to use split_and_parse")
-                        else:
-                            print("json loads from response failed, fallback to use split_and_parse")
-                        parsed, unparsed = split_and_parse_json_objects(res)
-                        blocks.extend(parsed)
-                        if unparsed:
-                            self.logger.info(f"some generated parts can not be parsed: {unparsed}")
-            else:
-                # infos and links mode parsing
-                blocks = extract_xml_data(["info", "links"], response)
-            return blocks
-        else:
-            if self.logger:
-                self.logger.error(f"failed to call LLM, error: {response}\ninput:\n {messages}")
-            else:
-                print(f"failed to call LLM, error: {response}\ninput:\n {messages}")
-            # Add error information to extracted_content
+        if not response:
             return None
+        # Track usage
+        usage = TokenUsage(
+            completion_tokens=response.usage.completion_tokens,
+            prompt_tokens=response.usage.prompt_tokens,
+            total_tokens=response.usage.total_tokens,
+            completion_tokens_details=response.usage.completion_tokens_details.__dict__
+            if response.usage.completion_tokens_details
+            else {},
+            prompt_tokens_details=response.usage.prompt_tokens_details.__dict__
+            if response.usage.prompt_tokens_details
+            else {},
+        )
+        self.usages.append(usage)
+
+        # Update totals
+        self.total_usage.completion_tokens += usage.completion_tokens
+        self.total_usage.prompt_tokens += usage.prompt_tokens
+        self.total_usage.total_tokens += usage.total_tokens
+
+        response = response.choices[0].message.content
+        if self.verbose:
+            print(f"\n\033[32mresponse:\033[0m\n \033[34m{response}\033[0m")
+        # schema mode parsing
+        if self.schema_mode:
+            results = extract_xml_data(["json"], response)["json"]
+            blocks = []
+            for res in results:
+                try:
+                    blocks.append(json.loads(res))
+                except json.JSONDecodeError:
+                    self.logger.debug("json loads from response failed, fallback to use split_and_parse")
+                    parsed, unparsed = split_and_parse_json_objects(res)
+                    blocks.extend(parsed)
+                    if unparsed:
+                        self.logger.info(f"some generated parts can not be parsed: {unparsed}")
+        else:
+            # infos and links mode parsing
+            blocks = extract_xml_data(["info", "links"], response)
+        return blocks
 
     def run(self,
             sections: List[str], 
@@ -298,6 +289,9 @@ class LLMExtractionStrategy(ExtractionStrategy):
                 for block in info_blocks:
                     block = block.strip()
                     if len(block) < 3:
+                        continue
+                    # bad case sellections
+                    if block.startswith('无相关信息'):
                         continue
                     url_tags = re.findall(r'\[\d+]', block)
                     refences = ''

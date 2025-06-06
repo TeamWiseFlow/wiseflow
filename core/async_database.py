@@ -126,6 +126,10 @@ class AsyncDatabaseManager:
         
         # 内容字段映射字典，提高查找效率
         self._content_field_map = {cm.field_name: cm for cm in self.CONTENT_MAPPINGS}
+        
+        # 不缓存的URL集合（从sources表中type为web的记录获取）
+        self.no_cache_urls = set()
+        
         self.ready = False
 
     async def initialize(self):
@@ -150,6 +154,8 @@ class AsyncDatabaseManager:
                 wis_logger.error(f"Database initialization failed: {str(e)}")
                 raise
         self.ready = True
+        # 加载不缓存的URL列表
+        await self._load_no_cache_urls()
 
     async def _init_db_schema(self):
         """初始化数据库模式，包含表结构校验和缺失列自动补充"""
@@ -323,6 +329,23 @@ class AsyncDatabaseManager:
             self._connection_pool.append(conn)
             await self._available_connections.put(conn)
 
+    async def _load_no_cache_urls(self):
+        """加载不缓存的URL列表（从sources表中type为web的记录获取）"""
+        async def _load(db):
+            urls = set()
+            async with db.execute(
+                "SELECT url FROM sources WHERE type = ? AND url IS NOT NULL AND url != ''", 
+                ("web",)
+            ) as cursor:
+                rows = await cursor.fetchall()
+                for row in rows:
+                    url = row[0].strip() if row[0] else None
+                    if url:
+                        urls.add(url)
+            return urls
+        
+        self.no_cache_urls = await self.execute_with_retry(_load)
+
     @asynccontextmanager
     async def get_connection(self):
         """获取连接池中的连接"""
@@ -369,6 +392,11 @@ class AsyncDatabaseManager:
         # 如果有重定向URL，使用重定向URL作为主键
         cache_url = result.redirected_url if result.redirected_url else result.url
         if not cache_url:
+            return
+            
+        # 检查是否在不缓存的URL列表中
+        if cache_url in self.no_cache_urls:
+            wis_logger.debug(f"Skipping cache for URL {cache_url} (found in web sources)")
             return
         
         # 生成15位字符串id
@@ -485,9 +513,9 @@ class AsyncDatabaseManager:
                                 if field_name == "link_dict":
                                     row_dict[field_name] = {}
                                 else:
-                                    row_dict[field_name] = ""
+                                    row_dict[field_name] = []
                             else:
-                                row_dict[field_name] = ""
+                                row_dict[field_name] = None
                         else:
                             if mapping.is_json_content:
                                 deserialized = self._deserialize_json(content)
@@ -496,7 +524,7 @@ class AsyncDatabaseManager:
                                 else:
                                     row_dict[field_name] = deserialized
                             else:
-                                row_dict[field_name] = content or ""
+                                row_dict[field_name] = content
                 
                 # If link_dict is an empty string (default from DB or failed load of empty content),
                 # ensure it's an empty dictionary for CrawlResult.

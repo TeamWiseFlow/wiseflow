@@ -82,7 +82,7 @@ class KuaiShouCrawler:
         video_url = f"https://www.kuaishou.com/short-video/{video_id}"
         if self.db_manager:
             cached_result = await self.db_manager.get_cached_url(video_url, days_threshold=365)
-            if cached_result:
+            if cached_result and cached_result.markdown:
                 return cached_result
 
         video = await self.get_specified_video(video_id)

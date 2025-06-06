@@ -20,9 +20,7 @@ else:
 
 def perform_completion_with_backoff(messages: List, model: str = '', **kwargs):
     model = model if model else primary_model
-    # 最大重试次数
     max_retries = 3
-    # 初始等待时间（秒）
     wait_time = 20
     for retry in range(max_retries):
         try:
@@ -33,13 +31,13 @@ def perform_completion_with_backoff(messages: List, model: str = '', **kwargs):
             )
             return response
         except RateLimitError as e:
-            # 速率限制错误需要重试
+            # rate limit error, retry
             error_msg = f"{model} Rate limit error: {str(e)}. Retry {retry+1}/{max_retries}."
             wis_logger.warning(error_msg)
         except APIError as e:
             if hasattr(e, 'status_code'):
                 if e.status_code in [400, 401]:
-                    # 客户端错误不需要重试
+                    # client error, no need to retry
                     error_msg = f"{model} Client error: {e.status_code}. Detail: {str(e)}"
                     if 'Image url should be a valid url or should like data:image/TYPE;base64' not in str(e):
                         # image url probility is that server cannot fetch the image, so we don't need to worry about it
@@ -47,26 +45,26 @@ def perform_completion_with_backoff(messages: List, model: str = '', **kwargs):
                         wis_logger.info(f"messages: {messages}")
                     return None
                 else:
-                    # 其他API错误需要重试
+                    # other API error, retry
                     error_msg = f"{model} API error: {e.status_code}. Retry {retry+1}/{max_retries}."
                     wis_logger.warning(error_msg)
             else:
-                # 未知API错误需要重试
+                # unknown API error, retry
                 error_msg = f"{model} Unknown API error: {str(e)}. Retry {retry+1}/{max_retries}."
                 wis_logger.warning(error_msg)
         except Exception as e:
-            # 其他异常需要重试
+            # other exception, retry
             error_msg = f"{model} Unexpected error: {str(e)}. Retry {retry+1}/{max_retries}."
             wis_logger.error(error_msg)
 
         if retry < max_retries - 1:
-            # 指数退避策略
+            # exponential backoff strategy
             time.sleep(wait_time)
-            # 下次等待时间翻倍
+            # next wait time is doubled
             wait_time *= 2
 
-    # 如果所有重试都失败
-    error_msg = "达到最大重试次数，仍然无法获取有效响应。"
+    # if all retries fail
+    error_msg = "Max retries reached, still unable to get a valid response."
     wis_logger.error(error_msg)
     return None
 
@@ -83,9 +81,9 @@ The above markdown content is derived from the HTML of a webpage and may have be
 All links in the original HTML (a elements or img elements) have been converted to citation marks (something like "[x]")
 
 For information extraction, please adhere to the following notes:
-- Only extract information from the markdown's main-content area(if any), if there is no main-content area, output nothing.
+- Only extract information from the markdown's main-content area(if any), if there is no main-content area, DO NOT output anything.
 - All information should be extracted from the main-content area(if any), do not make up any information.
-- It is not guaranteed that the main-content will always be relevant to the focus point, if that is the case, output nothing.
+- It is not guaranteed that the main-content will always be relevant to the focus point, if that is the case, DO NOT output anything.
 - All extracted information must comply with restrictions (if given), such as time limit, value limit, subject limit, etc.
 - If multiple information are extracted, merge them into one coherent message that contains all the key points.
 
@@ -120,7 +118,7 @@ All reference links in the original HTML (a elements or img elements) have been 
 
 please adhere to the following notes:
 - All information should be extracted from the given markdown, do not make up any information.
-- It is not guaranteed that the given markdown will always be relevant to the focus point, if that is the case, output nothing.
+- It is not guaranteed that the given markdown will always be relevant to the focus point, if that is the case, DO NOT output anything.
 - All extracted information must comply with restrictions (if given), such as time limit, value limit, subject limit, etc.
 - If multiple information are extracted, merge them into one coherent message that contains all the key points.
 

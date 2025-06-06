@@ -103,7 +103,7 @@ class WeiboCrawler:
         if self.db_manager:
             # 社交媒体url 相对固定
             cached_result = await self.db_manager.get_cached_url(note_url, days_threshold=365)
-            if cached_result:
+            if cached_result and cached_result.cleaned_html:
                 return cached_result
             
         note_detail = await self.get_note_info(note_id)

@@ -14,11 +14,11 @@ async def fetch_rss(url, existings: set=set()) -> Tuple[List[CrawlResult], str, 
         parsed = feedparser.parse(content)
     except Exception as e:
         wis_logger.error(f"Error fetching RSS from {url}: {e}")
-        return []
+        return [], '', {}
     
     if parsed.get("bozo", False):
         wis_logger.error(f"Error parsing RSS from {url}: {parsed.get('bozo_exception', '')}")
-        return []
+        return [], '', {}
     
     results = []
     markdown = ''

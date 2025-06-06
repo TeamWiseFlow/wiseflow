@@ -121,8 +121,8 @@ class AsyncWebCrawler:
     async def arun(self, url: str, config: CrawlerRunConfig = None, session_id: str = None) -> Optional[RunManyReturn]:
         if self.db_manager:
             cached_result = await self.db_manager.get_cached_url(url, days_threshold=30)
-            if cached_result:
-                wis_logger.debug(f"Get {url} from db cache...")
+            if cached_result and cached_result.html:
+                wis_logger.debug(f"Get {url} from db cache")
                 cached_result.session_id = session_id
                 return CrawlResultContainer(cached_result)
             

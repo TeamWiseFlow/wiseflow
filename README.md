@@ -23,7 +23,7 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 如果是本地部署且显存有限的情况，推荐只使用 Qwen3-14B ，可以选择8bit量化版本。
 
-当然你也可以继续选择免费模型实现“零成本”使用，对此，我强烈推荐智谱平台的 glm-4-flash-250414。
+当然你也可以继续选择免费模型实现"零成本"使用，对此，我强烈推荐智谱平台的 glm-4-flash-250414。
 
 
 ## 🌟 过去两周新增 contributor
@@ -32,25 +32,25 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
   - @beat4ocean PR #361 [update docker base image to improve for playwright]
 
 
-## 🧐  ‘deep search’ VS ‘wide search’
+## 🧐  'deep search' VS 'wide search'
 
-我把 wiseflow 的产品定位称为“wide search"，这是相对于目前大火的“deep search”而言。
+我把 wiseflow 的产品定位称为"wide search", 这是相对于目前大火的"deep search"而言。
 
-具体而言“deep search”是面向某一具体问题由 llm 自主动态规划搜索路径，持续探索不同页面，采集到足够的信息后给出答案或者产出报告等；但是有的时候，我们没有具体的问题，也并不需要深入探索，只需要广泛的信息采集（比如行业情报搜集、对象背景信息搜集、客户信息采集等），这个时候广度明显更有意义。虽然使用“deep search”也能实现这个任务，但那是大炮打蚊子，低效率高成本，而 wiseflow 就是专为这种“wide search"场景打造的利器。
+具体而言"deep search"是面向某一具体问题由 llm 自主动态规划搜索路径，持续探索不同页面，采集到足够的信息后给出答案或者产出报告等；但是有的时候，我们没有具体的问题，也并不需要深入探索，只需要广泛的信息采集（比如行业情报搜集、对象背景信息搜集、客户信息采集等），这个时候广度明显更有意义。虽然使用"deep search"也能实现这个任务，但那是大炮打蚊子，低效率高成本，而 wiseflow 就是专为这种"wide search"场景打造的利器。
 
 
 ## ✋ What makes wiseflow different from other ai-powered crawlers?
 
-最大的不同是在 scraper 阶段，我们提出了一种与目前已有爬虫都不同的 pipeline，即“爬查一体”策略。具体而言，我们放弃了传统的 filter-extractor 流程（当然这个流程也可以融入 llm，正如 crawl4ai 那样），我们也不再把单一 page 当做最小处理单元。而是在 crawl4ai 的html2markdown 基础上，再进一步将页面分块，并根据一系列特征算法，把块分为“正文块”和“外链块”，并根据分类不同采用不同的llm提取策略（依然是每个块只用 llm 分析一次，只是分析策略不同，规避 token 浪费），这个方案可以同时兼容列表页、内容页以及混排页等情况。
+最大的不同是在 scraper 阶段，我们提出了一种与目前已有爬虫都不同的 pipeline，即"爬查一体"策略。具体而言，我们放弃了传统的 filter-extractor 流程（当然这个流程也可以融入 llm，正如 crawl4ai 那样），我们也不再把单一 page 当做最小处理单元。而是在 crawl4ai 的html2markdown 基础上，再进一步将页面分块，并根据一系列特征算法，把块分为"正文块"和"外链块"，并根据分类不同采用不同的llm提取策略（依然是每个块只用 llm 分析一次，只是分析策略不同，规避 token 浪费），这个方案可以同时兼容列表页、内容页以及混排页等情况。
 
-  - 对于“正文块”，直接按关注点进行总结提取，避免信息分散，甚至在此过程中直接完成翻译等；
-  - 对于“外链块”，综合页面布局等信息，判断哪些链接值得进一步探索，哪些直接忽略，因此无需用户手动配置深度、最大爬取数量等。
+  - 对于"正文块"，直接按关注点进行总结提取，避免信息分散，甚至在此过程中直接完成翻译等；
+  - 对于"外链块"，综合页面布局等信息，判断哪些链接值得进一步探索，哪些直接忽略，因此无需用户手动配置深度、最大爬取数量等。
 
 这个方案其实非常类似 AI Search。
 
 另外我们也针对特定类型的页面编写了专门的解析模块，比如微信公众号文章（居然一共有九种格式……），针对这类内容，wiseflow 目前能够提供同类产品中最好的解析效果。
 
-## ✋ What‘s Next (4.x plan)?
+## ✋ What's Next (4.x plan)?
 
 ### Crawler fetching 阶段的增强
     
@@ -59,12 +59,22 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 ### Insight 模块
     
-其实真正有价值的未必是“可以抓取到的信息”，而是隐藏在这些信息之下的“暗信息”。能够智能的关联已抓取信息，并分析提炼出隐藏其下的“暗信息”就是4.x要着重打造的 insight 模块。
+其实真正有价值的未必是"可以抓取到的信息"，而是隐藏在这些信息之下的"暗信息"。能够智能的关联已抓取信息，并分析提炼出隐藏其下的"暗信息"就是4.x要着重打造的 insight 模块。
 
 
 ## 📥 安装与使用
 
-### 1. 克隆代码仓库
+### 📋 系统要求
+
+- **Python**: 3.10 - 3.12 （推荐 3.12）
+- **操作系统**: macOS、Linux 或 Windows
+- **Git**: 用于克隆代码仓库
+
+### 🚀 快速开始（推荐）
+
+**只需三步即可开始使用！**
+
+#### 1. 克隆代码仓库
 
 🌹 点赞、fork是好习惯 🌹
 
@@ -72,15 +82,54 @@ https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
 
 ```bash
 git clone https://github.com/TeamWiseFlow/wiseflow.git
+cd wiseflow
 ```
 
-### 2. 执行根目录下的 install_pocketbase 脚本
+#### 2. 安装 uv（Python 包管理器）
+
+uv 是一个快速的 Python 包管理器，比传统的 pip 和 conda 都要快很多：
+
+**macOS/Linux 用户：**
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+**Windows 用户：**
+```bash
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+#### 3. 一键启动
+
+**MacOS/Linux 用户：**
+```bash
+chmod +x run.sh
+./run.sh
+```
+
+**Windows 用户：**
+```bash
+python windows_run.py
+```
+
+✨ **就是这么简单！** 启动脚本会自动完成以下工作：
+- ✅ 检查环境配置
+- ✅ 同步项目依赖
+- ✅ 激活虚拟环境
+- ✅ 启动 PocketBase 数据库
+- ✅ 运行 WiseFlow 应用
+
+### 📝 手动安装（可选）
+
+如果您希望手动控制每个步骤，也可以按照以下步骤进行：
+
+#### 3. 执行根目录下的 install_pocketbase 脚本
 
 linux/macos 用户请执行 
 
 ```bash
-chmod +x install_pocketbase
-./install_pocketbase
+chmod +x install_pocketbase.sh
+./install_pocketbase.sh
 ```
 
 **windows 用户请执行 [install_pocketbase.ps1](./install_pocketbase.ps1) 脚本**
@@ -89,17 +138,44 @@ wiseflow 3.x版本使用 pocketbase 作为数据库，你当然也可以手动�
 
 具体可以参考 [pb/README.md](/pb/README.md)
 
-### 3. 继续配置 core/.env 文件
+#### 4. 配置环境
+
+##### 4.1 创建并激活虚拟环境
+
+```bash
+uv venv
+source .venv/bin/activate  # Linux/macOS
+# 或者在 Windows 上：
+# .venv\Scripts\activate
+```
+
+##### 4.2 安装依赖
+
+```bash
+uv sync
+```
+
+这将安装 wiseflow 及其所有依赖，并确保依赖版本的一致性。uv sync 会读取项目的依赖声明，并同步虚拟环境。
+
+然后安装浏览器依赖：
+
+```bash
+python -m playwright install --with-deps chromium
+```
+
+### 🔧 配置环境变量
+
+无论是快速开始还是手动安装，都需要配置 core/.env 文件：
 
 🌟 **这里与之前版本不同**，V3.5开始需要把 .env 放置在 [core](./core) 文件夹中。
 
-#### 3.1 大模型相关配置
+##### 4.3.1 大模型相关配置
 
 wiseflow 是 LLM 原生应用，请务必保证为程序提供稳定的 LLM 服务。
 
 🌟 **wiseflow 并不限定模型服务提供来源，只要服务兼容 openAI SDK 即可，包括本地部署的 ollama、Xinference 等服务**
 
-#### 推荐1：使用硅基流动（siliconflow）提供的 MaaS 服务
+###### 推荐1：使用硅基流动（siliconflow）提供的 MaaS 服务
 
 siliconflow（硅基流动）提供大部分主流开源模型的在线 MaaS 服务，凭借着自身的加速推理技术积累，其服务速度和价格方面都有很大优势。使用 siliconflow 的服务时，.env的配置可以参考如下：
 
@@ -114,7 +190,7 @@ PROJECT_DIR="work_dir"
       
 😄 如果您愿意，可以使用我的[siliconflow邀请链接](https://cloud.siliconflow.cn/i/WNLYbBpi)，这样我也可以获得更多token奖励 🌹
 
-#### 推荐2：使用 AiHubMix 代理的openai、claude、gemini 等海外闭源商业模型服务
+###### 推荐2：使用 AiHubMix 代理的openai、claude、gemini 等海外闭源商业模型服务
 
 如果您的信源多为非中文页面，且也不要求提取出的 info 为中文，那么更推荐您使用 openai、claude、gemini 等海外闭源商业模型。您可以尝试第三方代理 **AiHubMix**，支持国内网络环境直连、支付宝便捷支付，免去封号风险。
 使用 AiHubMix 的模型时，.env的配置可以参考如下：
@@ -130,7 +206,7 @@ PROJECT_DIR="work_dir"
 
 😄 欢迎使用 [AiHubMix邀请链接](https://aihubmix.com?aff=Gp54) 注册 🌹
 
-#### 本地部署大模型服务
+###### 本地部署大模型服务
 
 以 Xinference 为例，.env 配置可以参考如下：
 
@@ -142,7 +218,7 @@ VL_MODEL=启动的模型 ID
 PROJECT_DIR="work_dir"
 ```
 
-#### 3.2 pocketbase 账号密码配置
+##### 4.3.2 pocketbase 账号密码配置
 
 ```
 PB_API_AUTH="test@example.com|1234567890" 
@@ -150,8 +226,7 @@ PB_API_AUTH="test@example.com|1234567890"
 
 这里pocketbase 数据库的 superuser 用户名和密码，记得用 | 分隔 (如果 install_pocketbase.sh 脚本执行成功，这一项应该已经存在了)
 
-
-#### 3.3 JINA_API_KEY 设置（用于搜索引擎服务）
+##### 4.3.3 JINA_API_KEY 设置（用于搜索引擎服务）
 
 至 https://jina.ai/ 领取，目前无需注册即可领取。（如有高并发或商用需求，请充值后使用）
 
@@ -159,7 +234,7 @@ PB_API_AUTH="test@example.com|1234567890"
 JINA_API_KEY=Your_API_KEY
 ```
 
-#### 3.4 其他可选配置
+##### 4.3.4 其他可选配置
 
 下面的都是可选配置：
 - #VERBOSE="true" 
@@ -174,47 +249,48 @@ JINA_API_KEY=Your_API_KEY
 
   用于控制 llm 的并发请求数量，不设定默认是1（开启前请确保 llm provider 支持设定的并发，本地大模型慎用，除非你对自己的硬件基础有信心）
 
+## 🚀 运行与使用
 
-### 4. 运行程序
+### 1. 启动服务
 
-推荐使用 conda 构建虚拟环境（当然你也可以忽略这一步，或者使用其他 python 虚拟环境方案）
+如果你已经按照"快速开始"的步骤执行了 `./run.sh`，应用已经在运行中了！
 
-```bash
-conda create -n wiseflow python=3.12
-conda activate wiseflow
-```
+如果需要重新启动或者使用了手动安装方式，请执行：
 
-之后运行
+**MacOS/Linux 用户：**
 
 ```bash
-cd wiseflow
-cd core
-pip install -r requirements.txt
-python -m playwright install --with-deps chromium
+./run.sh          # 完整启动（推荐）
+./run.sh --fast    # 快速启动（跳过依赖检查）
 ```
 
-之后 MacOS&Linux 用户执行
-
-```bash
-chmod +x run.sh
-./run.sh
-```
-
-Windows 用户执行
+**Windows 用户：**
 
 ```bash
 python windows_run.py
 ```
 
-以上脚本会自动判断 pocketbase 是否已经在运行，如果未运行，会自动拉起。但是请注意，当你 ctrl+c 或者 ctrl+z 终止进程时，pocketbase 进程不会被终止，直到你关闭terminal。
+📝 **脚本功能说明：**
+- ✅ 自动检查并同步项目依赖
+- ✅ 智能激活虚拟环境
+- ✅ 自动判断 PocketBase 运行状态并启动
+- ✅ 启动 WiseFlow 核心服务
 
-run.sh 会先对所有已经激活（activated 设定为 true）的信源执行一次爬取任务，之后以小时为单位按设定的频率周期执行。
+💡 **快速模式：** 二次运行时可以使用 `./run.sh --fast` 跳过依赖同步，启动更快。
 
-### 5. 关注点和信源添加
-    
-启动程序后，打开pocketbase Admin dashboard UI (http://127.0.0.1:8090/_/)
+⚠️ **注意：** 当你使用 `Ctrl+C` 终止进程时，PocketBase 进程可能不会自动终止，需要手动关闭或重启终端。
 
-#### 5.1 打开 sites表单
+程序会先对所有已激活（activated 设定为 true）的信源执行一次爬取任务，之后以小时为单位按设定的频率周期执行。
+
+### 2. 访问管理界面
+
+🌐 启动成功后，打开浏览器访问：**http://127.0.0.1:8090/_/**
+
+这是 PocketBase 管理界面，您可以在这里配置信源和关注点。
+
+### 3. 配置信源和关注点
+
+#### 3.1 配置信源（sites表单）
 
 通过这个表单可以配置信源，注意：信源需要在下一步的 focus_point 表单中被选择。
 
@@ -222,13 +298,13 @@ sites 字段说明：
 - url, 信源的url，信源无需给定具体文章页面，给文章列表页面即可。
 - type, 类型，web 或者 rss。
     
-#### 5.2 打开 focus_point 表单
+#### 3.2 配置关注点（focus_point 表单）
 
 通过这个表单可以指定你的关注点，LLM会按此提炼、过滤并分类信息。
     
 字段说明：
-- focuspoint, 关注点描述（必填），如”上海小升初信息“、”招标通知“
-- explanation，关注点的详细解释或具体约定，如 “仅限上海市官方发布的初中升学信息”、“发布日期在2025年1月1日之后且金额100万以上的“等
+- focuspoint, 关注点描述（必填），如"上海小升初信息"、"招标通知"
+- explanation，关注点的详细解释或具体约定，如 "仅限上海市官方发布的初中升学信息"、"发布日期在2025年1月1日之后且金额100万以上的"等
 - activated, 是否激活。如果关闭则会忽略该关注点，关闭后可再次开启
 - per_hour, 爬取频率，单位为小时，类型为整数（1~24范围，我们建议扫描频次不要超过一天一次，即设定为24）
 - search_engine, 每次爬取是否开启搜索引擎
@@ -306,7 +382,7 @@ PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 
    - Javascript : https://pocketbase.io/docs/js-overview/
    - python : https://github.com/vaphes/pocketbase
   
-3、在线服务也即将推出 sync api，支持将在线抓取结果同步本地，用于构建”动态知识库“等，敬请关注：
+3、在线服务也即将推出 sync api，支持将在线抓取结果同步本地，用于构建"动态知识库"等，敬请关注：
 
   - 在线体验地址：https://www.aiqingbaoguan.com/ 
   - 在线服务 API 使用案例：https://github.com/TeamWiseFlow/wiseflow_plus
