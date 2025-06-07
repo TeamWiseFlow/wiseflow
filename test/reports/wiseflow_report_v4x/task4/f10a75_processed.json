@@ -1,0 +1,17 @@
+{
+    "url": "https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Fproduct-reviews%2FB0CHGT1KFJ%2Fref%3Dcm_cr_arp_d_viewopt_srt%3Fie%3DUTF8%26reviewerType%3Dall_reviews%26sortBy%3Drecent%26pageNumber%3D1&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&language=zh_CN&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0",
+    "markdown": "__[1]\n#  登录或创建帐户 \n输入手机号码或电子邮件地址 \n继续操作即表示您同意亚马逊的使用条件[2]和隐私声明[3]。 \n  * 需要帮助？[4]\n\n* * *\n是否为公务进行采购？ \n创建免费企业账户[5]\n使用条件[6] 隐私声明[7] 帮助[8]\n© 1996-2025, Amazon.com, Inc.或其附属公司",
+    "link_dict": {
+        "[1]": "https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Fproduct-reviews%2FB0CHGT1KFJ%2Fref%3Dcm_cr_arp_d_viewopt_srt%3Fie%3DUTF8%26reviewerType%3Dall_reviews%26sortBy%3Drecent%26pageNumber%3D1&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&language=zh_CN&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0",
+        "[2]": "https://www.amazon.com/-/zh/gp/help/customer/display.html/ref=ap_signin_notification_condition_of_use?ie=UTF8&nodeId=508088",
+        "[3]": "https://www.amazon.com/-/zh/gp/help/customer/display.html/ref=ap_signin_notification_privacy_notice?ie=UTF8&nodeId=468496",
+        "[4]": "https://www.amazon.com/-/zh/gp/help/customer/account-issues/ref=unified_claim_collection?ie=UTF8",
+        "[5]": "https://www.amazon.com/-/zh/business/register/org/landing?ref_=ab_reg_signin_unifiedauth",
+        "[6]": "https://www.amazon.com/-/zh/gp/help/customer/display.html/ref=ap_desktop_footer_cou?ie=UTF8&nodeId=508088",
+        "[7]": "https://www.amazon.com/-/zh/gp/help/customer/display.html/ref=ap_desktop_footer_privacy_notice?ie=UTF8&nodeId=468496",
+        "[8]": "https://www.amazon.com/-/zh/help"
+    },
+    "title": null,
+    "author": null,
+    "published_date": ""
+}

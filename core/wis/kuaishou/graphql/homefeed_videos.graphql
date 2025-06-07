@@ -1,0 +1,116 @@
+fragment photoContent on PhotoEntity {
+  __typename
+  id
+  duration
+  caption
+  originCaption
+  likeCount
+  viewCount
+  commentCount
+  realLikeCount
+  coverUrl
+  photoUrl
+  photoH265Url
+  manifest
+  manifestH265
+  videoResource
+  coverUrls {
+    url
+    __typename
+  }
+  timestamp
+  expTag
+  animatedCoverUrl
+  distance
+  videoRatio
+  liked
+  stereoType
+  profileUserTopPhoto
+  musicBlocked
+  riskTagContent
+  riskTagUrl
+}
+
+fragment recoPhotoFragment on recoPhotoEntity {
+  __typename
+  id
+  duration
+  caption
+  originCaption
+  likeCount
+  viewCount
+  commentCount
+  realLikeCount
+  coverUrl
+  photoUrl
+  photoH265Url
+  manifest
+  manifestH265
+  videoResource
+  coverUrls {
+    url
+    __typename
+  }
+  timestamp
+  expTag
+  animatedCoverUrl
+  distance
+  videoRatio
+  liked
+  stereoType
+  profileUserTopPhoto
+  musicBlocked
+  riskTagContent
+  riskTagUrl
+}
+
+fragment feedContent on Feed {
+  type
+  author {
+    id
+    name
+    headerUrl
+    following
+    headerUrls {
+      url
+      __typename
+    }
+    __typename
+  }
+  photo {
+    ...photoContent
+    ...recoPhotoFragment
+    __typename
+  }
+  canAddComment
+  llsid
+  status
+  currentPcursor
+  tags {
+    type
+    name
+    __typename
+  }
+  __typename
+}
+
+fragment photoResult on PhotoResult {
+  result
+  llsid
+  expTag
+  serverExpTag
+  pcursor
+  feeds {
+    ...feedContent
+    __typename
+  }
+  webPageArea
+  __typename
+}
+
+query brilliantTypeDataQuery($pcursor: String, $hotChannelId: String, $page: String, $webPageArea: String) {
+  brilliantTypeData(pcursor: $pcursor, hotChannelId: $hotChannelId, page: $page, webPageArea: $webPageArea) {
+    ...photoResult
+    __typename
+  }
+}

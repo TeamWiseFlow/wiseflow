@@ -1,196 +1,402 @@
 # -*- coding: utf-8 -*-
-from utils.pb_api import PbTalker
-from utils.general_utils import get_logger, extract_and_convert_dates, is_chinese, isURL
-from agents.get_info import *
-import json
-from scrapers import *
-from utils.jina_search import search_with_jina
-from urllib.parse import urlparse
-from crawl4ai import AsyncWebCrawler, CacheMode
-from datetime import datetime
-import feedparser
+from async_logger import wis_logger, base_directory
+from typing import List, Dict, Tuple
+from wis.utils import get_base_domain
+import time, pickle
+import asyncio
+from custom_processes import *
+from tools.jina_search import search_with_jina
+from tools.rss_parsor import fetch_rss
+import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from wis import (
+    AsyncWebCrawler,
+    LLMExtractionStrategy,
+    KUAISHOU_PLATFORM_NAME,
+    WEIBO_PLATFORM_NAME,
+    MaxLengthChunking,
+    markdown_generation_hub,
+    DefaultMarkdownGenerator,
+    ExtractionStrategy,
+    NoExtractionStrategy,
+    LLMExtractionStrategy,
+    ChunkingStrategy,
+    IdentityChunking,
+    MaxLengthChunking,
+    CrawlResult
+)
+from web_crawler_configs import crawler_config_map
+from wis.config import MAX_URLS_PER_TASK
+from tools.general_utils import Recorder
 
 
-project_dir = os.environ.get("PROJECT_DIR", "")
-if project_dir:
-    os.makedirs(project_dir, exist_ok=True)
-
-wiseflow_logger = get_logger('wiseflow', project_dir)
-pb = PbTalker(wiseflow_logger)
-
-model = os.environ.get("PRIMARY_MODEL", "")
-if not model:
-    raise ValueError("PRIMARY_MODEL not set, please set it in environment variables or edit core/.env")
-secondary_model = os.environ.get("SECONDARY_MODEL", model)
-
-
-async def info_process(url: str, 
-                       url_title: str, 
-                       author: str, 
-                       publish_date: str, 
-                       contents: list[str], 
-                       link_dict: dict, 
-                       focus_id: str,
-                       get_info_prompts: list[str]):
-    wiseflow_logger.debug('info summarising by llm...')
-    infos = await get_info(contents, link_dict, get_info_prompts, author, publish_date, _logger=wiseflow_logger)
-    if infos:
-        wiseflow_logger.debug(f'get {len(infos)} infos, will save to pb')
-
-    for info in infos:
-        info['url'] = url
-        info['url_title'] = url_title
-        info['tag'] = focus_id
-        _ = pb.add(collection_name='infos', body=info)
-        if not _:
-            wiseflow_logger.error('add info failed, writing to cache_file')
-            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-            with open(os.path.join(project_dir, f'{timestamp}_cache_infos.json'), 'w', encoding='utf-8') as f:
-                json.dump(info, f, ensure_ascii=False, indent=4)
-
-
-async def main_process(focus: dict, sites: list):
-    wiseflow_logger.debug('new task initializing...')
-    focus_id = focus["id"]
-    focus_point = focus["focuspoint"].strip()
-    explanation = focus["explanation"].strip() if focus["explanation"] else ''
-    wiseflow_logger.debug(f'focus_id: {focus_id}, focus_point: {focus_point}, explanation: {explanation}, search_engine: {focus["search_engine"]}')
-    existing_urls = {url['url'] for url in pb.read(collection_name='infos', fields=['url'], filter=f"tag='{focus_id}'")}
-    sites_urls = {site['url'] for site in sites}
-    focus_statement = f"{focus_point}"
-    date_stamp = datetime.now().strftime('%Y-%m-%d')
-    if is_chinese(focus_point):
-        focus_statement = f"{focus_statement}\n注：{explanation}（今天日期是{date_stamp}）"
-    else:
-        focus_statement = f"{focus_statement}\nNote: {explanation}(today is {date_stamp})"
-
-    if is_chinese(focus_statement):
-        get_link_sys_prompt = get_link_system.replace('{focus_statement}', focus_statement)
-        # get_link_sys_prompt = f"今天的日期是{date_stamp}，{get_link_sys_prompt}"
-        get_link_suffix_prompt = get_link_suffix
-        get_info_sys_prompt = get_info_system.replace('{focus_statement}', focus_statement)
-        # get_info_sys_prompt = f"今天的日期是{date_stamp}，{get_info_sys_prompt}"
-        get_info_suffix_prompt = get_info_suffix
-    else:
-        get_link_sys_prompt = get_link_system_en.replace('{focus_statement}', focus_statement)
-        # get_link_sys_prompt = f"today is {date_stamp}, {get_link_sys_prompt}"
-        get_link_suffix_prompt = get_link_suffix_en
-        get_info_sys_prompt = get_info_system_en.replace('{focus_statement}', focus_statement)
-        # get_info_sys_prompt = f"today is {date_stamp}, {get_info_sys_prompt}"
-        get_info_suffix_prompt = get_info_suffix_en
+def get_existings_for_focus(focus_id: str) -> dict:
+    visited_record_dir = os.path.join(base_directory, ".wis", "visited_record", focus_id)
+    if not os.path.exists(visited_record_dir):
+        os.makedirs(visited_record_dir, exist_ok=True)
+        return {"web": set(), KUAISHOU_PLATFORM_NAME: set(), WEIBO_PLATFORM_NAME: set()}
     
-    get_link_prompts = [get_link_sys_prompt, get_link_suffix_prompt, secondary_model]
-    get_info_prompts = [get_info_sys_prompt, get_info_suffix_prompt, model]
+    existings = {}
+    for name in ["web", KUAISHOU_PLATFORM_NAME, WEIBO_PLATFORM_NAME]:
+        file_path = os.path.join(visited_record_dir, f"{name}.pkl")
+        if not os.path.exists(file_path):
+            existings[name] = set()
+            continue
+        with open(file_path, "rb") as f:
+            existings[name] = pickle.load(f)
 
-    working_list = set()
-    if focus.get('search_engine', False):
-        query = focus_point if not explanation else f"{focus_point}({explanation})"
-        search_results = await search_with_jina(query, _logger=wiseflow_logger)
-        search_urls = {d['url'] for d in search_results if d.get('url', '') and isURL(d['url'])}
-        wiseflow_logger.info(f'get {len(search_urls)} urls from Jina search engine')
-        working_list.update(search_urls - existing_urls)
+    return existings
 
-    recognized_img_cache = {}
-    for site in sites:
-        if site.get('type', 'web') == 'rss':
+def save_existings_for_focus(focus_id: str, existings: dict) -> None:
+    """
+    Save existings data to local files using thread pool
+    
+    Args:
+        focus_id: The focus ID
+        existings: Dictionary containing platform names as keys and sets as values
+    """
+    if not existings:
+        return
+    
+    visited_record_dir = os.path.join(base_directory, ".wis", "visited_record", focus_id)
+    if not os.path.exists(visited_record_dir):
+        os.makedirs(visited_record_dir, exist_ok=True)
+    
+    def save_platform_data(platform_name: str, data: set) -> None:
+        """Save data for a single platform"""
+        file_path = os.path.join(visited_record_dir, f"{platform_name}.pkl")
+        with open(file_path, "wb") as f:
+            pickle.dump(data, f)
+        # wis_logger.debug(f"Saved {len(data)} items for platform '{platform_name}' to {file_path}")
+    
+    # Use thread pool to save data concurrently
+    with ThreadPoolExecutor(max_workers=len(existings)) as executor:
+        futures = []
+        for platform_name, data in existings.items():
+            if isinstance(data, set):
+                future = executor.submit(save_platform_data, platform_name, data)
+                futures.append(future)
+            else:
+                wis_logger.warning(f"Skipping platform '{platform_name}' for focus {focus_id}: data is not a set")
+        
+        # Wait for all tasks to complete
+        for future in as_completed(futures):
             try:
-                feed = feedparser.parse(site['url'])
+                future.result()
             except Exception as e:
-                wiseflow_logger.warning(f"{site['url']} RSS feed is not valid: {e}")
-                continue
-            rss_urls = {entry.link for entry in feed.entries if entry.link and isURL(entry.link)}
-            wiseflow_logger.debug(f'get {len(rss_urls)} urls from rss source {site["url"]}')
-            working_list.update(rss_urls - existing_urls)
-        else:
-            if site['url'] not in existing_urls and isURL(site['url']):
-                working_list.add(site['url'])
+                wis_logger.error(f" ✗ Error saving platform data for focus {focus_id}: {e}")
 
-    crawler = AsyncWebCrawler(config=browser_cfg)
-    await crawler.start()
-    while working_list:
-        url = working_list.pop()
-        existing_urls.add(url)
-        wiseflow_logger.debug(f'process new url, still {len(working_list)} urls in working list')
-        has_common_ext = any(url.lower().endswith(ext) for ext in common_file_exts)
-        if has_common_ext:
-            wiseflow_logger.debug(f'{url} is a common file, skip')
-            continue
-
-        parsed_url = urlparse(url)
-        existing_urls.add(f"{parsed_url.scheme}://{parsed_url.netloc}")
-        existing_urls.add(f"{parsed_url.scheme}://{parsed_url.netloc}/")
-        domain = parsed_url.netloc
-            
-        crawler_config.cache_mode = CacheMode.WRITE_ONLY if url in sites_urls else CacheMode.ENABLED
-        result = await crawler.arun(url=url, config=crawler_config)
-        if not result.success:
-            wiseflow_logger.warning(f'{url} failed to crawl')
-            continue
-        metadata_dict = result.metadata if result.metadata else {}
-
-        if domain in custom_scrapers:
-            result = custom_scrapers[domain](result)
-            raw_markdown = result.content
-            used_img = result.images
-            title = result.title
-            if title == 'maybe a new_type_article':
-                wiseflow_logger.warning(f'we found a new type here,{url}\n{result}')
-            base_url = result.base
-            author = result.author
-            publish_date = result.publish_date
-        else:
-            raw_markdown = result.markdown
-            media_dict = result.media if result.media else {}
-            used_img = [d['src'] for d in media_dict.get('images', [])]
-            title = ''
-            base_url = ''
-            author = ''
-            publish_date = ''
-        if not raw_markdown:
-            wiseflow_logger.warning(f'{url} no content\n{result}\nskip')
-            continue
-        wiseflow_logger.debug('data preprocessing...')
-        if not title:
-            title = metadata_dict.get('title', '')
-        if not base_url:
-            base_url = metadata_dict.get('base', '')
-        if not base_url:
-            base_url = f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}"
-
-        if not author:
-            author = metadata_dict.get('author', '')
-        if not publish_date:
-            publish_date = metadata_dict.get('publish_date', '')
-
-        link_dict, links_parts, contents, recognized_img_cache = await pre_process(raw_markdown, base_url, used_img, recognized_img_cache, existing_urls)
-
-        if link_dict and links_parts:
-            wiseflow_logger.debug('links_parts exists, more links detecting...')
-            links_texts = []
-            for _parts in links_parts:
-                links_texts.extend(_parts.split('\n\n'))
-            more_url = await get_more_related_urls(links_texts, link_dict, get_link_prompts, _logger=wiseflow_logger)
-            if more_url:
-                wiseflow_logger.debug(f'get {len(more_url)} more related urls, will add to working list')
-                working_list.update(more_url - existing_urls)
-            
-        if not contents:
-            continue
-
-        if not author or author.lower() == 'na' or not publish_date or publish_date.lower() == 'na':
-            wiseflow_logger.debug('no author or publish date from metadata, will try to get by llm')
-            main_content_text = re.sub(r'!\[.*?]\(.*?\)', '', raw_markdown)
-            main_content_text = re.sub(r'\[.*?]\(.*?\)', '', main_content_text)
-            alt_author, alt_publish_date = await get_author_and_publish_date(main_content_text, model, _logger=wiseflow_logger)
-            if not author or author.lower() == 'na':
-                author = alt_author if alt_author else parsed_url.netloc
-            if not publish_date or publish_date.lower() == 'na':
-                publish_date = alt_publish_date if alt_publish_date else ''
-
-        publish_date = extract_and_convert_dates(publish_date)
-
-        await info_process(url, title, author, publish_date, contents, link_dict, focus_id, get_info_prompts)
-
-    await crawler.close()
-    wiseflow_logger.debug(f'task finished, focus_id: {focus_id}')
+def scrap_article(article: CrawlResult, 
+                  extractor: ExtractionStrategy = None, 
+                  chunking: ChunkingStrategy = None) -> Tuple[CrawlResult, bool, List[Dict]]:
     
+    article_updated = False
+    url = article.url
+    html = article.html
+    cleaned_html = article.cleaned_html
+    markdown = article.markdown
+    link_dict = article.link_dict
+    metadata = article.metadata
+  
+    if not extractor or isinstance(extractor, NoExtractionStrategy):
+        return article, article_updated, []
+
+    t1 = time.perf_counter()
+    if not isinstance(extractor, LLMExtractionStrategy):
+        # Choose content based on input_format
+        content_format = extractor.input_format
+        if content_format in ["fit_html", "cleaned_html"]:
+            content = cleaned_html
+        else:
+            content = html
+        
+        if not content:
+            wis_logger.info(f"{url} has no required content to extract, skip")
+            return article, article_updated, []
+
+        chunking = chunking or IdentityChunking()
+        sections = chunking.chunk(content)
+        extracted_content = extractor.run(url, sections)
+
+        # Log extraction completion
+        wis_logger.debug(f"[EXTRACT] ✓ {url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
+        return article, article_updated, extracted_content
+        
+    # if use LLMExtractionStrategy, then we need to generate markdown
+    if not markdown:
+        if not html and not cleaned_html:
+            wis_logger.info(f"{url} has no markdown,cleaned_html or html, skip")
+            return article, article_updated, []
+        
+        domain = get_base_domain(url)
+        markdown_generator = markdown_generation_hub.get(domain, DefaultMarkdownGenerator)()
+        error_msg, title, author, publish, markdown, link_dict = markdown_generator.generate_markdown(
+            raw_html=html,
+            cleaned_html=cleaned_html,
+            base_url=url,
+            metadata=metadata,
+        )
+        if error_msg:
+            wis_logger.error(f"[HTML TO MARKDOWN] ✗ {url}\n{error_msg}")
+            return article, article_updated, []
+        
+        wis_logger.debug(f"[HTML TO MARKDOWN] ✓ {url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
+        if not article.title:
+            article.title = title
+        if not article.author:
+            article.author = author
+        if not article.publish_date:
+            article.publish_date = publish
+        article.link_dict = link_dict
+        article.markdown = markdown
+        article_updated = True
+
+    t1 = time.perf_counter()
+    if not chunking:
+        chunking = MaxLengthChunking()
+    sections = chunking.chunk(article.markdown)
+    extracted_content = extractor.run(sections=sections,
+                                      url=url,
+                                      title=article.title,
+                                      author=article.author,
+                                      publish_date=article.publish_date,
+                                      mode='both' if article.link_dict else 'only_info',
+                                      link_dict=article.link_dict)
+    wis_logger.debug(f"[EXTRACT] ✓ {url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
+    return article, article_updated, extracted_content
+
+async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manager=None):
+    # 0. prepare the work
+    focus_id = focus["id"]
+    wis_logger.info(f'new task initializing, focus_id: {focus_id}')
+    focuspoint = focus["focuspoint"].strip()
+    restrictions = focus["restrictions"].strip() if focus["restrictions"] else ''
+    explanation = focus["explanation"].strip() if focus["explanation"] else ''
+    search = focus['search']
+    if search:
+        # TODO: use a llm to generate the query
+        query = [focuspoint]
+    else:
+        query = []
+
+    wis_logger.debug(f'focus_id: {focus_id}, focus_point: {focuspoint}, search mode: {search} with keywords: {query}')
+
+    existings = get_existings_for_focus(focus_id)
+    recorder = Recorder(focus_id=focuspoint, max_urls_per_task=MAX_URLS_PER_TASK)
+    extractor = LLMExtractionStrategy(
+        focuspoint=focuspoint,
+        restrictions=restrictions,
+        explanation=explanation,
+        verbose=os.getenv("VERBOSE", False),
+        logger=wis_logger
+    )
+
+    # 1. get the posts list from the sources (to parse more related urls)
+    tasks = set()
+    def wrap_task(coro, meta):
+        async def wrapper():
+            result = await coro
+            return meta, result
+        return asyncio.create_task(wrapper())
+
+    for source in sources:
+        if source['type'] == 'rss':
+            if not source.get('url'):
+                wis_logger.warning(f"focus {focus_id} has unvalid rss source {source['id']}: has no url, skip")
+                continue
+            tasks.add(wrap_task(fetch_rss(source['url'], existings['web']), ('rss', source['url'])))
+            recorder.rss_source += 1
+
+        elif source['type'] == KUAISHOU_PLATFORM_NAME:
+            creators = source.get('creators', '') or ''
+            if not creators:
+                creator_ids = []
+            elif ',' in creators:
+                creator_ids = [_id.strip() for _id in creators.split(',')]
+            elif '，' in creators:
+                creator_ids = [_id.strip() for _id in creators.split('，')]
+            else:
+                creator_ids = [creators]
+            
+            if not search and not creator_ids:
+                continue
+
+            if not crawlers[KUAISHOU_PLATFORM_NAME]:
+                wis_logger.info(f"focus {focus_id} got {KUAISHOU_PLATFORM_NAME} source, but no valid crawler, skip")
+                continue
+
+            kwags = {"keywords": query, "existings": existings[KUAISHOU_PLATFORM_NAME], "creator_ids": creator_ids}
+            tasks.add(wrap_task(crawlers[KUAISHOU_PLATFORM_NAME].posts_list(**kwags), (KUAISHOU_PLATFORM_NAME, KUAISHOU_PLATFORM_NAME)))
+                
+        elif source['type'] == WEIBO_PLATFORM_NAME:
+            creators = source.get('creators', '') or ''
+            if not creators:
+                creator_ids = []
+            elif ',' in creators:
+                creator_ids = [_id.strip() for _id in creators.split(',')]
+            elif '，' in creators:
+                creator_ids = [_id.strip() for _id in creators.split('，')]
+            else:
+                creator_ids = [creators]
+
+            if not search and not creator_ids:
+                continue
+
+            if not crawlers[WEIBO_PLATFORM_NAME]:
+                wis_logger.info(f"focus {focus_id} got {WEIBO_PLATFORM_NAME} source, but no valid crawler, skip")
+                continue
+
+            kwags = {"keywords": query, "existings": existings[WEIBO_PLATFORM_NAME], "creator_ids": creator_ids}
+            tasks.add(wrap_task(crawlers[WEIBO_PLATFORM_NAME].posts_list(**kwags), (WEIBO_PLATFORM_NAME, WEIBO_PLATFORM_NAME)))
+
+        elif source['type'] == 'web':
+            if not source.get('url'):
+                wis_logger.warning(f"focus {focus_id} has unvalid web source {source['id']}: has no url, skip")
+                continue
+            # source website always be added to url_queue
+            recorder.add_url(source['url'], 'web')
+            recorder.web_source += 1
+        else:
+            wis_logger.warning(f"focus {focus_id} has unvalid source {source['id']}: has no type, skip")
+            continue
+    
+    posts = []
+    t1 = time.perf_counter()
+    for coro in asyncio.as_completed(tasks):
+        (task_type, source_name), result = await coro
+        _from = f'from {task_type} source: {source_name}'
+        if task_type == 'rss':
+            results, markdown, link_dict = result
+            if results:
+                recorder.article_queue.extend(results)
+                if 'rss' not in recorder.item_source:
+                    recorder.item_source['rss'] = 0
+                recorder.item_source['rss'] += len(results)
+                for result in results:
+                    await db_manager.cache_url(result)
+            if markdown:
+                wis_logger.debug(f'{_from} get {len(link_dict)} posts for focus {focus_id}, need to be extracted further...')
+                posts.append((markdown, link_dict, 'web'))
+        else:
+            markdown, link_dict = result
+            wis_logger.debug(f'{_from} get {len(link_dict)} posts for focus {focus_id}, need to be extracted further...')
+            posts.append((markdown, link_dict, source_name))
+            if source_name not in recorder.mc_count:
+                recorder.mc_count[source_name] = 0
+            recorder.mc_count[source_name] += len(link_dict)
+    
+    # 2. fetching mediacrawler posts and analyzing search engine results
+    chunking = MaxLengthChunking()
+    def wrap_post_task(post):
+        def wrapper():
+            markdown, link_dict, source_name = post
+            sections = chunking.chunk(markdown)
+            result = extractor.run(sections=sections, mode='only_link', link_dict=link_dict)
+            related_urls = set()
+            for more in result:
+                related_urls.update(more['links'])
+            all_urls = set(link_dict.values())
+            return source_name, related_urls, all_urls - related_urls
+        return wrapper
+
+    if posts:
+        tasks = set()
+        with ThreadPoolExecutor(max_workers=min(int(os.getenv("CONCURRENT_NUMBER", 12)), len(posts))) as executor:
+            futures = [executor.submit(wrap_post_task(post)) for post in posts]
+            for future in as_completed(futures):
+                try:
+                    source_name, related_urls, un_related_urls = future.result()
+                    if source_name == 'web':
+                        recorder.add_url(related_urls - existings['web'], 'rss')
+                        existings['web'].update(un_related_urls)
+                    elif source_name == WEIBO_PLATFORM_NAME:
+                        existings[WEIBO_PLATFORM_NAME].update(un_related_urls)
+                        for note in un_related_urls:
+                            if f"https://m.weibo.cn/detail/{note}" in existings['web']:
+                                continue
+                            tasks.add(asyncio.create_task(crawlers[WEIBO_PLATFORM_NAME].post_as_article(note)))
+                            if 'wb' not in recorder.item_source:
+                                recorder.item_source['wb'] = 0
+                            recorder.item_source['wb'] += 1
+                    elif source_name == KUAISHOU_PLATFORM_NAME:
+                        existings[KUAISHOU_PLATFORM_NAME].update(un_related_urls)
+                        for video in un_related_urls:
+                            if f"https://www.kuaishou.com/short-video/{video}" in existings['web']:
+                                continue
+                            tasks.add(asyncio.create_task(crawlers[KUAISHOU_PLATFORM_NAME].video_as_article(video)))
+                            if 'ks' not in recorder.item_source:
+                                recorder.item_source['ks'] = 0
+                            recorder.item_source['ks'] += 1
+                except Exception as e:
+                    wis_logger.error(f"Error Extracting Post List: {e}")
+                    continue
+
+        save_existings_for_focus(focus_id, existings)
+
+        for coro in asyncio.as_completed(tasks):
+            article = await coro
+            if article:
+                recorder.article_queue.append(article)
+            else:
+                recorder.crawl_failed += 1
+                recorder.total_processed += 1
+    
+    if search:
+        search_results = await search_with_jina(query[0], existings['web'])
+        if search_results:
+            recorder.add_url(search_results, 'search_engine')
+
+    wis_logger.debug(f"[SOURCE FINDING] ✓ finished for focus {focus_id}, time cost: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
+    wis_logger.info(f"\n{recorder.source_summary()}\n")
+    
+    # 3. tik-tok style processing: 
+    # use multiple threads to scrape the articles -- get more related urls add to to_crawl_urls...
+    # use asyncio loop to crawl the urls -- get articles -- add to to_scrap_articles..
+    while not recorder.finished():
+        if recorder.article_queue:
+            t1 = time.perf_counter()
+            with ThreadPoolExecutor(max_workers=min(int(os.getenv("CONCURRENT_NUMBER", 12)), len(recorder.article_queue))) as executor:
+                futures = [executor.submit(scrap_article, article, extractor, chunking) for article in recorder.article_queue]
+                # processed_urls = set()  # 收集成功处理的 URL
+                for future in as_completed(futures):
+                    recorder.total_processed += 1
+                    try:
+                        article, article_updated, results = future.result()
+                        # processed_urls.add(article.url)  # 记录成功处理的 URL
+                        if article_updated:
+                            await db_manager.cache_url(article)
+                        for result in results:
+                            recorder.add_url(result['links'] - existings['web'], 'article')
+                            for info in result['infos']:
+                                await db_manager.add_info(focuspoint_id=focus_id, **info)
+                                recorder.info_added += 1
+                        existings['web'].add(article.url)
+                        if article.redirected_url:
+                            existings['web'].add(article.redirected_url)
+                        recorder.successed += 1
+                    except Exception as e:
+                        wis_logger.error(f"[EXTRACT] ✗ failed to process article: {e}")
+                        recorder.scrap_failed += 1
+                        continue
+
+            save_existings_for_focus(focus_id, existings)
+            # 只保留未成功处理的 articles，失败的会在下次循环重试
+            recorder.article_queue = []
+            wis_logger.debug(f"[BATCH SCRAPING] ✓ finished for focus {focus_id}, time cost: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
+
+        if recorder.url_queue:
+            wis_logger.debug(f"focus {focus_id} still have {len(recorder.url_queue)} urls to crawl")
+            # for each loop we use a new context for better memory usage and avoid potiential problems
+            async with AsyncWebCrawler(crawler_config_map=crawler_config_map, db_manager=db_manager) as crawler:
+                async for result in await crawler.arun_many(list(recorder.url_queue)):
+                    if result and result.success:
+                        recorder.article_queue.append(result)
+                    else:
+                        recorder.crawl_failed += 1
+                        recorder.total_processed += 1
+            recorder.processed_urls.update(recorder.url_queue)
+            recorder.url_queue.clear()
+
+        wis_logger.info(f"\n{recorder.scrap_summary()}\n")
+        extractor.show_usage()
+        wis_logger.debug("========================================")
