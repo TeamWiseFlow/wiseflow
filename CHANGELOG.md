@@ -1,3 +1,50 @@
+# v4.0.0
+
+- 深度重构 Crawl4ai（0.6.3）和 MediaCrawler， 并整合引入 Nodriver，大幅提升获取能力，支持社交平台内容获取（4.0版本提供对微博和快手平台的支持）；
+
+  Deeply refactored Crawl4ai (0.6.3) and MediaCrawler, integrated Nodriver, significantly enhanced content acquisition capabilities, supporting social media platform content retrieval (version 4.0 provides support for Weibo and Kuaishou platforms);
+
+- 全新的架构，混合使用异步和线程池，大大提升处理效率（同时降低内存消耗）；
+
+  New architecture utilizing a hybrid approach of async and thread pools, greatly improving processing efficiency (while reducing memory consumption);
+
+- 继承了 Crawl4ai 0.6.3 版本的 dispacher 能力，提供更精细的内存管理能力；
+
+  Inherited the dispatcher capabilities from Crawl4ai 0.6.3 version, providing more refined memory management capabilities;
+
+- 深度整合了 3.9 版本中的 Pre-Process 和 Crawl4ai 的 Markdown Generation流程， 规避了重复处理；
+
+  Deeply integrated the Pre-Process from version 3.9 and Crawl4ai's Markdown Generation process, avoiding duplicate processing;
+
+- 放弃了通过 pocketbase 的api 进行数据库操作，改为直接读写 sqlite 数据库，因此无需用户在 .env 中提供pocketbase的账密，也规避了登录过期导致数据库无法读写，从而产生大量日志的隐患；
+
+  Abandoned database operations through PocketBase API, switched to direct SQLite database read/write, eliminating the need for users to provide PocketBase credentials in .env, and avoiding the risk of database read/write failures due to login expiration that could generate excessive logs;
+
+- 优化 llm 处理策略，更加符合思考模型的特性；
+
+  Optimized LLM processing strategy to better align with the characteristics of thinking models;
+
+- 优化了对 RSS 信源的支持；
+
+  Enhanced support for RSS sources;
+
+- 优化了代码仓文件结构，更加清晰且符合当代 python 项目规范；
+
+  Optimized repository file structure, making it clearer and more compliant with contemporary Python project standards;
+
+- 改为使用 uv 进行依赖管理，并优化了 requirement.txt 文件；
+
+  Switched to using uv for dependency management and optimized the requirement.txt file;
+
+- 优化了启动脚本（提供提供 windows 版本），真正做到"一键启动"；
+
+  Optimized startup scripts (including Windows version), achieving true "one-click startup";
+
+- 优化了日志输出，增加 recorder 总结，并提供更精细化的日志输出控制。
+
+  Enhanced log output, added recorder summaries, and provided more granular log output control.
+
+
 # v3.9-patch3
 
 - 更改版本号命名规则
@@ -134,7 +181,7 @@
   
   Introduce Crawlee (playwright module), significantly enhancing general crawling capabilities and adapting to real-world task;
 
-- 完全重写了信息提取模块，引入“爬-查一体”策略，你关注的才是你想要的；
+- 完全重写了信息提取模块，引入"爬-查一体"策略，你关注的才是你想要的；
 
   Completely rewrote the information extraction module, introducing an "integrated crawl-search" strategy, focusing on what you care about;
 

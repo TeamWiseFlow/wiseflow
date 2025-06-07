@@ -177,7 +177,7 @@ function Main {
     Download-PocketBase
     Configure-AdminAccount
     Create-AdminAccount
-    Configure-Environment
+    # Configure-Environment # wisflow4.0 will not use this
     Write-Host "PocketBase installation completed!" -ForegroundColor Green
 }
 

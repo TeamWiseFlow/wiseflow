@@ -1,0 +1,411 @@
+focus statement: 
+{'focuspoint': '混凝土搅拌站在国内，海外的最新产品，市场，技术趋势', 'explanation': ''}
+
+raw materials: e2d679_processed.json
+
+model: Qwen/Qwen3-14B
+time cost: 13.653s
+tokens usage: 5941 (completion: 893, prompt: 5048)
+
+hallucination times: 0
+hallucination rate: 0.0 %
+
+related urls: 
+1. 再攀新高！中联重科发布风电动臂塔机[161]
+中联重科矿山机械成套设备重磅发布引领大型化电动化无人化新未来[163]
+Bauma 2025丨全球机械盛宴即将开幕 中联重科近70款展品盛大参展[164]
+bauma CHINA 2024丨高端精品荟聚全球客商云集 中联重科尽展中国智造国际风采[165]
+实至名归！中联重科7款产品荣登CMIIC2024明星产品榜单[166]
+持续领跑！中联重科高质量发展成果闪耀2024全球工程机械50强峰会[167]
+实力认证！中联重科多家子公司入选湖南省制造业单项冠军企业[168]
+“中联重科亮相央视龙年春晚”获行业**佳品牌传播奖[169]
+标杆工厂认定+1，中联重科泵送机械5G智能工厂“智”领行业发展[170]
+首届法兰克福中欧企业ESG**佳案例大会成功举办 中联重科获奖[171]
+
+
+related infos: 
+1. The main-content does not contain explicit information about concrete mixing stations, their latest products, market trends, or technological advancements. The content primarily highlights other machinery such as tower cranes, mining equipment, and participation in international exhibitions, but no direct references to concrete搅拌站 (concrete mixing plants) are found.
+
+
+
+
+model: Qwen/Qwen3-30B-A3B
+time cost: 11.097s
+tokens usage: 6005 (completion: 957, prompt: 5048)
+
+hallucination times: 0
+hallucination rate: NA %
+
+related urls: 
+
+related infos: 
+1. 中联重科在工程机械领域持续推动技术创新，发布多款高端设备如风电动臂塔机、矿山机械成套设备，并参与国际展会如bauma 2025。其技术趋势涵盖新能源、智能化及5G+工业互联网应用，同时通过全球市场布局和行业峰会展示产品竞争力。但具体关于混凝土搅拌站的产品信息未在main-content中提及。
+
+
+
+
+model: Qwen/Qwen3-32B
+time cost: 357.37s
+tokens usage: 6105 (completion: 1057, prompt: 5048)
+
+hallucination times: 0
+hallucination rate: 0.0 %
+
+related urls: 
+1. * 中联重科全球**高216米风电动臂塔机LW2800A-200NA在常德正式发布[161]
+* Bauma 2025丨全球机械盛宴即将开幕 中联重科近70款展品盛大参展[164]
+* bauma CHINA 2024丨高端精品荟聚全球客商云集 中联重科尽展中国智造国际风采[165]
+* 中联重科矿山机械成套设备重磅发布引领大型化电动化无人化新未来[163]
+* 标杆工厂认定+1，中联重科泵送机械5G智能工厂“智”领行业发展[170]
+* 首届法兰克福中欧企业ESG**佳案例大会成功举办 中联重科获奖[171]
+* 混凝土机械[18]
+
+
+related infos: 
+1. 中联重科在混凝土机械领域持续推出创新产品，如全球**高216米风电动臂塔机LW2800A-200NA[161]，并参与2025年德国宝马展（bauma 2025）展示近70款展品[164]，表明其在海外市场的产品布局。同时，中联重科通过“5G+工业互联网”智能工厂[170]和数字化转型[171]推动技术革新，矿山机械的无人化、电动化趋势[163]也反映了行业技术方向。国内方面，其产品在2024上海宝马展中以“绿色·智造”为主题[165]，并入选多项行业奖项[166]，显示市场竞争力。
+
+
+
+
+raw materials: 9692d0_processed.json
+
+model: Qwen/Qwen3-14B
+time cost: 9.378s
+tokens usage: 11225 (completion: 563, prompt: 10662)
+
+hallucination times: 0
+hallucination rate: 0.0 %
+
+related urls: 
+1. 一体式稳定土厂拌站设备 XC400M [58]
+在欧洲、为欧洲！徐工集团携“中国方案”闪耀德国宝马展Bauma 2025 [198]
+徐工全球站 __ [73]
+
+
+related infos: 
+1. The main-content mentions the "一体式稳定土厂拌站设备 XC400M" [58], which is a type of concrete batching plant equipment. Additionally, the news section highlights徐工's activities in international markets, such as their participation in the Bauma 2025 exhibition in Europe [198], indicating overseas product showcases and market presence. The company also emphasizes新能源 (new energy) technologies in construction equipment, which may relate to technological trends in concrete machinery. However, specific details about the latest products, market trends, or technologies for concrete batching plants are not explicitly detailed in the main-content sections.
+
+
+
+
+model: Qwen/Qwen3-30B-A3B
+time cost: 9.762s
+tokens usage: 11537 (completion: 875, prompt: 10662)
+
+hallucination times: 0
+hallucination rate: 0.0 %
+
+related urls: 
+1. * javascript:; - 混凝土机械[93]
+* javascript:; - 快速链接：混凝土机械[159]
+* 一体式稳定土厂拌站设备 XC400M[58]
+* 在欧洲、为欧洲！徐工集团携“中国方案”闪耀德国宝马展Bauma 2025[198]
+* 徐工新能源装载机"青山行"全球巡展首站落子广州[206]
+* 徐工纯电动装载机批量交付华北某钢铁企业集团[200]
+* 混凝土机械[93]
+
+
+related infos: 
+1. 徐工集团在混凝土机械领域有产品布局，包括一体式稳定土厂拌站设备XC400M[58]。同时，徐工在新能源技术方面有显著进展，如新能源连续油管泵车助力古龙页岩油开采，以及纯电动装载机批量交付钢铁企业，体现行业绿色化、智能化趋势。海外市场方面，徐工在欧洲市场通过宝马展展示中国方案，并与江苏省港口集团合作推进近零碳港口建设，涉及新能源设备应用。此外，徐工集团官网提供混凝土机械分类服务，包含智能化产品及海外市场支持。
+
+
+
+
+model: Qwen/Qwen3-32B
+time cost: 43.409s
+tokens usage: 11532 (completion: 870, prompt: 10662)
+
+hallucination times: 0
+hallucination rate: 0.0 %
+
+related urls: 
+1. * 一体式稳定土厂拌站设备 XC400M [58]
+* 在欧洲、为欧洲！徐工集团携“中国方案”闪耀德国宝马展Bauma 2025 [198]
+* 新能源产品 [56]
+* 共拓发展新格局｜徐工集团与招商局集团签署战略合作框架协议 [202]
+* 徐工指数 [5]
+* 徐工全球站 __ [46]
+* 新闻中心 [42]
+* 集团新闻 [181]
+
+
+related infos: 
+1. 徐工集团展示了其最新的混凝土搅拌站产品，例如一体式稳定土厂拌站设备XC400M [58]，并强调了新能源技术的应用（如纯电动装载机XC968-EV [54]）。在海外市场，徐工通过德国宝马展Bauma 2025 [198] 展示了其“中国方案”，推动欧洲低碳化和智能化发展。技术趋势方面，徐工聚焦新能源产品 [56] 和智能化设备 [7]，同时通过战略合作（如与招商局集团 [202]）拓展港口物流等场景的绿色基建应用。
+
+
+
+
+raw materials: 285ed1_processed.json
+
+model: Qwen/Qwen3-14B
+time cost: 15.556s
+tokens usage: 4440 (completion: 477, prompt: 3963)
+
+hallucination times: 0
+hallucination rate: 0.0 %
+
+related urls: 
+1. 混凝土[45]
+采石与混凝土[59]
+采石与混凝土[191]
+
+
+related infos: 
+
+
+
+model: Qwen/Qwen3-30B-A3B
+time cost: 33.009s
+tokens usage: 5117 (completion: 1154, prompt: 3963)
+
+hallucination times: 0
+hallucination rate: 0.0 %
+
+related urls: 
+1. 采石与混凝土[59]
+采石与混凝土[191]
+混凝土[45]
+柳工入选工信部“绿色供应链管理企业” 2025/02/17[138]
+电驱未来 | 钢铁厂掀起环保与效率“绿色旋风”[126]
+
+
+related infos: 
+1. 柳工在混凝土行业提供了相关产品和解决方案，包括“采石与混凝土”行业方案，其技术趋势体现在绿色生产、电动化设备（如电动装载机）以及数智化升级。国内案例中提到江西上饶的渣土公司采购了柳工挖掘机，而海外市场通过柳工全球网站、亚太、欧洲等区域平台扩展。此外，柳工入选工信部“绿色供应链管理企业”并推出大型挖掘机等产品，反映其在环保与高效设备领域的技术发展。
+
+
+
+
+model: Qwen/Qwen3-32B
+time cost: 21.986s
+tokens usage: 4411 (completion: 448, prompt: 3963)
+
+hallucination times: 0
+hallucination rate: 0.0 %
+
+related urls: 
+1. #### 采石与混凝土 查看详情[98]
+
+
+related infos: 
+
+
+
+raw materials: bc8410_processed.json
+
+model: Qwen/Qwen3-14B
+time cost: 3.032s
+tokens usage: 931 (completion: 224, prompt: 707)
+
+hallucination times: 0
+hallucination rate: NA %
+
+related urls: 
+
+related infos: 
+
+
+
+model: Qwen/Qwen3-30B-A3B
+time cost: 16.525s
+tokens usage: 1088 (completion: 381, prompt: 707)
+
+hallucination times: 0
+hallucination rate: NA %
+
+related urls: 
+
+related infos: 
+
+
+
+model: Qwen/Qwen3-32B
+time cost: 315.08s
+tokens usage: 996 (completion: 289, prompt: 707)
+
+hallucination times: 0
+hallucination rate: NA %
+
+related urls: 
+
+related infos: 
+
+
+
+raw materials: 9797c4_processed.json
+
+model: Qwen/Qwen3-14B
+time cost: 46.404s
+tokens usage: 3661 (completion: 1303, prompt: 2358)
+
+hallucination times: 0
+hallucination rate: 0.0 %
+
+related urls: 
+1. Komatsu’s HD1500-8E0 mechanical haul truck built for performance on grade [116]
+Maximizing efficiency in cement and aggregate processing with Komatsu crushing equipment [113]
+
+
+related infos: 
+
+
+
+model: Qwen/Qwen3-30B-A3B
+time cost: 16.466s
+tokens usage: 4036 (completion: 1678, prompt: 2358)
+
+hallucination times: 0
+hallucination rate: 0.0 %
+
+related urls: 
+1. Explore who we are[89]
+Find a location[90]
+Komatsu's HD1500-8E0 mechanical haul truck built for performance on grade[116]
+Dig into the latest[111]
+Komatsu supports reforestation at New River Gorge National Park and Preserve[112]
+Maximizing efficiency in cement and aggregate processing with Komatsu crushing equipment[113]
+Komatsu named a Best of CES winner[114]
+Komatsu celebrates successful internship program with Employ Milwaukee and MKE Tech Hub Coalition[115]
+Komatsu breaks ground on new mining sales and service facility in Mesa, Arizona[116]
+Global Mining Review: MST highlights leadership in enhancing underground mining through digitalization and automation[117]
+Komatsu America Corp. announces CEO transition[118]
+
+
+related infos: 
+1. Komatsu's HD1500-8E0 mechanical haul truck is designed for mining, quarry, and aggregate applications, indicating market presence in aggregate processing. Additionally, there's an article on maximizing efficiency in cement and aggregate processing with Komatsu's crushing equipment, suggesting technical applications in cement processing.
+
+
+
+
+model: Qwen/Qwen3-32B
+time cost: 7.413s
+tokens usage: 2723 (completion: 365, prompt: 2358)
+
+hallucination times: 0
+hallucination rate: 0.0 %
+
+related urls: 
+1. Maximizing efficiency in cement and aggregate processing with Komatsu crushing equipment Operational efficiency Crushing[113]
+
+
+related infos: 
+
+
+
+raw materials: c5fd72_processed.json
+
+model: Qwen/Qwen3-14B
+time cost: 20.02s
+tokens usage: 3163 (completion: 819, prompt: 2344)
+
+hallucination times: 0
+hallucination rate: 0.0 %
+
+related urls: 
+1. Concrete technology[57]
+Premiere: first Liebherr LTM 1110-5.2 with driver assistance systems shipped to Ulferts[89]
+Annual Report 2024[90]
+
+
+related infos: 
+
+
+
+model: Qwen/Qwen3-30B-A3B
+time cost: 18.022s
+tokens usage: 3873 (completion: 1529, prompt: 2344)
+
+hallucination times: 0
+hallucination rate: 0.0 %
+
+related urls: 
+1. Concrete technology[57]
+
+
+related infos: 
+1. The main-content does not contain explicit information about concrete mixing stations, their latest products, market developments, or technical trends. However, the "Concrete technology" product segment [57] is mentioned, which may relate to relevant products or innovations.
+
+
+
+
+model: Qwen/Qwen3-32B
+time cost: 18.107s
+tokens usage: 2687 (completion: 343, prompt: 2344)
+
+hallucination times: 0
+hallucination rate: NA %
+
+related urls: 
+
+related infos: 
+
+
+
+raw materials: a16266_processed.json
+
+model: Qwen/Qwen3-14B
+time cost: 16.287s
+tokens usage: 2749 (completion: 1106, prompt: 1643)
+
+hallucination times: 0
+hallucination rate: 0.0 %
+
+related urls: 
+1. [57] Federal Minister Klara Geywitz's visit to INSTATIQ at BAUMA 2025 highlights the growing importance of automation and robotics for the future of construction. The focus was on the enormous potential of 3D concrete printing to accelerate construction processes...
+[58] Premiere: the first fully electric iONTRON truck-mounted concrete pump with Volvo eTrucks
+[65] # Putzmeister Telebelt
+[66] # Putzmeister Stationary concrete pumps
+[67] # Putzmeister M27-4
+[68] # Putzmeister Solid Pumps
+[69] # The TransMix
+[70] # Putzmeister Truck-Mounted Concrete Pumps
+[71] # Putzmeister iONTRON
+
+
+related infos: 
+1. The main content highlights Putzmeister's concrete pumping products, including electric truck-mounted pumps (iONTRON) and stationary pumps, reflecting advancements in automation and sustainability. News mentions 3D concrete printing as a transformative technology for construction efficiency and addressing labor shortages, alongside the growing emphasis on electric vehicles (e.g., Volvo eTrucks). Market trends include environmental safety concerns (e.g., ash storage disasters) and infrastructure projects. However, specific details about domestic or overseas market data, concrete搅拌站 (batching plants), or broader technical trends beyond automation and electrification are not explicitly detailed in the provided content.
+
+
+
+
+model: Qwen/Qwen3-30B-A3B
+time cost: 81.411s
+tokens usage: 4277 (completion: 2634, prompt: 1643)
+
+hallucination times: 0
+hallucination rate: 0.0 %
+
+related urls: 
+1. Federal Minister Klara Geywitz's visit to INSTATIQ at BAUMA 2025 highlights the growing importance of automation and robotics for the future of construction. [57]
+Premiere: the first fully electric iONTRON truck-mounted concrete pump with Volvo eTrucks [58]
+Putzmeister at Asia's leading Trade Fair for Environmental Technology Solution! [56]
+Tratolixo, Portugal’s largest waste management company, already had two Putzmeister lines and is now adding a third to increase production and as a back-up option. [63]
+
+
+related infos: 
+1. Putzmeister's latest products include the fully electric iONTRON truck-mounted concrete pump, as highlighted in the premiere announcement. The company is active in overseas markets, evidenced by Tratolixo, Portugal’s largest waste management company, expanding its Putzmeister lines. In Asia, Putzmeister participated in a leading Trade Fair for Environmental Technology Solutions, indicating market engagement. Technical trends mentioned include automation, robotics, and 3D concrete printing, emphasizing efficiency and sustainability in construction. Additionally, the Federal Minister's visit to INSTATIQ at BAUMA 2025 underscores advancements in automation and 3D printing for addressing labor shortages and improving construction processes.
+
+
+
+
+model: Qwen/Qwen3-32B
+time cost: 16.276s
+tokens usage: 2443 (completion: 800, prompt: 1643)
+
+hallucination times: 0
+hallucination rate: 0.0 %
+
+related urls: 
+1. [55] Premiere: the first fully electric iONTRON truck-mounted concrete pump with Volvo eTrucks  
+[57] Federal Minister Klara Geywitz's visit to INSTATIQ at BAUMA 2025 highlights the growing importance of automation and robotics for the future of construction.  
+[61] In Liebenau in the German state of Hesse, a new crushing and conveying plant is currently being set up in the Knauf anhydrite mine.  
+[63] Tratolixo, Portugal’s largest waste management company, already had two Putzmeister lines and is now adding a third to increase production and as a back-up option.  
+[59] View All  
+[64] View All
+
+
+related infos: 
+1. The main-content highlights several key developments in concrete batching and pumping technology. Putzmeister's iONTRON is introduced as the first fully electric truck-mounted concrete pump integrated with Volvo eTrucks, reflecting a trend toward electrification and sustainability in construction equipment [55]. The text also mentions 3D concrete printing as a transformative technology for addressing skilled labor shortages and accelerating construction processes, emphasized during a ministerial visit to an exhibition [57]. International market activity is noted, including a new crushing and conveying plant in Germany [61] and expanded operations in Portugal [63]. However, no specific details about domestic (China) products or markets are explicitly mentioned in the provided content.
+
+
+
+

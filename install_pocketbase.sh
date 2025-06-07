@@ -282,7 +282,7 @@ main() {
     fi
     download_pocketbase
     configure_admin
-    configure_env
+    # configure_env # wisflow4.0 will not use this
     echo "PocketBase installation completed!"
 }
 

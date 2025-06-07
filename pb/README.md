@@ -1,4 +1,4 @@
-download https://github.com/pocketbase/pocketbase/releases/download/v0.23.4/
+download https://github.com/pocketbase/pocketbase/releases/download
 
 ```bash
 cd pb
