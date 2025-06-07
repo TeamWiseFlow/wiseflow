@@ -55,11 +55,6 @@ class WeiboCrawler:
                          keywords: List[str],
                          existings: set[str] = set(),
                          creator_ids: List[str] = []) -> Tuple[str, dict]:
-        try:
-            await self.async_initialize()
-        except Exception as e:
-            wis_logger.error(f"initialize weibo crawler failed: {e}")
-            return "", {}
 
         fresh_notes = []
 
@@ -122,6 +117,10 @@ class WeiboCrawler:
             gender = '女' if user_info.get('gender') == "f" else '男'
         except Exception as e:
             wis_logger.error(f"get note_id:{note_id} detail failed: {e}")
+            return None
+        
+        if title == "微博 - 出错了404":
+            wis_logger.warning(f"get note url:{note_url} detail failed: {title}")
             return None
 
         author = f"{nickname} ({user_id}) "
@@ -199,7 +198,6 @@ class WeiboCrawler:
         Returns:
             List[Dict]: List of note items
         """
-        wis_logger.debug("Begin search weibo notes")
         weibo_limit_count = 10  # weibo limit page fixed value
         start_page = START_PAGE
         notes = []
@@ -245,7 +243,7 @@ class WeiboCrawler:
         return notes
 
     async def get_note_info(self, note_id: str) -> Optional[Dict]:
-        # todo should read first from db for cache
+        wis_logger.debug(f"get note_id: {note_id} info ...")
         try:
             return await self.wb_client.get_note_info_by_id(note_id)
         except DataFetchError as ex:

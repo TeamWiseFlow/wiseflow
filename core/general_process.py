@@ -14,7 +14,6 @@ from wis import (
     LLMExtractionStrategy,
     KUAISHOU_PLATFORM_NAME,
     WEIBO_PLATFORM_NAME,
-    MAX_EPOCH,
     MaxLengthChunking,
     markdown_generation_hub,
     DefaultMarkdownGenerator,
@@ -24,9 +23,11 @@ from wis import (
     ChunkingStrategy,
     IdentityChunking,
     MaxLengthChunking,
-    CrawlResult,
+    CrawlResult
 )
 from web_crawler_configs import crawler_config_map
+from wis.config import MAX_URLS_PER_TASK
+from tools.general_utils import Recorder
 
 
 def get_existings_for_focus(focus_id: str) -> dict:
@@ -66,7 +67,7 @@ def save_existings_for_focus(focus_id: str, existings: dict) -> None:
         file_path = os.path.join(visited_record_dir, f"{platform_name}.pkl")
         with open(file_path, "wb") as f:
             pickle.dump(data, f)
-        wis_logger.debug(f"Saved {len(data)} items for platform '{platform_name}' to {file_path}")
+        # wis_logger.debug(f"Saved {len(data)} items for platform '{platform_name}' to {file_path}")
     
     # Use thread pool to save data concurrently
     with ThreadPoolExecutor(max_workers=len(existings)) as executor:
@@ -76,14 +77,14 @@ def save_existings_for_focus(focus_id: str, existings: dict) -> None:
                 future = executor.submit(save_platform_data, platform_name, data)
                 futures.append(future)
             else:
-                wis_logger.warning(f"Skipping platform '{platform_name}': data is not a set")
+                wis_logger.warning(f"Skipping platform '{platform_name}' for focus {focus_id}: data is not a set")
         
         # Wait for all tasks to complete
         for future in as_completed(futures):
             try:
                 future.result()
             except Exception as e:
-                wis_logger.error(f" ✗ Error saving platform data: {e}")
+                wis_logger.error(f" ✗ Error saving platform data for focus {focus_id}: {e}")
 
 def scrap_article(article: CrawlResult, 
                   extractor: ExtractionStrategy = None, 
@@ -181,8 +182,7 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
     wis_logger.debug(f'focus_id: {focus_id}, focus_point: {focuspoint}, search mode: {search} with keywords: {query}')
 
     existings = get_existings_for_focus(focus_id)
-    
-    to_crawl_urls = set()
+    recorder = Recorder(focus_id=focuspoint, max_urls_per_task=MAX_URLS_PER_TASK)
     extractor = LLMExtractionStrategy(
         focuspoint=focuspoint,
         restrictions=restrictions,
@@ -202,9 +202,10 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
     for source in sources:
         if source['type'] == 'rss':
             if not source.get('url'):
-                wis_logger.warning(f"unvalid rss source {source['id']}: has no url, skip")
+                wis_logger.warning(f"focus {focus_id} has unvalid rss source {source['id']}: has no url, skip")
                 continue
             tasks.add(wrap_task(fetch_rss(source['url'], existings['web']), ('rss', source['url'])))
+            recorder.rss_source += 1
 
         elif source['type'] == KUAISHOU_PLATFORM_NAME:
             creators = source.get('creators', '') or ''
@@ -221,7 +222,7 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
                 continue
 
             if not crawlers[KUAISHOU_PLATFORM_NAME]:
-                wis_logger.info(f"got {KUAISHOU_PLATFORM_NAME} source, but no valid crawler, skip")
+                wis_logger.info(f"focus {focus_id} got {KUAISHOU_PLATFORM_NAME} source, but no valid crawler, skip")
                 continue
 
             kwags = {"keywords": query, "existings": existings[KUAISHOU_PLATFORM_NAME], "creator_ids": creator_ids}
@@ -242,7 +243,7 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
                 continue
 
             if not crawlers[WEIBO_PLATFORM_NAME]:
-                wis_logger.info(f"got {WEIBO_PLATFORM_NAME} source, but no valid crawler, skip")
+                wis_logger.info(f"focus {focus_id} got {WEIBO_PLATFORM_NAME} source, but no valid crawler, skip")
                 continue
 
             kwags = {"keywords": query, "existings": existings[WEIBO_PLATFORM_NAME], "creator_ids": creator_ids}
@@ -250,36 +251,39 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
 
         elif source['type'] == 'web':
             if not source.get('url'):
-                wis_logger.warning(f"unvalid web source {source['id']}: has no url, skip")
+                wis_logger.warning(f"focus {focus_id} has unvalid web source {source['id']}: has no url, skip")
                 continue
-            to_crawl_urls.add(source['url'])
+            # source website always be added to url_queue
+            recorder.add_url(source['url'], 'web')
+            recorder.web_source += 1
         else:
-            wis_logger.warning(f"unvalid source {source['id']}: has no type, skip")
+            wis_logger.warning(f"focus {focus_id} has unvalid source {source['id']}: has no type, skip")
             continue
     
-    to_scrap_articles = []
     posts = []
     t1 = time.perf_counter()
-    # 使用 as_completed 并发执行所有任务
     for coro in asyncio.as_completed(tasks):
         (task_type, source_name), result = await coro
         _from = f'from {task_type} source: {source_name}'
         if task_type == 'rss':
             results, markdown, link_dict = result
             if results:
-                wis_logger.debug(f'{_from} get {len(results)} articles, add to to_scrap_articles')
-                to_scrap_articles.extend(results)
+                recorder.article_queue.extend(results)
+                if 'rss' not in recorder.item_source:
+                    recorder.item_source['rss'] = 0
+                recorder.item_source['rss'] += len(results)
                 for result in results:
                     await db_manager.cache_url(result)
             if markdown:
-                wis_logger.debug(f'{_from} get {len(link_dict)} posts, add to posts list')
+                wis_logger.debug(f'{_from} get {len(link_dict)} posts for focus {focus_id}, need to be extracted further...')
                 posts.append((markdown, link_dict, 'web'))
         else:
             markdown, link_dict = result
-            wis_logger.debug(f'{_from} get {len(link_dict)} posts, add to posts list')
+            wis_logger.debug(f'{_from} get {len(link_dict)} posts for focus {focus_id}, need to be extracted further...')
             posts.append((markdown, link_dict, source_name))
-
-    wis_logger.debug(f" ✓ scource parsing finished, time cost: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
+            if source_name not in recorder.mc_count:
+                recorder.mc_count[source_name] = 0
+            recorder.mc_count[source_name] += len(link_dict)
     
     # 2. fetching mediacrawler posts and analyzing search engine results
     chunking = MaxLengthChunking()
@@ -294,8 +298,7 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
             all_urls = set(link_dict.values())
             return source_name, related_urls, all_urls - related_urls
         return wrapper
-        
-    t1 = time.perf_counter()
+
     if posts:
         tasks = set()
         with ThreadPoolExecutor(max_workers=min(int(os.getenv("CONCURRENT_NUMBER", 12)), len(posts))) as executor:
@@ -304,7 +307,7 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
                 try:
                     source_name, related_urls, un_related_urls = future.result()
                     if source_name == 'web':
-                        to_crawl_urls.update(related_urls - existings['web'])
+                        recorder.add_url(related_urls - existings['web'], 'rss')
                         existings['web'].update(un_related_urls)
                     elif source_name == WEIBO_PLATFORM_NAME:
                         existings[WEIBO_PLATFORM_NAME].update(un_related_urls)
@@ -312,12 +315,18 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
                             if f"https://m.weibo.cn/detail/{note}" in existings['web']:
                                 continue
                             tasks.add(asyncio.create_task(crawlers[WEIBO_PLATFORM_NAME].post_as_article(note)))
+                            if 'wb' not in recorder.item_source:
+                                recorder.item_source['wb'] = 0
+                            recorder.item_source['wb'] += 1
                     elif source_name == KUAISHOU_PLATFORM_NAME:
                         existings[KUAISHOU_PLATFORM_NAME].update(un_related_urls)
                         for video in un_related_urls:
                             if f"https://www.kuaishou.com/short-video/{video}" in existings['web']:
                                 continue
                             tasks.add(asyncio.create_task(crawlers[KUAISHOU_PLATFORM_NAME].video_as_article(video)))
+                            if 'ks' not in recorder.item_source:
+                                recorder.item_source['ks'] = 0
+                            recorder.item_source['ks'] += 1
                 except Exception as e:
                     wis_logger.error(f"Error Extracting Post List: {e}")
                     continue
@@ -327,63 +336,67 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
         for coro in asyncio.as_completed(tasks):
             article = await coro
             if article:
-                to_scrap_articles.append(article)
+                recorder.article_queue.append(article)
+            else:
+                recorder.crawl_failed += 1
+                recorder.total_processed += 1
     
     if search:
         search_results = await search_with_jina(query[0], existings['web'])
         if search_results:
-            to_crawl_urls.update(search_results - existings['web'])
+            recorder.add_url(search_results, 'search_engine')
 
-    wis_logger.debug(f"[SOURCING] ✓ finished, time cost: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
-
+    wis_logger.debug(f"[SOURCE FINDING] ✓ finished for focus {focus_id}, time cost: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
+    wis_logger.info(f"\n{recorder.source_summary()}\n")
+    
     # 3. tik-tok style processing: 
     # use multiple threads to scrape the articles -- get more related urls add to to_crawl_urls...
-    # use asyncio loop to crawl the urls -- get articles -- add to to_scrap_articles...
-    _epoch = 0
-    while to_scrap_articles or to_crawl_urls:
-        _epoch += 1
-        if _epoch > MAX_EPOCH:
-            wis_logger.info(f"reach Max Epoch: {MAX_EPOCH}, we have to quit. Still have {len(to_scrap_articles)} articles to extract.")
-            break
-        wis_logger.info(f"Epoch {_epoch} starting, we have {len(to_scrap_articles)} articles to extract.")
-        if to_scrap_articles:
-            batch_urls = {article.url for article in to_scrap_articles}
+    # use asyncio loop to crawl the urls -- get articles -- add to to_scrap_articles..
+    while not recorder.finished():
+        if recorder.article_queue:
             t1 = time.perf_counter()
-            with ThreadPoolExecutor(max_workers=min(int(os.getenv("CONCURRENT_NUMBER", 12)), len(to_scrap_articles))) as executor:
-                futures = [executor.submit(scrap_article, article, extractor, chunking) for article in to_scrap_articles]
-                processed_urls = set()  # 收集成功处理的 URL
+            with ThreadPoolExecutor(max_workers=min(int(os.getenv("CONCURRENT_NUMBER", 12)), len(recorder.article_queue))) as executor:
+                futures = [executor.submit(scrap_article, article, extractor, chunking) for article in recorder.article_queue]
+                # processed_urls = set()  # 收集成功处理的 URL
                 for future in as_completed(futures):
+                    recorder.total_processed += 1
                     try:
                         article, article_updated, results = future.result()
-                        processed_urls.add(article.url)  # 记录成功处理的 URL
+                        # processed_urls.add(article.url)  # 记录成功处理的 URL
                         if article_updated:
                             await db_manager.cache_url(article)
                         for result in results:
-                            to_crawl_urls.update(result['links'] - existings['web'] - batch_urls)
+                            recorder.add_url(result['links'] - existings['web'], 'article')
                             for info in result['infos']:
                                 await db_manager.add_info(focuspoint_id=focus_id, **info)
+                                recorder.info_added += 1
                         existings['web'].add(article.url)
                         if article.redirected_url:
                             existings['web'].add(article.redirected_url)
+                        recorder.successed += 1
                     except Exception as e:
-                        wis_logger.error(f" ✗ Error processing article: {e}")
+                        wis_logger.error(f"[EXTRACT] ✗ failed to process article: {e}")
+                        recorder.scrap_failed += 1
                         continue
 
             save_existings_for_focus(focus_id, existings)
             # 只保留未成功处理的 articles，失败的会在下次循环重试
-            to_scrap_articles = [article for article in to_scrap_articles 
-                                if article.url not in processed_urls]
-            wis_logger.debug(f"[BATCH SCRAPING] ✓ finished, time cost: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
+            recorder.article_queue = []
+            wis_logger.debug(f"[BATCH SCRAPING] ✓ finished for focus {focus_id}, time cost: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
 
-        if not to_crawl_urls:
-            wis_logger.debug(f"no more urls to crawl, finished")
-            continue
-        wis_logger.info(f"Epoch {_epoch} web fetching stage starting, we have {len(to_crawl_urls)} urls to crawl")
-        # for each loop we use a new context for better memory usage and avoid potiential problems
-        async with AsyncWebCrawler(crawler_config_map=crawler_config_map, db_manager=db_manager) as crawler:
-            async for result in await crawler.arun_many(list(to_crawl_urls)):
-                if result and result.success:
-                    to_scrap_articles.append(result)
-        to_crawl_urls.clear()
+        if recorder.url_queue:
+            wis_logger.debug(f"focus {focus_id} still have {len(recorder.url_queue)} urls to crawl")
+            # for each loop we use a new context for better memory usage and avoid potiential problems
+            async with AsyncWebCrawler(crawler_config_map=crawler_config_map, db_manager=db_manager) as crawler:
+                async for result in await crawler.arun_many(list(recorder.url_queue)):
+                    if result and result.success:
+                        recorder.article_queue.append(result)
+                    else:
+                        recorder.crawl_failed += 1
+                        recorder.total_processed += 1
+            recorder.processed_urls.update(recorder.url_queue)
+            recorder.url_queue.clear()
 
-    extractor.show_usage()
+        wis_logger.info(f"\n{recorder.scrap_summary()}\n")
+        extractor.show_usage()
+        wis_logger.debug("========================================")

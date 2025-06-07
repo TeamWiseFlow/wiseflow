@@ -239,7 +239,7 @@ class WeiboClient:
 
     async def pong(self) -> bool:
         """get a note to check if login state is ok"""
-        wis_logger.debug(f"Begin to check account weibo login state...")
+        # wis_logger.debug(f"Begin to check account weibo login state...")
         ping_flag = False
         try:
             uri = "/api/config"

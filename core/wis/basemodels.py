@@ -244,8 +244,3 @@ class Media(BaseModel):
         MediaItem
     ] = []  # Using MediaItem model for now, can be extended with Audio model if needed
     tables: List[Dict] = []  # Table data extracted from HTML tables
-
-
-class Links(BaseModel):
-    internal: List[Link] = []
-    external: List[Link] = []

@@ -273,7 +273,7 @@ class KuaiShouApiClient:
         Returns:
 
         """
-        wis_logger.debug("Begin pong kuaishou...")
+        # wis_logger.debug("Begin pong kuaishou...")
         ping_flag = False
         try:
             post_data = {

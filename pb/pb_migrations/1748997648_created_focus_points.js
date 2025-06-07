@@ -58,12 +58,12 @@ migrate((app) => {
       {
         "hidden": false,
         "id": "number1475614133",
-        "max": 24,
-        "min": 1,
+        "max": 999,
+        "min": 2,
         "name": "freq",
         "onlyInt": false,
         "presentable": false,
-        "required": false,
+        "required": true,
         "system": false,
         "type": "number"
       },

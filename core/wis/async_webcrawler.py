@@ -174,7 +174,7 @@ class AsyncWebCrawler:
                     config=config,  # Pass the entire config object
                 )
 
-                html = "" if async_response.status_code == 403 else sanitize_input_encode(async_response.html)
+                html = "" if async_response.status_code in [403, 404, 429] else sanitize_input_encode(async_response.html)
                 last_modified = async_response.response_headers.get("last-modified", "")
                 screenshot_data = async_response.screenshot
                 pdf_data = async_response.pdf_data

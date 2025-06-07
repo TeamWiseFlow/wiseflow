@@ -246,7 +246,7 @@ class AsyncDatabaseManager:
                     if (len(index_columns) == 1 and 
                         index_columns[0][2] == 'url'):  # 第三个元素是列名
                         url_unique_exists = True
-                        wis_logger.debug(f"Found existing unique constraint on url field: {index_name}")
+                        # wis_logger.debug(f"Found existing unique constraint on url field: {index_name}")
                         break
             
             # 如果不存在唯一约束，创建一个
@@ -264,8 +264,6 @@ class AsyncDatabaseManager:
                     wis_logger.error("This may be due to existing duplicate URLs in the database")
                     # 可以选择清理重复数据或提示用户手动处理
                     await self._handle_duplicate_urls(db)
-            else:
-                wis_logger.debug("URL field unique constraint already exists")
                 
         except Exception as e:
             wis_logger.error(f"Error checking/setting url unique constraint: {str(e)}")
@@ -647,7 +645,7 @@ class AsyncDatabaseManager:
                 file_path
             )
         except Exception as e:
-            wis_logger.error(f"Failed to load content from {file_path}: {e}")
+            wis_logger.info(f"Failed to load content from {file_path}: {e}, file maybe removed.")
             return None
 
     def _write_file_sync(self, file_path: str, content: str):
@@ -801,7 +799,7 @@ class AsyncDatabaseManager:
         
         try:
             await self.execute_with_retry(_get_focus_points_with_sources)
-            wis_logger.debug(f"Retrieved {len(result)} activated focus points with their sources")
+            # wis_logger.debug(f"Retrieved {len(result)} activated focus points with their sources")
         except Exception as e:
             wis_logger.error(f"Error retrieving activated focus points with sources: {str(e)}")
             # 在出错时返回空列表
@@ -941,7 +939,7 @@ class AsyncDatabaseManager:
 
         try:
             await self.execute_with_retry(_add_wb)
-            wis_logger.debug(f"Successfully added/updated wb_cache for note_id: {wb_data.get('note_id')}")
+            #wis_logger.debug(f"Successfully added/updated wb_cache for note_id: {wb_data.get('note_id')}")
         except Exception as e:
             wis_logger.error(f"Error adding wb_cache for note_id {wb_data.get('note_id')}: {str(e)}")
 
@@ -1093,7 +1091,7 @@ class AsyncDatabaseManager:
 
         try:
             await self.execute_with_retry(_add_ks)
-            wis_logger.debug(f"Successfully added/updated ks_cache for video_id: {ks_data.get('video_id')}")
+            # wis_logger.debug(f"Successfully added/updated ks_cache for video_id: {ks_data.get('video_id')}")
         except Exception as e:
             wis_logger.error(f"Error adding ks_cache for video_id {ks_data.get('video_id')}: {str(e)}")
 

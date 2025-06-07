@@ -150,7 +150,6 @@ class KuaiShouCrawler:
         Returns:
 
         """
-        wis_logger.debug("Begin search kuaishou keywords")
         ks_limit_count = 20  # kuaishou limit page fixed value
         start_page = START_PAGE
         videos = []
@@ -388,7 +387,7 @@ class KuaiShouCrawler:
             pcursor = brilliant_type_data.get("pcursor", "")
             videos_list: List[Dict] = brilliant_type_data.get("feeds", [])
             if not videos_list:
-                wis_logger.debug("No more content!")
+                # wis_logger.debug("No more content!")
                 break
 
             for video_detail in videos_list:
@@ -414,7 +413,6 @@ class KuaiShouCrawler:
             wis_logger.info("Crawling comment mode is not enabled")
             return ""
         
-        # todo should read first from db for cache
         wis_logger.debug(f"begin get video_id: {video_id} comments ...")
         results =  await self.ks_client.get_video_all_comments(photo_id=video_id, crawl_interval=random.random())
         return update_ks_video_comment(results)

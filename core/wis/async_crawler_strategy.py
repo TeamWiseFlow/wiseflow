@@ -1302,7 +1302,7 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
         user_agent_to_override = config.user_agent
         if user_agent_to_override:
             self.browser_config.user_agent = user_agent_to_override
-        elif config.magic or config.user_agent_mode == "random":
+        elif config.user_agent_mode == "random":
             self.browser_config.user_agent = ValidUAGenerator().generate(
                 **(config.user_agent_generator_config or {})
             )
@@ -1340,11 +1340,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
         
         if not has_valid_context:
             self.logger.error(f"Failed to obtain valid browser context after {max_context_retries} retries for {url}")
-            # Log the potential impact
-            impact_msg = "This may result in: 1) Missing anti-detection measures, 2) Incomplete content loading, 3) Website blocking"
-            if config.magic:
-                impact_msg += " [CRITICAL: Magic mode requires valid context for optimal results]"
-            self.logger.warning(f"Continuing without valid context for {url}. {impact_msg}")
 
         # Add default cookie (try to add even with potentially invalid context)
         try:
@@ -1358,17 +1353,13 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             self.logger.warning(f"Failed to add default cookies for {url}: {str(e)}")
 
         # Handle navigator overrides (try to add even with potentially invalid context)
-        if config.override_navigator or config.simulate_user or config.magic:
-            try:
-                if has_valid_context:
-                    await context.add_init_script(load_js_script("navigator_overrider"))
-                else:
-                    self.logger.warning(f"Skipping navigator override setup due to invalid context for {url}")
-            except Exception as e:
-                self.logger.warning(f"Failed to add navigator override script for {url}: {str(e)}")
-                # Only log as critical for magic mode, but don't raise error
-                if config.magic:
-                    self.logger.error(f"Critical: Navigator override failed in magic mode for {url}, anti-detection may be compromised")
+        try:
+            if has_valid_context:
+                await context.add_init_script(load_js_script("navigator_overrider"))
+            else:
+                self.logger.warning(f"Skipping navigator override setup due to invalid context for {url}")
+        except Exception as e:
+            self.logger.warning(f"Failed to add navigator override script for {url}: {str(e)}")
 
         # Final context check before proceeding
         if not has_valid_context:
@@ -1692,14 +1683,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             if config.scan_full_page:
                 await self._handle_full_page_scan(page, config.scroll_delay)
 
-            # Execute JavaScript if provided
-            # if config.js_code:
-            #     if isinstance(config.js_code, str):
-            #         await page.evaluate(config.js_code)
-            #     elif isinstance(config.js_code, list):
-            #         for js in config.js_code:
-            #             await page.evaluate(js)
-
             if config.js_code:
                 # execution_result = await self.execute_user_script(page, config.js_code)
                 execution_result = await self.robust_execute_user_script(
@@ -1713,16 +1696,11 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 await self.execute_hook("on_execution_ended", page, context=context, config=config, result=execution_result)
 
             # Handle user simulation
-            if config.simulate_user or config.magic:
+            if config.simulate_user:
                 await page.mouse.move(100, 100)
                 await page.mouse.down()
                 await page.mouse.up()
                 await page.keyboard.press("ArrowDown")
-
-            # Handle wait_for condition
-            # Todo: Decide how to handle this
-            # if not config.wait_for and False:
-                # config.wait_for = f"css:{config.css_selector}"
 
             if config.wait_for:
                 try:
@@ -1811,8 +1789,16 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
 
         finally:
             # If no session_id is given we should close the page
-            if not config.session_id:
-                await page.close()
+            # let's try not to close the page
+            # if not config.session_id:
+            if config.capture_network_requests:
+                page.remove_listener("request", handle_request_capture)
+                page.remove_listener("response", handle_response_capture)
+                page.remove_listener("requestfailed", handle_request_failed_capture)
+            if config.capture_console_messages:
+                page.remove_listener("console", handle_console_capture)
+                page.remove_listener("pageerror", handle_pageerror_capture)
+            # await page.close()
 
     async def _handle_full_page_scan(self, page: Page, scroll_delay: float = 0.1):
         """

@@ -37,7 +37,6 @@ from .async_dispatcher import (
 from .kuaishou import *
 from .weibo import *
 from .config.mc_config import WEIBO_PLATFORM_NAME, KUAISHOU_PLATFORM_NAME
-from .config import MAX_EPOCH
 
 __all__ = [
     "AsyncWebCrawler",
@@ -72,7 +71,6 @@ __all__ = [
     "markdown_generation_hub",
     "DefaultMarkdownGenerator",
     "WeixinArticleMarkdownGenerator",
-    "MAX_EPOCH",
 ]
 
 

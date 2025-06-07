@@ -1,9 +1,10 @@
 from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
-import os
+import os, sys
 import regex as re
 from wis.utils import params_to_remove, url_pattern
 from loguru import logger
 from wis.__version__ import __version__
+from pydantic import BaseModel
 
 
 # ANSI color codes
@@ -110,7 +111,8 @@ def get_logger(logger_file_path: str, logger_name: str):
     :param logger_file_path: 日志文件存储路径
     :return: 配置好的 logger 实例
     """
-    level = 'DEBUG' if os.environ.get("VERBOSE", "").lower() in ["true", "1"] else 'INFO'
+    verbose = os.environ.get("VERBOSE", "").lower() in ["true", "1"]
+    # level = 'DEBUG' if verbose else 'INFO'
     
     os.makedirs(logger_file_path, exist_ok=True)
     logger_file = os.path.join(logger_file_path, f"{logger_name}.log")
@@ -123,36 +125,38 @@ def get_logger(logger_file_path: str, logger_name: str):
             except ValueError:
                 pass  # 处理器可能已经被移除
     
+    # 如果是第一次创建 logger，移除默认的控制台处理器
+    if logger_name not in _logger_handlers:
+        try:
+            logger.remove(0)  # 移除默认控制台处理器
+        except ValueError:
+            pass  # 默认处理器可能已经被移除
+    
     # 创建过滤器，只处理当前 logger_name 的消息
     logger_filter = lambda record: record.get("extra", {}).get("name") == logger_name
-    
     # 添加文件处理器
     file_handler_id = logger.add(
         logger_file,
-        level=level,
-        backtrace=True,
-        diagnose=True,
+        level='INFO',
+        backtrace=True,  # 始终启用，主要在异常时显示堆栈信息
+        diagnose=verbose,
         rotation="12 MB",
         enqueue=True,  # 启用异步文件写入
         encoding="utf-8",
-        filter=logger_filter,
-        # format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {extra[name]} | {function}:{line} | {message}\n{exception}"
+        filter=logger_filter
     )
     
-    # 添加控制台处理器
-    """
+    # 添加控制台处理器（使用默认彩色格式）
     console_handler_id = logger.add(
-        lambda msg: print(msg, end=""),  # 使用 lambda 避免重复输出
-        level=level,
-        backtrace=True,
-        diagnose=True,
+        sys.stderr,
+        level='DEBUG',
         filter=logger_filter,
-        format="<green>{time:HH:mm:ss}</green> | <level>{level}</level> | <cyan>{extra[name]}</cyan> | <yellow>{function}:{line}</yellow> | {message}\n{exception}",
-        colorize=True
+        colorize=True,
+        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{message}</level>"
     )
-    """
+    
     # 记录处理器 ID（存储为列表）
-    _logger_handlers[logger_name] = file_handler_id
+    _logger_handlers[logger_name] = [file_handler_id, console_handler_id]
 
     if logger_name == 'wiseflow_info_scraper':
         print(f"\n{CYAN}{'#' * 50}{RESET}")
@@ -166,3 +170,84 @@ def get_logger(logger_file_path: str, logger_name: str):
     
     # 返回绑定了名称的 logger 实例
     return logger.bind(name=logger_name)
+
+class Recorder(BaseModel):
+    # source status
+    rss_source: int = 0
+    web_source: int = 0
+    mc_count: dict[str, int] = {}
+    item_source: dict[str, int] = {}
+
+    # to do list
+    url_queue: set[str] = set()
+    article_queue: list[str] = []
+
+    # working status
+    total_processed: int = 0
+    crawl_failed: int = 0
+    scrap_failed: int = 0
+    successed: int = 0
+    info_added: int = 0
+
+    # general
+    focus_id: str = ""
+    max_urls_per_task: int = 0
+    processed_urls: set[str] = set()
+
+    def finished(self) -> bool:
+        if not self.url_queue and not self.article_queue:
+            return True
+        if self.total_processed >= self.max_urls_per_task:
+            return True
+        return False
+    
+    def add_url(self, url: str | set[str], source: str):
+        if isinstance(url, str):
+            if url in self.processed_urls:
+                return
+            self.url_queue.add(url)
+            if source not in self.item_source:
+                self.item_source[source] = 0
+            self.item_source[source] += 1
+        elif isinstance(url, set):
+            more_urls = url - self.processed_urls
+            self.url_queue.update(more_urls)
+            if source not in self.item_source:
+                self.item_source[source] = 0
+            self.item_source[source] += len(more_urls)
+
+    def source_summary(self) -> str:
+        from_str = f"From"
+        if self.rss_source:
+            from_str += f"\n- RSS: {self.rss_source}"
+        if self.web_source:
+            from_str += f"\n- Sites: {self.web_source}"
+        if self.mc_count:
+            for source, count in self.mc_count.items():
+                from_str += f"\n- {source} : {count} Videos/Notes"
+        
+        url_str = f"Found Total: {len(self.url_queue) + len(self.article_queue)} items worth to explore (after existings filtered)"
+        for source, count in self.item_source.items():
+            url_str += f"\n- from {source} : {count}"
+        
+        self.processed_urls.update({article.url for article in self.article_queue})
+        
+        return "\n".join([f"=== Focus: {self.focus_id:.10}... Source Finding Summary ===", from_str, url_str])
+
+    def scrap_summary(self) -> str:
+        proce_status_str = f"=== Focus: {self.focus_id:.10}... Scraping Summary ===\nProcessed {self.total_processed} items till now"
+        proce_status_str += f"\n- Crawl Failed: {self.crawl_failed}"
+        proce_status_str += f"\n- Scrap Failed: {self.scrap_failed}"
+        proce_status_str += f"\n- Successed: {self.successed}"
+        proce_status_str += f"\n- Finally find valid infos: {self.info_added}"
+        if self.article_queue:
+            proce_status_str += f"\n\nWe Still have {len(self.article_queue)} more items to explore"
+            if 'article' in self.item_source:
+                proce_status_str += f" ({self.item_source['article']} new items added from articles since source finding)"
+            left_url_count = self.max_urls_per_task - self.total_processed
+            if left_url_count > 0:
+                proce_status_str += f"\nHowever after {left_url_count} items be proccessed, we have to quit by config setting limit."
+            else:
+                proce_status_str += f"\nHowever we have to quit by config setting limit."
+        return proce_status_str
+    
