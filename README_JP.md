@@ -1,24 +1,20 @@
 # AI チーフインテリジェンスオフィサー（Wiseflow）
 
-**[English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Deutsch](README_DE.md) | [Français](README_FR.md)**
+**[English](README_EN.md) | [한국어](README_KR.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [العربية](README_AR.md) | [简体中文](README.md)**
 
 🚀 **大規模言語モデルを使用して、日々の膨大な情報や様々なソースから、あなたが本当に興味のある情報を掘り起こしましょう！**
 
 私たちに不足しているのは情報ではなく、膨大な情報からノイズをフィルタリングし、価値のある情報を引き出す能力です。
 
-🌱 AIインテリジェンスオフィサーがどのように時間を節約し、無関係な情報をフィルタリングし、重要なポイントを整理するかを見てみましょう！🌱
-
-https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
-
 ## 🔥🔥🔥 Wiseflow 4.0 バージョン正式リリース！
+
+https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 
 （オンラインサービスは現在技術的な理由により4.0コアに切り替わっていませんが、アップグレードを加速しています）
 
-3ヶ月の待機期間を経て、ついにWiseflow 4.0バージョンの正式リリースを迎えました！
+3ヶ月の待機期間を経て、ついにwiseflow 4.0バージョンが正式にリリースされました！このバージョンでは、全く新しい4.xアーキテクチャを導入し、ソーシャルメディアソースのサポートと多くの新機能を提供します。
 
-このバージョンでは、新しい4.xアーキテクチャを導入し、ソーシャルメディアソースのサポートを追加し、多くの新機能を提供します。
-
-🌟 4.xにはWIS Crawler（Crawl4ai、MediaCrawler、Nodriverを基に深く再構築・統合）が含まれており、ウェブページとソーシャルメディアを完全にサポートしています。バージョン4.0では、まずWeiboとKuaishouプラットフォームのサポートを提供し、今後以下のプラットフォームを順次追加予定です：
+4.xにはWIS Crawler（Crawl4ai、MediaCrawler、Nodriverを基に深く再構築・統合）が内蔵されており、ウェブページに加えてソーシャルメディアソースもサポートしています。4.0バージョンではまずWeiboとKuaishouのサポートを提供し、今後順次追加予定のプラットフォームは以下の通りです：
 WeChat公式アカウント、Xiaohongshu、Douyin、Bilibili、Zhihu...
 
 4.xアーキテクチャがもたらすその他の新機能：
@@ -48,7 +44,7 @@ WeChat公式アカウント、Xiaohongshu、Douyin、Bilibili、Zhihu...
 
 ……… また、興味のある開発者の参加を期待し、誰もが使えるAIチーフインテリジェンスオフィサーを一緒に構築しましょう！
 
-## 🚀 クイックスタート
+## 🌟 クイックスタート
 
 **たった3ステップで始められます！**
 
@@ -70,7 +66,7 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-🌟 上記の操作でuvのインストールが完了します。pocketbaseのインストールについては、[pocketbase docs](https://pocketbase.io/docs/)を参照してください
+上記の操作でuvのインストールが完了します。pocketbaseのインストールについては、[pocketbase docs](https://pocketbase.io/docs/)を参照してください
 
 install_pocketbase.sh（MacOS/Linux用）またはinstall_pocketbase.ps1（Windows用）を使用してインストールすることもできます。
 
@@ -78,33 +74,38 @@ install_pocketbase.sh（MacOS/Linux用）またはinstall_pocketbase.ps1（Windo
 
 wiseflowフォルダ（プロジェクトのルートディレクトリ）でenv_sampleを参考に.envファイルを作成し、関連する設定情報を入力してください
 
+4.x バージョンでは、ユーザーが .env ファイルに pocketbase の認証情報を提供する必要がなく、pocketbase のバージョンにも制限がなくなりました。また、セカンダリモデルの設定も一時的に削除されたため、実質的に最小限の4つのパラメーターで設定を完了できます：
+
+- LLM_API_KEY="" # LLM サービスのキー (すべての OpenAI 形式 API を提供するモデル サービスを使用できます。ローカルで ollama を使用してデプロイする場合は設定する必要はありません)
+- LLM_API_BASE="https://api.siliconflow.cn/v1" # LLM サービス インターフェース アドレス
+- JINA_API_KEY="" # 検索エンジン サービスのキー (Jina 推奨、個人使用であれば登録なしで申請可能)
+- PRIMARY_MODEL="Qwen3-14B" # 推奨 Qwen3-14B または同等の思考モデル
+
 ### 🚀 起動！
 
 - MacOS/Linux用：
 
 ```bash
 cd wiseflow
+uv venv # 初回実行時のみ必要
+uv sync # 初回実行時のみ必要
+python -m playwright install --with-deps chromium # 初回実行時のみ必要
+chmod +x run.sh # 初回実行時のみ必要
 ./run.sh
 ```
-
-（注意：最初に`chmod +x run.sh`を実行して実行権限を付与する必要があるかもしれません）
 
 - Windows用：
 
 ```bash
 cd wiseflow
+uv venv # 初回実行時のみ必要
+uv sync # 初回実行時のみ必要
+python -m playwright install --with-deps chromium # 初回実行時のみ必要
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser # 初回実行時のみ必要
 .\run.ps1
 ```
 
-（注意：最初に`Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`を実行して実行権限を付与する必要があるかもしれません）
-
-仮想ブラウザの起動に問題がある場合は、以下のコマンドを実行してください：
-
-```bash
-python -m playwright install --with-deps chromium
-```
-
-詳細な使用方法については、[docs/manual.md](./docs/manual.md)を参照してください
+詳細な使用方法については、[docs/manual/manual_ja.md](./docs/manual/manual_ja.md)を参照してください
 
 ## 📚 Wiseflowでクロールしたデータを自分のプログラムで使用する方法
 

@@ -1,6 +1,6 @@
 # AI首席情报官（Wiseflow）
 
-**[English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Deutsch](README_DE.md) | [Français](README_FR.md)**
+**[English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [العربية](README_AR.md)**
 
 🚀 **使用大模型从海量信息、各类信源中每日挖掘你真正感兴趣的信息！**
 
@@ -8,15 +8,13 @@
 
 ## 🔥🔥🔥 Wiseflow 4.0 版本正式发布！
 
-https://github.com/user-attachments/assets/de7d802f-8bd0-496a-86a9-80da25264f94
+https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 
 （在线服务目前因为技术原因，尚未切换到4.0核心，我们正在加速升级中）
 
-在长达三个月的等待后，我们终于迎来了 wiseflow 4.0 版本的正式发布！
+在长达三个月的等待后，我们终于迎来了 wiseflow 4.0 版本的正式发布！该版本带来了全新的 4.x 架构，引入了对社交媒体信源的支持，并带来了诸多新特性。
 
-该版本带来了全新的4.x 架构，引入了对社交媒体信源的支持，并带来了诸多新特性。
-
-🌟 4.x 内置 WIS Crawler（基于 Crawl4ai，MediaCrawler 和 Nodriver 深度重构整合），已经可以完美支持网页和社交媒体，4.0 版本先行提供对微博和快手平台的支持，后续计划陆续新增的平台包括：
+4.x 内置 WIS Crawler（基于 Crawl4ai，MediaCrawler 和 Nodriver 深度重构整合），除网页外，还提供了对社交媒体信源的支持，4.0 版本先行提供对微博和快手的支持，后续计划陆续新增的平台包括：
 微信公众号、小红书、抖音、b站、知乎……
 
 4.x 架构带来的其他新特性包括：
@@ -47,7 +45,7 @@ https://github.com/user-attachments/assets/de7d802f-8bd0-496a-86a9-80da25264f94
 ……… 同时期待感兴趣的开发者加入我们，共同打造人人可用的 AI 首席情报官！
 
 
-## 🚀 快速开始
+## 🌟 快速开始
 
 **只需三步即可开始使用！**
 
@@ -69,41 +67,46 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-🌟 上述操作会完成 uv 的安装，pocketbase 的安装请参考 [pocketbase docs](https://pocketbase.io/docs/)
+上述操作会完成 uv 的安装，pocketbase 的安装请参考 [pocketbase docs](https://pocketbase.io/docs/)
 
 也可以尝试使用 install_pocketbase.sh (for MacOS/Linux) 或 install_pocketbase.ps1 (for Windows) 来安装。
 
 ### 📥 参考 env_sample 配置 .env 文件
 
-在 wiseflow 文件夹（项目根目录）参考 env_sample 创建 .env 文件，并填入相关设定信息
+在 wiseflow 文件夹（项目根目录）参考 env_sample 创建 .env 文件，并填入相关设定信息。
 
-### 🚀 起飞！
+4.x 版本无需用户在.env 中提供 pocketbase 的账密，也不限定 pocketbase 的版本, 同时我们也暂时取消了 Secondary Model 的设定, 因此你其实最少仅需四个参数即可完成配置：
+
+- LLM_API_KEY="" # LLM 服务的 key （任何提供 OpenAI 格式 API 的模型服务商均可，本地使用 ollama 部署则无需设置）
+- LLM_API_BASE="https://api.siliconflow.cn/v1" # LLM 服务接口地址
+- JINA_API_KEY="" # 搜索引擎服务的 key （推荐 Jina，个人使用甚至无需注册即可申请）
+- PRIMARY_MODEL="Qwen3-14B" # 推荐 Qwen3-14B 或同量级思考模型
+
+### 🚀  起飞！
 
 - for MacOS/Linux:
 
 ```bash
 cd wiseflow
+uv venv # 仅第一次执行需要
+uv sync # 仅第一次执行需要
+python -m playwright install --with-deps chromium # 仅第一次执行需要
+chmod +x run.sh # 仅第一次执行需要
 ./run.sh
 ```
-
-（注意：可能需要先执行 `chmod +x run.sh` 赋予执行权限）
 
 - for Windows:
 
 ```bash
 cd wiseflow
+uv venv # 仅第一次执行需要
+uv sync # 仅第一次执行需要
+python -m playwright install --with-deps chromium # 仅第一次执行需要
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser # 仅第一次执行需要
 .\run.ps1
 ```
 
-（注意：可能需要先执行 `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` 赋予执行权限）
-
-如果遇到无法启动虚拟浏览器的问题，可以执行如下命令：
-
-```bash
-python -m playwright install --with-deps chromium
-```
-
-详细使用教程请参考 [docs/manual.md](./docs/manual.md)
+详细使用教程请参考 [docs/manual/manual.md](./docs/manual/manual.md)
 
 ## 📚 如何在您自己的程序中使用 wiseflow 抓取出的数据
 
