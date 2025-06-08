@@ -1,25 +1,21 @@
 # KI-Chefintelligenzoffizier (Wiseflow)
 
-**[English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Deutsch](README_DE.md) | [Français](README_FR.md)**
+**[English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Français](README_FR.md) | [العربية](README_AR.md) | [简体中文](README.md)**
 
 🚀 **Nutzen Sie große Sprachmodelle, um täglich Informationen zu finden, die Sie wirklich interessieren, aus riesigen Datenmengen und verschiedenen Quellen!**
 
 Was uns fehlt, ist nicht Information, sondern die Fähigkeit, Rauschen aus massiven Informationen zu filtern, um wertvolle Erkenntnisse zu gewinnen.
 
-🌱 Sehen Sie, wie der KI-Intelligenzoffizier Ihnen hilft, Zeit zu sparen, irrelevante Informationen zu filtern und wichtige Punkte zu organisieren! 🌱
-
-https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
-
 ## 🔥🔥🔥 Wiseflow 4.0 Version offiziell veröffentlicht!
+
+https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 
 (Der Online-Dienst ist derzeit aus technischen Gründen noch nicht auf den 4.0-Kern umgestellt, wir beschleunigen das Upgrade)
 
-Nach einer dreimonatigen Wartezeit begrüßen wir endlich die offizielle Veröffentlichung von Wiseflow 4.0!
+Nach drei Monaten Warten haben wir endlich die Freude, die offizielle Veröffentlichung der wiseflow 4.0-Version bekannt zu geben! Diese Version bringt eine völlig neue 4.x-Architektur, unterstützt soziale Medienquellen und bietet viele neue Funktionen.
 
-Diese Version bringt eine brandneue 4.x-Architektur, führt Unterstützung für Social-Media-Quellen ein und bietet viele neue Funktionen.
-
-🌟 4.x enthält WIS Crawler (tiefgreifend umstrukturiert und integriert basierend auf Crawl4ai, MediaCrawler und Nodriver), der jetzt Webseiten und Social Media perfekt unterstützt. Version 4.0 bietet zunächst Unterstützung für Weibo- und Kuaishou-Plattformen, mit Plänen, weitere Plattformen hinzuzufügen, darunter:
-WeChat Official Accounts, Xiaohongshu, Douyin, Bilibili, Zhihu...
+4.x enthält WIS Crawler (basierend auf Crawl4ai, MediaCrawler und Nodriver, tief verändert und integriert), der jetzt vollständig Webseiten- und soziale Medienquellen unterstützt. Die Version 4.0 bietet zunächst Unterstützung für die Weibo- und Kuaishou-Plattformen, mit Planungen, weitere Plattformen wie:
+WeChat-Offizielle Konten, Xiaohongshu, Douyin, Bilibili, Zhihu...
 
 Andere neue Funktionen der 4.x-Architektur:
 
@@ -48,7 +44,7 @@ Konkret ist "Deep Search", wo LLM für spezifische Fragen autonom Suchpfade plan
 
 ……… Wir freuen uns auch auf interessierte Entwickler, die uns beitreten, um einen KI-Chefintelligenzoffizier zu bauen, der für jeden zugänglich ist!
 
-## 🚀 Schnellstart
+## 🌟 Schnellstart
 
 **Nur drei Schritte zum Start!**
 
@@ -70,7 +66,7 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-🌟 Die obigen Operationen vervollständigen die Installation von uv. Für die pocketbase-Installation siehe [pocketbase docs](https://pocketbase.io/docs/)
+Die obigen Operationen vervollständigen die Installation von uv. Für die pocketbase-Installation siehe [pocketbase docs](https://pocketbase.io/docs/)
 
 Sie können auch versuchen, install_pocketbase.sh (für MacOS/Linux) oder install_pocketbase.ps1 (für Windows) zur Installation zu verwenden.
 
@@ -78,33 +74,38 @@ Sie können auch versuchen, install_pocketbase.sh (für MacOS/Linux) oder instal
 
 Im wiseflow-Ordner (Projektstammverzeichnis) erstellen Sie eine .env-Datei basierend auf env_sample und füllen Sie die relevanten Einstellungen aus
 
+Die Version 4.x erfordert keine pocketbase-Anmeldedaten in der .env-Datei und hat keine Versionsbeschränkungen für pocketbase. Außerdem haben wir vorübergehend die Secondary Model-Einstellung entfernt. Daher benötigen Sie nur vier Parameter für die Konfiguration:
+
+- LLM_API_KEY="" # Schlüssel für den LLM-Dienst (jeder Modellanbieter mit OpenAI-Format-API, nicht erforderlich bei lokaler ollama-Installation)
+- LLM_API_BASE="https://api.siliconflow.cn/v1" # LLM-Dienstschnittstellenadresse
+- JINA_API_KEY="" # Schlüssel für den Suchmaschinendienst (Jina empfohlen, für persönliche Nutzung sogar ohne Registrierung verfügbar)
+- PRIMARY_MODEL="Qwen3-14B" # Qwen3-14B oder ein gleichwertiges Denkmodell empfohlen
+
 ### 🚀 Starten!
 
 - für MacOS/Linux:
 
 ```bash
 cd wiseflow
+uv venv # nur beim ersten Starten benötigt
+uv sync # nur beim ersten Starten benötigt
+python -m playwright install --with-deps chromium # nur beim ersten Starten benötigt
+chmod +x run.sh # nur beim ersten Starten benötigt
 ./run.sh
 ```
-
-(Hinweis: Möglicherweise müssen Sie zuerst `chmod +x run.sh` ausführen, um Ausführungsrechte zu gewähren)
 
 - für Windows:
 
 ```bash
 cd wiseflow
+uv venv # nur beim ersten Starten benötigt
+uv sync # nur beim ersten Starten benötigt
+python -m playwright install --with-deps chromium # nur beim ersten Starten benötigt
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser # nur beim ersten Starten benötigt
 .\run.ps1
 ```
 
-(Hinweis: Möglicherweise müssen Sie zuerst `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` ausführen, um Ausführungsrechte zu gewähren)
-
-Bei Problemen mit dem Start des virtuellen Browsers können Sie folgenden Befehl ausführen:
-
-```bash
-python -m playwright install --with-deps chromium
-```
-
-Detaillierte Anweisungen finden Sie unter [docs/manual.md](./docs/manual.md)
+Detaillierte Anweisungen finden Sie unter [docs/manual/manual_de.md](./docs/manual/manual_de.md)
 
 ## 📚 Wie Sie von Wiseflow gecrawlte Daten in Ihren eigenen Programmen verwenden können
 

@@ -1,25 +1,21 @@
 # Officier en Chef de l'Intelligence Artificielle (Wiseflow)
 
-**[English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Deutsch](README_DE.md) | [Français](README_FR.md)**
+**[English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Deutsch](README_DE.md) | [العربية](README_AR.md) | [简体中文](README.md)**
 
 🚀 **Utilisez les grands modèles de langage pour extraire quotidiennement les informations qui vous intéressent vraiment, à partir de données massives et de diverses sources !**
 
 Ce qui nous manque, ce n'est pas l'information, mais la capacité à filtrer le bruit des informations massives pour faire émerger des informations précieuses.
 
-🌱 Découvrez comment l'Officier d'Intelligence IA vous aide à gagner du temps, à filtrer les informations non pertinentes et à organiser les points clés ! 🌱
-
-https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
-
 ## 🔥🔥🔥 Version Wiseflow 4.0 Officiellement Lancée !
+
+https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 
 (Le service en ligne n'est pas encore passé au cœur 4.0 pour des raisons techniques, nous accélérons la mise à niveau)
 
-Après trois mois d'attente, nous accueillons enfin le lancement officiel de Wiseflow 4.0 !
+Après trois mois d'attente, nous avons enfin le plaisir d'annoncer le lancement officiel de la version 4.0 de Wiseflow ! Cette version introduit une toute nouvelle architecture 4.x, apporte le support des sources de médias sociaux et de nombreuses nouvelles fonctionnalités.
 
-Cette version apporte une toute nouvelle architecture 4.x, introduit le support des sources de médias sociaux et offre de nombreuses nouvelles fonctionnalités.
-
-🌟 4.x inclut WIS Crawler (profondément restructuré et intégré basé sur Crawl4ai, MediaCrawler et Nodriver), qui prend maintenant en charge parfaitement les pages web et les médias sociaux. La version 4.0 offre initialement le support des plateformes Weibo et Kuaishou, avec des plans pour ajouter progressivement d'autres plateformes, notamment :
-Comptes Officiels WeChat, Xiaohongshu, Douyin, Bilibili, Zhihu...
+4.x intègre WIS Crawler (reconstruit et intégré en profondeur à partir de Crawl4ai, MediaCrawler et Nodriver), qui offre désormais un support complet pour les pages web et les médias sociaux. La version 4.0 fournit initialement le support pour les plateformes Weibo et Kuaishou, avec des plans pour ajouter progressivement d'autres plateformes, notamment :
+Comptes officiels WeChat, Xiaohongshu, Douyin, Bilibili, Zhihu...
 
 Autres nouvelles fonctionnalités apportées par l'architecture 4.x :
 
@@ -48,7 +44,7 @@ Concrètement, la "Recherche Profonde" est où le LLM planifie de manière auton
 
 ……… Nous attendons également avec impatience les développeurs intéressés qui nous rejoindront pour construire ensemble un Officier en Chef de l'Intelligence IA accessible à tous !
 
-## 🚀 Démarrage Rapide
+## 🌟 Démarrage Rapide
 
 **Seulement trois étapes pour commencer !**
 
@@ -70,7 +66,7 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-🌟 Les opérations ci-dessus complètent l'installation de uv. Pour l'installation de pocketbase, voir [pocketbase docs](https://pocketbase.io/docs/)
+Les opérations ci-dessus complètent l'installation de uv. Pour l'installation de pocketbase, voir [pocketbase docs](https://pocketbase.io/docs/)
 
 Vous pouvez également essayer d'utiliser install_pocketbase.sh (pour MacOS/Linux) ou install_pocketbase.ps1 (pour Windows) pour l'installation.
 
@@ -78,33 +74,38 @@ Vous pouvez également essayer d'utiliser install_pocketbase.sh (pour MacOS/Linu
 
 Dans le dossier wiseflow (répertoire racine du projet), créez un fichier .env basé sur env_sample et remplissez les paramètres pertinents
 
+La version 4.x ne nécessite pas que l'utilisateur fournisse les identifiants pocketbase dans .env, ni ne limite la version de pocketbase. De plus, nous avons temporairement supprimé le paramètre Secondary Model. Par conséquent, vous n'avez besoin que de quatre paramètres minimum pour compléter la configuration :
+
+- LLM_API_KEY="" # Clé du service LLM (tout fournisseur de modèle offrant une API au format OpenAI, pas nécessaire si vous utilisez ollama en local)
+- LLM_API_BASE="https://api.siliconflow.cn/v1" # Adresse de l'interface du service LLM
+- JINA_API_KEY="" # Clé du service de moteur de recherche (Jina recommandé, même disponible sans inscription pour un usage personnel)
+- PRIMARY_MODEL="Qwen3-14B" # Recommandé Qwen3-14B ou un modèle de réflexion de niveau équivalent
+
 ### 🚀 Décollage !
 
 - pour MacOS/Linux :
 
 ```bash
 cd wiseflow
+uv venv # nécessaire uniquement lors de la première exécution
+uv sync # nécessaire uniquement lors de la première exécution
+python -m playwright install --with-deps chromium # nécessaire uniquement lors de la première exécution
+chmod +x run.sh # nécessaire uniquement lors de la première exécution
 ./run.sh
 ```
-
-(Note : Vous devrez peut-être d'abord exécuter `chmod +x run.sh` pour accorder les permissions d'exécution)
 
 - pour Windows :
 
 ```bash
 cd wiseflow
+uv venv # nécessaire uniquement lors de la première exécution
+uv sync # nécessaire uniquement lors de la première exécution
+python -m playwright install --with-deps chromium # nécessaire uniquement lors de la première exécution
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser # nécessaire uniquement lors de la première exécution
 .\run.ps1
 ```
 
-(Note : Vous devrez peut-être d'abord exécuter `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` pour accorder les permissions d'exécution)
-
-Si vous rencontrez des problèmes pour démarrer le navigateur virtuel, vous pouvez exécuter la commande suivante :
-
-```bash
-python -m playwright install --with-deps chromium
-```
-
-Pour des instructions détaillées, voir [docs/manual.md](./docs/manual.md)
+Pour des instructions détaillées, voir [docs/manual/manual_fr.md](./docs/manual/manual_fr.md)
 
 ## 📚 Comment utiliser les données crawlees par Wiseflow dans vos propres programmes
 

@@ -1,25 +1,21 @@
 # AI Chief Intelligence Officer (Wiseflow)
 
-**[English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Deutsch](README_DE.md) | [Français](README_FR.md)**
+**[简体中文](README.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [العربية](README_AR.md)**
 
 🚀 **Use large language models to mine information you're truly interested in from massive data and various sources daily!**
 
 What we lack is not information, but the ability to filter out noise from massive information to reveal valuable insights.
 
-🌱 See how AI Intelligence Officer helps you save time, filter out irrelevant information, and organize key points! 🌱
-
-https://github.com/user-attachments/assets/fc328977-2366-4271-9909-a89d9e34a07b
-
 ## 🔥🔥🔥 Wiseflow 4.0 Version Officially Released!
+
+https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 
 (Online service is currently not switched to 4.0 core due to technical reasons, we are accelerating the upgrade)
 
-After a three-month wait, we finally welcome the official release of Wiseflow 4.0!
+After three months of waiting, we are finally pleased to announce the official release of the wiseflow 4.0 version! This version introduces a completely new 4.x architecture, introduces support for social media sources, and brings many new features.
 
-This version brings a brand new 4.x architecture, introduces support for social media sources, and brings many new features.
-
-🌟 4.x includes WIS Crawler (deeply restructured and integrated based on Crawl4ai, MediaCrawler, and Nodriver), which now perfectly supports web pages and social media. Version 4.0 initially provides support for Weibo and Kuaishou platforms, with plans to add more platforms including:
-WeChat Official Accounts, Xiaohongshu, Douyin, Bilibili, Zhihu...
+4.x includes WIS Crawler (deeply reconstructed and integrated based on Crawl4ai, MediaCrawler, and Nodriver), which now provides complete support for web pages and social media sources. The 4.0 version initially provides support for the Weibo and Kuaishou platforms, with plans to add other platforms gradually, including:
+WeChat official accounts, Xiaohongshu, Douyin, Bilibili, Zhihu...
 
 Other new features brought by the 4.x architecture include:
 
@@ -48,7 +44,7 @@ Specifically, "deep search" is where LLM autonomously plans search paths for spe
 
 ……… We also look forward to interested developers joining us to build an AI Chief Intelligence Officer accessible to everyone!
 
-## 🚀 Quick Start
+## 🌟 Quick Start
 
 **Just three steps to get started!**
 
@@ -70,7 +66,7 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-🌟 The above operations will complete the installation of uv. For pocketbase installation, please refer to [pocketbase docs](https://pocketbase.io/docs/)
+The above operations will complete the installation of uv. For pocketbase installation, please refer to [pocketbase docs](https://pocketbase.io/docs/)
 
 You can also try using install_pocketbase.sh (for MacOS/Linux) or install_pocketbase.ps1 (for Windows) to install.
 
@@ -78,33 +74,38 @@ You can also try using install_pocketbase.sh (for MacOS/Linux) or install_pocket
 
 In the wiseflow folder (project root directory), create a .env file based on env_sample and fill in the relevant settings
 
+Version 4.x does not require users to provide pocketbase credentials in .env, nor does it restrict pocketbase version. Additionally, we have temporarily removed the Secondary Model setting. Therefore, you only need a minimum of four parameters to complete the configuration:
+
+- LLM_API_KEY="" # LLM service key (any model provider offering OpenAI format API, not required if using ollama locally)
+- LLM_API_BASE="https://api.siliconflow.cn/v1" # LLM service interface address
+- JINA_API_KEY="" # Search engine service key (Jina recommended, even available without registration for personal use)
+- PRIMARY_MODEL="Qwen3-14B" # Recommended Qwen3-14B or equivalent thinking model
+
 ### 🚀 Take Off!
 
 - for MacOS/Linux:
 
 ```bash
 cd wiseflow
+uv venv # only needed the first time
+uv sync # only needed the first time
+python -m playwright install --with-deps chromium # only needed the first time
+chmod +x run.sh # only needed the first time
 ./run.sh
 ```
-
-(Note: You may need to execute `chmod +x run.sh` first to grant execution permission)
 
 - for Windows:
 
 ```bash
 cd wiseflow
+uv venv # only needed the first time
+uv sync # only needed the first time
+python -m playwright install --with-deps chromium # only needed the first time
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser # only needed the first time
 .\run.ps1
 ```
 
-(Note: You may need to execute `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` first to grant execution permission)
-
-If you encounter issues starting the virtual browser, you can execute the following command:
-
-```bash
-python -m playwright install --with-deps chromium
-```
-
-For detailed usage instructions, please refer to [docs/manual.md](./docs/manual.md)
+For detailed usage instructions, please refer to [docs/manual/manual_en.md](./docs/manual/manual_en.md)
 
 ## 📚 How to Use Data Crawled by Wiseflow in Your Own Programs
 
