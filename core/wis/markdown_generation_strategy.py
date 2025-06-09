@@ -22,13 +22,11 @@ def extract_info_from_img(url: str) -> str:
         return '§to_be_recognized_by_visual_llm§'
     if not is_valid_img_url(url):
         return ''
-    llm_output = llm([{"role": "user",
-        "content": [{"type": "image_url", "image_url": {"url": url, "detail": "high"}},
-        {"type": "text", "text": "提取图片中的所有文字，如果图片不包含文字或者文字很少或者你判断图片仅是网站logo、商标、图标等，则输出NA。注意请仅输出提取出的文字，不要输出别的任何内容。"}]}],
-        model=vl_model)
-    if not llm_output:
-        return ''
     try:
+        llm_output = llm([{"role": "user",
+            "content": [{"type": "image_url", "image_url": {"url": url, "detail": "high"}},
+            {"type": "text", "text": "提取图片中的所有文字，如果图片不包含文字或者文字很少或者你判断图片仅是网站logo、商标、图标等，则输出NA。注意请仅输出提取出的文字，不要输出别的任何内容。"}]}],
+            model=vl_model)
         return llm_output.choices[0].message.content
     except Exception as e:
         return ''

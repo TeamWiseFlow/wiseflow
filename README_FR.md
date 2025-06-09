@@ -48,25 +48,18 @@ Concrètement, la "Recherche Profonde" est où le LLM planifie de manière auton
 
 **Seulement trois étapes pour commencer !**
 
-### 📋 Télécharger le code source du projet et installer uv et pocketbase
+**Les utilisateurs Windows doivent d'abord télécharger l'outil Git Bash et exécuter les commandes suivantes dans bash [Lien de téléchargement Bash](https://git-scm.com/downloads/win)**
 
-- pour MacOS/Linux :
+### 📋 Télécharger le code source du projet et installer uv et pocketbase
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-- pour Windows :
+Les opérations ci-dessus complètent l'installation de uv. 
 
-**Les utilisateurs Windows doivent d'abord télécharger l'outil Git Bash et exécuter les commandes suivantes dans bash [Lien de téléchargement Bash](https://git-scm.com/downloads/win)**
-
-```bash
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-git clone https://github.com/TeamWiseFlow/wiseflow.git
-```
-
-Les opérations ci-dessus complètent l'installation de uv. Pour l'installation de pocketbase, voir [pocketbase docs](https://pocketbase.io/docs/)
+Ensuite, téléchargez le programme pocketbase correspondant à votre système depuis [pocketbase docs](https://pocketbase.io/docs/) et placez-le dans le dossier [.pb](./pb/).
 
 Vous pouvez également essayer d'utiliser install_pocketbase.sh (pour MacOS/Linux) ou install_pocketbase.ps1 (pour Windows) pour l'installation.
 
@@ -83,26 +76,16 @@ La version 4.x ne nécessite pas que l'utilisateur fournisse les identifiants po
 
 ### 🚀 Décollage !
 
-- pour MacOS/Linux :
-
 ```bash
 cd wiseflow
 uv venv # nécessaire uniquement lors de la première exécution
+source .venv/bin/activate  # Linux/macOS
+# ou Windows :
+# .venv\Scripts\activate
 uv sync # nécessaire uniquement lors de la première exécution
 python -m playwright install --with-deps chromium # nécessaire uniquement lors de la première exécution
 chmod +x run.sh # nécessaire uniquement lors de la première exécution
 ./run.sh
-```
-
-- pour Windows :
-
-```bash
-cd wiseflow
-uv venv # nécessaire uniquement lors de la première exécution
-uv sync # nécessaire uniquement lors de la première exécution
-python -m playwright install --with-deps chromium # nécessaire uniquement lors de la première exécution
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser # nécessaire uniquement lors de la première exécution
-.\run.ps1
 ```
 
 Pour des instructions détaillées, voir [docs/manual/manual_fr.md](./docs/manual/manual_fr.md)

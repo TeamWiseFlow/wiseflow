@@ -48,25 +48,18 @@ Konkret ist "Deep Search", wo LLM für spezifische Fragen autonom Suchpfade plan
 
 **Nur drei Schritte zum Start!**
 
-### 📋 Projektquellcode herunterladen und uv sowie pocketbase installieren
+**Windows-Benutzer laden bitte zuerst das Git Bash-Tool herunter und führen die folgenden Befehle in bash aus [Bash-Download-Link](https://git-scm.com/downloads/win)**
 
-- für MacOS/Linux:
+### 📋 Projektquellcode herunterladen und uv sowie pocketbase installieren
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-- für Windows:
+Die obigen Operationen vervollständigen die Installation von uv. 
 
-**Windows-Benutzer laden bitte zuerst das Git Bash-Tool herunter und führen die folgenden Befehle in bash aus [Bash-Download-Link](https://git-scm.com/downloads/win)**
-
-```bash
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-git clone https://github.com/TeamWiseFlow/wiseflow.git
-```
-
-Die obigen Operationen vervollständigen die Installation von uv. Für die pocketbase-Installation siehe [pocketbase docs](https://pocketbase.io/docs/)
+Next, go to [pocketbase docs](https://pocketbase.io/docs/) to download the corresponding pocketbase program for your system and place it in the [.pb](./pb/) folder.
 
 Sie können auch versuchen, install_pocketbase.sh (für MacOS/Linux) oder install_pocketbase.ps1 (für Windows) zur Installation zu verwenden.
 
@@ -83,26 +76,16 @@ Die Version 4.x erfordert keine pocketbase-Anmeldedaten in der .env-Datei und ha
 
 ### 🚀 Starten!
 
-- für MacOS/Linux:
-
 ```bash
 cd wiseflow
 uv venv # nur beim ersten Starten benötigt
+source .venv/bin/activate  # Linux/macOS
+# oder Windows:
+# .venv\Scripts\activate
 uv sync # nur beim ersten Starten benötigt
 python -m playwright install --with-deps chromium # nur beim ersten Starten benötigt
 chmod +x run.sh # nur beim ersten Starten benötigt
 ./run.sh
-```
-
-- für Windows:
-
-```bash
-cd wiseflow
-uv venv # nur beim ersten Starten benötigt
-uv sync # nur beim ersten Starten benötigt
-python -m playwright install --with-deps chromium # nur beim ersten Starten benötigt
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser # nur beim ersten Starten benötigt
-.\run.ps1
 ```
 
 Detaillierte Anweisungen finden Sie unter [docs/manual/manual_de.md](./docs/manual/manual_de.md)

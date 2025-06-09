@@ -53,27 +53,20 @@
 
 **تثبيت النشر يتطلب ثلاث خطوات فقط!**
 
-### 📋 تنزيل كود المصدر للمشروع وتثبيت uv وPocketBase
+**يجب على مستخدمي Windows تحميل أداة git bash مسبقاً وتنفيذ الأوامر التالية في bash [رابط تحميل bash](https://git-scm.com/downloads/win)**
 
-- لنظامي MacOS/Linux:
+### 📋 تحميل كود المصدر وتثبيت uv و pocketbase
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-- لنظام Windows:
+ستكتمل عملية تثبيت uv من خلال الخطوات السابقة.
 
-**يجب على مستخدمي Windows تنزيل أداة Git Bash مسبقاً وتنفيذ الأوامر التالية في bash [رابط تنزيل Bash](https://git-scm.com/downloads/win)**
+بعد ذلك، قم بزيارة [pocketbase docs](https://pocketbase.io/docs/) لتحميل برنامج pocketbase المناسب لنظام التشغيل الخاص بك وضعه في مجلد [.pb](./pb/)
 
-```bash
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-git clone https://github.com/TeamWiseFlow/wiseflow.git
-```
-
-ستكمل العمليات أعلاه تثبيت uv. لتثبيت PocketBase، يرجى الرجوع إلى [PocketBase docs](https://pocketbase.io/docs/)
-
-يمكنك أيضاً تجربة استخدام install_pocketbase.sh (لنظامي MacOS/Linux) أو install_pocketbase.ps1 (لنظام Windows) للتثبيت.
+يمكنك أيضاً استخدام install_pocketbase.sh (لنظامي MacOS/Linux) أو install_pocketbase.ps1 (لنظام Windows) للتثبيت.
 
 ### 📥 تكوين ملف .env بناءً على env_sample
 
@@ -89,26 +82,16 @@ git clone https://github.com/TeamWiseFlow/wiseflow.git
 
 ### 🚀 دعنا نبدأ!
 
-- لنظامي MacOS/Linux:
-
 ```bash
 cd wiseflow
-uv venv # مطلوب فقط للتنفيذ الأول
-uv sync # مطلوب فقط للتنفيذ الأول
-python -m playwright install --with-deps chromium # مطلوب فقط للتنفيذ الأول
-chmod +x run.sh # مطلوب فقط للتنفيذ الأول
+uv venv # فقط يحتاج إلى التنفيذ في المرة الأولى
+source .venv/bin/activate  # Linux/macOS
+# لنظام Windows:
+# .venv\Scripts\activate
+uv sync # فقط يحتاج إلى التنفيذ في المرة الأولى
+python -m playwright install --with-deps chromium # فقط يحتاج إلى التنفيذ في المرة الأولى
+chmod +x run.sh # فقط يحتاج إلى التنفيذ في المرة الأولى
 ./run.sh
-```
-
-- لنظام Windows:
-
-```bash
-cd wiseflow
-uv venv # مطلوب فقط للتنفيذ الأول
-uv sync # مطلوب فقط للتنفيذ الأول
-python -m playwright install --with-deps chromium # مطلوب فقط للتنفيذ الأول
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser # مطلوب فقط للتنفيذ الأول
-.\run.ps1
 ```
 
 ✨ **بهذه البساطة!** سيكمل سكريبت البدء المهام التالية تلقائياً:

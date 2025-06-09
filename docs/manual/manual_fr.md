@@ -53,23 +53,18 @@ Vous pouvez ajouter des sources d'information soit sur la page sources, soit sur
 
 **L'installation se fait en seulement trois étapes !**
 
-### 📋 Téléchargement du code source du projet et installation de uv et pocketbase
+**Les utilisateurs Windows doivent d'abord télécharger l'outil Git Bash et exécuter les commandes suivantes dans bash [Lien de téléchargement Bash](https://git-scm.com/downloads/win)**
 
-- pour MacOS/Linux :
+### 📋 Télécharger le code source du projet et installer uv et pocketbase
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-- pour Windows :
+Les opérations ci-dessus complètent l'installation de uv. 
 
-**Les utilisateurs Windows doivent d'abord télécharger Git Bash, puis exécuter les commandes suivantes dans Bash [Lien de téléchargement de Bash](https://git-scm.com/downloads/win)**
-
-```bash
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-git clone https://github.com/TeamWiseFlow/wiseflow.git
-```
+Ensuite, téléchargez le programme pocketbase correspondant à votre système depuis [pocketbase docs](https://pocketbase.io/docs/) et placez-le dans le dossier [.pb](./pb/).
 
 Ces opérations installent uv. Pour l'installation de pocketbase, voir [pocketbase docs](https://pocketbase.io/docs/)
 
@@ -89,26 +84,16 @@ La version 4.x ne nécessite pas d'identifiants PocketBase dans le fichier .env 
 
 ### 🚀  C'est parti !
 
-- pour MacOS/Linux :
-
 ```bash
 cd wiseflow
-uv venv # requis uniquement la première fois
-uv sync # requis uniquement la première fois
-python -m playwright install --with-deps chromium # requis uniquement la première fois
-chmod +x run.sh # requis uniquement la première fois
+uv venv # nécessaire uniquement lors de la première exécution
+source .venv/bin/activate  # Linux/macOS
+# ou Windows :
+# .venv\Scripts\activate
+uv sync # nécessaire uniquement lors de la première exécution
+python -m playwright install --with-deps chromium # nécessaire uniquement lors de la première exécution
+chmod +x run.sh # nécessaire uniquement lors de la première exécution
 ./run.sh
-```
-
-- pour Windows :
-
-```bash
-cd wiseflow
-uv venv # requis uniquement la première fois
-uv sync # requis uniquement la première fois
-python -m playwright install --with-deps chromium # requis uniquement la première fois
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser # requis uniquement la première fois
-.\run.ps1
 ```
 
 ✨ **C'est aussi simple que ça !** Le script de démarrage effectue automatiquement les tâches suivantes :
