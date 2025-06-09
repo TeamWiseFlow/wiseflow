@@ -53,25 +53,18 @@ wiseflow4.x 用户操作界面使用 pocketbase （虽然我不喜欢，但暂�
 
 **部署安装仅需三步！**
 
-### 📋 下载项目源代码并安装 uv 和 pocketbase
+**windows 用户请提前下载 git bash 工具，并在 bash 中执行如下命令 [bash下载链接](https://git-scm.com/downloads/win)**
 
-- for MacOS/Linux:
+### 📋 下载项目源代码并安装 uv 和 pocketbase
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-- for Windows:
+上述操作会完成 uv 的安装。
 
-**windows 用户请提前下载 git bash 工具，并在 bash 中执行如下命令 [bash下载链接](https://git-scm.com/downloads/win)**
-
-```bash
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-git clone https://github.com/TeamWiseFlow/wiseflow.git
-```
-
-上述操作会完成 uv 的安装，pocketbase 的安装请参考 [pocketbase docs](https://pocketbase.io/docs/)
+接下来去 [pocketbase docs](https://pocketbase.io/docs/) 下载对应自己系统的 pocketbase 程序放置于 [.pb](./pb/) 文件夹下
 
 也可以尝试使用 install_pocketbase.sh (for MacOS/Linux) 或 install_pocketbase.ps1 (for Windows) 来安装。
 
@@ -89,26 +82,16 @@ git clone https://github.com/TeamWiseFlow/wiseflow.git
 
 ### 🚀  起飞！
 
-- for MacOS/Linux:
-
 ```bash
 cd wiseflow
 uv venv # 仅第一次执行需要
+source .venv/bin/activate  # Linux/macOS
+# 或者在 Windows 上：
+# .venv\Scripts\activate
 uv sync # 仅第一次执行需要
 python -m playwright install --with-deps chromium # 仅第一次执行需要
 chmod +x run.sh # 仅第一次执行需要
 ./run.sh
-```
-
-- for Windows:
-
-```bash
-cd wiseflow
-uv venv # 仅第一次执行需要
-uv sync # 仅第一次执行需要
-python -m playwright install --with-deps chromium # 仅第一次执行需要
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser # 仅第一次执行需要
-.\run.ps1
 ```
 
 ✨ **就是这么简单！** 启动脚本会自动完成以下工作：

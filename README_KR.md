@@ -48,25 +48,18 @@ https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 
 **단 3단계로 시작하세요!**
 
-### 📋 프로젝트 소스 코드 다운로드 및 uv와 pocketbase 설치
+**Windows 사용자는 사전에 Git Bash 도구를 다운로드하고 bash에서 다음 명령을 실행하세요 [Bash 다운로드 링크](https://git-scm.com/downloads/win)**
 
-- MacOS/Linux용:
+### 📋 프로젝트 소스 코드 다운로드 및 uv와 pocketbase 설치
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-- Windows용:
+위 작업으로 uv 설치가 완료됩니다.
 
-**Windows 사용자는 사전에 Git Bash 도구를 다운로드하고 bash에서 다음 명령을 실행하세요 [Bash 다운로드 링크](https://git-scm.com/downloads/win)**
-
-```bash
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-git clone https://github.com/TeamWiseFlow/wiseflow.git
-```
-
-위 작업으로 uv 설치가 완료됩니다. pocketbase 설치에 대해서는 [pocketbase docs](https://pocketbase.io/docs/)를 참조하세요
+다음으로 [pocketbase docs](https://pocketbase.io/docs/) 에서 자신의 운영체제에 맞는 pocketbase 프로그램을 다운로드하여 [.pb](./pb/) 폴더에 위치시키세요.
 
 install_pocketbase.sh(MacOS/Linux용) 또는 install_pocketbase.ps1(Windows용)을 사용하여 설치할 수도 있습니다.
 
@@ -83,26 +76,16 @@ wiseflow 폴더(프로젝트 루트 디렉토리)에서 env_sample을 참조하�
 
 ### 🚀 시작!
 
-- MacOS/Linux용:
-
 ```bash
 cd wiseflow
 uv venv # 처음 실행할 때만 필요
+source .venv/bin/activate  # Linux/macOS
+# 또는 Windows에서:
+# .venv\Scripts\activate
 uv sync # 처음 실행할 때만 필요
 python -m playwright install --with-deps chromium # 처음 실행할 때만 필요
 chmod +x run.sh # 처음 실행할 때만 필요
 ./run.sh
-```
-
-- Windows용:
-
-```bash
-cd wiseflow
-uv venv # 처음 실행할 때만 필요
-uv sync # 처음 실행할 때만 필요
-python -m playwright install --with-deps chromium # 처음 실행할 때만 필요
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser # 처음 실행할 때만 필요
-.\run.ps1
 ```
 
 자세한 사용 방법은 [docs/manual/manual_ko.md](./docs/manual/manual_ko.md)를 참조하세요

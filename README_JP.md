@@ -48,25 +48,18 @@ WeChat公式アカウント、Xiaohongshu、Douyin、Bilibili、Zhihu...
 
 **たった3ステップで始められます！**
 
-### 📋 プロジェクトのソースコードをダウンロードし、uvとpocketbaseをインストール
+**Windowsユーザーは事前にGit Bashツールをダウンロードし、bashで以下のコマンドを実行してください [Bashダウンロードリンク](https://git-scm.com/downloads/win)**·
 
-- MacOS/Linux用：
+### 📋 プロジェクトのソースコードをダウンロードし、uvとpocketbaseをインストール
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-- Windows用：
+上記の操作でuvのインストールが完了します。
 
-**Windowsユーザーは事前にGit Bashツールをダウンロードし、bashで以下のコマンドを実行してください [Bashダウンロードリンク](https://git-scm.com/downloads/win)**
-
-```bash
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-git clone https://github.com/TeamWiseFlow/wiseflow.git
-```
-
-上記の操作でuvのインストールが完了します。pocketbaseのインストールについては、[pocketbase docs](https://pocketbase.io/docs/)を参照してください
+次に、[pocketbase docs](https://pocketbase.io/docs/)からお使いのシステムに対応するpocketbaseプログラムをダウンロードし、[.pb](./pb/)フォルダに配置してください。
 
 install_pocketbase.sh（MacOS/Linux用）またはinstall_pocketbase.ps1（Windows用）を使用してインストールすることもできます。
 
@@ -83,26 +76,16 @@ wiseflowフォルダ（プロジェクトのルートディレクトリ）でenv
 
 ### 🚀 起動！
 
-- MacOS/Linux用：
-
 ```bash
 cd wiseflow
 uv venv # 初回実行時のみ必要
+source .venv/bin/activate  # Linux/macOS
+# または Windows 上：
+# .venv\Scripts\activate
 uv sync # 初回実行時のみ必要
 python -m playwright install --with-deps chromium # 初回実行時のみ必要
 chmod +x run.sh # 初回実行時のみ必要
 ./run.sh
-```
-
-- Windows用：
-
-```bash
-cd wiseflow
-uv venv # 初回実行時のみ必要
-uv sync # 初回実行時のみ必要
-python -m playwright install --with-deps chromium # 初回実行時のみ必要
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser # 初回実行時のみ必要
-.\run.ps1
 ```
 
 詳細な使用方法については、[docs/manual/manual_ja.md](./docs/manual/manual_ja.md)を参照してください

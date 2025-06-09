@@ -48,25 +48,18 @@ Specifically, "deep search" is where LLM autonomously plans search paths for spe
 
 **Just three steps to get started!**
 
-### 📋 Download Project Source Code and Install uv and pocketbase
+**Windows users please download Git Bash tool in advance and execute the following commands in bash [Bash Download Link](https://git-scm.com/downloads/win)**
 
-- for MacOS/Linux:
+### 📋 Download Project Source Code and Install uv and pocketbase
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-- for Windows:
+The above operations will complete the installation of uv. 
 
-**Windows users please download Git Bash tool in advance and execute the following commands in bash [Bash Download Link](https://git-scm.com/downloads/win)**
-
-```bash
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-git clone https://github.com/TeamWiseFlow/wiseflow.git
-```
-
-The above operations will complete the installation of uv. For pocketbase installation, please refer to [pocketbase docs](https://pocketbase.io/docs/)
+Next, go to [pocketbase docs](https://pocketbase.io/docs/) to download the corresponding pocketbase program for your system and place it in the [.pb](./pb/) folder.
 
 You can also try using install_pocketbase.sh (for MacOS/Linux) or install_pocketbase.ps1 (for Windows) to install.
 
@@ -83,26 +76,16 @@ Version 4.x does not require users to provide pocketbase credentials in .env, no
 
 ### 🚀 Take Off!
 
-- for MacOS/Linux:
-
 ```bash
 cd wiseflow
 uv venv # only needed the first time
+source .venv/bin/activate  # Linux/macOS
+# or Windows:
+# .venv\Scripts\activate
 uv sync # only needed the first time
 python -m playwright install --with-deps chromium # only needed the first time
 chmod +x run.sh # only needed the first time
 ./run.sh
-```
-
-- for Windows:
-
-```bash
-cd wiseflow
-uv venv # only needed the first time
-uv sync # only needed the first time
-python -m playwright install --with-deps chromium # only needed the first time
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser # only needed the first time
-.\run.ps1
 ```
 
 For detailed usage instructions, please refer to [docs/manual/manual_en.md](./docs/manual/manual_en.md)

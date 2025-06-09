@@ -48,25 +48,20 @@ WeChat Official Accounts و Xiaohongshu و Douyin و Bilibili و Zhihu...
 
 **ثلاث خطوات فقط للبدء!**
 
-### 📋 تحميل كود المصدر وتثبيت uv و pocketbase
+**يجب على مستخدمي Windows تحميل أداة git bash مسبقاً وتنفيذ الأوامر التالية في bash [رابط تحميل bash](https://git-scm.com/downloads/win)**
 
-- لنظام MacOS/Linux:
+### 📋 تحميل كود المصدر وتثبيت uv و pocketbase
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-- لنظام Windows:
+ستكتمل عملية تثبيت uv من خلال الخطوات السابقة.
 
-**يجب على مستخدمي Windows تحميل أداة git bash مسبقاً وتنفيذ الأوامر التالية في bash [رابط تحميل bash](https://git-scm.com/downloads/win)**
+بعد ذلك، قم بزيارة [pocketbase docs](https://pocketbase.io/docs/) لتحميل برنامج pocketbase المناسب لنظام التشغيل الخاص بك وضعه في مجلد [.pb](./pb/)
 
-```bash
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-git clone https://github.com/TeamWiseFlow/wiseflow.git
-```
-
-يمكنك أيضاً استخدام install_pocketbase.sh (لنظام MacOS/Linux) أو install_pocketbase.ps1 (لنظام Windows) للتثبيت.
+يمكنك أيضاً استخدام install_pocketbase.sh (لنظامي MacOS/Linux) أو install_pocketbase.ps1 (لنظام Windows) للتثبيت.
 
 ### 📥 تكوين ملف .env
 
@@ -81,24 +76,16 @@ git clone https://github.com/TeamWiseFlow/wiseflow.git
 
 ### 🚀  ابدأ!
 
-- لنظام MacOS/Linux:
-
 ```bash
 cd wiseflow
 uv venv # فقط يحتاج إلى التنفيذ في المرة الأولى
+source .venv/bin/activate  # Linux/macOS
+# لنظام Windows:
+# .venv\Scripts\activate
+uv sync # فقط يحتاج إلى التنفيذ في المرة الأولى
 python -m playwright install --with-deps chromium # فقط يحتاج إلى التنفيذ في المرة الأولى
 chmod +x run.sh # فقط يحتاج إلى التنفيذ في المرة الأولى
 ./run.sh
-```
-
-- لنظام Windows:
-
-```bash
-cd wiseflow
-uv venv # فقط يحتاج إلى التنفيذ في المرة الأولى
-python -m playwright install --with-deps chromium # فقط يحتاج إلى التنفيذ في المرة الأولى
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser # فقط يحتاج إلى التنفيذ في المرة الأولى
-.\run.ps1
 ```
 
 للحصول على دليل استخدام مفصل، يرجى الرجوع إلى [docs/manual/manual_ar.md](./docs/manual/manual_ar.md)

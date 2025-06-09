@@ -36,14 +36,14 @@ def perform_completion_with_backoff(messages: List, model: str = '', **kwargs):
             wis_logger.warning(error_msg)
         except APIError as e:
             if hasattr(e, 'status_code'):
-                if e.status_code in [400, 401]:
+                if e.status_code in [400, 401, 413]:
                     # client error, no need to retry
                     error_msg = f"{model} Client error: {e.status_code}. Detail: {str(e)}"
                     if 'Image url should be a valid url or should like data:image/TYPE;base64' not in str(e):
                         # image url probility is that server cannot fetch the image, so we don't need to worry about it
                         wis_logger.error(error_msg)
                         wis_logger.info(f"messages: {messages}")
-                    return None
+                    raise e
                 else:
                     # other API error, retry
                     error_msg = f"{model} API error: {e.status_code}. Retry {retry+1}/{max_retries}."
@@ -66,7 +66,7 @@ def perform_completion_with_backoff(messages: List, model: str = '', **kwargs):
     # if all retries fail
     error_msg = "Max retries reached, still unable to get a valid response."
     wis_logger.error(error_msg)
-    return None
+    raise Exception(error_msg)
 
 
 PROMPT_EXTRACT_BLOCKS = """Extract all information related to the following focus points from the main-content of given markdown, and find all links worth further exploration based on the focus points (represented by a citation mark like [x]) from the whole markdown:
