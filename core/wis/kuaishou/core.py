@@ -45,7 +45,7 @@ class KuaiShouCrawler:
         await account_with_ip_pool.async_initialize()
 
         self.ks_client.account_with_ip_pool = account_with_ip_pool
-        await self.ks_client.update_account_info()
+        self.ks_client.account_info = await account_with_ip_pool.get_account_with_ip_info()
 
     async def posts_list(self,
                          keywords: List[str],

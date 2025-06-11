@@ -318,6 +318,7 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
                             if 'wb' not in recorder.item_source:
                                 recorder.item_source['wb'] = 0
                             recorder.item_source['wb'] += 1
+                            await asyncio.sleep(1)
                     elif source_name == KUAISHOU_PLATFORM_NAME:
                         existings[KUAISHOU_PLATFORM_NAME].update(un_related_urls)
                         for video in un_related_urls:
@@ -327,6 +328,8 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
                             if 'ks' not in recorder.item_source:
                                 recorder.item_source['ks'] = 0
                             recorder.item_source['ks'] += 1
+                            # it seems that kuaishou can afford more requests per second...
+                            # await asyncio.sleep(1)
                 except Exception as e:
                     wis_logger.error(f"Error Extracting Post List: {e}")
                     continue

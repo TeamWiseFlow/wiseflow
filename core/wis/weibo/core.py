@@ -49,7 +49,7 @@ class WeiboCrawler:
         await account_with_ip_pool.async_initialize()
 
         self.wb_client.account_with_ip_pool = account_with_ip_pool
-        await self.wb_client.update_account_info()
+        self.wb_client.account_info = await account_with_ip_pool.get_account_with_ip_info()
 
     async def posts_list(self,
                          keywords: List[str],
@@ -102,8 +102,15 @@ class WeiboCrawler:
                 return cached_result
             
         note_detail = await self.get_note_info(note_id)
+        if not note_detail:
+            return None
+        
         try:
             mblog: Dict = note_detail.get("mblog", {})
+            if not mblog:
+                wis_logger.warning(f"get note_id:{note_id} mblog failed")
+                return None
+            
             content = mblog.get("text")
             title = mblog.get("status_title")
             user_info: Dict = mblog.get("user")

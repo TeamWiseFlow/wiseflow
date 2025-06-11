@@ -68,18 +68,40 @@ if ($env:VIRTUAL_ENV) {
 }
 
 # Check and start PocketBase
-$pocketbaseProcess = Get-Process -Name "pocketbase" -ErrorAction SilentlyContinue
-$portInUse = Get-NetTCPConnection -LocalPort 8090 -ErrorAction SilentlyContinue
+# First check if port 8090 is in use
+$portInUse = Get-NetTCPConnection -LocalPort 8090 -State Listen -ErrorAction SilentlyContinue
 
-if (-not $pocketbaseProcess) {
-    if (-not $portInUse) {
-        Write-Info "Starting PocketBase..."
-        Start-Process -FilePath ".\pb\pocketbase.exe" -ArgumentList "serve --http=127.0.0.1:8090" -NoNewWindow
+if ($portInUse) {
+    Write-Info "Port 8090 is already in use, checking if it's PocketBase..."
+
+    # Check if a PocketBase process is running. Using CIM/WMI is more robust as it can check the command line.
+    $pbProcess = Get-CimInstance Win32_Process -Filter "Name = 'pocketbase.exe' OR CommandLine LIKE '%pocketbase.exe%serve%'" -ErrorAction SilentlyContinue
+    if ($pbProcess) {
+        Write-Info "PocketBase is already running."
     } else {
-        Write-Warning "Port 8090 is already in use."
+        Write-Warning "Port 8090 is in use by another process. Please stop it first or use a different port."
     }
 } else {
-    Write-Info "PocketBase is already running."
+    # Port is available, but check for a lingering PocketBase process anyway.
+    $pbProcess = Get-CimInstance Win32_Process -Filter "Name = 'pocketbase.exe' OR CommandLine LIKE '%pocketbase.exe%serve%'" -ErrorAction SilentlyContinue
+    if ($pbProcess) {
+        Write-Warning "PocketBase process found but not using port 8090. It might have crashed."
+        Write-Info "Attempting to start PocketBase on port 8090..."
+    } else {
+        Write-Info "Starting PocketBase..."
+    }
+
+    # Start PocketBase
+    Start-Process -FilePath ".\pb\pocketbase.exe" -ArgumentList "serve --http=127.0.0.1:8090" -NoNewWindow
+
+    # Give it a moment to start and check if it's running
+    Start-Sleep -Seconds 2
+    $portCheck = Get-NetTCPConnection -LocalPort 8090 -State Listen -ErrorAction SilentlyContinue
+    if ($portCheck) {
+        Write-Info "PocketBase started successfully on port 8090."
+    } else {
+        Write-Error "Failed to start PocketBase. Please check for errors."
+    }
 }
 
 # Run the main application

@@ -246,11 +246,12 @@ Docker deployment solution for version 4.x please wait for follow-up, and we als
 
 Open source is not easy ☺️ Documentation writing and consultation Q&A are even more time-consuming. If you're willing to provide support, we'll offer better quality services~
 
-- Detailed tutorial video + 3 email Q&A sessions: $1.99
-- Detailed tutorial video + 3 email Q&A sessions + Join paid user WeChat group: $2.99
+- Detailed tutorial video + 3 email Q&A sessions + Join paid user WeChat group: ¥36.88
 
-*Note: The paid user group does not provide Q&A services, it's only for exchanging product requirements and usage experiences. Future iterations will prioritize high-frequency requirements from the paid user group, and system optimization will mainly target cases from the paid user group*
+*Note: The paid user group does not provide Q&A services, it is only for exchanging product requirements and user experiences. Future iterations will prioritize high-frequency needs from the paid user group, and system optimization will also focus on cases from the paid user group.*
 
-Payment method: Scan the payment code below, fill in your email in the remarks when paying, and we will contact you within 24 hours to provide service.
+Payment method: Scan the QR code below, then add WeChat: bigbrother666sh, and provide a screenshot of the payment.
 
-<img src="alipay.png" alt="Alipay Payment Code" width="300">      <img src="weixinpay.jpg" alt="WeChat Payment Code" width="300"> 
+(Friend requests will be accepted within 8 hours. You can also contact us via email at 35252986@qq.com)
+
+<img src="alipay.png" alt="Alipay QR Code" width="300">      <img src="weixinpay.jpg" alt="WeChat Pay QR Code" width="300">

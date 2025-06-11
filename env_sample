@@ -1,10 +1,10 @@
 LLM_API_KEY="" # allpy at https://cloud.siliconflow.cn/i/WNLYbBpi or https://aihubmix.com?aff=Gp54
 LLM_API_BASE="https://api.siliconflow.cn/v1" # for siliconflow, if you use AiHubMix(OpenAI model), please set to "https://aihubmix.com/v1"
 JINA_API_KEY="" # for the search tool, apply at https://jina.ai/ (for personal use, no need to pay or register)
-PRIMARY_MODEL="Qwen3-14B" # use o4-mini for better performance
+PRIMARY_MODEL=Qwen/Qwen3-14B # use o4-mini for better performance
 # SECONDARY_MODEL="Qwen3-14B"
-VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct" # use get4o for better performance
+VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # use get4o for better performance
 
 ## belowing is optional, go as you need
-# VERBOSE="true" ##for detail log info. If not need, remove this item.
+# VERBOSE=true ##for detail log info. If not need, remove this item.
 # CONCURRENT_NUMBER=8 ##make sure your llm provider supports it(leave default is 1)

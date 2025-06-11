@@ -1,0 +1,45 @@
+       "sites": [
+          {
+            "url": "https://auction.jd.com/bankrupt.htm",
+            "type": "web"
+          },
+          {
+            "url": "https://gf.trade.icbc.com.cn",
+            "type": "web"
+          },
+          {
+            "url": "https://otc.cbex.com",
+            "type": "web"
+          },
+          {
+            "url": "https://otc.cbex.com/page/sfpm/list/index.html",
+            "type": "web"
+          },
+          {
+            "url": "https://pmsearch.jd.com/?publishSource=7",
+            "type": "web"
+          },
+          {
+            "url": "https://sf.caa123.org.cn/pages/lots.html",
+            "type": "web"
+          },
+          {
+            "url": "https://sf.taobao.com",
+            "type": "web"
+          },
+          {
+            "url": "https://s.gpai.net/sf/search.do?q=",
+            "type": "web"
+          },
+          {
+            "url": "https://www.cbex.com.cn",
+            "type": "web"
+          },
+          {
+            "url": "http://www.caal23.org.cn",
+            "type": "web"
+          }
+        ],
+        "created_at": "2025-03-24T06:56:10.468519+00:00",
+        "focuspoint": "获取资产信息，住宅用房、商业用房、工业用房、土地、资产、股权、债券 、商业物业、工业地产、酒店及土地使用权等信息，并要分类整理出这些信息，并进行不同关键字的抓取，一定要多次思考，提取出最佳的关键字，需要符合下面的要求：城市：北京、上海、广州、深圳、海口、三亚、成都、杭州、重庆、天津、济南、青岛、南京、宁波、嘉兴、贵阳、西安、长沙、合肥、芜湖、福州、南宁、沈阳、长春等。资产：房地产类资产，住宅用房、商业用房、工业用房、土地、资产、股权、债券、商业物业、工业地产、酒店、房产及土地等形态。起价：人民币100000000元及以上。性质：挂出在网站上尚在公示期、即将开始、正在进行等状态的项目。标签：标的资产信息、项目名称、拍卖标的物、转让低价、转让标的基本情况、转让方基本情况、交易条件与受让方资格条件、信息披露起始日期、信息披露结束日期、位置坐落、建筑面积、特别提醒、拍卖时间、拍卖条件、竞买人条件、税费等信息。竞买公告、竞价标的、拍卖公告、拍卖标的关键信息。坐落位置、房产证号、建筑面积、土地证号、土地面积、权证情况、资产包信息、重要信息披露、与转让相关其他条件等信息提取",
+        "explanation": "7天内同步最新挂牌及成交数据",

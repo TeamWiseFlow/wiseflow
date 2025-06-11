@@ -53,10 +53,11 @@ migrate((app) => {
         "maxSelect": 1,
         "minSelect": 0,
         "name": "source",
+        "onlyDomains": [],
         "presentable": false,
         "required": false,
         "system": false,
-        "type": "relation"
+        "type": "url"
       },
       {
         "autogeneratePattern": "",
