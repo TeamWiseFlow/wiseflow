@@ -248,11 +248,12 @@ Le schéma de déploiement Docker pour la version 4.x suivra plus tard. Nous esp
 
 L'open source n'est pas facile ☺️ La documentation et les conseils prennent beaucoup de temps. Si vous êtes prêt à fournir un soutien, nous offrons de meilleurs services~
 
-- Vidéo tutorielle détaillée + 3 consultations par e-mail : ￥12.88
-- Vidéo tutorielle détaillée + 3 consultations par e-mail + adhésion au groupe d'utilisateurs payants : ￥19.88
+- Vidéo tutoriel détaillée + 3 sessions de questions-réponses par e-mail + adhésion au groupe WeChat des utilisateurs payants : 36,88 ¥
 
-*Note : Aucune consultation n'est offerte dans le groupe d'utilisateurs payants, il sert uniquement à l'échange d'exigences de produits et d'expériences d'utilisation. Dans les itérations futures, les exigences fréquentes du groupe d'utilisateurs payants seront prioritaires, et les optimisations du système seront principalement effectuées pour les cas dans le groupe d'utilisateurs payants*
+*Remarque : Le groupe d'utilisateurs payants ne fournit pas de service de questions-réponses, il sert uniquement à échanger sur les besoins du produit et les expériences d'utilisation. Les futures itérations donneront la priorité aux besoins fréquents du groupe d'utilisateurs payants, et l'optimisation du système se concentrera également principalement sur les cas de ce groupe.*
 
-Méthode de paiement : Scannez le code de paiement suivant et indiquez votre adresse e-mail dans le commentaire. Nous vous contacterons dans les 24 heures et fournirons le service.
+Mode de paiement : Scannez le code QR ci-dessous, puis ajoutez WeChat : bigbrother666sh, et fournissez une capture d'écran du paiement.
 
-<img src="alipay.png" alt="Code de paiement Alipay" width="300">      <img src="weixinpay.jpg" alt="Code de paiement WeChat" width="300"> 
+(Les demandes d'ami seront acceptées dans un délai de 8 heures. Vous pouvez également nous contacter par e-mail à 35252986@qq.com)
+
+<img src="alipay.png" alt="Code QR Alipay" width="300">      <img src="weixinpay.jpg" alt="Code QR WeChat Pay" width="300"> 

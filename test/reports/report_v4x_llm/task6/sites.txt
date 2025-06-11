@@ -1,0 +1,8 @@
+          {
+            "url": "https://politepol.com/fd/GG48u76Zv2C9.xml",
+            "type": "rss"
+          },
+          {
+            "url": "https://politepol.com/fd/w7KXLxISSIiM.xml",
+            "type": "rss"
+          }

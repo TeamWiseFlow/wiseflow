@@ -52,7 +52,7 @@ class AccountPoolManager:
             account = self._account_list.pop(0)
             if account.status.value == AccountStatusEnum.NORMAL.value:
                 wis_logger.debug(
-                    f"from saved, get active account {account}"
+                    f"from account pool get active account {account}"
                 )
                 return account
 

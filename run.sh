@@ -59,15 +59,35 @@ else
 fi
 
 # Check and start PocketBase
-if ! pgrep -x "pocketbase" > /dev/null; then
-    if ! netstat -tuln | grep ":8090" > /dev/null && ! lsof -i :8090 > /dev/null; then
-        print_info "Starting PocketBase..."
-        ./pb/pocketbase serve --http=127.0.0.1:8090 &
+# First check if port 8090 is in use
+if netstat -tuln 2>/dev/null | grep ":8090" > /dev/null || lsof -i :8090 2>/dev/null > /dev/null; then
+    print_info "Port 8090 is already in use, checking if it's PocketBase..."
+    
+    # Check if it's actually pocketbase using the port
+    if pgrep -f "pocketbase.*serve" > /dev/null || pgrep -f "./pb/pocketbase" > /dev/null; then
+        print_info "PocketBase is already running."
     else
-        print_warning "Port 8090 is already in use."
+        print_warning "Port 8090 is in use by another process. Please stop it first or use a different port."
     fi
 else
-    print_info "PocketBase is already running."
+    # Port is available, check if pocketbase process exists anyway
+    if pgrep -f "pocketbase.*serve" > /dev/null || pgrep -f "./pb/pocketbase" > /dev/null; then
+        print_warning "PocketBase process found but not using port 8090. It might have crashed."
+        print_info "Attempting to start PocketBase on port 8090..."
+    else
+        print_info "Starting PocketBase..."
+    fi
+    
+    # Start PocketBase
+    ./pb/pocketbase serve --http=127.0.0.1:8090 &
+    
+    # Give it a moment to start and check if it's running
+    sleep 2
+    if netstat -tuln 2>/dev/null | grep ":8090" > /dev/null || lsof -i :8090 2>/dev/null > /dev/null; then
+        print_info "PocketBase started successfully on port 8090."
+    else
+        print_error "Failed to start PocketBase. Please check for errors."
+    fi
 fi
 
 # Run the main application
