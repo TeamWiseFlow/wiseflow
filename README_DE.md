@@ -37,8 +37,8 @@ Konkret ist "Deep Search", wo LLM für spezifische Fragen autonom Suchpfade plan
 ## ✋ Was macht Wiseflow anders als andere KI-gestützte Crawler?
 
 - Vollständige Plattform-Erfassungsfähigkeiten, einschließlich Webseiten, Social Media (derzeit Unterstützung für Weibo- und Kuaishou-Plattformen), RSS-Quellen, Suchmaschinen etc.;
-- Nicht nur Crawling, sondern automatische Analyse und Filterung, funktioniert gut mit nur einem 14b-Parameter-LLM;
-- Benutzerfreundlich (nicht nur für Entwickler), keine Codierung erforderlich, "sofort einsatzbereit";
+- Einzigartiger HTML-Verarbeitungsprozess, der automatisch Informationen basierend auf Fokuspunkten extrahiert und Links für weitere Erkundung entdeckt, funktioniert gut mit nur einem 14b-Parameter-LLM;
+- Benutzerfreundlich (nicht nur für Entwickler), keine manuelle Xpath-Konfiguration erforderlich, "sofort einsatzbereit";
 - Hohe Stabilität und Verfügbarkeit durch kontinuierliche Iteration und Verarbeitungseffizienz, die Systemressourcen und Geschwindigkeit ausbalanciert;
 - (Zukunft) Fähigkeit, "versteckte Informationen" unter erworbenen Informationen durch das Insight-Modul zu erschließen
 
@@ -72,7 +72,8 @@ Die Version 4.x erfordert keine pocketbase-Anmeldedaten in der .env-Datei und ha
 - LLM_API_KEY="" # Schlüssel für den LLM-Dienst (jeder Modellanbieter mit OpenAI-Format-API, nicht erforderlich bei lokaler ollama-Installation)
 - LLM_API_BASE="https://api.siliconflow.cn/v1" # LLM-Dienstschnittstellenadresse
 - JINA_API_KEY="" # Schlüssel für den Suchmaschinendienst (Jina empfohlen, für persönliche Nutzung sogar ohne Registrierung verfügbar)
-- PRIMARY_MODEL="Qwen3-14B" # Qwen3-14B oder ein gleichwertiges Denkmodell empfohlen
+- PRIMARY_MODEL="Qwen/Qwen3-14B" # Qwen3-14B oder ein gleichwertiges Denkmodell empfohlen
+- VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct" # empfohlen
 
 ### 🚀 Starten!
 

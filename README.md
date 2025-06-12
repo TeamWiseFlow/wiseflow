@@ -37,8 +37,8 @@ https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 ## ✋ What makes wiseflow different from other ai-powered crawlers?
 
 - 全平台的获取能力，包括网页、社交媒体（目前提供对微博和快手平台的支持）、RSS 信源、搜索引擎等；
-- 不仅是抓取，而是自动分析和过滤，且仅需 14b 参数量的大模型即可很好的工作；
-- 面向普通用户（而非开发者），无需写代码，"开箱即用"；
+- 独特的 html 处理流程，自动按关注点提取信息并发现值得进一步探索的链接，且仅需 14b 参数量的大模型即可很好的工作；
+- 面向普通用户（而非开发者），无需人工介入提供 Xpath 等，"开箱即用"；
 - 持续迭代带来的高稳定性和高可用性，以及兼顾系统资源和速度的处理效率；
 - （未来）通过 insight 模块提供挖掘隐藏在已获取信息之下的"暗信息"的能力
 
@@ -73,7 +73,8 @@ git clone https://github.com/TeamWiseFlow/wiseflow.git
 - LLM_API_KEY="" # LLM 服务的 key （任何提供 OpenAI 格式 API 的模型服务商均可，本地使用 ollama 部署则无需设置）
 - LLM_API_BASE="https://api.siliconflow.cn/v1" # LLM 服务接口地址
 - JINA_API_KEY="" # 搜索引擎服务的 key （推荐 Jina，个人使用甚至无需注册即可申请）
-- PRIMARY_MODEL="Qwen3-14B" # 推荐 Qwen3-14B 或同量级思考模型
+- PRIMARY_MODEL=Qwen/Qwen3-14B # 推荐 Qwen3-14B 或同量级思考模型
+- VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # better to have
 
 ### 🚀  起飞！
 
