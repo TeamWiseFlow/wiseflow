@@ -37,8 +37,8 @@ Concrètement, la "Recherche Profonde" est où le LLM planifie de manière auton
 ## ✋ Qu'est-ce qui rend Wiseflow différent des autres crawlers alimentés par l'IA ?
 
 - Capacités complètes de capture de plateforme, incluant les pages web, les médias sociaux (support actuel des plateformes Weibo et Kuaishou), les sources RSS, les moteurs de recherche, etc. ;
-- Non seulement le crawling, mais aussi l'analyse et le filtrage automatiques, fonctionnant bien avec seulement un LLM de 14b paramètres ;
-- Convivial (pas seulement pour les développeurs), pas besoin de codage, "prêt à l'emploi" ;
+- Flux de traitement HTML unique qui extrait automatiquement les informations en fonction des points d'intérêt et découvre les liens méritant une exploration plus approfondie, fonctionnant bien avec seulement un LLM de 14b paramètres ;
+- Convivial (pas seulement pour les développeurs), pas besoin de configuration manuelle Xpath, "prêt à l'emploi" ;
 - Haute stabilité et disponibilité grâce à l'itération continue, et efficacité de traitement équilibrant les ressources système et la vitesse ;
 - (Futur) Capacité à extraire les "informations cachées" sous les informations acquises via le module insight
 
@@ -72,7 +72,8 @@ La version 4.x ne nécessite pas que l'utilisateur fournisse les identifiants po
 - LLM_API_KEY="" # Clé du service LLM (tout fournisseur de modèle offrant une API au format OpenAI, pas nécessaire si vous utilisez ollama en local)
 - LLM_API_BASE="https://api.siliconflow.cn/v1" # Adresse de l'interface du service LLM
 - JINA_API_KEY="" # Clé du service de moteur de recherche (Jina recommandé, même disponible sans inscription pour un usage personnel)
-- PRIMARY_MODEL="Qwen3-14B" # Recommandé Qwen3-14B ou un modèle de réflexion de niveau équivalent
+- PRIMARY_MODEL=Qwen/Qwen3-14B # Recommandé Qwen3-14B ou un modèle de réflexion de niveau équivalent
+- VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # recommandé
 
 ### 🚀 Décollage !
 
