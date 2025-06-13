@@ -1,6 +1,6 @@
 # Officier en Chef de l'Intelligence Artificielle (Wiseflow)
 
-**[English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Deutsch](README_DE.md) | [العربية](README_AR.md) | [简体中文](README.md)**
+**[简体中文](README.md) | [English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [العربية](README_AR.md)**
 
 🚀 **Utilisez les grands modèles de langage pour extraire quotidiennement les informations qui vous intéressent vraiment, à partir de données massives et de diverses sources !**
 
@@ -14,7 +14,10 @@ https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 
 Après trois mois d'attente, nous avons enfin le plaisir d'annoncer le lancement officiel de la version 4.0 de Wiseflow ! Cette version introduit une toute nouvelle architecture 4.x, apporte le support des sources de médias sociaux et de nombreuses nouvelles fonctionnalités.
 
-4.x intègre WIS Crawler (reconstruit et intégré en profondeur à partir de Crawl4ai, MediaCrawler et Nodriver), qui offre désormais un support complet pour les pages web et les médias sociaux. La version 4.0 fournit initialement le support pour les plateformes Weibo et Kuaishou, avec des plans pour ajouter progressivement d'autres plateformes, notamment :
+4.x intègre WIS Crawler (reconstruit et intégré en profondeur à partir de Crawl4ai, MediaCrawler et Nodriver), qui offre désormais un support pour les pages web et les médias sociaux.
+
+La version open-source fournit un support pour Weibo et Kuaishou, avec la **version pro** supportant en plus :
+
 Comptes officiels WeChat, Xiaohongshu, Douyin, Bilibili, Zhihu...
 
 Autres nouvelles fonctionnalités apportées par l'architecture 4.x :
@@ -36,13 +39,15 @@ Concrètement, la "Recherche Profonde" est où le LLM planifie de manière auton
 
 ## ✋ Qu'est-ce qui rend Wiseflow différent des autres crawlers alimentés par l'IA ?
 
-- Capacités complètes de capture de plateforme, incluant les pages web, les médias sociaux (support actuel des plateformes Weibo et Kuaishou), les sources RSS, les moteurs de recherche, etc. ;
-- Flux de traitement HTML unique qui extrait automatiquement les informations en fonction des points d'intérêt et découvre les liens méritant une exploration plus approfondie, fonctionnant bien avec seulement un LLM de 14b paramètres ;
-- Convivial (pas seulement pour les développeurs), pas besoin de configuration manuelle Xpath, "prêt à l'emploi" ;
-- Haute stabilité et disponibilité grâce à l'itération continue, et efficacité de traitement équilibrant les ressources système et la vitesse ;
-- (Futur) Capacité à extraire les "informations cachées" sous les informations acquises via le module insight
+- Capacités d'acquisition sur toutes les plateformes, y compris les pages web, les médias sociaux (supportant actuellement les plateformes Weibo et Kuaishou), les sources RSS, les moteurs de recherche, etc. ;
+- Flux de traitement HTML unique qui extrait automatiquement les informations en fonction des points d'intérêt et découvre des liens méritant une exploration plus approfondie, fonctionnant bien avec seulement un LLM de 14b paramètres ;
+- Convivial (pas seulement pour les développeurs), pas besoin de configuration manuelle de Xpath, "prêt à l'emploi" ;
+- Haute stabilité et disponibilité grâce à une itération continue, et une efficacité de traitement qui équilibre les ressources système et la vitesse ;
+- Ce sera plus qu'un simple "crawler"...
 
-……… Nous attendons également avec impatience les développeurs intéressés qui nous rejoindront pour construire ensemble un Officier en Chef de l'Intelligence IA accessible à tous !
+<img src="docs/wiseflow4.xscope.png" alt="4.x full scope" width="720">
+
+(Périmètre global de l'architecture 4.x. La boîte en pointillés indique les parties non terminées. Nous espérons que des développeurs communautaires compétents nous rejoindront et contribueront avec des PRs. Tous les contributeurs recevront un accès gratuit à la version pro !)
 
 ## 🌟 Démarrage Rapide
 
@@ -73,7 +78,7 @@ La version 4.x ne nécessite pas que l'utilisateur fournisse les identifiants po
 - LLM_API_BASE="https://api.siliconflow.cn/v1" # Adresse de l'interface du service LLM
 - JINA_API_KEY="" # Clé du service de moteur de recherche (Jina recommandé, même disponible sans inscription pour un usage personnel)
 - PRIMARY_MODEL=Qwen/Qwen3-14B # Recommandé Qwen3-14B ou un modèle de réflexion de niveau équivalent
-- VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # recommandé
+- VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # préférable
 
 ### 🚀 Décollage !
 

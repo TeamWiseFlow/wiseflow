@@ -1,6 +1,6 @@
 # KI-Chefintelligenzoffizier (Wiseflow)
 
-**[English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Français](README_FR.md) | [العربية](README_AR.md) | [简体中文](README.md)**
+**[简体中文](README.md) | [English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [العربية](README_AR.md)**
 
 🚀 **Nutzen Sie große Sprachmodelle, um täglich Informationen zu finden, die Sie wirklich interessieren, aus riesigen Datenmengen und verschiedenen Quellen!**
 
@@ -14,7 +14,10 @@ https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 
 Nach drei Monaten Warten haben wir endlich die Freude, die offizielle Veröffentlichung der wiseflow 4.0-Version bekannt zu geben! Diese Version bringt eine völlig neue 4.x-Architektur, unterstützt soziale Medienquellen und bietet viele neue Funktionen.
 
-4.x enthält WIS Crawler (basierend auf Crawl4ai, MediaCrawler und Nodriver, tief verändert und integriert), der jetzt vollständig Webseiten- und soziale Medienquellen unterstützt. Die Version 4.0 bietet zunächst Unterstützung für die Weibo- und Kuaishou-Plattformen, mit Planungen, weitere Plattformen wie:
+4.x enthält WIS Crawler (basierend auf Crawl4ai, MediaCrawler und Nodriver, tief verändert und integriert), der jetzt Unterstützung für Webseiten und soziale Medienquellen bietet.
+
+Die Open-Source-Version bietet Unterstützung für Weibo und Kuaishou, während die **Pro-Version** zusätzlich unterstützt:
+
 WeChat-Offizielle Konten, Xiaohongshu, Douyin, Bilibili, Zhihu...
 
 Andere neue Funktionen der 4.x-Architektur:
@@ -40,9 +43,11 @@ Konkret ist "Deep Search", wo LLM für spezifische Fragen autonom Suchpfade plan
 - Einzigartiger HTML-Verarbeitungsprozess, der automatisch Informationen basierend auf Fokuspunkten extrahiert und Links für weitere Erkundung entdeckt, funktioniert gut mit nur einem 14b-Parameter-LLM;
 - Benutzerfreundlich (nicht nur für Entwickler), keine manuelle Xpath-Konfiguration erforderlich, "sofort einsatzbereit";
 - Hohe Stabilität und Verfügbarkeit durch kontinuierliche Iteration und Verarbeitungseffizienz, die Systemressourcen und Geschwindigkeit ausbalanciert;
-- (Zukunft) Fähigkeit, "versteckte Informationen" unter erworbenen Informationen durch das Insight-Modul zu erschließen
+- Es wird mehr sein als nur ein "Crawler"...
 
-……… Wir freuen uns auch auf interessierte Entwickler, die uns beitreten, um einen KI-Chefintelligenzoffizier zu bauen, der für jeden zugänglich ist!
+<img src="docs/wiseflow4.xscope.png" alt="4.x full scope" width="720">
+
+(4.x Architektur-Gesamtumfang. Der gestrichelte Kasten zeigt die unfertigen Teile. Wir hoffen, dass fähige Community-Entwickler sich uns anschließen und PRs beisteuern. Alle Beitragenden erhalten kostenlosen Zugang zur Pro-Version!)
 
 ## 🌟 Schnellstart
 
@@ -73,7 +78,7 @@ Die Version 4.x erfordert keine pocketbase-Anmeldedaten in der .env-Datei und ha
 - LLM_API_BASE="https://api.siliconflow.cn/v1" # LLM-Dienstschnittstellenadresse
 - JINA_API_KEY="" # Schlüssel für den Suchmaschinendienst (Jina empfohlen, für persönliche Nutzung sogar ohne Registrierung verfügbar)
 - PRIMARY_MODEL="Qwen/Qwen3-14B" # Qwen3-14B oder ein gleichwertiges Denkmodell empfohlen
-- VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct" # empfohlen
+- VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct" # besser zu haben
 
 ### 🚀 Starten!
 

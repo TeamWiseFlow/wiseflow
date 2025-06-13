@@ -1,6 +1,6 @@
 # AI Chief Intelligence Officer (Wiseflow)
 
-**[简体中文](README.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [العربية](README_AR.md)**
+**[简体中文](README.md) | [English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [العربية](README_AR.md)**
 
 🚀 **Use large language models to mine information you're truly interested in from massive data and various sources daily!**
 
@@ -12,9 +12,12 @@ https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 
 (Online service is currently not switched to 4.0 core due to technical reasons, we are accelerating the upgrade)
 
-After three months of waiting, we are finally pleased to announce the official release of the wiseflow 4.0 version! This version introduces a completely new 4.x architecture, introduces support for social media sources, and brings many new features.
+In long three-month waiting, we are finally pleased to announce the official release of the wiseflow 4.0 version! This version introduces a completely new 4.x architecture, introduces support for social media sources, and brings many new features.
 
-4.x includes WIS Crawler (deeply reconstructed and integrated based on Crawl4ai, MediaCrawler, and Nodriver), which now provides complete support for web pages and social media sources. The 4.0 version initially provides support for the Weibo and Kuaishou platforms, with plans to add other platforms gradually, including:
+4.x includes WIS Crawler (deeply reconstructed and integrated based on Crawl4ai, MediaCrawler, and Nodriver), which now provides support for web pages and social media sources.
+
+The open-source version provides support for Weibo and Kuaishou, with **pro version** additionally supporting:
+
 WeChat official accounts, Xiaohongshu, Douyin, Bilibili, Zhihu...
 
 Other new features brought by the 4.x architecture include:
@@ -40,9 +43,11 @@ Specifically, "deep search" is where LLM autonomously plans search paths for spe
 - Unique HTML processing workflow that automatically extracts information based on focus points and discovers links worth further exploration, working well with just a 14b parameter LLM;
 - User-friendly (not just for developers), no need for manual Xpath configuration, "ready to use";
 - High stability and availability through continuous iteration, and processing efficiency that balances system resources and speed;
-- (Future) Ability to mine "hidden information" beneath acquired information through the insight module
+- It will be more than just a "crawler"...
 
-……… We also look forward to interested developers joining us to build an AI Chief Intelligence Officer accessible to everyone!
+<img src="docs/wiseflow4.xscope.png" alt="4.x full scope" width="720">
+
+(4.x architecture overall scope. The dashed box indicates the unfinished parts. We hope capable community developers will join us and contribute PRs. All contributors will receive free access to the pro version!)
 
 ## 🌟 Quick Start
 

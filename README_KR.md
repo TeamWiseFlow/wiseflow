@@ -1,6 +1,6 @@
 # AI 최고 정보 책임자 (Wiseflow)
 
-**[English](README_EN.md) | [日本語](README_JP.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [العربية](README_AR.md) | [简体中文](README.md)**
+**[简体中文](README.md) | [English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [العربية](README_AR.md)**
 
 🚀 **대규모 언어 모델을 사용하여 매일 방대한 정보와 다양한 소스에서 당신이 진정으로 관심 있는 정보를 발굴하세요!**
 
@@ -14,7 +14,10 @@ https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 
 3개월의 기다림 끝에 마침내 wiseflow 4.0 버전이 정식 출시되었습니다! 이번 버전은 완전히 새로운 4.x 아키텍처를 도입하여 소셜 미디어 소스 지원과 다양한 새로운 기능을 제공합니다.
 
-4.x는 WIS Crawler(크롤4ai, 미디어크롤러, 노드라이버를 깊이 있게 재구성하여 통합)를 내장하고 있으며, 웹페이지 외에도 소셜 미디어 소스를 지원합니다. 4.0 버전에서는 먼저 웨이보와 쿠아이쇼우 플랫폼을 지원하며, 향후 계획에 따라 추가될 플랫폼은 다음과 같습니다:
+4.x는 WIS Crawler(크롤4ai, 미디어크롤러, 노드라이버를 깊이 있게 재구성하여 통합)를 내장하고 있으며, 웹페이지 외에도 소셜 미디어 소스를 지원합니다.
+
+오픈소스 버전은 웨이보와 쿠아이쇼우를 지원하며, **pro 버전**에서는 추가로 다음을 지원합니다:
+
 웨이신 공식 계정, 샤오홍슈, 틱톡, Bilibili, 지후...
 
 4.x 아키텍처가 가져오는 다른 새로운 기능들:
@@ -40,9 +43,11 @@ https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 - 독특한 HTML 처리 워크플로우로 관심사에 따라 정보를 자동 추출하고 추가 탐색이 가치 있는 링크를 발견하며, 14b 파라미터의 LLM으로도 잘 작동
 - 사용자 친화적(개발자뿐만 아니라), Xpath 등의 수동 설정 불필요, "즉시 사용 가능"
 - 지속적인 반복을 통한 높은 안정성과 가용성, 시스템 리소스와 속도의 균형을 고려한 처리 효율성
-- (향후) insight 모듈을 통해 획득한 정보 아래에 숨겨진 "어두운 정보"를 발굴하는 능력
+- 단순한 "크롤러" 이상이 될 것입니다...
 
-……… 또한 관심 있는 개발자들의 참여를 기대하며, 모두가 사용할 수 있는 AI 최고 정보 책임자를 함께 구축해 나가겠습니다!
+<img src="docs/wiseflow4.xscope.png" alt="4.x full scope" width="720">
+
+(4.x 아키텍처 전체 범위. 점선 상자는 미완성된 부분을 나타냅니다. 능력 있는 커뮤니티 개발자들이 참여하여 PR을 제공해주시기를 바랍니다. 모든 기여자에게는 pro 버전 무료 이용권이 제공됩니다!)
 
 ## 🌟 빠른 시작
 
@@ -73,7 +78,7 @@ wiseflow 폴더(프로젝트 루트 디렉토리)에서 env_sample을 참조하�
 - LLM_API_BASE="https://api.siliconflow.cn/v1" # LLM 서비스 인터페이스 주소
 - JINA_API_KEY="" # 검색 도구 서비스의 키 (Jina 추천, 개인 사용 시 등록 없이 신청 가능)
 - PRIMARY_MODEL=Qwen/Qwen3-14B # 추천 Qwen3-14B 또는 동일 수준의 사고 모델
-- VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # 권장
+- VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # 가지고 있는 것이 좋음
 
 ### 🚀 시작!
 
