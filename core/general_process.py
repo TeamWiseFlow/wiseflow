@@ -172,6 +172,8 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
     focuspoint = focus["focuspoint"].strip()
     restrictions = focus["restrictions"].strip() if focus["restrictions"] else ''
     explanation = focus["explanation"].strip() if focus["explanation"] else ''
+    role = focus["role"].strip() if focus["role"] else ''
+    purpose = focus["purpose"].strip() if focus["purpose"] else ''
     search = focus['search']
     if search:
         # TODO: use a llm to generate the query
@@ -187,6 +189,8 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
         focuspoint=focuspoint,
         restrictions=restrictions,
         explanation=explanation,
+        role=role,
+        purpose=purpose,
         verbose=os.getenv("VERBOSE", False),
         logger=wis_logger
     )

@@ -72,7 +72,7 @@ def perform_completion_with_backoff(messages: List, model: str = '', **kwargs):
     raise Exception(error_msg)
 
 
-PROMPT_EXTRACT_BLOCKS = """Extract all information related to the following focus points from the main-content of given markdown, and find all links worth further exploration based on the focus points (represented by a citation mark like [x]) from the whole markdown:
+PROMPT_EXTRACT_BLOCKS = """Extract all information related to the following focus points from the main-content of given markdown, and find all links worth further exploration based on the focus points from the whole markdown:
 {FOCUS_POINT}
 
 And here is the markdown:

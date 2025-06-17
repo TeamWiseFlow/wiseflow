@@ -1,0 +1,162 @@
+focus statement: 
+{'focuspoint': '中国地区新建石材厂与石材设备采购信息', 'restrictions': '仅限2025年之后的信息', 'explanation': '', 'role': '石材行业分析师', 'purpose': ''}
+
+# raw materials: e0c0e6_processed.json
+url: https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+
+## model: Qwen/Qwen3-14B
+time cost: 39.54496025003027s
+tokens usage: 2526 (completion: 1136, prompt: 1390)
+
+### related urls: 
+https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+https://cg.shenzhenmc.com/zbinfo/index.jhtml
+https://cg.shenzhenmc.com/zzzgg/index.jhtml
+https://cg.shenzhenmc.com/
+
+### related infos: 
+
+
+
+## model: Qwen/Qwen3-32B
+time cost: 36.80459262500517s
+tokens usage: 4611 (completion: 1831, prompt: 2780)
+
+### related urls: 
+https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+
+### related infos: 
+
+
+
+# raw materials: 6f6ceb_processed.json
+url: https://www.stone365.com/news/channel-1.html
+
+## model: Qwen/Qwen3-14B
+time cost: 60.46657225000672s
+tokens usage: 10171 (completion: 4905, prompt: 5266)
+
+### related urls: 
+https://www.stone365.com/news/info-4556727174024.html
+https://www.stone365.com/news/info-4675579159911.html
+https://www.stone365.com/news/info-4425034380164.html
+https://www.stone365.com/news/info-4459822124867.html
+https://www.stone365.com/news/info-4520449598702.html
+https://www.stone365.com/news/info-4701952712238.html
+https://www.stone365.com/news/info-4581153911121.html
+https://www.stone365.com/news/info-4494736785148.html
+https://www.stone365.com/news/info-4720138835612.html
+https://www.stone365.com/news/info-4520498069854.html
+https://www.stone365.com/news/info-4737563525070.html
+https://www.stone365.com/news/info-4462184334100.html
+https://www.stone365.com/news/info-4572212849941.html
+https://www.stone365.com/news/info-4573171842457.html
+https://www.stone365.com/news/info-4478409337003.html
+https://www.stone365.com/news/info-4528927340077.html
+https://www.stone365.com/news/info-4652260616949.html
+https://www.stone365.com/news/info-4545854832830.html
+https://www.stone365.com/news/info-4718880084469.html
+https://www.stone365.com/news/info-4426920820674.html
+https://www.stone365.com/news/info-4591415234050.html
+
+### related infos: 
+
+
+
+## model: Qwen/Qwen3-32B
+time cost: 86.22288070793729s
+tokens usage: 14335 (completion: 6583, prompt: 7752)
+
+### related urls: 
+https://www.stone365.com/news/info-4718544158348.html
+https://www.stone365.com/news/info-4487711042425.html
+https://www.stone365.com/news/info-4419014480030.html
+https://www.stone365.com/news/info-4720138835612.html
+https://www.stone365.com/news/info-4520498069854.html
+https://www.stone365.com/news/info-4487731757760.html
+https://www.stone365.com/news/info-4426920820674.html
+https://www.stone365.com/news/info-4591415234050.html
+https://www.stone365.com/news/info-4701952712238.html
+
+### related infos: 
+
+
+
+# raw materials: 2d45cd_processed.json
+url: https://www.mee.gov.cn/xxgk2018/xxgk/xxgk15/201809/t20180928_661943.html
+
+## model: Qwen/Qwen3-14B
+time cost: 42.846347374957986s
+tokens usage: 57911 (completion: 7994, prompt: 49917)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: Qwen/Qwen3-32B
+time cost: 86.29163895908277s
+tokens usage: 102011 (completion: 9929, prompt: 92082)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+# raw materials: 3b6d96_processed.json
+url: https://www.jimei123.com/cn/news/plate-information
+
+## model: Qwen/Qwen3-14B
+time cost: 24.861981957918033s
+tokens usage: 105633 (completion: 10946, prompt: 94687)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: Qwen/Qwen3-32B
+time cost: 18.9878365410259s
+tokens usage: 108755 (completion: 11463, prompt: 97292)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+# raw materials: 338f2f_processed.json
+url: https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+
+## model: Qwen/Qwen3-14B
+time cost: 13.368780125048943s
+tokens usage: 112372 (completion: 12359, prompt: 100013)
+
+### related urls: 
+https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+https://cg.shenzhenmc.com/zzzgg/index.jhtml
+
+### related infos: 
+
+
+
+## model: Qwen/Qwen3-32B
+time cost: 37.74286283296533s
+tokens usage: 115807 (completion: 13073, prompt: 102734)
+
+### related urls: 
+
+
+### related infos: 
+
+
+

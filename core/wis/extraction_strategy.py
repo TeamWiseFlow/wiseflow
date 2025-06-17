@@ -105,6 +105,8 @@ class LLMExtractionStrategy(ExtractionStrategy):
         focuspoint: str = None, 
         restrictions: str = None,
         explanation: str = None,
+        role: str = None,
+        purpose: str = None,
         schema: dict = None,
         extra_args: dict = {},
         verbose: bool=False,
@@ -121,6 +123,13 @@ class LLMExtractionStrategy(ExtractionStrategy):
         self.extra_args = extra_args
         self.usages = []
         self.total_usage = TokenUsage()
+        role_and_purpose = ''
+        if role:
+            role_and_purpose = f"Role: {role}\n"
+        if purpose:
+            role_and_purpose += f"Purpose: {purpose}\n"
+        if role_and_purpose:
+            role_and_purpose += f"Complete the following tasks based on above role and purpose(if any).\n"
         if schema:
             try:
                 # Convert schema dict to formatted string with proper indentation
@@ -132,7 +141,6 @@ class LLMExtractionStrategy(ExtractionStrategy):
             except Exception as e:
                 raise ValueError(f"Invalid Schema, can not be dumps:{e}")
             self.schema_mode = True
-            self.prompt = PROMPT_EXTRACT_SCHEMA_WITH_INSTRUCTION.replace('{SCHEMA}', schema_str) 
         else:
             self.schema_mode = False
             focus_statement = f"<focus_point>{focuspoint}</focus_point>"
@@ -140,9 +148,9 @@ class LLMExtractionStrategy(ExtractionStrategy):
                 focus_statement += f"\nAdhering to the specified restrictions:\n<restrictions>{restrictions}</restrictions>"
             if explanation:
                 focus_statement += f"\nSpecial note for the focus point: \n<explanation>{explanation}</explanation>"
-            self.prompt = PROMPT_EXTRACT_BLOCKS.replace('{FOCUS_POINT}', focus_statement)
-            self.prompt_only_links = PROMPT_EXTRACT_BLOCKS_ONLY_LINKS.replace('{FOCUS_POINT}', focus_statement)
-            self.prompt_only_info = PROMPT_EXTRACT_BLOCKS_ONLY_INFO.replace('{FOCUS_POINT}', focus_statement)
+            self.prompt = role_and_purpose + PROMPT_EXTRACT_BLOCKS.replace('{FOCUS_POINT}', focus_statement)
+            self.prompt_only_links = role_and_purpose + PROMPT_EXTRACT_BLOCKS_ONLY_LINKS.replace('{FOCUS_POINT}', focus_statement)
+            self.prompt_only_info = role_and_purpose + PROMPT_EXTRACT_BLOCKS_ONLY_INFO.replace('{FOCUS_POINT}', focus_statement)
  
     def __setattr__(self, name, value):
         """Handle attribute setting."""
@@ -264,7 +272,7 @@ class LLMExtractionStrategy(ExtractionStrategy):
 
         for msg in msg_list:
             if self.verbose:
-                print(f"\n\033[32mmsg:\033[0m\n \033[34m{msg}\033[0m")
+                print(f"\n\033[32mmsg:\033[0m\n\033[34m{msg}\033[0m")
             result = self.extract(messages=[{"role": "user", "content": msg}], model=model, extra_args=self.extra_args)
             if not result:
                 continue

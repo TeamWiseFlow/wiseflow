@@ -1,0 +1,156 @@
+focus statement: 
+{'focuspoint': '中国地区新建石材厂与石材设备采购信息', 'restrictions': '仅限2025年之后的信息', 'explanation': ''}
+
+# raw materials: e0c0e6_processed.json
+url: https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+
+## model: Qwen/Qwen3-14B
+time cost: 15.01345162501093s
+tokens usage: 1939 (completion: 570, prompt: 1369)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: Qwen/Qwen3-32B
+time cost: 43.98624745896086s
+tokens usage: 4148 (completion: 1410, prompt: 2738)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+# raw materials: 6f6ceb_processed.json
+url: https://www.stone365.com/news/channel-1.html
+
+## model: Qwen/Qwen3-14B
+time cost: 33.45625429099891s
+tokens usage: 7972 (completion: 2769, prompt: 5203)
+
+### related urls: 
+https://www.stone365.com/news/info-4426920820674.html
+https://www.stone365.com/news/info-4520498069854.html
+https://www.stone365.com/news/info-4720138835612.html
+https://www.stone365.com/news/info-4459822124867.html
+https://www.stone365.com/news/info-4545864644764.html
+https://www.stone365.com/news/info-4675579159911.html
+https://www.stone365.com/news/info-4669554157391.html
+
+### related infos: 
+2025年，中国多个地区在石材产业方面有新动态：广东封开县绿色建材产业园正在火热招商（2025-04-28），麻城石材产业园项目建设加速，为产业升级注入新动能（2025-04-19）。此外，云南石林县提出锚定石材“百亿级产业”发展目标（2025-04-10），而江西芝麻白矿山因环保问题提前关闭（2025-04-17）。同时，2025厦门国际石材展后，全球石材行业合作持续活跃（2025-05-08），并有相关标准如《装饰石材露天矿山技术规范》（JC/T 1081-2025）即将实施（2025-05-14、2025-04-26）。这些信息反映了中国石材产业在新建项目、政策规范及市场拓展方面的最新进展。
+
+
+
+## model: Qwen/Qwen3-32B
+time cost: 246.57678537501488s
+tokens usage: 15536 (completion: 7868, prompt: 7668)
+
+### related urls: 
+https://www.stone365.com/news/info-4426920820674.html
+https://www.stone365.com/news/info-4737563525070.html
+https://www.stone365.com/news/info-4591415234050.html
+https://www.stone365.com/news/info-4462184334100.html
+https://www.stone365.com/news/machine.html
+https://www.stone365.com/news/info-4701952712238.html
+https://www.stone365.com/news/info-4425034380164.html
+https://www.stone365.com/news/info-4520498069854.html
+https://www.stone365.com/news/info-4720138835612.html
+https://www.stone365.com/news/info-4556727174024.html
+https://www.stone365.com/news/info-4572212849941.html
+https://www.stone365.com/news/info-4520449598702.html
+https://www.stone365.com/news/info-4459822124867.html
+https://www.stone365.com/news/info-4718880084469.html
+https://www.stone365.com/news/info-4581153911121.html
+https://www.stone365.com/news/channel-44.html
+https://www.stone365.com/news/info-4545854832830.html
+https://www.stone365.com/news/info-4494736785148.html
+
+### related infos: 
+
+
+
+# raw materials: 2d45cd_processed.json
+url: https://www.mee.gov.cn/xxgk2018/xxgk/xxgk15/201809/t20180928_661943.html
+
+## model: Qwen/Qwen3-14B
+time cost: 38.64303154195659s
+tokens usage: 58638 (completion: 8868, prompt: 49770)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: Qwen/Qwen3-32B
+time cost: 132.59440445899963s
+tokens usage: 102907 (completion: 11035, prompt: 91872)
+
+### related urls: 
+https://www.mee.gov.cn/images/MEPC_base_innerBanner_v2019_02.jpg
+
+### related infos: 
+
+
+
+# raw materials: 3b6d96_processed.json
+url: https://www.jimei123.com/cn/news/plate-information
+
+## model: Qwen/Qwen3-14B
+time cost: 8.087896375101991s
+tokens usage: 105986 (completion: 11530, prompt: 94456)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: Qwen/Qwen3-32B
+time cost: 22.383800790994428s
+tokens usage: 109043 (completion: 12003, prompt: 97040)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+# raw materials: 338f2f_processed.json
+url: https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+
+## model: Qwen/Qwen3-14B
+time cost: 35.56540554109961s
+tokens usage: 112815 (completion: 13075, prompt: 99740)
+
+### related urls: 
+https://cg.shenzhenmc.com/zzzgg/index.jhtml
+https://cg.shenzhenmc.com/szmccg/j_form/dlh
+https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+
+### related infos: 
+
+
+
+## model: Qwen/Qwen3-32B
+time cost: 32.21984679100569s
+tokens usage: 116519 (completion: 14079, prompt: 102440)
+
+### related urls: 
+https://cg.shenzhenmc.com/zzzgg/index.jhtml
+https://cg.shenzhenmc.com/zzbgg/index.jhtml
+https://cg.shenzhenmc.com/
+
+### related infos: 
+
+
+

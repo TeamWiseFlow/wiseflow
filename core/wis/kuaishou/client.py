@@ -68,11 +68,11 @@ class KuaiShouApiClient:
         Returns:
 
         """
-        if self._account_updated_at and time.time() - self._account_updated_at < 60:
-            return
-        
         # Use async lock to ensure that only one account is being updated
         async with self._account_update_lock:
+            if self._account_updated_at and time.time() - self._account_updated_at < 60:
+                return
+            
             if self.account_with_ip_pool.proxy_ip_pool:
                 try:
                     await self.account_with_ip_pool.mark_ip_invalid(
@@ -173,10 +173,6 @@ class KuaiShouApiClient:
                 method="GET", url=f"{KUAISHOU_API}{final_uri}", **kwargs
             )
         except RetryError as e:
-            wis_logger.info(
-                f"[KuaiShouApiClient.get] get uri:{uri} failed many times, will try to update account")
-            # let the bull fly for a while, in case the account is updating by other thread
-            await asyncio.sleep(1)
             await self.update_account_info(force_login=True)
             try:
                 wis_logger.info("try to update account by changing ip")
@@ -184,7 +180,7 @@ class KuaiShouApiClient:
                     method="GET", url=f"{KUAISHOU_API}{final_uri}", **kwargs
                 )
             except Exception as e:
-                wis_logger.error(f"account and ip still invalid, have to quit, err:{e}")
+                wis_logger.error(f"get uri:{uri} failed many times, account and ip proxy had been updated, however, still failed, have to quit, err:{e}")
 
     async def post(self, uri: str, data: dict, **kwargs) -> Dict:
         """
@@ -206,10 +202,6 @@ class KuaiShouApiClient:
                 headers=self.headers,
             )
         except RetryError as e:
-            wis_logger.info(
-                f"[KuaiShouApiClient.post] post uri:{uri} failed many times, will try to update account")
-            # let the bull fly for a while, in case the account is updating by other thread
-            await asyncio.sleep(1)
             await self.update_account_info(force_login=True)
             try:
                 wis_logger.info("try to update account by changing ip")
@@ -220,7 +212,7 @@ class KuaiShouApiClient:
                     headers=self.headers,
                 )
             except Exception as e:
-                wis_logger.error(f"account and ip still invalid, have to quit, err:{e}")
+                wis_logger.error(f"post uri:{uri} failed many times, account and ip proxy had been updated, however, still failed, have to quit, err:{e}")
 
     async def pong(self) -> bool:
         """

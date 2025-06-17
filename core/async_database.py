@@ -69,6 +69,8 @@ class AsyncDatabaseManager:
             'freq': 'NUMERIC DEFAULT 24',
             'search': 'BOOLEAN DEFAULT 0',
             'sources': 'JSON DEFAULT "[]"',
+            'role': 'TEXT DEFAULT ""',
+            'purpose': 'TEXT DEFAULT ""',
         },
         'sources': {
             'id': 'TEXT PRIMARY KEY',
@@ -753,7 +755,7 @@ class AsyncDatabaseManager:
         async def _get_focus_points_with_sources(db):
             # 首先获取所有激活的 focus_points
             focus_points_query = """
-                SELECT id, focuspoint, restrictions, explanation, activated, freq, search, sources
+                SELECT id, focuspoint, restrictions, explanation, activated, freq, search, sources, role, purpose
                 FROM focus_points 
                 WHERE activated = 1
             """
