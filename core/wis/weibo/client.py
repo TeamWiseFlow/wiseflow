@@ -158,6 +158,9 @@ class WeiboClient:
             response = await client.request(
                 method, url, timeout=self.timeout, headers=headers, **kwargs
             )
+        
+        if not response.is_success:
+            return {}
 
         if need_return_ori_response:
             return response
@@ -190,15 +193,18 @@ class WeiboClient:
             res = await self.request(
                 method="GET", url=f"{WEIBO_API_URL}{final_uri}", **kwargs
             )
-            return res
+            if res:
+                return res
         except RetryError:
-            await self.update_account_info(force_login=True)
-            try:
-                return await self.request(
-                    method="GET", url=f"{WEIBO_API_URL}{final_uri}", **kwargs
-                )
-            except Exception as e:
-                wis_logger.error(f"get uri:{uri} failed many times, account and ip proxy had been updated, however, still failed, have to quit, err:{e}")
+            wis_logger.debug(f"get uri:{uri} failed, will try to update account and IP proxy")
+
+        await self.update_account_info(force_login=True)
+        try:
+            return await self.request(
+                method="GET", url=f"{WEIBO_API_URL}{final_uri}", **kwargs
+            )
+        except Exception as e:
+            wis_logger.error(f"get uri:{uri} failed many times, account and ip proxy had been updated, however, still failed, have to quit, err:{e}")
 
     async def post(self, uri: str, data: Dict, **kwargs) -> Union[Response, Dict]:
         """
@@ -215,18 +221,18 @@ class WeiboClient:
             res = await self.request(
                 method="POST", url=f"{WEIBO_API_URL}{uri}", data=json_str, **kwargs
             )
-            return res
+            if res:
+                return res
         except RetryError:
-            await self.update_account_info(force_login=True)
-            try:
-                return await self.request(
-                    method="POST",
-                    url=f"{WEIBO_API_URL}{uri}",
-                    data=json_str,
-                    **kwargs,
-                )
-            except Exception as e:
-                wis_logger.error(f"post uri:{uri} failed many times, account and ip proxy had been updated, however, still failed, have to quit, err:{e}")
+            wis_logger.debug(f"post uri:{uri} failed, will try to update account and IP proxy")
+
+        await self.update_account_info(force_login=True)
+        try:
+            return await self.request(
+                method="POST", url=f"{WEIBO_API_URL}{uri}", data=json_str, **kwargs
+            )
+        except Exception as e:
+            wis_logger.error(f"post uri:{uri} failed many times, account and ip proxy had been updated, however, still failed, have to quit, err:{e}")
 
     async def pong(self) -> bool:
         """get a note to check if login state is ok"""

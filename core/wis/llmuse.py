@@ -72,7 +72,7 @@ def perform_completion_with_backoff(messages: List, model: str = '', **kwargs):
     raise Exception(error_msg)
 
 
-PROMPT_EXTRACT_BLOCKS = """Extract all information related to the following focus points from the main-content of given markdown, and find all links worth further exploration based on the focus points from the whole markdown:
+PROMPT_EXTRACT_BLOCKS = """Extract all information related to the following focus point from the main-content of given markdown, and find all links worth further exploration based on the focus point from the whole markdown:
 {FOCUS_POINT}
 
 And here is the markdown:
@@ -85,8 +85,7 @@ All links in the original HTML (a elements or img elements) have been converted 
 
 For information extraction, please adhere to the following notes:
 - Only extract information from the markdown's main-content area(if any), if there is no main-content area, DO NOT output anything.
-- All information should be extracted from the main-content area(if any), do not make up any information.
-- It is not guaranteed that the main-content will always be relevant to the focus point, if that is the case, DO NOT output anything.
+- If the focus point is not explicitly mentioned in any main-content area, DO NOT output anything.
 - All extracted information must comply with restrictions (if given), such as time limit, value limit, subject limit, etc.
 - If multiple information are extracted, merge them into one coherent message that contains all the key points.
 
@@ -108,7 +107,7 @@ sentence2 with the found citation mark
 </links>
 """
 
-PROMPT_EXTRACT_BLOCKS_ONLY_INFO = """Extract all information related to the following focus points from the given markdown:
+PROMPT_EXTRACT_BLOCKS_ONLY_INFO = """Extract all information related to the following focus point from the given markdown:
 {FOCUS_POINT}
 
 And here is the markdown:
@@ -121,7 +120,7 @@ All reference links in the original HTML (a elements or img elements) have been 
 
 please adhere to the following notes:
 - All information should be extracted from the given markdown, do not make up any information.
-- It is not guaranteed that the given markdown will always be relevant to the focus point, if that is the case, DO NOT output anything.
+- If the focus point is not explicitly mentioned in the given markdown, DO NOT output anything.
 - All extracted information must comply with restrictions (if given), such as time limit, value limit, subject limit, etc.
 - If multiple information are extracted, merge them into one coherent message that contains all the key points.
 
@@ -132,7 +131,7 @@ Extracted information (if there are multiple pieces of information, merge them i
 </info>
 """
 
-PROMPT_EXTRACT_BLOCKS_ONLY_LINKS = """Find all links(represented by a citation mark like [x]) worth further exploration based on the focus points from the given markdown:
+PROMPT_EXTRACT_BLOCKS_ONLY_LINKS = """Find all links(represented by a citation mark like [x]) worth further exploration based on the focus point from the given markdown:
 {FOCUS_POINT}
 
 And here is the markdown:

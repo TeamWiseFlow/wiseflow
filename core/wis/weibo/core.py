@@ -121,7 +121,7 @@ class WeiboCrawler:
             ip_location = mblog.get("region_name", "")
             user_id = user_info.get("id")
             nickname = user_info.get("screen_name", "")
-            gender = '女' if user_info.get('gender') == "f" else '男'
+            # gender = '女' if user_info.get('gender') == "f" else '男'
         except Exception as e:
             wis_logger.error(f"get note_id:{note_id} detail failed: {e}")
             return None
@@ -131,8 +131,8 @@ class WeiboCrawler:
             return None
 
         author = f"{nickname} ({user_id}) "
-        if gender:
-            author += f"({gender}) "
+        # if gender:
+        #     author += f"({gender}) "
         if ip_location:
             author += f"{ip_location} "
         html = f"{content}\n\n点赞量：{liked_count} 评论量：{comments_count} 转发量：{shared_count}"
