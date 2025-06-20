@@ -93,7 +93,7 @@ class WeiboCrawler:
 
         return markdown.replace("#", ""), link_dict
     
-    async def post_as_article(self, note_id: str) -> Optional[CrawlResult]:
+    async def as_article(self, note_id: str) -> Optional[CrawlResult]:
         note_url = f"https://m.weibo.cn/detail/{note_id}"
         if self.db_manager:
             # 社交媒体url 相对固定
@@ -156,7 +156,13 @@ class WeiboCrawler:
             await self.db_manager.cache_url(result)
         return result
 
-    async def creator_as_article(self, creator_id: str) -> Optional[str]:
+    async def as_creator(self, creator_id: str, profile_url: str) -> Optional[CrawlResult]:
+        if self.db_manager:
+            # 社交媒体url 相对固定
+            cached_result = await self.db_manager.get_cached_url(profile_url, days_threshold=30)
+            if cached_result and cached_result.markdown:
+                return cached_result
+            
         try:
             createor_info_res: Dict = await self.wb_client.get_creator_info_by_id(
                 creator_id=creator_id
@@ -183,6 +189,7 @@ class WeiboCrawler:
         nickname = user_info.get('screen_name')
         gender = '女' if user_info.get('gender') == "f" else '男'
         desc = user_info.get('description')
+        desc = desc.replace("\n", " | ")
         ip_location = user_info.get("source", "")
         verify = user_info.get('verified_reason')
         fans = user_info.get('followers_count', '')
@@ -193,7 +200,14 @@ class WeiboCrawler:
         if ip_location:
             markdown += f"来自:{ip_location}\n"
         markdown += f"简介:{desc}\n粉丝量:{fans}"
-        return markdown
+        
+        result = CrawlResult(
+            url=profile_url,
+            markdown=markdown,
+        )
+        if self.db_manager:
+            await self.db_manager.cache_url(result)
+        return result
 
     async def search_notes(self, 
                            keywords: List[str], 

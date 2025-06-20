@@ -71,6 +71,7 @@ class AsyncDatabaseManager:
             'sources': 'JSON DEFAULT "[]"',
             'role': 'TEXT DEFAULT ""',
             'purpose': 'TEXT DEFAULT ""',
+            'custom_table': 'TEXT DEFAULT ""',
         },
         'sources': {
             'id': 'TEXT PRIMARY KEY',
@@ -755,7 +756,7 @@ class AsyncDatabaseManager:
         async def _get_focus_points_with_sources(db):
             # 首先获取所有激活的 focus_points
             focus_points_query = """
-                SELECT id, focuspoint, restrictions, explanation, activated, freq, search, sources, role, purpose
+                SELECT id, focuspoint, restrictions, explanation, activated, freq, search, sources, role, purpose, custom_table
                 FROM focus_points 
                 WHERE activated = 1
             """
@@ -970,19 +971,19 @@ class AsyncDatabaseManager:
             where_conditions = []
             params = []
             
-            if note_id is not None:
+            if note_id:
                 where_conditions.append("id = ?")
                 params.append(note_id)
             
-            if user_id is not None:
+            if user_id:
                 where_conditions.append("user_id = ?")
                 params.append(user_id)
             
-            if source_keyword is not None:
+            if source_keyword:
                 where_conditions.append("source_keyword = ?")
                 params.append(source_keyword)
             
-            if daysthreshold is not None:
+            if daysthreshold:
                 # 计算时间阈值，使用UTC时间与数据库时间戳匹配
                 threshold_time = datetime.now(timezone.utc) - timedelta(days=daysthreshold)
                 threshold_str = threshold_time.strftime('%Y-%m-%d %H:%M:%S')
@@ -1020,8 +1021,8 @@ class AsyncDatabaseManager:
         try:
             await self.execute_with_retry(_get_wb_cache)
             wis_logger.debug(f"Retrieved {len(result)} wb_cache records with filters: "
-                           f"note_id={note_id}, user_id={user_id}, "
-                           f"source_keyword={source_keyword}, daysthreshold={daysthreshold}")
+                            f"note_id={note_id}, user_id={user_id}, "
+                            f"source_keyword={source_keyword}, daysthreshold={daysthreshold}")
         except Exception as e:
             wis_logger.error(f"Error retrieving wb_cache: {str(e)}")
             # 在出错时返回空列表
@@ -1122,19 +1123,19 @@ class AsyncDatabaseManager:
             where_conditions = []
             params = []
             
-            if video_id is not None:
+            if video_id:
                 where_conditions.append("id = ?")
                 params.append(video_id)
             
-            if user_id is not None:
+            if user_id:
                 where_conditions.append("user_id = ?")
                 params.append(user_id)
             
-            if source_keyword is not None:
+            if source_keyword:
                 where_conditions.append("source_keyword = ?")
                 params.append(source_keyword)
             
-            if daysthreshold is not None:
+            if daysthreshold:
                 # 计算时间阈值，使用UTC时间与数据库时间戳匹配
                 threshold_time = datetime.now(timezone.utc) - timedelta(days=daysthreshold)
                 threshold_str = threshold_time.strftime('%Y-%m-%d %H:%M:%S')
@@ -1172,10 +1173,340 @@ class AsyncDatabaseManager:
         try:
             await self.execute_with_retry(_get_ks_cache)
             wis_logger.debug(f"Retrieved {len(result)} ks_cache records with filters: "
-                           f"video_id={video_id}, user_id={user_id}, "
-                           f"source_keyword={source_keyword}, daysthreshold={daysthreshold}")
+                            f"video_id={video_id}, user_id={user_id}, "
+                            f"source_keyword={source_keyword}, daysthreshold={daysthreshold}")
         except Exception as e:
             wis_logger.error(f"Error retrieving ks_cache: {str(e)}")
             # 在出错时返回空列表
         
         return result
+
+    async def _get_table_schema_info(self, table_name: str) -> Optional[dict]:
+        """
+        获取表的结构信息（内部函数）
+        
+        Args:
+            table_name: 表名称
+            
+        Returns:
+            Optional[dict]: 包含表信息的字典，格式为:
+                {
+                    'exists': bool,  # 表是否存在
+                    'columns': dict  # 字段名到类型的映射 {field_name: field_type}
+                }
+                如果获取失败则返回None
+        """
+        if not table_name:
+            return None
+            
+        async def _get_schema_info(db):
+            # 1. 检查表是否存在
+            async with db.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name=?", 
+                (table_name,)
+            ) as cursor:
+                table_exists = await cursor.fetchone() is not None
+            
+            if not table_exists:
+                return {'exists': False, 'columns': {}}
+            
+            # 2. 获取表的字段信息
+            async with db.execute(f"PRAGMA table_info({table_name})") as cursor:
+                columns_info = await cursor.fetchall()
+            
+            if not columns_info:
+                return {'exists': True, 'columns': {}}
+            
+            # 构建字段名到类型的映射
+            columns = {col_info[1]: col_info[2].upper() for col_info in columns_info}
+            
+            return {'exists': True, 'columns': columns}
+        
+        try:
+            return await self.execute_with_retry(_get_schema_info)
+        except Exception as e:
+            wis_logger.warning(f"Error retrieving schema info for table '{table_name}': {str(e)}")
+            return None
+
+    async def _add_missing_columns(self, table_name: str, columns: dict) -> dict:
+        """
+        检查并添加缺失的 focuspoint 和 source 字段
+        
+        Args:
+            table_name: 表名称
+            columns: 当前表的字段结构
+            
+        Returns:
+            dict: 更新后的字段结构
+        """
+        updated_columns = columns.copy()
+        missing_columns = []
+        
+        # 检查是否缺少 focuspoint 字段
+        if 'focuspoint' not in columns:
+            missing_columns.append('focuspoint')
+            
+        # 检查是否缺少 source 字段
+        if 'source' not in columns:
+            missing_columns.append('source')
+        
+        if missing_columns:
+            async def _add_columns(db):
+                for column_name in missing_columns:
+                    try:
+                        await db.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} TEXT")
+                        updated_columns[column_name] = 'TEXT'
+                        wis_logger.info(f"Added column '{column_name}' to table '{table_name}'")
+                    except Exception as e:
+                        wis_logger.warning(f"Failed to add column '{column_name}' to table '{table_name}': {str(e)}")
+            
+            try:
+                await self.execute_with_retry(_add_columns)
+            except Exception as e:
+                wis_logger.warning(f"Error adding missing columns to table '{table_name}': {str(e)}")
+        
+        return updated_columns
+
+    async def get_custom_table_schema(self, table_name: str) -> Optional[dict]:
+        """
+        获取自定义表的字段结构和第一行数据
+        
+        Args:
+            table_name: 表名称
+            
+        Returns:
+            Optional[dict]: 字段名到第一行值的映射字典，如果表不存在或读取失败则返回None
+                           key是字段名称，value是该字段对应的第一行值，没有值则为空字符串
+                           不包含 focuspoint、source、id、created、updated 字段
+        """
+        if not table_name:
+            wis_logger.warning("Table name cannot be empty")
+            return None
+        
+        # 使用共用的表结构信息获取函数
+        schema_info = await self._get_table_schema_info(table_name)
+        if not schema_info or not schema_info['exists']:
+            wis_logger.warning(f"Table '{table_name}' does not exist")
+            return None
+        
+        columns = schema_info['columns']
+        if not columns:
+            wis_logger.warning(f"Failed to get column information for table '{table_name}'")
+            return None
+        
+        # 检查并添加缺失的 focuspoint 和 source 字段
+        # pb 好像无效，先注释掉
+        # columns = await self._add_missing_columns(table_name, columns)
+        
+        # 定义要排除的字段
+        excluded_fields = {'focuspoint', 'source', 'id', 'created', 'updated'}
+        
+        # 获取第一行数据
+        async def _get_first_row(db):
+            first_row_values = {}
+            try:
+                async with db.execute(f"SELECT * FROM {table_name} LIMIT 1") as cursor:
+                    first_row = await cursor.fetchone()
+                    
+                    if first_row:
+                        # 将第一行的值与字段名对应
+                        column_names = list(columns.keys())
+                        for i, column_name in enumerate(column_names):
+                            # 跳过排除的字段
+                            if column_name in excluded_fields:
+                                continue
+                            # 将值转换为字符串，None值转为空字符串
+                            value = first_row[i] if first_row[i] is not None else ''
+                            first_row_values[column_name] = str(value)
+                    else:
+                        # 没有数据行，所有字段值设为空字符串（排除指定字段）
+                        for column_name in columns.keys():
+                            if column_name not in excluded_fields:
+                                first_row_values[column_name] = ''
+                            
+            except Exception as e:
+                wis_logger.warning(f"Failed to fetch first row from table '{table_name}': {str(e)}")
+                # 即使获取第一行失败，也返回字段结构，值设为空字符串（排除指定字段）
+                for column_name in columns.keys():
+                    if column_name not in excluded_fields:
+                        first_row_values[column_name] = ''
+            
+            return first_row_values
+        
+        try:
+            result = await self.execute_with_retry(_get_first_row)
+            if result:
+                wis_logger.debug(f"Successfully retrieved schema for table '{table_name}' with {len(result)} columns (excluding {excluded_fields})")
+            return result
+        except Exception as e:
+            wis_logger.warning(f"Error retrieving schema for table '{table_name}': {str(e)}")
+            return None
+
+    async def add_custom_info(self, custom_table: str, focuspoint_id: str, source: str, info: dict):
+        """
+        向自定义表添加信息记录
+        
+        Args:
+            custom_table: 自定义表名
+            focuspoint_id: 焦点ID
+            source: 源ID  
+            info: 要插入的信息字典
+        """
+        if not custom_table:
+            wis_logger.error("Custom table name cannot be empty")
+            return
+            
+        if not info:
+            wis_logger.warning(f"Info dict is empty for custom table '{custom_table}'")
+            return
+
+        # 1. 使用共用函数获取表结构信息
+        schema_info = await self._get_table_schema_info(custom_table)
+        if not schema_info:
+            wis_logger.error(f"Error getting schema info for table '{custom_table}'")
+            return
+            
+        if not schema_info['exists']:
+            wis_logger.error(f"Custom table '{custom_table}' does not exist in database")
+            return
+            
+        table_columns = schema_info['columns']
+        if not table_columns:
+            wis_logger.error(f"Failed to get column information for table '{custom_table}'")
+            return
+
+        # 2. 检查字段差异并记录警告
+        table_fields = set(table_columns.keys())
+        info_fields = set(info.keys())
+        
+        missing_in_table = info_fields - table_fields
+        if missing_in_table:
+            wis_logger.warning(f"Table '{custom_table}' missing fields from info: {missing_in_table}")
+        
+        missing_in_info = table_fields - info_fields - {'focuspoint', 'source', 'updated', 'id', 'created'}
+        if missing_in_info:
+            wis_logger.warning(f"Info missing fields present in table '{custom_table}': {missing_in_info}")
+
+        # 3. 准备数据进行插入
+        insert_data = {}
+        current_time = self._get_utc_timestamp()
+        
+        # 添加特殊字段
+        if 'focuspoint' in table_columns:
+            insert_data['focuspoint'] = focuspoint_id
+        if 'source' in table_columns:
+            insert_data['source'] = source
+        if 'updated' in table_columns:
+            insert_data['updated'] = current_time
+        if 'created' in table_columns:
+            insert_data['created'] = current_time
+
+        insert_data['id'] = self._generate_id()
+
+        # 处理info中的字段
+        for field_name, field_value in info.items():
+            if field_name not in table_columns:
+                continue  # 跳过表中不存在的字段
+                
+            # 获取表中字段的类型
+            field_type = table_columns[field_name]
+            
+            # 处理空值情况
+            if field_value is None or field_value == '':
+                insert_data[field_name] = ''
+                continue
+            
+            # 尝试类型转换
+            try:
+                converted_value = self._convert_value_to_type(field_value, field_type)
+                insert_data[field_name] = converted_value
+            except Exception as e:
+                wis_logger.warning(f"Failed to convert value '{field_value}' to type '{field_type}' for field '{field_name}' in table '{custom_table}': {str(e)}")
+                # 转换失败则舍弃这个值
+                continue
+
+        # 为表中存在但info中没有的字段设置空值
+        for field_name in table_columns:
+            if field_name not in insert_data:
+                insert_data[field_name] = ''
+
+        # 4. 执行插入操作
+        async def _insert_custom_info(db):
+            if not insert_data:
+                wis_logger.warning(f"No valid data to insert into table '{custom_table}'")
+                return
+                
+            fields = list(insert_data.keys())
+            placeholders = ', '.join(['?' for _ in fields])
+            field_names = ', '.join(fields)
+            values = [insert_data[field] for field in fields]
+            
+            query = f"INSERT INTO {custom_table} ({field_names}) VALUES ({placeholders})"
+            await db.execute(query, values)
+
+        try:
+            await self.execute_with_retry(_insert_custom_info)
+            wis_logger.debug(f"Successfully added info to custom table '{custom_table}' for focuspoint '{focuspoint_id}'")
+        except Exception as e:
+            wis_logger.error(f"Error adding info to custom table '{custom_table}': {str(e)}")
+
+    def _convert_value_to_type(self, value: any, sql_type: str) -> any:
+        """
+        将值转换为指定的SQL类型
+        
+        Args:
+            value: 要转换的值
+            sql_type: SQL类型（如 TEXT, INTEGER, REAL, BOOLEAN等）
+            
+        Returns:
+            转换后的值
+            
+        Raises:
+            ValueError: 转换失败时抛出异常
+        """
+        if value is None:
+            return ''
+            
+        sql_type = sql_type.upper()
+        
+        try:
+            if sql_type in ['TEXT', 'VARCHAR', 'CHAR']:
+                return str(value)
+            elif sql_type in ['INTEGER', 'INT']:
+                if isinstance(value, str) and value.strip() == '':
+                    return 0
+                return int(float(value))  # 先转float再转int，处理"3.0"这样的字符串
+            elif sql_type in ['REAL', 'FLOAT', 'DOUBLE']:
+                if isinstance(value, str) and value.strip() == '':
+                    return 0.0
+                return float(value)
+            elif sql_type in ['BOOLEAN', 'BOOL']:
+                if isinstance(value, bool):
+                    return value
+                elif isinstance(value, str):
+                    value_lower = value.lower().strip()
+                    if value_lower in ['true', '1', 'yes', 'on']:
+                        return True
+                    elif value_lower in ['false', '0', 'no', 'off', '']:
+                        return False
+                    else:
+                        raise ValueError(f"Cannot convert '{value}' to boolean")
+                elif isinstance(value, (int, float)):
+                    return bool(value)
+                else:
+                    return bool(value)
+            elif sql_type == 'JSON':
+                if isinstance(value, (dict, list)):
+                    return json.dumps(value, ensure_ascii=False)
+                elif isinstance(value, str):
+                    # 验证是否为有效JSON
+                    json.loads(value)
+                    return value
+                else:
+                    return json.dumps(value, ensure_ascii=False)
+            else:
+                # 对于未知类型，尝试转换为字符串
+                return str(value)
+                
+        except (ValueError, TypeError, json.JSONDecodeError) as e:
+            raise ValueError(f"Cannot convert value '{value}' to type '{sql_type}': {str(e)}")

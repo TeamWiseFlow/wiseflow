@@ -163,22 +163,17 @@ PROMPT_EXTRACT_SCHEMA_WITH_INSTRUCTION = """Here is the content from the URL:
 {HTML}
 </url_content>
 
-The user has made the following schema for what information to extract from the above content:
+Your task is to extract the requested information from the URL content according to the following schema:
 
-<user_schema>
+<schema>
 {SCHEMA}
-</user_schema>
-
-Please carefully read the URL content and the user's schema, extract the requested information from the URL content according to that schema. 
+</schema>
 
 Extraction instructions:
 Return the extracted information as a list of JSON objects, with each object in the list corresponding to a block of content from the URL, in the same order as it appears on the page. Wrap the entire JSON list in <json>...</json> XML tags.
 
 Quality Reflection:
 Before outputting your final answer, double check that the JSON you are returning is complete, containing all the information requested by the user, and is valid JSON that could be parsed by json.loads() with no errors or omissions. The outputted JSON objects should fully match the schema.
-
-Quality Score:
-After reflecting, score the quality and completeness of the JSON data you are about to return on a scale of 1 to 5.
 
 Avoid Common Mistakes:
 - Do NOT add any comments using "//" or "#" in the JSON output. It causes parsing errors.

@@ -10,9 +10,7 @@ https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 
 ## 🔥🔥🔥 Wiseflow 4.1 版本正式发布！
 
-4.1版本在4.0版本基础上新增了两个精准提取方案。
-
-### 为关注点补充角色和目的信息
+### 让 AI 站在你的立场上思考！
 
 正如对同一事件，不同角色、不同目的下其视角也会不同一样，在对信源进行关注点提取时，如能提供角色和目的信息，将有助于模型以用户角度进行更加精准的提取。
 
@@ -27,8 +25,14 @@ https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 
 <img src="docs/focus_gold_compare.jpg" alt="focus gold compare" width="720">
 
+**注意：**
+
+- 如果关注点本身指向性很具体，那么角色和目的的设定对结果影响不大；
+- 影响最终结果质量的第一要素永远是信源，一定要提供与关注点高度相关的信源。
+
 有关关注点和角色设定对最终结果影响更加详细的案例，请参考 [task1](test/reports/report_v4x_llm/task1)
 
+### 自定义精准提取
 
 ## 🧐  'deep search' VS 'wide search'
 

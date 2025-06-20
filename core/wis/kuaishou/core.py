@@ -78,7 +78,7 @@ class KuaiShouCrawler:
 
         return markdown.replace("#", ""), link_dict
     
-    async def video_as_article(self, video_id: str) -> Optional[CrawlResult]:
+    async def as_article(self, video_id: str) -> Optional[CrawlResult]:
         video_url = f"https://www.kuaishou.com/short-video/{video_id}"
         if self.db_manager:
             cached_result = await self.db_manager.get_cached_url(video_url, days_threshold=365)
@@ -92,8 +92,9 @@ class KuaiShouCrawler:
         author = f"{video.get('nickname')}(id: {video.get('user_id')})"
         title = video.get('title')
         publish_date = video.get('create_time')
-        
-        article = f"{video.get('desc')}\n\n点赞量：{video.get('liked_count')} 播放量：{video.get('viewd_count')}"
+        description = video.get('desc') if video.get('desc') else ""
+        description = description.replace("\n", " | ")
+        article = f"{description}\n\n点赞量：{video.get('liked_count')} 播放量：{video.get('viewd_count')}"
 
         comments = await self.get_video_comments(video.get("video_id"))
         if comments:
@@ -111,7 +112,13 @@ class KuaiShouCrawler:
             await self.db_manager.cache_url(result)
         return result
 
-    async def creator_as_article(self, creator_id: str) -> Optional[str]:
+    async def as_creator(self, creator_id: str) -> Optional[CrawlResult]:
+        profile_url = f"https://www.kuaishou.com/profile/{creator_id}"
+        if self.db_manager:
+            cached_result = await self.db_manager.get_cached_url(profile_url, days_threshold=30)
+            if cached_result and cached_result.markdown:
+                return cached_result
+        
         # get creator detail info from web html content
         try:
             createor_info: Dict = await self.ks_client.get_creator_info(creator_id)
@@ -138,11 +145,19 @@ class KuaiShouCrawler:
         nickname = profile.get("user_name")
         gender = "女" if profile.get("gender") == "F" else "男"
         desc = profile.get("user_text")
+        desc = desc.replace("\n", " | ")
         # follows = owner_count.get("follow")
         fans = owner_count.get("fan")
         videos_count = owner_count.get("photo_public")
-        # todo save as a crawlresult to db
-        return f"昵称:{nickname}({creator_id})\n性别:{gender}\n简介:{desc}\n粉丝量:{fans}\n已发布视频数量:{videos_count}"
+
+        markdown = f"昵称:{nickname}({creator_id})\n性别:{gender}\n简介:{desc}\n粉丝量:{fans}\n已发布视频数量:{videos_count}"
+        result = CrawlResult(
+            url=profile_url,
+            markdown=markdown,
+        )
+        if self.db_manager:
+            await self.db_manager.cache_url(result)
+        return result
 
     async def search_videos(self, keywords: List[str], existings: set[str] = set(), limit_hours: int = 48) -> List[Dict]:
         """
