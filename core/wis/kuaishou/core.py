@@ -201,7 +201,7 @@ class KuaiShouCrawler:
                     break
 
                 vision_search_photo: Dict = videos_res.get("visionSearchPhoto")
-                if vision_search_photo.get("result") != 1:
+                if not vision_search_photo or vision_search_photo.get("result") != 1:
                     wis_logger.warning(
                         f"search info by keyword:{keyword} not found data "
                     )
