@@ -126,8 +126,7 @@ Wiseflowでクロールしたすべてのデータは即座にpocketbaseに保�
 - NoDriver（ウェブ自動化、ウェブスクレイピング、ボット、その他の創造的なアイデアのための高速フレームワークを提供）https://github.com/ultrafunkamsterdam/nodriver
 - Pocketbase（1ファイルのオープンソースリアルタイムバックエンド）https://github.com/pocketbase/pocketbase
 - Feedparser（Pythonでフィードを解析）https://github.com/kurtmckee/feedparser
-
-このプロジェクトの開発は[GNE](https://github.com/GeneralNewsExtractor/GeneralNewsExtractor)、[AutoCrawler](https://github.com/kingname/AutoCrawler)、[SeeAct](https://github.com/OSU-NLP-Group/SeeAct)に触発されています。
+- SearXNG（a free internet metasearch engine which aggregates results from various search services and databases） https://github.com/searxng/searxng
 
 ## 引用
 

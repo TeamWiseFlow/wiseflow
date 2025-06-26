@@ -130,8 +130,7 @@ PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 
 - NoDriver（Providing a blazing fast framework for web automation, webscraping, bots and any other creative ideas...） https://github.com/ultrafunkamsterdam/nodriver
 - Pocketbase（Open Source realtime backend in 1 file） https://github.com/pocketbase/pocketbase
 - Feedparser（Parse feeds in Python） https://github.com/kurtmckee/feedparser
-
-本项目开发受 [GNE](https://github.com/GeneralNewsExtractor/GeneralNewsExtractor)、[AutoCrawler](https://github.com/kingname/AutoCrawler) 、[SeeAct](https://github.com/OSU-NLP-Group/SeeAct) 启发。
+- SearXNG（a free internet metasearch engine which aggregates results from various search services and databases） https://github.com/searxng/searxng
 
 ## Citation
 

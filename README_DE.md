@@ -126,8 +126,7 @@ Bei Fragen oder Vorschlägen hinterlassen Sie bitte eine Nachricht über [issue]
 - NoDriver (Bietet ein blitzschnelles Framework für Web-Automatisierung, Web-Scraping, Bots und andere kreative Ideen...) https://github.com/ultrafunkamsterdam/nodriver
 - Pocketbase (Open Source Echtzeit-Backend in 1 Datei) https://github.com/pocketbase/pocketbase
 - Feedparser (Feeds in Python parsen) https://github.com/kurtmckee/feedparser
-
-Die Entwicklung dieses Projekts wurde inspiriert von [GNE](https://github.com/GeneralNewsExtractor/GeneralNewsExtractor), [AutoCrawler](https://github.com/kingname/AutoCrawler) und [SeeAct](https://github.com/OSU-NLP-Group/SeeAct).
+- SearXNG（a free internet metasearch engine which aggregates results from various search services and databases） https://github.com/searxng/searxng
 
 ## Zitation
 
