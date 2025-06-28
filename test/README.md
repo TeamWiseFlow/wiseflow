@@ -2,18 +2,18 @@
 
 ## 网页内容获取和解析
 
-[craw4ai_fetching.py](./craw4ai_fetching.py)
+[fetching_test.py](./fetching_test.py)
 
 ```
-python craw4ai_fetching.py -S 'url1,url2...'
+python fetching_test.py -S 'url1,url2...'
 ```
 
 ## html 内容解析
 
-[pre_process_test.py](./pre_process_test.py)
+[html2md_test.py](./html2md_test.py)
 
 ```
-python pre_process_test.py -F 'json_file_path' -R 'record save path'
+python html2md_test.py -F 'json_file_path' -R 'record save path'
 ```
 
 ## 大模型信息提取测试
@@ -25,8 +25,6 @@ python pre_process_test.py -F 'json_file_path' -R 'record save path'
 ```
 python get_info_test.py -D 'sample dir' -I 'include ap'
 ```
-
-*-I 是否需要同时测试 llm提取作者和发布时间*
 
 # 结果提交与共享
 

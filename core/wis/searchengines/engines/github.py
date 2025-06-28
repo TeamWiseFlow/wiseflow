@@ -26,13 +26,13 @@ async def parse_response(response_text: str, **kwargs) -> list[dict]:
     data = json.loads(response_text)
 
     for item in data.get('items', []):
-        content = [item.get(i) for i in ['language', 'description'] if item.get(i)]
+        content = [item.get(i).strip() for i in ['language', 'description'] if item.get(i)]
 
         # license can be None
         lic = item.get('license') or {}
-        lic_url = None
-        if lic.get('spdx_id'):
-            lic_url = f"https://spdx.org/licenses/{lic.get('spdx_id')}.html"
+        #lic_url = None
+        # if lic.get('spdx_id'):
+            # lic_url = f"https://spdx.org/licenses/{lic.get('spdx_id')}.html"
 
         results.append(
             {
@@ -48,7 +48,7 @@ async def parse_response(response_text: str, **kwargs) -> list[dict]:
                 'popularity': item.get('stargazers_count'),
                 'license_name': lic.get('name'),
                 # 'license_url': lic_url,
-                'homepage': item.get('homepage'),
+                # 'homepage': item.get('homepage'),
                 # 'source_code_url': item.get('clone_url'),
             }
         )

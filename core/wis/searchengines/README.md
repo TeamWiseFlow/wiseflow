@@ -6,4 +6,10 @@ Currently only arXiv, bing, ebay, github, wikipedia engines have been migrated, 
 
 —— bigbrother666sh 2025-06-26
 
-One more thing, this engineering refactoring process was also my first attempt at using the so-called Async Agent Coding approach, where I simultaneously used Google Jules, Manus, and Hailuo Agent for "horse racing", and finally used Amazon Q (claude4-sonnet) for verification and evaluation. The process was quite interesting, and interested folks can refer to this: https://github.com/bigbrother666sh/searxng/tree/feature/simplified-engine-architecture
+One more thing, this engineering refactoring process was also my first attempt at using the so-called Async Agent Coding approach, where I simultaneously used Google Jules, Manus, and Hailuo Agent for "horse racing", and finally used Amazon Q (claude4-sonnet) for verification and evaluation. The process was quite interesting, and interested folks can refer to this: 
+
+https://www.zhihu.com/question/590754839/answer/1921643826361141146
+
+add for the full source code:
+
+https://github.com/bigbrother666sh/searxng/tree/feature/simplified-engine-architecture

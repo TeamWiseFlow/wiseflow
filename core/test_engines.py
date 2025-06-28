@@ -1,11 +1,13 @@
 import asyncio
 from wis import search_with_engine
+from tools.bing_search import search_with_bing
 from pprint import pprint
 
 
 async def main():
-    search_query = "中国地区新建石材厂与石材设备采购信息"
-    engines_to_use = ["ebay", "bing", "github", "arxiv"]
+    search_query = "核设施退役治理"
+    
+    engines_to_use = ["arxiv", "github", "ebay"]
 
     tasks = []
     for engine_name in engines_to_use:
@@ -15,9 +17,20 @@ async def main():
 
     for i, engine_name in enumerate(engines_to_use):
         print(f"\n--- Results from {engine_name.capitalize()} ---")
-        print(f"length: {len(all_results[i])}")
-        pprint(all_results[i])
-        print("-" * 100)
+        articles, markdown, link_dict = all_results[i]
+        if articles:
+            print(f'got {len(articles)} articles')
+            pprint(articles)
+        if markdown:
+            print(f'got {len(link_dict)} items')
+            print(markdown)
+            pprint(link_dict)
+        print('-'*100)
+    
+    bing_markdown, bing_link_dict = await search_with_bing(search_query)
+    print(f'got {len(bing_link_dict)} items')
+    print(bing_markdown)
+    pprint(bing_link_dict)
 
 if __name__ == "__main__":
     asyncio.run(main())

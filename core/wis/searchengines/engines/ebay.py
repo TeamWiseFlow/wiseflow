@@ -24,7 +24,7 @@ async def request(query: str, page_number: int = 1, **kwargs) -> dict:
 async def parse_response(response_text: str, **kwargs) -> list[dict]:
     results = []
 
-    dom = html.fromstring(response_text.encode("utf-8"))
+    dom = html.fromstring(response_text)
     results_xpath = '//li[contains(@class, "s-item")]'
     url_xpath = './/a[contains(@class, "s-item__link")]/@href'
     title_xpath = './/span[@role="heading"]//text()'
@@ -41,14 +41,13 @@ async def parse_response(response_text: str, **kwargs) -> list[dict]:
     for result_dom in results_dom:
         url = extract_text(result_dom.xpath(url_xpath))
         title = extract_text(result_dom.xpath(title_xpath))
+        if not title or title == 'Shop on eBay':
+            continue
         content = extract_text(result_dom.xpath(content_xpath))
         price = extract_text(result_dom.xpath(price_xpath))
         shipping = extract_text(result_dom.xpath(shipping_xpath))
         source_country = extract_text(result_dom.xpath(source_country_xpath))
         thumbnail = extract_text(result_dom.xpath(thumbnail_xpath))
-
-        if title == "":
-            continue
 
         results.append(
             {

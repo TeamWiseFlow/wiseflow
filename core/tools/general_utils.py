@@ -165,7 +165,7 @@ def get_logger(logger_file_path: str, logger_name: str):
         print(f"{BLUE}Crawl4ai 0.6.3 (https://github.com/unclecode/crawl4ai)")
         print(f"{BLUE}MediaCrawler (https://github.com/NanmiCoder/MediaCrawler)")
         print(f"{BLUE}with enhanced by NoDriver (https://github.com/ultrafunkamsterdam/nodriver)")
-        print(f"{MAGENTA}2025-06-06{RESET}")
+        print(f"{MAGENTA}2025-06-30{RESET}")
         print(f"{CYAN}{'#' * 50}{RESET}\n")
     
     # 返回绑定了名称的 logger 实例
