@@ -52,7 +52,7 @@ class WeiboCrawler:
         self.wb_client.account_info = await account_with_ip_pool.get_account_with_ip_info()
 
     async def posts_list(self,
-                         keywords: List[str],
+                         keywords: set[str],
                          existings: set[str] = set(),
                          creator_ids: List[str] = []) -> Tuple[str, dict]:
 
@@ -76,8 +76,13 @@ class WeiboCrawler:
 
         markdown = ""
         link_dict = {}
-
+        seen_note_ids = set()
         for note in fresh_notes:
+            note_id = note.get("note_id")
+            if note_id in seen_note_ids:
+                continue
+            seen_note_ids.add(note_id)
+            
             content = note.get("content").replace("\n", " ")
             create_time = note.get("create_time")
             liked_count = note.get("liked_count")
@@ -88,12 +93,12 @@ class WeiboCrawler:
             # nickname = note.get("nickname")
             # gender = note.get("gender")
             _key = f"[{len(link_dict)+1}]"
-            link_dict[_key] = note.get("note_id")
+            link_dict[_key] = note_id
             markdown += f"* {_key}{content} (发布时间： {create_time} 点赞量：{liked_count} 评论量：{comments_count} 转发量：{shared_count}) {_key}\n"
 
         return markdown.replace("#", ""), link_dict
     
-    async def post_as_article(self, note_id: str) -> Optional[CrawlResult]:
+    async def as_article(self, note_id: str) -> Optional[CrawlResult]:
         note_url = f"https://m.weibo.cn/detail/{note_id}"
         if self.db_manager:
             # 社交媒体url 相对固定
@@ -121,7 +126,7 @@ class WeiboCrawler:
             ip_location = mblog.get("region_name", "")
             user_id = user_info.get("id")
             nickname = user_info.get("screen_name", "")
-            gender = '女' if user_info.get('gender') == "f" else '男'
+            # gender = '女' if user_info.get('gender') == "f" else '男'
         except Exception as e:
             wis_logger.error(f"get note_id:{note_id} detail failed: {e}")
             return None
@@ -131,8 +136,8 @@ class WeiboCrawler:
             return None
 
         author = f"{nickname} ({user_id}) "
-        if gender:
-            author += f"({gender}) "
+        # if gender:
+        #     author += f"({gender}) "
         if ip_location:
             author += f"{ip_location} "
         html = f"{content}\n\n点赞量：{liked_count} 评论量：{comments_count} 转发量：{shared_count}"
@@ -156,13 +161,19 @@ class WeiboCrawler:
             await self.db_manager.cache_url(result)
         return result
 
-    async def creator_as_article(self, creator_id: str) -> Optional[str]:
+    async def as_creator(self, creator_id: str, profile_url: str) -> Optional[CrawlResult]:
+        if self.db_manager:
+            # 社交媒体url 相对固定
+            cached_result = await self.db_manager.get_cached_url(profile_url, days_threshold=30)
+            if cached_result and cached_result.markdown:
+                return cached_result
+            
         try:
             createor_info_res: Dict = await self.wb_client.get_creator_info_by_id(
                 creator_id=creator_id
             )
         except Exception as e:
-            wis_logger.error(
+            wis_logger.warning(
                 f"get creator: {creator_id} info error: {e}"
             )
             return None
@@ -183,6 +194,7 @@ class WeiboCrawler:
         nickname = user_info.get('screen_name')
         gender = '女' if user_info.get('gender') == "f" else '男'
         desc = user_info.get('description')
+        desc = desc.replace("\n", " | ")
         ip_location = user_info.get("source", "")
         verify = user_info.get('verified_reason')
         fans = user_info.get('followers_count', '')
@@ -193,10 +205,17 @@ class WeiboCrawler:
         if ip_location:
             markdown += f"来自:{ip_location}\n"
         markdown += f"简介:{desc}\n粉丝量:{fans}"
-        return markdown
+        
+        result = CrawlResult(
+            url=profile_url,
+            markdown=markdown,
+        )
+        if self.db_manager:
+            await self.db_manager.cache_url(result)
+        return result
 
     async def search_notes(self, 
-                           keywords: List[str], 
+                           keywords: set[str], 
                            existings: set[str] = set(), 
                            limit_hours: int = 48, 
                            search_type: SearchType = SearchType.DEFAULT) -> List[Dict]:
@@ -226,7 +245,7 @@ class WeiboCrawler:
                         keyword=keyword, page=page, search_type=search_type
                     )
                 except Exception as e:
-                    wis_logger.error(
+                    wis_logger.warning(
                         f"search weibo keyword: {keyword} not finished, but paused by error: {e}"
                     )
                     break
@@ -254,7 +273,7 @@ class WeiboCrawler:
         try:
             return await self.wb_client.get_note_info_by_id(note_id)
         except DataFetchError as ex:
-            wis_logger.error(
+            wis_logger.warning(
                 f"Get note detail error: {ex}"
             )
             return None

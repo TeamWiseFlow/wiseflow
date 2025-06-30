@@ -6,30 +6,42 @@
 
 우리에게 부족한 것은 정보가 아니라, 방대한 정보에서 노이즈를 필터링하여 가치 있는 정보를 끌어내는 능력입니다.
 
-## 🔥🔥🔥 Wiseflow 4.0 버전 정식 출시!
-
 https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 
-(온라인 서비스는 현재 기술적인 이유로 4.0 코어로 전환되지 않았으며, 업그레이드를 가속화하고 있습니다)
+## 🔥🔥🔥 Wiseflow 4.1 버전 정식 출시!
 
-3개월의 기다림 끝에 마침내 wiseflow 4.0 버전이 정식 출시되었습니다! 이번 버전은 완전히 새로운 4.x 아키텍처를 도입하여 소셜 미디어 소스 지원과 다양한 새로운 기능을 제공합니다.
+4.1 버전은 4.0 버전을 기반으로 여러 가지 흥미로운 새로운 기능을 제공합니다!
 
-4.x는 WIS Crawler(크롤4ai, 미디어크롤러, 노드라이버를 깊이 있게 재구성하여 통합)를 내장하고 있으며, 웹페이지 외에도 소셜 미디어 소스를 지원합니다.
+### 🔍 사용자 정의 검색 소스
 
-오픈소스 버전은 웨이보와 쿠아이쇼우를 지원하며, **pro 버전**에서는 추가로 다음을 지원합니다:
+4.1 버전은 포커스 포인트에 대한 검색 소스를 정밀하게 구성하는 것을 지원합니다. 현재 bing, github, arxiv 및 ebay 네 가지 검색 소스를 지원하며, 모두 플랫폼 네이티브 인터페이스를 사용하므로 추가적인 타사 서비스 신청이 필요 없습니다.
 
-웨이신 공식 계정, 샤오홍슈, 틱톡, Bilibili, 지후...
+<img src="docs/select_search_source.gif" alt="search_source" width="360">
 
-4.x 아키텍처가 가져오는 다른 새로운 기능들:
 
-- 새로운 아키텍처, 비동기와 스레드 풀의 하이브리드 사용으로 처리 효율성 대폭 향상(메모리 소비도 감소)
-- Crawl4ai 0.6.3 버전의 디스패처 기능을 상속하여 더 세련된 메모리 관리 제공
-- 버전 3.9의 Pre-Process와 Crawl4ai의 Markdown Generation 프로세스를 깊이 통합하여 중복 처리 방지
-- RSS 소스 지원 최적화
-- 저장소 파일 구조 최적화, 더 명확하고 현대적인 Python 프로젝트 표준 준수
-- uv를 사용한 의존성 관리로 전환하고 requirement.txt 파일 최적화
-- 시작 스크립트 최적화(Windows 버전 제공), 진정한 "원클릭 시작" 구현
-- 설정 및 배포 프로세스 최적화, 백엔드 프로그램이 pocketbase 서비스에 의존하지 않게 되어 .env에서 pocketbase 자격 증명을 제공할 필요가 없으며 pocketbase 버전 제한도 없음
+### 🧠 AI가 당신의 입장에서 생각하게 하세요!
+
+4.1 버전은 포커스 포인트에 역할과 목적을 설정하여 LLM이 특정 관점이나 목적으로 정보를 분석하고 추출하도록 안내하는 것을 지원합니다. 하지만 사용 시 다음 사항에 유의하십시오:
+
+    - 포커스 포인트 자체가 매우 구체적인 경우, 역할과 목적 설정이 결과에 미치는 영향은 크지 않습니다.
+    - 최종 결과의 품질에 가장 큰 영향을 미치는 요소는 항상 정보 소스입니다. 포커스 포인트와 매우 관련성이 높은 소스를 제공해야 합니다.
+
+역할과 목적 설정이 추출 결과에 미치는 영향에 대한 테스트 사례는 [task1](test/reports/report_v4x_llm/task1)을 참조하십시오.
+
+
+### ⚙️ 사용자 정의 추출 모드
+
+이제 pb 인터페이스에서 자신만의 양식을 만들고 특정 포커스 포인트에 구성할 수 있습니다. LLM은 양식 필드에 따라 정확하게 정보를 추출합니다.
+
+
+### 👥 소셜 미디어 소스를 위한 크리에이터 검색 모드
+
+이제 포커스 포인트를 기반으로 소셜 미디어 플랫폼에서 관련 콘텐츠를 찾고, 콘텐츠 크리에이터의 홈페이지 정보를 추가로 찾도록 프로그램을 지정할 수 있습니다. "사용자 정의 추출 모드"와 결합하여 wiseflow는 전체 네트워크에서 잠재 고객, 파트너 또는 투자자의 연락처 정보를 검색하는 데 도움을 줄 수 있습니다.
+
+<img src="docs/find_person_by_wiseflow.png" alt="find_person_by_wiseflow" width="720">
+
+
+**4.1 버전에 대한 자세한 업데이트 정보는 [CHANGELOG](CHANGELOG.md)를 참조하십시오.**
 
 ## 🧐 '딥 서치' VS '와이드 서치'
 
@@ -39,7 +51,7 @@ https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 
 ## ✋ Wiseflow가 다른 AI 기반 크롤러와 다른 점은?
 
-- 웹 페이지, 소셜 미디어(현재 Weibo와 Kuaishou 플랫폼 지원), RSS 소스, 검색 엔진 등을 포함한 전체 플랫폼 수집 능력
+- 웹 페이지, 소셜 미디어(현재 Weibo와 Kuaishou 플랫폼 지원), RSS 소스, 그리고 Bing, GitHub, arXiv, eBay 등 검색 소스를 포함한 전체 플랫폼 수집 능력
 - 독특한 HTML 처리 워크플로우로 관심사에 따라 정보를 자동 추출하고 추가 탐색이 가치 있는 링크를 발견하며, 14b 파라미터의 LLM으로도 잘 작동
 - 사용자 친화적(개발자뿐만 아니라), Xpath 등의 수동 설정 불필요, "즉시 사용 가능"
 - 지속적인 반복을 통한 높은 안정성과 가용성, 시스템 리소스와 속도의 균형을 고려한 처리 효율성
@@ -75,8 +87,7 @@ wiseflow 폴더(프로젝트 루트 디렉토리)에서 env_sample을 참조하�
 4.x 버전에서는 사용자가 .env 파일에 pocketbase 계정 정보를 제공할 필요가 없으며, pocketbase 버전에 대한 제한도 없습니다. 또한 보조 모델 설정도 임시로 제거되었으므로, 사실상 최소 4개의 매개변수만으로 설정을 완료할 수 있습니다:
 
 - LLM_API_KEY="" # LLM 서비스의 키 (모든 OpenAI 형식 API를 제공하는 모델 서비스를 사용할 수 있으며, 로컬에서 ollama를 사용하여 배포하는 경우 설정할 필요가 없음)
-- LLM_API_BASE="https://api.siliconflow.cn/v1" # LLM 서비스 인터페이스 주소
-- JINA_API_KEY="" # 검색 도구 서비스의 키 (Jina 추천, 개인 사용 시 등록 없이 신청 가능)
+- LLM_API_BASE="https://api.siliconflow.com/v1" # LLM 서비스 인터페이스 주소
 - PRIMARY_MODEL=Qwen/Qwen3-14B # 추천 Qwen3-14B 또는 동일 수준의 사고 모델
 - VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # 가지고 있는 것이 좋음
 
@@ -102,10 +113,9 @@ Wiseflow로 크롤링한 모든 데이터는 즉시 pocketbase에 저장되므�
 
 인기 있는 경량 데이터베이스로서 PocketBase는 현재 Go/Javascript/Python 등의 언어 SDK를 제공하고 있습니다.
 
-온라인 서비스는 곧 sync API를 출시하여 온라인 크롤링 결과를 로컬에 동기화하여 "동적 지식 베이스" 등을 구축하는 것을 지원할 예정입니다. 기대해 주세요:
+다음 repo에서 여러분의 2차 개발 애플리케이션 사례를 공유하고 홍보하는 것을 환영합니다!
 
-  - 온라인 체험 주소: https://www.aiqingbaoguan.com/
-  - 온라인 서비스 API 사용 예제: https://github.com/TeamWiseFlow/wiseflow_plus
+- https://github.com/TeamWiseFlow/wiseflow_plus
 
 ## 🛡️ 라이선스
 
@@ -126,8 +136,7 @@ Wiseflow로 크롤링한 모든 데이터는 즉시 pocketbase에 저장되므�
 - NoDriver(웹 자동화, 웹 스크래핑, 봇 및 기타 창의적인 아이디어를 위한 빠른 프레임워크 제공) https://github.com/ultrafunkamsterdam/nodriver
 - Pocketbase(1개의 파일로 된 오픈소스 실시간 백엔드) https://github.com/pocketbase/pocketbase
 - Feedparser(Python에서 피드 파싱) https://github.com/kurtmckee/feedparser
-
-이 프로젝트의 개발은 [GNE](https://github.com/GeneralNewsExtractor/GeneralNewsExtractor), [AutoCrawler](https://github.com/kingname/AutoCrawler), [SeeAct](https://github.com/OSU-NLP-Group/SeeAct)에서 영감을 받았습니다.
+- SearXNG(다양한 검색 서비스와 데이터베이스에서 결과를 집계하는 무료 인터넷 메타검색 엔진) https://github.com/searxng/searxng
 
 ## 인용
 
@@ -137,4 +146,8 @@ Wiseflow로 크롤링한 모든 데이터는 즉시 pocketbase에 저장되므�
 저자: Wiseflow Team
 https://github.com/TeamWiseFlow/wiseflow
 Apache2.0 라이선스
-``` 
+```
+
+## 우호 링크
+
+[<img src="docs/logos/SiliconFlow.png" alt="siliconflow" width="360">](https://siliconflow.com/)

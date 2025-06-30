@@ -6,30 +6,42 @@
 
 What we lack is not information, but the ability to filter out noise from massive information to reveal valuable insights.
 
-## 🔥🔥🔥 Wiseflow 4.0 Version Officially Released!
-
 https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 
-(Online service is currently not switched to 4.0 core due to technical reasons, we are accelerating the upgrade)
+## 🔥🔥🔥 Wiseflow 4.1 Version Officially Released!
 
-In long three-month waiting, we are finally pleased to announce the official release of the wiseflow 4.0 version! This version introduces a completely new 4.x architecture, introduces support for social media sources, and brings many new features.
+Version 4.1 brings many exciting new features on top of version 4.0!
 
-4.x includes WIS Crawler (deeply reconstructed and integrated based on Crawl4ai, MediaCrawler, and Nodriver), which now provides support for web pages and social media sources.
+### 🔍 Custom Search Sources
 
-The open-source version provides support for Weibo and Kuaishou, with **pro version** additionally supporting:
+Version 4.1 supports precise configuration of search sources for focus points. It currently supports four search sources: bing, github, arxiv, and ebay, all using native platform interfaces without requiring additional third-party services.
 
-WeChat official accounts, Xiaohongshu, Douyin, Bilibili, Zhihu...
+<img src="docs/select_search_source.gif" alt="search_source" width="360">
 
-Other new features brought by the 4.x architecture include:
 
-- New architecture, hybrid use of async and thread pools, greatly improving processing efficiency (while reducing memory consumption);
-- Inherited Crawl4ai 0.6.3 version's dispatcher capabilities, providing more refined memory management;
-- Deep integration of Pre-Process from version 3.9 and Crawl4ai's Markdown Generation process, avoiding duplicate processing;
-- Optimized support for RSS sources;
-- Optimized repository file structure, clearer and more compliant with contemporary Python project standards;
-- Switched to using uv for dependency management and optimized requirement.txt file;
-- Optimized startup scripts (providing Windows version), truly achieving "one-click startup";
-- Optimized configuration and deployment process, backend program no longer depends on pocketbase service, therefore no need to provide pocketbase credentials in .env, and no version restrictions for pocketbase.
+### 🧠 Let the AI Think from Your Perspective!
+
+Version 4.1 supports setting roles and objectives for focus points to guide the LLM in analyzing and extracting information from a specific perspective or for a specific purpose. However, please note:
+
+    - If the focus point itself is very specific, setting roles and objectives will have little impact on the results.
+    - The most important factor affecting the quality of the final results is always the source of information. Be sure to provide sources that are highly relevant to the focus point.
+
+For test cases on how setting roles and objectives affects extraction results, please refer to [task1](test/reports/report_v4x_llm/task1).
+
+
+### ⚙️ Custom Extraction Mode
+
+You can now create your own forms in the pb interface and configure them for specific focus points. The LLM will then extract information accurately according to the form fields.
+
+
+### 👥 Creator Search Mode for Social Media Sources
+
+You can now specify the program to find relevant content on social media platforms based on focus points, and further find the homepage information of the content creators. Combined with the "Custom Extraction Mode", wiseflow can help you search for potential customers, partners, or investors' contact information across the entire network.
+
+<img src="docs/find_person_by_wiseflow.png" alt="find_person_by_wiseflow" width="720">
+
+
+**For more update information on version 4.1, please see the [CHANGELOG](CHANGELOG.md)**
 
 ## 🧐 'Deep Search' VS 'Wide Search'
 
@@ -39,7 +51,7 @@ Specifically, "deep search" is where LLM autonomously plans search paths for spe
 
 ## ✋ What Makes Wiseflow Different from Other AI-Powered Crawlers?
 
-- Full platform acquisition capabilities, including web pages, social media (currently supporting Weibo and Kuaishou platforms), RSS sources, search engines, etc.;
+- Full platform acquisition capabilities, including web pages, social media (currently supporting Weibo and Kuaishou platforms), RSS feeds, and search sources such as Bing, GitHub, arXiv, and eBay, etc.;
 - Unique HTML processing workflow that automatically extracts information based on focus points and discovers links worth further exploration, working well with just a 14b parameter LLM;
 - User-friendly (not just for developers), no need for manual Xpath configuration, "ready to use";
 - High stability and availability through continuous iteration, and processing efficiency that balances system resources and speed;
@@ -75,8 +87,7 @@ In the wiseflow folder (project root directory), create a .env file based on env
 Version 4.x does not require users to provide pocketbase credentials in .env, nor does it restrict pocketbase version. Additionally, we have temporarily removed the Secondary Model setting. Therefore, you only need a minimum of four parameters to complete the configuration:
 
 - LLM_API_KEY="" # LLM service key (any model provider offering OpenAI format API, not required if using ollama locally)
-- LLM_API_BASE="https://api.siliconflow.cn/v1" # LLM service interface address
-- JINA_API_KEY="" # Search engine service key (Jina recommended, even available without registration for personal use)
+- LLM_API_BASE="https://api.siliconflow.com/v1" # LLM service interface address
 - PRIMARY_MODEL=Qwen/Qwen3-14B # Recommended Qwen3-14B or equivalent thinking model
 - VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # better to have
 
@@ -102,10 +113,9 @@ All data crawled by Wiseflow will be instantly stored in pocketbase, so you can 
 
 As a popular lightweight database, PocketBase currently has SDKs for Go/Javascript/Python and other languages.
 
-Online service will soon launch sync API, supporting synchronization of online crawling results to local, for building "dynamic knowledge bases" and more, stay tuned:
+Welcome to share and promote your secondary development application examples in the following repo!
 
-  - Online experience address: https://www.aiqingbaoguan.com/
-  - Online service API usage examples: https://github.com/TeamWiseFlow/wiseflow_plus
+- https://github.com/TeamWiseFlow/wiseflow_plus
 
 ## 🛡️ License
 
@@ -126,8 +136,7 @@ For any questions or suggestions, welcome to leave a message through [issue](htt
 - NoDriver (Providing a blazing fast framework for web automation, webscraping, bots and any other creative ideas...) https://github.com/ultrafunkamsterdam/nodriver
 - Pocketbase (Open Source realtime backend in 1 file) https://github.com/pocketbase/pocketbase
 - Feedparser (Parse feeds in Python) https://github.com/kurtmckee/feedparser
-
-This project's development was inspired by [GNE](https://github.com/GeneralNewsExtractor/GeneralNewsExtractor), [AutoCrawler](https://github.com/kingname/AutoCrawler), and [SeeAct](https://github.com/OSU-NLP-Group/SeeAct).
+- SearXNG（a free internet metasearch engine which aggregates results from various search services and databases） https://github.com/searxng/searxng
 
 ## Citation
 
@@ -137,4 +146,8 @@ If you reference or cite part or all of this project in related work, please not
 Author: Wiseflow Team
 https://github.com/TeamWiseFlow/wiseflow
 Licensed under Apache2.0
-``` 
+```
+
+## Friendly Links
+
+[<img src="docs/logos/SiliconFlow.png" alt="siliconflow" width="360">](https://siliconflow.com/)

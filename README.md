@@ -6,30 +6,38 @@
 
 我们缺的不是信息，而是从海量信息中过滤噪音，从而让有价值的信息显露出来
 
-## 🔥🔥🔥 Wiseflow 4.0 版本正式发布！
-
 https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 
-（在线服务目前因为技术原因，尚未切换到4.0核心，我们正在加速升级中）
+## 🔥🔥🔥 Wiseflow 4.1 版本正式发布！
 
-在长达三个月的等待后，我们终于迎来了 wiseflow 4.0 版本的正式发布！该版本带来了全新的 4.x 架构，引入了对社交媒体信源的支持，并带来了诸多新特性。
+4.1版本在4.0版本基础上又带来了诸多激动人心的新功能！
 
-4.x 内置 WIS Crawler（基于 Crawl4ai，MediaCrawler 和 Nodriver 深度重构整合），除网页外，还提供了对社交媒体信源的支持。
+### 🔍 自定义搜索源
 
-开源版本提供对微博和快手的支持，后续将通过 **pro 版本** 额外支持：
+4.1版本支持为关注点精准配置搜索源，目前支持 bing、github、arxiv 和 ebay 四个搜索源，且均使用平台原生接口，无需额外申请第三方服务。
 
-微信公众号、小红书、抖音、b站、知乎……
+<img src="docs/select_search_source.gif" alt="search_source" width="360">
 
-4.x 架构带来的其他新特性包括：
+### 🧠 让 AI 站在你的立场上思考！
 
-- 全新的架构，混合使用异步和线程池，大大提升处理效率（同时降低内存消耗）；
-- 继承了 Crawl4ai 0.6.3 版本的 dispacher 能力，提供更精细的内存管理能力；
-- 深度整合了 3.9 版本中的 Pre-Process 和 Crawl4ai 的 Markdown Generation流程， 规避了重复处理；
-- 优化了对 RSS 信源的支持；
-- 优化了代码仓文件结构，更加清晰且符合当代 python 项目规范；
-- 改为使用 uv 进行依赖管理，并优化了 requirement.txt 文件；
-- 优化了启动脚本（提供提供 windows 版本），真正做到"一键启动"；
-- 优化配置与部署流程，后台程序不再依赖 pocketbase 服务，因此无需在 .env 中提供 pocketbase 的账密，也不限定 pocketbase 的版本。
+4.1版本支持为 focuspoint 设定角色和目的，从而指导 LLM 以特定视角或目的进行分析和提取。但使用时请注意：
+
+    - 如果关注点本身指向性很具体，那么角色和目的的设定对结果影响不大；
+    - 影响最终结果质量的第一要素永远是信源，一定要提供与关注点高度相关的信源。
+
+有关角色和目的设定对提取结果影响的测评案例，请参考 [task1](test/reports/report_v4x_llm/task1)
+
+### ⚙️ 自定义提取模式
+
+现在你可以在 pb 界面下创建自己的表单，并配置给特定的关注点，LLM 将按照表单字段进行精准提取。
+
+### 👥 社交平台信源支持创作者查找模式
+
+现在可以指定程序按关注点在社交平台上查找相关内容，并进一步查找内容的创作者主页信息。结合"自定义提取模式"，wiseflow可以帮助你在全网搜索潜在客户、合作伙伴或者投资人的联系方式。
+
+<img src="docs/find_person_by_wiseflow.png" alt="find_person_by_wiseflow" width="720">
+
+**有关 4.1 版本的更多更新信息，详见 [CHANGELOG](CHANGELOG.md)**
 
 ## 🧐  'deep search' VS 'wide search'
 
@@ -39,9 +47,9 @@ https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 
 ## ✋ What makes wiseflow different from other ai-powered crawlers?
 
-- 全平台的获取能力，包括网页、社交媒体（目前提供对微博和快手平台的支持）、RSS 信源、搜索引擎等；
+- 全平台的获取能力，包括网页、社交媒体（目前提供对微博和快手平台的支持）、RSS 信源、bing、github、arxiv、ebay 等；
 - 独特的 html 处理流程，自动按关注点提取信息并发现值得进一步探索的链接，且仅需 14b 参数量的大模型即可很好的工作；
-- 面向普通用户（而非开发者），无需人工介入提供 Xpath 等，"开箱即用"；
+- 面向普通用户（而非开发者），无需人工介入提供 Xpath，"开箱即用"；
 - 持续迭代带来的高稳定性和高可用性，以及兼顾系统资源和速度的处理效率；
 - 将不仅仅是“爬虫”……
 
@@ -76,7 +84,6 @@ git clone https://github.com/TeamWiseFlow/wiseflow.git
 
 - LLM_API_KEY="" # LLM 服务的 key （任何提供 OpenAI 格式 API 的模型服务商均可，本地使用 ollama 部署则无需设置）
 - LLM_API_BASE="https://api.siliconflow.cn/v1" # LLM 服务接口地址
-- JINA_API_KEY="" # 搜索引擎服务的 key （推荐 Jina，个人使用甚至无需注册即可申请）
 - PRIMARY_MODEL=Qwen/Qwen3-14B # 推荐 Qwen3-14B 或同量级思考模型
 - VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # better to have
 
@@ -102,10 +109,9 @@ wiseflow 所有抓取数据都会即时存入 pocketbase，因此您可以直接
 
 PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 等语言的SDK。  
 
-在线服务也即将推出 sync api，支持将在线抓取结果同步本地，用于构建"动态知识库"等，敬请关注：
+欢迎在如下 repo 中分享并推广您的二次开发应用案例！
 
-  - 在线体验地址：https://www.aiqingbaoguan.com/ 
-  - 在线服务 API 使用案例：https://github.com/TeamWiseFlow/wiseflow_plus
+- https://github.com/TeamWiseFlow/wiseflow_plus
 
 
 ## 🛡️ 许可协议
@@ -127,8 +133,7 @@ PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 
 - NoDriver（Providing a blazing fast framework for web automation, webscraping, bots and any other creative ideas...） https://github.com/ultrafunkamsterdam/nodriver
 - Pocketbase（Open Source realtime backend in 1 file） https://github.com/pocketbase/pocketbase
 - Feedparser（Parse feeds in Python） https://github.com/kurtmckee/feedparser
-
-本项目开发受 [GNE](https://github.com/GeneralNewsExtractor/GeneralNewsExtractor)、[AutoCrawler](https://github.com/kingname/AutoCrawler) 、[SeeAct](https://github.com/OSU-NLP-Group/SeeAct) 启发。
+- SearXNG（a free internet metasearch engine which aggregates results from various search services and databases） https://github.com/searxng/searxng
 
 ## Citation
 
@@ -139,3 +144,7 @@ Author：Wiseflow Team
 https://github.com/TeamWiseFlow/wiseflow
 Licensed under Apache2.0
 ```
+
+## 友情链接
+
+[<img src="docs/logos/SiliconFlow.png" alt="siliconflow" width="360">](https://siliconflow.com/)

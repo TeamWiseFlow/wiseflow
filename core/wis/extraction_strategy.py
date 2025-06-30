@@ -105,6 +105,8 @@ class LLMExtractionStrategy(ExtractionStrategy):
         focuspoint: str = None, 
         restrictions: str = None,
         explanation: str = None,
+        role: str = None,
+        purpose: str = None,
         schema: dict = None,
         extra_args: dict = {},
         verbose: bool=False,
@@ -121,6 +123,21 @@ class LLMExtractionStrategy(ExtractionStrategy):
         self.extra_args = extra_args
         self.usages = []
         self.total_usage = TokenUsage()
+        role_and_purpose = ''
+        if role:
+            role_and_purpose = f"Role: {role}\n"
+        if purpose:
+            role_and_purpose += f"Purpose: {purpose}\n"
+        if role_and_purpose:
+            role_and_purpose += f"Complete the following tasks based on above role and purpose(if any).\n"
+
+        focus_statement = f"<focus_point>{focuspoint}</focus_point>"
+        if restrictions:
+            focus_statement += f"\nAdhering to the specified restrictions:\n<restrictions>{restrictions}</restrictions>"
+        if explanation:
+            focus_statement += f"\nSpecial note for the focus point: \n<explanation>{explanation}</explanation>"
+        self.prompt_only_links = role_and_purpose + PROMPT_EXTRACT_BLOCKS_ONLY_LINKS.replace('{FOCUS_POINT}', focus_statement)
+
         if schema:
             try:
                 # Convert schema dict to formatted string with proper indentation
@@ -131,18 +148,10 @@ class LLMExtractionStrategy(ExtractionStrategy):
                 schema_str = '\n'.join('    ' + line for line in schema_str.split('\n'))
             except Exception as e:
                 raise ValueError(f"Invalid Schema, can not be dumps:{e}")
-            self.schema_mode = True
-            self.prompt = PROMPT_EXTRACT_SCHEMA_WITH_INSTRUCTION.replace('{SCHEMA}', schema_str) 
+            self.prompt = role_and_purpose + PROMPT_EXTRACT_SCHEMA_WITH_INSTRUCTION.replace('{SCHEMA}', schema_str)
         else:
-            self.schema_mode = False
-            focus_statement = f"<focus_point>{focuspoint}</focus_point>"
-            if restrictions:
-                focus_statement += f"\nAdhering to the specified restrictions:\n<restrictions>{restrictions}</restrictions>"
-            if explanation:
-                focus_statement += f"\nSpecial note for the focus point: \n<explanation>{explanation}</explanation>"
-            self.prompt = PROMPT_EXTRACT_BLOCKS.replace('{FOCUS_POINT}', focus_statement)
-            self.prompt_only_links = PROMPT_EXTRACT_BLOCKS_ONLY_LINKS.replace('{FOCUS_POINT}', focus_statement)
-            self.prompt_only_info = PROMPT_EXTRACT_BLOCKS_ONLY_INFO.replace('{FOCUS_POINT}', focus_statement)
+            self.prompt = role_and_purpose + PROMPT_EXTRACT_BLOCKS.replace('{FOCUS_POINT}', focus_statement)
+            self.prompt_only_info = role_and_purpose + PROMPT_EXTRACT_BLOCKS_ONLY_INFO.replace('{FOCUS_POINT}', focus_statement)
  
     def __setattr__(self, name, value):
         """Handle attribute setting."""
@@ -155,16 +164,16 @@ class LLMExtractionStrategy(ExtractionStrategy):
         
         super().__setattr__(name, value)  
         
-    def extract(self, # Make extract an async method
+    def extract(self,
                 messages: List[Dict[str, str]],
                 model: str = '',
+                schema_mode: bool = False,
                 extra_args: dict = {}) -> list | dict:
 
-        # Replace perform_completion_with_backoff with openai_llm
-        response = perform_completion_with_backoff( # Call openai_llm
+        response = perform_completion_with_backoff(
             messages=messages,
             model=model,
-            temperature=0.1, # Assuming temperature is still a valid param for openai_llm
+            temperature=0.1,
             **extra_args,
         )
 
@@ -193,12 +202,12 @@ class LLMExtractionStrategy(ExtractionStrategy):
         if self.verbose:
             print(f"\n\033[32mresponse:\033[0m\n \033[34m{response}\033[0m")
         # schema mode parsing
-        if self.schema_mode:
+        if schema_mode:
             results = extract_xml_data(["json"], response)["json"]
             blocks = []
             for res in results:
                 try:
-                    blocks.append(json.loads(res))
+                    blocks.extend(json.loads(res))
                 except json.JSONDecodeError:
                     self.logger.debug("json loads from response failed, fallback to use split_and_parse")
                     parsed, unparsed = split_and_parse_json_objects(res)
@@ -220,7 +229,7 @@ class LLMExtractionStrategy(ExtractionStrategy):
             date_stamp: str = datetime.now().strftime("%Y-%m-%d"),
             model: str = '',
             link_dict: dict = {}
-        ) -> List[Dict[str, Any]]:
+        ) -> Dict[str, Any]:
         """
         Process sections sequentially with a delay for rate limiting issues, specifically for LLMExtractionStrategy.
 
@@ -232,10 +241,12 @@ class LLMExtractionStrategy(ExtractionStrategy):
             A list of extracted blocks or chunks.
         """
         if not sections:
-            return []
+            return {'infos': [], 'links': set()}
+        
+        if self.schema and mode != 'only_link':
+            return self.run_schema(sections, url, title, author, publish_date, date_stamp, model, link_dict)
         
         date_time_notify = f"The additional information provided, use as needed: Today is {date_stamp}"
-        extracted_content = []
         sec_pre = ''
         if title:
             sec_pre += f'{title}\n'
@@ -247,12 +258,11 @@ class LLMExtractionStrategy(ExtractionStrategy):
             sec_pre += '\n'
         
         if not link_dict:
+            if mode == 'only_link':
+                return {'infos': [], 'links': set()}
             mode = 'only_info'
 
-        if self.schema_mode:
-            msg_list = [
-                self.prompt.replace('{URL}', url).replace('{HTML}', sec_pre + sec.strip()) + date_time_notify for sec in sections]
-        elif mode == 'only_info':
+        if mode == 'only_info':
             msg_list = [
                 self.prompt_only_info.replace('{HTML}', sec_pre + sec.strip()) + date_time_notify for sec in sections]
         elif mode == 'only_link':
@@ -261,18 +271,130 @@ class LLMExtractionStrategy(ExtractionStrategy):
         else:
             msg_list = [
                 self.prompt.replace('{HTML}', sec_pre + sec.strip()) + date_time_notify for sec in sections]
-
+            
+        more_links = set()
+        infos = []
+        info_prefix = f'//{author} {publish_date}//' if (author or publish_date) else ''
         for msg in msg_list:
             if self.verbose:
-                print(f"\n\033[32mmsg:\033[0m\n \033[34m{msg}\033[0m")
+                print(f"\n\033[32mmsg:\033[0m\n\033[34m{msg}\033[0m")
             result = self.extract(messages=[{"role": "user", "content": msg}], model=model, extra_args=self.extra_args)
             if not result:
                 continue
             # wiseflow post process
-            if not self.schema_mode:
-                more_links = set()
-                infos = []
-                info_prefix = f'//{author} {publish_date}//' if (author or publish_date) else ''
+            hallucination_times = 0
+            total_parsed = 0
+            link_blocks = result.get("links", [])
+            for block in link_blocks:
+                links = re.findall(r'\[\d+]', block)
+                total_parsed += len(links)
+                for link in links:
+                    if link not in link_dict:
+                        hallucination_times += 1
+                        continue
+                    more_links.add(link_dict[link])
+
+            info_blocks = result.get("info", [])
+            for block in info_blocks:
+                block = block.strip()
+                if len(block) < 3:
+                    continue
+                # bad case sellections
+                if block.startswith('无相关信息'):
+                    continue
+                url_tags = re.findall(r'\[\d+]', block)
+                refences = ''
+                for _tag in url_tags:
+                    total_parsed += 1
+                    if _tag in link_dict:
+                        refences += f'{_tag}: {link_dict[_tag]}\n'
+                    else:
+                        if _tag not in msg:
+                            hallucination_times += 1
+                            block = block.replace(_tag, '') 
+                        # case:original text contents, eg [2025]文
+                infos.append({'content': f'{info_prefix}{block}', 'references': refences, 'source': url})
+            hallucination_rate = round((hallucination_times / total_parsed) * 100, 2) if total_parsed > 0 else 'NA'
+            self.logger.info(
+                f"[QualityAssessment] task: link and info extraction, hallucination times: {hallucination_times}, hallucination rate: {hallucination_rate} %")
+
+        return {'infos': infos, 'links': more_links}
+    
+    def run_schema(self,
+            sections: List[str], 
+            url: str = '',
+            title: str = '',
+            author: str = '',
+            publish_date: str = '',
+            date_stamp: str = datetime.now().strftime("%Y-%m-%d"),
+            model: str = '',
+            link_dict: dict = {}
+        ) -> Dict[str, Any]:
+        """
+        Process sections sequentially with a delay for rate limiting issues, specifically for LLMExtractionStrategy.
+
+        Args:
+            url: The URL of the webpage.
+            sections: List of sections (strings) to process.
+
+        Returns:
+            A list of extracted blocks or chunks.
+        """
+        if not sections:
+            return {'infos': [], 'links': set()}
+        
+        date_time_notify = f"The additional information provided, use as needed: Today is {date_stamp}"
+        sec_pre = ''
+        if title:
+            sec_pre += f'{title}\n'
+        if author:
+            sec_pre += f'author: {author}\n'
+        if publish_date:
+            sec_pre += f'publish date: {publish_date}\n'
+        if sec_pre:
+            sec_pre += '\n'
+
+        msg_list = [
+            self.prompt.replace('{URL}', url).replace('{HTML}', sec.strip()) + date_time_notify for sec in sections]
+        
+        infos = []
+        for msg in msg_list:
+            if self.verbose:
+                print(f"\n\033[32mmsg:\033[0m\n\033[34m{msg}\033[0m")
+
+            result = self.extract(messages=[{"role": "user", "content": msg}], model=model, schema_mode=True, extra_args=self.extra_args)
+            if not result:
+                continue
+            
+            hallucination_times = 0
+            total_parsed = len(result)
+            schema_keys = self.schema.keys()
+            for block in result:
+                for key in block.keys():
+                    if key not in schema_keys:
+                        hallucination_times += 1
+                        del block[key]
+                for key in schema_keys:
+                    if key not in block:
+                        hallucination_times += 1
+                        block[key] = None
+                infos.append(block)
+            hallucination_rate = round((hallucination_times / total_parsed) * 100, 2) if total_parsed > 0 else 'NA'
+            self.logger.info(
+                f"[QualityAssessment] task: schema extraction, hallucination times: {hallucination_times}, hallucination rate: {hallucination_rate} %")
+        
+        # analyse the links worth to explore
+        more_links = set()
+        if link_dict:
+            msg_list = [
+                self.prompt_only_links.replace('{HTML}', sec_pre + sec.strip()) + date_time_notify for sec in sections]
+
+            for msg in msg_list:
+                if self.verbose:
+                    print(f"\n\033[32mmsg:\033[0m\n\033[34m{msg}\033[0m")
+                result = self.extract(messages=[{"role": "user", "content": msg}], model=model, extra_args=self.extra_args)
+                if not result:
+                    continue
                 hallucination_times = 0
                 total_parsed = 0
                 link_blocks = result.get("links", [])
@@ -285,50 +407,11 @@ class LLMExtractionStrategy(ExtractionStrategy):
                             continue
                         more_links.add(link_dict[link])
 
-                info_blocks = result.get("info", [])
-                for block in info_blocks:
-                    block = block.strip()
-                    if len(block) < 3:
-                        continue
-                    # bad case sellections
-                    if block.startswith('无相关信息'):
-                        continue
-                    url_tags = re.findall(r'\[\d+]', block)
-                    refences = ''
-                    for _tag in url_tags:
-                        total_parsed += 1
-                        if _tag in link_dict:
-                            refences += f'{_tag}: {link_dict[_tag]}\n'
-                        else:
-                            if _tag not in msg:
-                                hallucination_times += 1
-                                block = block.replace(_tag, '') 
-                            # case:original text contents, eg [2025]文
-                    infos.append({'content': f'{info_prefix}{block}', 'references': refences, 'source': url})
                 hallucination_rate = round((hallucination_times / total_parsed) * 100, 2) if total_parsed > 0 else 'NA'
                 self.logger.info(
-                    f"[QualityAssessment] task: link and info extraction, hallucination times: {hallucination_times}, hallucination rate: {hallucination_rate} %")
-                extracted_content.append({'infos': infos, 'links': more_links})
-            else:
-                hallucination_times = 0
-                total_parsed = len(result)
-                schema_keys = self.schema.keys()
-                extracted_content = []
-                for block in result:
-                    for key in block.keys():
-                        if key not in schema_keys:
-                            hallucination_times += 1
-                            del block[key]
-                    for key in schema_keys:
-                        if key not in block:
-                            hallucination_times += 1
-                            block[key] = None
-                    extracted_content.append(block)
-                hallucination_rate = round((hallucination_times / total_parsed) * 100, 2) if total_parsed > 0 else 'NA'
-                self.logger.info(
-                    f"[QualityAssessment] task: schema extraction, hallucination times: {hallucination_times}, hallucination rate: {hallucination_rate} %")
+                    f"[QualityAssessment] task: link finding, hallucination times: {hallucination_times}, hallucination rate: {hallucination_rate} %")
 
-        return extracted_content
+        return {'infos': infos, 'links': more_links}
 
     def show_usage(self) -> None:
         """Print a detailed token usage report showing total and per-request usage."""

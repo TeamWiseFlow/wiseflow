@@ -1,3 +1,4 @@
+# uv add pocketbase first
 import os
 from pocketbase import PocketBase  # Client also works the same
 from pocketbase.client import FileUpload

@@ -44,7 +44,7 @@ def perform_completion_with_backoff(messages: List, model: str = '', **kwargs):
                         'Failed to process image URL: data:' not in error_msg
                         ):
                         # image url probility is that server cannot fetch the image, so we don't need to worry about it
-                        wis_logger.error(error_msg)
+                        wis_logger.warning(error_msg)
                         wis_logger.info(f"messages: {messages}")
                     raise e
                 else:
@@ -58,7 +58,7 @@ def perform_completion_with_backoff(messages: List, model: str = '', **kwargs):
         except Exception as e:
             # other exception, retry
             error_msg = f"{model} Unexpected error: {str(e)}. Retry {retry+1}/{max_retries}."
-            wis_logger.error(error_msg)
+            wis_logger.warning(error_msg)
 
         if retry < max_retries - 1:
             # exponential backoff strategy
@@ -68,11 +68,11 @@ def perform_completion_with_backoff(messages: List, model: str = '', **kwargs):
 
     # if all retries fail
     error_msg = "Max retries reached, still unable to get a valid response."
-    wis_logger.error(error_msg)
+    wis_logger.warning(error_msg)
     raise Exception(error_msg)
 
 
-PROMPT_EXTRACT_BLOCKS = """Extract all information related to the following focus points from the main-content of given markdown, and find all links worth further exploration based on the focus points (represented by a citation mark like [x]) from the whole markdown:
+PROMPT_EXTRACT_BLOCKS = """Extract all information related to the following focus point from the main-content of given markdown, and find all links worth further exploration based on the focus point from the whole markdown:
 {FOCUS_POINT}
 
 And here is the markdown:
@@ -85,8 +85,7 @@ All links in the original HTML (a elements or img elements) have been converted 
 
 For information extraction, please adhere to the following notes:
 - Only extract information from the markdown's main-content area(if any), if there is no main-content area, DO NOT output anything.
-- All information should be extracted from the main-content area(if any), do not make up any information.
-- It is not guaranteed that the main-content will always be relevant to the focus point, if that is the case, DO NOT output anything.
+- If the focus point is not explicitly mentioned in any main-content area, DO NOT output anything.
 - All extracted information must comply with restrictions (if given), such as time limit, value limit, subject limit, etc.
 - If multiple information are extracted, merge them into one coherent message that contains all the key points.
 
@@ -108,7 +107,7 @@ sentence2 with the found citation mark
 </links>
 """
 
-PROMPT_EXTRACT_BLOCKS_ONLY_INFO = """Extract all information related to the following focus points from the given markdown:
+PROMPT_EXTRACT_BLOCKS_ONLY_INFO = """Extract all information related to the following focus point from the given markdown:
 {FOCUS_POINT}
 
 And here is the markdown:
@@ -121,7 +120,7 @@ All reference links in the original HTML (a elements or img elements) have been 
 
 please adhere to the following notes:
 - All information should be extracted from the given markdown, do not make up any information.
-- It is not guaranteed that the given markdown will always be relevant to the focus point, if that is the case, DO NOT output anything.
+- If the focus point is not explicitly mentioned in the given markdown, DO NOT output anything.
 - All extracted information must comply with restrictions (if given), such as time limit, value limit, subject limit, etc.
 - If multiple information are extracted, merge them into one coherent message that contains all the key points.
 
@@ -132,7 +131,7 @@ Extracted information (if there are multiple pieces of information, merge them i
 </info>
 """
 
-PROMPT_EXTRACT_BLOCKS_ONLY_LINKS = """Find all links(represented by a citation mark like [x]) worth further exploration based on the focus points from the given markdown:
+PROMPT_EXTRACT_BLOCKS_ONLY_LINKS = """Find all links(represented by a citation mark like [x]) worth further exploration based on the focus point from the given markdown:
 {FOCUS_POINT}
 
 And here is the markdown:
@@ -164,22 +163,17 @@ PROMPT_EXTRACT_SCHEMA_WITH_INSTRUCTION = """Here is the content from the URL:
 {HTML}
 </url_content>
 
-The user has made the following schema for what information to extract from the above content:
+Your task is to extract the requested information from the URL content according to the following schema:
 
-<user_schema>
+<schema>
 {SCHEMA}
-</user_schema>
-
-Please carefully read the URL content and the user's schema, extract the requested information from the URL content according to that schema. 
+</schema>
 
 Extraction instructions:
 Return the extracted information as a list of JSON objects, with each object in the list corresponding to a block of content from the URL, in the same order as it appears on the page. Wrap the entire JSON list in <json>...</json> XML tags.
 
 Quality Reflection:
 Before outputting your final answer, double check that the JSON you are returning is complete, containing all the information requested by the user, and is valid JSON that could be parsed by json.loads() with no errors or omissions. The outputted JSON objects should fully match the schema.
-
-Quality Score:
-After reflecting, score the quality and completeness of the JSON data you are about to return on a scale of 1 to 5.
 
 Avoid Common Mistakes:
 - Do NOT add any comments using "//" or "#" in the JSON output. It causes parsing errors.

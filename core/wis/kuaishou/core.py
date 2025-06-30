@@ -48,7 +48,7 @@ class KuaiShouCrawler:
         self.ks_client.account_info = await account_with_ip_pool.get_account_with_ip_info()
 
     async def posts_list(self,
-                         keywords: List[str],
+                         keywords: set[str],
                          existings: set[str] = set(),
                          creator_ids: List[str] = []) -> Tuple[str, dict]:
         fresh_videos = []
@@ -65,20 +65,25 @@ class KuaiShouCrawler:
 
         markdown = ""
         link_dict = {}
-
+        seen_video_ids = set()
         for video in fresh_videos:
+            v_id = video.get("video_id")
+            if v_id in seen_video_ids:
+                continue
+            seen_video_ids.add(v_id)
+            
             title = video.get("title").replace("\n", "  ")
             desc = video.get("desc").replace("\n", " ")
             create_time = video.get("create_time")
             liked_count = video.get("liked_count")
             viewd_count = video.get("viewd_count")
             _key = f"[{len(link_dict)+1}]"
-            link_dict[_key] = video.get("video_id")
+            link_dict[_key] = v_id
             markdown += f"* {_key}标题：{title} 发布时间：{create_time} 点赞量：{liked_count} 播放量：{viewd_count} 描述：{desc} {_key}\n\n"
 
         return markdown.replace("#", ""), link_dict
     
-    async def video_as_article(self, video_id: str) -> Optional[CrawlResult]:
+    async def as_article(self, video_id: str) -> Optional[CrawlResult]:
         video_url = f"https://www.kuaishou.com/short-video/{video_id}"
         if self.db_manager:
             cached_result = await self.db_manager.get_cached_url(video_url, days_threshold=365)
@@ -92,8 +97,9 @@ class KuaiShouCrawler:
         author = f"{video.get('nickname')}(id: {video.get('user_id')})"
         title = video.get('title')
         publish_date = video.get('create_time')
-        
-        article = f"{video.get('desc')}\n\n点赞量：{video.get('liked_count')} 播放量：{video.get('viewd_count')}"
+        description = video.get('desc') if video.get('desc') else ""
+        description = description.replace("\n", " | ")
+        article = f"{description}\n\n点赞量：{video.get('liked_count')} 播放量：{video.get('viewd_count')}"
 
         comments = await self.get_video_comments(video.get("video_id"))
         if comments:
@@ -111,7 +117,13 @@ class KuaiShouCrawler:
             await self.db_manager.cache_url(result)
         return result
 
-    async def creator_as_article(self, creator_id: str) -> Optional[str]:
+    async def as_creator(self, creator_id: str) -> Optional[CrawlResult]:
+        profile_url = f"https://www.kuaishou.com/profile/{creator_id}"
+        if self.db_manager:
+            cached_result = await self.db_manager.get_cached_url(profile_url, days_threshold=30)
+            if cached_result and cached_result.markdown:
+                return cached_result
+        
         # get creator detail info from web html content
         try:
             createor_info: Dict = await self.ks_client.get_creator_info(creator_id)
@@ -138,13 +150,21 @@ class KuaiShouCrawler:
         nickname = profile.get("user_name")
         gender = "女" if profile.get("gender") == "F" else "男"
         desc = profile.get("user_text")
+        desc = desc.replace("\n", " | ")
         # follows = owner_count.get("follow")
         fans = owner_count.get("fan")
         videos_count = owner_count.get("photo_public")
-        # todo save as a crawlresult to db
-        return f"昵称:{nickname}({creator_id})\n性别:{gender}\n简介:{desc}\n粉丝量:{fans}\n已发布视频数量:{videos_count}"
 
-    async def search_videos(self, keywords: List[str], existings: set[str] = set(), limit_hours: int = 48) -> List[Dict]:
+        markdown = f"昵称:{nickname}({creator_id})\n性别:{gender}\n简介:{desc}\n粉丝量:{fans}\n已发布视频数量:{videos_count}"
+        result = CrawlResult(
+            url=profile_url,
+            markdown=markdown,
+        )
+        if self.db_manager:
+            await self.db_manager.cache_url(result)
+        return result
+
+    async def search_videos(self, keywords: set[str], existings: set[str] = set(), limit_hours: int = 48) -> List[Dict]:
         """
         Search for videos and retrieve their comment information.
         Returns:
@@ -174,22 +194,19 @@ class KuaiShouCrawler:
                         search_session_id=search_session_id,
                     )
                 except Exception as e:
-                    wis_logger.error(
+                    wis_logger.warning(
                         f"search info by keyword:{keyword} not finished, but paused by error: {e}"
                     )
                     break
 
                 if not videos_res:
                     wis_logger.warning(
-                        f"search info by keyword:{keyword} not found data"
+                        f"search info by keyword:{keyword} failed"
                     )
                     break
 
                 vision_search_photo: Dict = videos_res.get("visionSearchPhoto")
-                if vision_search_photo.get("result") != 1:
-                    wis_logger.warning(
-                        f"search info by keyword:{keyword} not found data "
-                    )
+                if not vision_search_photo or vision_search_photo.get("result") != 1:
                     break
                 search_session_id = vision_search_photo.get("searchSessionId", "")
                 for video_detail in vision_search_photo.get("feeds", []):

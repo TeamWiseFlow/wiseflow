@@ -68,11 +68,11 @@ class KuaiShouApiClient:
         Returns:
 
         """
-        if self._account_updated_at and time.time() - self._account_updated_at < 60:
-            return
-        
         # Use async lock to ensure that only one account is being updated
         async with self._account_update_lock:
+            if self._account_updated_at and time.time() - self._account_updated_at < 60:
+                return
+            
             if self.account_with_ip_pool.proxy_ip_pool:
                 try:
                     await self.account_with_ip_pool.mark_ip_invalid(
@@ -148,6 +148,8 @@ class KuaiShouApiClient:
         """
         async with httpx.AsyncClient(proxy=self._proxies) as client:
             response = await client.request(method, url, timeout=self.timeout, **kwargs)
+        if not response.is_success:
+            return {}
         data: Dict = response.json()
         if data.get("errors"):
             raise DataFetchError(data.get("errors", "unkonw error"))
@@ -169,22 +171,21 @@ class KuaiShouApiClient:
         if isinstance(params, dict):
             final_uri = f"{uri}?" f"{urlencode(params)}"
         try:
+            res = await self.request(
+                method="GET", url=f"{KUAISHOU_API}{final_uri}", **kwargs
+            )
+            if res:
+                return res
+        except RetryError as e:
+            wis_logger.debug(f"get uri:{uri} failed, will try to update account and IP proxy")
+
+        await self.update_account_info(force_login=True)
+        try:
             return await self.request(
                 method="GET", url=f"{KUAISHOU_API}{final_uri}", **kwargs
             )
-        except RetryError as e:
-            wis_logger.info(
-                f"[KuaiShouApiClient.get] get uri:{uri} failed many times, will try to update account")
-            # let the bull fly for a while, in case the account is updating by other thread
-            await asyncio.sleep(1)
-            await self.update_account_info(force_login=True)
-            try:
-                wis_logger.info("try to update account by changing ip")
-                return await self.request(
-                    method="GET", url=f"{KUAISHOU_API}{final_uri}", **kwargs
-                )
-            except Exception as e:
-                wis_logger.error(f"account and ip still invalid, have to quit, err:{e}")
+        except Exception as e:
+            wis_logger.warning(f"get uri:{uri} failed many times, account and ip proxy had been updated, however, still failed, have to quit, err:{e}")
 
     async def post(self, uri: str, data: dict, **kwargs) -> Dict:
         """
@@ -199,28 +200,27 @@ class KuaiShouApiClient:
         """
         json_str = json.dumps(data, separators=(",", ":"), ensure_ascii=False)
         try:
+            res = await self.request(
+                method="POST",
+                url=f"{KUAISHOU_API}{uri}",
+                data=json_str,
+                headers=self.headers,
+            )
+            if res:
+                return res
+        except RetryError:
+            wis_logger.debug(f"post uri:{uri} failed, will try to update account and IP proxy")
+
+        await self.update_account_info(force_login=True)
+        try:
             return await self.request(
                 method="POST",
                 url=f"{KUAISHOU_API}{uri}",
                 data=json_str,
                 headers=self.headers,
             )
-        except RetryError as e:
-            wis_logger.info(
-                f"[KuaiShouApiClient.post] post uri:{uri} failed many times, will try to update account")
-            # let the bull fly for a while, in case the account is updating by other thread
-            await asyncio.sleep(1)
-            await self.update_account_info(force_login=True)
-            try:
-                wis_logger.info("try to update account by changing ip")
-                return await self.request(
-                    method="POST",
-                    url=f"{KUAISHOU_API}{uri}",
-                    data=json_str,
-                    headers=self.headers,
-                )
-            except Exception as e:
-                wis_logger.error(f"account and ip still invalid, have to quit, err:{e}")
+        except Exception as e:
+            wis_logger.warning(f"post uri:{uri} failed many times, account and ip proxy had been updated, however, still failed, have to quit, err:{e}")
 
     async def pong(self) -> bool:
         """
@@ -250,7 +250,7 @@ class KuaiShouApiClient:
                 # wis_logger.debug(f"pong kuaishou success as user: {vision_profile_user_list.get('fols')[0]['user_name']}")
                 ping_flag = True
         except Exception as e:
-            wis_logger.error(
+            wis_logger.warning(
                 f"Pong kuaishou failed: {e}, and try to login again..."
             )
             ping_flag = False
