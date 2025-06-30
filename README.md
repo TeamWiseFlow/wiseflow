@@ -147,4 +147,4 @@ Licensed under Apache2.0
 
 ## 友情链接
 
-[<img src="docs/logo/siliconflow.png" alt="siliconflow" width="360">](https://siliconflow.cn/)
+[<img src="docs/logos/SiliconFlow.png" alt="siliconflow" width="360">](https://siliconflow.com/)

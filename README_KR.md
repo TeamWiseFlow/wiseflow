@@ -150,4 +150,4 @@ Apache2.0 라이선스
 
 ## 우호 링크
 
-[<img src="docs/logo/siliconflow.png" alt="siliconflow" width="360">](https://siliconflow.com/)
+[<img src="docs/logos/SiliconFlow.png" alt="siliconflow" width="360">](https://siliconflow.com/)

@@ -150,4 +150,4 @@ Lizenziert unter Apache2.0
 
 ## Freundliche Links
 
-[<img src="docs/logo/siliconflow.png" alt="siliconflow" width="360">](https://siliconflow.com/)
+[<img src="docs/logos/SiliconFlow.png" alt="siliconflow" width="360">](https://siliconflow.com/)

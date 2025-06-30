@@ -150,4 +150,4 @@ Sous licence Apache2.0
 
 ## Liens Amicaux
 
-[<img src="docs/logo/siliconflow.png" alt="siliconflow" width="360">](https://siliconflow.com/)
+[<img src="docs/logos/SiliconFlow.png" alt="siliconflow" width="360">](https://siliconflow.com/)
