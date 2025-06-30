@@ -1,4 +1,30 @@
-# v4.0.0
+# v4.1
+
+- 通用llm提取支持设定 role 和 purpose，从而实现更加精准的提取
+
+  Universal LLM extraction supports setting role and purpose, enabling more precise extraction
+
+- 社交平台信源增加查找创作者详情的功能
+
+  Added functionality to search for creator details in social media platform sources
+
+- 增加自定义精准搜索功能（自定义 info 提取字段）
+
+  Added custom precision search functionality (custom info extraction fields)
+
+- 可以为关注点指定搜索源，目前支持 bing、github、arxiv、ebay 四个源，并且全部使用平台原生接口，无需额外申请并配置第三方 key
+
+  Can specify search sources for focus points, currently supporting four sources: bing, github, arxiv, ebay, all using platform native interfaces without requiring additional third-party key applications and configurations
+
+- 优化的缓存以及缓存遗忘机制
+
+  Optimized caching and cache forgetting mechanisms
+
+- 修复快手平台搜索结果为空时的错误处理
+
+  Fixed error handling when Kuaishou platform search results are empty
+
+# v4.0
 
 - 深度重构 Crawl4ai（0.6.3）和 MediaCrawler， 并整合引入 Nodriver，大幅提升获取能力，支持社交平台内容获取（4.0版本提供对微博和快手平台的支持）；
 

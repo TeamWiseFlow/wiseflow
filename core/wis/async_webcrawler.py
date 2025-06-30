@@ -186,8 +186,8 @@ class AsyncWebCrawler:
                 else:
                     wis_logger.info(f"[FETCH] ✗ {url} | ⏱: {t2 - t1:.2f}s")
             except Exception as e:
-                error_message = f"[Unexpected Error] {url}\n{str(e)}"
-                wis_logger.error(error_message)
+                error_message = f"[Crawl Failed] {url}\n{str(e)}"
+                wis_logger.warning(error_message)
                 return CrawlResultContainer(
                     CrawlResult(
                         url=url, html="", success=False, error_message=error_message

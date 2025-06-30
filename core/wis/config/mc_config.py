@@ -28,7 +28,8 @@ ENABLE_GET_COMMENTS = True
 ENABLE_GET_SUB_COMMENTS = True
 
 # 有的帖子评论数量太大了，这个变量用于一个帖子评论的最大数量，0表示不限制
-PER_NOTE_MAX_COMMENTS_COUNT = 50
+# use pro Edition with the IP proxy, so you can safely add this...
+PER_NOTE_MAX_COMMENTS_COUNT = 30
 
 # 微博搜索模式，DEFAULT: 综合（默认），REAL_TIME: 实时，POPULAR: 热门，VIDEO: 视频
 WEIBO_SEARCH_TYPE = "DEFAULT"

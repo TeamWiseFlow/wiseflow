@@ -51,7 +51,7 @@ async def schedule_task():
             for task in tasks:
                 focus = task['focus_point']
                 sources = task['sources']
-                if not focus or not sources:
+                if not focus:
                     continue
                 if not focus['freq'] or not focus['focuspoint']:
                     continue

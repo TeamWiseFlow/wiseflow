@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from async_logger import wis_logger, base_directory
-from typing import List, Dict, Tuple
+from typing import Dict, Tuple
 from wis.utils import get_base_domain
 import time, pickle
 import asyncio
 from custom_processes import *
-from tools.jina_search import search_with_jina
+from tools.bing_search import search_with_bing
 from tools.rss_parsor import fetch_rss
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -23,7 +23,8 @@ from wis import (
     ChunkingStrategy,
     IdentityChunking,
     MaxLengthChunking,
-    CrawlResult
+    CrawlResult,
+    search_with_engine
 )
 from web_crawler_configs import crawler_config_map
 from wis.config import MAX_URLS_PER_TASK
@@ -88,7 +89,7 @@ def save_existings_for_focus(focus_id: str, existings: dict) -> None:
 
 def scrap_article(article: CrawlResult, 
                   extractor: ExtractionStrategy = None, 
-                  chunking: ChunkingStrategy = None) -> Tuple[CrawlResult, bool, List[Dict]]:
+                  chunking: ChunkingStrategy = None) -> Tuple[CrawlResult, bool, Dict]:
     
     article_updated = False
     url = article.url
@@ -99,7 +100,7 @@ def scrap_article(article: CrawlResult,
     metadata = article.metadata
   
     if not extractor or isinstance(extractor, NoExtractionStrategy):
-        return article, article_updated, []
+        return article, article_updated, {'infos': [], 'links': set()}
 
     t1 = time.perf_counter()
     if not isinstance(extractor, LLMExtractionStrategy):
@@ -112,7 +113,7 @@ def scrap_article(article: CrawlResult,
         
         if not content:
             wis_logger.info(f"{url} has no required content to extract, skip")
-            return article, article_updated, []
+            return article, article_updated, {'infos': [], 'links': set()}
 
         chunking = chunking or IdentityChunking()
         sections = chunking.chunk(content)
@@ -126,7 +127,7 @@ def scrap_article(article: CrawlResult,
     if not markdown:
         if not html and not cleaned_html:
             wis_logger.info(f"{url} has no markdown,cleaned_html or html, skip")
-            return article, article_updated, []
+            return article, article_updated, {'infos': [], 'links': set()}
         
         domain = get_base_domain(url)
         markdown_generator = markdown_generation_hub.get(domain, DefaultMarkdownGenerator)()
@@ -138,7 +139,7 @@ def scrap_article(article: CrawlResult,
         )
         if error_msg:
             wis_logger.error(f"[HTML TO MARKDOWN] ✗ {url}\n{error_msg}")
-            return article, article_updated, []
+            return article, article_updated, {'infos': [], 'links': set()}
         
         wis_logger.debug(f"[HTML TO MARKDOWN] ✓ {url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
         if not article.title:
@@ -172,21 +173,30 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
     focuspoint = focus["focuspoint"].strip()
     restrictions = focus["restrictions"].strip() if focus["restrictions"] else ''
     explanation = focus["explanation"].strip() if focus["explanation"] else ''
+    role = focus["role"].strip() if focus["role"] else ''
+    purpose = focus["purpose"].strip() if focus["purpose"] else ''
     search = focus['search']
-    if search:
-        # TODO: use a llm to generate the query
-        query = [focuspoint]
-    else:
-        query = []
-
-    wis_logger.debug(f'focus_id: {focus_id}, focus_point: {focuspoint}, search mode: {search} with keywords: {query}')
+    wis_logger.debug(f'focus_id: {focus_id}, focus_point: {focuspoint}, search with: {search}')
 
     existings = get_existings_for_focus(focus_id)
     recorder = Recorder(focus_id=focuspoint, max_urls_per_task=MAX_URLS_PER_TASK)
+
+    custom_table = focus.get('custom_table').strip() if focus.get('custom_table') else None
+    if custom_table:
+        schema = await db_manager.get_custom_table_schema(custom_table)
+        if not schema:
+            wis_logger.warning(f"focus {focus_id} 's custom table {custom_table}, can not get schema, skip")
+            return
+    else:
+        schema = None
+
     extractor = LLMExtractionStrategy(
         focuspoint=focuspoint,
         restrictions=restrictions,
         explanation=explanation,
+        role=role,
+        purpose=purpose,
+        schema=schema,
         verbose=os.getenv("VERBOSE", False),
         logger=wis_logger
     )
@@ -199,56 +209,26 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
             return meta, result
         return asyncio.create_task(wrapper())
 
+    for search_source in search:
+        if search_source == 'wb':
+            sources.append({'type': WEIBO_PLATFORM_NAME, 'query': {focuspoint}})
+        elif search_source == 'ks':
+            sources.append({'type': KUAISHOU_PLATFORM_NAME, 'query': {focuspoint}})
+        elif search_source == 'bing':
+            tasks.add(wrap_task(search_with_bing(focuspoint, existings['web']), ('posts', 'bing')))
+        elif search_source in ['ebay', 'github', 'arxiv']:
+            tasks.add(wrap_task(search_with_engine(search_source, focuspoint, existings['web']), ('article_or_posts', search_source)))
+        else:
+            wis_logger.warning(f"focus {focus_id} has unvalid search source {search_source}, skip")
+
     for source in sources:
         if source['type'] == 'rss':
             if not source.get('url'):
                 wis_logger.warning(f"focus {focus_id} has unvalid rss source {source['id']}: has no url, skip")
                 continue
-            tasks.add(wrap_task(fetch_rss(source['url'], existings['web']), ('rss', source['url'])))
+            tasks.add(wrap_task(fetch_rss(source['url'], existings['web']), ('article_or_posts', 'rss')))
             recorder.rss_source += 1
-
-        elif source['type'] == KUAISHOU_PLATFORM_NAME:
-            creators = source.get('creators', '') or ''
-            if not creators:
-                creator_ids = []
-            elif ',' in creators:
-                creator_ids = [_id.strip() for _id in creators.split(',')]
-            elif '，' in creators:
-                creator_ids = [_id.strip() for _id in creators.split('，')]
-            else:
-                creator_ids = [creators]
-            
-            if not search and not creator_ids:
-                continue
-
-            if not crawlers[KUAISHOU_PLATFORM_NAME]:
-                wis_logger.info(f"focus {focus_id} got {KUAISHOU_PLATFORM_NAME} source, but no valid crawler, skip")
-                continue
-
-            kwags = {"keywords": query, "existings": existings[KUAISHOU_PLATFORM_NAME], "creator_ids": creator_ids}
-            tasks.add(wrap_task(crawlers[KUAISHOU_PLATFORM_NAME].posts_list(**kwags), (KUAISHOU_PLATFORM_NAME, KUAISHOU_PLATFORM_NAME)))
-                
-        elif source['type'] == WEIBO_PLATFORM_NAME:
-            creators = source.get('creators', '') or ''
-            if not creators:
-                creator_ids = []
-            elif ',' in creators:
-                creator_ids = [_id.strip() for _id in creators.split(',')]
-            elif '，' in creators:
-                creator_ids = [_id.strip() for _id in creators.split('，')]
-            else:
-                creator_ids = [creators]
-
-            if not search and not creator_ids:
-                continue
-
-            if not crawlers[WEIBO_PLATFORM_NAME]:
-                wis_logger.info(f"focus {focus_id} got {WEIBO_PLATFORM_NAME} source, but no valid crawler, skip")
-                continue
-
-            kwags = {"keywords": query, "existings": existings[WEIBO_PLATFORM_NAME], "creator_ids": creator_ids}
-            tasks.add(wrap_task(crawlers[WEIBO_PLATFORM_NAME].posts_list(**kwags), (WEIBO_PLATFORM_NAME, WEIBO_PLATFORM_NAME)))
-
+        
         elif source['type'] == 'web':
             if not source.get('url'):
                 wis_logger.warning(f"focus {focus_id} has unvalid web source {source['id']}: has no url, skip")
@@ -256,6 +236,35 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
             # source website always be added to url_queue
             recorder.add_url(source['url'], 'web')
             recorder.web_source += 1
+
+        elif source['type'] in [KUAISHOU_PLATFORM_NAME, WEIBO_PLATFORM_NAME]:
+            if not crawlers[source['type']]:
+                wis_logger.info(f"focus {focus_id} got {source['type']} source, but no valid crawler, skip")
+                continue
+
+            query = source.get('query', set())
+            task_type = 'posts'
+            creators = source.get('creators', '') or ''
+            creators = creators.strip()
+            if not creators:
+                creator_ids = []
+            elif creators == '?' or creators == '？':
+                creator_ids = ["homefeed"]
+                query.add(focuspoint)
+                task_type = 'creator'
+            elif ',' in creators:
+                creator_ids = [_id.strip() for _id in creators.split(',')]
+            elif '，' in creators:
+                creator_ids = [_id.strip() for _id in creators.split('，')]
+            else:
+                creator_ids = [creators]
+            
+            if not query and not creator_ids:
+                continue
+
+            kwags = {"keywords": query, "existings": existings[source['type']], "creator_ids": creator_ids}
+            tasks.add(wrap_task(crawlers[source['type']].posts_list(**kwags), (task_type, source['type'])))
+        
         else:
             wis_logger.warning(f"focus {focus_id} has unvalid source {source['id']}: has no type, skip")
             continue
@@ -264,23 +273,22 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
     t1 = time.perf_counter()
     for coro in asyncio.as_completed(tasks):
         (task_type, source_name), result = await coro
-        _from = f'from {task_type} source: {source_name}'
-        if task_type == 'rss':
+        if task_type == 'article_or_posts':
             results, markdown, link_dict = result
             if results:
                 recorder.article_queue.extend(results)
-                if 'rss' not in recorder.item_source:
-                    recorder.item_source['rss'] = 0
-                recorder.item_source['rss'] += len(results)
+                recorder.processed_urls.update({result.url for result in results})
+                if source_name not in recorder.item_source:
+                    recorder.item_source[source_name] = 0
+                recorder.item_source[source_name] += len(results)
                 for result in results:
                     await db_manager.cache_url(result)
-            if markdown:
-                wis_logger.debug(f'{_from} get {len(link_dict)} posts for focus {focus_id}, need to be extracted further...')
-                posts.append((markdown, link_dict, 'web'))
         else:
             markdown, link_dict = result
-            wis_logger.debug(f'{_from} get {len(link_dict)} posts for focus {focus_id}, need to be extracted further...')
-            posts.append((markdown, link_dict, source_name))
+        
+        if markdown and link_dict:
+            wis_logger.debug(f'from {source_name} get {len(link_dict)} posts for focus {focus_id}, need to be extracted further...')
+            posts.append((markdown, link_dict, source_name, task_type))
             if source_name not in recorder.mc_count:
                 recorder.mc_count[source_name] = 0
             recorder.mc_count[source_name] += len(link_dict)
@@ -289,14 +297,11 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
     chunking = MaxLengthChunking()
     def wrap_post_task(post):
         def wrapper():
-            markdown, link_dict, source_name = post
+            markdown, link_dict, source_name, task_type = post
             sections = chunking.chunk(markdown)
             result = extractor.run(sections=sections, mode='only_link', link_dict=link_dict)
-            related_urls = set()
-            for more in result:
-                related_urls.update(more['links'])
             all_urls = set(link_dict.values())
-            return source_name, related_urls, all_urls - related_urls
+            return source_name, result['links'], all_urls - result['links'], task_type
         return wrapper
 
     if posts:
@@ -305,31 +310,59 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
             futures = [executor.submit(wrap_post_task(post)) for post in posts]
             for future in as_completed(futures):
                 try:
-                    source_name, related_urls, un_related_urls = future.result()
-                    if source_name == 'web':
-                        recorder.add_url(related_urls - existings['web'], 'rss')
-                        existings['web'].update(un_related_urls)
-                    elif source_name == WEIBO_PLATFORM_NAME:
-                        existings[WEIBO_PLATFORM_NAME].update(un_related_urls)
-                        for note in un_related_urls:
-                            if f"https://m.weibo.cn/detail/{note}" in existings['web']:
-                                continue
-                            tasks.add(asyncio.create_task(crawlers[WEIBO_PLATFORM_NAME].post_as_article(note)))
+                    source_name, related_urls, un_related_urls, task_type = future.result()
+                    # for weibo platform
+                    if source_name == WEIBO_PLATFORM_NAME:
+                        existings[source_name].update(un_related_urls)
+                        for note in related_urls:
+                            if task_type == 'creator':
+                                note_cache = await db_manager.get_wb_cache(note_id=note)
+                                if note_cache and note_cache[0]['user_id'] and note_cache[0]['profile_url']:
+                                    _url = note_cache[0]['profile_url']
+                                    if _url in existings['web'] or _url in recorder.processed_urls:
+                                        continue
+                                    tasks.add(asyncio.create_task(crawlers[WEIBO_PLATFORM_NAME].as_creator(note_cache[0]['user_id'], note_cache[0]['profile_url'])))
+                                else:
+                                    wis_logger.warning(f"can not get valid note info for note_id:{note}, so can not crawl creator info")
+                                    continue
+                            else:
+                                _url = f"https://m.weibo.cn/detail/{note}"
+                                if _url in existings['web'] or _url in recorder.processed_urls:
+                                    continue
+                                tasks.add(asyncio.create_task(crawlers[WEIBO_PLATFORM_NAME].as_article(note)))
+                            recorder.processed_urls.add(_url)
                             if 'wb' not in recorder.item_source:
                                 recorder.item_source['wb'] = 0
                             recorder.item_source['wb'] += 1
                             await asyncio.sleep(1)
+                    # for kuaishou platform
                     elif source_name == KUAISHOU_PLATFORM_NAME:
                         existings[KUAISHOU_PLATFORM_NAME].update(un_related_urls)
-                        for video in un_related_urls:
-                            if f"https://www.kuaishou.com/short-video/{video}" in existings['web']:
-                                continue
-                            tasks.add(asyncio.create_task(crawlers[KUAISHOU_PLATFORM_NAME].video_as_article(video)))
+                        for video in related_urls:
+                            if task_type == 'creator':
+                                video_cache = await crawlers[KUAISHOU_PLATFORM_NAME].get_specified_video(video)
+                                if video_cache and video_cache['user_id']:
+                                    _url = f"https://www.kuaishou.com/profile/{video_cache['user_id']}"
+                                    if _url in existings['web'] or _url in recorder.processed_urls:
+                                        continue
+                                    tasks.add(asyncio.create_task(crawlers[KUAISHOU_PLATFORM_NAME].as_creator(video_cache['user_id'])))
+                                else:
+                                    wis_logger.warning(f"can not get valid video info for video_id:{video}, so can not crawl creator info")
+                                    continue
+                            else:
+                                _url = f"https://www.kuaishou.com/short-video/{video}"
+                                if _url in existings['web'] or _url in recorder.processed_urls:
+                                    continue
+                                tasks.add(asyncio.create_task(crawlers[KUAISHOU_PLATFORM_NAME].as_article(video)))
+                            recorder.processed_urls.add(_url)
                             if 'ks' not in recorder.item_source:
                                 recorder.item_source['ks'] = 0
                             recorder.item_source['ks'] += 1
                             # it seems that kuaishou can afford more requests per second...
                             # await asyncio.sleep(1)
+                    else:
+                        recorder.add_url(related_urls - existings['web'], source_name)
+                        existings['web'].update(un_related_urls)
                 except Exception as e:
                     wis_logger.error(f"Error Extracting Post List: {e}")
                     continue
@@ -343,11 +376,6 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
             else:
                 recorder.crawl_failed += 1
                 recorder.total_processed += 1
-    
-    if search:
-        search_results = await search_with_jina(query[0], existings['web'])
-        if search_results:
-            recorder.add_url(search_results, 'search_engine')
 
     wis_logger.debug(f"[SOURCE FINDING] ✓ finished for focus {focus_id}, time cost: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
     wis_logger.info(f"\n{recorder.source_summary()}\n")
@@ -364,15 +392,17 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
                 for future in as_completed(futures):
                     recorder.total_processed += 1
                     try:
-                        article, article_updated, results = future.result()
+                        article, article_updated, result = future.result()
                         # processed_urls.add(article.url)  # 记录成功处理的 URL
                         if article_updated:
                             await db_manager.cache_url(article)
-                        for result in results:
-                            recorder.add_url(result['links'] - existings['web'], 'article')
-                            for info in result['infos']:
+                        recorder.add_url(result['links'] - existings['web'], 'article')
+                        for info in result['infos']:
+                            if custom_table:
+                                await db_manager.add_custom_info(custom_table=custom_table, focuspoint_id=focus_id, source=article.url, info=info)
+                            else:
                                 await db_manager.add_info(focuspoint_id=focus_id, **info)
-                                recorder.info_added += 1
+                            recorder.info_added += 1
                         existings['web'].add(article.url)
                         if article.redirected_url:
                             existings['web'].add(article.redirected_url)

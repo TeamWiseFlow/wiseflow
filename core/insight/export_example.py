@@ -1,8 +1,7 @@
 import logging
 import os
-from pb_exporter import PbExporter
-import time
-from datetime import datetime
+from .pb_exporter import PbExporter
+
 
 # 设置日志
 logging.basicConfig(

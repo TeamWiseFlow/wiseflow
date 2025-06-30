@@ -1,0 +1,152 @@
+focus statement: 
+{'focuspoint': '中国地区新建石材厂与石材设备采购信息', 'restrictions': '仅限2025年之后的信息', 'explanation': '', 'role': '石材加工设备经销商', 'purpose': '寻找潜在商机'}
+
+# raw materials: e0c0e6_processed.json
+url: https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+
+# model: Qwen/Qwen3-14B
+time cost: 15.276555249933153s
+tokens usage: 2033 (completion: 636, prompt: 1397)
+
+# related urls: 
+https://cg.shenzhenmc.com/
+https://cg.shenzhenmc.com/zzzgg/index.jhtml
+https://cg.shenzhenmc.com/zbinfo/index.jhtml
+
+# related infos: 
+
+
+
+# model: Qwen/Qwen3-32B
+time cost: 26.840898540918715s
+tokens usage: 4044 (completion: 1250, prompt: 2794)
+
+# related urls: 
+
+
+# related infos: 
+
+
+
+# raw materials: 6f6ceb_processed.json
+url: https://www.stone365.com/news/channel-1.html
+
+# model: Qwen/Qwen3-14B
+time cost: 77.69984512508381s
+tokens usage: 8644 (completion: 3357, prompt: 5287)
+
+# related urls: 
+https://www.stone365.com/news/info-4426920820674.html
+https://www.stone365.com/news/info-4591415234050.html
+https://www.stone365.com/news/info-4737563525070.html
+https://www.stone365.com/news/info-4573171842457.html
+https://www.stone365.com/news/info-4459822124867.html
+https://www.stone365.com/news/info-4462184334100.html
+https://www.stone365.com/news/info-4572212849941.html
+https://www.stone365.com/news/info-4520498069854.html
+https://www.stone365.com/news/info-4718544158348.html
+https://www.stone365.com/news/info-4718880084469.html
+https://www.stone365.com/news/info-4581153911121.html
+https://www.stone365.com/news/info-4494736785148.html
+https://www.stone365.com/news/info-4478409337003.html
+https://www.stone365.com/news/info-4720138835612.html
+https://www.stone365.com/news/info-4556727174024.html
+https://www.stone365.com/news/info-4520449598702.html
+
+# related infos: 
+2025年中国地区多个石材产业相关动态显示潜在商机：麻城通过高质量项目推动石材产业升级（[44]、[64]），广东封开县绿色建材产业园正在火热招商（[49]），云南石林县计划发展百亿级石材产业（[79]）。新国标《装饰石材露天矿山技术规范》（JC/T 1081-2025）即将实施（[43]、[45]），以及《石材机械 多线切割机》标准评审会的完成（[75]），可能促使新建石材厂在设备采购上寻求符合新规的解决方案。此外，2025厦门国际石材展（[50]）和中俄贸易沙龙（[66]）等活动也为设备经销商提供了拓展合作的窗口。
+
+
+
+# model: Qwen/Qwen3-32B
+time cost: 136.60780900006648s
+tokens usage: 12586 (completion: 4806, prompt: 7780)
+
+# related urls: 
+https://www.stone365.com/news/info-4426920820674.html
+https://www.stone365.com/news/info-4737563525070.html
+https://www.stone365.com/news/info-4520498069854.html
+https://www.stone365.com/news/info-4419014480030.html
+https://www.stone365.com/news/info-4675579159911.html
+https://www.stone365.com/news/info-4720138835612.html
+
+# related infos: 
+2025年5月，中国多地出现与石材产业相关的动态：中国石材协会赴四川调研（2025-05-16）可能涉及行业需求分析；广东封开县绿色建材产业园正在火热招商（2025-05-08），或存在设备采购需求；麻城石材产业园项目建设加速（2025-05-19），产业升级可能带动新设备需求；云南石林县锚定石材“百亿级产业”发展目标（2025-04-10），暗示潜在产能扩张需求；桂林灌阳借“石”发力开启百亿特色产业征程（2025年5月），或存在新建石材厂机会。同时，JC/T 1081-2025《装饰石材露天矿山技术规范》即将实施（2025-05-14），可能影响设备采购标准。
+
+
+
+# raw materials: 2d45cd_processed.json
+url: https://www.mee.gov.cn/xxgk2018/xxgk/xxgk15/201809/t20180928_661943.html
+
+# model: Qwen/Qwen3-14B
+time cost: 70.54044000001159s
+tokens usage: 56988 (completion: 7022, prompt: 49966)
+
+# related urls: 
+
+
+# related infos: 
+
+
+
+# model: Qwen/Qwen3-32B
+time cost: 103.4388196670916s
+tokens usage: 100840 (completion: 8688, prompt: 92152)
+
+# related urls: 
+
+
+# related infos: 
+
+
+
+# raw materials: 3b6d96_processed.json
+url: https://www.jimei123.com/cn/news/plate-information
+
+# model: Qwen/Qwen3-14B
+time cost: 24.61992775008548s
+tokens usage: 104228 (completion: 9464, prompt: 94764)
+
+# related urls: 
+
+
+# related infos: 
+
+
+
+# model: Qwen/Qwen3-32B
+time cost: 43.932982375030406s
+tokens usage: 107590 (completion: 10214, prompt: 97376)
+
+# related urls: 
+https://www.jimei123.com/cn/series/mido-2025-collection
+
+# related infos: 
+
+
+
+# raw materials: 338f2f_processed.json
+url: https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+
+# model: Qwen/Qwen3-14B
+time cost: 59.121429416001774s
+tokens usage: 112135 (completion: 12031, prompt: 100104)
+
+# related urls: 
+
+
+# related infos: 
+
+
+
+# model: Qwen/Qwen3-32B
+time cost: 34.60908991692122s
+tokens usage: 115487 (completion: 12655, prompt: 102832)
+
+# related urls: 
+
+
+# related infos: 
+
+
+

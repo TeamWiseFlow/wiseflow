@@ -26,68 +26,51 @@ classifiers = [
 dependencies = [
     # Logging system
     "loguru>=0.7.2",
-    
     # Async HTTP clients
     "httpx>=0.28.1",
     "aiohttp>=3.11.11",
     "requests>=2.32.3",
-    
     # Database and storage
     "aiosqlite>=0.20.0",
     # "pocketbase>=0.12.0",
-    
     # Data validation and processing
     "pydantic>=2.10.3",
     "pandas>=2.2.3",
-    
     # LLM API
     "openai>=1.58.1",
-    
     # Browser automation
     "playwright>=1.49.0",
     "nodriver>=0.37",
     "tf-playwright-stealth>=1.1.0",
-    
     # HTML/XML processing
     "beautifulsoup4>=4.12.3",
     "lxml>=5.3.0",
     "cssselect>=1.2.0",
-    
     # Text processing
     "regex>=2024.11.6",
     "snowballstemmer>=2.2.0",
-    
     # RSS and data parsing
     "feedparser>=6.0.11",
-    
     # Image processing
     "pillow>=10.4.0",
     "pdf2image>=1.17.0",
-    
     # Environment and configuration
     "python-dotenv>=1.0.1",
     "packaging>=24.2",
-    
     # File handling
     "aiofiles>=24.1.0",
-    
     # User agent and spoofing
     "fake-useragent>=2.0.3",
-    
     # Hashing and encryption
     "xxhash>=3.5.0",
     "pyOpenSSL>=24.3.0",
-    
     # System and performance
     "psutil>=6.1.1",
-    
     # Terminal and display
     # "rich>=13.9.4",
     # "colorama>=0.4.6",
-    
     # Character encoding detection
     "faust-cchardet>=2.1.19",
-    
     # Retry mechanism
     "tenacity>=8.2.3",
 ]

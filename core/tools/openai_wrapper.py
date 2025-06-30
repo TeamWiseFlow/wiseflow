@@ -71,7 +71,7 @@ async def openai_llm(messages: List, model: str, logger=None, **kwargs) -> str:
                         # 客户端错误不需要重试
                         error_msg = f"{model} Client error: {e.status_code}. Detail: {str(e)}"
                         if logger:
-                            logger.error(error_msg)
+                            logger.warning(error_msg)
                         else:
                             print(error_msg)
                         return ''
@@ -93,7 +93,7 @@ async def openai_llm(messages: List, model: str, logger=None, **kwargs) -> str:
                 # 其他异常需要重试
                 error_msg = f"{model} Unexpected error: {str(e)}. Retry {retry+1}/{max_retries}."
                 if logger:
-                    logger.error(error_msg)
+                    logger.warning(error_msg)
                 else:
                     print(error_msg)
 
@@ -106,7 +106,7 @@ async def openai_llm(messages: List, model: str, logger=None, **kwargs) -> str:
     # 如果所有重试都失败
     error_msg = "达到最大重试次数，仍然无法获取有效响应。"
     if logger:
-        logger.error(error_msg)
+        logger.warning(error_msg)
     else:
         print(error_msg)
     return ''

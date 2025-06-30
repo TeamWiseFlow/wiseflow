@@ -2,6 +2,8 @@
 
 **3.x Benutzer müssen das ursprüngliche Repository und den pb-Ordner vollständig löschen und das 4.x Repository neu klonen, sonst kann das Programm nicht normal gestartet werden.**
 
+**4.0 Benutzer, die auf Version 4.1 upgraden möchten, müssen nach dem Pullen des neuesten Codes zuerst den Befehl ./pb/pocketbase migrate ausführen, sonst kann das Programm nicht normal starten.**
+
 ## 📋 Systemanforderungen
 
 - **Python**: 3.10 - 3.12 (3.12 empfohlen)
@@ -28,8 +30,14 @@ Feldbeschreibungen:
 - explanation (optional), Erklärungen für spezielle Konzepte oder Fachbegriffe, um Missverständnisse zu vermeiden, z.B. "Übergang von der Grundschule zur Mittelschule bedeutet den Wechsel von der Grundschule zur Mittelschule"
 - activated, ob aktiviert. Wenn deaktiviert, wird dieser Fokuspunkt ignoriert, kann aber später wieder aktiviert werden
 - freq, Crawling-Frequenz in Stunden, als ganze Zahl (wir empfehlen, die Scanfrequenz nicht höher als einmal täglich zu setzen, d.h. auf 24, Minimum ist 2, d.h. alle 2 Stunden)
-- search, ob bei jedem Crawl die Suchmaschine aktiviert werden soll und ob über konfigurierte soziale Medien gesucht werden soll
+- search, Konfiguration detaillierter Suchquellen, derzeit unterstützt: bing, github, arxiv und ebay
 - sources, Auswahl der entsprechenden Informationsquellen
+
+#### 💡 Die Art und Weise, wie Sie den Fokuspunkt formulieren, ist sehr wichtig, da sie direkt darüber entscheidet, ob die Informationsextraktion Ihren Anforderungen gerecht wird. Im Einzelnen:
+
+  - Wenn Ihr Anwendungsfall das Verfolgen von Brancheninformationen, akademischen Informationen, Richtlinieninformationen usw. ist und Ihre Informationsquellen eine breite Suche umfassen, sollte der Fokuspunkt ein Schlüsselwortmodell verwenden, das einer Suchmaschine ähnelt. Gleichzeitig sollten Sie Einschränkungen und Erklärungen hinzufügen und bei Bedarf Rollen und Ziele definieren.
+
+  - Wenn Ihr Anwendungsfall das Verfolgen von Wettbewerbern, Hintergrundüberprüfungen usw. ist, bei denen die Informationsquellen sehr spezifisch sind, wie z. B. die Homepages von Wettbewerbern, offizielle Konten usw., müssen Sie nur Ihren Interessenbereich als Fokuspunkt eingeben, z. B. "Informationen zu Preissenkungen", "Informationen zu neuen Produkten" usw.
 
 **Änderungen an der focus_point-Konfiguration erfordern keinen Neustart des Programms und werden automatisch beim nächsten Durchlauf wirksam.**
 
@@ -249,8 +257,6 @@ Das Docker-Bereitstellungsschema für Version 4.x wird später folgen. Wir hoffe
 Open Source ist nicht einfach ☺️ Die Dokumentation und Beratung kostet viel Zeit. Wenn Sie bereit sind, Unterstützung zu leisten, bieten wir bessere Dienstleistungen an~
 
 - Ausführliches Tutorial-Video + 3 E-Mail-Frage-Antwort-Runden + Beitritt zur WeChat-Gruppe für zahlende Benutzer: ¥36.88
-
-*Hinweis: Die Gruppe für zahlende Benutzer bietet keinen Frage-Antwort-Service, sondern dient nur dem Austausch von Produktanforderungen und Nutzungserfahrungen. Zukünftige Iterationen werden die häufigsten Anforderungen aus der Gruppe der zahlenden Benutzer priorisieren, und die Systemoptimierung wird sich ebenfalls hauptsächlich auf die Fälle aus dieser Gruppe konzentrieren.*
 
 Zahlungsmethode: Scannen Sie den unten stehenden QR-Code, fügen Sie dann WeChat hinzu: bigbrother666sh, und senden Sie einen Screenshot der Zahlung.
 
