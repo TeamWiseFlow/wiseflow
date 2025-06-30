@@ -185,7 +185,7 @@ class KuaiShouApiClient:
                 method="GET", url=f"{KUAISHOU_API}{final_uri}", **kwargs
             )
         except Exception as e:
-            wis_logger.error(f"get uri:{uri} failed many times, account and ip proxy had been updated, however, still failed, have to quit, err:{e}")
+            wis_logger.warning(f"get uri:{uri} failed many times, account and ip proxy had been updated, however, still failed, have to quit, err:{e}")
 
     async def post(self, uri: str, data: dict, **kwargs) -> Dict:
         """
@@ -220,7 +220,7 @@ class KuaiShouApiClient:
                 headers=self.headers,
             )
         except Exception as e:
-            wis_logger.error(f"post uri:{uri} failed many times, account and ip proxy had been updated, however, still failed, have to quit, err:{e}")
+            wis_logger.warning(f"post uri:{uri} failed many times, account and ip proxy had been updated, however, still failed, have to quit, err:{e}")
 
     async def pong(self) -> bool:
         """
@@ -250,7 +250,7 @@ class KuaiShouApiClient:
                 # wis_logger.debug(f"pong kuaishou success as user: {vision_profile_user_list.get('fols')[0]['user_name']}")
                 ping_flag = True
         except Exception as e:
-            wis_logger.error(
+            wis_logger.warning(
                 f"Pong kuaishou failed: {e}, and try to login again..."
             )
             ping_flag = False

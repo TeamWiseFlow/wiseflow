@@ -204,7 +204,7 @@ class WeiboClient:
                 method="GET", url=f"{WEIBO_API_URL}{final_uri}", **kwargs
             )
         except Exception as e:
-            wis_logger.error(f"get uri:{uri} failed many times, account and ip proxy had been updated, however, still failed, have to quit, err:{e}")
+            wis_logger.warning(f"get uri:{uri} failed many times, account and ip proxy had been updated, however, still failed, have to quit, err:{e}")
 
     async def post(self, uri: str, data: Dict, **kwargs) -> Union[Response, Dict]:
         """
@@ -232,7 +232,7 @@ class WeiboClient:
                 method="POST", url=f"{WEIBO_API_URL}{uri}", data=json_str, **kwargs
             )
         except Exception as e:
-            wis_logger.error(f"post uri:{uri} failed many times, account and ip proxy had been updated, however, still failed, have to quit, err:{e}")
+            wis_logger.warning(f"post uri:{uri} failed many times, account and ip proxy had been updated, however, still failed, have to quit, err:{e}")
 
     async def pong(self) -> bool:
         """get a note to check if login state is ok"""
@@ -254,7 +254,7 @@ class WeiboClient:
                     f"[WeiboClient.pong] cookie may be invalid and again login..."
                 )
         except Exception as e:
-            wis_logger.error(
+            wis_logger.warning(
                 f"[WeiboClient.pong] Ping weibo failed: {e}"
             )
             ping_flag = False

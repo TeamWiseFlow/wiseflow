@@ -10,29 +10,34 @@ https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 
 ## 🔥🔥🔥 Wiseflow 4.1 版本正式发布！
 
-### 让 AI 站在你的立场上思考！
+4.1版本在4.0版本基础上又带来了诸多激动人心的新功能！
 
-正如对同一事件，不同角色、不同目的下其视角也会不同一样，在对信源进行关注点提取时，如能提供角色和目的信息，将有助于模型以用户角度进行更加精准的提取。
+### 🔍 自定义搜索源
 
-如下图所示，针对同一篇微博博文，在关注点设定相同情况下，左侧为不额外设定角色和目的的提取结果，右侧为额外设定角色为“行业供应商”，目的为“跟踪品牌竞争动向”的提取结果。
+4.1版本支持为关注点精准配置搜索源，目前支持 bing、github、arxiv 和 ebay 四个搜索源，且均使用平台原生接口，无需额外申请第三方服务。
 
-可以明显看到，左侧提取结果偏向于一般性的事实总结，而在加入角色和目的设定后，右侧的输出结果明显发生了变化。
+<img src="docs/select_search_source.gif" alt="search_source" width="360">
 
-<img src="docs/focus_4I50_compare.jpg" alt="focus 4150 compare" width="720">
+### 🧠 让 AI 站在你的立场上思考！
 
+4.1版本支持为 focuspoint 设定角色和目的，从而指导 LLM 以特定视角或目的进行分析和提取。但使用时请注意：
 
-再如下图，同样的信源和关注点，左侧设定角色为“个人投资者”，右侧设定角色为”媒体记者“，可见仅仅是设定角色不同，模型提取的侧重点也会不同。
+    - 如果关注点本身指向性很具体，那么角色和目的的设定对结果影响不大；
+    - 影响最终结果质量的第一要素永远是信源，一定要提供与关注点高度相关的信源。
 
-<img src="docs/focus_gold_compare.jpg" alt="focus gold compare" width="720">
+有关角色和目的设定对提取结果影响的测评案例，请参考 [task1](test/reports/report_v4x_llm/task1)
 
-**注意：**
+### ⚙️ 自定义提取模式
 
-- 如果关注点本身指向性很具体，那么角色和目的的设定对结果影响不大；
-- 影响最终结果质量的第一要素永远是信源，一定要提供与关注点高度相关的信源。
+现在你可以在 pb 界面下创建自己的表单，并配置给特定的关注点，LLM 将按照表单字段进行精准提取。
 
-有关关注点和角色设定对最终结果影响更加详细的案例，请参考 [task1](test/reports/report_v4x_llm/task1)
+### 👥 社交平台信源支持创作者查找模式
 
-### 自定义精准提取
+现在可以指定程序按关注点在社交平台上查找相关内容，并进一步查找内容的创作者主页信息。结合"自定义提取模式"，wiseflow可以帮助你在全网搜索潜在客户、合作伙伴或者投资人的联系方式。
+
+<img src="docs/find_person_by_wiseflow.png" alt="find_person_by_wiseflow" width="720">
+
+**有关 4.1 版本的更多更新信息，详见 [CHANGELOG](CHANGELOG.md)**
 
 ## 🧐  'deep search' VS 'wide search'
 
@@ -42,9 +47,9 @@ https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 
 ## ✋ What makes wiseflow different from other ai-powered crawlers?
 
-- 全平台的获取能力，包括网页、社交媒体（目前提供对微博和快手平台的支持）、RSS 信源、搜索引擎等；
+- 全平台的获取能力，包括网页、社交媒体（目前提供对微博和快手平台的支持）、RSS 信源、bing、github、arxiv、ebay 等；
 - 独特的 html 处理流程，自动按关注点提取信息并发现值得进一步探索的链接，且仅需 14b 参数量的大模型即可很好的工作；
-- 面向普通用户（而非开发者），无需人工介入提供 Xpath 等，"开箱即用"；
+- 面向普通用户（而非开发者），无需人工介入提供 Xpath，"开箱即用"；
 - 持续迭代带来的高稳定性和高可用性，以及兼顾系统资源和速度的处理效率；
 - 将不仅仅是“爬虫”……
 
@@ -79,7 +84,6 @@ git clone https://github.com/TeamWiseFlow/wiseflow.git
 
 - LLM_API_KEY="" # LLM 服务的 key （任何提供 OpenAI 格式 API 的模型服务商均可，本地使用 ollama 部署则无需设置）
 - LLM_API_BASE="https://api.siliconflow.cn/v1" # LLM 服务接口地址
-- JINA_API_KEY="" # 搜索引擎服务的 key （推荐 Jina，个人使用甚至无需注册即可申请）
 - PRIMARY_MODEL=Qwen/Qwen3-14B # 推荐 Qwen3-14B 或同量级思考模型
 - VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # better to have
 
@@ -105,10 +109,9 @@ wiseflow 所有抓取数据都会即时存入 pocketbase，因此您可以直接
 
 PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 等语言的SDK。  
 
-在线服务也即将推出 sync api，支持将在线抓取结果同步本地，用于构建"动态知识库"等，敬请关注：
+欢迎在如下 repo 中分享并推广您的二次开发应用案例！
 
-  - 在线体验地址：https://www.aiqingbaoguan.com/ 
-  - 在线服务 API 使用案例：https://github.com/TeamWiseFlow/wiseflow_plus
+- https://github.com/TeamWiseFlow/wiseflow_plus
 
 
 ## 🛡️ 许可协议

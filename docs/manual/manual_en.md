@@ -2,6 +2,8 @@
 
 **3.x users need to completely delete the original code repository and pb folder, and re-clone the 4.x code repository, otherwise it cannot start normally.**
 
+**4.0 users upgrading to version 4.1, after pulling the latest code, need to execute ./pb/pocketbase migrate command first, otherwise it cannot start normally.**
+
 ## 📋 System Requirements
 
 - **Python**: 3.10 - 3.12 (3.12 recommended)
@@ -28,8 +30,14 @@ Field descriptions:
 - explanation (optional): Explanations for special concepts or technical terms to avoid LLM misunderstandings, such as "primary to secondary school refers to the transition from elementary to middle school"
 - activated: Whether to activate. If turned off, this focus point will be ignored, can be turned on again later
 - freq: Crawling frequency in hours, integer type (we recommend not exceeding once per day, i.e., set to 24, minimum value is 2, i.e., crawl every 2 hours)
-- search: Whether to enable search engine for each crawl, and whether to search through configured social media
+- search: Configure detailed search sources, currently supports bing, github, arxiv and ebay
 - sources: Select corresponding information sources
+
+#### 💡 The way you write the focus point is very important, as it directly determines whether the information extraction can meet your requirements. Specifically:
+
+  - If your use case is tracking industry information, academic information, policy information, etc., and your information sources include broad searches, then the focus point should use a keyword model similar to a search engine. At the same time, you should add constraints and explanations, and if necessary, define roles and objectives.
+
+  - If your use case is tracking competitors, background checks, etc., where the information sources are very specific, such as competitors' homepages, official accounts, etc., then you only need to enter your perspective of interest as the focus point, such as "price reduction information", "new product information", etc.
 
 **Focus point configuration adjustments take effect automatically on the next execution without requiring program restart.**
 
@@ -247,8 +255,6 @@ Docker deployment solution for version 4.x please wait for follow-up, and we als
 Open source is not easy ☺️ Documentation writing and consultation Q&A are even more time-consuming. If you're willing to provide support, we'll offer better quality services~
 
 - Detailed tutorial video + 3 email Q&A sessions + Join paid user WeChat group: ¥36.88
-
-*Note: The paid user group does not provide Q&A services, it is only for exchanging product requirements and user experiences. Future iterations will prioritize high-frequency needs from the paid user group, and system optimization will also focus on cases from the paid user group.*
 
 Payment method: Scan the QR code below, then add WeChat: bigbrother666sh, and provide a screenshot of the payment.
 

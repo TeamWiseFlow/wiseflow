@@ -44,7 +44,7 @@ def perform_completion_with_backoff(messages: List, model: str = '', **kwargs):
                         'Failed to process image URL: data:' not in error_msg
                         ):
                         # image url probility is that server cannot fetch the image, so we don't need to worry about it
-                        wis_logger.error(error_msg)
+                        wis_logger.warning(error_msg)
                         wis_logger.info(f"messages: {messages}")
                     raise e
                 else:
@@ -58,7 +58,7 @@ def perform_completion_with_backoff(messages: List, model: str = '', **kwargs):
         except Exception as e:
             # other exception, retry
             error_msg = f"{model} Unexpected error: {str(e)}. Retry {retry+1}/{max_retries}."
-            wis_logger.error(error_msg)
+            wis_logger.warning(error_msg)
 
         if retry < max_retries - 1:
             # exponential backoff strategy
@@ -68,7 +68,7 @@ def perform_completion_with_backoff(messages: List, model: str = '', **kwargs):
 
     # if all retries fail
     error_msg = "Max retries reached, still unable to get a valid response."
-    wis_logger.error(error_msg)
+    wis_logger.warning(error_msg)
     raise Exception(error_msg)
 
 

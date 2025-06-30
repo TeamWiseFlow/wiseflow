@@ -2,6 +2,8 @@
 
 **Les utilisateurs de la version 3.x doivent supprimer complètement le dépôt original et le dossier pb, puis cloner à nouveau le dépôt 4.x, sinon le programme ne pourra pas démarrer normalement.**
 
+**Les utilisateurs de la version 4.0 qui souhaitent mettre à niveau vers la version 4.1, après avoir tiré le dernier code, doivent d'abord exécuter la commande ./pb/pocketbase migrate, sinon le programme ne pourra pas démarrer normalement.**
+
 ## 📋 Configuration système requise
 
 - **Python**: 3.10 - 3.12 (3.12 recommandé)
@@ -28,8 +30,14 @@ Description des champs :
 - explanation (optionnel), explications pour des concepts spéciaux ou des termes techniques, pour éviter les malentendus, par exemple "La transition du primaire au collège signifie le passage de l'école primaire au collège"
 - activated, si activé. Si désactivé, ce point de focus sera ignoré, mais pourra être réactivé plus tard
 - freq, fréquence de crawling en heures, en nombre entier (nous recommandons de ne pas dépasser une fois par jour, c'est-à-dire 24, le minimum est 2, c'est-à-dire toutes les 2 heures)
-- search, si le moteur de recherche doit être activé à chaque crawl et si la recherche doit être effectuée via les réseaux sociaux configurés
+- search, configurer des sources de recherche détaillées, prend actuellement en charge bing, github, arxiv et ebay
 - sources, sélection des sources d'information correspondantes
+
+#### 💡 La manière dont vous rédigez le point de mire est très importante, car elle détermine directement si l'extraction d'informations peut répondre à vos exigences. Spécifiquement :
+
+  - Si votre cas d'utilisation est le suivi d'informations sectorielles, d'informations académiques, d'informations sur les politiques, etc., et que vos sources d'information incluent des recherches larges, le point de mire doit utiliser un modèle de mots-clés similaire à un moteur de recherche. En même temps, vous devez ajouter des contraintes et des explications, et si nécessaire, définir des rôles et des objectifs.
+
+  - Si votre cas d'utilisation est le suivi de concurrents, les vérifications d'antécédents, etc., où les sources d'information sont très spécifiques, telles que les pages d'accueil des concurrents, les comptes officiels, etc., il vous suffit de saisir votre perspective d'intérêt comme point de mire, par exemple "informations sur les baisses de prix", "informations sur les nouveaux produits", etc.
 
 **Les modifications de la configuration focus_point ne nécessitent pas de redémarrage du programme et prendront effet automatiquement lors de la prochaine exécution.**
 
@@ -249,8 +257,6 @@ Le schéma de déploiement Docker pour la version 4.x suivra plus tard. Nous esp
 L'open source n'est pas facile ☺️ La documentation et les conseils prennent beaucoup de temps. Si vous êtes prêt à fournir un soutien, nous offrons de meilleurs services~
 
 - Vidéo tutoriel détaillée + 3 sessions de questions-réponses par e-mail + adhésion au groupe WeChat des utilisateurs payants : 36,88 ¥
-
-*Remarque : Le groupe d'utilisateurs payants ne fournit pas de service de questions-réponses, il sert uniquement à échanger sur les besoins du produit et les expériences d'utilisation. Les futures itérations donneront la priorité aux besoins fréquents du groupe d'utilisateurs payants, et l'optimisation du système se concentrera également principalement sur les cas de ce groupe.*
 
 Mode de paiement : Scannez le code QR ci-dessous, puis ajoutez WeChat : bigbrother666sh, et fournissez une capture d'écran du paiement.
 

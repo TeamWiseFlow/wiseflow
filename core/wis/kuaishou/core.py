@@ -48,7 +48,7 @@ class KuaiShouCrawler:
         self.ks_client.account_info = await account_with_ip_pool.get_account_with_ip_info()
 
     async def posts_list(self,
-                         keywords: List[str],
+                         keywords: set[str],
                          existings: set[str] = set(),
                          creator_ids: List[str] = []) -> Tuple[str, dict]:
         fresh_videos = []
@@ -65,15 +65,20 @@ class KuaiShouCrawler:
 
         markdown = ""
         link_dict = {}
-
+        seen_video_ids = set()
         for video in fresh_videos:
+            v_id = video.get("video_id")
+            if v_id in seen_video_ids:
+                continue
+            seen_video_ids.add(v_id)
+            
             title = video.get("title").replace("\n", "  ")
             desc = video.get("desc").replace("\n", " ")
             create_time = video.get("create_time")
             liked_count = video.get("liked_count")
             viewd_count = video.get("viewd_count")
             _key = f"[{len(link_dict)+1}]"
-            link_dict[_key] = video.get("video_id")
+            link_dict[_key] = v_id
             markdown += f"* {_key}标题：{title} 发布时间：{create_time} 点赞量：{liked_count} 播放量：{viewd_count} 描述：{desc} {_key}\n\n"
 
         return markdown.replace("#", ""), link_dict
@@ -159,7 +164,7 @@ class KuaiShouCrawler:
             await self.db_manager.cache_url(result)
         return result
 
-    async def search_videos(self, keywords: List[str], existings: set[str] = set(), limit_hours: int = 48) -> List[Dict]:
+    async def search_videos(self, keywords: set[str], existings: set[str] = set(), limit_hours: int = 48) -> List[Dict]:
         """
         Search for videos and retrieve their comment information.
         Returns:
@@ -189,22 +194,19 @@ class KuaiShouCrawler:
                         search_session_id=search_session_id,
                     )
                 except Exception as e:
-                    wis_logger.error(
+                    wis_logger.warning(
                         f"search info by keyword:{keyword} not finished, but paused by error: {e}"
                     )
                     break
 
                 if not videos_res:
                     wis_logger.warning(
-                        f"search info by keyword:{keyword} not found data"
+                        f"search info by keyword:{keyword} failed"
                     )
                     break
 
                 vision_search_photo: Dict = videos_res.get("visionSearchPhoto")
                 if not vision_search_photo or vision_search_photo.get("result") != 1:
-                    wis_logger.warning(
-                        f"search info by keyword:{keyword} not found data "
-                    )
                     break
                 search_session_id = vision_search_photo.get("searchSessionId", "")
                 for video_detail in vision_search_photo.get("feeds", []):

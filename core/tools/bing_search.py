@@ -1,9 +1,8 @@
 # the request url generate and result parse solution copied from https://github.com/searxng/searxng
-# only fitable for china mainland users
+# only crawl today's news(plublish date in one day), and set the location to zh-CN
 
 import urllib.parse
 from lxml import html
-import time
 from typing import Tuple
 from wis import AsyncWebCrawler
 from web_crawler_configs import DEFAULT_CRAWLER_CONFIG
@@ -21,13 +20,8 @@ def gen_query_url(query, page=1, **kwargs):
     params["q"] = query
     params["first"] = (page - 1) * params["count"] + 1
     url = f"{bing_search_url}?{urllib.parse.urlencode(params)}"
-    # 时间范围处理（保持原有功能）
-    time_range = kwargs.get('time_range')
-    if time_range:
-        unix_day = int(time.time() / 86400)
-        time_ranges = {'day': '1', 'week': '2', 'month': '3', 'year': f'5_{unix_day-365}_{unix_day}'}
-        if time_range in time_ranges:
-            url += f'&filters=ex1:"ez{time_ranges[time_range]}"'
+    # 时间范围处理
+    url += f'&filters=ex1:"ez1"'
     return url
 
 async def search_with_bing(query: str, existings: set=set()) -> Tuple[str, dict]:

@@ -52,7 +52,7 @@ class WeiboCrawler:
         self.wb_client.account_info = await account_with_ip_pool.get_account_with_ip_info()
 
     async def posts_list(self,
-                         keywords: List[str],
+                         keywords: set[str],
                          existings: set[str] = set(),
                          creator_ids: List[str] = []) -> Tuple[str, dict]:
 
@@ -76,8 +76,13 @@ class WeiboCrawler:
 
         markdown = ""
         link_dict = {}
-
+        seen_note_ids = set()
         for note in fresh_notes:
+            note_id = note.get("note_id")
+            if note_id in seen_note_ids:
+                continue
+            seen_note_ids.add(note_id)
+            
             content = note.get("content").replace("\n", " ")
             create_time = note.get("create_time")
             liked_count = note.get("liked_count")
@@ -88,7 +93,7 @@ class WeiboCrawler:
             # nickname = note.get("nickname")
             # gender = note.get("gender")
             _key = f"[{len(link_dict)+1}]"
-            link_dict[_key] = note.get("note_id")
+            link_dict[_key] = note_id
             markdown += f"* {_key}{content} (发布时间： {create_time} 点赞量：{liked_count} 评论量：{comments_count} 转发量：{shared_count}) {_key}\n"
 
         return markdown.replace("#", ""), link_dict
@@ -168,7 +173,7 @@ class WeiboCrawler:
                 creator_id=creator_id
             )
         except Exception as e:
-            wis_logger.error(
+            wis_logger.warning(
                 f"get creator: {creator_id} info error: {e}"
             )
             return None
@@ -210,7 +215,7 @@ class WeiboCrawler:
         return result
 
     async def search_notes(self, 
-                           keywords: List[str], 
+                           keywords: set[str], 
                            existings: set[str] = set(), 
                            limit_hours: int = 48, 
                            search_type: SearchType = SearchType.DEFAULT) -> List[Dict]:
@@ -240,7 +245,7 @@ class WeiboCrawler:
                         keyword=keyword, page=page, search_type=search_type
                     )
                 except Exception as e:
-                    wis_logger.error(
+                    wis_logger.warning(
                         f"search weibo keyword: {keyword} not finished, but paused by error: {e}"
                     )
                     break
@@ -268,7 +273,7 @@ class WeiboCrawler:
         try:
             return await self.wb_client.get_note_info_by_id(note_id)
         except DataFetchError as ex:
-            wis_logger.error(
+            wis_logger.warning(
                 f"Get note detail error: {ex}"
             )
             return None

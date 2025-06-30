@@ -6,30 +6,42 @@
 
 Was uns fehlt, ist nicht Information, sondern die Fähigkeit, Rauschen aus massiven Informationen zu filtern, um wertvolle Erkenntnisse zu gewinnen.
 
-## 🔥🔥🔥 Wiseflow 4.0 Version offiziell veröffentlicht!
-
 https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
 
-(Der Online-Dienst ist derzeit aus technischen Gründen noch nicht auf den 4.0-Kern umgestellt, wir beschleunigen das Upgrade)
+## 🔥🔥🔥 Wiseflow 4.1 Version offiziell veröffentlicht!
 
-Nach drei Monaten Warten haben wir endlich die Freude, die offizielle Veröffentlichung der wiseflow 4.0-Version bekannt zu geben! Diese Version bringt eine völlig neue 4.x-Architektur, unterstützt soziale Medienquellen und bietet viele neue Funktionen.
+Version 4.1 bringt viele aufregende neue Funktionen auf Basis von Version 4.0!
 
-4.x enthält WIS Crawler (basierend auf Crawl4ai, MediaCrawler und Nodriver, tief verändert und integriert), der jetzt Unterstützung für Webseiten und soziale Medienquellen bietet.
+### 🔍 Benutzerdefinierte Suchquellen
 
-Die Open-Source-Version bietet Unterstützung für Weibo und Kuaishou, während die **Pro-Version** zusätzlich unterstützt:
+Version 4.1 unterstützt die präzise Konfiguration von Suchquellen für Fokuspunkte. Es werden derzeit vier Suchquellen unterstützt: Bing, Github, Arxiv und Ebay, die alle native Plattform-APIs verwenden und keine zusätzlichen Drittanbieterdienste erfordern.
 
-WeChat-Offizielle Konten, Xiaohongshu, Douyin, Bilibili, Zhihu...
+<img src="docs/select_search_source.gif" alt="search_source" width="360">
 
-Andere neue Funktionen der 4.x-Architektur:
 
-- Neue Architektur, hybride Nutzung von Async und Thread-Pools, deutlich verbesserte Verarbeitungseffizienz (bei gleichzeitiger Reduzierung des Speicherverbrauchs);
-- Übernommene Dispatcher-Fähigkeiten von Crawl4ai 0.6.3, bietet verfeinerte Speicherverwaltung;
-- Tiefe Integration von Pre-Process aus Version 3.9 und Crawl4ai's Markdown Generation-Prozess, vermeidet doppelte Verarbeitung;
-- Optimierte Unterstützung für RSS-Quellen;
-- Optimierte Repository-Dateistruktur, klarer und konformer mit zeitgenössischen Python-Projektstandards;
-- Umstellung auf uv für die Abhängigkeitsverwaltung und Optimierung der requirement.txt-Datei;
-- Optimierte Startskripte (mit Windows-Version), ermöglicht wirklich "One-Click-Start";
-- Optimierter Konfigurations- und Bereitstellungsprozess, Backend-Programm ist nicht mehr von pocketbase-Service abhängig, daher keine Notwendigkeit für pocketbase-Anmeldedaten in .env und keine Versionsbeschränkungen für pocketbase.
+### 🧠 Lassen Sie die KI aus Ihrer Perspektive denken!
+
+Version 4.1 unterstützt die Einstellung von Rollen und Zielen für Fokuspunkte, um die LLM bei der Analyse und Extraktion von Informationen aus einer bestimmten Perspektive oder für einen bestimmten Zweck zu leiten. Bitte beachten Sie jedoch:
+
+    - Wenn der Fokuspunkt selbst sehr spezifisch ist, hat die Einstellung von Rollen und Zielen nur geringe Auswirkungen auf die Ergebnisse.
+    - Der wichtigste Faktor für die Qualität der Endergebnisse ist immer die Informationsquelle. Stellen Sie sicher, dass Sie Quellen bereitstellen, die für den Fokuspunkt von hoher Relevanz sind.
+
+Testfälle zur Auswirkung der Einstellung von Rollen und Zielen auf die Extraktionsergebnisse finden Sie unter [task1](test/reports/report_v4x_llm/task1).
+
+
+### ⚙️ Benutzerdefinierter Extraktionsmodus
+
+Sie können jetzt Ihre eigenen Formulare in der pb-Oberfläche erstellen und für bestimmte Fokuspunkte konfigurieren. Die LLM extrahiert dann Informationen genau nach den Formularfeldern.
+
+
+### 👥 Creator-Suchmodus für Social-Media-Quellen
+
+Sie können das Programm jetzt anweisen, relevante Inhalte auf Social-Media-Plattformen basierend auf Fokuspunkten zu finden und die Homepage-Informationen der Inhaltsersteller weiter zu durchsuchen. In Kombination mit dem "Benutzerdefinierten Extraktionsmodus" kann Wiseflow Ihnen helfen, Kontaktinformationen von potenziellen Kunden, Partnern oder Investoren im gesamten Netzwerk zu suchen.
+
+<img src="docs/find_person_by_wiseflow.png" alt="find_person_by_wiseflow" width="720">
+
+
+**Weitere Informationen zu den Updates in Version 4.1 finden Sie im [CHANGELOG](CHANGELOG.md)**
 
 ## 🧐 'Deep Search' VS 'Wide Search'
 
@@ -39,7 +51,7 @@ Konkret ist "Deep Search", wo LLM für spezifische Fragen autonom Suchpfade plan
 
 ## ✋ Was macht Wiseflow anders als andere KI-gestützte Crawler?
 
-- Vollständige Plattform-Erfassungsfähigkeiten, einschließlich Webseiten, Social Media (derzeit Unterstützung für Weibo- und Kuaishou-Plattformen), RSS-Quellen, Suchmaschinen etc.;
+- Vollständige Plattform-Erfassungsfähigkeiten, einschließlich Webseiten, Social Media (derzeit Unterstützung für Weibo- und Kuaishou-Plattformen), RSS-Quellen sowie Suchquellen wie Bing, Github, Arxiv, Ebay usw.;
 - Einzigartiger HTML-Verarbeitungsprozess, der automatisch Informationen basierend auf Fokuspunkten extrahiert und Links für weitere Erkundung entdeckt, funktioniert gut mit nur einem 14b-Parameter-LLM;
 - Benutzerfreundlich (nicht nur für Entwickler), keine manuelle Xpath-Konfiguration erforderlich, "sofort einsatzbereit";
 - Hohe Stabilität und Verfügbarkeit durch kontinuierliche Iteration und Verarbeitungseffizienz, die Systemressourcen und Geschwindigkeit ausbalanciert;
@@ -75,8 +87,7 @@ Im wiseflow-Ordner (Projektstammverzeichnis) erstellen Sie eine .env-Datei basie
 Die Version 4.x erfordert keine pocketbase-Anmeldedaten in der .env-Datei und hat keine Versionsbeschränkungen für pocketbase. Außerdem haben wir vorübergehend die Secondary Model-Einstellung entfernt. Daher benötigen Sie nur vier Parameter für die Konfiguration:
 
 - LLM_API_KEY="" # Schlüssel für den LLM-Dienst (jeder Modellanbieter mit OpenAI-Format-API, nicht erforderlich bei lokaler ollama-Installation)
-- LLM_API_BASE="https://api.siliconflow.cn/v1" # LLM-Dienstschnittstellenadresse
-- JINA_API_KEY="" # Schlüssel für den Suchmaschinendienst (Jina empfohlen, für persönliche Nutzung sogar ohne Registrierung verfügbar)
+- LLM_API_BASE="https://api.siliconflow.com/v1" # LLM-Dienstschnittstellenadresse
 - PRIMARY_MODEL="Qwen/Qwen3-14B" # Qwen3-14B oder ein gleichwertiges Denkmodell empfohlen
 - VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct" # besser zu haben
 
@@ -102,10 +113,9 @@ Alle von Wiseflow gecrawlten Daten werden sofort in pocketbase gespeichert, soda
 
 Als beliebte leichte Datenbank bietet PocketBase derzeit SDKs für Go/Javascript/Python und andere Sprachen.
 
-Der Online-Dienst wird bald eine Sync-API einführen, die die Synchronisierung von Online-Crawling-Ergebnissen lokal unterstützt, für den Aufbau von "dynamischen Wissensbasen" und mehr, bleiben Sie dran:
+Wir laden Sie ein, Ihre Beispiele für sekundäre Entwicklungsanwendungen im folgenden Repository zu teilen und zu fördern!
 
-  - Online-Erfahrungsadresse: https://www.aiqingbaoguan.com/
-  - Online-Dienst-API-Nutzungsbeispiele: https://github.com/TeamWiseFlow/wiseflow_plus
+- https://github.com/TeamWiseFlow/wiseflow_plus
 
 ## 🛡️ Lizenz
 
@@ -136,4 +146,8 @@ Wenn Sie in verwandten Arbeiten auf dieses Projekt teilweise oder vollständig v
 Autor: Wiseflow Team
 https://github.com/TeamWiseFlow/wiseflow
 Lizenziert unter Apache2.0
-``` 
+```
+
+## Freundliche Links
+
+[<img src="docs/logo/siliconflow.png" alt="siliconflow" width="360">](https://siliconflow.com/)

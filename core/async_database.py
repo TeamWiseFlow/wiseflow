@@ -67,7 +67,7 @@ class AsyncDatabaseManager:
             'explanation': 'TEXT DEFAULT ""',
             'activated': 'BOOLEAN DEFAULT 1',
             'freq': 'NUMERIC DEFAULT 24',
-            'search': 'BOOLEAN DEFAULT 0',
+            'search': 'JSON DEFAULT "[]"',
             'sources': 'JSON DEFAULT "[]"',
             'role': 'TEXT DEFAULT ""',
             'purpose': 'TEXT DEFAULT ""',
@@ -197,6 +197,12 @@ class AsyncDatabaseManager:
                     # 检查列类型是否匹配
                     expected_type = col_def.split()[0].upper()  # 获取类型部分并转为大写
                     current_type = current_columns[col_name]['type'].upper()
+                    
+                    # 特殊处理：允许focus_points表中search字段从BOOLEAN迁移到JSON
+                    if (table_name == 'focus_points' and col_name == 'search' and
+                        current_type == 'BOOLEAN' and expected_type == 'JSON'):
+                        wis_logger.info(f"Allowing migration of focus_points.search from BOOLEAN to JSON")
+                        continue
                     
                     # 类型匹配检查（包括 BOOLEAN 类型）
                     if expected_type != current_type:
@@ -769,6 +775,17 @@ class AsyncDatabaseManager:
             for fp_row in focus_points_rows:
                 # 构建 focus_point 字典
                 focus_point_dict = dict(zip(focus_points_columns, fp_row))
+                
+                # 解析 search 字段（兼容从BOOLEAN到JSON的迁移）
+                search_value = focus_point_dict.get('search', '[]')
+                if isinstance(search_value, (int, bool)):
+                    # 处理旧的BOOLEAN值迁移：
+                    # 0/False -> 空数组（不搜索）
+                    # 1/True -> 默认使用bing搜索
+                    focus_point_dict['search'] = ['bing'] if search_value else []
+                    wis_logger.debug(f"Migrated search field from boolean {search_value} to array {focus_point_dict['search']} for focus_point {focus_point_dict.get('id')}")
+                else:
+                    focus_point_dict['search'] = self._deserialize_json(search_value, default_as_list=True)
                 
                 # 解析 sources JSON 字段
                 sources_ids = self._deserialize_json(focus_point_dict.get('sources', '[]'), default_as_list=True)
