@@ -6,7 +6,7 @@
 
 What we lack is not information, but the ability to filter out noise from massive information to reveal valuable insights.
 
-https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
+https://github.com/user-attachments/assets/48998353-6c6c-4f8f-acae-dc5c45e2e0e6
 
 ## 🔥🔥🔥 Wiseflow 4.1 Version Officially Released!
 

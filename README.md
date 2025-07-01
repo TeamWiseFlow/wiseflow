@@ -6,7 +6,7 @@
 
 我们缺的不是信息，而是从海量信息中过滤噪音，从而让有价值的信息显露出来
 
-https://github.com/user-attachments/assets/2c52c010-6ae7-47f4-bc1c-5880c4bd76f3
+https://github.com/user-attachments/assets/48998353-6c6c-4f8f-acae-dc5c45e2e0e6
 
 ## 🔥🔥🔥 Wiseflow 4.1 版本正式发布！
 
