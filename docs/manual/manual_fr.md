@@ -85,9 +85,8 @@ Dans le dossier wiseflow (répertoire racine du projet), créez un fichier .env 
 La version 4.x ne nécessite pas d'identifiants PocketBase dans le fichier .env et ne limite pas non plus la version de PocketBase. De plus, nous avons temporairement supprimé le paramètre Secondary Model. Vous n'avez donc besoin que de quatre paramètres minimum :
 
 - LLM_API_KEY="" # Clé de service LLM (tout fournisseur avec un format d'API compatible OpenAI est approprié, non requis pour l'utilisation locale d'ollama)
-- LLM_API_BASE="https://api.siliconflow.com/v1" # Interface de service LLM
-- JINA_API_KEY="" # Clé de service de moteur de recherche (Jina recommandé, disponible même sans inscription pour un usage personnel)
-- PRIMARY_MODEL="Qwen3-14B" # Qwen3-14B ou modèle de réflexion similaire recommandé
+- LLM_API_BASE="" # Adresse de l'interface du service LLM (si nécessaire. Pour les utilisateurs OpenAI, laissez-le vide)
+- PRIMARY_MODEL=Qwen/Qwen3-14B # Recommandé Qwen3-14B ou un modèle de réflexion de niveau équivalent
 - VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct" # Modèle visuel, optionnel mais recommandé. Utilisé pour analyser les images de page nécessaires (le programme décide en fonction du contexte si une analyse est nécessaire, pas chaque image n'est extraite), minimum Qwen2.5-VL-7B-Instruct requis
 
 ### 🚀  C'est parti !
@@ -194,8 +193,8 @@ SiliconFlow propose des services MaaS pour la plupart des modèles open source c
 
 ```
 LLM_API_KEY=Votre_clé_API
-LLM_API_BASE="https://api.siliconflow.com/v1"
-PRIMARY_MODEL="Qwen3-14B"
+LLM_API_BASE="" # Adresse de l'interface du service LLM (si nécessaire. Pour les utilisateurs OpenAI, laissez-le vide)
+PRIMARY_MODEL=Qwen/Qwen3-14B # Recommandé Qwen3-14B ou un modèle de réflexion de niveau équivalent
 VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
 CONCURRENT_NUMBER=8
 ```

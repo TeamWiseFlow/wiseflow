@@ -2,6 +2,8 @@
 
 **[简体中文](README.md) | [English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [العربية](README_AR.md)**
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/TeamWiseFlow/wiseflow)
+
 🚀 **Use large language models to mine information you're truly interested in from massive data and various sources daily!**
 
 What we lack is not information, but the ability to filter out noise from massive information to reveal valuable insights.
@@ -87,7 +89,7 @@ In the wiseflow folder (project root directory), create a .env file based on env
 Version 4.x does not require users to provide pocketbase credentials in .env, nor does it restrict pocketbase version. Additionally, we have temporarily removed the Secondary Model setting. Therefore, you only need a minimum of four parameters to complete the configuration:
 
 - LLM_API_KEY="" # LLM service key (any model provider offering OpenAI format API, not required if using ollama locally)
-- LLM_API_BASE="https://api.siliconflow.com/v1" # LLM service interface address
+- LLM_API_BASE="" # LLM service base url (if any. For OpenAI users, leave it blank)
 - PRIMARY_MODEL=Qwen/Qwen3-14B # Recommended Qwen3-14B or equivalent thinking model
 - VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # better to have
 

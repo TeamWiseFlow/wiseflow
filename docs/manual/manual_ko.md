@@ -83,9 +83,8 @@ wiseflow 폴더（프로젝트 루트 디렉토리）에서 env_sample을 기반
 버전 4.x에서는 사용자가 .env에서 PocketBase 계정 인증 정보를 제공할 필요가 없으며, PocketBase 버전도 제한되지 않습니다. 또한 Secondary Model 설정도 일시적으로 제거되었습니다. 따라서 실제로는 4개의 매개변수만으로 설정을 완료할 수 있습니다：
 
 - LLM_API_KEY="" # LLM 서비스 키（OpenAI 형식 API를 제공하는 모델 서비스 제공업체라면 어느 것이든 가능, 로컬에서 배포된 ollama를 사용하는 경우 설정 불필요）
-- LLM_API_BASE="https://api.siliconflow.com/v1" # LLM 서비스 인터페이스 주소
-- JINA_API_KEY="" # 검색 엔진 서비스 키（Jina 권장, 개인 사용도 등록 없이 신청 가능）
-- PRIMARY_MODEL="Qwen3-14B" # Qwen3-14B 또는 유사한 사고 모델 권장
+- LLM_API_BASE="" # LLM 서비스 기본 URL (있는 경우. OpenAI 사용자의 경우 비워두세요)
+- PRIMARY_MODEL=Qwen/Qwen3-14B # 추천 Qwen3-14B 또는 동일 수준의 사고 모델
 - VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct" # 시각 모델, 선택사항이지만 권장. 필요한 페이지 이미지 분석에 사용（프로그램은 컨텍스트에 따라 분석이 필요한지 여부를 판단하며, 모든 이미지를 추출하지는 않음）, 최소 Qwen2.5-VL-7B-Instruct로 충분합니다
 
 ### 🚀 시작해 보세요！
@@ -192,8 +191,8 @@ SiliconFlow는 대부분의 주류 오픈 소스 모델에 대한 온라인 MaaS
 
 ```
 LLM_API_KEY=Your_API_KEY
-LLM_API_BASE="https://api.siliconflow.com/v1"
-PRIMARY_MODEL="Qwen3-14B"
+LLM_API_BASE="" # LLM 서비스 기본 URL (있는 경우. OpenAI 사용자의 경우 비워두세요)
+PRIMARY_MODEL=Qwen/Qwen3-14B # 추천 Qwen3-14B 또는 동일 수준의 사고 모델
 VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
 CONCURRENT_NUMBER=8
 ```

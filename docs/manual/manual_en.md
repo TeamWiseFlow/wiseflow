@@ -83,9 +83,8 @@ In the wiseflow folder (project root directory), create a .env file based on env
 Version 4.x does not require users to provide PocketBase account credentials in .env, nor does it limit the PocketBase version. We have also temporarily removed the Secondary Model setting. Therefore, you actually only need four parameters to complete the configuration:
 
 - LLM_API_KEY="" # LLM service key (any model service provider that provides OpenAI format API is acceptable, no need to set if using locally deployed ollama)
-- LLM_API_BASE="https://api.siliconflow.com/v1" # LLM service interface address
-- JINA_API_KEY="" # Search engine service key (Jina recommended, even personal use can apply without registration)
-- PRIMARY_MODEL="Qwen3-14B" # Qwen3-14B or similar thinking model recommended
+- LLM_API_BASE="" # LLM service base url (if any. For OpenAI users, leave it blank)
+- PRIMARY_MODEL=Qwen/Qwen3-14B # Recommended Qwen3-14B or equivalent thinking model
 - VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct" # Visual model, optional but recommended. Used for analyzing necessary page images (program will determine if analysis is necessary based on context, won't extract every image), minimum Qwen2.5-VL-7B-Instruct is sufficient
 
 ### 🚀 Let's Go!
@@ -192,8 +191,8 @@ SiliconFlow provides online MaaS services for most mainstream open-source models
 
 ```
 LLM_API_KEY=Your_API_KEY
-LLM_API_BASE="https://api.siliconflow.com/v1"
-PRIMARY_MODEL="Qwen3-14B"
+LLM_API_BASE="" # LLM service base url (if any. For OpenAI users, leave it blank)
+PRIMARY_MODEL="Qwen/Qwen3-14B"
 VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
 CONCURRENT_NUMBER=8
 ```

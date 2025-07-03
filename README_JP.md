@@ -2,6 +2,8 @@
 
 **[简体中文](README.md) | [English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [العربية](README_AR.md)**
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/TeamWiseFlow/wiseflow)
+
 🚀 **大規模言語モデルを使用して、日々の膨大な情報や様々なソースから、あなたが本当に興味のある情報を掘り起こしましょう！**
 
 私たちに不足しているのは情報ではなく、膨大な情報からノイズをフィルタリングし、価値のある情報を引き出す能力です。
@@ -87,7 +89,7 @@ wiseflowフォルダ（プロジェクトのルートディレクトリ）でenv
 4.x バージョンでは、ユーザーが .env ファイルに pocketbase の認証情報を提供する必要がなく、pocketbase のバージョンにも制限がなくなりました。また、セカンダリモデルの設定も一時的に削除されたため、実質的に最小限の4つのパラメーターで設定を完了できます：
 
 - LLM_API_KEY="" # LLM サービスのキー (すべての OpenAI 形式 API を提供するモデル サービスを使用できます。ローカルで ollama を使用してデプロイする場合は設定する必要はありません)
-- LLM_API_BASE="https://api.siliconflow.com/v1" # LLM サービス インターフェース アドレス
+- LLM_API_BASE="" # LLM サービスのベースURL (ある場合。OpenAIユーザーの場合は空白のままにしてください)
 - PRIMARY_MODEL=Qwen/Qwen3-14B # 推奨 Qwen3-14B または同等の思考モデル
 - VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # あったほうが良い
 

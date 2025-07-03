@@ -83,9 +83,8 @@ wiseflowフォルダ（プロジェクトルートディレクトリ）で、env
 バージョン4.xでは、ユーザーが.envでPocketBaseのアカウント認証情報を提供する必要はなく、PocketBaseのバージョンも制限されていません。また、Secondary Modelの設定も一時的に削除されています。したがって、実際には4つのパラメータだけで設定を完了できます：
 
 - LLM_API_KEY="" # LLMサービスのキー（OpenAI形式のAPIを提供するモデルサービスプロバイダーであればどれでも可、ローカルでデプロイされたollamaを使用する場合は設定不要）
-- LLM_API_BASE="https://api.siliconflow.com/v1" # LLMサービスインターフェースアドレス
-- JINA_API_KEY="" # 検索エンジンサービスのキー（Jina推奨、個人使用でも登録なしで申請可能）
-- PRIMARY_MODEL="Qwen3-14B" # Qwen3-14Bまたは同様の思考モデル推奨
+- LLM_API_BASE="" # LLM サービスのベースURL (ある場合。OpenAIユーザーの場合は空白のままにしてください)
+- PRIMARY_MODEL=Qwen/Qwen3-14B # 推奨 Qwen3-14B または同等の思考モデル
 - VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct" # 視覚モデル、オプションだが推奨。必要なページ画像の分析に使用（プログラムはコンテキストに基づいて分析が必要かどうかを判断し、すべての画像を抽出するわけではありません）、最低Qwen2.5-VL-7B-Instructで十分です
 
 ### 🚀 さあ始めましょう！
@@ -192,8 +191,8 @@ SiliconFlowは、ほとんどの主流オープンソースモデルのオンラ
 
 ```
 LLM_API_KEY=Your_API_KEY
-LLM_API_BASE="https://api.siliconflow.com/v1"
-PRIMARY_MODEL="Qwen3-14B"
+LLM_API_BASE="" # LLM サービスのベースURL (ある場合。OpenAIユーザーの場合は空白のままにしてください)
+PRIMARY_MODEL=Qwen/Qwen3-14B # 推奨 Qwen3-14B または同等の思考モデル
 VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
 CONCURRENT_NUMBER=8
 ```
