@@ -85,9 +85,8 @@ Erstellen Sie im wiseflow-Ordner (Projektstammverzeichnis) basierend auf env_sam
 Version 4.x erfordert keine PocketBase-Anmeldedaten in der .env-Datei und begrenzt auch nicht die PocketBase-Version. Außerdem haben wir vorübergehend die Secondary Model-Einstellung entfernt. Sie benötigen daher mindestens nur vier Parameter:
 
 - LLM_API_KEY="" # LLM-Dienstschlüssel (jeder Anbieter mit OpenAI-kompatiblem API-Format ist geeignet, bei lokaler Verwendung von ollama nicht erforderlich)
-- LLM_API_BASE="https://api.siliconflow.com/v1" # LLM-Dienstschnittstelle
-- JINA_API_KEY="" # Suchmaschinen-Dienstschlüssel (Jina empfohlen, für persönliche Nutzung sogar ohne Registrierung verfügbar)
-- PRIMARY_MODEL="Qwen3-14B" # Qwen3-14B oder ähnliches Denkmodell empfohlen
+- LLM_API_BASE="" # LLM-Dienstschnittstellenadresse (falls erforderlich. Für OpenAI-Benutzer, lassen Sie es leer)
+- PRIMARY_MODEL="Qwen/Qwen3-14B" # Qwen3-14B oder ein gleichwertiges Denkmodell empfohlen
 - VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct" # Visuelles Modell, optional aber empfehlenswert. Wird zur Analyse notwendiger Seitenbilder verwendet (das Programm entscheidet basierend auf dem Kontext, ob eine Analyse notwendig ist, nicht jedes Bild wird extrahiert), mindestens Qwen2.5-VL-7B-Instruct erforderlich
 
 ### 🚀  Los geht's!

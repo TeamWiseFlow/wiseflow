@@ -2,6 +2,8 @@
 
 **[简体中文](README.md) | [English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [العربية](README_AR.md)**
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/TeamWiseFlow/wiseflow)
+
 🚀 **Nutzen Sie große Sprachmodelle, um täglich Informationen zu finden, die Sie wirklich interessieren, aus riesigen Datenmengen und verschiedenen Quellen!**
 
 Was uns fehlt, ist nicht Information, sondern die Fähigkeit, Rauschen aus massiven Informationen zu filtern, um wertvolle Erkenntnisse zu gewinnen.
@@ -87,7 +89,7 @@ Im wiseflow-Ordner (Projektstammverzeichnis) erstellen Sie eine .env-Datei basie
 Die Version 4.x erfordert keine pocketbase-Anmeldedaten in der .env-Datei und hat keine Versionsbeschränkungen für pocketbase. Außerdem haben wir vorübergehend die Secondary Model-Einstellung entfernt. Daher benötigen Sie nur vier Parameter für die Konfiguration:
 
 - LLM_API_KEY="" # Schlüssel für den LLM-Dienst (jeder Modellanbieter mit OpenAI-Format-API, nicht erforderlich bei lokaler ollama-Installation)
-- LLM_API_BASE="https://api.siliconflow.com/v1" # LLM-Dienstschnittstellenadresse
+- LLM_API_BASE="" # LLM-Dienstschnittstellenadresse (falls erforderlich. Für OpenAI-Benutzer, lassen Sie es leer)
 - PRIMARY_MODEL="Qwen/Qwen3-14B" # Qwen3-14B oder ein gleichwertiges Denkmodell empfohlen
 - VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct" # besser zu haben
 

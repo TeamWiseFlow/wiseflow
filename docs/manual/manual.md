@@ -83,9 +83,8 @@ git clone https://github.com/TeamWiseFlow/wiseflow.git
 4.x 版本无需用户在.env 中提供 pocketbase 的账密，也不限定 pocketbase 的版本, 同时我们也暂时取消了 Secondary Model 的设定, 因此你其实最少仅需四个参数即可完成配置：
 
 - LLM_API_KEY="" # LLM 服务的 key （任何提供 OpenAI 格式 API 的模型服务商均可，本地使用 ollama 部署则无需设置）
-- LLM_API_BASE="https://api.siliconflow.cn/v1" # LLM 服务接口地址
-- JINA_API_KEY="" # 搜索引擎服务的 key （推荐 Jina，个人使用甚至无需注册即可申请）
-- PRIMARY_MODEL="Qwen3-14B" # 推荐 Qwen3-14B 或同量级思考模型
+- LLM_API_BASE="" # LLM 服务接口地址（中国大陆地区用户推荐使用siliconflow，其他地区用户请留空）
+- PRIMARY_MODEL="Qwen/Qwen3-14B" # 推荐 Qwen3-14B 或同量级思考模型
 - VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct" # 视觉模型，可选但最好有。用于分析必要的页面图片（程序会根据上下判定是否有必要分析，不会每张图都提取一次），最低使用Qwen2.5-VL-7B-Instruct即可
 
 ### 🚀  起飞！
@@ -194,7 +193,7 @@ siliconflow（硅基流动）提供大部分主流开源模型的在线 MaaS 服
 ```
 LLM_API_KEY=Your_API_KEY
 LLM_API_BASE="https://api.siliconflow.cn/v1"
-PRIMARY_MODEL="Qwen3-14B"
+PRIMARY_MODEL=Qwen/Qwen3-14B
 VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
 CONCURRENT_NUMBER=8
 ```
