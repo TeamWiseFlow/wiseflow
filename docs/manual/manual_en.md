@@ -191,7 +191,7 @@ SiliconFlow provides online MaaS services for most mainstream open-source models
 
 ```
 LLM_API_KEY=Your_API_KEY
-LLM_API_BASE="" # LLM service base url (if any. For OpenAI users, leave it blank)
+LLM_API_BASE="https://api.siliconflow.com/v1" # LLM service base url (if any. For OpenAI users, leave it blank)
 PRIMARY_MODEL="Qwen/Qwen3-14B"
 VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
 CONCURRENT_NUMBER=8
@@ -201,7 +201,6 @@ CONCURRENT_NUMBER=8
 
 ##### Recommendation 2: Use AiHubMix's proxied overseas closed-source commercial model services like OpenAI, Claude, Gemini
 
-If your information sources are mostly non-Chinese pages and you don't require the extracted info to be in Chinese, then overseas closed-source commercial models like OpenAI, Claude, Gemini are more recommended. You can try third-party proxy **AiHubMix**, which supports direct connection in Chinese network environment, convenient Alipay payment, and eliminates account blocking risks.
 When using AiHubMix's models, .env configuration can refer to:
 
 ```
@@ -226,15 +225,7 @@ VL_MODEL=Started model ID
 CONCURRENT_NUMBER=1 # Determine based on actual hardware resources
 ```
 
-#### 3. JINA_API_KEY Setting (for Search Engine Service)
-
-Get it at https://jina.ai/, currently available without registration. (Please recharge for high concurrency or commercial use)
-
-```
-JINA_API_KEY=Your_API_KEY
-```
-
-#### 4. Other Optional Configurations
+#### 3. Other Optional Configurations
 
 The following are optional configurations:
 - #VERBOSE="true" 

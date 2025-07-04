@@ -1,0 +1,183 @@
+focus statement: 
+{'focuspoint': '中国地区新建石材厂与石材设备采购信息', 'explanation': '仅限2025年之后的信息', 'schema': {'request_information': '仅限石材相关的采购信息', 'contact': '', 'publish_date': 'YYYY-MM-DD formate'}}
+
+# raw materials: e0c0e6_processed.json
+url: https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+
+## model: o4-mini
+time cost: 27.852519374806434s
+tokens usage: 4602 (completion: 2375, prompt: 2227)
+
+### related urls: 
+https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+
+### related infos: 
+{
+    "request_information": "深圳建材2024-2025年度石材采购项目采购失败公告",
+    "contact": "",
+    "publish_date": "2025-01-13"
+}
+
+
+
+## model: o3-mini
+time cost: 37.470216958085075s
+tokens usage: 12580 (completion: 8126, prompt: 4454)
+
+### related urls: 
+https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+
+### related infos: 
+{
+    "request_information": "深圳建材2024-2025年度石材采购项目采购失败公告",
+    "contact": "",
+    "publish_date": "2025-01-13"
+}
+
+
+
+# raw materials: 6f6ceb_processed.json
+url: https://www.stone365.com/news/channel-1.html
+
+## model: o4-mini
+time cost: 31.87597758299671s
+tokens usage: 19724 (completion: 10912, prompt: 8812)
+
+### related urls: 
+https://www.stone365.com/news/info-4718544158348.html
+https://www.stone365.com/news/info-4426920820674.html
+https://www.stone365.com/news/info-4520486442149.html
+https://www.stone365.com/news/info-4675579159911.html
+https://www.stone365.com/news/info-4459847042272.html
+https://www.stone365.com/news/info-4520498069854.html
+https://www.stone365.com/news/info-4669554157391.html
+
+### related infos: 
+
+
+
+## model: o3-mini
+time cost: 58.448663665913045s
+tokens usage: 33396 (completion: 20226, prompt: 13170)
+
+### related urls: 
+https://www.stone365.com/news/info-4459847042272.html
+https://www.stone365.com/news/info-4675579159911.html
+https://www.stone365.com/news/info-4520486442149.html
+https://www.stone365.com/news/info-4426920820674.html
+https://www.stone365.com/news/info-4419014480030.html
+https://www.stone365.com/news/info-4520498069854.html
+
+### related infos: 
+{
+    "request_information": "百闻不如一见，买石材认定随县！",
+    "contact": "",
+    "publish_date": ""
+}
+
+
+
+# raw materials: 2d45cd_processed.json
+url: https://www.mee.gov.cn/xxgk2018/xxgk/xxgk15/201809/t20180928_661943.html
+
+## model: o4-mini
+time cost: 56.0018650831189s
+tokens usage: 132487 (completion: 22910, prompt: 109577)
+
+### related urls: 
+http://www.mohurd.gov.cn/
+http://www.mnr.gov.cn/
+http://www.mofcom.gov.cn/
+http://www.miit.gov.cn/
+
+### related infos: 
+
+
+
+## model: o3-mini
+time cost: 123.28405029210262s
+tokens usage: 236310 (completion: 30326, prompt: 205984)
+
+### related urls: 
+
+
+### related infos: 
+{
+    "request_information": "",
+    "contact": "",
+    "publish_date": "2018-09-28"
+}
+{
+    "request_information": "",
+    "contact": "",
+    "publish_date": "2018-09-28"
+}
+
+
+
+# raw materials: 3b6d96_processed.json
+url: https://www.jimei123.com/cn/news/plate-information
+
+## model: o4-mini
+time cost: 13.315151833929121s
+tokens usage: 241096 (completion: 30889, prompt: 210207)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: o3-mini
+time cost: 25.699123166967183s
+tokens usage: 249315 (completion: 34885, prompt: 214430)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+# raw materials: 338f2f_processed.json
+url: https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+
+## model: o4-mini
+time cost: 20.37563258316368s
+tokens usage: 256459 (completion: 37079, prompt: 219380)
+
+### related urls: 
+https://cg.shenzhenmc.com/
+https://cg.shenzhenmc.com/zbinfo/index.jhtml
+https://cg.shenzhenmc.com/zzbgg/index.jhtml
+https://cg.shenzhenmc.com/cghuowu/index.jhtml
+https://cg.shenzhenmc.com/zbxmjh/index.jhtml
+
+### related infos: 
+{
+    "request_information": "深圳建材2024-2025年度石材采购项目采购公告",
+    "contact": "郭工 18617152392",
+    "publish_date": "2024-12-23"
+}
+
+
+
+## model: o3-mini
+time cost: 37.9892571659293s
+tokens usage: 267747 (completion: 43417, prompt: 224330)
+
+### related urls: 
+
+
+### related infos: 
+{
+    "request_information": "深圳建材2024-2025年度石材采购项目采用公开招标方式招募石材生产企业或其授权销售公司，采购符合国家标准的石材产品，报价方式为折扣率，不得高于实际销售订单金额的96%。",
+    "contact": "郭工, 18617152392",
+    "publish_date": "2024-12-23"
+}
+
+
+

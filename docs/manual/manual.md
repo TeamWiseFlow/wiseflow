@@ -202,7 +202,6 @@ CONCURRENT_NUMBER=8
 
 ##### 推荐2：使用 AiHubMix 代理的openai、claude、gemini 等海外闭源商业模型服务
 
-如果您的信源多为非中文页面，且也不要求提取出的 info 为中文，那么更推荐您使用 openai、claude、gemini 等海外闭源商业模型。您可以尝试第三方代理 **AiHubMix**，支持国内网络环境直连、支付宝便捷支付，免去封号风险。
 使用 AiHubMix 的模型时，.env的配置可以参考如下：
 
 ```
@@ -227,15 +226,7 @@ VL_MODEL=启动的模型 ID
 CONCURRENT_NUMBER=1 # 根据实际硬件资源决定
 ```
 
-#### 3. JINA_API_KEY 设置（用于搜索引擎服务）
-
-至 https://jina.ai/ 领取，目前无需注册即可领取。（如有高并发或商用需求，请充值后使用）
-
-```
-JINA_API_KEY=Your_API_KEY
-```
-
-#### 4. 其他可选配置
+#### 3. 其他可选配置
 
 下面的都是可选配置：
 - #VERBOSE="true" 

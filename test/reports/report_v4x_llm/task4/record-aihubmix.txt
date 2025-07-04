@@ -1,0 +1,414 @@
+focus statement: 
+{'focuspoint': 'customer review about SAMSUNG 990 PRO SSD', 'explanation': 'pros and cons reviewed by customers so i can improve this product as a factory'}
+
+# raw materials: 28fd07_processed.json
+url: https://www.amazon.com/SAMSUNG-Computing-Workstations-MZ-V9P4T0B-AM/dp/B0CHGT1KFJ?pd_rd_w=e4i1l&content-id=amzn1.sym.1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_p=1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_r=SYA2F75W0M5ZYHSKB0K5&pd_rd_wg=h897q&pd_rd_r=618c499a-d3e6-4a32-927a-b515cc9afb3e&pd_rd_i=B0CHGT1KFJ&ref_=pd_hp_d_btf_unk_B0CHGT1KFJ&th=1
+
+## model: gpt-4.1-nano
+time cost: 10.59923516586423s
+tokens usage: 10865 (completion: 282, prompt: 10583)
+
+### related urls: 
+https://www.amazon.com/-/zh/hz/reviews-render/report-review?ie=UTF8&csrfT=hDQovrua%2B5x7azl2CYLW68QGrtB8tG%2B61NJixDCxitTnAAAAAGgt3R4AAAAB&reviewId=RQYBHKXSID2PB
+https://www.amazon.com/SAMSUNG-Computing-Workstations-MZ-V9P4T0B-AM/dp/B0CHGT1KFJ?pd_rd_w=e4i1l&content-id=amzn1.sym.1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_p=1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_r=SYA2F75W0M5ZYHSKB0K5&pd_rd_wg=h897q&pd_rd_r=618c499a-d3e6-4a32-927a-b515cc9afb3e&pd_rd_i=B0CHGT1KFJ&ref_=pd_hp_d_btf_unk_B0CHGT1KFJ&th=1#customerReviews
+https://www.amazon.com/-/zh/gp/customer-reviews/RD41TBXEF919Y/ref=cm_cr_dp_d_rvw_ttl?ie=UTF8&ASIN=B0CHGT1KFJ
+https://www.amazon.com/SAMSUNG-Computing-Workstations-MZ-V9P4T0B-AM/dp/B0CHGT1KFJ?pd_rd_w=e4i1l&content-id=amzn1.sym.1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_p=1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_r=SYA2F75W0M5ZYHSKB0K5&pd_rd_wg=h897q&pd_rd_r=618c499a-d3e6-4a32-927a-b515cc9afb3e&pd_rd_i=B0CHGT1KFJ&ref_=pd_hp_d_btf_unk_B0CHGT1KFJ&th=1
+https://www.amazon.com/-/zh/gp/customer-reviews/R2J3AXYFWW0JG0/ref=cm_cr_dp_d_rvw_ttl?ie=UTF8&ASIN=B0CHGT1KFJ
+https://www.amazon.com/-/zh/gp/help/customer/display.html/ref=cm_cr_dp_d_omni_lm_btn?nodeId=G8UYX7LALQC8V9KA
+https://www.amazon.com/-/zh/ap/signin?openid.return_to=https%3A%2F%2Fwww.amazon.com%2Fdp%2FB0CHGT1KFJ%2Fref%3Dcm_cr_dp_d_vote_lft%3Fie%3DUTF8%26csrfT%3DhDQovrua%252B5x7azl2CYLW68QGrtB8tG%252B61NJixDCxitTnAAAAAGgt3R4AAAAB%26reviewId%3DRQYBHKXSID2PB%23RQYBHKXSID2PB&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&marketPlaceId=ATVPDKIKX0DER&language=zh&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+https://images-na.ssl-images-amazon.com/images/G/01/x-locale/common/transparent-pixel._V192234675_.gif
+https://www.amazon.com/-/zh/product-reviews/B0CHGT1KFJ/ref=acr_dp_hist_1?ie=UTF8&filterByStar=one_star&reviewerType=all_reviews#reviews-filter-bar
+https://www.amazon.com/-/zh/product-reviews/B0CHGT1KFJ/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews
+https://www.amazon.com/-/zh/review/create-review/ref=cm_cr_dp_d_wr_but_top?ie=UTF8&channel=glance-detail&asin=B0CHGT1KFJ
+
+### related infos: 
+Customer reviews of the Samsung 990 PRO SSD highlight its high performance, with many users praising its speed, reliability, and compatibility. Customers mention that the SSD offers excellent read speeds up to 7,450 MB/s, is suitable for high-end computing, gaming, and heavy workloads, and is easy to install and migrate data using Samsung Magician software. Some reviews note the SSD's durability, heat management, and suitability for use in gaming consoles like PS5. There are positive comments about its speed improvements, especially after system upgrades or fresh Windows installations, and its effectiveness for data transfer, gaming, and professional use. A few users mention the importance of using Samsung Magician for optimal performance and note that the SSD is not recommended for cloning OS drives for boot purposes.
+
+
+
+## model: gemini-2.5-flash-preview-04-17-nothink
+time cost: 3.886135834036395s
+tokens usage: 23094 (completion: 759, prompt: 22335)
+
+### related urls: 
+https://www.amazon.com/-/zh/hz/reviews-render/report-review?ie=UTF8&csrfT=hDQovrua%2B5x7azl2CYLW68QGrtB8tG%2B61NJixDCxitTnAAAAAGgt3R4AAAAB&reviewId=RQYBHKXSID2PB
+https://www.amazon.com/-/zh/product-reviews/B0CHGT1KFJ/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews
+https://www.amazon.com/-/zh/gp/profile/amzn1.account.AEXUVNR626ZSL2ONJVNUZCALQLAQ/ref=cm_cr_dp_d_gw_tr?ie=UTF8
+https://www.amazon.com/SAMSUNG-Computing-Workstations-MZ-V9P4T0B-AM/dp/B0CHGT1KFJ?pd_rd_w=e4i1l&content-id=amzn1.sym.1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_p=1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_r=SYA2F75W0M5ZYHSKB0K5&pd_rd_wg=h897q&pd_rd_r=618c499a-d3e6-4a32-927a-b515cc9afb3e&pd_rd_i=B0CHGT1KFJ&ref_=pd_hp_d_btf_unk_B0CHGT1KFJ&th=1#customerReviews
+https://www.amazon.com/-/zh/gp/customer-reviews/RD41TBXEF919Y/ref=cm_cr_dp_d_rvw_ttl?ie=UTF8&ASIN=B0CHGT1KFJ
+https://www.amazon.com/SAMSUNG-Computing-Workstations-MZ-V9P4T0B-AM/dp/B0CHGT1KFJ?pd_rd_w=e4i1l&content-id=amzn1.sym.1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_p=1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_r=SYA2F75W0M5ZYHSKB0K5&pd_rd_wg=h897q&pd_rd_r=618c499a-d3e6-4a32-927a-b515cc9afb3e&pd_rd_i=B0CHGT1KFJ&ref_=pd_hp_d_btf_unk_B0CHGT1KFJ&th=1
+https://www.amazon.com/-/zh/gp/profile/amzn1.account.AHZEKG3H7DTWJ4OZ3SO6C52NYRDA/ref=cm_cr_dp_d_gw_tr?ie=UTF8
+https://www.amazon.com/-/zh/gp/help/customer/display.html/ref=cm_cr_dp_d_omni_lm_btn?nodeId=G8UYX7LALQC8V9KA
+https://www.amazon.com/-/zh/ap/signin?openid.return_to=https%3A%2F%2Fwww.amazon.com%2Fdp%2FB0CHGT1KFJ%2Fref%3Dcm_cr_dp_d_vote_lft%3Fie%3DUTF8%26csrfT%3DhDQovrua%252B5x7azl2CYLW68QGrtB8tG%252B61NJixDCxitTnAAAAAGgt3R4AAAAB%26reviewId%3DRQYBHKXSID2PB%23RQYBHKXSID2PB&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&marketPlaceId=ATVPDKIKX0DER&language=zh&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+https://images-na.ssl-images-amazon.com/images/G/01/x-locale/common/transparent-pixel._V192234675_.gif
+https://www.amazon.com/-/zh/gp/customer-reviews/R2J3AXYFWW0JG0/ref=cm_cr_dp_d_rvw_ttl?ie=UTF8&ASIN=B0CHGT1KFJ
+https://www.amazon.com/-/zh/gp/customer-reviews/RQYBHKXSID2PB/ref=cm_cr_dp_d_rvw_ttl?ie=UTF8&ASIN=B0CHGT1KFJ
+https://www.amazon.com/SAMSUNG-Computing-Workstations-MZ-V9P4T0B-AM/dp/B0CHGT1KFJ?pd_rd_w=e4i1l&content-id=amzn1.sym.1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_p=1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_r=SYA2F75W0M5ZYHSKB0K5&pd_rd_wg=h897q&pd_rd_r=618c499a-d3e6-4a32-927a-b515cc9afb3e&pd_rd_i=B0CHGT1KFJ&ref_=pd_hp_d_btf_unk_B0CHGT1KFJ&th=1#averageCustomerReviewsAnchor
+https://www.amazon.com/-/zh/gp/help/customer/display.html/ref=cm_cr_dp_d_rvw_avp?nodeId=G8UYX7LALQC8V9KA
+https://www.amazon.com/-/zh/gp/profile/amzn1.account.AGBUT5ZTRGKT5ETWL3MEHI4UIW7Q/ref=cm_cr_dp_d_gw_tr?ie=UTF8
+https://www.amazon.com/-/zh/gp/profile/amzn1.account.AEGMFFJTXM4KJVI3BDJ7PCP6UM5A/ref=cm_cr_dp_d_gw_tr?ie=UTF8
+https://www.amazon.com/-/zh/gp/customer-reviews/R343TBSUJJ1B8Q/ref=cm_cr_dp_d_rvw_ttl?ie=UTF8&ASIN=B0CHGT1KFJ
+
+### related infos: 
+Customer reviews for the Samsung 990 PRO SSD highlight its incredible speed and performance, particularly for gaming, video editing, and data analysis. Customers appreciate the ease of data migration using the Samsung Magician Software. The drive is noted for its power efficiency and effective heat management, even under pressure. Some users found it to be a perfect upgrade for older PCs, significantly improving startup and download speeds. One customer noted that while it's great for data storage and large file transfers, they don't see the benefit of using it as a boot drive compared to a standard SSD, especially regarding cloning for backups. Another customer mentioned that the Samsung heat shield might be too thick for some laptop models.
+
+
+
+## model: gpt-4.1-mini
+time cost: 7.168017250020057s
+tokens usage: 34546 (completion: 1628, prompt: 32918)
+
+### related urls: 
+https://www.amazon.com/-/zh/product-reviews/B0CHGT1KFJ/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews
+https://www.amazon.com/-/zh/gp/customer-reviews/RD41TBXEF919Y/ref=cm_cr_dp_d_rvw_ttl?ie=UTF8&ASIN=B0CHGT1KFJ
+https://www.amazon.com/SAMSUNG-Computing-Workstations-MZ-V9P4T0B-AM/dp/B0CHGT1KFJ?pd_rd_w=e4i1l&content-id=amzn1.sym.1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_p=1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_r=SYA2F75W0M5ZYHSKB0K5&pd_rd_wg=h897q&pd_rd_r=618c499a-d3e6-4a32-927a-b515cc9afb3e&pd_rd_i=B0CHGT1KFJ&ref_=pd_hp_d_btf_unk_B0CHGT1KFJ&th=1
+https://www.amazon.com/-/zh/gp/customer-reviews/R2J3AXYFWW0JG0/ref=cm_cr_dp_d_rvw_ttl?ie=UTF8&ASIN=B0CHGT1KFJ
+https://www.amazon.com/-/zh/gp/help/customer/display.html/ref=cm_cr_dp_d_omni_lm_btn?nodeId=G8UYX7LALQC8V9KA
+https://www.amazon.com/SAMSUNG-Computing-Workstations-MZ-V9P4T0B-AM/dp/B0CHGT1KFJ?pd_rd_w=e4i1l&content-id=amzn1.sym.1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_p=1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_r=SYA2F75W0M5ZYHSKB0K5&pd_rd_wg=h897q&pd_rd_r=618c499a-d3e6-4a32-927a-b515cc9afb3e&pd_rd_i=B0CHGT1KFJ&ref_=pd_hp_d_btf_unk_B0CHGT1KFJ&th=1#customerReviews
+https://www.amazon.com/SAMSUNG-Computing-Workstations-MZ-V9P4T0B-AM/dp/B0CHGT1KFJ?pd_rd_w=e4i1l&content-id=amzn1.sym.1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_p=1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_r=SYA2F75W0M5ZYHSKB0K5&pd_rd_wg=h897q&pd_rd_r=618c499a-d3e6-4a32-927a-b515cc9afb3e&pd_rd_i=B0CHGT1KFJ&ref_=pd_hp_d_btf_unk_B0CHGT1KFJ&th=1#averageCustomerReviewsAnchor
+https://www.amazon.com/-/zh/gp/customer-reviews/R343TBSUJJ1B8Q/ref=cm_cr_dp_d_rvw_ttl?ie=UTF8&ASIN=B0CHGT1KFJ
+https://www.amazon.com/-/zh/stores/Samsung%C2%AE/page/F50AFABA-4CDE-4A95-84D0-CA4C61819FEB?lp_asin=B0CHGT1KFJ&ref_=ast_bln&store_ref=bl_ast_dp_brandLogo_sto
+
+### related infos: 
+Customer reviews of the SAMSUNG 990 PRO SSD (4TB PCIe 4.0 M.2 2280) reveal several pros and cons that can help improve the product from a factory perspective:
+
+Pros:
+- High performance and speed: Customers praise the SSD for its extremely fast read/write speeds (up to 7,450 MB/s read, 6,900 MB/s write), which significantly improve system boot times, game loading, and large file transfers. One user reported download speeds increasing from 20-50 Mbps to 700-800+ Mbps after installation, likely due to a fresh OS install combined with the SSD's performance.
+- Reliability and compatibility: Many users trust Samsung's NVMe SSDs for their reliability and compatibility, especially when using Samsung Magician software for data migration and performance optimization.
+- Good heat management: The 990 PRO is noted for excellent heat control, with one user reporting a maximum temperature of 50°C under pressure in an Asus NUC 14 Pro.
+- Suitable for gaming and heavy workloads: Users find it ideal for gaming, video editing, AI code, and heavy workstation tasks, with performance improvements over previous models like the 980 PRO.
+- Large storage capacity options (1TB to 4TB) provide ample space for games, videos, and sensitive encrypted data without noticeable performance loss.
+- Some users appreciate the included heatsink or use aftermarket heatsinks to maintain efficiency and cooling.
+- Positive user experience with installation guidance, including helpful software tools and community support.
+
+Cons:
+- Packaging issues: One user reported damaged packaging from Amazon, though the internal packaging protected the SSD itself.
+- Installation challenges: The included heatsink can be too thick for some laptop models (e.g., Alienware X17 R1), requiring users to source alternative cooling solutions.
+- Software/documentation readability: The Samsung Magician installation guide was described as difficult to read without a magnifying glass.
+- OS boot drive limitations: One user noted that cloning the 990 PRO for a bootable backup is not possible, which complicates OS backup strategies. They recommend using the drive primarily for data storage rather than the boot OS.
+- Compatibility notes: Users with Intel RST/VMD on their systems may need to disable these features for Linux dual-boot setups to avoid boot issues.
+- Some users had to create custom mounting solutions (e.g., rubber washers) due to laptop mounting incompatibilities, though this is not a fault of the drive itself.
+
+Overall, the customer feedback highlights the 990 PRO SSD as a top-tier, high-performance, and reliable product with minor issues related to packaging, installation, and OS backup functionality. These insights suggest factory improvements could focus on packaging robustness, clearer installation documentation, and possibly addressing heatsink thickness or offering alternative cooling options for laptops.
+
+
+
+## model: gpt-4o-mini
+time cost: 4.4486966249533s
+tokens usage: 45395 (completion: 1894, prompt: 43501)
+
+### related urls: 
+https://www.amazon.com/-/zh/gp/feature.html/ref=dp_warranty_request_3P?docId=1002406021
+https://www.amazon.com/SAMSUNG-Computing-Workstations-MZ-V9P4T0B-AM/dp/B0CHGT1KFJ?pd_rd_w=e4i1l&content-id=amzn1.sym.1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_p=1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_r=SYA2F75W0M5ZYHSKB0K5&pd_rd_wg=h897q&pd_rd_r=618c499a-d3e6-4a32-927a-b515cc9afb3e&pd_rd_i=B0CHGT1KFJ&ref_=pd_hp_d_btf_unk_B0CHGT1KFJ&th=1
+https://www.amazon.com/-/zh/gp/help/customer/display.html?nodeId=GQ6B6RH72AX8D2TD&ref_=dp_hp&language=zh_CN
+https://www.amazon.com/-/zh/b/ref=dp_bc_1?ie=UTF8&node=172282
+https://www.amazon.com/-/zh/stores/Samsung%C2%AE/page/F50AFABA-4CDE-4A95-84D0-CA4C61819FEB?lp_asin=B0CHGT1KFJ&ref_=ast_bln&store_ref=bl_ast_dp_brandLogo_sto
+
+### related infos: 
+The Samsung 990 PRO SSD has received a customer rating of 4.7 out of 5 stars based on 12,668 reviews. Customers have praised its speed, noting significant improvements in boot times and download speeds after installation. One user reported download speeds increasing from 20-50 Mbps to 700-800+ Mbps after upgrading to the SSD. However, some customers expressed concerns about the packaging during delivery and the compatibility of the SSD with certain systems, particularly regarding the installation process and potential issues with dual-boot setups. Overall, the feedback indicates that while the SSD performs exceptionally well, there are areas for improvement in packaging and installation guidance.
+
+
+
+## model: o4-mini
+time cost: 16.80325816711411s
+tokens usage: 57352 (completion: 3269, prompt: 54083)
+
+### related urls: 
+
+
+### related infos: -1
+
+
+
+## model: o3-mini
+time cost: 24.00562316691503s
+tokens usage: 70988 (completion: 6323, prompt: 64665)
+
+### related urls: 
+https://www.amazon.com/SAMSUNG-Computing-Workstations-MZ-V9P4T0B-AM/dp/B0CHGT1KFJ?pd_rd_w=e4i1l&content-id=amzn1.sym.1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_p=1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_r=SYA2F75W0M5ZYHSKB0K5&pd_rd_wg=h897q&pd_rd_r=618c499a-d3e6-4a32-927a-b515cc9afb3e&pd_rd_i=B0CHGT1KFJ&ref_=pd_hp_d_btf_unk_B0CHGT1KFJ&th=1
+https://www.amazon.com/-/zh/gp/help/customer/display.html/ref=cm_cr_dp_d_omni_lm_btn?nodeId=G8UYX7LALQC8V9KA
+
+### related infos: 
+Several customer reviews of the SAMSUNG 990 PRO SSD reveal a mix of strong positives and a few areas for potential improvement. Many users commend its exceptional speed, rapid startup, and impressive download and data transfer performance, even when handling heavy workloads like gaming, video editing, or working with full disk encryption. Reviewers note that the drive’s performance is robust and reliable under stress, making it ideal for high‐end computing and heavy workstations. On the other hand, some customers encountered issues such as shipping-related packaging damage and found that the stock heat shield was too thick for certain systems—necessitating an aftermarket cooler. There were also remarks about challenges cloning the drive for use as a boot OS and potential compatibility complications with Intel RST/VMD in dual-boot configurations. Overall, while the performance is highly praised, there is room to improve aspects of packaging and provide clearer guidance for installation and system compatibility.
+
+
+
+# raw materials: e0ed60_processed.json
+url: https://www.amazon.com/SAMSUNG-Technology-Intelligent-Turbowrite-MZ-V9S4T0B/dp/B0DHLBDSP7/ref=pb_allspark_dp_sims_pao_desktop_session_based_d_sccl_2_2/142-2485835-4920547?pd_rd_w=iqLgV&content-id=amzn1.sym.bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_p=bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_r=8HMKY90K9W81ZVGHVVJH&pd_rd_wg=hvzIr&pd_rd_r=48e8625b-7f1c-4f68-b245-cd9acc0c1482&pd_rd_i=B0DHLBDSP7&th=1
+
+## model: gpt-4.1-nano
+time cost: 6.798344166949391s
+tokens usage: 85902 (completion: 7078, prompt: 78824)
+
+### related urls: 
+https://www.amazon.com/-/zh/gp/customer-reviews/R37N86LN9MMMYI/ref=cm_cr_dp_d_rvw_ttl?ie=UTF8&ASIN=B0DHLBDSP7
+https://www.amazon.com/-/zh/gp/customer-reviews/RP966ZUGBFH5L/ref=cm_cr_dp_d_rvw_ttl?ie=UTF8&ASIN=B0DHLBDSP7
+https://images-na.ssl-images-amazon.com/images/G/01/x-locale/common/transparent-pixel._V192234675_.gif
+
+### related infos: -1 (hallucination)
+Customer reviews highlight both pros and cons of the Samsung 990 EVO Plus SSD. Customers praise its high read/write speeds, with some noting performance up to 7,250 MB/s, and its large capacity options like 4TB. The product is appreciated for its thermal management features, with users mentioning the importance of using heatsinks to prevent overheating, especially since the controller can run quite hot, reaching temperatures around 85°C. Some concerns include the lack of included screws for installation, and the temperature management system possibly having flaws, as the controller can throttle performance when temperatures exceed certain thresholds. Customers also value the dynamic SLC cache, which helps maintain high speeds during large data transfers, and the compatibility with PCIe 4.0 and 5.0 interfaces. Overall, reviews suggest the SSD performs well in demanding professional applications, but heat dissipation and firmware handling of temperature throttling are areas for potential improvement.
+Customer reviews about the Samsung 990 PRO SSD highlight its blazing speed, reliability, and ease of installation. Customers praise its high performance in reducing boot times, fast file transfers, and suitability for gaming, video editing, and heavy workloads. The drive is also noted for maintaining good temperature management and compatibility with PCIe 4.0 and 5.0 standards. Some reviews mention slight performance improvements over previous models and good value for the price, though one customer notes a minor discrepancy in capacity.
+
+
+
+## model: gemini-2.5-flash-preview-04-17-nothink
+time cost: 8.757932625012472s
+tokens usage: 102622 (completion: 8097, prompt: 94525)
+
+### related urls: -1
+https://www.amazon.com/-/zh/gp/help/customer/display.html?nodeId=GQ6B6RH72AX8D2TD&ref_=dp_hp&language=zh_CN
+https://www.amazon.com/-/zh/product-reviews/B0DHLBDSP7/ref=pd_ci_mcx_pspc_dp_2_r_0?pd_rd_w=GNQA7&content-id=amzn1.sym.cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_p=cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_r=C6MK6DX8AN6JK3M5B7A5&pd_rd_wg=nz9Me&pd_rd_r=d4bccb7b-be6b-4bb0-a051-965be132c13e
+https://www.amazon.com/-/zh/gp/help/customer/display.html/ref=cm_cr_dp_d_omni_lm_btn?nodeId=G8UYX7LALQC8V9KA
+https://www.amazon.com/SAMSUNG-Technology-Intelligent-Turbowrite-MZ-V9S4T0B/dp/B0DHLBDSP7/ref=pb_allspark_dp_sims_pao_desktop_session_based_d_sccl_2_2/142-2485835-4920547?pd_rd_w=iqLgV&content-id=amzn1.sym.bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_p=bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_r=8HMKY90K9W81ZVGHVVJH&pd_rd_wg=hvzIr&pd_rd_r=48e8625b-7f1c-4f68-b245-cd9acc0c1482&pd_rd_i=B0DHLBDSP7&th=1#averageCustomerReviewsAnchor
+https://www.amazon.com/-/zh/gp/help/customer/display.html/ref=cm_cr_dp_d_rvw_avp?nodeId=G8UYX7LALQC8V9KA
+https://www.amazon.com/SAMSUNG-Technology-Intelligent-Turbowrite-MZ-V9S4T0B/dp/B0DHLBDSP7/ref=pb_allspark_dp_sims_pao_desktop_session_based_d_sccl_2_2/142-2485835-4920547?pd_rd_w=iqLgV&content-id=amzn1.sym.bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_p=bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_r=8HMKY90K9W81ZVGHVVJH&pd_rd_wg=hvzIr&pd_rd_r=48e8625b-7f1c-4f68-b245-cd9acc0c1482&pd_rd_i=B0DHLBDSP7&th=1#customerReviews
+https://www.amazon.com/-/zh/ap/signin?openid.return_to=https%3A%2F%2Fwww.amazon.com%2Fdp%2FB0DHLBDSP7%2Fref%3Dcm_cr_dp_d_vote_lft%3Fie%3DUTF8%26csrfT%3DhPS%252FvR5NLEEBPpfD%252F2iSYEwqIIp9lM3yqbRu2aBFxsfWAAAAAGgt3S8AAAAB%26reviewId%3DRP966ZUGBFH5L%23RP966ZUGBFH5L&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&marketPlaceId=ATVPDKIKX0DER&language=zh&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+https://www.amazon.com/-/zh/gp/profile/amzn1.account.AG6MGB5KAV67GG75FK7YMFCAJDDQ/ref=cm_cr_dp_d_gw_tr?ie=UTF8
+https://www.amazon.com/-/zh/gp/customer-reviews/R1N5QN3JYL8SVG/ref=cm_cr_dp_d_rvw_ttl?ie=UTF8&ASIN=B0DHLBDSP7
+https://www.amazon.com/-/zh/b?node=23911919011
+https://www.amazon.com/SAMSUNG-Technology-Intelligent-Turbowrite-MZ-V9S4T0B/dp/B0DHLBDSP7/ref=pb_allspark_dp_sims_pao_desktop_session_based_d_sccl_2_2/142-2485835-4920547?pd_rd_w=iqLgV&content-id=amzn1.sym.bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_p=bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_r=8HMKY90K9W81ZVGHVVJH&pd_rd_wg=hvzIr&pd_rd_r=48e8625b-7f1c-4f68-b245-cd9acc0c1482&pd_rd_i=B0DHLBDSP7&th=1#productDetails
+https://www.amazon.com/-/zh/gp/profile/amzn1.account.AG6MGB5KAV67GG75FK7YMFCAJDDQ/ref=cm_cr_dp_d_gw_pop?ie=UTF8
+https://www.amazon.com/-/zh/hz/reviews-render/report-review?ie=UTF8&csrfT=hPS%2FvR5NLEEBPpfD%2F2iSYEwqIIp9lM3yqbRu2aBFxsfWAAAAAGgt3S8AAAAB&reviewId=RP966ZUGBFH5L
+https://images-na.ssl-images-amazon.com/images/G/01/x-locale/common/transparent-pixel._V192234675_.gif
+https://www.amazon.com/-/zh/gp/customer-reviews/RP966ZUGBFH5L/ref=cm_cr_dp_d_rvw_ttl?ie=UTF8&ASIN=B0DHLBDSP7
+https://www.amazon.com/-/zh/gp/profile/amzn1.account.AETBRS2VHOJE4KXQRFBZ3UYKIVTQ/ref=cm_cr_dp_d_gw_tr?ie=UTF8
+https://www.amazon.com/dp/B0CHGT1KFJ/ref=pd_rhf_dp_s_pd_sbs_rvi_d_sccl_1_2/146-1421385-4112468?pd_rd_w=Axnkp&content-id=amzn1.sym.c6cd1cf0-b3df-427b-b589-1ce7b235f9b4&pf_rd_p=c6cd1cf0-b3df-427b-b589-1ce7b235f9b4&pf_rd_r=G4R2VQFT1WF8X5EKKM0K&pd_rd_wg=8d7kZ&pd_rd_r=1ff983fc-b309-4a6a-8b9f-661da672dedd&pd_rd_i=B0CHGT1KFJ&psc=1
+https://www.amazon.com/-/zh/dp/B0CHGT1KFJ/ref=pd_ci_mcx_pspc_dp_2_t_4?pd_rd_w=GNQA7&content-id=amzn1.sym.cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_p=cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_r=C6MK6DX8AN6JK3M5B7A5&pd_rd_wg=nz9Me&pd_rd_r=d4bccb7b-be6b-4bb0-a051-965be132c13e&pd_rd_i=B0CHGT1KFJ
+https://www.amazon.com/-/zh/gp/profile/amzn1.account.AETBRS2VHOJE4KXQRFBZ3UYKIVTQ/ref=cm_cr_dp_d_gw_pop?ie=UTF8
+https://www.amazon.com/SAMSUNG-Technology-Intelligent-Turbowrite-MZ-V9S4T0B/dp/B0DHLBDSP7/ref=pb_allspark_dp_sims_pao_desktop_session_based_d_sccl_2_2/142-2485835-4920547?pd_rd_w=iqLgV&content-id=amzn1.sym.bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_p=bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_r=8HMKY90K9W81ZVGHVVJH&pd_rd_wg=hvzIr&pd_rd_r=48e8625b-7f1c-4f68-b245-cd9acc0c1482&pd_rd_i=B0DHLBDSP7&th=1
+https://www.amazon.com/-/zh/review/create-review/ref=cm_cr_dp_d_wr_but_top?ie=UTF8&channel=glance-detail&asin=B0DHLBDSP7
+
+### related infos: 
+Based on customer reviews of the Samsung 990 EVO Plus SSD (which is compared to the 990 Pro), the following points are relevant for product improvement:
+
+Pros:
+- Strong competitor in the PCIe 4.0 SSD market, outperforming its predecessor (990 Evo) and in some cases approaching the performance of the 990 Pro.
+- Success is attributed to the integration of modern eighth-generation flash memory.
+- Capable DRAM-less SSD, excelling in demanding professional applications.
+- SLC cache operates dynamically, providing increased speed even when partially filled (though capacity decreases when the drive is 75% full).
+- Significantly outperforms its predecessor with linear speeds close to theoretical limits of PCIe 4.0 x4 or PCIe 5.0 x2.
+- Can serve as a suitable alternative when a drive with an eight-channel flash memory array and local DRAM memory is excessive or too expensive.
+- Feels like superior quality.
+- Compatible with PCIe 4.0 and PCIe 5.0.
+- Thermal control is appreciated, and the drive doesn't feel too hot or suffer performance issues with passive cooling (in an external enclosure).
+- Works well for video editing directly from the drive without hiccups.
+- Good value when purchased on sale.
+
+Cons:
+- Performance can be hindered by the lower-spec Piccolo controller, particularly during file copying, behaving similarly to QLC-based drives.
+- Concerns regarding temperature management; the controller runs quite hot.
+- Possible flaws in the temperature protection system observed in practical testing.
+- Recommended to use with a heatsink and avoid installation in thin laptops with inadequate heat dissipation.
+- Inconsistencies in temperature monitoring; Samsung's Magician software fails to display the higher controller temperature.
+- Throttling is activated when the controller hits 85°C, resulting in a notable performance drop.
+- The protective throttling mechanism only triggers once; it doesn't re-engage after cooling and system reset, suggesting a potential firmware issue.
+- Actual performance in CrystalDiskMark tests was around 8% lower than rated specifications.
+- Price of the new model currently appears somewhat inflated.
+- Does NOT include a screw; screws must be provided by the laptop or PC.
+- The number of NAND chips correlates directly with capacity (1TB and 2TB variants have only one NAND chip), which is a design choice but noted by a reviewer.
+Based on the provided markdown, there are no customer reviews specifically about the SAMSUNG 990 PRO SSD within the main-content sections. The reviews present are for the Samsung 990 EVO Plus SSD.
+
+
+
+## model: gpt-4.1-mini
+time cost: 18.2289550001733s
+tokens usage: 118667 (completion: 9983, prompt: 108684)
+
+### related urls: -1
+https://www.amazon.com/-/zh/gp/feature.html/ref=dp_warranty_request_3P?docId=1002406021
+https://www.amazon.com/-/zh/sspa/click?ie=UTF8&spc=MTo1MTA5OTkwNjI1MjgyMTMyOjE3NDc4MzYyMDY6c3BfZGV0YWlsX3RoZW1hdGljOjMwMDE3OTkyNDEzODgwMjo6Ojo&url=%2Fdp%2FB0CXXWB52R%2Fref%3Dsspa_dk_detail_2%3Fpsc%3D1%26pd_rd_i%3DB0CXXWB52R%26pd_rd_w%3DdPKf1%26content-id%3Damzn1.sym.bbb3fb5e-28ad-4062-a3ba-1f7b9f2e4371%26pf_rd_p%3Dbbb3fb5e-28ad-4062-a3ba-1f7b9f2e4371%26pf_rd_r%3DC6MK6DX8AN6JK3M5B7A5%26pd_rd_wg%3Dnz9Me%26pd_rd_r%3Dd4bccb7b-be6b-4bb0-a051-965be132c13e%26s%3Dpc%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM
+https://www.amazon.com/-/zh/gp/help/customer/display.html?nodeId=GQ6B6RH72AX8D2TD&ref_=dp_hp&language=zh_CN
+https://www.amazon.com/-/zh/gp/help/customer/display.html/ref=cm_cr_dp_d_omni_lm_btn?nodeId=G8UYX7LALQC8V9KA
+https://www.amazon.com/-/zh/sspa/click?ie=UTF8&spc=MTo1MTA5OTkwNjI1MjgyMTMyOjE3NDc4MzYyMDY6c3BfZGV0YWlsX3RoZW1hdGljOjMwMDY5NTEzMTA1MTkwMjo6Ojo&url=%2Fdp%2FB0C9DPZKZ8%2Fref%3Dsspa_dk_detail_5%3Fpsc%3D1%26pd_rd_i%3DB0C9DPZKZ8%26pd_rd_w%3DdPKf1%26content-id%3Damzn1.sym.bbb3fb5e-28ad-4062-a3ba-1f7b9f2e4371%26pf_rd_p%3Dbbb3fb5e-28ad-4062-a3ba-1f7b9f2e4371%26pf_rd_r%3DC6MK6DX8AN6JK3M5B7A5%26pd_rd_wg%3Dnz9Me%26pd_rd_r%3Dd4bccb7b-be6b-4bb0-a051-965be132c13e%26s%3Dpc%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM
+https://www.amazon.com/SAMSUNG-Technology-Intelligent-Turbowrite-MZ-V9S4T0B/dp/B0DHLBDSP7/ref=pb_allspark_dp_sims_pao_desktop_session_based_d_sccl_2_2/142-2485835-4920547?pd_rd_w=iqLgV&content-id=amzn1.sym.bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_p=bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_r=8HMKY90K9W81ZVGHVVJH&pd_rd_wg=hvzIr&pd_rd_r=48e8625b-7f1c-4f68-b245-cd9acc0c1482&pd_rd_i=B0DHLBDSP7&th=1#averageCustomerReviewsAnchor
+https://www.amazon.com/SAMSUNG-Technology-Intelligent-Turbowrite-MZ-V9S4T0B/dp/B0DHLBDSP7/ref=pb_allspark_dp_sims_pao_desktop_session_based_d_sccl_2_2/142-2485835-4920547?pd_rd_w=iqLgV&content-id=amzn1.sym.bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_p=bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_r=8HMKY90K9W81ZVGHVVJH&pd_rd_wg=hvzIr&pd_rd_r=48e8625b-7f1c-4f68-b245-cd9acc0c1482&pd_rd_i=B0DHLBDSP7&th=1#customerReviews
+https://www.amazon.com/-/zh/sspa/click?ie=UTF8&spc=MToxMDM3MjU4NzA2MjEzMTMyOjE3NDc4MzYyMDY6c3BfZGV0YWlsX3RoZW1hdGljOjMwMDcwNDQ3MDQwMTQwMjo6Ojo&url=%2Fdp%2FB0DX2GJ1YR%2Fref%3Dsspa_dk_detail_0%3Fpsc%3D1%26pd_rd_i%3DB0DX2GJ1YR%26pd_rd_w%3D9ILnU%26content-id%3Damzn1.sym.85ceacba-39b1-4243-8f28-2e014f9512c7%26pf_rd_p%3D85ceacba-39b1-4243-8f28-2e014f9512c7%26pf_rd_r%3DC6MK6DX8AN6JK3M5B7A5%26pd_rd_wg%3Dnz9Me%26pd_rd_r%3Dd4bccb7b-be6b-4bb0-a051-965be132c13e%26s%3Dpc%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM
+https://www.amazon.com/-/zh/ap/signin?openid.return_to=https%3A%2F%2Fwww.amazon.com%2Fdp%2FB0DHLBDSP7%2Fref%3Dcm_cr_dp_d_vote_lft%3Fie%3DUTF8%26csrfT%3DhPS%252FvR5NLEEBPpfD%252F2iSYEwqIIp9lM3yqbRu2aBFxsfWAAAAAGgt3S8AAAAB%26reviewId%3DRP966ZUGBFH5L%23RP966ZUGBFH5L&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&marketPlaceId=ATVPDKIKX0DER&language=zh&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+https://www.amazon.com/-/zh/stores/page/F50AFABA-4CDE-4A95-84D0-CA4C61819FEB?store_ref=storeRecs_dp_aplus
+https://www.amazon.com/-/zh/sspa/click?ie=UTF8&spc=MToxMDM3MjU4NzA2MjEzMTMyOjE3NDc4MzYyMDY6c3BfZGV0YWlsX3RoZW1hdGljOjIwMDA3MjA5MzM5NzMzMTo6Ojo&url=%2Fdp%2FB091FR4PL5%2Fref%3Dsspa_dk_detail_2%3Fpsc%3D1%26pd_rd_i%3DB091FR4PL5%26pd_rd_w%3D9ILnU%26content-id%3Damzn1.sym.85ceacba-39b1-4243-8f28-2e014f9512c7%26pf_rd_p%3D85ceacba-39b1-4243-8f28-2e014f9512c7%26pf_rd_r%3DC6MK6DX8AN6JK3M5B7A5%26pd_rd_wg%3Dnz9Me%26pd_rd_r%3Dd4bccb7b-be6b-4bb0-a051-965be132c13e%26s%3Dpc%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM
+https://www.amazon.com/-/zh/gp/help/customer/display.html?ie=UTF8&pop-up=1&nodeId=201117970
+https://www.amazon.com/-/zh/b?node=23911919011
+https://www.amazon.com/SAMSUNG-Technology-Intelligent-Turbowrite-MZ-V9S4T0B/dp/B0DHLBDSP7/ref=pb_allspark_dp_sims_pao_desktop_session_based_d_sccl_2_2/142-2485835-4920547?pd_rd_w=iqLgV&content-id=amzn1.sym.bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_p=bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_r=8HMKY90K9W81ZVGHVVJH&pd_rd_wg=hvzIr&pd_rd_r=48e8625b-7f1c-4f68-b245-cd9acc0c1482&pd_rd_i=B0DHLBDSP7&th=1#productDetails
+https://www.amazon.com/-/zh/sspa/click?ie=UTF8&spc=MTo1MTA5OTkwNjI1MjgyMTMyOjE3NDc4MzYyMDY6c3BfZGV0YWlsX3RoZW1hdGljOjMwMDc1MzQzNDcwNTEwMjo6Ojo&url=%2Fdp%2FB0C69R19Y3%2Fref%3Dsspa_dk_detail_1%3Fpsc%3D1%26pd_rd_i%3DB0C69R19Y3%26pd_rd_w%3DdPKf1%26content-id%3Damzn1.sym.bbb3fb5e-28ad-4062-a3ba-1f7b9f2e4371%26pf_rd_p%3Dbbb3fb5e-28ad-4062-a3ba-1f7b9f2e4371%26pf_rd_r%3DC6MK6DX8AN6JK3M5B7A5%26pd_rd_wg%3Dnz9Me%26pd_rd_r%3Dd4bccb7b-be6b-4bb0-a051-965be132c13e%26s%3Dpc%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM
+https://www.amazon.com/-/zh/dp/B0CRC7H66Z/ref=pd_ci_mcx_pspc_dp_2_t_1?pd_rd_w=GNQA7&content-id=amzn1.sym.cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_p=cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_r=C6MK6DX8AN6JK3M5B7A5&pd_rd_wg=nz9Me&pd_rd_r=d4bccb7b-be6b-4bb0-a051-965be132c13e&pd_rd_i=B0CRC7H66Z
+https://www.amazon.com/-/zh/hz/reviews-render/report-review?ie=UTF8&csrfT=hPS%2FvR5NLEEBPpfD%2F2iSYEwqIIp9lM3yqbRu2aBFxsfWAAAAAGgt3S8AAAAB&reviewId=RP966ZUGBFH5L
+https://www.amazon.com/-/zh/vdp/01dc033dca7a4f248edea336804d3099
+https://www.amazon.com/-/zh/sspa/click?ie=UTF8&spc=MTo1MTA5OTkwNjI1MjgyMTMyOjE3NDc4MzYyMDY6c3BfZGV0YWlsX3RoZW1hdGljOjMwMDY3MzE5NzE5OTYwMjo6Ojo&url=%2Fdp%2FB0D4YJVCK1%2Fref%3Dsspa_dk_detail_0%3Fpsc%3D1%26pd_rd_i%3DB0D4YJVCK1%26pd_rd_w%3DdPKf1%26content-id%3Damzn1.sym.bbb3fb5e-28ad-4062-a3ba-1f7b9f2e4371%26pf_rd_p%3Dbbb3fb5e-28ad-4062-a3ba-1f7b9f2e4371%26pf_rd_r%3DC6MK6DX8AN6JK3M5B7A5%26pd_rd_wg%3Dnz9Me%26pd_rd_r%3Dd4bccb7b-be6b-4bb0-a051-965be132c13e%26s%3Dpc%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM
+https://www.amazon.com/-/zh/stores/Samsung%C2%AE/page/F50AFABA-4CDE-4A95-84D0-CA4C61819FEB?lp_asin=B0DHLBDSP7&ref_=ast_bln&store_ref=bl_ast_dp_brandLogo_sto
+https://www.amazon.com/-/zh/sspa/click?ie=UTF8&spc=MToxMDM3MjU4NzA2MjEzMTMyOjE3NDc4MzYyMDY6c3BfZGV0YWlsX3RoZW1hdGljOjIwMDA5Njg4ODcxNTk5ODo6Ojo&url=%2Fdp%2FB0B1W6LTWF%2Fref%3Dsspa_dk_detail_3%3Fpsc%3D1%26pd_rd_i%3DB0B1W6LTWF%26pd_rd_w%3D9ILnU%26content-id%3Damzn1.sym.85ceacba-39b1-4243-8f28-2e014f9512c7%26pf_rd_p%3D85ceacba-39b1-4243-8f28-2e014f9512c7%26pf_rd_r%3DC6MK6DX8AN6JK3M5B7A5%26pd_rd_wg%3Dnz9Me%26pd_rd_r%3Dd4bccb7b-be6b-4bb0-a051-965be132c13e%26s%3Dpc%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM
+https://www.amazon.com/-/zh/product-reviews/B0DHLBDSP7/ref=acr_dp_hist_5?ie=UTF8&filterByStar=five_star&reviewerType=all_reviews#reviews-filter-bar
+https://www.amazon.com/dp/B0CHGT1KFJ/ref=pd_rhf_dp_s_pd_sbs_rvi_d_sccl_1_2/146-1421385-4112468?pd_rd_w=Axnkp&content-id=amzn1.sym.c6cd1cf0-b3df-427b-b589-1ce7b235f9b4&pf_rd_p=c6cd1cf0-b3df-427b-b589-1ce7b235f9b4&pf_rd_r=G4R2VQFT1WF8X5EKKM0K&pd_rd_wg=8d7kZ&pd_rd_r=1ff983fc-b309-4a6a-8b9f-661da672dedd&pd_rd_i=B0CHGT1KFJ&psc=1
+https://www.amazon.com/-/zh/dp/B0CHGT1KFJ/ref=pd_ci_mcx_pspc_dp_2_t_4?pd_rd_w=GNQA7&content-id=amzn1.sym.cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_p=cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_r=C6MK6DX8AN6JK3M5B7A5&pd_rd_wg=nz9Me&pd_rd_r=d4bccb7b-be6b-4bb0-a051-965be132c13e&pd_rd_i=B0CHGT1KFJ
+https://www.amazon.com/-/zh/product-reviews/B0DHLBDSP7/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews
+https://www.amazon.com/SAMSUNG-Technology-Intelligent-Turbowrite-MZ-V9S4T0B/dp/B0DHLBDSP7/ref=pb_allspark_dp_sims_pao_desktop_session_based_d_sccl_2_2/142-2485835-4920547?pd_rd_w=iqLgV&content-id=amzn1.sym.bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_p=bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_r=8HMKY90K9W81ZVGHVVJH&pd_rd_wg=hvzIr&pd_rd_r=48e8625b-7f1c-4f68-b245-cd9acc0c1482&pd_rd_i=B0DHLBDSP7&th=1
+https://www.amazon.com/-/zh/sspa/click?ie=UTF8&spc=MToxMDM3MjU4NzA2MjEzMTMyOjE3NDc4MzYyMDY6c3BfZGV0YWlsX3RoZW1hdGljOjMwMDI5OTgwNDA1MzQwMjo6Ojo&url=%2Fdp%2FB0C6DLM7TZ%2Fref%3Dsspa_dk_detail_1%3Fpsc%3D1%26pd_rd_i%3DB0C6DLM7TZ%26pd_rd_w%3D9ILnU%26content-id%3Damzn1.sym.85ceacba-39b1-4243-8f28-2e014f9512c7%26pf_rd_p%3D85ceacba-39b1-4243-8f28-2e014f9512c7%26pf_rd_r%3DC6MK6DX8AN6JK3M5B7A5%26pd_rd_wg%3Dnz9Me%26pd_rd_r%3Dd4bccb7b-be6b-4bb0-a051-965be132c13e%26s%3Dpc%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM
+https://www.amazon.com/-/zh/review/create-review/ref=cm_cr_dp_d_wr_but_top?ie=UTF8&channel=glance-detail&asin=B0DHLBDSP7
+https://www.amazon.com/-/zh/sspa/click?ie=UTF8&spc=MTo1MTA5OTkwNjI1MjgyMTMyOjE3NDc4MzYyMDY6c3BfZGV0YWlsX3RoZW1hdGljOjMwMDY2MjU2NzUyNzgwMjo6Ojo&url=%2Fdp%2FB0DSK6Z2RL%2Fref%3Dsspa_dk_detail_3%3Fpsc%3D1%26pd_rd_i%3DB0DSK6Z2RL%26pd_rd_w%3DdPKf1%26content-id%3Damzn1.sym.bbb3fb5e-28ad-4062-a3ba-1f7b9f2e4371%26pf_rd_p%3Dbbb3fb5e-28ad-4062-a3ba-1f7b9f2e4371%26pf_rd_r%3DC6MK6DX8AN6JK3M5B7A5%26pd_rd_wg%3Dnz9Me%26pd_rd_r%3Dd4bccb7b-be6b-4bb0-a051-965be132c13e%26s%3Dpc%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM
+
+### related infos: -1 (hallucination)
+Customer reviews of the Samsung 990 PRO SSD (specifically the 990 EVO Plus model) highlight several pros and cons that can help improve the product:
+
+Pros:
+- The 990 EVO Plus is a strong competitor in the PCIe 4.0 SSD market, showing notable improvements over the 990 EVO and approaching the performance of the 990 PRO in some cases.
+- It uses modern eighth-generation flash memory and is a capable DRAM-less SSD, excelling in demanding professional applications.
+- The drive delivers high linear read speeds (~7.1 GB/s) and write speeds (~5.8 GB/s), with random IOPS around 1,000,000 to 1,250,000, though actual performance is about 8% lower than rated specs.
+- The dynamic SLC cache allows writing 216 GB in SLC mode on a 2TB drive, with some cache reserved for future use, maintaining speed even when partially filled.
+- Thermal control is generally good, with the drive staying cool enough for stable performance in many use cases.
+- The product is compatible with PCIe 4.0 and PCIe 5.0, making it future-proof for upcoming systems.
+- The SSD is well-built, compact, and feels like a high-quality Samsung product.
+- It is suitable for external enclosure use, providing good performance and thermal control even with passive cooling.
+
+Cons:
+- The controller runs quite hot, reaching temperatures up to 92°C, which can trigger throttling at 85°C causing performance drops.
+- The temperature protection system has flaws: throttling triggers only once and does not re-engage after cooling, potentially risking overheating.
+- Samsung's Magician software does not display the higher controller temperature, only the NAND temperature, which can mislead users about thermal status.
+- The lower-spec Piccolo controller can hinder performance during file copying, making it behave somewhat like QLC-based drives.
+- The drive does not include mounting screws, which some users mistakenly expect.
+- The available SLC cache reduces significantly when the drive is 75% full (from 216 GB to 108 GB), which may impact sustained write speeds.
+- The price of the 990 EVO Plus is considered somewhat inflated compared to its features and performance.
+
+Recommendations from customers for improvement:
+- Improve the temperature protection firmware to allow repeated throttling to prevent overheating.
+- Enhance thermal management, possibly by including or recommending heatsinks, especially for use in thin laptops or hot environments.
+- Improve software tools (Samsung Magician) to accurately report controller temperatures.
+- Consider pricing adjustments to better reflect the product's value.
+
+Overall, the Samsung 990 EVO Plus is viewed as a high-quality, high-performance SSD with some thermal management and firmware issues that could be addressed to improve reliability and user experience.
+Customer reviews about the SAMSUNG 990 PRO SSD (and closely related 990 EVO Plus) highlight several pros and cons that can help improve the product:
+
+Pros:
+- Outstanding value for price, especially when bought on discount.
+- Extremely fast performance with very quick boot times, program launches, and file transfers.
+- Reliable and stable operation with consistent cool temperatures even under heavy load, thanks to efficient controller and NAND management.
+- Easy installation and setup, compatible with PCIe 4.0 and PCIe 5.0 boards, offering future-proofing.
+- Samsung Magician software enhances user experience by allowing health monitoring, performance tweaking, and optimization.
+- Good performance even on older motherboards with PCIe Gen 3 slots, maintaining consistent temperatures without needing additional heat sinks.
+- Suitable for gaming, video editing, 3D rendering, and general high-performance computing.
+- Positive remarks on packaging and shipping speed.
+
+Cons:
+- Some users note that the DRAM-less version (990 EVO Plus) may have lower longevity compared to the Pro version.
+- One user reported receiving a 3.6TB drive instead of the advertised 4TB, indicating possible packaging or shipping errors.
+- Performance on PCIe Gen 3 slots is limited compared to full Gen 4 speeds, though still improved over older models.
+
+Overall, customers appreciate the speed, reliability, and value of the Samsung 990 PRO/990 EVO Plus SSDs, with minor concerns about longevity for DRAM-less models and occasional shipping errors.
+
+
+
+## model: gpt-4o-mini
+time cost: 9.621647333027795s
+tokens usage: 133307 (completion: 10464, prompt: 122843)
+
+### related urls: 
+https://www.amazon.com/dp/B0CHGT1KFJ/ref=pd_rhf_dp_s_pd_sbs_rvi_d_sccl_1_2/146-1421385-4112468?pd_rd_w=Axnkp&content-id=amzn1.sym.c6cd1cf0-b3df-427b-b589-1ce7b235f9b4&pf_rd_p=c6cd1cf0-b3df-427b-b589-1ce7b235f9b4&pf_rd_r=G4R2VQFT1WF8X5EKKM0K&pd_rd_wg=8d7kZ&pd_rd_r=1ff983fc-b309-4a6a-8b9f-661da672dedd&pd_rd_i=B0CHGT1KFJ&psc=1
+https://www.amazon.com/-/zh/gp/help/customer/display.html/ref=cm_cr_dp_d_omni_lm_btn?nodeId=G8UYX7LALQC8V9KA
+https://www.amazon.com/SAMSUNG-Technology-Intelligent-Turbowrite-MZ-V9S4T0B/dp/B0DHLBDSP7/ref=pb_allspark_dp_sims_pao_desktop_session_based_d_sccl_2_2/142-2485835-4920547?pd_rd_w=iqLgV&content-id=amzn1.sym.bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_p=bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_r=8HMKY90K9W81ZVGHVVJH&pd_rd_wg=hvzIr&pd_rd_r=48e8625b-7f1c-4f68-b245-cd9acc0c1482&pd_rd_i=B0DHLBDSP7&th=1
+https://www.amazon.com/-/zh/stores/Samsung%C2%AE/page/F50AFABA-4CDE-4A95-84D0-CA4C61819FEB?lp_asin=B0DHLBDSP7&ref_=ast_bln&store_ref=bl_ast_dp_brandLogo_sto
+https://www.amazon.com/-/zh/product-reviews/B0DHLBDSP7/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews
+
+### related infos: 
+The Samsung 990 EVO Plus SSD has received a customer rating of 4.8 out of 5 stars based on 4,271 reviews. Customers have noted several pros and cons regarding the product. Pros include its high read/write speeds of up to 7,250/6,300 MB/s, making it suitable for large file transfers and demanding applications. The SSD also features excellent thermal control, which helps maintain performance without overheating. However, some customers have raised concerns about the temperature management, particularly regarding the controller running hot, which could lead to throttling and performance drops. It is recommended to use the SSD with a heatsink and to avoid installation in thin laptops where heat dissipation may be inadequate. Additionally, while the SSD performs well in most conditions, its performance can be hindered during file copying due to the lower-spec controller.
+The markdown does not contain any explicit customer reviews about the SAMSUNG 990 PRO SSD. Therefore, no information can be extracted regarding the pros and cons reviewed by customers for this product.
+
+
+
+## model: o4-mini
+time cost: 17.82567208399996s
+tokens usage: 149207 (completion: 12207, prompt: 137000)
+
+### related urls: 
+https://www.amazon.com/dp/B0CHGT1KFJ/ref=pd_rhf_dp_s_pd_sbs_rvi_d_sccl_1_2/146-1421385-4112468?pd_rd_w=Axnkp&content-id=amzn1.sym.c6cd1cf0-b3df-427b-b589-1ce7b235f9b4&pf_rd_p=c6cd1cf0-b3df-427b-b589-1ce7b235f9b4&pf_rd_r=G4R2VQFT1WF8X5EKKM0K&pd_rd_wg=8d7kZ&pd_rd_r=1ff983fc-b309-4a6a-8b9f-661da672dedd&pd_rd_i=B0CHGT1KFJ&psc=1
+https://www.amazon.com/-/zh/dp/B0CHGT1KFJ/ref=pd_ci_mcx_pspc_dp_2_t_4?pd_rd_w=GNQA7&content-id=amzn1.sym.cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_p=cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_r=C6MK6DX8AN6JK3M5B7A5&pd_rd_wg=nz9Me&pd_rd_r=d4bccb7b-be6b-4bb0-a051-965be132c13e&pd_rd_i=B0CHGT1KFJ
+
+### related infos: +1
+
+
+
+## model: o3-mini
+time cost: 33.34846833301708s
+tokens usage: 167735 (completion: 16578, prompt: 151157)
+
+### related urls: 
+https://www.amazon.com/-/zh/dp/B0CHGT1KFJ/ref=pd_ci_mcx_pspc_dp_2_t_4?pd_rd_w=GNQA7&content-id=amzn1.sym.cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_p=cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_r=C6MK6DX8AN6JK3M5B7A5&pd_rd_wg=nz9Me&pd_rd_r=d4bccb7b-be6b-4bb0-a051-965be132c13e&pd_rd_i=B0CHGT1KFJ
+
+### related infos: 
+No explicit customer review information about the SAMSUNG 990 PRO SSD was found in the main-content area.
+
+
+
+# raw materials: f10a75_processed.json
+url: https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Fproduct-reviews%2FB0CHGT1KFJ%2Fref%3Dcm_cr_arp_d_viewopt_srt%3Fie%3DUTF8%26reviewerType%3Dall_reviews%26sortBy%3Drecent%26pageNumber%3D1&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&language=zh_CN&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+
+## model: gpt-4.1-nano
+time cost: 1.151013292139396s
+tokens usage: 168344 (completion: 16657, prompt: 151687)
+
+### related urls: +1
+
+
+### related infos: -1
+The provided markdown does not contain any customer reviews or feedback regarding the SAMSUNG 990 PRO SSD, including pros and cons. It only includes account login and registration information, with no mention of product reviews or user experiences.
+
+
+
+## model: gemini-2.5-flash-preview-04-17-nothink
+time cost: 1.2689320838544518s
+tokens usage: 168918 (completion: 16672, prompt: 152246)
+
+### related urls: +1
+
+
+### related infos: 
+
+
+
+## model: gpt-4.1-mini
+time cost: 1.489392208168283s
+tokens usage: 169530 (completion: 16754, prompt: 152776)
+
+### related urls: 
+https://www.amazon.com/-/zh/gp/help/customer/account-issues/ref=unified_claim_collection?ie=UTF8
+https://www.amazon.com/-/zh/gp/help/customer/display.html/ref=ap_signin_notification_privacy_notice?ie=UTF8&nodeId=468496
+https://www.amazon.com/-/zh/gp/help/customer/display.html/ref=ap_desktop_footer_cou?ie=UTF8&nodeId=508088
+https://www.amazon.com/-/zh/business/register/org/landing?ref_=ab_reg_signin_unifiedauth
+https://www.amazon.com/-/zh/help
+https://www.amazon.com/-/zh/gp/help/customer/display.html/ref=ap_desktop_footer_privacy_notice?ie=UTF8&nodeId=468496
+https://www.amazon.com/-/zh/gp/help/customer/display.html/ref=ap_signin_notification_condition_of_use?ie=UTF8&nodeId=508088
+
+### related infos: 
+
+
+
+## model: gpt-4o-mini
+time cost: 2.05186083400622s
+tokens usage: 170073 (completion: 16767, prompt: 153306)
+
+### related urls: +1
+
+
+### related infos: 
+
+
+
+## model: o4-mini
+time cost: 4.403076208895072s
+tokens usage: 170945 (completion: 17110, prompt: 153835)
+
+### related urls: +1
+
+
+### related infos: 
+
+
+
+## model: o3-mini
+time cost: 5.943373375106603s
+tokens usage: 172126 (completion: 17762, prompt: 154364)
+
+### related urls: +1
+
+
+### related infos: 
+
+
+

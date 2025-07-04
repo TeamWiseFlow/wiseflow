@@ -10,6 +10,13 @@
 
 https://github.com/user-attachments/assets/48998353-6c6c-4f8f-acae-dc5c45e2e0e6
 
+
+## 💰💰💰 OpenAI 전 시리즈 모델 10% 할인!
+
+지금부터 wiseflow 애플리케이션 내에서 OpenAI 시리즈 모델을 공식 가격의 90%로 사용할 수 있습니다(AiHubMix 서드파티 API 서비스 제공).
+
+**주의:** 할인 혜택을 받으려면 aihubmix 브랜치로 전환해야 합니다. 자세한 내용은 [README](https://github.com/TeamWiseFlow/wiseflow/blob/aihubmix/README_KR.md)를 참조하세요.
+
 ## 🔥🔥🔥 Wiseflow 4.1 버전 정식 출시!
 
 4.1 버전은 4.0 버전을 기반으로 여러 가지 흥미로운 새로운 기능을 제공합니다!
@@ -89,7 +96,7 @@ wiseflow 폴더(프로젝트 루트 디렉토리)에서 env_sample을 참조하�
 4.x 버전에서는 사용자가 .env 파일에 pocketbase 계정 정보를 제공할 필요가 없으며, pocketbase 버전에 대한 제한도 없습니다. 또한 보조 모델 설정도 임시로 제거되었으므로, 사실상 최소 4개의 매개변수만으로 설정을 완료할 수 있습니다:
 
 - LLM_API_KEY="" # LLM 서비스의 키 (모든 OpenAI 형식 API를 제공하는 모델 서비스를 사용할 수 있으며, 로컬에서 ollama를 사용하여 배포하는 경우 설정할 필요가 없음)
-- LLM_API_BASE="" # LLM 서비스 기본 URL (있는 경우. OpenAI 사용자의 경우 비워두세요)
+- LLM_API_BASE="https://api.siliconflow.com/v1" #（siliconflow 서비스 사용을 권장합니다. 제 [추천 링크](https://cloud.siliconflow.cn/i/WNLYbBpi)를 사용하여 신청하시면 우리 모두 ￥14 플랫폼 보상을 받게 됩니다🌹）
 - PRIMARY_MODEL=Qwen/Qwen3-14B # 추천 Qwen3-14B 또는 동일 수준의 사고 모델
 - VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # 가지고 있는 것이 좋음
 

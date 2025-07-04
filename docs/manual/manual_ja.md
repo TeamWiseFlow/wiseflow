@@ -191,7 +191,7 @@ SiliconFlowは、ほとんどの主流オープンソースモデルのオンラ
 
 ```
 LLM_API_KEY=Your_API_KEY
-LLM_API_BASE="" # LLM サービスのベースURL (ある場合。OpenAIユーザーの場合は空白のままにしてください)
+LLM_API_BASE="https://api.siliconflow.com/v1" # LLM サービスのベースURL (ある場合。OpenAIユーザーの場合は空白のままにしてください)
 PRIMARY_MODEL=Qwen/Qwen3-14B # 推奨 Qwen3-14B または同等の思考モデル
 VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
 CONCURRENT_NUMBER=8
@@ -201,7 +201,6 @@ CONCURRENT_NUMBER=8
 
 ##### 推奨2：AiHubMixのプロキシされた海外のクローズドソース商用モデルサービス（OpenAI、Claude、Geminiなど）を使用
 
-情報源が主に非中国語のページで、抽出された情報が中国語である必要がない場合は、OpenAI、Claude、Geminiなどの海外のクローズドソース商用モデルがより推奨されます。中国のネットワーク環境での直接接続、便利なAlipay支払い、アカウントブロックリスクの排除をサポートするサードパーティプロキシ**AiHubMix**を試すことができます。
 AiHubMixのモデルを使用する場合、.envの設定は以下のようになります：
 
 ```
@@ -226,15 +225,7 @@ VL_MODEL=起動したモデルID
 CONCURRENT_NUMBER=1 # 実際のハードウェアリソースに基づいて決定
 ```
 
-#### 3. JINA_API_KEYの設定（検索エンジンサービス用）
-
-https://jina.ai/ で取得、現在は登録なしで利用可能です。（高同時実行または商用利用の場合は、チャージしてください）
-
-```
-JINA_API_KEY=Your_API_KEY
-```
-
-#### 4. その他のオプション設定
+#### 3. その他のオプション設定
 
 以下はオプションの設定です：
 - #VERBOSE="true" 

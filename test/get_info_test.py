@@ -3,7 +3,7 @@ import os, sys
 import json
 import time
 from datetime import datetime
-import re
+
 
 # 将core目录添加到Python路径
 core_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'core')
@@ -17,9 +17,9 @@ if os.path.exists(env_path):
 from wis import MaxLengthChunking, LLMExtractionStrategy
 from async_logger import wis_logger
 
-models = ['Qwen/Qwen3-14B', 'Qwen/Qwen3-32B']
+models = ['o4-mini', 'o3-mini']
 
-def main(sample: dict, 
+def main(sample: dict,
          record_file: str,
          date_stamp: str,
          chunking: MaxLengthChunking,
@@ -35,29 +35,35 @@ def main(sample: dict,
     for model in models:
         print(f"testing {model} ...\n")
         t1 = time.perf_counter()
-        extracted_content = extractor.run(sections=sections,
-                                          url=url,
-                                          title=title,
-                                          author=author,
-                                          publish_date=published_date,
-                                          mode='both' if link_dict else 'only_info',
-                                          date_stamp=date_stamp,
-                                          model=model,
-                                          link_dict=link_dict)
+        try:
+            extracted_content = extractor.run(sections=sections,
+                                              url=url,
+                                              title=title,
+                                              author=author,
+                                              publish_date=published_date,
+                                              mode='both' if link_dict else 'only_info',
+                                              date_stamp=date_stamp,
+                                              model=model,
+                                              link_dict=link_dict)
+        except Exception as e:
+            print(f"error: {e}")
+            print(f"{model} test failed, skip")
+            continue
         t2 = time.perf_counter()
         time_cost = t2 - t1
 
         Completion_tokens = extractor.total_usage.completion_tokens
         Prompt_tokens = extractor.total_usage.prompt_tokens
         Total_tokens = extractor.total_usage.total_tokens
-        if not extractor.schema_mode:
-            links_text = '\n'.join(extracted_content[0]['links'])
-            infos_text = ''
-            for results in extracted_content[0]['infos']:
+
+        links_text = '\n'.join(extracted_content['links'])
+        infos_text = ''
+        for results in extracted_content['infos']:
+            if extractor.schema:
+                infos_text += json.dumps(results, ensure_ascii=False, indent=4) + '\n'
+            else:
                 infos_text += f"{results['content']}\n"
-            result_text = f"### related urls: \n{links_text}\n\n### related infos: \n{infos_text}\n"
-        else:
-            result_text = json.dumps(extracted_content, indent=4, ensure_ascii=False)
+        result_text = f"### related urls: \n{links_text}\n\n### related infos: \n{infos_text}\n"
 
         with open(record_file, 'a') as f:
             f.write(f"## model: {model}\n")
@@ -89,16 +95,14 @@ if __name__ == '__main__':
     explanation = focus_point.get('explanation', '')
     schema = focus_point.get('schema', '')
 
-    if schema:
-        extractor = LLMExtractionStrategy(schema=schema, verbose=True, logger=wis_logger)
-    else:
-        extractor = LLMExtractionStrategy(focuspoint=focuspoint, 
-                                          restrictions=restrictions, 
-                                          explanation=explanation,
-                                          role=role, 
-                                          purpose=purpose, 
-                                          verbose=True,
-                                          logger=wis_logger)
+    extractor = LLMExtractionStrategy(focuspoint=focuspoint,
+                                      restrictions=restrictions,
+                                      explanation=explanation,
+                                      role=role,
+                                      purpose=purpose,
+                                      schema=schema,
+                                      verbose=True,
+                                      logger=wis_logger)
     
     chunking = MaxLengthChunking()
     

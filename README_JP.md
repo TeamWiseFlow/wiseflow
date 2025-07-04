@@ -10,6 +10,13 @@
 
 https://github.com/user-attachments/assets/48998353-6c6c-4f8f-acae-dc5c45e2e0e6
 
+
+## 💰💰💰 OpenAI全シリーズモデルが1割引で利用可能！
+
+本日より、wiseflowアプリケーション内でOpenAIシリーズモデルを公式価格の9割で利用できます（AiHubMixサードパーティAPIサービス提供）。
+
+**注意：** 割引を受けるにはaihubmixブランチに切り替える必要があります。詳細は[README](https://github.com/TeamWiseFlow/wiseflow/blob/aihubmix/README_JP.md)をご覧ください。
+
 ## 🔥🔥🔥 Wiseflow 4.1 バージョンが正式にリリースされました！
 
 バージョン4.1では、バージョン4.0を基盤として、さらに多くのエキサイティングな新機能が追加されました！
@@ -89,7 +96,7 @@ wiseflowフォルダ（プロジェクトのルートディレクトリ）でenv
 4.x バージョンでは、ユーザーが .env ファイルに pocketbase の認証情報を提供する必要がなく、pocketbase のバージョンにも制限がなくなりました。また、セカンダリモデルの設定も一時的に削除されたため、実質的に最小限の4つのパラメーターで設定を完了できます：
 
 - LLM_API_KEY="" # LLM サービスのキー (すべての OpenAI 形式 API を提供するモデル サービスを使用できます。ローカルで ollama を使用してデプロイする場合は設定する必要はありません)
-- LLM_API_BASE="" # LLM サービスのベースURL (ある場合。OpenAIユーザーの場合は空白のままにしてください)
+- LLM_API_BASE="https://api.siliconflow.com/v1" # LLM サービスインターフェースアドレス（siliconflowサービスの使用を推奨、私の [推奨リンク](https://cloud.siliconflow.cn/i/WNLYbBpi) を使用して申請していただけると、私たち両方とも￥14のプラットフォーム報酬を獲得できます🌹）
 - PRIMARY_MODEL=Qwen/Qwen3-14B # 推奨 Qwen3-14B または同等の思考モデル
 - VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # あったほうが良い
 

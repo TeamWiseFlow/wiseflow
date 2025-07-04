@@ -228,15 +228,7 @@ VL_MODEL=gestartete Modell-ID
 CONCURRENT_NUMBER=1 # basierend auf tatsächlichen Hardware-Ressourcen
 ```
 
-#### 3. JINA_API_KEY-Einstellung (für Suchmaschinendienst)
-
-Auf https://jina.ai/ erhältlich, derzeit ohne Registrierung verfügbar. (Bei hohem Datenverkehr oder kommerzieller Nutzung bitte nach Aufladung verwenden)
-
-```
-JINA_API_KEY=Ihr_API_Schlüssel
-```
-
-#### 4. Andere optionale Konfigurationen
+#### 3. Andere optionale Konfigurationen
 
 Die folgenden sind optionale Konfigurationen:
 - #VERBOSE="true" 

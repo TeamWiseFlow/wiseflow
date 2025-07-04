@@ -1,8 +1,8 @@
-LLM_API_KEY="" # allpy at https://cloud.siliconflow.cn/i/WNLYbBpi or https://aihubmix.com?aff=Gp54
-LLM_API_BASE="https://api.siliconflow.cn/v1" # for siliconflow, if you use AiHubMix(OpenAI model), please set to "https://aihubmix.com/v1"
-PRIMARY_MODEL=Qwen/Qwen3-14B # use o4-mini for better performance
+LLM_API_KEY="" # apply at https://cloud.siliconflow.cn/i/WNLYbBpi
+LLM_API_BASE="https://api.siliconflow.cn/v1" # for siliconflow(recommanded)
+PRIMARY_MODEL=Qwen/Qwen3-14B
 # SECONDARY_MODEL="Qwen3-14B"
-VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # use get4o for better performance
+VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct
 
 ## belowing is optional, go as you need
 # VERBOSE=true ##for detail log info. If not need, remove this item.
