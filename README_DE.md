@@ -10,6 +10,13 @@ Was uns fehlt, ist nicht Information, sondern die Fähigkeit, Rauschen aus massi
 
 https://github.com/user-attachments/assets/48998353-6c6c-4f8f-acae-dc5c45e2e0e6
 
+
+## 💰💰💰 10% Rabatt auf alle OpenAI-Modelle!
+
+Ab sofort können Sie OpenAI-Serienmodelle in der wiseflow-Anwendung mit 10% Rabatt auf den offiziellen Preis nutzen (Service bereitgestellt von AiHubMix Drittanbieter-API).
+
+**Hinweis:** Um den Rabatt zu erhalten, müssen Sie zum aihubmix-Branch wechseln. Details siehe [README](https://github.com/TeamWiseFlow/wiseflow/blob/aihubmix/README_DE.md).
+
 ## 🔥🔥🔥 Wiseflow 4.1 Version offiziell veröffentlicht!
 
 Version 4.1 bringt viele aufregende neue Funktionen auf Basis von Version 4.0!
@@ -89,7 +96,7 @@ Im wiseflow-Ordner (Projektstammverzeichnis) erstellen Sie eine .env-Datei basie
 Die Version 4.x erfordert keine pocketbase-Anmeldedaten in der .env-Datei und hat keine Versionsbeschränkungen für pocketbase. Außerdem haben wir vorübergehend die Secondary Model-Einstellung entfernt. Daher benötigen Sie nur vier Parameter für die Konfiguration:
 
 - LLM_API_KEY="" # Schlüssel für den LLM-Dienst (jeder Modellanbieter mit OpenAI-Format-API, nicht erforderlich bei lokaler ollama-Installation)
-- LLM_API_BASE="" # LLM-Dienstschnittstellenadresse (falls erforderlich. Für OpenAI-Benutzer, lassen Sie es leer)
+- LLM_API_BASE="https://api.siliconflow.com/v1" # LLM-Service-Interface-Adresse (empfohlen, siliconflow-Service zu verwenden, gerne können Sie meinen [Empfehlungslink](https://cloud.siliconflow.cn/i/WNLYbBpi) zur Bewerbung nutzen, wir erhalten beide ￥14 Plattform-Belohnung🌹)
 - PRIMARY_MODEL="Qwen/Qwen3-14B" # Qwen3-14B oder ein gleichwertiges Denkmodell empfohlen
 - VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct" # besser zu haben
 

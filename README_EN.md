@@ -10,6 +10,13 @@ What we lack is not information, but the ability to filter out noise from massiv
 
 https://github.com/user-attachments/assets/48998353-6c6c-4f8f-acae-dc5c45e2e0e6
 
+
+## 💰💰💰 10% Off for OpenAI Series Models!
+
+Starting now, you can use OpenAI series models at 10% off the official price within the wiseflow application (service provided by AiHubMix third-party API).
+
+**Note:** To enjoy the discount, you need to switch to the aihubmix branch, see [README](https://github.com/TeamWiseFlow/wiseflow/blob/aihubmix/README_EN.md) for details.
+
 ## 🔥🔥🔥 Wiseflow 4.1 Version Officially Released!
 
 Version 4.1 brings many exciting new features on top of version 4.0!
@@ -89,7 +96,7 @@ In the wiseflow folder (project root directory), create a .env file based on env
 Version 4.x does not require users to provide pocketbase credentials in .env, nor does it restrict pocketbase version. Additionally, we have temporarily removed the Secondary Model setting. Therefore, you only need a minimum of four parameters to complete the configuration:
 
 - LLM_API_KEY="" # LLM service key (any model provider offering OpenAI format API, not required if using ollama locally)
-- LLM_API_BASE="" # LLM service base url (if any. For OpenAI users, leave it blank)
+- LLM_API_BASE="https://api.siliconflow.com/v1" # LLM service interface address (recommended to use siliconflow service, welcome to use my [referral link](https://cloud.siliconflow.cn/i/WNLYbBpi) to apply, we will both receive ￥14 platform reward🌹)
 - PRIMARY_MODEL=Qwen/Qwen3-14B # Recommended Qwen3-14B or equivalent thinking model
 - VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # better to have
 

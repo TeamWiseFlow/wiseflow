@@ -10,6 +10,13 @@
 
 https://github.com/user-attachments/assets/48998353-6c6c-4f8f-acae-dc5c45e2e0e6
 
+
+## 💰💰💰 9折优惠使用 OpenAI 全系列模型！
+
+即日起，在 wiseflow 应用内可以官方价格的九折使用 openai 系列模型(AiHubMix提供三方服务接口)。
+
+**注意：** 享受优惠需要切换至 aihubmix 分支，详见 [README](https://github.com/TeamWiseFlow/wiseflow/blob/aihubmix/README.md)
+
 ## 🔥🔥🔥 Wiseflow 4.1 版本正式发布！
 
 4.1版本在4.0版本基础上又带来了诸多激动人心的新功能！
@@ -85,7 +92,7 @@ git clone https://github.com/TeamWiseFlow/wiseflow.git
 4.x 版本无需用户在.env 中提供 pocketbase 的账密，也不限定 pocketbase 的版本, 同时我们也暂时取消了 Secondary Model 的设定, 因此你其实最少仅需四个参数即可完成配置：
 
 - LLM_API_KEY="" # LLM 服务的 key （任何提供 OpenAI 格式 API 的模型服务商均可，本地使用 ollama 部署则无需设置）
-- LLM_API_BASE="https://api.siliconflow.cn/v1" # LLM 服务接口地址（中国大陆地区用户推荐使用siliconflow）
+- LLM_API_BASE="https://api.siliconflow.cn/v1" # LLM 服务接口地址（推荐使用siliconflow服务, 欢迎使用我的 [推荐链接](https://cloud.siliconflow.cn/i/WNLYbBpi) 申请，你我都会获赠￥14平台奖励🌹）
 - PRIMARY_MODEL=Qwen/Qwen3-14B # 推荐 Qwen3-14B 或同量级思考模型
 - VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # better to have
 

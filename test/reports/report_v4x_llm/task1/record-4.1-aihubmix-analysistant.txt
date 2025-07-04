@@ -1,0 +1,378 @@
+focus statement: 
+{'focuspoint': '中国地区新建石材厂与石材设备采购信息', 'restrictions': '仅限2025年之后的信息', 'explanation': '', 'role': '石材行业分析师', 'purpose': ''}
+
+# raw materials: e0c0e6_processed.json
+url: https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+
+## model: gpt-4.1-nano
+time cost: 2.743083833018318s
+tokens usage: 1375 (completion: 134, prompt: 1241)
+
+### related urls: 
+https://cg.shenzhenmc.com/zzbgg/index.jhtml
+https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+
+### related infos: -1
+根据提供的内容，2024-2025年度深圳市建材公司关于石材采购的招标公告已于2024年12月23日发布，且该项目的采购失败公告于2025年1月13日公布。虽然涉及到2024年和2025年的采购信息，但没有明确提及2025年之后在中国地区新建石材厂或石材设备采购的具体信息。
+
+
+
+## model: gemini-2.0-flash
+time cost: 3.0747609580866992s
+tokens usage: 2935 (completion: 256, prompt: 2679)
+
+### related urls: 
+https://cg.shenzhenmc.com/zzzgg/85059.jhtml
+
+### related infos: -1
+There is no information about new stone factories or stone equipment purchases in China after 2025 within the main-content section.
+
+
+
+## model: gpt-4o-mini
+time cost: 2.9108982919715345s
+tokens usage: 4294 (completion: 374, prompt: 3920)
+
+### related urls: 
+https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+
+### related infos: -1
+2025年1月13日，深圳建材2024-2025年度石材采购项目采购失败公告，表明该项目在2025年内的采购活动未能成功。
+
+
+
+## model: o4-mini
+time cost: 26.99449924984947s
+tokens usage: 6914 (completion: 1754, prompt: 5160)
+
+### related urls: 
+https://cg.shenzhenmc.com/zzbgg/index.jhtml
+https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+
+### related infos: 
+
+
+
+## model: o3-mini
+time cost: 17.64564408385195s
+tokens usage: 10809 (completion: 4409, prompt: 6400)
+
+### related urls: 
+https://cg.shenzhenmc.com/zzbgg/index.jhtml
+https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+
+### related infos: 
+
+
+
+# raw materials: 6f6ceb_processed.json
+url: https://www.stone365.com/news/channel-1.html
+
+## model: gpt-4.1-nano
+time cost: 4.403256874997169s
+tokens usage: 13626 (completion: 4918, prompt: 8708)
+
+### related urls: 
+https://www.stone365.com/news/info-4718880084469.html
+https://www.stone365.com/news/info-4520498069854.html
+https://www.stone365.com/news/info-4720138835612.html
+https://www.stone365.com/news/info-4675579159911.html
+https://www.stone365.com/news/info-4669554157391.html
+https://www.stone365.com/news/info-4652260616949.html
+https://www.stone365.com/news/info-4701952712238.html
+https://www.stone365.com/news/info-4520449598702.html
+https://www.stone365.com/news/info-4494736785148.html
+https://www.stone365.com/news/info-4718544158348.html
+https://www.stone365.com/news/info-4737563525070.html
+https://www.stone365.com/news/info-4426920820674.html
+
+### related infos: +1
+截至2025年5月，行业动态显示中国地区新建石材厂和石材设备采购方面的相关信息主要集中在行业调研、标准制定、产业升级和区域发展等方面。例如，2025年5月16日中国石材协会赴四川调研，显示行业对区域产业布局的关注；同时，2025年5月14日JC/T 1081-2025《装饰石材露天矿山技术规范》的即将实施，反映出行业在设备和矿山管理方面的标准化推进。此外，云南政府支持砂石资源作价补充高速公路建设出资缺口，表明基础设施建设对石材资源的需求增加，可能带动新建石材厂的需求。麻城、广东封开县等地的产业园区和企业也在推动高质量项目和产业升级，显示出区域性新建项目和设备采购的活跃。2025年4月中东石材行业分析报告和行业数据也提供了国际视角，可能影响国内新建项目的设备采购策略。
+
+
+
+## model: gemini-2.0-flash
+time cost: 6.087865624809638s
+tokens usage: 17192 (completion: 5822, prompt: 11370)
+
+### related urls: 
+https://www.stone365.com/news/info-4652260616949.html
+https://www.stone365.com/news/info-4528927340077.html
+https://www.stone365.com/news/info-4737563525070.html
+https://www.stone365.com/news/info-4425034380164.html
+https://www.stone365.com/news/info-4591415234050.html
+https://www.stone365.com/news/info-4459822124867.html
+https://www.stone365.com/news/info-4520498069854.html
+https://www.stone365.com/news/info-4572212849941.html
+https://www.stone365.com/news/info-4701952712238.html
+https://www.stone365.com/news/info-4520449598702.html
+https://www.stone365.com/news/info-4462184334100.html
+https://www.stone365.com/news/info-4573171842457.html
+https://www.stone365.com/news/info-4478409337003.html
+https://www.stone365.com/news/info-4675579159911.html
+https://www.stone365.com/news/info-4476946494225.html
+https://www.stone365.com/news/info-4545854832830.html
+https://www.stone365.com/news/info-4718880084469.html
+https://www.stone365.com/news/info-4556727174024.html
+https://www.stone365.com/news/info-4720138835612.html
+https://www.stone365.com/news/info-4494736785148.html
+https://www.stone365.com/news/info-4649863457485.html
+https://www.stone365.com/news/info-4581153911121.html
+https://www.stone365.com/news/info-4426920820674.html
+
+### related infos: -1
+There is no information about 中国地区新建石材厂与石材设备采购信息 in the main-content area.
+
+
+
+## model: gpt-4o-mini
+time cost: 1.5567044171039015s
+tokens usage: 19648 (completion: 5970, prompt: 13678)
+
+### related urls: 
+https://www.stone365.com/news/info-4426920820674.html
+https://www.stone365.com/news/info-4520498069854.html
+
+### related infos: 
+2025年，麻城石材产业园项目建设加速，推动产业升级，显示出新建石材厂的活跃发展。云南石林县也设定了石材“百亿级产业”发展目标，表明该地区在石材行业的扩展和设备采购方面的积极态度。
+
+
+
+## model: o4-mini
+time cost: 15.297915665898472s
+tokens usage: 23297 (completion: 7312, prompt: 15985)
+
+### related urls: 
+https://www.stone365.com/news/channel-5.html
+https://www.stone365.com/news/info-4520498069854.html
+https://www.stone365.com/news/machine.html
+https://www.stone365.com/news/info-4675579159911.html
+https://www.stone365.com/news/channel-13.html
+https://www.stone365.com/news/info-4718544158348.html
+
+### related infos: 
+
+
+
+## model: o3-mini
+time cost: 33.13500487501733s
+tokens usage: 29139 (completion: 10847, prompt: 18292)
+
+### related urls: 
+https://www.stone365.com/news/info-4675579159911.html
+https://www.stone365.com/news/info-4520498069854.html
+
+### related infos: 
+
+
+
+# raw materials: 2d45cd_processed.json
+url: https://www.mee.gov.cn/xxgk2018/xxgk/xxgk15/201809/t20180928_661943.html
+
+## model: gpt-4.1-nano
+time cost: 10.476473167072982s
+tokens usage: 77999 (completion: 11121, prompt: 66878)
+
+### related urls: 
+
+
+### related infos: -1
+根据2025年之后的时间限制，当前主内容中未提及中国地区新建石材厂与石材设备采购的最新信息，因此没有相关内容可提取。
+在2025年之后，关于中国地区新建石材厂与石材设备采购的具体信息未在主内容中提及，因此没有相关内容可供提取。主内容主要涉及环境保护整改措施、污染治理、基础设施建设、非法养殖和非法排污等方面的整改情况，未涉及新建石材厂或设备采购信息。
+在主内容中未找到关于中国地区新建石材厂与石材设备采购信息的相关内容，且所有提及的整改和搬迁工作均集中在化工、钢渣、尾矿库等行业，未涉及石材行业的最新建设或设备采购信息，且时间均在2017年前或2018年前，未满足2025年之后的信息限制。
+
+
+
+## model: gemini-2.0-flash
+time cost: 12.998373624868691s
+tokens usage: 127906 (completion: 11282, prompt: 116624)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: gpt-4o-mini
+time cost: 12.082510750042275s
+tokens usage: 176956 (completion: 11746, prompt: 165210)
+
+### related urls: 
+
+
+### related infos: +1
+截至目前，福建省已全面关闭福州罗源县和宁德古田县的饰面石材矿山，彻底拆除生产设备和供电设施，所有关闭矿山均纳入重点巡查，防止反弹。此外，罗源县和古田县已制定并实施了矿山生态环境恢复治理的总体规划，确保在“十三五”末完成所有矿山的恢复治理工作。
+根据福建省的整改进展，宁德古田县166家石材加工企业已于2017年11月30日全部关停转产，完成了大切锯机下架验收，并发放了29884.068万元的补偿款。泉州市针对191家未办理环评审批手续的石材企业开展了整治，已完成整改，其中54家规范手续，137家断电停产。宁德福鼎白琳石板材工业园的330多家石材厂也进行了全面排查，园区内的污水处理设施已与环保部门联网，监测数据显示排放标准达标。莆田市秀屿区平海镇的45家石材加工厂已全部整治到位，市级和区级层面出台了相关整治工作方案。
+
+
+
+## model: o4-mini
+time cost: 27.6980020001065s
+tokens usage: 226656 (completion: 12863, prompt: 213793)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: o3-mini
+time cost: 34.66107466700487s
+tokens usage: 277547 (completion: 15171, prompt: 262376)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+# raw materials: 3b6d96_processed.json
+url: https://www.jimei123.com/cn/news/plate-information
+
+## model: gpt-4.1-nano
+time cost: 2.166593916947022s
+tokens usage: 279860 (completion: 15244, prompt: 264616)
+
+### related urls: -1
+https://www.jimei123.com/cn/news/plate-information/4544.html
+
+### related infos: -1
+在2025年4月22日，行业资讯中提到“时间：2025.04.22”，但未具体涉及中国地区新建石材厂与石材设备采购信息。
+
+
+
+## model: gemini-2.0-flash
+time cost: 2.7716858750209212s
+tokens usage: 282719 (completion: 15465, prompt: 267254)
+
+### related urls: -1
+https://www.jimei123.com/cn/news/plate-information/4544.html
+https://www.jimei123.com/cn/news/plate-information/4542.html
+https://www.jimei123.com/cn/news/plate-information/4543.html
+
+### related infos: -1
+根据提供的板材信息，以下是2025年之后发布的信息，可能与中国地区新建石材厂与石材设备采购相关：
+
+*   WGSN 2027春夏全球关键色彩预测[73] 时间：2025.04.22
+*   PANTONE彩通2025/2026年秋冬纽约时装周流行色趋势[74] 时间：2025.04.02
+*   PANTONE彩通2025/2026年秋冬伦敦时装周流行色趋势[75]
+
+
+
+## model: gpt-4o-mini
+time cost: 3.556055791908875s
+tokens usage: 285230 (completion: 15736, prompt: 269494)
+
+### related urls: -1
+https://www.jimei123.com/cn/news/plate-information/4544.html
+https://www.jimei123.com/cn/news/plate-information/4193.html
+https://www.jimei123.com/cn/news/plate-information/3916.html
+https://www.jimei123.com/cn/news/plate-information/4280.html
+https://www.jimei123.com/cn/news/plate-information/4192.html
+https://www.jimei123.com/cn/news/plate-information/4543.html
+https://www.jimei123.com/cn/news/plate-information/3992.html
+https://www.jimei123.com/cn/news/plate-information/4542.html
+https://www.jimei123.com/cn/news/plate-information/3915.html
+
+### related infos: 
+
+
+
+## model: o4-mini
+time cost: 6.041337874950841s
+tokens usage: 288012 (completion: 16279, prompt: 271733)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: o3-mini
+time cost: 6.302612583851442s
+tokens usage: 290722 (completion: 16750, prompt: 273972)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+# raw materials: 338f2f_processed.json
+url: https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+
+## model: gpt-4.1-nano
+time cost: 2.2969810829963535s
+tokens usage: 293491 (completion: 16917, prompt: 276574)
+
+### related urls: 
+https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+
+### related infos: -1
+根据提供的内容，2024-2025年度深圳建材集团的石材采购项目已于2024年12月发布招标公告，计划在2025年1月13日进行开标，项目涉及石材采购，采购范围包括货物，采购方式为公开招标，投标截止时间为2025年1月13日。该项目旨在通过招标方式拓展公司贸易品类，符合2025年之后的时间限制，且为中国地区新建石材厂及设备采购提供相关信息。
+
+
+
+## model: gemini-2.0-flash
+time cost: 2.149113749852404s
+tokens usage: 296491 (completion: 17076, prompt: 279415)
+
+### related urls: 
+https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+https://cg.shenzhenmc.com/zzzgg/index.jhtml
+
+### related infos: -1
+相关公告中提到：2025-01-13[终止公告][48] 深圳建材2024-2025年度石材采购项目采购失败公告[49]。这表明在2025年1月13日，深圳建材2024-2025年度石材采购项目采购失败。由于限制条件是2025年之后的信息，因此该信息符合要求。
+
+
+
+## model: gpt-4o-mini
+time cost: 3.3793742500711232s
+tokens usage: 299374 (completion: 17357, prompt: 282017)
+
+### related urls: 
+
+
+### related infos: -1
+深圳建材2024-2025年度石材采购项目的招标公告于2024年12月23日发布，项目的投标文件递交截止时间为2025年1月13日。该项目旨在通过公开招标方式招募石材企业，采购控制价为96%的折扣率，工期为365天。投标人需满足一系列资格条件，包括在中华人民共和国境内注册的独立法人资格、产品质量符合国家标准、提供相关业绩证明等。
+
+
+
+## model: o4-mini
+time cost: 10.955501125194132s
+tokens usage: 303233 (completion: 18615, prompt: 284618)
+
+### related urls: 
+https://cg.shenzhenmc.com/szmccg/j_form/dlh
+https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+https://cg.shenzhenmc.com/zzzgg/index.jhtml
+
+### related infos: -1
+深圳市建材交易集团有限公司（采购单位）于2024-12-23在“深圳地铁智能招采管理平台”和“深圳阳光采购平台”发布了“深圳建材2024-2025年度石材采购项目”（项目编号STJC-2024-WZ2742）的公开招标公告，拟在2025年1月13日完成投标文件的递交与开标。  
+• 采购内容：石材（材料）供应，合同工期365天，自有资金预算、折扣率控制价96%。  
+• 投标保证金：50,000元。  
+• 资格要求：国内（不含港澳台）注册石材生产企业或其授权销售公司，须具备营业执照、安全生产许可证、采矿证、环保测评合格证等；提供2022年1月1日至截标日的第三方产品检测报告及三年内无重大安全事故承诺；近三年单个项目300万以上的石材供应业绩；良好信用记录等。  
+• 文件获取及递交：2024-12-23 15:30至2025-01-13 09:00，均在深圳地铁智能招采管理平台线上进行。  
+该项目于2025-01-13发布终止公告，采购失败。
+
+
+
+## model: o3-mini
+time cost: 17.62801891611889s
+tokens usage: 308417 (completion: 21198, prompt: 287219)
+
+### related urls: 
+
+
+### related infos: 
+
+
+

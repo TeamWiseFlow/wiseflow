@@ -193,7 +193,7 @@ SiliconFlow propose des services MaaS pour la plupart des modèles open source c
 
 ```
 LLM_API_KEY=Votre_clé_API
-LLM_API_BASE="" # Adresse de l'interface du service LLM (si nécessaire. Pour les utilisateurs OpenAI, laissez-le vide)
+LLM_API_BASE="https://api.siliconflow.com/v1" # Adresse de l'interface du service LLM (si nécessaire. Pour les utilisateurs OpenAI, laissez-le vide)
 PRIMARY_MODEL=Qwen/Qwen3-14B # Recommandé Qwen3-14B ou un modèle de réflexion de niveau équivalent
 VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
 CONCURRENT_NUMBER=8
@@ -228,15 +228,7 @@ VL_MODEL=ID_du_modèle_démarré
 CONCURRENT_NUMBER=1 # basé sur les ressources matérielles réelles
 ```
 
-#### 3. Configuration de JINA_API_KEY (pour le service de moteur de recherche)
-
-Disponible sur https://jina.ai/, actuellement disponible sans inscription. (Pour une utilisation à haut débit ou commerciale, veuillez utiliser après recharge)
-
-```
-JINA_API_KEY=Votre_clé_API
-```
-
-#### 4. Autres configurations optionnelles
+#### 3. Autres configurations optionnelles
 
 Les suivantes sont des configurations optionnelles :
 - #VERBOSE="true" 
