@@ -1,7 +1,7 @@
 from __future__ import annotations
 import asyncio
 import json
-# from typing import Callable, Dict, Any, List, Union
+import os
 from typing import Optional
 import nodriver as uc
 from pathlib import Path
@@ -42,17 +42,13 @@ class NodriverHelper:
         """启动浏览器"""
         # 设置浏览器配置
         config = {
-            'user_data_dir': str(self.browser_data),  # 使用单一的浏览器数据目录
+            'user_data_dir': self.browser_data,  # 使用单一的浏览器数据目录
             'headless': False,
-            'browser_args': [
-                '--lang=zh-CN',
-                # '--no-sandbox',
-                '--disable-translate',  # 禁用翻译
-                '--no-first-run',  # 禁用首次运行向导
-                '--no-default-browser-check'
-            ]
+            'lang': 'zh-CN',
         }
-        
+        if os.environ.get('BROWSER_EXECUTABLE_PATH'):
+            config['browser_executable_path'] = os.environ.get('BROWSER_EXECUTABLE_PATH')
+
         self.browser = await uc.start(**config)
 
     async def open_page(self, url: str = None):

@@ -6,9 +6,9 @@ import json
 import sys
 from datetime import datetime
 
-root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
+root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'core')
 sys.path.append(root_path)
-from core.wis import KuaiShouCrawler, WeiboCrawler, WeiboSearchType, WEIBO_PLATFORM_NAME, KUAISHOU_PLATFORM_NAME
+from wis import KuaiShouCrawler, WeiboCrawler, WeiboSearchType, WEIBO_PLATFORM_NAME, KUAISHOU_PLATFORM_NAME
 
 
 save_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'webpage_samples')
@@ -28,7 +28,7 @@ async def main(keywords: list,
     except Exception as e:
         print(e)
         return
-    albums, posts = await crawler.posts_list(keywords=keywords, creator_ids=creator_ids, existings=existings, limit_hours=limit_hours, search_type=search_type)
+    albums, posts = await crawler.posts_list(keywords=keywords, creator_ids=creator_ids, existings=existings)
     print(albums)
     time_stamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     albums_json = {
@@ -46,10 +46,10 @@ async def main(keywords: list,
         print("\n--- No posts found in posts to select from ---")
         return
     
-    article, ref = await crawler.post_as_article(selected_post)
+    article, ref = await crawler.as_article(selected_post)
     print(article)
     print(ref)
-    creator_info = await crawler.creator_as_article(selected_post.get("user_id"))
+    creator_info = await crawler.as_creator(selected_post.get("user_id"))
     print(creator_info)
     article_json = {
         "article": article,
