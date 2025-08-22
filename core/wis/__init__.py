@@ -1,14 +1,7 @@
 # __init__.py
 import warnings
-
-from .async_webcrawler import AsyncWebCrawler
 from .async_configs import BrowserConfig, CrawlerRunConfig, ProxyConfig, GeolocationConfig
-
-from .proxy_strategy import (
-    ProxyRotationStrategy,
-    RoundRobinProxyStrategy,
-)
-
+from .async_webcrawler import AsyncWebCrawler
 from .extraction_strategy import (
     NoExtractionStrategy,
     ExtractionStrategy,
@@ -23,8 +16,7 @@ from .chunking_strategy import ChunkingStrategy, RegexChunking, IdentityChunking
 from .basemodels import CrawlResult
 from .markdown_generation_strategy import (
     DefaultMarkdownGenerator, 
-    WeixinArticleMarkdownGenerator, 
-    markdown_generation_hub
+    WeixinArticleMarkdownGenerator,
 )
 
 from .async_dispatcher import (
@@ -61,15 +53,11 @@ __all__ = [
     "MemoryAdaptiveDispatcher",
     "SemaphoreDispatcher",
     "RateLimiter",
-    "ProxyRotationStrategy",
-    "RoundRobinProxyStrategy",
-    "ProxyConfig",
     "KuaiShouCrawler",
     "WeiboCrawler",
     "WeiboSearchType",
     "WEIBO_PLATFORM_NAME",
     "KUAISHOU_PLATFORM_NAME",
-    "markdown_generation_hub",
     "DefaultMarkdownGenerator",
     "WeixinArticleMarkdownGenerator",
     "search_with_engine",

@@ -4,20 +4,33 @@ import os
 import hashlib
 import json
 import sys
+from dotenv import load_dotenv
+env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env')
+if os.path.exists(env_path):
+    load_dotenv(env_path)
 
 root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'core')
 sys.path.append(root_path)
 from wis import AsyncWebCrawler
 from web_crawler_configs import crawler_config_map
 
-
 save_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'webpage_samples')
 # which include some standard sites with different html structure
-standard_sites = ['https://cg.shenzhenmc.com/zzbgg/83524.jhtml',
-                  'https://www.jimei123.com/cn/news/plate-information',
-                  'https://cg.shenzhenmc.com/zzzgg/85093.jhtml',
-                  'https://www.mee.gov.cn/xxgk2018/xxgk/xxgk15/201809/t20180928_661943.html',
-                  'https://www.stone365.com/news/channel-1.html']
+standard_sites = ['https://mp.weixin.qq.com/s?__biz=MjM5MTM3NTMwNA==&mid=2661608680&idx=1&sn=68b4d98cebbb5c327f36fed04bbbd198',
+                  'https://mp.weixin.qq.com/s/jBWc1tK8_XasfmCGNo93Xg',
+                  'https://www.liugong.com/',
+                  "https://www.xcmg.com/aboutus/news.htm",
+                  "https://www.komatsu.com/en/",
+                  "https://www.putzmeister.com/",
+                  "https://www.cat.com/",
+                  "https://www.zoomlion.com/news/industry.html",
+                  'https://www.justice.gov/news',
+                  'https://www.wsj.com/news/latest-headlines?mod=nav_top_section',
+                  'https://www.wsj.com/tech/openai-elon-musk-mark-zuckerberg-meta-be2ee198',
+                  'https://www.bloomberg.com/latest?utm_source=homepage&utm_medium=web&utm_campaign=latest',
+                  'https://www.bloomberg.com/news/articles/2025-08-21/trump-aims-to-win-majority-on-fed-board-with-attempt-to-oust-lisa-cook?srnd=phx-economics-v2'
+                  ]
+
 
 async def main(sites: list):
     async with AsyncWebCrawler(crawler_config_map=crawler_config_map) as crawler:

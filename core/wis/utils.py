@@ -10,29 +10,22 @@ from array import array
 from .config import MIN_WORD_THRESHOLD
 import httpx
 from socket import gaierror
-from typing import Dict, List, Optional, Callable
+from typing import Dict, List, Callable, Tuple, Sequence
 from urllib.parse import urljoin
 import xxhash
-import textwrap
 import cProfile
 import pstats
 from functools import wraps
 import asyncio
 from lxml import etree, html as lhtml
-import sqlite3
-import hashlib
 from pathlib import Path
-from urllib.robotparser import RobotFileParser
-import aiohttp
 from urllib.parse import urlparse, urlunparse
 from functools import lru_cache
 
 from . import __version__
-from typing import Sequence
-
+import psutil
+import subprocess
 from itertools import chain
-from collections import deque
-from typing import  Generator, Iterable
 from urllib.parse import urlparse, urljoin, urlunparse, parse_qs, urlencode
 
 
@@ -175,92 +168,6 @@ def free_port() -> int:
     free_socket.close()
     return port
 
-def chunk_documents(
-    documents: Iterable[str],
-    chunk_token_threshold: int,
-    overlap: int,
-    word_token_rate: float = 0.75,
-    tokenizer: Optional[Callable[[str], List[str]]] = None,
-) -> Generator[str, None, None]:
-    """
-    Efficiently chunks documents into token-limited sections with overlap between chunks.
-
-    Args:
-        documents: Iterable of document strings
-        chunk_token_threshold: Maximum tokens per chunk
-        overlap: Number of tokens to overlap between chunks
-        word_token_rate: Token estimate per word when not using a tokenizer
-        tokenizer: Function that splits text into tokens (if available)
-
-    Yields:
-        Text chunks as strings
-    """
-    token_queue = deque()
-    contribution_queue = deque()
-    current_token_count = 0.0
-
-    for doc in documents:
-        # Tokenize document
-        if tokenizer:
-            tokens = tokenizer(doc)
-            contributions = [1.0] * len(tokens)
-        else:
-            tokens = doc.split()
-            contributions = [word_token_rate] * len(tokens)
-
-        # Add to processing queues
-        token_queue.extend(tokens)
-        contribution_queue.extend(contributions)
-        current_token_count += sum(contributions)
-
-        # Process full chunks
-        while current_token_count >= chunk_token_threshold:
-            # Find chunk split point
-            chunk_tokens = []
-            chunk_contrib = []
-            chunk_total = 0.0
-            
-            # Build chunk up to threshold
-            while contribution_queue:
-                next_contrib = contribution_queue[0]
-                if chunk_total + next_contrib > chunk_token_threshold:
-                    break
-                
-                chunk_total += next_contrib
-                chunk_contrib.append(contribution_queue.popleft())
-                chunk_tokens.append(token_queue.popleft())
-
-            # Handle edge case where first token exceeds threshold
-            if not chunk_contrib:  # Single token exceeds threshold
-                chunk_contrib.append(contribution_queue.popleft())
-                chunk_tokens.append(token_queue.popleft())
-
-            # Calculate overlap
-            overlap_total = 0.0
-            overlap_idx = 0
-            for contrib in reversed(chunk_contrib):
-                if overlap_total + contrib > overlap:
-                    break
-                overlap_total += contrib
-                overlap_idx += 1
-
-            # Prepend overlap to queues
-            if overlap_idx > 0:
-                overlap_tokens = chunk_tokens[-overlap_idx:]
-                overlap_contrib = chunk_contrib[-overlap_idx:]
-                
-                token_queue.extendleft(reversed(overlap_tokens))
-                contribution_queue.extendleft(reversed(overlap_contrib))
-                current_token_count += overlap_total
-
-            # Update current token count and yield chunk
-            current_token_count -= sum(chunk_contrib)
-            yield " ".join(chunk_tokens[:len(chunk_tokens)-overlap_idx] if overlap_idx else chunk_tokens)
-
-    # Yield remaining tokens
-    if token_queue:
-        yield " ".join(token_queue)
-
 def merge_chunks(
     docs: Sequence[str], 
     target_size: int,
@@ -283,7 +190,7 @@ def merge_chunks(
     total_tokens = 0
     
     for doc in docs:
-        tokens = doc.split()
+        tokens = splitter(doc)
         count = int(len(tokens) * word_token_ratio)
         if count:  # Skip empty docs
             token_counts.append(count)
@@ -318,137 +225,8 @@ def merge_chunks(
     # Return only non-empty chunks
     return [' '.join(chunk) for chunk in chunks if chunk]
 
-
-class RobotsParser:
-    # Default 7 days cache TTL
-    CACHE_TTL = 7 * 24 * 60 * 60
-
-    def __init__(self, cache_dir, cache_ttl=None):
-        self.cache_dir = cache_dir
-        self.cache_ttl = cache_ttl or self.CACHE_TTL
-        os.makedirs(self.cache_dir, exist_ok=True)
-        self.db_path = os.path.join(self.cache_dir, "robots_cache.db")
-        self._init_db()
-
-    def _init_db(self):
-        # Use WAL mode for better concurrency and performance
-        with sqlite3.connect(self.db_path) as conn:
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("""
-                CREATE TABLE IF NOT EXISTS robots_cache (
-                    domain TEXT PRIMARY KEY,
-                    rules TEXT NOT NULL,
-                    fetch_time INTEGER NOT NULL,
-                    hash TEXT NOT NULL
-                )
-            """)
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_domain ON robots_cache(domain)")
-
-    def _get_cached_rules(self, domain: str) -> tuple[str, bool]:
-        """Get cached rules. Returns (rules, is_fresh)"""
-        with sqlite3.connect(self.db_path) as conn:
-            cursor = conn.execute(
-                "SELECT rules, fetch_time, hash FROM robots_cache WHERE domain = ?", 
-                (domain,)
-            )
-            result = cursor.fetchone()
-            
-            if not result:
-                return None, False
-                
-            rules, fetch_time, _ = result
-            # Check if cache is still fresh based on TTL
-            return rules, (time.time() - fetch_time) < self.cache_ttl
-
-    def _cache_rules(self, domain: str, content: str):
-        """Cache robots.txt content with hash for change detection"""
-        hash_val = hashlib.md5(content.encode()).hexdigest()
-        with sqlite3.connect(self.db_path) as conn:
-            # Check if content actually changed
-            cursor = conn.execute(
-                "SELECT hash FROM robots_cache WHERE domain = ?", 
-                (domain,)
-            )
-            result = cursor.fetchone()
-            
-            # Only update if hash changed or no previous entry
-            if not result or result[0] != hash_val:
-                conn.execute(
-                    """INSERT OR REPLACE INTO robots_cache 
-                       (domain, rules, fetch_time, hash) 
-                       VALUES (?, ?, ?, ?)""",
-                    (domain, content, int(time.time()), hash_val)
-                )
-
-    async def can_fetch(self, url: str, user_agent: str = "*") -> bool:
-        """
-        Check if URL can be fetched according to robots.txt rules.
-        
-        Args:
-            url: The URL to check
-            user_agent: User agent string to check against (default: "*")
-            
-        Returns:
-            bool: True if allowed, False if disallowed by robots.txt
-        """
-        # Handle empty/invalid URLs
-        try:
-            parsed = urlparse(url)
-            domain = parsed.netloc
-            if not domain:
-                return True
-        except Exception as _ex:
-            return True
-
-        # Fast path - check cache first
-        rules, is_fresh = self._get_cached_rules(domain)
-        
-        # If rules not found or stale, fetch new ones
-        if not is_fresh:
-            try:
-                # Ensure we use the same scheme as the input URL
-                scheme = parsed.scheme or 'http'
-                robots_url = f"{scheme}://{domain}/robots.txt"
-                
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(robots_url, timeout=2) as response:
-                        if response.status == 200:
-                            rules = await response.text()
-                            self._cache_rules(domain, rules)
-                        else:
-                            return True
-            except Exception as _ex:
-                # On any error (timeout, connection failed, etc), allow access
-                return True
-
-        if not rules:
-            return True
-
-        # Create parser for this check
-        parser = RobotFileParser() 
-        parser.parse(rules.splitlines())
-        
-        # If parser can't read rules, allow access
-        if not parser.mtime():
-            return True
-            
-        return parser.can_fetch(user_agent, url)
-
-    def clear_cache(self):
-        """Clear all cached robots.txt entries"""
-        with sqlite3.connect(self.db_path) as conn:
-            conn.execute("DELETE FROM robots_cache")
-
-    def clear_expired(self):
-        """Remove only expired entries from cache"""
-        with sqlite3.connect(self.db_path) as conn:
-            expire_time = int(time.time()) - self.cache_ttl
-            conn.execute("DELETE FROM robots_cache WHERE fetch_time < ?", (expire_time,))
-      
-
 class InvalidCSSSelectorError(Exception):
     pass
-
 
 SPLITS = bytearray([
     # Control chars (0-31) + space (32)
@@ -520,86 +298,6 @@ def advanced_split(text: str) -> list[str]:
         result.append(word.tounicode())
         
     return result
-
-def create_box_message(
-    message: str,
-    type: str = "info",
-    width: int = 120,
-    add_newlines: bool = True,
-    double_line: bool = False,
-) -> str:
-    """
-    Create a styled message box with colored borders and formatted text.
-
-    How it works:
-    1. Determines box style and colors based on the message type (e.g., info, warning).
-    2. Wraps text to fit within the specified width.
-    3. Constructs a box using characters (single or double lines) with appropriate formatting.
-    4. Adds optional newlines before and after the box.
-
-    Args:
-        message (str): The message to display inside the box.
-        type (str): Type of the message (e.g., "info", "warning", "error", "success"). Defaults to "info".
-        width (int): Width of the box. Defaults to 120.
-        add_newlines (bool): Whether to add newlines before and after the box. Defaults to True.
-        double_line (bool): Whether to use double lines for the box border. Defaults to False.
-
-    Returns:
-        str: A formatted string containing the styled message box.
-    """
-
-    # Define border and text colors for different types
-    styles = {
-        "warning": ("yellow", "bright_yellow", "⚠"),
-        "info": ("blue", "bright_blue", "ℹ"),
-        "debug": ("lightblack", "bright_black", "⋯"),
-        "success": ("green", "bright_green", "✓"),
-        "error": ("red", "bright_red", "×"),
-    }
-
-    border_color, text_color, prefix = styles.get(type.lower(), styles["info"])
-
-    # Define box characters based on line style
-    box_chars = {
-        "single": ("─", "│", "┌", "┐", "└", "┘"),
-        "double": ("═", "║", "╔", "╗", "╚", "╝"),
-    }
-    line_style = "double" if double_line else "single"
-    h_line, v_line, tl, tr, bl, br = box_chars[line_style]
-
-    # Process lines with lighter text color
-    formatted_lines = []
-    raw_lines = message.split("\n")
-
-    if raw_lines:
-        first_line = f"{prefix} {raw_lines[0].strip()}"
-        wrapped_first = textwrap.fill(first_line, width=width - 4)
-        formatted_lines.extend(wrapped_first.split("\n"))
-
-        for line in raw_lines[1:]:
-            if line.strip():
-                wrapped = textwrap.fill(f"  {line.strip()}", width=width - 4)
-                formatted_lines.extend(wrapped.split("\n"))
-            else:
-                formatted_lines.append("")
-
-    # Create the box with colored borders and lighter text
-    horizontal_line = h_line * (width - 1)
-    box = [
-        f"[{border_color}]{tl}{horizontal_line}{tr}[/{border_color}]",
-        *[
-            f"[{border_color}]{v_line}[{text_color}] {line:<{width-2}}[/{text_color}][{border_color}]{v_line}[/{border_color}]"
-            for line in formatted_lines
-        ],
-        f"[{border_color}]{bl}{horizontal_line}{br}[/{border_color}]",
-    ]
-
-    result = "\n".join(box)
-    if add_newlines:
-        result = f"\n{result}\n"
-
-    return result
-
 
 def calculate_semaphore_count():
     """
@@ -928,7 +626,6 @@ def replace_inline_tags(soup, tags, only_text=False):
 
     # return soup
 
-
 def get_content_of_website(
     html, word_count_threshold=MIN_WORD_THRESHOLD, tags_to_remove=None):
     """
@@ -1074,7 +771,6 @@ def get_content_of_website(
         print("Error processing HTML content:", str(e))
         return ""
 
-
 def extract_metadata_using_lxml(html, doc=None):
     """
     Extract metadata from HTML using lxml for better performance.
@@ -1098,8 +794,29 @@ def extract_metadata_using_lxml(html, doc=None):
     head = head[0]
 
     # Title - using XPath
+    # title = head.xpath(".//title/text()")
+    # metadata["title"] = title[0].strip() if title else None
+
+    # === Title Extraction - New Approach ===
+    # Attempt to extract <title> using XPath
     title = head.xpath(".//title/text()")
-    metadata["title"] = title[0].strip() if title else None
+    title = title[0] if title else None
+
+    # Fallback: Use .find() in case XPath fails due to malformed HTML
+    if not title:
+        title_el = doc.find(".//title")
+        title = title_el.text if title_el is not None else None
+
+    # Final fallback: Use OpenGraph or Twitter title if <title> is missing or empty
+    if not title:
+        title_candidates = (
+            doc.xpath("//meta[@property='og:title']/@content") or
+            doc.xpath("//meta[@name='twitter:title']/@content")
+        )
+        title = title_candidates[0] if title_candidates else None
+
+    # Strip and assign title
+    metadata["title"] = title.strip() if title else None
 
     # Meta description - using XPath with multiple attribute conditions
     description = head.xpath('.//meta[@name="description"]/@content')
@@ -1128,9 +845,16 @@ def extract_metadata_using_lxml(html, doc=None):
         content = tag.get("content", "").strip()
         if property_name and content:
             metadata[property_name] = content
+   
+   # Article metadata
+    article_tags = head.xpath('.//meta[starts-with(@property, "article:")]')
+    for tag in article_tags:
+        property_name = tag.get("property", "").strip()
+        content = tag.get("content", "").strip()
+        if property_name and content:
+            metadata[property_name] = content
 
     return metadata
-
 
 def extract_metadata(html, soup=None):
     """
@@ -1203,7 +927,15 @@ def extract_metadata(html, soup=None):
         content = tag.get("content", "").strip()
         if property_name and content:
             metadata[property_name] = content
-
+    
+    # Article metadata
+    article_tags = head.find_all("meta", attrs={"property": re.compile(r"^article:")})
+    for tag in article_tags:
+        property_name = tag.get("property", "").strip()
+        content = tag.get("content", "").strip()
+        if property_name and content:
+            metadata[property_name] = content
+    
     return metadata
 
 
@@ -1745,7 +1477,6 @@ def clean_tokens(tokens: list[str]) -> list[str]:
         and not token.startswith("⬆")
     ]
 
-
 def profile_and_time(func):
     """
     Decorator to profile a function's execution time and performance.
@@ -2046,3 +1777,78 @@ def extract_extension(url: str) -> str:
         return ""
 
     return filename.rpartition(".")[-1].lower()
+
+
+def get_true_available_memory_gb() -> float:
+    """Get truly available memory including inactive pages (cross-platform)"""
+    vm = psutil.virtual_memory()
+
+    if platform.system() == 'Darwin':  # macOS
+        # On macOS, we need to include inactive memory too
+        try:
+            # Use vm_stat to get accurate values
+            result = subprocess.run(['vm_stat'], capture_output=True, text=True)
+            lines = result.stdout.split('\n')
+
+            page_size = 16384  # macOS page size
+            pages = {}
+
+            for line in lines:
+                if 'Pages free:' in line:
+                    pages['free'] = int(line.split()[-1].rstrip('.'))
+                elif 'Pages inactive:' in line:
+                    pages['inactive'] = int(line.split()[-1].rstrip('.'))
+                elif 'Pages speculative:' in line:
+                    pages['speculative'] = int(line.split()[-1].rstrip('.'))
+                elif 'Pages purgeable:' in line:
+                    pages['purgeable'] = int(line.split()[-1].rstrip('.'))
+
+            # Calculate total available (free + inactive + speculative + purgeable)
+            total_available_pages = (
+                pages.get('free', 0) + 
+                pages.get('inactive', 0) + 
+                pages.get('speculative', 0) + 
+                pages.get('purgeable', 0)
+            )
+            available_gb = (total_available_pages * page_size) / (1024**3)
+
+            return available_gb
+        except:
+            # Fallback to psutil
+            return vm.available / (1024**3)
+    else:
+        # For Windows and Linux, psutil.available is accurate
+        return vm.available / (1024**3)
+
+
+def get_true_memory_usage_percent() -> float:
+    """
+    Get memory usage percentage that accounts for platform differences.
+    
+    Returns:
+        float: Memory usage percentage (0-100)
+    """
+    vm = psutil.virtual_memory()
+    total_gb = vm.total / (1024**3)
+    available_gb = get_true_available_memory_gb()
+    
+    # Calculate used percentage based on truly available memory
+    used_percent = 100.0 * (total_gb - available_gb) / total_gb
+    
+    # Ensure it's within valid range
+    return max(0.0, min(100.0, used_percent))
+
+
+def get_memory_stats() -> Tuple[float, float, float]:
+    """
+    Get comprehensive memory statistics.
+    
+    Returns:
+        Tuple[float, float, float]: (used_percent, available_gb, total_gb)
+    """
+    vm = psutil.virtual_memory()
+    total_gb = vm.total / (1024**3)
+    available_gb = get_true_available_memory_gb()
+    used_percent = get_true_memory_usage_percent()
+    
+    return used_percent, available_gb, total_gb

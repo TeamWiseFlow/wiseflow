@@ -24,7 +24,6 @@ from .async_configs import BrowserConfig, CrawlerRunConfig, ProxyConfig
 from .async_dispatcher import BaseDispatcher, MemoryAdaptiveDispatcher, RateLimiter
 from .utils import (
     sanitize_input_encode,
-    RobotsParser,
     get_base_domain,
     preprocess_html_for_schema,
     get_content_of_website,
@@ -33,6 +32,7 @@ from .utils import (
     common_file_exts,
 )
 from tools.general_utils import isURL
+from .robotsparser import RobotsParser
 
 
 # for 99% of the cases, you don't need to change these configs
