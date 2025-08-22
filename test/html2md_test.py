@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 import os, sys
 import json
-from datetime import datetime
 import asyncio
 
 # 将core目录添加到Python路径
 core_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'core')
 sys.path.append(core_path)
 
-from wis.utils import get_base_domain
-from wis import markdown_generation_hub, DefaultMarkdownGenerator
+from wis import WeixinArticleMarkdownGenerator, DefaultMarkdownGenerator
 
 
 async def main(sample: dict, record_file: str):
@@ -21,9 +19,10 @@ async def main(sample: dict, record_file: str):
     html = sample.get("html", "")
     cleaned_html = sample.get("cleaned_html", "")
     metadata = sample.get("metadata", {})
-
-    domain = get_base_domain(url)
-    markdown_generator = markdown_generation_hub.get(domain, DefaultMarkdownGenerator)()
+    if "mp.weixin.qq.com" in url:
+        markdown_generator = WeixinArticleMarkdownGenerator()
+    else:
+        markdown_generator = DefaultMarkdownGenerator()
     error_msg, title, author, publish, markdown, link_dict = markdown_generator.generate_markdown(
         raw_html=html,
         cleaned_html=cleaned_html,

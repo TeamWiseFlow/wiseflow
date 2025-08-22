@@ -1242,6 +1242,8 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             return await self._crawl_web(url, config)
 
         elif url.startswith("file://"):
+            # initialize empty lists for console messages
+            captured_console = []
             # Process local file
             local_file_path = url[7:]  # Remove 'file://' prefix
             if not os.path.exists(local_file_path):
@@ -1258,9 +1260,9 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 get_delayed_content=None,
             )
 
-        elif url.startswith("raw:") or url.startswith("raw://"):
+        elif url.startswith("raw:"):
             # Process raw HTML content
-            raw_html = url[4:] if url[:4] == "raw:" else url[7:]
+            raw_html = url[6:] if url.startswith("raw://") else url[4:]
             html = raw_html
             if config.screenshot:
                 screenshot_data = await self._generate_screenshot_from_html(html)
@@ -1576,11 +1578,18 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                                 raise RuntimeError("weixin official platform risk control, can not fetch")
                         break
                     except Error as e:
-                        if attempt < 1 and "net::ERR_CERT_VERIFIER_CHANGED" in str(e):
-                            self.logger.debug("net::ERR_CERT_VERIFIER_CHANGED error, retrying...")
-                            await asyncio.sleep(1)
+                        # Allow navigation to be aborted when downloading files
+                        # This is expected behavior for downloads in some browser engines
+                        if 'net::ERR_ABORTED' in str(e) and self.browser_config.accept_downloads:
+                            self.logger.info(f"Navigation aborted, likely due to file download: {url}")
+                            response = None
+                            break
                         else:
-                            raise RuntimeError(f"Failed on navigating ACS-GOTO: {str(e)}")
+                            if attempt < 1 and "net::ERR_CERT_VERIFIER_CHANGED" in str(e):
+                                self.logger.debug("net::ERR_CERT_VERIFIER_CHANGED error, retrying...")
+                                await asyncio.sleep(1)
+                            else:
+                                raise RuntimeError(f"Failed on navigating ACS-GOTO: {str(e)}")
 
                 await self.execute_hook(
                     "after_goto", page, context=context, url=url, response=response, config=config
@@ -1590,8 +1599,17 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                     status_code = 200
                     response_headers = {}
                 else:
-                    status_code = response.status
-                    response_headers = response.headers
+                    first_resp = response
+                    req = response.request
+                    while req and req.redirected_from:
+                        prev_req = req.redirected_from
+                        prev_resp = await prev_req.response()
+                        if prev_resp:                       # keep earliest
+                            first_resp = prev_resp
+                        req = prev_req
+                
+                    status_code = first_resp.status
+                    response_headers = first_resp.headers
 
             else:
                 status_code = 200
@@ -1705,7 +1723,7 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             if config.wait_for:
                 try:
                     await self.smart_wait(
-                        page, config.wait_for, timeout=config.page_timeout
+                        page, config.wait_for, timeout=config.wait_for_timeout or config.page_timeout
                     )
                 except Exception as e:
                     raise RuntimeError(f"Wait condition failed: {str(e)}")
@@ -2022,11 +2040,28 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             num_segments = (page_height // viewport_height) + 1
             for i in range(num_segments):
                 y_offset = i * viewport_height
+                # Special handling for the last segment
+                if i == num_segments - 1:
+                    last_part_height = page_height % viewport_height
+                    
+                    # If page_height is an exact multiple of viewport_height,
+                    # we don't need an extra segment
+                    if last_part_height == 0:
+                        # Skip last segment if page height is exact multiple of viewport
+                        break
+                    
+                    # Adjust viewport to exactly match the remaining content height
+                    await page.set_viewport_size({"width": page_width, "height": last_part_height})
                 await page.evaluate(f"window.scrollTo(0, {y_offset})")
                 await asyncio.sleep(0.01)  # wait for render
-                seg_shot = await page.screenshot(full_page=False)
+                # Capture the current segment
+                # Note: Using compression options (format, quality) would go here
+                seg_shot = await page.screenshot(full_page=False, type="jpeg", quality=85)
+                # seg_shot = await page.screenshot(full_page=False)
                 img = Image.open(BytesIO(seg_shot)).convert("RGB")
                 segments.append(img)
+            # Reset viewport to original size after capturing segments
+            await page.set_viewport_size({"width": page_width, "height": viewport_height})
 
             total_height = sum(img.height for img in segments)
             stitched = Image.new("RGB", (segments[0].width, total_height))
@@ -2145,8 +2180,9 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                             f"""
                         (async () => {{
                             try {{
-                                const script_result = {script};
-                                return {{ success: true, result: script_result }};
+                                return await (async () => {{
+                                    {script}
+                                }})();
                             }} catch (err) {{
                                 return {{ success: false, error: err.toString(), stack: err.stack }};
                             }}
@@ -2380,7 +2416,7 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             return result
 
         except Exception as e:
-            self.logger.error(f"[SCROLL] Failed to execute scroll: {str(e)}")
+            self.logger.warning(f"[SCROLL] Failed to execute scroll: {str(e)}")
             return {"success": False, "error": str(e)}
 
     async def get_page_dimensions(self, page: Page):

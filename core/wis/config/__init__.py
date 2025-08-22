@@ -1,5 +1,4 @@
 from .mc_config import *
-from .sign_srv_config import *
 from .web_config import *
 
 # Constants for word thresholds

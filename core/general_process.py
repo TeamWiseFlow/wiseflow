@@ -15,8 +15,8 @@ from wis import (
     KUAISHOU_PLATFORM_NAME,
     WEIBO_PLATFORM_NAME,
     MaxLengthChunking,
-    markdown_generation_hub,
     DefaultMarkdownGenerator,
+    WeixinArticleMarkdownGenerator,
     ExtractionStrategy,
     NoExtractionStrategy,
     LLMExtractionStrategy,
@@ -27,7 +27,7 @@ from wis import (
     search_with_engine
 )
 from web_crawler_configs import crawler_config_map
-from wis.config import MAX_URLS_PER_TASK
+from wis.config import MAX_URLS_PER_TASK, EXCLUDE_EXTERNAL_LINKS
 from tools.general_utils import Recorder
 
 
@@ -129,8 +129,10 @@ def scrap_article(article: CrawlResult,
             wis_logger.info(f"{url} has no markdown,cleaned_html or html, skip")
             return article, article_updated, {'infos': [], 'links': set()}
         
-        domain = get_base_domain(url)
-        markdown_generator = markdown_generation_hub.get(domain, DefaultMarkdownGenerator)()
+        if "mp.weixin.qq.com" in url:
+            markdown_generator = WeixinArticleMarkdownGenerator()
+        else:
+            markdown_generator = DefaultMarkdownGenerator()
         error_msg, title, author, publish, markdown, link_dict = markdown_generator.generate_markdown(
             raw_html=html,
             cleaned_html=cleaned_html,
@@ -142,11 +144,11 @@ def scrap_article(article: CrawlResult,
             return article, article_updated, {'infos': [], 'links': set()}
         
         wis_logger.debug(f"[HTML TO MARKDOWN] ✓ {url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
-        if not article.title:
+        if not article.title or "mp.weixin.qq.com" in url:
             article.title = title
-        if not article.author:
+        if not article.author or "mp.weixin.qq.com" in url:
             article.author = author
-        if not article.publish_date:
+        if not article.publish_date or "mp.weixin.qq.com" in url:
             article.publish_date = publish
         article.link_dict = link_dict
         article.markdown = markdown
@@ -156,12 +158,16 @@ def scrap_article(article: CrawlResult,
     if not chunking:
         chunking = MaxLengthChunking()
     sections = chunking.chunk(article.markdown)
+    mode = 'both' if article.link_dict else 'only_info'
+    if EXCLUDE_EXTERNAL_LINKS and "mp.weixin.qq.com" in url:
+        # for weixin article, artilces from different creators share same domain but should be excluded here (even fetching will cause risk control)
+        mode = 'only_info'
     extracted_content = extractor.run(sections=sections,
                                       url=url,
                                       title=article.title,
                                       author=article.author,
                                       publish_date=article.publish_date,
-                                      mode='both' if article.link_dict else 'only_info',
+                                      mode=mode,
                                       link_dict=article.link_dict)
     wis_logger.debug(f"[EXTRACT] ✓ {url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
     return article, article_updated, extracted_content

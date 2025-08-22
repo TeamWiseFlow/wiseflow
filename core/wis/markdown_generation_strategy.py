@@ -79,7 +79,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
     ):
         super().__init__(options)
 
-    def convert_links_to_citations(self, markdown: str, base_url: str = "", exclude_external_links: bool = False) -> Tuple[str, dict]:
+    def convert_links_to_citations(self, markdown: str, base_url: str = "", exclude_external_links: bool = True) -> Tuple[str, dict]:
         """
         bigbrother666sh modified:
         use wisefow V3.9's preprocess instead
@@ -338,7 +338,6 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
 
             # Convert links to citations
             markdown, link_dict = self.convert_links_to_citations(raw_markdown, base_url, exclude_external_links)
-
             return '', title, author, publish_date, markdown, link_dict
         except Exception as e:
             # If anything fails, return empty strings with error message
@@ -358,7 +357,7 @@ class WeixinArticleMarkdownGenerator(DefaultMarkdownGenerator):
         metadata: Optional[Dict[str, Any]] = None,
         html2text_options: Optional[Dict[str, Any]] = None,
         options: Optional[Dict[str, Any]] = None,
-        exclude_external_links: bool = False,
+        exclude_external_links: bool = EXCLUDE_EXTERNAL_LINKS,
         **kwargs,) -> Tuple[str, str, str, str, str, dict]:
         """
         Generate markdown for weixin official accout artilces(mp.weixin.qq.com).
@@ -422,51 +421,39 @@ class WeixinArticleMarkdownGenerator(DefaultMarkdownGenerator):
                 content += f'[{description}]({_url})\n'
         else:
             soup = BeautifulSoup(raw_html, 'html.parser')
+            # 查找日期
+            # 查找发布时间
+            publish_time_em = soup.find(id='publish_time')
+            if publish_time_em:
+                publish_date_text = publish_time_em.get_text(strip=True)
+                # 使用正则表达式提取 xxxx年xx月xx日 格式的日期
+                date_match = re.search(r'(\d{4}年\d{1,2}月\d{1,2}日)', publish_date_text)
+                if date_match:
+                    publish_date = date_match.group(1)
 
             # 1. 查找第一个包含 <h1> 元素的 div 块，提取 title
             h1_tag = soup.find('h1')
             if h1_tag:
-                h1_div = h1_tag.parent
                 title = h1_tag.get_text(strip=True)
-                
-                # 2. 判断这个子块下面包含几个非空 div 子块
-                sub_divs = [div for div in h1_div.find_all('div', recursive=False) if len(div.contents) > 0]
-                num_sub_divs = len(sub_divs)
-                    
-                if num_sub_divs == 1:
-                    # 2.1 如果只包含一个子块
+                # 提取作者信息
+                js_name = soup.find('a', id='js_name')
+                if js_name:
+                    author = js_name.get_text(strip=True)
+                else:
+                    h1_div = h1_tag.parent
+                    sub_divs = [div for div in h1_div.find_all('div', recursive=False) if len(div.contents) > 0]
                     strong_tag = sub_divs[0].find('strong')
                     if strong_tag:
-                        author = strong_tag.get_text(strip=True)
-                        # 查找包含日期和时间的span标签
-                        date_span = sub_divs[0].find('span', string=re.compile(r'\d{4}年\d{2}月\d{2}日\s+\d{2}:\d{2}'))
-                        # 如果找到日期，只提取日期部分
-                        if date_span:
-                            publish_date = date_span.get_text(strip=True).split()[0]  # 只取日期部分
-                        else:
-                            publish_date = ''
-                            error_msg = 'new_type_article, type 2'
-                    else:
-                        author = ''
-                        publish_date = ''
-                        
-                elif num_sub_divs >= 2:
-                    # 2.2 如果包含两个及以上子块
-                    a_tag = sub_divs[0].find('a', href="javascript:void(0);")
-                    if a_tag:
-                        author = a_tag.get_text(strip=True)
-                        # 查找下一个包含日期时间的em标签
-                        date_em = sub_divs[0].find('em', string=re.compile(r'\d{4}年\d{2}月\d{2}日\s+\d{2}:\d{2}'))
-                        if date_em:
-                            # 只提取日期部分
-                            publish_date = date_em.get_text(strip=True).split()[0]
-                        else:
-                            publish_date = None
-                            error_msg = 'maybe a new_type_article, type 1'
-                    else:
-                        # 2025-03-17 found
-                        # a photo-alumbs page, just get every link with the description, formate as [description](url) as the content
-                        des = metadata.get('description', '')
+                        author = strong_tag.get_text(strip=True) # 只取日期部分
+
+                if not author:
+                    # 2025-03-17 found
+                    # a photo-alumbs page, just get every link with the description, formate as [description](url) as the content
+                    des = metadata.get('description', '')
+                    # 使用正则表达式匹配所有的链接和描述对
+                    pattern = r'href=\\x26quot;(.*?)\\x26quot;.*?\\x26gt;(.*?)\\x26lt;/a'
+                    matches = re.findall(pattern, des)
+                    if matches:
                         # 使用正则表达式匹配所有的链接和描述对
                         pattern = r'href=\\x26quot;(.*?)\\x26quot;.*?\\x26gt;(.*?)\\x26lt;/a'
                         matches = re.findall(pattern, des)
@@ -476,14 +463,29 @@ class WeixinArticleMarkdownGenerator(DefaultMarkdownGenerator):
                             cleaned_url = self._clean_weixin_url(url)
                             # 添加到内容中，格式为 [描述](URL)
                             content += f'[{description.strip()}]({cleaned_url})\n'
+                    else:
+                        # 2025-08-11 found
+                        # video share content page
+                        try:
+                            share_desc = soup.find('span', id='js_common_share_desc', class_='weui-ellipsis__text')
+                            content = share_desc.get_text(strip=True)
+                            author = soup.find('div', class_='wx_follow_nickname').get_text(strip=True)
+                        except Exception as e:
+                            error_msg = f"new_type_article, type 2 —— {str(e)}"
                 else:
-                    author = ''
-                    publish_date = ''
-                    error_msg = 'new_type_article, type 0'
-
+                    # 提取内容块
+                    js_content = soup.find('div', id='js_content')
+                    if js_content:
+                        try:
+                            # Generate raw markdown
+                            content = h.handle(str(js_content))
+                            content = content.replace("    ```", "```")
+                        except Exception as e:
+                            error_msg = f"Error in markdown generation: {str(e)}"
+                    else:
+                        error_msg = 'new_type_article, type 1 —— cannot find content div'
             else:
                 # 如果找不到的话 说明是已删除或者分享页
-                soup = BeautifulSoup(raw_html, 'html.parser')
                 # 从 original_panel_tool 中找到 data-url
                 share_source = soup.find('span', id='js_share_source')
                 if share_source and share_source.get('data-url'):
@@ -504,25 +506,14 @@ class WeixinArticleMarkdownGenerator(DefaultMarkdownGenerator):
                 else:
                     # a deleted page
                     error_msg = "it's a deleted page"
-        
+
         if error_msg:
             return error_msg, title, author, publish_date, content, {}
-        
+        # Convert links to citations
         try:
-            if not content:
-                # Ensure we have valid input
-                if not raw_html:
-                    raw_html = cleaned_html
-                elif not isinstance(raw_html, str):
-                    raw_html = str(raw_html)
-                # Generate raw markdown
-                content = h.handle(raw_html)
-                content = content.replace("    ```", "```")
-            # Convert links to citations
             markdown, link_dict = self.convert_links_to_citations(content, base_url, exclude_external_links)
             return '', title, author, publish_date, markdown, link_dict
         except Exception as e:
-            # If anything fails, return empty strings with error message
             error_msg = f"Error in markdown generation: {str(e)}"
             return error_msg, title, author, publish_date, '', {}
 
@@ -548,5 +539,3 @@ class WeixinArticleMarkdownGenerator(DefaultMarkdownGenerator):
             url = url.replace(old, new)
         
         return url
-
-markdown_generation_hub = {'mp.weixin.qq.com': WeixinArticleMarkdownGenerator}

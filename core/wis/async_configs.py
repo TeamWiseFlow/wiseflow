@@ -11,14 +11,14 @@ from .config import (
 from .extraction_strategy import ExtractionStrategy
 from .chunking_strategy import ChunkingStrategy, RegexChunking
 
-from .proxy_strategy import ProxyRotationStrategy
+from .proxy_temp import ProxyRotationStrategy
 from .user_agent_generator import UAGen, ValidUAGenerator  # , OnlineUAGenerator
 from typing import Union, List
 import inspect
 from typing import Any, Dict, Optional
 from enum import Enum
 
-from .proxy_strategy import ProxyConfig
+from .proxy_temp import ProxyConfig
 
 
 def to_serializable_dict(obj: Any, ignore_default_value : bool = False) -> Dict:
@@ -753,6 +753,7 @@ class CrawlerRunConfig:
         user_agent_generator_config: dict = {},
         # Experimental Parameters
         experimental: Dict[str, Any] = None,
+        wait_for_timeout: int = None,
     ):
         # TODO: Planning to set properties dynamically based on the __init__ signature
         self.url = url
@@ -787,14 +788,14 @@ class CrawlerRunConfig:
         self.mean_delay = mean_delay
         self.max_range = max_range
         self.semaphore_count = semaphore_count
-
+        self.wait_for_timeout = wait_for_timeout
         # Page Interaction Parameters
         self.js_code = js_code
         self.js_only = js_only
         self.ignore_body_visibility = ignore_body_visibility
         self.scan_full_page = scan_full_page
         self.scroll_delay = scroll_delay
-        self.process_iframes = process_iframes
+        self.process_iframes = process_iframes  
         self.remove_overlay_elements = remove_overlay_elements
         self.simulate_user = simulate_user
         self.override_navigator = override_navigator
@@ -931,6 +932,7 @@ class CrawlerRunConfig:
             user_agent_mode=kwargs.get("user_agent_mode"),
             user_agent_generator_config=kwargs.get("user_agent_generator_config", {}),
             url=kwargs.get("url"),
+            wait_for_timeout=kwargs.get("wait_for_timeout"),
             # Experimental Parameters 
             experimental=kwargs.get("experimental"),
         )
@@ -1005,6 +1007,7 @@ class CrawlerRunConfig:
             "user_agent_mode": self.user_agent_mode,
             "user_agent_generator_config": self.user_agent_generator_config,
             "url": self.url,
+            "wait_for_timeout": self.wait_for_timeout,
             "experimental": self.experimental,
         }
 
