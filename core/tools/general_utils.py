@@ -1,5 +1,5 @@
 import os, sys
-import re
+import regex
 from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
 from loguru import logger
 from pydantic import BaseModel, Field
@@ -24,7 +24,7 @@ def isURL(string: str) -> bool:
 
 
 def extract_urls(text: str) -> set[str]:
-    urls = re.findall(url_pattern, text)
+    urls = regex.findall(url_pattern, text)
     cleaned_urls = set()
 
     for url in urls:
@@ -65,7 +65,7 @@ def isChinesePunctuation(char: str) -> bool:
 def is_chinese(string: str) -> bool:
     if not string:
         return False
-    pattern = re.compile(r'[^\u4e00-\u9fa5]')
+    pattern = regex.compile(r'[^\u4e00-\u9fa5]')
     non_chinese_count = len(pattern.findall(string))
     return (non_chinese_count / len(string)) < 0.68
 
@@ -84,7 +84,7 @@ def extract_and_convert_dates(input_string: str) -> str:
     ]
 
     for pattern in patterns:
-        matches = re.findall(pattern, input_string)
+        matches = regex.findall(pattern, input_string)
         if matches:
             return '-'.join(matches[0])
     return ''
@@ -155,7 +155,7 @@ class Recorder(BaseModel):
     item_source: dict[str, int] = Field(default_factory=dict)
 
     url_queue: set[str] = Field(default_factory=set)
-    article_queue: list[str] = Field(default_factory=list)
+    article_queue: list[object] = Field(default_factory=list)  # CrawlerResult objects
 
     total_processed: int = 0
     crawl_failed: int = 0
@@ -197,7 +197,8 @@ class Recorder(BaseModel):
         for source, count in self.item_source.items():
             url_str += f"\n- from {source} : {count}"
 
-        self.processed_urls.update(self.article_queue)
+        #  Fixed: correctly update with generator expression
+        self.processed_urls.update(article.url for article in self.article_queue)
 
         return "\n".join([f"=== Focus: {self.focus_id:.10}... Source Finding Summary ===", from_str, url_str])
 
