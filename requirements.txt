@@ -22,34 +22,34 @@ openai>=1.58.1
 
 # Browser automation
 playwright>=1.49.0
+patchright>=1.49.0
 nodriver>=0.37
 tf-playwright-stealth>=1.1.0
 
 # HTML/XML processing
-beautifulsoup4>=4.12.3
-lxml>=5.3.0
+beautifulsoup4~=4.12
+lxml~=5.3
 cssselect>=1.2.0
 
 # Text processing
 regex>=2024.11.6
-snowballstemmer>=2.2.0
+snowballstemmer~=2.2
 
 # RSS and data parsing
 feedparser>=6.0.11
 
 # Image processing
 pillow>=10.4.0
-pdf2image>=1.17.0
 
 # Environment and configuration
-python-dotenv>=1.0.1
+python-dotenv~=1.0
 packaging>=24.2
 
 # File handling
 aiofiles>=24.1.0
 
 # User agent and spoofing
-fake-useragent>=2.0.3
+fake-useragent>=2.2.0
 
 # Hashing and encryption
 xxhash>=3.5.0
@@ -58,12 +58,12 @@ pyOpenSSL>=24.3.0
 # System and performance
 psutil>=6.1.1
 
-# Terminal and display
-# rich>=13.9.4
-# colorama>=0.4.6
+# Parser generator
+lark>=1.1.7
 
 # Character encoding detection
 faust-cchardet>=2.1.19
+chardet>=5.2.0
 
 # Retry mechanism
 tenacity>=8.2.3

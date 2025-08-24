@@ -8,6 +8,7 @@ DEFAULT_CRAWLER_CONFIG = CrawlerRunConfig(
     magic=True, 
     scan_full_page=True,
     scroll_delay=0.3,
+    max_scroll_steps=18,
     # check_robots_txt=True
     # locale=None,
     # timezone_id=None,

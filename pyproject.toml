@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "wiseflow"
-version = "4.0.0"
+version = "4.2.0"
 description = "WiseFlow - Use LLMs to dig out what you care about from massive amounts of information and a variety of sources daily"
 authors = [
     {name = "TeamWiseflow", email = "info@wiseflow.pro"},
@@ -40,6 +40,7 @@ dependencies = [
     "openai>=1.58.1",
     # Browser automation
     "playwright>=1.49.0",
+    "patchright>=1.49.0",
     "nodriver>=0.37",
     "tf-playwright-stealth>=1.1.0",
     # HTML/XML processing
@@ -53,24 +54,23 @@ dependencies = [
     "feedparser>=6.0.11",
     # Image processing
     "pillow>=10.4.0",
-    "pdf2image>=1.17.0",
     # Environment and configuration
     "python-dotenv>=1.0.1",
     "packaging>=24.2",
     # File handling
     "aiofiles>=24.1.0",
     # User agent and spoofing
-    "fake-useragent>=2.0.3",
+    "fake-useragent>=2.2.0",
     # Hashing and encryption
     "xxhash>=3.5.0",
     "pyOpenSSL>=24.3.0",
     # System and performance
     "psutil>=6.1.1",
-    # Terminal and display
-    # "rich>=13.9.4",
-    # "colorama>=0.4.6",
+    # Parser generator
+    "lark>=1.1.7",
     # Character encoding detection
     "faust-cchardet>=2.1.19",
+    "chardet>=5.2.0",
     # Retry mechanism
     "tenacity>=8.2.3",
 ]

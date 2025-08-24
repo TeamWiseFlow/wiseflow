@@ -29,9 +29,10 @@ from .utils import (
     get_content_of_website,
     extract_metadata,
     extract_metadata_using_lxml,
+    can_process_url,
     common_file_exts,
 )
-from tools.general_utils import isURL
+
 from .robotsparser import RobotsParser
 
 
@@ -40,6 +41,8 @@ DEFAULT_BROWSER_CONFIG = BrowserConfig(
     viewport_width=1920,
     viewport_height=1080,
     user_agent_mode="random",
+    user_data_dir=os.path.join(base_directory, "user_data"),
+    enable_stealth=True,
     light_mode=True
 )
 
@@ -133,12 +136,14 @@ class AsyncWebCrawler:
         if not isinstance(url, str) or not url:
             wis_logger.info(f"Invalid URL, make sure the URL is a non-empty string")
             return None
-        if not isURL(url):
-            wis_logger.info(f"Invalid URL formate {url}")
-            return None
-        has_common_ext = any(url.lower().endswith(ext) for ext in common_file_exts)
-        if has_common_ext:
+
+        _clean_url = url.split('?')[0].split('#')[0].lower().rstrip('/')
+        if any(_clean_url.endswith(ext) for ext in common_file_exts):
             wis_logger.debug(f'{url} is a common file, skip')
+            return None
+        
+        if not can_process_url(url):
+            wis_logger.info(f"Invalid URL formate {url}")
             return None
 
         async with self._lock or self.nullcontext():
