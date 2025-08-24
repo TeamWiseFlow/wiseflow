@@ -259,6 +259,15 @@ wheels = [
 ]
 
 [[package]]
+name = "chardet"
+version = "5.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f3/0d/f7b6ab21ec75897ed80c17d79b15951a719226b9fababf1e40ea74d69079/chardet-5.2.0.tar.gz", hash = "sha256:1b3b6ff479a8c414bc3fa2c0852995695c4a026dcd6d0633b2dd092ca39c1cf7", size = 2069618, upload-time = "2023-08-01T19:23:02.662Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/38/6f/f5fbc992a329ee4e0f288c1fe0e2ad9485ed064cac731ed2fe47dcc38cbf/chardet-5.2.0-py3-none-any.whl", hash = "sha256:e1cf59446890a00105fe7b7912492ea04b6e6f06d4b742b2c788469e34c82970", size = 199385, upload-time = "2023-08-01T19:23:00.661Z" },
+]
+
+[[package]]
 name = "charset-normalizer"
 version = "3.4.2"
 source = { registry = "https://pypi.org/simple" }
@@ -680,6 +689,15 @@ wheels = [
 ]
 
 [[package]]
+name = "lark"
+version = "1.2.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/af/60/bc7622aefb2aee1c0b4ba23c1446d3e30225c8770b38d7aedbfb65ca9d5a/lark-1.2.2.tar.gz", hash = "sha256:ca807d0162cd16cef15a8feecb862d7319e7a09bdb13aef927968e45040fed80", size = 252132, upload-time = "2024-08-13T19:49:00.652Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2d/00/d90b10b962b4277f5e64a78b6609968859ff86889f5b898c1a778c06ec00/lark-1.2.2-py3-none-any.whl", hash = "sha256:c2276486b02f0f1b90be155f2c8ba4a8e194d42775786db622faccd652d8e80c", size = 111036, upload-time = "2024-08-13T19:48:58.603Z" },
+]
+
+[[package]]
 name = "loguru"
 version = "0.7.3"
 source = { registry = "https://pypi.org/simple" }
@@ -991,24 +1009,31 @@ wheels = [
 ]
 
 [[package]]
+name = "patchright"
+version = "1.52.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "greenlet" },
+    { name = "pyee" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5f/21/807e0d7f672ab40095b493fd648d2dc9af72cd8df5a30055a0e8d572586b/patchright-1.52.5-py3-none-macosx_10_13_x86_64.whl", hash = "sha256:2d8d7755b55671b450e4153f0baa00bde2cf9a8edb42782c8b41f43707975314", size = 39593027, upload-time = "2025-06-05T21:53:56.685Z" },
+    { url = "https://files.pythonhosted.org/packages/f3/31/6d48d2acc2641b0f120174746b18aadae85c501cac2f89d9165a2c099da9/patchright-1.52.5-py3-none-macosx_11_0_arm64.whl", hash = "sha256:d862436ba5401de4263aeade9fb2d9421f0ab1442a679eff2d8995f973682b06", size = 37944754, upload-time = "2025-06-05T21:54:02.197Z" },
+    { url = "https://files.pythonhosted.org/packages/3e/a3/b20fa2714fed92d976ae04585ebf4b52f514246f32f49b0b2600a2b5d083/patchright-1.52.5-py3-none-macosx_11_0_universal2.whl", hash = "sha256:88f64aa2fd647c349055ce0897ed9e5df50f4beb1da6224dd86f6fb9a66af693", size = 39593026, upload-time = "2025-06-05T21:54:05.733Z" },
+    { url = "https://files.pythonhosted.org/packages/53/0c/78323bf5628bcf82f55220447d09bed54058add39ca214cdf1f9d1a13465/patchright-1.52.5-py3-none-manylinux1_x86_64.whl", hash = "sha256:f53f6e79befbeb7ef42d00af42768a676bbb68d5674af824ae5fb2e9f0e339ec", size = 45123113, upload-time = "2025-06-05T21:54:09.203Z" },
+    { url = "https://files.pythonhosted.org/packages/99/a8/8ae90d5cba61af723d321e4eed1fee065609033ad9f2596e952f5e0d09f5/patchright-1.52.5-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:804a67ac3faf1f1c06957ac6124c1e04faf8fa72aa15ccc5baea51c6740e8704", size = 44522410, upload-time = "2025-06-05T21:54:13.562Z" },
+    { url = "https://files.pythonhosted.org/packages/b4/58/7cb5211098f1665249af337843cfd1772ca3daa439cb77a042eefcb832b3/patchright-1.52.5-py3-none-win32.whl", hash = "sha256:127b70d12de28d6d70bf1033b386c7b787c58b5535750f915dfe0c6aec4a8bdf", size = 34820935, upload-time = "2025-06-05T21:54:17.143Z" },
+    { url = "https://files.pythonhosted.org/packages/9e/3b/e30391b7e610a6e0b536cfb92a01a6af2ca1fc2f3b37e69ad5a3982b94dc/patchright-1.52.5-py3-none-win_amd64.whl", hash = "sha256:043e25cbb69e11db002770fde27eb14c59e5751f16969b4e3d4483e452537dc1", size = 34820943, upload-time = "2025-06-05T21:54:20.105Z" },
+    { url = "https://files.pythonhosted.org/packages/9e/6a/b8f0fd8c513667b59b85d3969a5af65a5f2410ff41aff04d597ed5b872d0/patchright-1.52.5-py3-none-win_arm64.whl", hash = "sha256:f406911b5b3b21d70e3b1d1a2780b732575e31f2b012483622cc764166a31d78", size = 30670751, upload-time = "2025-06-05T21:54:23.336Z" },
+]
+
+[[package]]
 name = "pathspec"
 version = "0.12.1"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/ca/bc/f35b8446f4531a7cb215605d100cd88b7ac6f44ab3fc94870c120ab3adbf/pathspec-0.12.1.tar.gz", hash = "sha256:a482d51503a1ab33b1c67a6c3813a26953dbdc71c31dacaef9a838c4e29f5712", size = 51043, upload-time = "2023-12-10T22:30:45Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/cc/20/ff623b09d963f88bfde16306a54e12ee5ea43e9b597108672ff3a408aad6/pathspec-0.12.1-py3-none-any.whl", hash = "sha256:a0d503e138a4c123b27490a4f7beda6a01c6f288df0e4a8b79c7eb0dc7b4cc08", size = 31191, upload-time = "2023-12-10T22:30:43.14Z" },
-]
-
-[[package]]
-name = "pdf2image"
-version = "1.17.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "pillow" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/00/d8/b280f01045555dc257b8153c00dee3bc75830f91a744cd5f84ef3a0a64b1/pdf2image-1.17.0.tar.gz", hash = "sha256:eaa959bc116b420dd7ec415fcae49b98100dda3dd18cd2fdfa86d09f112f6d57", size = 12811, upload-time = "2024-01-07T20:33:01.965Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/62/33/61766ae033518957f877ab246f87ca30a85b778ebaad65b7f74fa7e52988/pdf2image-1.17.0-py3-none-any.whl", hash = "sha256:ecdd58d7afb810dffe21ef2b1bbc057ef434dabbac6c33778a38a3f7744a27e2", size = 11618, upload-time = "2024-01-07T20:32:59.957Z" },
 ]
 
 [[package]]
@@ -1660,25 +1685,27 @@ wheels = [
 
 [[package]]
 name = "wiseflow"
-version = "4.0.0"
+version = "4.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "aiofiles" },
     { name = "aiohttp" },
     { name = "aiosqlite" },
     { name = "beautifulsoup4" },
+    { name = "chardet" },
     { name = "cssselect" },
     { name = "fake-useragent" },
     { name = "faust-cchardet" },
     { name = "feedparser" },
     { name = "httpx" },
+    { name = "lark" },
     { name = "loguru" },
     { name = "lxml" },
     { name = "nodriver" },
     { name = "openai" },
     { name = "packaging" },
     { name = "pandas" },
-    { name = "pdf2image" },
+    { name = "patchright" },
     { name = "pillow" },
     { name = "playwright" },
     { name = "psutil" },
@@ -1718,11 +1745,13 @@ requires-dist = [
     { name = "aiosqlite", specifier = ">=0.20.0" },
     { name = "beautifulsoup4", specifier = ">=4.12.3" },
     { name = "black", marker = "extra == 'dev'", specifier = ">=24.10.0" },
+    { name = "chardet", specifier = ">=5.2.0" },
     { name = "cssselect", specifier = ">=1.2.0" },
-    { name = "fake-useragent", specifier = ">=2.0.3" },
+    { name = "fake-useragent", specifier = ">=2.2.0" },
     { name = "faust-cchardet", specifier = ">=2.1.19" },
     { name = "feedparser", specifier = ">=6.0.11" },
     { name = "httpx", specifier = ">=0.28.1" },
+    { name = "lark", specifier = ">=1.1.7" },
     { name = "loguru", specifier = ">=0.7.2" },
     { name = "lxml", specifier = ">=5.3.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.13.0" },
@@ -1730,7 +1759,7 @@ requires-dist = [
     { name = "openai", specifier = ">=1.58.1" },
     { name = "packaging", specifier = ">=24.2" },
     { name = "pandas", specifier = ">=2.2.3" },
-    { name = "pdf2image", specifier = ">=1.17.0" },
+    { name = "patchright", specifier = ">=1.49.0" },
     { name = "pillow", specifier = ">=10.4.0" },
     { name = "playwright", specifier = ">=1.49.0" },
     { name = "psutil", specifier = ">=6.1.1" },

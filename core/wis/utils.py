@@ -30,12 +30,32 @@ from urllib.parse import urlparse, urljoin, urlunparse, parse_qs, urlencode
 
 
 common_file_exts = [
-    'jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'svg', 'm3u8',
-    'mp4', 'mp3', 'wav', 'avi', 'mov', 'wmv', 'flv', 'webp', 'webm',
-    'zip', 'rar', '7z', 'tar', 'gz', 'bz2',
-    'txt', 'csv', 'xls', 'xlsx', 'ppt', 'pptx',
-    'json', 'xml', 'yaml', 'yml', 'css', 'js', 'php', 'asp', 'jsp'
+    '.css', '.csv', '.ics', '.js',
+    # Images
+    '.bmp', '.gif', '.jpeg', '.jpg', '.png', '.svg', '.tiff', '.ico', '.webp',
+    # Audio
+    '.mp3', '.wav', '.ogg', '.m4a', '.aac', '.midi', '.mid',
+    # Video
+    '.mp4', '.mpeg', '.webm', '.avi', '.mov', '.flv', '.wmv', '.mkv',
+    # Applications
+    '.json', '.zip', '.gz', '.tar', '.rar', '.7z', '.exe', '.msi',
+    # Fonts
+    '.woff', '.woff2', '.ttf', '.otf',
+    # Microsoft Office
+    '.doc', '.dot', '.docx', '.xlsx', '.xls', '.ppt', '.pptx',
+    # OpenDocument Formats
+    '.odt', '.ods', '.odp',
+    # Archives
+    '.tar.gz', '.tgz', '.bz2',
+    # Others
+    '.rtf', '.apk', '.epub', '.jar', '.swf', '.ps', '.ai', '.eps',
+    '.bin', '.dmg', '.iso', '.deb', '.rpm', '.sqlite',
+    # PHP
+    '.php', '.php3', '.php4', '.php5', '.php7', '.phtml', '.phps',
+    # Additional formats
+    '.yaml', '.yml', '.asp', '.jsp'
 ]
+
 common_tlds = [
     '.com', '.cn', '.net', '.org', '.edu', '.gov', '.io', '.co',
     '.info', '.biz', '.me', '.tv', '.cc', '.xyz', '.app', '.dev',
@@ -148,12 +168,28 @@ def is_valid_img_url(url: str) -> bool:
         return True
     if not url.startswith('http'):
         return False
-    if any(url.endswith(tld) or url.endswith(tld + '/') for tld in common_tlds):
-        return False
-    if any(url.endswith(ext) for ext in common_file_exts if ext not in ['jpg', 'jpeg', 'png']):
-        return False
-    
-    return True
+
+    clean_url = url.split('?')[0].split('#')[0].lower().rstrip('/')
+    return any(clean_url.endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.webp'])
+
+@lru_cache(maxsize=1000)
+def can_process_url(url: str) -> bool:
+        """
+        Validate the URL format and apply filtering.
+        For the starting URL (depth 0), filtering is bypassed.
+        """
+        try:
+            parsed = urlparse(url)
+            if not parsed.scheme or not parsed.netloc:
+                return False    
+            if parsed.scheme not in ("http", "https"):
+                return False
+            if "." not in parsed.netloc:
+                return False
+        except Exception:
+            return False
+
+        return True
 
 def free_port() -> int:
     """
@@ -372,58 +408,6 @@ def get_system_memory():
         return memoryStatus.ullTotalPhys
     else:
         raise OSError("Unsupported operating system")
-
-
-async def get_chromium_path(browser_type) -> str:
-    """Returns the browser executable path using playwright's browser management.
-    
-    Uses playwright's built-in browser management to get the correct browser executable
-    path regardless of platform. This ensures we're using the same browser version
-    that playwright is tested with.
-    
-    Returns:
-        str: Path to browser executable
-    Raises:
-        RuntimeError: If browser executable cannot be found
-    """        
-    browser_types = {
-        "chromium": "chromium",
-        "firefox": "firefox",
-        "webkit": "webkit"
-    }
-    
-    browser_type = browser_types.get(browser_type)
-    if not browser_type:
-        raise RuntimeError(f"Unsupported browser type: {browser_type}")
-
-    # Check if a path has already been saved for this browser type
-    path_file = os.path.join(str(Path.home()), f"{browser_type.lower()}.path")
-    if os.path.exists(path_file):
-        with open(path_file, "r") as f:
-            return f.read()
-
-    from playwright.async_api import async_playwright
-    async with async_playwright() as p:
-        browsers = {
-            'chromium': p.chromium,
-            'firefox': p.firefox, 
-            'webkit': p.webkit
-        }
-        
-        if browser_type.lower() not in browsers:
-            raise ValueError(
-                f"Invalid browser type. Must be one of: {', '.join(browsers.keys())}"
-            )
-            
-        # Save the path int the crawl4ai home folder
-        browser_path = browsers[browser_type.lower()].executable_path
-        if not browser_path:
-            raise RuntimeError(f"Browser executable not found for type: {browser_type}")
-        # Save the path in a text file with browser type name
-        with open(os.path.join(str(Path.home()), f"{browser_type.lower()}.path"), "w") as f:
-            f.write(browser_path)
-        
-        return browser_path
 
 def beautify_html(escaped_html):
     """
