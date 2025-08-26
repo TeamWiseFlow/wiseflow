@@ -885,6 +885,7 @@ class CrawlerRunConfig:
         shared_data: dict = None,
         # Page Navigation and Timing Parameters
         wait_until: str = "domcontentloaded",
+        css_selector: str = None,
         page_timeout: int = PAGE_TIMEOUT,
         wait_for: str = None,
         wait_for_images: bool = False,
@@ -956,6 +957,7 @@ class CrawlerRunConfig:
 
         # Page Navigation and Timing Parameters
         self.wait_until = wait_until
+        self.css_selector = css_selector
         self.page_timeout = page_timeout
         self.wait_for = wait_for
         self.wait_for_images = wait_for_images
@@ -1084,6 +1086,7 @@ class CrawlerRunConfig:
             shared_data=kwargs.get("shared_data", None),
             # Page Navigation and Timing Parameters
             wait_until=kwargs.get("wait_until", "domcontentloaded"),
+            css_selector=kwargs.get("css_selector"),
             page_timeout=kwargs.get("page_timeout", 60000),
             wait_for=kwargs.get("wait_for"),
             wait_for_images=kwargs.get("wait_for_images", False),
@@ -1165,6 +1168,7 @@ class CrawlerRunConfig:
             "session_id": self.session_id,
             "shared_data": self.shared_data,
             "wait_until": self.wait_until,
+            "css_selector": self.css_selector,
             "page_timeout": self.page_timeout,
             "wait_for": self.wait_for,
             "wait_for_images": self.wait_for_images,
