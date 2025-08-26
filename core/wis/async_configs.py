@@ -1,24 +1,17 @@
 import os
 from .config import (
-    MIN_WORD_THRESHOLD,
     IMAGE_DESCRIPTION_MIN_WORD_THRESHOLD,
     SCREENSHOT_HEIGHT_TRESHOLD,
     PAGE_TIMEOUT,
     IMAGE_SCORE_THRESHOLD,
-    SOCIAL_MEDIA_DOMAINS,
 )
 
-from .extraction_strategy import ExtractionStrategy
-from .chunking_strategy import ChunkingStrategy, RegexChunking
-
 from .proxy_strategy import ProxyRotationStrategy
-from .user_agent_generator import UAGen, ValidUAGenerator  # , OnlineUAGenerator
 from typing import Union, List
 import inspect
 from typing import Any, Dict, Optional
 from enum import Enum
 
-from .proxy_strategy import ProxyConfig
 from .c4a_scripts import compile
 
 
@@ -316,7 +309,7 @@ class BrowserConfig:
         cdp_url (str): URL for the Chrome DevTools Protocol (CDP) endpoint. Default: "ws://localhost:9222/devtools/browser/".
         debugging_port (int): Port for the browser debugging protocol. Default: 9222.
         use_persistent_context (bool): Use a persistent browser context (like a persistent profile).
-                                       Automatically sets use_managed_browser=True. Default: False.
+                                       Automatically sets use_managed_browser=True. Default: True.
         user_data_dir (str or None): Path to a user data directory for persistent sessions. If None, a
                                      temporary directory may be used. Default: None.
         chrome_channel (str): The Chrome channel to launch (e.g., "chrome", "msedge"). Only applies if browser_type
@@ -368,14 +361,14 @@ class BrowserConfig:
         browser_mode: str = "dedicated",
         use_managed_browser: bool = False,
         cdp_url: str = None,
-        use_persistent_context: bool = False,
+        use_persistent_context: bool = True, # important to be true, core modified point
         user_data_dir: str = None,
-        chrome_channel: str = "chromium",
-        channel: str = "chromium",
-        proxy: str = None,
-        proxy_config: Union[ProxyConfig, dict, None] = None,
-        viewport_width: int = 1080,
-        viewport_height: int = 600,
+        chrome_channel: str = "chrome", # core modified point
+        channel: str = "chrome", # core modified point
+        executable_path: str = None, # core modified point, used to set the browser executable path
+        proxy_config: Optional[ProxyConfig] = None, # core modified point, only use one format for all the code
+        viewport_width: int = 1920, # core modified point
+        viewport_height: int = 1080, # core modified point
         viewport: dict = None,
         accept_downloads: bool = False,
         downloads_path: str = None,
@@ -386,14 +379,9 @@ class BrowserConfig:
         verbose: bool = True,
         cookies: list = None,
         headers: dict = None,
-        user_agent: str = (
-            # "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) AppleWebKit/537.36 "
-            # "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
-            # "(KHTML, like Gecko) Chrome/116.0.5845.187 Safari/604.1 Edg/117.0.2045.47"
-            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/116.0.0.0 Safari/537.36"
-        ),
-        user_agent_mode: str = "",
-        user_agent_generator_config: dict = {},
+        user_agent: str = None, # recommended to be None for patchright, core modified point
+        user_agent_mode: str = "", # recommended to be None for patchright, core modified point
+        user_agent_generator_config: dict = {}, # recommended to be None for patchright, core modified point
         text_mode: bool = False,
         light_mode: bool = False,
         extra_args: list = None,
@@ -410,15 +398,11 @@ class BrowserConfig:
         self.user_data_dir = user_data_dir
         self.chrome_channel = chrome_channel or self.browser_type or "chromium"
         self.channel = channel or self.browser_type or "chromium"
+        self.executable_path = executable_path
         if self.browser_type in ["firefox", "webkit"]:
             self.channel = ""
             self.chrome_channel = ""
-        self.proxy = proxy
         self.proxy_config = proxy_config
-        if isinstance(self.proxy_config, dict):
-            self.proxy_config = ProxyConfig.from_dict(self.proxy_config)
-        if isinstance(self.proxy_config, str):
-            self.proxy_config = ProxyConfig.from_string(self.proxy_config)
 
         self.viewport_width = viewport_width
         self.viewport_height = viewport_height
@@ -445,15 +429,6 @@ class BrowserConfig:
         self.host = host
         self.enable_stealth = enable_stealth
 
-        fa_user_agenr_generator = ValidUAGenerator()
-        if self.user_agent_mode == "random":
-            self.user_agent = fa_user_agenr_generator.generate(
-                **(self.user_agent_generator_config or {})
-            )
-
-        self.browser_hint = UAGen.generate_client_hints(self.user_agent)
-        self.headers.setdefault("sec-ch-ua", self.browser_hint)
-
         # Set appropriate browser management flags based on browser_mode
         if self.browser_mode == "builtin":
             # Builtin mode uses managed browser connecting to builtin CDP endpoint
@@ -473,13 +448,8 @@ class BrowserConfig:
         # If persistent context is requested, ensure managed browser is enabled
         if self.use_persistent_context:
             self.use_managed_browser = True
-            
-        # Validate stealth configuration
-        if self.enable_stealth and self.use_managed_browser and self.browser_mode == "builtin":
-            raise ValueError(
-                "enable_stealth cannot be used with browser_mode='builtin'. "
-                "Stealth mode requires a dedicated browser instance."
-            )
+        
+        self.browser_hint = ''
 
     @staticmethod
     def from_kwargs(kwargs: dict) -> "BrowserConfig":
@@ -491,9 +461,9 @@ class BrowserConfig:
             cdp_url=kwargs.get("cdp_url"),
             use_persistent_context=kwargs.get("use_persistent_context", False),
             user_data_dir=kwargs.get("user_data_dir"),
-            chrome_channel=kwargs.get("chrome_channel", "chromium"),
-            channel=kwargs.get("channel", "chromium"),
-            proxy=kwargs.get("proxy"),
+            chrome_channel=kwargs.get("chrome_channel", "chrome"),
+            channel=kwargs.get("channel", "chrome"),
+            executable_path=kwargs.get("executable_path", None),
             proxy_config=kwargs.get("proxy_config", None),
             viewport_width=kwargs.get("viewport_width", 1080),
             viewport_height=kwargs.get("viewport_height", 600),
@@ -504,11 +474,7 @@ class BrowserConfig:
             java_script_enabled=kwargs.get("java_script_enabled", True),
             cookies=kwargs.get("cookies", []),
             headers=kwargs.get("headers", {}),
-            user_agent=kwargs.get(
-                "user_agent",
-                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
-            ),
+            user_agent=kwargs.get("user_agent", None),
             user_agent_mode=kwargs.get("user_agent_mode"),
             user_agent_generator_config=kwargs.get("user_agent_generator_config"),
             text_mode=kwargs.get("text_mode", False),
@@ -530,7 +496,7 @@ class BrowserConfig:
             "user_data_dir": self.user_data_dir,
             "chrome_channel": self.chrome_channel,
             "channel": self.channel,
-            "proxy": self.proxy,
+            "executable_path": self.executable_path,
             "proxy_config": self.proxy_config,
             "viewport_width": self.viewport_width,
             "viewport_height": self.viewport_height,
@@ -872,7 +838,7 @@ class CrawlerRunConfig:
         self,
         # Content Processing Parameters
         excluded_tags: list = None,
-        proxy_config: Union[ProxyConfig, dict, None] = None,
+        proxy_config: Optional[ProxyConfig] = None,
         proxy_rotation_strategy: Optional[ProxyRotationStrategy] = None,
         # Browser Location and Identity Parameters
         locale: Optional[str] = None,
@@ -893,6 +859,7 @@ class CrawlerRunConfig:
         mean_delay: float = 0.1,
         max_range: float = 0.3,
         semaphore_count: int = 5,
+        css_selector: str = None,
         # Page Interaction Parameters
         js_code: Union[str, List[str]] = None,
         c4a_script: Union[str, List[str]] = None,
@@ -966,6 +933,7 @@ class CrawlerRunConfig:
         self.max_range = max_range
         self.semaphore_count = semaphore_count
         self.wait_for_timeout = wait_for_timeout
+        self.css_selector = css_selector
         # Page Interaction Parameters
         self.js_code = js_code
         self.c4a_script = c4a_script
@@ -1094,6 +1062,7 @@ class CrawlerRunConfig:
             mean_delay=kwargs.get("mean_delay", 0.1),
             max_range=kwargs.get("max_range", 0.3),
             semaphore_count=kwargs.get("semaphore_count", 5),
+            css_selector=kwargs.get("css_selector"),
             # Page Interaction Parameters
             js_code=kwargs.get("js_code"),
             c4a_script=kwargs.get("c4a_script"),
@@ -1176,6 +1145,7 @@ class CrawlerRunConfig:
             "mean_delay": self.mean_delay,
             "max_range": self.max_range,
             "semaphore_count": self.semaphore_count,
+            "css_selector": self.css_selector,
             "js_code": self.js_code,
             "c4a_script": self.c4a_script,
             "js_only": self.js_only,

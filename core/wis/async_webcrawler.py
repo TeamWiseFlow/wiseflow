@@ -38,13 +38,15 @@ from .robotsparser import RobotsParser
 
 # for 99% of the cases, you don't need to change these configs
 DEFAULT_BROWSER_CONFIG = BrowserConfig(
-    viewport_width=1920,
-    viewport_height=1080,
-    user_agent_mode="random",
-    user_data_dir=os.path.join(base_directory, "user_data"),
+    # use_persistent_context=False, # for the situation frequently change the proxy/locale/timezone/geolocation, but no need login status
+    use_persistent_context=True, # for the situation not-frequently change the proxy/locale/timezone/geolocation, but need login status
+    user_data_dir=os.path.join(base_directory, ".crawl4ai", "default_context"),
     enable_stealth=True,
     light_mode=True
 )
+
+if os.environ.get('BROWSER_EXECUTABLE_PATH'):
+    DEFAULT_BROWSER_CONFIG.executable_path = os.environ.get('BROWSER_EXECUTABLE_PATH')
 
 class AsyncWebCrawler:
     def __init__(

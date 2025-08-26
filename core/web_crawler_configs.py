@@ -17,8 +17,6 @@ DEFAULT_CRAWLER_CONFIG = CrawlerRunConfig(
     # page_timeout=30000,
     # wait_for=None,
     # js_code=None, # to execute some js code in the page
-    # exclude_external_links=False, # if you want the info collection only in the site's domain, set this to True
-    # excluded_tags = []  # 如果不配置默认移除所有非顶级的'script', 'style', 'noscript', 'iframe', 'canvas', 'svg', 'video', 'audio', 'source', 'track', 'map', 'area'
     # for internet codebug, you can capture the network requests and console messages
     # capture_network_requests=False,
     # capture_console_messages=False,

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from async_logger import wis_logger, base_directory
 from typing import Dict, Tuple
-from wis.utils import get_base_domain
 import time, pickle
 import asyncio
 from custom_processes import *

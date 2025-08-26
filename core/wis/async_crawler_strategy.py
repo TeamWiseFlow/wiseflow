@@ -7,8 +7,8 @@ from abc import ABC, abstractmethod
 from typing import Callable, Dict, Any, List, Union
 from typing import Optional
 import os
-from playwright.async_api import Page, Error
-from playwright.async_api import TimeoutError as PlaywrightTimeoutError
+from patchright.async_api import Page, Error
+from patchright.async_api import TimeoutError as PlaywrightTimeoutError
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 import hashlib
@@ -18,9 +18,9 @@ from .basemodels import AsyncCrawlResponse
 from .config import SCREENSHOT_HEIGHT_TRESHOLD
 from .async_configs import BrowserConfig, CrawlerRunConfig
 from .ssl_certificate import SSLCertificate
-from .user_agent_generator import ValidUAGenerator
 from .browser_manager import BrowserManager
 from .browser_adapter import UndetectedAdapter
+from .user_agent_generator import ValidUAGenerator
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -104,7 +104,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
         self.browser_manager = BrowserManager(
             browser_config=self.browser_config, 
             logger=self.logger,
-            use_undetected=True
         )
 
     async def __aenter__(self):
@@ -192,30 +191,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             else:
                 return hook(*args, **kwargs)
         return args[0] if args else None
-
-    def update_user_agent(self, user_agent: str):
-        """
-        Update the user agent for the browser.
-
-        Args:
-            user_agent (str): The new user agent string.
-
-        Returns:
-            None
-        """
-        self.user_agent = user_agent
-
-    def set_custom_headers(self, headers: Dict[str, str]):
-        """
-        Set custom headers for the browser.
-
-        Args:
-            headers (Dict[str, str]): A dictionary of headers to set.
-
-        Returns:
-            None
-        """
-        self.headers = headers
 
     async def smart_wait(self, page: Page, wait_for: str, timeout: float = 30000):
         """
@@ -398,11 +373,11 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
 
         session_id = kwargs.get("session_id") or str(uuid.uuid4())
 
-        user_agent = kwargs.get("user_agent", self.user_agent)
+        # user_agent = kwargs.get("user_agent", self.user_agent)
         # Use browser_manager to get a fresh page & context assigned to this session_id
         page, context = await self.browser_manager.get_page(CrawlerRunConfig(
             session_id=session_id,
-            user_agent=user_agent,
+            # user_agent=user_agent,
             **kwargs,
         ))
         return session_id
@@ -510,9 +485,9 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
         captured_console = []
 
         # Handle user agent with magic mode
-        user_agent_to_override = config.user_agent
-        if user_agent_to_override:
-            self.browser_config.user_agent = user_agent_to_override
+        # user_agent_to_override = config.user_agent
+        if config.user_agent:
+            self.browser_config.user_agent = config.user_agent
         elif config.magic or config.user_agent_mode == "random":
             self.browser_config.user_agent = ValidUAGenerator().generate(
                 **(config.user_agent_generator_config or {})
@@ -524,9 +499,9 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
         # await page.goto(URL)
 
         # Add default cookie
-        # await context.add_cookies(
-        #     [{"name": "cookiesEnabled", "value": "true", "url": url}]
-        # )
+        await context.add_cookies(
+            [{"name": "cookiesEnabled", "value": "true", "url": url}]
+        )
 
         # Handle navigator overrides
         if config.override_navigator or config.simulate_user or config.magic:
@@ -870,11 +845,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 await page.keyboard.press("ArrowDown")
 
             # Handle wait_for condition
-            # Todo: Decide how to handle this
-            if not config.wait_for and config.css_selector and False:
-            # if not config.wait_for and config.css_selector:
-                config.wait_for = f"css:{config.css_selector}"
-
             if config.wait_for:
                 try:
                     # Use wait_for_timeout if specified, otherwise fall back to page_timeout
@@ -998,29 +968,31 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
 
         finally:
             # If no session_id is given we should close the page
-            all_contexts = page.context.browser.contexts
-            total_pages = sum(len(context.pages) for context in all_contexts)                
-            if config.session_id:
-                pass
-            elif total_pages <= 1 and (self.browser_config.use_managed_browser or self.browser_config.headless):
-                pass
-            else:
-                # Detach listeners before closing to prevent potential errors during close
-                if config.capture_network_requests:
-                    page.remove_listener("request", handle_request_capture)
-                    page.remove_listener("response", handle_response_capture)
-                    page.remove_listener("requestfailed", handle_request_failed_capture)
-                if config.capture_console_messages:
-                    # Retrieve any final console messages for undetected browsers
-                    if hasattr(self.adapter, 'retrieve_console_messages'):
-                        final_messages = await self.adapter.retrieve_console_messages(page)
-                        captured_console.extend(final_messages)
-                    
-                    # Clean up console capture
-                    await self.adapter.cleanup_console_capture(page, handle_console, handle_error)
+            # 优化逻辑，减少不必要的计算         
+            if not config.session_id:
+                if self.browser_config.use_persistent_context:
+                    total_pages = len(page.context.pages)
+                else:
+                    all_contexts = page.context.browser.contexts
+                    total_pages = sum(len(context.pages) for context in all_contexts)      
                 
-                # Close the page
-                await page.close()
+                if total_pages > 1 and not self.browser_config.headless:
+                    # Detach listeners before closing to prevent potential errors during close
+                    if config.capture_network_requests:
+                        page.remove_listener("request", handle_request_capture)
+                        page.remove_listener("response", handle_response_capture)
+                        page.remove_listener("requestfailed", handle_request_failed_capture)
+                    if config.capture_console_messages:
+                        # Retrieve any final console messages for undetected browsers
+                        if hasattr(self.adapter, 'retrieve_console_messages'):
+                            final_messages = await self.adapter.retrieve_console_messages(page)
+                            captured_console.extend(final_messages)
+                        
+                        # Clean up console capture
+                        await self.adapter.cleanup_console_capture(page, handle_console, handle_error)
+                    
+                    # Close the page
+                    await page.close()
 
     # async def _handle_full_page_scan(self, page: Page, scroll_delay: float = 0.1):
     async def _handle_full_page_scan(self, page: Page, scroll_delay: float = 0.1, max_scroll_steps: Optional[int] = None):
@@ -1117,14 +1089,11 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             config: Virtual scroll configuration
         """
         try:
-            # Import VirtualScrollConfig to avoid circular import
-            from .async_configs import VirtualScrollConfig
-            
             # Ensure config is a VirtualScrollConfig instance
             if isinstance(config, dict):
                 config = VirtualScrollConfig.from_dict(config)
             
-            self.logger.info(f"Starting virtual scroll capture for container: {config.container_selector}")
+            self.logger.debug(f"Starting virtual scroll capture for container: {config.container_selector}")
             
             # JavaScript function to handle virtual scroll capture
             virtual_scroll_js = """
@@ -1242,9 +1211,9 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             result = await self.adapter.evaluate(page, virtual_scroll_js, config.to_dict())
             
             if result.get("replaced", False):
-                self.logger.success(f"Virtual scroll completed. Merged {result.get('uniqueCount', 0)} unique elements from {result.get('chunksCount', 0)} chunks")
+                self.logger.debug(f"Virtual scroll completed. Merged {result.get('uniqueCount', 0)} unique elements from {result.get('chunksCount', 0)} chunks")
             else:
-                self.logger.info("Virtual scroll completed. Content was appended, no merging needed")
+                self.logger.debug("Virtual scroll completed. Content was appended, no merging needed")
             
         except Exception as e:
             self.logger.error(f"Virtual scroll capture failed: {str(e)}")

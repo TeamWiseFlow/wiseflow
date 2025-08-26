@@ -1,21 +1,14 @@
 import asyncio
 import time
-from typing import List, Optional
 import os
 import json
-import sys
-import shutil
-import tempfile
-import psutil  
-import signal
-import subprocess
-import shlex
-from playwright.async_api import BrowserContext
+from patchright.async_api import BrowserContext
 import hashlib
 from .js_snippet import load_js_script
 from .config import DOWNLOAD_PAGE_TIMEOUT
 from .async_configs import BrowserConfig, CrawlerRunConfig
-# from .utils import get_chromium_path
+from patchright.async_api import async_playwright
+from patchright.async_api import ProxySettings
 
 
 BROWSER_DISABLE_OPTIONS = [
@@ -108,17 +101,67 @@ class BrowserManager:
     """
 
     _playwright_instance = None
-    
-    @classmethod
-    async def get_playwright(cls, use_undetected: bool = False):
-        if use_undetected:
-            from patchright.async_api import async_playwright
-        else:
-            from playwright.async_api import async_playwright
-        cls._playwright_instance = await async_playwright().start()
-        return cls._playwright_instance    
+    _blocked_extensions = [
+        # Images
+        "jpg",
+        "jpeg",
+        "png",
+        "gif",
+        "webp",
+        "svg",
+        "ico",
+        "bmp",
+        "tiff",
+        "psd",
+        # Fonts
+        "woff",
+        "woff2",
+        "ttf",
+        "otf",
+        "eot",
+        # Styles
+        # 'css', 'less', 'scss', 'sass',
+        # Media
+        "mp4",
+        "webm",
+        "ogg",
+        "avi",
+        "mov",
+        "wmv",
+        "flv",
+        "m4v",
+        "mp3",
+        "wav",
+        "aac",
+        "m4a",
+        "opus",
+        "flac",
+        # Documents
+        "pdf",
+        "doc",
+        "docx",
+        "xls",
+        "xlsx",
+        "ppt",
+        "pptx",
+        # Archives
+        "zip",
+        "rar",
+        "7z",
+        "tar",
+        "gz",
+        # Scripts and data
+        "xml",
+        "swf",
+        "wasm",
+    ]
 
-    def __init__(self, browser_config: BrowserConfig, logger=None, use_undetected: bool = False):
+    @classmethod
+    async def get_playwright(cls):
+        cls._playwright_instance = await async_playwright().start()
+        return cls._playwright_instance
+
+    def __init__(self, browser_config: BrowserConfig, logger=None):
         """
         Initialize the BrowserManager with a browser configuration.
 
@@ -129,7 +172,10 @@ class BrowserManager:
         """
         self.config: BrowserConfig = browser_config
         self.logger = logger
-        self.use_undetected = use_undetected
+        self.proxy = browser_config.proxy_config
+        self.locale = None
+        self.timezone_id = None
+        self.geolocation = None
 
         # Browser state
         self.browser = None
@@ -154,6 +200,7 @@ class BrowserManager:
         self._stealth_instance = None
         self._stealth_cm = None 
 
+    # modified by bigbrother to only use patchright to launch browser
     async def start(self):
         """
         Start the browser instance and set up the default context.
@@ -161,54 +208,37 @@ class BrowserManager:
         How it works:
         1. Check if Playwright is already initialized.
         2. If not, initialize Playwright.
-        3. If managed browser is used, start it and connect to the CDP endpoint.
-        4. If managed browser is not used, launch the browser and set up the default context.
+        3. Choose between launch() and launch_persistent_context() based on config
+        4. Set up the appropriate browser instance and context.
 
         Note: This method should be called in a separate task to avoid blocking the main event loop.
         """
         if self.playwright is not None:
             await self.close()
             
-        if self.use_undetected:
-            from patchright.async_api import async_playwright
+        # Initialize playwright
+        self.playwright = await async_playwright().start()
+        browser_args = self._build_browser_args()
+        
+        # Choose launch strategy based on configuration
+        if self.config.use_persistent_context and self.config.user_data_dir:
+            # Use launch_persistent_context for better persistence
+            self.default_context = await self.playwright.chromium.launch_persistent_context(
+                user_data_dir=self.config.user_data_dir,
+                **browser_args
+            )
+            # Apply text mode settings if enabled
+            if self.config.text_mode:
+                # Create and apply route patterns for each extension
+                for ext in self._blocked_extensions:
+                    await self.default_context.route(f"**/*.{ext}", lambda route: route.abort())
+            self.browser = None  # No separate browser object in persistent mode
         else:
-            from playwright.async_api import async_playwright
-
-        # Initialize playwright with or without stealth
-        if self.config.enable_stealth and not self.use_undetected:
-            # Import stealth only when needed
-            from playwright_stealth import Stealth
-            # Use the recommended stealth wrapper approach
-            self._stealth_instance = Stealth()
-            self._stealth_cm = self._stealth_instance.use_async(async_playwright())
-            self.playwright = await self._stealth_cm.__aenter__()
-        else:
-            self.playwright = await async_playwright().start()
-
-        if self.config.cdp_url or self.config.use_managed_browser:
-            self.config.use_managed_browser = True
-            cdp_url = await self.managed_browser.start() if not self.config.cdp_url else self.config.cdp_url
-            self.browser = await self.playwright.chromium.connect_over_cdp(cdp_url)
-            contexts = self.browser.contexts
-            if contexts:
-                self.default_context = contexts[0]
-            else:
-                self.default_context = await self.create_browser_context()
-            await self.setup_context(self.default_context)
-        else:
-            browser_args = self._build_browser_args()
-
-            # Launch appropriate browser type
-            if self.config.browser_type == "firefox":
-                self.browser = await self.playwright.firefox.launch(**browser_args)
-            elif self.config.browser_type == "webkit":
-                self.browser = await self.playwright.webkit.launch(**browser_args)
-            else:
-                self.browser = await self.playwright.chromium.launch(**browser_args)
-
-            self.default_context = self.browser
-
-
+            # Use traditional launch + new_context approach
+            self.browser = await self.playwright.chromium.launch(**browser_args)
+            self.default_context = None  # Will be created dynamically
+    
+    # modified by bigbrother to  both for launch and launch_persistent_context
     def _build_browser_args(self) -> dict:
         """Build browser launch arguments from config."""
         args = [
@@ -231,7 +261,7 @@ class BrowserManager:
             "--mute-audio",
             "--disable-background-timer-throttling",
             # "--single-process",
-            f"--window-size={self.config.viewport_width},{self.config.viewport_height}",
+            # f"--window-size={self.config.viewport_width},{self.config.viewport_height}",
         ]
 
         if self.config.light_mode:
@@ -253,35 +283,54 @@ class BrowserManager:
             args.extend(self.config.extra_args)
 
         # Deduplicate args
-        args = list(dict.fromkeys(args))
+        args = list(set(args))
         
-        browser_args = {"headless": self.config.headless, "args": args}
+        browser_args = {"no_viewport":True,
+                        "headless": self.config.headless,
+                        "ignore_https_errors": self.config.ignore_https_errors,
+                        "java_script_enabled": self.config.java_script_enabled,
+                        "accept_downloads": self.config.accept_downloads,
+                        "channel": self.config.channel,
+                        "executable_path": self.config.executable_path,
+                        "args": args}
 
-        if self.config.chrome_channel:
-            browser_args["channel"] = self.config.chrome_channel
+        if self.config.text_mode:
+            text_mode_settings = {
+                "has_touch": False,
+                "is_mobile": False,
+            }
+            browser_args.update(text_mode_settings)
 
         if self.config.accept_downloads:
             browser_args["downloads_path"] = self.config.downloads_path or os.path.join(
                 os.getcwd(), "downloads"
             )
             os.makedirs(browser_args["downloads_path"], exist_ok=True)
+            browser_args["default_timeout"] = DOWNLOAD_PAGE_TIMEOUT
+            browser_args["default_navigation_timeout"] = DOWNLOAD_PAGE_TIMEOUT
 
-        if self.config.proxy or self.config.proxy_config:
-            from playwright.async_api import ProxySettings
-
-            proxy_settings = (
-                ProxySettings(server=self.config.proxy)
-                if self.config.proxy
-                else ProxySettings(
-                    server=self.config.proxy_config.server,
-                    username=self.config.proxy_config.username,
-                    password=self.config.proxy_config.password,
-                )
-            )
+        if self.proxy:
+            proxy_settings = ProxySettings(server=self.proxy.server,
+                                           username=self.proxy.username,
+                                           password=self.proxy.password)
             browser_args["proxy"] = proxy_settings
+        if self.locale:
+            browser_args["locale"] = self.locale
+        if self.timezone_id:
+            browser_args["timezone_id"] = self.timezone_id
+        if self.geolocation:
+            browser_args["geolocation"] = {
+                "latitude": self.geolocation.latitude,
+                "longitude": self.geolocation.longitude,
+                "accuracy": self.geolocation.accuracy,
+            }
+            # ensure geolocation permission
+            perms = browser_args.get("permissions", [])
+            perms.append("geolocation")
+            browser_args["permissions"] = perms
 
-        return browser_args
-
+        return {k: v for k, v in browser_args.items() if v is not None}
+        
     async def setup_context(
         self,
         context: BrowserContext,
@@ -290,24 +339,9 @@ class BrowserManager:
     ):
         """
         Set up a browser context with the configured options.
-
-        How it works:
-        1. Set extra HTTP headers if provided.
-        2. Add cookies if provided.
-        3. Load storage state if provided.
-        4. Accept downloads if enabled.
-        5. Set default timeouts for navigation and download.
-        6. Set user agent if provided.
-        7. Set browser hints if provided.
-        8. Set proxy if provided.
-        9. Set downloads path if provided.
-        10. Set storage state if provided.
-        11. Set cache if provided.
-        12. Set extra HTTP headers if provided.
-        13. Add cookies if provided.
-        14. Set default timeouts for navigation and download if enabled.
-        15. Set user agent if provided.
-        16. Set browser hints if provided.
+        
+        For persistent contexts, most settings are already applied at startup, no need to use this function
+        For non-persistent contexts, we apply the necessary configurations.
 
         Args:
             context (BrowserContext): The browser context to set up
@@ -315,34 +349,11 @@ class BrowserManager:
             is_default (bool): Flag indicating if this is the default context
         Returns:
             None
+        only for traditional launch mode, not for persistent context
         """
-        if self.config.headers:
-            await context.set_extra_http_headers(self.config.headers)
-
-        if self.config.cookies:
-            await context.add_cookies(self.config.cookies)
-
-        if self.config.storage_state:
-            await context.storage_state(path=None)
-
-        if self.config.accept_downloads:
-            context.set_default_timeout(DOWNLOAD_PAGE_TIMEOUT)
-            context.set_default_navigation_timeout(DOWNLOAD_PAGE_TIMEOUT)
-            if self.config.downloads_path:
-                context._impl_obj._options["accept_downloads"] = True
-                context._impl_obj._options[
-                    "downloads_path"
-                ] = self.config.downloads_path
-
-        # Handle user agent and browser hints
-        if self.config.user_agent:
-            combined_headers = {
-                "User-Agent": self.config.user_agent,
-                "sec-ch-ua": self.config.browser_hint,
-            }
-            combined_headers.update(self.config.headers)
-            await context.set_extra_http_headers(combined_headers)
-
+        if not self.browser:
+            self.logger.warning("You should not call this function for persistent context")
+            return
         # Add default cookie
         await context.add_cookies(
             [
@@ -372,105 +383,21 @@ class BrowserManager:
 
         Returns:
             Context: Browser context object with the specified configurations
+        only for traditional launch mode, not for persistent context
         """
-        # Base settings
-        user_agent = self.config.headers.get("User-Agent", self.config.user_agent) 
-        viewport_settings = {
-            "width": self.config.viewport_width,
-            "height": self.config.viewport_height,
-        }
-        proxy_settings = {"server": self.config.proxy} if self.config.proxy else None
-
-        blocked_extensions = [
-            # Images
-            "jpg",
-            "jpeg",
-            "png",
-            "gif",
-            "webp",
-            "svg",
-            "ico",
-            "bmp",
-            "tiff",
-            "psd",
-            # Fonts
-            "woff",
-            "woff2",
-            "ttf",
-            "otf",
-            "eot",
-            # Styles
-            # 'css', 'less', 'scss', 'sass',
-            # Media
-            "mp4",
-            "webm",
-            "ogg",
-            "avi",
-            "mov",
-            "wmv",
-            "flv",
-            "m4v",
-            "mp3",
-            "wav",
-            "aac",
-            "m4a",
-            "opus",
-            "flac",
-            # Documents
-            "pdf",
-            "doc",
-            "docx",
-            "xls",
-            "xlsx",
-            "ppt",
-            "pptx",
-            # Archives
-            "zip",
-            "rar",
-            "7z",
-            "tar",
-            "gz",
-            # Scripts and data
-            "xml",
-            "swf",
-            "wasm",
-        ]
-
+        if not self.browser:
+            self.logger.warning("You should not call this function for persistent context")
+            return
         # Common context settings
-        context_settings = {
-            "user_agent": user_agent,
-            "viewport": viewport_settings,
-            "proxy": proxy_settings,
-            "accept_downloads": self.config.accept_downloads,
-            "storage_state": self.config.storage_state,
-            "ignore_https_errors": self.config.ignore_https_errors,
-            "device_scale_factor": 1.0,
-            "java_script_enabled": self.config.java_script_enabled,
-        }
-        
+        context_settings = {}
         if crawlerRunConfig:
             # Check if there is value for crawlerRunConfig.proxy_config set add that to context
             if crawlerRunConfig.proxy_config:
-                proxy_settings = {
-                    "server": crawlerRunConfig.proxy_config.server,
-                }
-                if crawlerRunConfig.proxy_config.username:
-                    proxy_settings.update({
-                        "username": crawlerRunConfig.proxy_config.username,
-                        "password": crawlerRunConfig.proxy_config.password,
-                    })
+                proxy_settings = ProxySettings(server=crawlerRunConfig.proxy_config.server,
+                                               username=crawlerRunConfig.proxy_config.username,
+                                               password=crawlerRunConfig.proxy_config.password)
                 context_settings["proxy"] = proxy_settings
 
-        if self.config.text_mode:
-            text_mode_settings = {
-                "has_touch": False,
-                "is_mobile": False,
-            }
-            # Update context settings with text mode settings
-            context_settings.update(text_mode_settings)
-
-        # inject locale / tz / geo if user provided them
-        if crawlerRunConfig:
             if crawlerRunConfig.locale:
                 context_settings["locale"] = crawlerRunConfig.locale
             if crawlerRunConfig.timezone_id:
@@ -486,53 +413,134 @@ class BrowserManager:
                 perms.append("geolocation")
                 context_settings["permissions"] = perms
 
-        # Create and return the context with all settings
+        if self.config.text_mode:
+            text_mode_settings = {
+                "has_touch": False,
+                "is_mobile": False,
+            }
+            # Update context settings with text mode settings
+            context_settings.update(text_mode_settings)
+
         context = await self.browser.new_context(**context_settings)
 
         # Apply text mode settings if enabled
         if self.config.text_mode:
             # Create and apply route patterns for each extension
-            for ext in blocked_extensions:
+            for ext in self._blocked_extensions:
                 await context.route(f"**/*.{ext}", lambda route: route.abort())
         return context
 
-    def _make_config_signature(self, crawlerRunConfig: CrawlerRunConfig) -> str:
+    def _compare_proxy_config(self, proxy1, proxy2):
+        """Compare two proxy configurations for equality."""
+        # Both None
+        if proxy1 is None and proxy2 is None:
+            return True
+        # One None, one not None
+        if proxy1 is None or proxy2 is None:
+            return False
+        # Compare actual values
+        return (
+            proxy1.server == proxy2.server and
+            getattr(proxy1, 'username', None) == getattr(proxy2, 'username', None) and
+            getattr(proxy1, 'password', None) == getattr(proxy2, 'password', None)
+        )
+    
+    def _compare_geolocation(self, geo1, geo2):
+        """Compare two geolocation configurations for equality."""
+        # Both None
+        if geo1 is None and geo2 is None:
+            return True
+        # One None, one not None
+        if geo1 is None or geo2 is None:
+            return False
+        # Compare actual values
+        return (
+            geo1.latitude == geo2.latitude and
+            geo1.longitude == geo2.longitude and
+            geo1.accuracy == geo2.accuracy
+        )
+    
+    def _configs_match(self, crawlerRunConfig: CrawlerRunConfig) -> bool:
         """
-        Converts the crawlerRunConfig into a dict, excludes ephemeral fields,
-        then returns a hash of the sorted JSON. This yields a stable signature
-        that identifies configurations requiring a unique browser context.
+        Check if crawlerRunConfig settings match current browser manager settings.
+        
+        Returns True if all configurations match, False otherwise.
         """
-        config_dict = crawlerRunConfig.__dict__.copy()
-        # Exclude items that do not affect browser-level setup.
-        # Expand or adjust as needed, e.g. chunking_strategy is purely for data extraction, not for browser config.
-        ephemeral_keys = [
-            "session_id",
-            "js_code",
-            "scraping_strategy",
-            "extraction_strategy",
-            "chunking_strategy",
-            "cache_mode",
-            "content_filter",
-            "semaphore_count",
-            "url"
-        ]
+        # Compare proxy_config
+        if not self._compare_proxy_config(crawlerRunConfig.proxy_config, self.proxy):
+            return False
         
-        # Do NOT exclude locale, timezone_id, or geolocation as these DO affect browser context
-        # and should cause a new context to be created if they change
+        # Compare locale (both None is considered equal)
+        if (crawlerRunConfig.locale is None and self.locale is None) or \
+           (crawlerRunConfig.locale == self.locale):
+            pass  # Equal
+        else:
+            return False
+            
+        # Compare timezone_id (both None is considered equal)
+        if (crawlerRunConfig.timezone_id is None and self.timezone_id is None) or \
+           (crawlerRunConfig.timezone_id == self.timezone_id):
+            pass  # Equal
+        else:
+            return False
+            
+        # Compare geolocation
+        if not self._compare_geolocation(crawlerRunConfig.geolocation, self.geolocation):
+            return False
+            
+        return True
+    
+    def _make_context_signature(self, crawlerRunConfig: CrawlerRunConfig) -> str:
+        """
+        Generate a signature for configurations that truly require different browser contexts.
+        Only includes settings that fundamentally change browser behavior.
         
-        for key in ephemeral_keys:
-            if key in config_dict:
-                del config_dict[key]
-        # Convert to canonical JSON string
-        signature_json = json.dumps(config_dict, sort_keys=True, default=str)
-
-        # Hash the JSON so we get a compact, unique string
+        Context-affecting configurations:
+        - proxy_config: Different proxies require different contexts
+        - locale: Language settings affect browser behavior  
+        - timezone_id: Timezone affects JavaScript Date objects
+        - geolocation: Geographic location for geolocation API
+        """
+        # Only include truly context-level configurations
+        context_affecting_config = {}
+        
+        # Proxy configuration significantly affects context
+        if crawlerRunConfig.proxy_config:
+            context_affecting_config["proxy"] = {
+                "server": crawlerRunConfig.proxy_config.server,
+                "username": getattr(crawlerRunConfig.proxy_config, 'username', None),
+                "password": getattr(crawlerRunConfig.proxy_config, 'password', None)
+            }
+        
+        # Locale affects browser language and behavior
+        if crawlerRunConfig.locale:
+            context_affecting_config["locale"] = crawlerRunConfig.locale
+            
+        # Timezone affects JavaScript Date behavior
+        if crawlerRunConfig.timezone_id:
+            context_affecting_config["timezone_id"] = crawlerRunConfig.timezone_id
+            
+        # Geolocation affects geolocation API
+        if crawlerRunConfig.geolocation:
+            context_affecting_config["geolocation"] = {
+                "latitude": crawlerRunConfig.geolocation.latitude,
+                "longitude": crawlerRunConfig.geolocation.longitude,
+                "accuracy": crawlerRunConfig.geolocation.accuracy
+            }
+        
+        # Convert to canonical JSON string and hash
+        signature_json = json.dumps(context_affecting_config, sort_keys=True, default=str)
         signature_hash = hashlib.sha256(signature_json.encode("utf-8")).hexdigest()
+        
         return signature_hash
 
     async def get_page(self, crawlerRunConfig: CrawlerRunConfig):
         """
         Get a page for the given session ID, creating a new one if needed.
+        
+        Simplified strategy for better performance and persistent context support:
+        - For persistent context: always reuse the same context
+        - For non-persistent: create new context only when truly necessary
 
         Args:
             crawlerRunConfig (CrawlerRunConfig): Configuration object containing all browser settings
@@ -549,44 +557,45 @@ class BrowserManager:
             self.sessions[crawlerRunConfig.session_id] = (context, page, time.time())
             return page, context
 
-        # If using a managed browser, just grab the shared default_context
-        if self.config.use_managed_browser:
-            if self.config.storage_state:
-                context = await self.create_browser_context(crawlerRunConfig)
-                ctx = self.default_context        # default context, one window only
-                ctx = await clone_runtime_state(context, ctx, crawlerRunConfig, self.config)
-                # Avoid concurrent new_page on shared persistent context
-                # See GH-1198: context.pages can be empty under races
-                async with self._page_lock:
-                    page = await ctx.new_page()
-            else:
-                context = self.default_context
-                pages = context.pages
-                page = next((p for p in pages if p.url == crawlerRunConfig.url), None)
-                if not page:
-                    if pages:
-                        page = pages[0]
-                    else:
-                        # Double-check under lock to avoid TOCTOU and ensure only
-                        # one task calls new_page when pages=[] concurrently
-                        async with self._page_lock:
-                            pages = context.pages
-                            if pages:
-                                page = pages[0]
-                            else:
-                                page = await context.new_page()
-        else:
-            # Otherwise, check if we have an existing context for this config
-            config_signature = self._make_config_signature(crawlerRunConfig)
+        # For persistent context, always reuse the same context
+        if self.config.use_persistent_context:
+            # Check if configurations have changed and need context restart
+            if not self._configs_match(crawlerRunConfig):
+                if self.logger:
+                    self.logger.info("Configuration changed, updating browser settings and restarting context")
+                
+                # Update self configurations to match crawlerRunConfig
+                self.proxy = crawlerRunConfig.proxy_config
+                self.locale = crawlerRunConfig.locale
+                self.timezone_id = crawlerRunConfig.timezone_id
+                self.geolocation = crawlerRunConfig.geolocation
+                
+                # Close current default_context if exists
+                if self.default_context:
+                    await self.default_context.close()
+                    self.default_context = None
+                
+                # Restart with new configuration
+                await self.start()
 
+            if not self.default_context:
+                await self.start()
+            
+            context = self.default_context
+            page = await context.new_page()
+        else:
+            # For non-persistent context, check if we need a new context
+            # Only create new context for truly context-level differences
+            context_signature = self._make_context_signature(crawlerRunConfig)
+            
             async with self._contexts_lock:
-                if config_signature in self.contexts_by_config:
-                    context = self.contexts_by_config[config_signature]
+                if context_signature in self.contexts_by_config:
+                    context = self.contexts_by_config[context_signature]
                 else:
-                    # Create and setup a new context
+                    # Create and setup a new context only when necessary
                     context = await self.create_browser_context(crawlerRunConfig)
                     await self.setup_context(context, crawlerRunConfig)
-                    self.contexts_by_config[config_signature] = context
+                    self.contexts_by_config[context_signature] = context
 
             # Create a new page from the chosen context
             page = await context.new_page()
@@ -607,8 +616,7 @@ class BrowserManager:
         if session_id in self.sessions:
             context, page, _ = self.sessions[session_id]
             await page.close()
-            if not self.config.use_managed_browser:
-                await context.close()
+            await context.close()
             del self.sessions[session_id]
 
     def _cleanup_expired_sessions(self):
@@ -645,11 +653,6 @@ class BrowserManager:
         if self.browser:
             await self.browser.close()
             self.browser = None
-
-        if self.managed_browser:
-            await asyncio.sleep(0.5)
-            await self.managed_browser.cleanup()
-            self.managed_browser = None
 
         if self.playwright:
             # Handle stealth context manager cleanup if it exists
