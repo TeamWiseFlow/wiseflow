@@ -139,10 +139,10 @@ def get_logger(logger_file_path: str, logger_name: str):
         print(f"\n{CYAN}{'#' * 50}{RESET}")
         print(f"{GREEN}Wiseflow Info Scraper {__version__}{RESET}")
         print(f"{YELLOW}Modified by bigbrother666sh based on:{RESET}")
-        print(f"{BLUE}Crawl4ai 0.6.3 (https://github.com/unclecode/crawl4ai)")
+        print(f"{BLUE}Crawl4ai 0.74 (https://github.com/unclecode/crawl4ai)")
         print(f"{BLUE}MediaCrawler (https://github.com/NanmiCoder/MediaCrawler)")
         print(f"{BLUE}with enhanced by NoDriver (https://github.com/ultrafunkamsterdam/nodriver)")
-        print(f"{MAGENTA}2025-06-30{RESET}")
+        print(f"{MAGENTA}2025-08-31{RESET}")
         print(f"{CYAN}{'#' * 50}{RESET}\n")
 
     return logger.bind(name=logger_name)

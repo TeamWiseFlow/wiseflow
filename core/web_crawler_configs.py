@@ -4,7 +4,6 @@ from wis.async_configs import CrawlerRunConfig
 DEFAULT_CRAWLER_CONFIG = CrawlerRunConfig(
     # session_id="my_session123",
     delay_before_return_html=1.0,
-    word_count_threshold=10,
     magic=True, 
     scan_full_page=True,
     scroll_delay=0.3,
