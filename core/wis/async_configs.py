@@ -859,7 +859,6 @@ class CrawlerRunConfig:
         mean_delay: float = 0.1,
         max_range: float = 0.3,
         semaphore_count: int = 5,
-        css_selector: str = None,
         # Page Interaction Parameters
         js_code: Union[str, List[str]] = None,
         c4a_script: Union[str, List[str]] = None,
@@ -933,7 +932,6 @@ class CrawlerRunConfig:
         self.max_range = max_range
         self.semaphore_count = semaphore_count
         self.wait_for_timeout = wait_for_timeout
-        self.css_selector = css_selector
         # Page Interaction Parameters
         self.js_code = js_code
         self.c4a_script = c4a_script
@@ -1062,7 +1060,6 @@ class CrawlerRunConfig:
             mean_delay=kwargs.get("mean_delay", 0.1),
             max_range=kwargs.get("max_range", 0.3),
             semaphore_count=kwargs.get("semaphore_count", 5),
-            css_selector=kwargs.get("css_selector"),
             # Page Interaction Parameters
             js_code=kwargs.get("js_code"),
             c4a_script=kwargs.get("c4a_script"),
@@ -1145,7 +1142,6 @@ class CrawlerRunConfig:
             "mean_delay": self.mean_delay,
             "max_range": self.max_range,
             "semaphore_count": self.semaphore_count,
-            "css_selector": self.css_selector,
             "js_code": self.js_code,
             "c4a_script": self.c4a_script,
             "js_only": self.js_only,
