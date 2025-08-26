@@ -1,15 +1,6 @@
 import asyncio
 import time
-from typing import List, Optional
 import os
-import json
-import sys
-import shutil
-import tempfile
-import psutil  
-import signal
-import subprocess
-import shlex
 from playwright.async_api import BrowserContext
 import hashlib
 from .js_snippet import load_js_script
@@ -38,6 +29,7 @@ BROWSER_DISABLE_OPTIONS = [
     "--password-store=basic",
     "--use-mock-keychain",
 ]
+
 
 async def clone_runtime_state(
     src: BrowserContext,
@@ -90,6 +82,7 @@ async def clone_runtime_state(
     return dst
 
 
+
 class BrowserManager:
     """
     Manages the browser instance and context.
@@ -132,7 +125,6 @@ class BrowserManager:
         # Browser state
         self.browser = None
         self.default_context = None
-        self.managed_browser = None
         self.playwright = None
 
         # Session management
@@ -183,28 +175,18 @@ class BrowserManager:
         else:
             self.playwright = await async_playwright().start()
 
-        if self.config.cdp_url or self.config.use_managed_browser:
-            self.config.use_managed_browser = True
-            cdp_url = await self.managed_browser.start() if not self.config.cdp_url else self.config.cdp_url
-            self.browser = await self.playwright.chromium.connect_over_cdp(cdp_url)
-            contexts = self.browser.contexts
-            if contexts:
-                self.default_context = contexts[0]
-            else:
-                self.default_context = await self.create_browser_context()
-            await self.setup_context(self.default_context)
+
+        browser_args = self._build_browser_args()
+
+        # Launch appropriate browser type
+        if self.config.browser_type == "firefox":
+            self.browser = await self.playwright.firefox.launch(**browser_args)
+        elif self.config.browser_type == "webkit":
+            self.browser = await self.playwright.webkit.launch(**browser_args)
         else:
-            browser_args = self._build_browser_args()
+            self.browser = await self.playwright.chromium.launch(**browser_args)
 
-            # Launch appropriate browser type
-            if self.config.browser_type == "firefox":
-                self.browser = await self.playwright.firefox.launch(**browser_args)
-            elif self.config.browser_type == "webkit":
-                self.browser = await self.playwright.webkit.launch(**browser_args)
-            else:
-                self.browser = await self.playwright.chromium.launch(**browser_args)
-
-            self.default_context = self.browser
+        self.default_context = self.browser
 
 
     def _build_browser_args(self) -> dict:
@@ -500,6 +482,8 @@ class BrowserManager:
         then returns a hash of the sorted JSON. This yields a stable signature
         that identifies configurations requiring a unique browser context.
         """
+        import json
+
         config_dict = crawlerRunConfig.__dict__.copy()
         # Exclude items that do not affect browser-level setup.
         # Expand or adjust as needed, e.g. chunking_strategy is purely for data extraction, not for browser config.
@@ -637,17 +621,16 @@ class BrowserManager:
             try:
                 await ctx.close()
             except Exception as e:
-                self.logger.error(f"Error closing context: {str(e)}")
+                self.logger.error(
+                    message="Error closing context: {error}",
+                    tag="ERROR",
+                    params={"error": str(e)}
+                )
         self.contexts_by_config.clear()
 
         if self.browser:
             await self.browser.close()
             self.browser = None
-
-        if self.managed_browser:
-            await asyncio.sleep(0.5)
-            await self.managed_browser.cleanup()
-            self.managed_browser = None
 
         if self.playwright:
             # Handle stealth context manager cleanup if it exists
@@ -656,7 +639,11 @@ class BrowserManager:
                     await self._stealth_cm.__aexit__(None, None, None)
                 except Exception as e:
                     if self.logger:
-                        self.logger.error(f"Error closing stealth context: {str(e)}")
+                        self.logger.error(
+                            message="Error closing stealth context: {error}",
+                            tag="ERROR", 
+                            params={"error": str(e)}
+                        )
                 self._stealth_cm = None
                 self._stealth_instance = None
             else:
