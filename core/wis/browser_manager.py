@@ -6,6 +6,7 @@ import hashlib
 from .js_snippet import load_js_script
 from .config import DOWNLOAD_PAGE_TIMEOUT
 from .async_configs import BrowserConfig, CrawlerRunConfig
+from async_logger import base_directory
 
 
 BROWSER_DISABLE_OPTIONS = [
@@ -133,10 +134,6 @@ class BrowserManager:
         # when using a shared persistent context (context.pages may be empty
         # for all racers). Prevents 'Target page/context closed' errors.
         self._page_lock = asyncio.Lock()
-        
-        # Stealth-related attributes
-        self._stealth_instance = None
-        self._stealth_cm = None 
 
     async def start(self):
         """
@@ -157,14 +154,7 @@ class BrowserManager:
 
         browser_args = self._build_browser_args()
 
-        # Launch appropriate browser type
-        if self.config.browser_type == "firefox":
-            self.browser = await self.playwright.firefox.launch(**browser_args)
-        elif self.config.browser_type == "webkit":
-            self.browser = await self.playwright.webkit.launch(**browser_args)
-        else:
-            self.browser = await self.playwright.chromium.launch(**browser_args)
-
+        self.browser = await self.playwright.chromium.launch(**browser_args)
         self.default_context = self.browser
 
     def _build_browser_args(self) -> dict:
@@ -211,25 +201,22 @@ class BrowserManager:
             args.extend(self.config.extra_args)
 
         # Deduplicate args
-        args = list(dict.fromkeys(args))
+        args = list(set(args))
         
         browser_args = {"headless": self.config.headless, "args": args}
 
-        if self.config.chrome_channel:
-            browser_args["channel"] = self.config.chrome_channel
+        browser_args["channel"] = self.config.channel
 
         if self.config.accept_downloads:
-            browser_args["downloads_path"] = self.config.downloads_path or os.path.join(
-                os.getcwd(), "downloads"
-            )
+            if not self.config.downloads_path:
+                self.config.downloads_path = os.path.join(base_directory, "downloads")
+            browser_args["downloads_path"] = self.config.downloads_path
             os.makedirs(browser_args["downloads_path"], exist_ok=True)
 
-        if self.config.proxy or self.config.proxy_config:
+        if self.config.proxy_config:
             from patchright.async_api import ProxySettings
             proxy_settings = (
-                ProxySettings(server=self.config.proxy)
-                if self.config.proxy
-                else ProxySettings(
+                ProxySettings(
                     server=self.config.proxy_config.server,
                     username=self.config.proxy_config.username,
                     password=self.config.proxy_config.password,
@@ -336,7 +323,7 @@ class BrowserManager:
             "width": self.config.viewport_width,
             "height": self.config.viewport_height,
         }
-        proxy_settings = {"server": self.config.proxy} if self.config.proxy else None
+        # proxy_settings = {"server": self.config.proxy} if self.config.proxy else None
 
         blocked_extensions = [
             # Images
@@ -397,7 +384,7 @@ class BrowserManager:
         context_settings = {
             "user_agent": user_agent,
             "viewport": viewport_settings,
-            "proxy": proxy_settings,
+            # "proxy": proxy_settings,
             "accept_downloads": self.config.accept_downloads,
             "storage_state": self.config.storage_state,
             "ignore_https_errors": self.config.ignore_https_errors,
@@ -478,7 +465,6 @@ class BrowserManager:
         
         # Do NOT exclude locale, timezone_id, or geolocation as these DO affect browser context
         # and should cause a new context to be created if they change
-        
         for key in ephemeral_keys:
             if key in config_dict:
                 del config_dict[key]
@@ -508,47 +494,19 @@ class BrowserManager:
             self.sessions[crawlerRunConfig.session_id] = (context, page, time.time())
             return page, context
 
-        # If using a managed browser, just grab the shared default_context
-        if self.config.use_managed_browser:
-            if self.config.storage_state:
-                context = await self.create_browser_context(crawlerRunConfig)
-                ctx = self.default_context        # default context, one window only
-                ctx = await clone_runtime_state(context, ctx, crawlerRunConfig, self.config)
-                # Avoid concurrent new_page on shared persistent context
-                # See GH-1198: context.pages can be empty under races
-                async with self._page_lock:
-                    page = await ctx.new_page()
+        config_signature = self._make_config_signature(crawlerRunConfig)
+
+        async with self._contexts_lock:
+            if config_signature in self.contexts_by_config:
+                context = self.contexts_by_config[config_signature]
             else:
-                context = self.default_context
-                pages = context.pages
-                page = next((p for p in pages if p.url == crawlerRunConfig.url), None)
-                if not page:
-                    if pages:
-                        page = pages[0]
-                    else:
-                        # Double-check under lock to avoid TOCTOU and ensure only
-                        # one task calls new_page when pages=[] concurrently
-                        async with self._page_lock:
-                            pages = context.pages
-                            if pages:
-                                page = pages[0]
-                            else:
-                                page = await context.new_page()
-        else:
-            # Otherwise, check if we have an existing context for this config
-            config_signature = self._make_config_signature(crawlerRunConfig)
+                # Create and setup a new context
+                context = await self.create_browser_context(crawlerRunConfig)
+                await self.setup_context(context, crawlerRunConfig)
+                self.contexts_by_config[config_signature] = context
 
-            async with self._contexts_lock:
-                if config_signature in self.contexts_by_config:
-                    context = self.contexts_by_config[config_signature]
-                else:
-                    # Create and setup a new context
-                    context = await self.create_browser_context(crawlerRunConfig)
-                    await self.setup_context(context, crawlerRunConfig)
-                    self.contexts_by_config[config_signature] = context
-
-            # Create a new page from the chosen context
-            page = await context.new_page()
+        # Create a new page from the chosen context
+        page = await context.new_page()
 
         # If a session_id is specified, store this session so we can reuse later
         if crawlerRunConfig.session_id:
@@ -566,8 +524,7 @@ class BrowserManager:
         if session_id in self.sessions:
             context, page, _ = self.sessions[session_id]
             await page.close()
-            if not self.config.use_managed_browser:
-                await context.close()
+            await context.close()
             del self.sessions[session_id]
 
     def _cleanup_expired_sessions(self):
@@ -583,9 +540,6 @@ class BrowserManager:
 
     async def close(self):
         """Close all browser resources and clean up."""
-        if self.config.cdp_url:
-            return
-        
         if self.config.sleep_on_close:
             await asyncio.sleep(0.5)
 
@@ -598,11 +552,7 @@ class BrowserManager:
             try:
                 await ctx.close()
             except Exception as e:
-                self.logger.error(
-                    message="Error closing context: {error}",
-                    tag="ERROR",
-                    params={"error": str(e)}
-                )
+                self.logger.warning(f"Error closing context: {e}")
         self.contexts_by_config.clear()
 
         if self.browser:
@@ -610,19 +560,5 @@ class BrowserManager:
             self.browser = None
 
         if self.playwright:
-            # Handle stealth context manager cleanup if it exists
-            if hasattr(self, '_stealth_cm') and self._stealth_cm is not None:
-                try:
-                    await self._stealth_cm.__aexit__(None, None, None)
-                except Exception as e:
-                    if self.logger:
-                        self.logger.error(
-                            message="Error closing stealth context: {error}",
-                            tag="ERROR", 
-                            params={"error": str(e)}
-                        )
-                self._stealth_cm = None
-                self._stealth_instance = None
-            else:
-                await self.playwright.stop()
+            await self.playwright.stop()
             self.playwright = None
