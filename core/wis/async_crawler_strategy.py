@@ -1001,7 +1001,7 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             total_pages = sum(len(context.pages) for context in all_contexts)                
             if config.session_id:
                 pass
-            elif total_pages <= 1 and (self.browser_config.use_managed_browser or self.browser_config.headless):
+            elif total_pages <= 1 and self.browser_config.headless:
                 pass
             else:
                 # Detach listeners before closing to prevent potential errors during close

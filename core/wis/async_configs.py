@@ -1,6 +1,5 @@
 import os
 from .config import (
-    MIN_WORD_THRESHOLD,
     IMAGE_DESCRIPTION_MIN_WORD_THRESHOLD,
     SCREENSHOT_HEIGHT_TRESHOLD,
     PAGE_TIMEOUT,
@@ -359,17 +358,17 @@ class BrowserConfig:
 
     def __init__(
         self,
-        browser_type: str = "chromium",
+        # browser_type: str = "chromium", # pathwright only support chromium
         headless: bool = True,
-        browser_mode: str = "dedicated",
-        use_managed_browser: bool = False,
-        cdp_url: str = None,
-        use_persistent_context: bool = False,
+        # browser_mode: str = "dedicated",
+        # use_managed_browser: bool = False,
+        # cdp_url: str = None, # never use that
+        # use_persistent_context: bool = False, # never use that
         user_data_dir: str = None,
-        chrome_channel: str = "chromium",
+        # chrome_channel: str = "chromium", # to avoid unnecessary duplication
         channel: str = "chromium",
-        proxy: str = None,
-        proxy_config: Union[ProxyConfig, dict, None] = None,
+        # proxy: str = None, # Unified into a single type
+        proxy_config: ProxyConfig = None,
         viewport_width: int = 1080,
         viewport_height: int = 600,
         viewport: dict = None,
@@ -395,26 +394,19 @@ class BrowserConfig:
         extra_args: list = None,
         debugging_port: int = 9222,
         host: str = "localhost",
-        enable_stealth: bool = False,
+        # enable_stealth: bool = False,
     ):
-        self.browser_type = browser_type
+        # self.browser_type = browser_type
         self.headless = headless 
-        self.browser_mode = browser_mode
-        self.use_managed_browser = use_managed_browser
-        self.cdp_url = cdp_url
-        self.use_persistent_context = use_persistent_context
+        # self.browser_mode = browser_mode
+        # self.use_managed_browser = use_managed_browser
+        # self.cdp_url = cdp_url
+        # self.use_persistent_context = use_persistent_context
         self.user_data_dir = user_data_dir
-        self.chrome_channel = chrome_channel or self.browser_type or "chromium"
-        self.channel = channel or self.browser_type or "chromium"
-        if self.browser_type in ["firefox", "webkit"]:
-            self.channel = ""
-            self.chrome_channel = ""
-        self.proxy = proxy
+        # self.chrome_channel = chrome_channel or "chromium"
+        self.channel = channel or "chromium"
+        # self.proxy = proxy
         self.proxy_config = proxy_config
-        if isinstance(self.proxy_config, dict):
-            self.proxy_config = ProxyConfig.from_dict(self.proxy_config)
-        if isinstance(self.proxy_config, str):
-            self.proxy_config = ProxyConfig.from_string(self.proxy_config)
 
         self.viewport_width = viewport_width
         self.viewport_height = viewport_height
@@ -439,7 +431,7 @@ class BrowserConfig:
         self.verbose = verbose
         self.debugging_port = debugging_port
         self.host = host
-        self.enable_stealth = enable_stealth
+        # self.enable_stealth = enable_stealth
 
         fa_user_agenr_generator = ValidUAGenerator()
         if self.user_agent_mode == "random":
@@ -450,47 +442,24 @@ class BrowserConfig:
         self.browser_hint = UAGen.generate_client_hints(self.user_agent)
         self.headers.setdefault("sec-ch-ua", self.browser_hint)
 
-        # Set appropriate browser management flags based on browser_mode
-        if self.browser_mode == "builtin":
-            # Builtin mode uses managed browser connecting to builtin CDP endpoint
-            self.use_managed_browser = True
-            # cdp_url will be set later by browser_manager
-        elif self.browser_mode == "docker":
-            # Docker mode uses managed browser with CDP to connect to browser in container
-            self.use_managed_browser = True
-            # cdp_url will be set later by docker browser strategy
-        elif self.browser_mode == "custom" and self.cdp_url:
-            # Custom mode with explicit CDP URL
-            self.use_managed_browser = True
-        elif self.browser_mode == "dedicated":
-            # Dedicated mode uses a new browser instance each time
-            pass
-
         # If persistent context is requested, ensure managed browser is enabled
-        if self.use_persistent_context:
-            self.use_managed_browser = True
-            
-        # Validate stealth configuration
-        if self.enable_stealth and self.use_managed_browser and self.browser_mode == "builtin":
-            raise ValueError(
-                "enable_stealth cannot be used with browser_mode='builtin'. "
-                "Stealth mode requires a dedicated browser instance."
-            )
+        # if self.use_persistent_context:
+        #     self.use_managed_browser = True
 
     @staticmethod
     def from_kwargs(kwargs: dict) -> "BrowserConfig":
         return BrowserConfig(
-            browser_type=kwargs.get("browser_type", "chromium"),
+            # browser_type=kwargs.get("browser_type", "chromium"),
             headless=kwargs.get("headless", True),
-            browser_mode=kwargs.get("browser_mode", "dedicated"),
-            use_managed_browser=kwargs.get("use_managed_browser", False),
-            cdp_url=kwargs.get("cdp_url"),
-            use_persistent_context=kwargs.get("use_persistent_context", False),
+            # browser_mode=kwargs.get("browser_mode", "dedicated"),
+            # use_managed_browser=kwargs.get("use_managed_browser", False),
+            # cdp_url=kwargs.get("cdp_url"),
+            # use_persistent_context=kwargs.get("use_persistent_context", False),
             user_data_dir=kwargs.get("user_data_dir"),
-            chrome_channel=kwargs.get("chrome_channel", "chromium"),
+            # chrome_channel=kwargs.get("chrome_channel", "chromium"),
             channel=kwargs.get("channel", "chromium"),
-            proxy=kwargs.get("proxy"),
-            proxy_config=kwargs.get("proxy_config", None),
+            # proxy=kwargs.get("proxy"),
+            proxy_config=kwargs.get("proxy_config"),
             viewport_width=kwargs.get("viewport_width", 1080),
             viewport_height=kwargs.get("viewport_height", 600),
             accept_downloads=kwargs.get("accept_downloads", False),
@@ -512,21 +481,21 @@ class BrowserConfig:
             extra_args=kwargs.get("extra_args", []),
             debugging_port=kwargs.get("debugging_port", 9222),
             host=kwargs.get("host", "localhost"),
-            enable_stealth=kwargs.get("enable_stealth", False),
+            # enable_stealth=kwargs.get("enable_stealth", False),
         )
 
     def to_dict(self):
         result = {
-            "browser_type": self.browser_type,
+            # "browser_type": self.browser_type,
             "headless": self.headless,
-            "browser_mode": self.browser_mode,
-            "use_managed_browser": self.use_managed_browser,
-            "cdp_url": self.cdp_url,
-            "use_persistent_context": self.use_persistent_context,
+            # "browser_mode": self.browser_mode,
+            # "use_managed_browser": self.use_managed_browser,
+            # "cdp_url": self.cdp_url,
+            # "use_persistent_context": self.use_persistent_context,
             "user_data_dir": self.user_data_dir,
-            "chrome_channel": self.chrome_channel,
+            # "chrome_channel": self.chrome_channel,
             "channel": self.channel,
-            "proxy": self.proxy,
+            # "proxy": self.proxy,
             "proxy_config": self.proxy_config,
             "viewport_width": self.viewport_width,
             "viewport_height": self.viewport_height,
@@ -547,7 +516,7 @@ class BrowserConfig:
             "verbose": self.verbose,
             "debugging_port": self.debugging_port,
             "host": self.host,
-            "enable_stealth": self.enable_stealth,
+            # "enable_stealth": self.enable_stealth,
         }
 
         return result
@@ -908,10 +877,10 @@ class CrawlerRunConfig:
         screenshot_height_threshold: int = SCREENSHOT_HEIGHT_TRESHOLD,
         pdf: bool = False,
         capture_mhtml: bool = False,
-        image_description_min_word_threshold: int = IMAGE_DESCRIPTION_MIN_WORD_THRESHOLD,
-        image_score_threshold: int = IMAGE_SCORE_THRESHOLD,
+        # image_description_min_word_threshold: int = IMAGE_DESCRIPTION_MIN_WORD_THRESHOLD,
+        # image_score_threshold: int = IMAGE_SCORE_THRESHOLD,
         table_score_threshold: int = 7,
-        exclude_external_images: bool = False,
+        # exclude_external_images: bool = False,
         exclude_all_images: bool = False,
         # Debugging and Logging Parameters
         verbose: bool = True,
@@ -982,9 +951,9 @@ class CrawlerRunConfig:
         self.screenshot_height_threshold = screenshot_height_threshold
         self.pdf = pdf
         self.capture_mhtml = capture_mhtml
-        self.image_description_min_word_threshold = image_description_min_word_threshold
-        self.image_score_threshold = image_score_threshold
-        self.exclude_external_images = exclude_external_images
+        # self.image_description_min_word_threshold = image_description_min_word_threshold
+        # self.image_score_threshold = image_score_threshold
+        # self.exclude_external_images = exclude_external_images
         self.exclude_all_images = exclude_all_images
         self.table_score_threshold = table_score_threshold
 
@@ -1111,16 +1080,16 @@ class CrawlerRunConfig:
             ),
             pdf=kwargs.get("pdf", False),
             capture_mhtml=kwargs.get("capture_mhtml", False),
-            image_description_min_word_threshold=kwargs.get(
-                "image_description_min_word_threshold",
-                IMAGE_DESCRIPTION_MIN_WORD_THRESHOLD,
-            ),
-            image_score_threshold=kwargs.get(
-                "image_score_threshold", IMAGE_SCORE_THRESHOLD
-            ),
+            # image_description_min_word_threshold=kwargs.get(
+            #     "image_description_min_word_threshold",
+            #     IMAGE_DESCRIPTION_MIN_WORD_THRESHOLD,
+            # ),
+            # image_score_threshold=kwargs.get(
+            #     "image_score_threshold", IMAGE_SCORE_THRESHOLD
+            # ),
             table_score_threshold=kwargs.get("table_score_threshold", 7),
             exclude_all_images=kwargs.get("exclude_all_images", False),
-            exclude_external_images=kwargs.get("exclude_external_images", False),
+            # exclude_external_images=kwargs.get("exclude_external_images", False),
             # Debugging and Logging Parameters
             verbose=kwargs.get("verbose", True),
             log_console=kwargs.get("log_console", False),
@@ -1189,11 +1158,11 @@ class CrawlerRunConfig:
             "screenshot_height_threshold": self.screenshot_height_threshold,
             "pdf": self.pdf,
             "capture_mhtml": self.capture_mhtml,
-            "image_description_min_word_threshold": self.image_description_min_word_threshold,
-            "image_score_threshold": self.image_score_threshold,
+            # "image_description_min_word_threshold": self.image_description_min_word_threshold,
+            # "image_score_threshold": self.image_score_threshold,
             "table_score_threshold": self.table_score_threshold,
             "exclude_all_images": self.exclude_all_images,
-            "exclude_external_images": self.exclude_external_images,
+            # "exclude_external_images": self.exclude_external_images,
             "verbose": self.verbose,
             "log_console": self.log_console,
             "capture_network_requests": self.capture_network_requests,

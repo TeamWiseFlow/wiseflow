@@ -41,8 +41,7 @@ DEFAULT_BROWSER_CONFIG = BrowserConfig(
     viewport_width=1920,
     viewport_height=1080,
     user_agent_mode="random",
-    user_data_dir=os.path.join(base_directory, "user_data"),
-    enable_stealth=True,
+    user_data_dir=os.path.join(base_directory, ".crawl4ai", "browser_data"),
     light_mode=True
 )
 
