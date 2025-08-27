@@ -5,11 +5,7 @@ from .config import (
     SCREENSHOT_HEIGHT_TRESHOLD,
     PAGE_TIMEOUT,
     IMAGE_SCORE_THRESHOLD,
-    SOCIAL_MEDIA_DOMAINS,
 )
-
-from .extraction_strategy import ExtractionStrategy
-from .chunking_strategy import ChunkingStrategy, RegexChunking
 
 from .proxy_strategy import ProxyRotationStrategy
 from .user_agent_generator import UAGen, ValidUAGenerator  # , OnlineUAGenerator
