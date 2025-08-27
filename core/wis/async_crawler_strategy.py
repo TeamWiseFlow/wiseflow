@@ -7,8 +7,8 @@ from abc import ABC, abstractmethod
 from typing import Callable, Dict, Any, List, Union
 from typing import Optional
 import os
-from playwright.async_api import Page, Error
-from playwright.async_api import TimeoutError as PlaywrightTimeoutError
+from patchright.async_api import Page, Error
+from patchright.async_api import TimeoutError as PlaywrightTimeoutError
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 import hashlib
@@ -104,7 +104,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
         self.browser_manager = BrowserManager(
             browser_config=self.browser_config, 
             logger=self.logger,
-            use_undetected=True
         )
 
     async def __aenter__(self):

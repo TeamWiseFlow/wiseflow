@@ -6,19 +6,8 @@ with minimal changes to existing codebase.
 
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional, Callable
-import time
-import json
 
-# Import both, but use conditionally
-try:
-    from playwright.async_api import Page
-except ImportError:
-    Page = Any
-
-try:
-    from patchright.async_api import Page as UndetectedPage
-except ImportError:
-    UndetectedPage = Any
+from patchright.async_api import Page
 
 
 class BrowserAdapter(ABC):
@@ -55,106 +44,13 @@ class BrowserAdapter(ABC):
         pass
 
 
-class PlaywrightAdapter(BrowserAdapter):
-    """Adapter for standard Playwright"""
-    
-    async def evaluate(self, page: Page, expression: str, arg: Any = None) -> Any:
-        """Standard Playwright evaluate"""
-        if arg is not None:
-            return await page.evaluate(expression, arg)
-        return await page.evaluate(expression)
-    
-    async def setup_console_capture(self, page: Page, captured_console: List[Dict]) -> Optional[Callable]:
-        """Setup console capture using Playwright's event system"""
-        def handle_console_capture(msg):
-            try:
-                message_type = "unknown"
-                try:
-                    message_type = msg.type
-                except:
-                    pass
-                    
-                message_text = "unknown"
-                try:
-                    message_text = msg.text
-                except:
-                    pass
-                    
-                entry = {
-                    "type": message_type,
-                    "text": message_text,
-                    "timestamp": time.time()
-                }
-                
-                captured_console.append(entry)
-                
-            except Exception as e:
-                captured_console.append({
-                    "type": "console_capture_error", 
-                    "error": str(e), 
-                    "timestamp": time.time()
-                })
-        
-        page.on("console", handle_console_capture)
-        return handle_console_capture
-    
-    async def setup_error_capture(self, page: Page, captured_console: List[Dict]) -> Optional[Callable]:
-        """Setup error capture using Playwright's event system"""
-        def handle_pageerror_capture(err):
-            try:
-                error_message = "Unknown error"
-                try:
-                    error_message = err.message
-                except:
-                    pass
-                    
-                error_stack = ""
-                try:
-                    error_stack = err.stack
-                except:
-                    pass
-                    
-                captured_console.append({
-                    "type": "error",
-                    "text": error_message,
-                    "stack": error_stack,
-                    "timestamp": time.time()
-                })
-            except Exception as e:
-                captured_console.append({
-                    "type": "pageerror_capture_error", 
-                    "error": str(e), 
-                    "timestamp": time.time()
-                })
-        
-        page.on("pageerror", handle_pageerror_capture)
-        return handle_pageerror_capture
-    
-    async def retrieve_console_messages(self, page: Page) -> List[Dict]:
-        """Not needed for Playwright - messages are captured via events"""
-        return []
-    
-    async def cleanup_console_capture(self, page: Page, handle_console: Optional[Callable], handle_error: Optional[Callable]):
-        """Remove event listeners"""
-        if handle_console:
-            page.remove_listener("console", handle_console)
-        if handle_error:
-            page.remove_listener("pageerror", handle_error)
-    
-    def get_imports(self) -> tuple:
-        """Return Playwright imports"""
-        from playwright.async_api import Page, Error
-        from playwright.async_api import TimeoutError as PlaywrightTimeoutError
-        return Page, Error, PlaywrightTimeoutError
-
-
 class UndetectedAdapter(BrowserAdapter):
     """Adapter for undetected browser automation with stealth features"""
     
     def __init__(self):
         self._console_script_injected = {}
     
-    async def evaluate(self, page: UndetectedPage, expression: str, arg: Any = None) -> Any:
+    async def evaluate(self, page: Page, expression: str, arg: Any = None) -> Any:
         """Undetected browser evaluate with isolated context"""
         # For most evaluations, use isolated context for stealth
         # Only use non-isolated when we need to access our injected console capture
@@ -169,7 +65,7 @@ class UndetectedAdapter(BrowserAdapter):
             return await page.evaluate(expression, arg, isolated_context=isolated)
         return await page.evaluate(expression, isolated_context=isolated)
     
-    async def setup_console_capture(self, page: UndetectedPage, captured_console: List[Dict]) -> Optional[Callable]:
+    async def setup_console_capture(self, page: Page, captured_console: List[Dict]) -> Optional[Callable]:
         """Setup console capture using JavaScript injection for undetected browsers"""
         if not self._console_script_injected.get(page, False):
             await page.add_init_script("""
@@ -210,7 +106,7 @@ class UndetectedAdapter(BrowserAdapter):
         
         return None  # No handler function needed for undetected browser
     
-    async def setup_error_capture(self, page: UndetectedPage, captured_console: List[Dict]) -> Optional[Callable]:
+    async def setup_error_capture(self, page: Page, captured_console: List[Dict]) -> Optional[Callable]:
         """Setup error capture using JavaScript injection for undetected browsers"""
         if not self._console_script_injected.get(page, False):
             await page.add_init_script("""
@@ -249,7 +145,7 @@ class UndetectedAdapter(BrowserAdapter):
         
         return None  # No handler function needed for undetected browser
     
-    async def retrieve_console_messages(self, page: UndetectedPage) -> List[Dict]:
+    async def retrieve_console_messages(self, page: Page) -> List[Dict]:
         """Retrieve captured console messages and errors from the page"""
         messages = []
         
@@ -279,7 +175,7 @@ class UndetectedAdapter(BrowserAdapter):
         
         return messages
     
-    async def cleanup_console_capture(self, page: UndetectedPage, handle_console: Optional[Callable], handle_error: Optional[Callable]):
+    async def cleanup_console_capture(self, page: Page, handle_console: Optional[Callable], handle_error: Optional[Callable]):
         """Clean up for undetected browser - retrieve final messages"""
         # For undetected browser, we don't have event listeners to remove
         # but we should retrieve any final messages
