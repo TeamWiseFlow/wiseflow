@@ -55,7 +55,7 @@ if TYPE_CHECKING:
     )
     
     # Proxy imports
-    from .proxy_temp import (
+    from .proxy_providers import (
         ProxyRotationStrategy as ProxyRotationStrategyType,
         RoundRobinProxyStrategy as RoundRobinProxyStrategyType,
     )

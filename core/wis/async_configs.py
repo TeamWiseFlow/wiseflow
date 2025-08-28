@@ -1,19 +1,15 @@
 import os
 from .config import (
-    IMAGE_DESCRIPTION_MIN_WORD_THRESHOLD,
     SCREENSHOT_HEIGHT_TRESHOLD,
     PAGE_TIMEOUT,
-    IMAGE_SCORE_THRESHOLD,
 )
 
-from .proxy_strategy import ProxyRotationStrategy
-from .user_agent_generator import UAGen, ValidUAGenerator  # , OnlineUAGenerator
+from .proxy_providers import ProxyProvider
 from typing import Union, List
 import inspect
 from typing import Any, Dict, Optional
 from enum import Enum
 
-from .proxy_strategy import ProxyConfig
 from .c4a_scripts import compile
 
 
@@ -127,6 +123,7 @@ def is_empty_value(value: Any) -> bool:
         return True
     return False
 
+
 class GeolocationConfig:
     def __init__(
         self,
@@ -174,117 +171,6 @@ class GeolocationConfig:
         config_dict = self.to_dict()
         config_dict.update(kwargs)
         return GeolocationConfig.from_dict(config_dict)
-
-
-class ProxyConfig:
-    def __init__(
-        self,
-        server: str,
-        username: Optional[str] = None,
-        password: Optional[str] = None,
-        ip: Optional[str] = None,
-    ):
-        """Configuration class for a single proxy.
-        
-        Args:
-            server: Proxy server URL (e.g., "http://127.0.0.1:8080")
-            username: Optional username for proxy authentication
-            password: Optional password for proxy authentication
-            ip: Optional IP address for verification purposes
-        """
-        self.server = server
-        self.username = username
-        self.password = password
-        
-        # Extract IP from server if not explicitly provided
-        self.ip = ip or self._extract_ip_from_server()
-    
-    def _extract_ip_from_server(self) -> Optional[str]:
-        """Extract IP address from server URL."""
-        try:
-            # Simple extraction assuming http://ip:port format
-            if "://" in self.server:
-                parts = self.server.split("://")[1].split(":")
-                return parts[0]
-            else:
-                parts = self.server.split(":")
-                return parts[0]
-        except Exception:
-            return None
-    
-    @staticmethod
-    def from_string(proxy_str: str) -> "ProxyConfig":
-        """Create a ProxyConfig from a string in the format 'ip:port:username:password'."""
-        parts = proxy_str.split(":")
-        if len(parts) == 4:  # ip:port:username:password
-            ip, port, username, password = parts
-            return ProxyConfig(
-                server=f"http://{ip}:{port}",
-                username=username,
-                password=password,
-                ip=ip
-            )
-        elif len(parts) == 2:  # ip:port only
-            ip, port = parts
-            return ProxyConfig(
-                server=f"http://{ip}:{port}",
-                ip=ip
-            )
-        else:
-            raise ValueError(f"Invalid proxy string format: {proxy_str}")
-    
-    @staticmethod
-    def from_dict(proxy_dict: Dict) -> "ProxyConfig":
-        """Create a ProxyConfig from a dictionary."""
-        return ProxyConfig(
-            server=proxy_dict.get("server"),
-            username=proxy_dict.get("username"),
-            password=proxy_dict.get("password"),
-            ip=proxy_dict.get("ip")
-        )
-    
-    @staticmethod
-    def from_env(env_var: str = "PROXIES") -> List["ProxyConfig"]:
-        """Load proxies from environment variable.
-        
-        Args:
-            env_var: Name of environment variable containing comma-separated proxy strings
-            
-        Returns:
-            List of ProxyConfig objects
-        """
-        proxies = []
-        try:
-            proxy_list = os.getenv(env_var, "").split(",")
-            for proxy in proxy_list:
-                if not proxy:
-                    continue
-                proxies.append(ProxyConfig.from_string(proxy))
-        except Exception as e:
-            print(f"Error loading proxies from environment: {e}")
-        return proxies
-    
-    def to_dict(self) -> Dict:
-        """Convert to dictionary representation."""
-        return {
-            "server": self.server,
-            "username": self.username,
-            "password": self.password,
-            "ip": self.ip
-        }
-    
-    def clone(self, **kwargs) -> "ProxyConfig":
-        """Create a copy of this configuration with updated values.
-
-        Args:
-            **kwargs: Key-value pairs of configuration options to update
-
-        Returns:
-            ProxyConfig: A new instance with the specified updates
-        """
-        config_dict = self.to_dict()
-        config_dict.update(kwargs)
-        return ProxyConfig.from_dict(config_dict)
 
 
 class BrowserConfig:
@@ -358,165 +244,59 @@ class BrowserConfig:
 
     def __init__(
         self,
-        # browser_type: str = "chromium", # pathwright only support chromium
         headless: bool = False,
-        # browser_mode: str = "dedicated",
-        # use_managed_browser: bool = False,
-        # cdp_url: str = None, # never use that
-        # use_persistent_context: bool = False, # never use that
-        # user_data_dir: str = None,
-        # chrome_channel: str = "chromium", # to avoid unnecessary duplication
-        # channel: str = "chromium",
-        # proxy: str = None, # Unified into a single type
-        proxy_config: ProxyConfig = None,
         viewport_width: int = 1920,
         viewport_height: int = 1080,
-        # viewport: dict = None,
         accept_downloads: bool = False,
         downloads_path: str = None,
-        storage_state: Union[str, dict, None] = None,
         ignore_https_errors: bool = True,
         java_script_enabled: bool = True,
         sleep_on_close: bool = False,
-        verbose: bool = True,
-        cookies: list = None,
-        headers: dict = None,
-        user_agent: str = (
-            # "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) AppleWebKit/537.36 "
-            # "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
-            # "(KHTML, like Gecko) Chrome/116.0.5845.187 Safari/604.1 Edg/117.0.2045.47"
-            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/116.0.0.0 Safari/537.36"
-        ),
-        user_agent_mode: str = "",
-        user_agent_generator_config: dict = {},
+        verbose: bool = False,
         text_mode: bool = False,
-        # light_mode: bool = False,
         extra_args: list = None,
-        # debugging_port: int = 9222,
-        # host: str = "localhost",
-        # enable_stealth: bool = False,
     ):
-        # self.browser_type = browser_type
         self.headless = headless 
-        # self.browser_mode = browser_mode
-        # self.use_managed_browser = use_managed_browser
-        # self.cdp_url = cdp_url
-        # self.use_persistent_context = use_persistent_context
-        # self.user_data_dir = user_data_dir
-        # self.chrome_channel = chrome_channel or "chromium"
-        # self.channel = channel or "chromium"
-        # self.proxy = proxy
-        self.proxy_config = proxy_config
-
         self.viewport_width = viewport_width
         self.viewport_height = viewport_height
-        # self.viewport = viewport
-        # if self.viewport is not None:
-            # self.viewport_width = self.viewport.get("width", 1080)
-            # self.viewport_height = self.viewport.get("height", 600)
         self.accept_downloads = accept_downloads
         self.downloads_path = downloads_path
-        self.storage_state = storage_state
         self.ignore_https_errors = ignore_https_errors
         self.java_script_enabled = java_script_enabled
-        self.cookies = cookies if cookies is not None else []
-        self.headers = headers if headers is not None else {}
-        # self.user_agent = user_agent
-        # self.user_agent_mode = user_agent_mode
-        # self.user_agent_generator_config = user_agent_generator_config
         self.text_mode = text_mode
-        # self.light_mode = light_mode
         self.extra_args = extra_args if extra_args is not None else []
         self.sleep_on_close = sleep_on_close
         self.verbose = verbose
-        # self.debugging_port = debugging_port
-        # self.host = host
-        # self.enable_stealth = enable_stealth
-
-        # fa_user_agenr_generator = ValidUAGenerator()
-        # if self.user_agent_mode == "random":
-        #     self.user_agent = fa_user_agenr_generator.generate(
-        #         **(self.user_agent_generator_config or {})
-        #     )
-
-        # self.browser_hint = UAGen.generate_client_hints(self.user_agent)
-        # self.headers.setdefault("sec-ch-ua", self.browser_hint)
-
-        # If persistent context is requested, ensure managed browser is enabled
-        # if self.use_persistent_context:
-        #     self.use_managed_browser = True
 
     @staticmethod
     def from_kwargs(kwargs: dict) -> "BrowserConfig":
         return BrowserConfig(
-            # browser_type=kwargs.get("browser_type", "chromium"),
             headless=kwargs.get("headless", True),
-            # browser_mode=kwargs.get("browser_mode", "dedicated"),
-            # use_managed_browser=kwargs.get("use_managed_browser", False),
-            # cdp_url=kwargs.get("cdp_url"),
-            # use_persistent_context=kwargs.get("use_persistent_context", False),
-            # user_data_dir=kwargs.get("user_data_dir"),
-            # chrome_channel=kwargs.get("chrome_channel", "chromium"),
-            # channel=kwargs.get("channel", "chromium"),
-            # proxy=kwargs.get("proxy"),
-            proxy_config=kwargs.get("proxy_config"),
             viewport_width=kwargs.get("viewport_width", 1920),
             viewport_height=kwargs.get("viewport_height", 1080),
             accept_downloads=kwargs.get("accept_downloads", False),
             downloads_path=kwargs.get("downloads_path"),
-            storage_state=kwargs.get("storage_state"),
             ignore_https_errors=kwargs.get("ignore_https_errors", True),
             java_script_enabled=kwargs.get("java_script_enabled", True),
-            cookies=kwargs.get("cookies", []),
-            headers=kwargs.get("headers", {}),
-            # user_agent=kwargs.get(
-            #     "user_agent",
-            #     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-            #     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
-            # ),
-            # user_agent_mode=kwargs.get("user_agent_mode"),
-            # user_agent_generator_config=kwargs.get("user_agent_generator_config"),
+            sleep_on_close=kwargs.get("sleep_on_close", False),
+            verbose=kwargs.get("verbose", False),
             text_mode=kwargs.get("text_mode", False),
-            # light_mode=kwargs.get("light_mode", False),
             extra_args=kwargs.get("extra_args", []),
-            # debugging_port=kwargs.get("debugging_port", 9222),
-            # host=kwargs.get("host", "localhost"),
-            # enable_stealth=kwargs.get("enable_stealth", False),
         )
 
     def to_dict(self):
         result = {
-            # "browser_type": self.browser_type,
             "headless": self.headless,
-            # "browser_mode": self.browser_mode,
-            # "use_managed_browser": self.use_managed_browser,
-            # "cdp_url": self.cdp_url,
-            # "use_persistent_context": self.use_persistent_context,
-            # "user_data_dir": self.user_data_dir,
-            # "chrome_channel": self.chrome_channel,
-            # "channel": self.channel,
-            # "proxy": self.proxy,
-            "proxy_config": self.proxy_config,
             "viewport_width": self.viewport_width,
             "viewport_height": self.viewport_height,
             "accept_downloads": self.accept_downloads,
             "downloads_path": self.downloads_path,
-            "storage_state": self.storage_state,
             "ignore_https_errors": self.ignore_https_errors,
             "java_script_enabled": self.java_script_enabled,
-            "cookies": self.cookies,
-            "headers": self.headers,
-            # "user_agent": self.user_agent,
-            # "user_agent_mode": self.user_agent_mode,
-            # "user_agent_generator_config": self.user_agent_generator_config,
             "text_mode": self.text_mode,
-            # "light_mode": self.light_mode,
             "extra_args": self.extra_args,
             "sleep_on_close": self.sleep_on_close,
             "verbose": self.verbose,
-            # "debugging_port": self.debugging_port,
-            # "host": self.host,
-            # "enable_stealth": self.enable_stealth,
         }
 
         return result
@@ -837,8 +617,7 @@ class CrawlerRunConfig:
         self,
         # Content Processing Parameters
         excluded_tags: list = None,
-        proxy_config: ProxyConfig = None,
-        proxy_rotation_strategy: Optional[ProxyRotationStrategy] = None,
+        proxy_provider: ProxyProvider = None,
         # Browser Location and Identity Parameters
         locale: Optional[str] = None,
         timezone_id: Optional[str] = None,
@@ -867,9 +646,7 @@ class CrawlerRunConfig:
         scroll_delay: float = 0.2,
         process_iframes: bool = False,
         remove_overlay_elements: bool = False,
-        simulate_user: bool = False,
         override_navigator: bool = False,
-        magic: bool = False,
         adjust_viewport_to_content: bool = False,
         # Media Handling Parameters
         screenshot: bool = False,
@@ -883,7 +660,6 @@ class CrawlerRunConfig:
         # exclude_external_images: bool = False,
         exclude_all_images: bool = False,
         # Debugging and Logging Parameters
-        verbose: bool = True,
         log_console: bool = False,
         # Network and Console Capturing Parameters
         capture_network_requests: bool = False,
@@ -905,8 +681,7 @@ class CrawlerRunConfig:
         # TODO: Planning to set properties dynamically based on the __init__ signature
         self.url = url
         self.excluded_tags = excluded_tags
-        self.proxy_config = proxy_config
-        self.proxy_rotation_strategy = proxy_rotation_strategy
+        self.proxy_provider = proxy_provider
         
         # Browser Location and Identity Parameters
         self.locale = locale
@@ -940,9 +715,7 @@ class CrawlerRunConfig:
         self.scroll_delay = scroll_delay
         self.process_iframes = process_iframes  
         self.remove_overlay_elements = remove_overlay_elements
-        self.simulate_user = simulate_user
         self.override_navigator = override_navigator
-        self.magic = magic
         self.adjust_viewport_to_content = adjust_viewport_to_content
 
         # Media Handling Parameters
@@ -958,7 +731,6 @@ class CrawlerRunConfig:
         self.table_score_threshold = table_score_threshold
 
         # Debugging and Logging Parameters
-        self.verbose = verbose
         self.log_console = log_console
         
         # Network and Console Capturing Parameters
@@ -1038,8 +810,7 @@ class CrawlerRunConfig:
         return CrawlerRunConfig(
             # Content Processing Parameters
             excluded_tags=kwargs.get("excluded_tags", []),
-            proxy_config=kwargs.get("proxy_config"),
-            proxy_rotation_strategy=kwargs.get("proxy_rotation_strategy"),
+            proxy_provider=kwargs.get("proxy_provider"),
             # Browser Location and Identity Parameters
             locale=kwargs.get("locale", None),
             timezone_id=kwargs.get("timezone_id", None),
@@ -1068,9 +839,7 @@ class CrawlerRunConfig:
             scroll_delay=kwargs.get("scroll_delay", 0.2),
             process_iframes=kwargs.get("process_iframes", False),
             remove_overlay_elements=kwargs.get("remove_overlay_elements", False),
-            simulate_user=kwargs.get("simulate_user", False),
             override_navigator=kwargs.get("override_navigator", False),
-            magic=kwargs.get("magic", False),
             adjust_viewport_to_content=kwargs.get("adjust_viewport_to_content", False),
             # Media Handling Parameters
             screenshot=kwargs.get("screenshot", False),
@@ -1080,18 +849,9 @@ class CrawlerRunConfig:
             ),
             pdf=kwargs.get("pdf", False),
             capture_mhtml=kwargs.get("capture_mhtml", False),
-            # image_description_min_word_threshold=kwargs.get(
-            #     "image_description_min_word_threshold",
-            #     IMAGE_DESCRIPTION_MIN_WORD_THRESHOLD,
-            # ),
-            # image_score_threshold=kwargs.get(
-            #     "image_score_threshold", IMAGE_SCORE_THRESHOLD
-            # ),
             table_score_threshold=kwargs.get("table_score_threshold", 7),
             exclude_all_images=kwargs.get("exclude_all_images", False),
-            # exclude_external_images=kwargs.get("exclude_external_images", False),
             # Debugging and Logging Parameters
-            verbose=kwargs.get("verbose", True),
             log_console=kwargs.get("log_console", False),
             # Network and Console Capturing Parameters
             capture_network_requests=kwargs.get("capture_network_requests", False),
@@ -1124,8 +884,7 @@ class CrawlerRunConfig:
     def to_dict(self):
         return {
             "excluded_tags": self.excluded_tags,
-            "proxy_config": self.proxy_config,
-            "proxy_rotation_strategy": self.proxy_rotation_strategy,
+            "proxy_provider": self.proxy_provider,
             "locale": self.locale,
             "timezone_id": self.timezone_id,
             "geolocation": self.geolocation,
@@ -1149,21 +908,15 @@ class CrawlerRunConfig:
             "scroll_delay": self.scroll_delay,
             "process_iframes": self.process_iframes,
             "remove_overlay_elements": self.remove_overlay_elements,
-            "simulate_user": self.simulate_user,
             "override_navigator": self.override_navigator,
-            "magic": self.magic,
             "adjust_viewport_to_content": self.adjust_viewport_to_content,
             "screenshot": self.screenshot,
             "screenshot_wait_for": self.screenshot_wait_for,
             "screenshot_height_threshold": self.screenshot_height_threshold,
             "pdf": self.pdf,
             "capture_mhtml": self.capture_mhtml,
-            # "image_description_min_word_threshold": self.image_description_min_word_threshold,
-            # "image_score_threshold": self.image_score_threshold,
             "table_score_threshold": self.table_score_threshold,
             "exclude_all_images": self.exclude_all_images,
-            # "exclude_external_images": self.exclude_external_images,
-            "verbose": self.verbose,
             "log_console": self.log_console,
             "capture_network_requests": self.capture_network_requests,
             "capture_console_messages": self.capture_console_messages,
