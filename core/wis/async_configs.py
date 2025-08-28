@@ -359,19 +359,19 @@ class BrowserConfig:
     def __init__(
         self,
         # browser_type: str = "chromium", # pathwright only support chromium
-        headless: bool = True,
+        headless: bool = False,
         # browser_mode: str = "dedicated",
         # use_managed_browser: bool = False,
         # cdp_url: str = None, # never use that
         # use_persistent_context: bool = False, # never use that
-        user_data_dir: str = None,
+        # user_data_dir: str = None,
         # chrome_channel: str = "chromium", # to avoid unnecessary duplication
-        channel: str = "chromium",
+        # channel: str = "chromium",
         # proxy: str = None, # Unified into a single type
         proxy_config: ProxyConfig = None,
-        viewport_width: int = 1080,
-        viewport_height: int = 600,
-        viewport: dict = None,
+        viewport_width: int = 1920,
+        viewport_height: int = 1080,
+        # viewport: dict = None,
         accept_downloads: bool = False,
         downloads_path: str = None,
         storage_state: Union[str, dict, None] = None,
@@ -390,10 +390,10 @@ class BrowserConfig:
         user_agent_mode: str = "",
         user_agent_generator_config: dict = {},
         text_mode: bool = False,
-        light_mode: bool = False,
+        # light_mode: bool = False,
         extra_args: list = None,
-        debugging_port: int = 9222,
-        host: str = "localhost",
+        # debugging_port: int = 9222,
+        # host: str = "localhost",
         # enable_stealth: bool = False,
     ):
         # self.browser_type = browser_type
@@ -402,18 +402,18 @@ class BrowserConfig:
         # self.use_managed_browser = use_managed_browser
         # self.cdp_url = cdp_url
         # self.use_persistent_context = use_persistent_context
-        self.user_data_dir = user_data_dir
+        # self.user_data_dir = user_data_dir
         # self.chrome_channel = chrome_channel or "chromium"
-        self.channel = channel or "chromium"
+        # self.channel = channel or "chromium"
         # self.proxy = proxy
         self.proxy_config = proxy_config
 
         self.viewport_width = viewport_width
         self.viewport_height = viewport_height
-        self.viewport = viewport
-        if self.viewport is not None:
-            self.viewport_width = self.viewport.get("width", 1080)
-            self.viewport_height = self.viewport.get("height", 600)
+        # self.viewport = viewport
+        # if self.viewport is not None:
+            # self.viewport_width = self.viewport.get("width", 1080)
+            # self.viewport_height = self.viewport.get("height", 600)
         self.accept_downloads = accept_downloads
         self.downloads_path = downloads_path
         self.storage_state = storage_state
@@ -421,26 +421,26 @@ class BrowserConfig:
         self.java_script_enabled = java_script_enabled
         self.cookies = cookies if cookies is not None else []
         self.headers = headers if headers is not None else {}
-        self.user_agent = user_agent
-        self.user_agent_mode = user_agent_mode
-        self.user_agent_generator_config = user_agent_generator_config
+        # self.user_agent = user_agent
+        # self.user_agent_mode = user_agent_mode
+        # self.user_agent_generator_config = user_agent_generator_config
         self.text_mode = text_mode
-        self.light_mode = light_mode
+        # self.light_mode = light_mode
         self.extra_args = extra_args if extra_args is not None else []
         self.sleep_on_close = sleep_on_close
         self.verbose = verbose
-        self.debugging_port = debugging_port
-        self.host = host
+        # self.debugging_port = debugging_port
+        # self.host = host
         # self.enable_stealth = enable_stealth
 
-        fa_user_agenr_generator = ValidUAGenerator()
-        if self.user_agent_mode == "random":
-            self.user_agent = fa_user_agenr_generator.generate(
-                **(self.user_agent_generator_config or {})
-            )
+        # fa_user_agenr_generator = ValidUAGenerator()
+        # if self.user_agent_mode == "random":
+        #     self.user_agent = fa_user_agenr_generator.generate(
+        #         **(self.user_agent_generator_config or {})
+        #     )
 
-        self.browser_hint = UAGen.generate_client_hints(self.user_agent)
-        self.headers.setdefault("sec-ch-ua", self.browser_hint)
+        # self.browser_hint = UAGen.generate_client_hints(self.user_agent)
+        # self.headers.setdefault("sec-ch-ua", self.browser_hint)
 
         # If persistent context is requested, ensure managed browser is enabled
         # if self.use_persistent_context:
@@ -455,13 +455,13 @@ class BrowserConfig:
             # use_managed_browser=kwargs.get("use_managed_browser", False),
             # cdp_url=kwargs.get("cdp_url"),
             # use_persistent_context=kwargs.get("use_persistent_context", False),
-            user_data_dir=kwargs.get("user_data_dir"),
+            # user_data_dir=kwargs.get("user_data_dir"),
             # chrome_channel=kwargs.get("chrome_channel", "chromium"),
-            channel=kwargs.get("channel", "chromium"),
+            # channel=kwargs.get("channel", "chromium"),
             # proxy=kwargs.get("proxy"),
             proxy_config=kwargs.get("proxy_config"),
-            viewport_width=kwargs.get("viewport_width", 1080),
-            viewport_height=kwargs.get("viewport_height", 600),
+            viewport_width=kwargs.get("viewport_width", 1920),
+            viewport_height=kwargs.get("viewport_height", 1080),
             accept_downloads=kwargs.get("accept_downloads", False),
             downloads_path=kwargs.get("downloads_path"),
             storage_state=kwargs.get("storage_state"),
@@ -469,18 +469,18 @@ class BrowserConfig:
             java_script_enabled=kwargs.get("java_script_enabled", True),
             cookies=kwargs.get("cookies", []),
             headers=kwargs.get("headers", {}),
-            user_agent=kwargs.get(
-                "user_agent",
-                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
-            ),
-            user_agent_mode=kwargs.get("user_agent_mode"),
-            user_agent_generator_config=kwargs.get("user_agent_generator_config"),
+            # user_agent=kwargs.get(
+            #     "user_agent",
+            #     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+            #     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
+            # ),
+            # user_agent_mode=kwargs.get("user_agent_mode"),
+            # user_agent_generator_config=kwargs.get("user_agent_generator_config"),
             text_mode=kwargs.get("text_mode", False),
-            light_mode=kwargs.get("light_mode", False),
+            # light_mode=kwargs.get("light_mode", False),
             extra_args=kwargs.get("extra_args", []),
-            debugging_port=kwargs.get("debugging_port", 9222),
-            host=kwargs.get("host", "localhost"),
+            # debugging_port=kwargs.get("debugging_port", 9222),
+            # host=kwargs.get("host", "localhost"),
             # enable_stealth=kwargs.get("enable_stealth", False),
         )
 
@@ -492,9 +492,9 @@ class BrowserConfig:
             # "use_managed_browser": self.use_managed_browser,
             # "cdp_url": self.cdp_url,
             # "use_persistent_context": self.use_persistent_context,
-            "user_data_dir": self.user_data_dir,
+            # "user_data_dir": self.user_data_dir,
             # "chrome_channel": self.chrome_channel,
-            "channel": self.channel,
+            # "channel": self.channel,
             # "proxy": self.proxy,
             "proxy_config": self.proxy_config,
             "viewport_width": self.viewport_width,
@@ -506,16 +506,16 @@ class BrowserConfig:
             "java_script_enabled": self.java_script_enabled,
             "cookies": self.cookies,
             "headers": self.headers,
-            "user_agent": self.user_agent,
-            "user_agent_mode": self.user_agent_mode,
-            "user_agent_generator_config": self.user_agent_generator_config,
+            # "user_agent": self.user_agent,
+            # "user_agent_mode": self.user_agent_mode,
+            # "user_agent_generator_config": self.user_agent_generator_config,
             "text_mode": self.text_mode,
-            "light_mode": self.light_mode,
+            # "light_mode": self.light_mode,
             "extra_args": self.extra_args,
             "sleep_on_close": self.sleep_on_close,
             "verbose": self.verbose,
-            "debugging_port": self.debugging_port,
-            "host": self.host,
+            # "debugging_port": self.debugging_port,
+            # "host": self.host,
             # "enable_stealth": self.enable_stealth,
         }
 
@@ -837,7 +837,7 @@ class CrawlerRunConfig:
         self,
         # Content Processing Parameters
         excluded_tags: list = None,
-        proxy_config: Union[ProxyConfig, dict, None] = None,
+        proxy_config: ProxyConfig = None,
         proxy_rotation_strategy: Optional[ProxyRotationStrategy] = None,
         # Browser Location and Identity Parameters
         locale: Optional[str] = None,

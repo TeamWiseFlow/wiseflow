@@ -36,19 +36,10 @@ from .utils import (
 from .robotsparser import RobotsParser
 
 
-# for 99% of the cases, you don't need to change these configs
-DEFAULT_BROWSER_CONFIG = BrowserConfig(
-    viewport_width=1920,
-    viewport_height=1080,
-    user_agent_mode="random",
-    user_data_dir=os.path.join(base_directory, ".crawl4ai", "browser_data"),
-    light_mode=True
-)
-
 class AsyncWebCrawler:
     def __init__(
         self,
-        config: BrowserConfig = DEFAULT_BROWSER_CONFIG,
+        config: BrowserConfig = BrowserConfig(),
         crawler_strategy: AsyncCrawlerStrategy = None,
         thread_safe: bool = False,
         crawler_config_map: dict = {},
