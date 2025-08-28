@@ -18,7 +18,6 @@ from .basemodels import AsyncCrawlResponse
 from .config import SCREENSHOT_HEIGHT_TRESHOLD
 from .async_configs import BrowserConfig, CrawlerRunConfig
 from .ssl_certificate import SSLCertificate
-from .user_agent_generator import ValidUAGenerator
 from .browser_manager import BrowserManager
 from .browser_adapter import UndetectedAdapter
 
@@ -91,7 +90,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
         self.hooks = {
             "on_browser_created": None,
             "on_page_context_created": None,
-            "on_user_agent_updated": None,
             "on_execution_started": None,
             "on_execution_ended": None,
             "before_goto": None,
@@ -191,30 +189,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             else:
                 return hook(*args, **kwargs)
         return args[0] if args else None
-
-    def update_user_agent(self, user_agent: str):
-        """
-        Update the user agent for the browser.
-
-        Args:
-            user_agent (str): The new user agent string.
-
-        Returns:
-            None
-        """
-        self.user_agent = user_agent
-
-    def set_custom_headers(self, headers: Dict[str, str]):
-        """
-        Set custom headers for the browser.
-
-        Args:
-            headers (Dict[str, str]): A dictionary of headers to set.
-
-        Returns:
-            None
-        """
-        self.headers = headers
 
     async def smart_wait(self, page: Page, wait_for: str, timeout: float = 30000):
         """
@@ -508,28 +482,8 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
         captured_requests = []
         captured_console = []
 
-        # Handle user agent with magic mode
-        user_agent_to_override = config.user_agent
-        if user_agent_to_override:
-            self.browser_config.user_agent = user_agent_to_override
-        elif config.magic or config.user_agent_mode == "random":
-            self.browser_config.user_agent = ValidUAGenerator().generate(
-                **(config.user_agent_generator_config or {})
-            )
-
         # Get page for session
         page, context = await self.browser_manager.get_page(crawlerRunConfig=config)
-
-        # await page.goto(URL)
-
-        # Add default cookie
-        # await context.add_cookies(
-        #     [{"name": "cookiesEnabled", "value": "true", "url": url}]
-        # )
-
-        # Handle navigator overrides
-        if config.override_navigator or config.simulate_user or config.magic:
-            await context.add_init_script(load_js_script("navigator_overrider"))
 
         # Call hook after page creation
         await self.execute_hook("on_page_context_created", page, context=context, config=config)
@@ -739,49 +693,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 if not config.ignore_body_visibility:
                     raise Error(f"Body element is hidden: {visibility_info}")
 
-            # try:
-            #     await page.wait_for_selector("body", state="attached", timeout=30000)
-
-            #     await page.wait_for_function(
-            #         """
-            #         () => {
-            #             const body = document.body;
-            #             const style = window.getComputedStyle(body);
-            #             return style.display !== 'none' &&
-            #                 style.visibility !== 'hidden' &&
-            #                 style.opacity !== '0';
-            #         }
-            #     """,
-            #         timeout=30000,
-            #     )
-            # except Error as e:
-            #     visibility_info = await page.evaluate(
-            #         """
-            #         () => {
-            #             const body = document.body;
-            #             const style = window.getComputedStyle(body);
-            #             return {
-            #                 display: style.display,
-            #                 visibility: style.visibility,
-            #                 opacity: style.opacity,
-            #                 hasContent: body.innerHTML.length,
-            #                 classList: Array.from(body.classList)
-            #             }
-            #         }
-            #     """
-            #     )
-
-            #     if self.config.verbose:
-            #         self.logger.debug(
-            #             message="Body visibility info: {info}",
-            #             tag="DEBUG",
-            #             params={"info": visibility_info},
-            #         )
-
-            #     if not config.ignore_body_visibility:
-            #         raise Error(f"Body element is hidden: {visibility_info}")
-
-            # Handle content loading and viewport adjustment
             if not self.browser_config.text_mode and (
                 config.wait_for_images or config.adjust_viewport_to_content
             ):
@@ -860,19 +771,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
 
                 await self.execute_hook("on_execution_started", page, context=context, config=config)
                 await self.execute_hook("on_execution_ended", page, context=context, config=config, result=execution_result)
-
-            # Handle user simulation
-            if config.simulate_user or config.magic:
-                await page.mouse.move(100, 100)
-                await page.mouse.down()
-                await page.mouse.up()
-                await page.keyboard.press("ArrowDown")
-
-            # Handle wait_for condition
-            # Todo: Decide how to handle this
-            if not config.wait_for and config.css_selector and False:
-            # if not config.wait_for and config.css_selector:
-                config.wait_for = f"css:{config.css_selector}"
 
             if config.wait_for:
                 try:
@@ -997,29 +895,26 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
 
         finally:
             # If no session_id is given we should close the page
-            all_contexts = page.context.browser.contexts
-            total_pages = sum(len(context.pages) for context in all_contexts)                
-            if config.session_id:
-                pass
-            elif total_pages <= 1 and self.browser_config.headless:
-                pass
-            else:
-                # Detach listeners before closing to prevent potential errors during close
-                if config.capture_network_requests:
-                    page.remove_listener("request", handle_request_capture)
-                    page.remove_listener("response", handle_response_capture)
-                    page.remove_listener("requestfailed", handle_request_failed_capture)
-                if config.capture_console_messages:
-                    # Retrieve any final console messages for undetected browsers
-                    if hasattr(self.adapter, 'retrieve_console_messages'):
-                        final_messages = await self.adapter.retrieve_console_messages(page)
-                        captured_console.extend(final_messages)
+            if not config.session_id:
+                total_pages = len(page.context.pages)
+    
+                if total_pages > 1 and not self.browser_config.headless:
+                    # Detach listeners before closing to prevent potential errors during close
+                    if config.capture_network_requests:
+                        page.remove_listener("request", handle_request_capture)
+                        page.remove_listener("response", handle_response_capture)
+                        page.remove_listener("requestfailed", handle_request_failed_capture)
+                    if config.capture_console_messages:
+                        # Retrieve any final console messages for undetected browsers
+                        if hasattr(self.adapter, 'retrieve_console_messages'):
+                            final_messages = await self.adapter.retrieve_console_messages(page)
+                            captured_console.extend(final_messages)
+                        
+                        # Clean up console capture
+                        await self.adapter.cleanup_console_capture(page, handle_console, handle_error)
                     
-                    # Clean up console capture
-                    await self.adapter.cleanup_console_capture(page, handle_console, handle_error)
-                
-                # Close the page
-                await page.close()
+                    # Close the page
+                    await page.close()
 
     # async def _handle_full_page_scan(self, page: Page, scroll_delay: float = 0.1):
     async def _handle_full_page_scan(self, page: Page, scroll_delay: float = 0.1, max_scroll_steps: Optional[int] = None):
