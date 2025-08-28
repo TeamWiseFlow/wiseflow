@@ -18,7 +18,6 @@ import pstats
 from functools import wraps
 import asyncio
 from lxml import etree, html as lhtml
-from pathlib import Path
 from urllib.parse import urlparse, urlunparse
 from functools import lru_cache
 
