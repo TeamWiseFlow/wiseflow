@@ -1,4 +1,4 @@
-import os
+import hashlib
 from .config import (
     SCREENSHOT_HEIGHT_TRESHOLD,
     PAGE_TIMEOUT,
@@ -9,7 +9,6 @@ from typing import Union, List
 import inspect
 from typing import Any, Dict, Optional
 from enum import Enum
-
 from .c4a_scripts import compile
 
 
@@ -182,32 +181,8 @@ class BrowserConfig:
     code will then reference these settings to initialize the browser in a consistent, documented manner.
 
     Attributes:
-        browser_type (str): The type of browser to launch. Supported values: "chromium", "firefox", "webkit".
-                            Default: "chromium".
         headless (bool): Whether to run the browser in headless mode (no visible GUI).
                          Default: True.
-        browser_mode (str): Determines how the browser should be initialized:
-                           "builtin" - use the builtin CDP browser running in background
-                           "dedicated" - create a new dedicated browser instance each time
-                           "cdp" - use explicit CDP settings provided in cdp_url
-                           "docker" - run browser in Docker container with isolation
-                           Default: "dedicated"
-        use_managed_browser (bool): Launch the browser using a managed approach (e.g., via CDP), allowing
-                                    advanced manipulation. Default: False.
-        cdp_url (str): URL for the Chrome DevTools Protocol (CDP) endpoint. Default: "ws://localhost:9222/devtools/browser/".
-        debugging_port (int): Port for the browser debugging protocol. Default: 9222.
-        use_persistent_context (bool): Use a persistent browser context (like a persistent profile).
-                                       Automatically sets use_managed_browser=True. Default: False.
-        user_data_dir (str or None): Path to a user data directory for persistent sessions. If None, a
-                                     temporary directory may be used. Default: None.
-        chrome_channel (str): The Chrome channel to launch (e.g., "chrome", "msedge"). Only applies if browser_type
-                              is "chromium". Default: "chromium".
-        channel (str): The channel to launch (e.g., "chromium", "chrome", "msedge"). Only applies if browser_type
-                              is "chromium". Default: "chromium".
-        proxy (Optional[str]): Proxy server URL (e.g., "http://username:password@proxy:port"). If None, no proxy is used.
-                             Default: None.
-        proxy_config (ProxyConfig or dict or None): Detailed proxy configuration, e.g. {"server": "...", "username": "..."}.
-                                     If None, no additional proxy config. Default: None.
         viewport_width (int): Default viewport width for pages. Default: 1080.
         viewport_height (int): Default viewport height for pages. Default: 600.
         viewport (dict): Default viewport dimensions for pages. If set, overrides viewport_width and viewport_height.
@@ -218,28 +193,12 @@ class BrowserConfig:
                                  Default: False.
         downloads_path (str or None): Directory to store downloaded files. If None and accept_downloads is True,
                                       a default path will be created. Default: None.
-        storage_state (str or dict or None): An in-memory storage state (cookies, localStorage).
-                                             Default: None.
         ignore_https_errors (bool): Ignore HTTPS certificate errors. Default: True.
         java_script_enabled (bool): Enable JavaScript execution in pages. Default: True.
-        cookies (list): List of cookies to add to the browser context. Each cookie is a dict with fields like
-                        {"name": "...", "value": "...", "url": "..."}.
-                        Default: [].
-        headers (dict): Extra HTTP headers to apply to all requests in this context.
-                        Default: {}.
-        user_agent (str): Custom User-Agent string to use. Default: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-                           "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36".
-        user_agent_mode (str or None): Mode for generating the user agent (e.g., "random"). If None, use the provided
-                                       user_agent as-is. Default: None.
-        user_agent_generator_config (dict or None): Configuration for user agent generation if user_agent_mode is set.
-                                                    Default: None.
-        text_mode (bool): If True, disables images and other rich content for potentially faster load times.
-                          Default: False.
-        light_mode (bool): Disables certain background features for performance gains. Default: False.
         extra_args (list): Additional command-line arguments passed to the browser.
                            Default: [].
-        enable_stealth (bool): If True, applies playwright-stealth to bypass basic bot detection.
-                              Cannot be used with use_undetected browser mode. Default: False.
+        sleep_on_close (bool): Sleep on close. Default: False.
+        text_mode (bool): If True, disables images and other rich content for potentially faster load times.
     """
 
     def __init__(
@@ -537,12 +496,7 @@ class CrawlerRunConfig:
                                 Default: False.
         remove_overlay_elements (bool): If True, remove overlays/popups before extracting HTML.
                                         Default: False.
-        simulate_user (bool): If True, simulate user interactions (mouse moves, clicks) for anti-bot measures.
-                              Default: False.
-        override_navigator (bool): If True, overrides navigator properties for more human-like behavior.
-                                   Default: False.
-        magic (bool): If True, attempts automatic handling of overlays/popups.
-                      Default: False.
+
         adjust_viewport_to_content (bool): If True, adjust viewport according to the page content dimensions.
                                            Default: False.
 
@@ -618,6 +572,7 @@ class CrawlerRunConfig:
         # Content Processing Parameters
         excluded_tags: list = None,
         proxy_provider: ProxyProvider = None,
+        need_login: bool = False,
         # Browser Location and Identity Parameters
         locale: Optional[str] = None,
         timezone_id: Optional[str] = None,
@@ -646,7 +601,6 @@ class CrawlerRunConfig:
         scroll_delay: float = 0.2,
         process_iframes: bool = False,
         remove_overlay_elements: bool = False,
-        override_navigator: bool = False,
         adjust_viewport_to_content: bool = False,
         # Media Handling Parameters
         screenshot: bool = False,
@@ -677,12 +631,13 @@ class CrawlerRunConfig:
         wait_for_timeout: int = None,
         max_scroll_steps: Optional[int] = None,
         virtual_scroll_config: Union[VirtualScrollConfig, Dict[str, Any]] = None,
+        context_marker: str = None,
     ):
         # TODO: Planning to set properties dynamically based on the __init__ signature
         self.url = url
         self.excluded_tags = excluded_tags
         self.proxy_provider = proxy_provider
-        
+        self.need_login = need_login
         # Browser Location and Identity Parameters
         self.locale = locale
         self.timezone_id = timezone_id
@@ -715,7 +670,6 @@ class CrawlerRunConfig:
         self.scroll_delay = scroll_delay
         self.process_iframes = process_iframes  
         self.remove_overlay_elements = remove_overlay_elements
-        self.override_navigator = override_navigator
         self.adjust_viewport_to_content = adjust_viewport_to_content
 
         # Media Handling Parameters
@@ -768,6 +722,9 @@ class CrawlerRunConfig:
         if self.c4a_script and not self.js_code:
             self._compile_c4a_script()
 
+        # Make config signature
+        self.context_marker = context_marker or self._make_config_signature()
+
     def _compile_c4a_script(self):
         """Compile C4A script to JavaScript"""
         try: 
@@ -804,6 +761,47 @@ class CrawlerRunConfig:
             if "compilation error" not in str(e).lower():
                 raise ValueError(f"Failed to compile C4A script: {str(e)}")
             raise
+    
+    def _make_config_signature(self) -> str:
+        """
+        Generate a unique signature for browser context configuration.
+        This signature is used to identify and reuse browser contexts with identical configurations.
+        
+        Returns:
+            str: Unique configuration signature hash
+        """
+        # Collect configuration parameters that affect browser context
+        config_parts = []
+        
+        # Proxy provider name
+        if self.proxy_provider:
+            config_parts.append(f"proxy:{self.proxy_provider.uni_name}")
+        else:
+            config_parts.append("proxy:none")
+        
+        # Locale
+        if self.locale:
+            config_parts.append(f"locale:{self.locale}")
+        else:
+            config_parts.append("locale:none")
+        
+        # Timezone
+        if self.timezone_id:
+            config_parts.append(f"timezone:{self.timezone_id}")
+        else:
+            config_parts.append("timezone:none")
+        
+        # Geolocation  
+        if self.geolocation:
+            config_parts.append(f"geo:{self.geolocation.latitude},{self.geolocation.longitude},{self.geolocation.accuracy}")
+        else:
+            config_parts.append("geo:none")
+        
+        # Join all parts and create hash
+        config_string = "|".join(config_parts)
+        signature_hash = hashlib.sha256(config_string.encode('utf-8')).hexdigest()
+        
+        return signature_hash
 
     @staticmethod
     def from_kwargs(kwargs: dict) -> "CrawlerRunConfig":
@@ -811,6 +809,7 @@ class CrawlerRunConfig:
             # Content Processing Parameters
             excluded_tags=kwargs.get("excluded_tags", []),
             proxy_provider=kwargs.get("proxy_provider"),
+            need_login=kwargs.get("need_login", False),
             # Browser Location and Identity Parameters
             locale=kwargs.get("locale", None),
             timezone_id=kwargs.get("timezone_id", None),
@@ -839,7 +838,6 @@ class CrawlerRunConfig:
             scroll_delay=kwargs.get("scroll_delay", 0.2),
             process_iframes=kwargs.get("process_iframes", False),
             remove_overlay_elements=kwargs.get("remove_overlay_elements", False),
-            override_navigator=kwargs.get("override_navigator", False),
             adjust_viewport_to_content=kwargs.get("adjust_viewport_to_content", False),
             # Media Handling Parameters
             screenshot=kwargs.get("screenshot", False),
@@ -869,6 +867,7 @@ class CrawlerRunConfig:
             experimental=kwargs.get("experimental"),
             max_scroll_steps=kwargs.get("max_scroll_steps"),
             virtual_scroll_config=kwargs.get("virtual_scroll_config"),
+            context_marker=kwargs.get("context_marker"),
         )
 
     # Create a funciton returns dict of the object
@@ -885,6 +884,7 @@ class CrawlerRunConfig:
         return {
             "excluded_tags": self.excluded_tags,
             "proxy_provider": self.proxy_provider,
+            "need_login": self.need_login,
             "locale": self.locale,
             "timezone_id": self.timezone_id,
             "geolocation": self.geolocation,
@@ -931,6 +931,7 @@ class CrawlerRunConfig:
             "experimental": self.experimental,
             "max_scroll_steps": self.max_scroll_steps,
             "virtual_scroll_config": self.virtual_scroll_config,
+            "context_marker": self.context_marker,
         }
 
     def clone(self, **kwargs):

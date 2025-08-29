@@ -21,6 +21,7 @@ from .async_configs import BrowserConfig
 from .browser_manager import ManagedBrowser
 from .utils import get_home_folder
 
+# may use: state = await context.storage_state(path=path)
 
 class BrowserProfiler:
     """
