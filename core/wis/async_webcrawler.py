@@ -20,7 +20,7 @@ from .async_crawler_strategy import (
     AsyncPlaywrightCrawlerStrategy,
     AsyncCrawlResponse,
 )
-from .async_configs import BrowserConfig, CrawlerRunConfig, ProxyConfig
+from .async_configs import BrowserConfig, CrawlerRunConfig
 from .async_dispatcher import BaseDispatcher, MemoryAdaptiveDispatcher, RateLimiter
 from .utils import (
     sanitize_input_encode,
@@ -144,19 +144,11 @@ class AsyncWebCrawler:
                 pdf_data = None
                 config = config or self.crawler_config_map.get(get_base_domain(url), self.crawler_config_map['default'])
 
-                # Update proxy configuration from rotation strategy if available
-                if config and config.proxy_rotation_strategy:
-                    next_proxy: ProxyConfig = await config.proxy_rotation_strategy.get_next_proxy()
-                    if next_proxy:
-                        wis_logger.info(f"[PROXY] Switching to {next_proxy.server}")
-                        config.proxy_config = next_proxy
-                        # config = config.clone(proxy_config=next_proxy)
-
                 t1 = time.perf_counter()
                 # Check robots.txt if enabled
                 if config and config.check_robots_txt:
                     if not await self.robots_parser.can_fetch(
-                        url, self.browser_config.user_agent
+                        url, config.user_agent
                     ):
                         wis_logger.info(f"Access denied by robots.txt")
                         return None

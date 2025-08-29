@@ -1,6 +1,6 @@
 # __init__.py
 import warnings
-from .async_configs import BrowserConfig, CrawlerRunConfig, ProxyConfig, GeolocationConfig
+from .async_configs import BrowserConfig, CrawlerRunConfig, GeolocationConfig
 from .async_webcrawler import AsyncWebCrawler
 from .extraction_strategy import (
     NoExtractionStrategy,
@@ -35,7 +35,6 @@ __all__ = [
     "AsyncWebCrawler",
     "GeolocationConfig",
     "CrawlResult",
-    "CacheMode",
     "BrowserConfig",
     "CrawlerRunConfig",
     "ExtractionStrategy",
@@ -52,7 +51,6 @@ __all__ = [
     "BaseDispatcher",
     "MemoryAdaptiveDispatcher",
     "SemaphoreDispatcher",
-    "RateLimiter",
     "KuaiShouCrawler",
     "WeiboCrawler",
     "WeiboSearchType",

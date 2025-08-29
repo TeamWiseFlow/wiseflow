@@ -58,8 +58,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 Start the browser and initialize the browser manager.
             close(self):
                 Close the browser and clean up resources.
-            kill_session(self, session_id):
-                Kill a browser session and clean up resources.
             crawl(self, url, **kwargs):
                 Run the crawler for a single URL.
 
@@ -88,7 +86,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
 
         # Initialize hooks system
         self.hooks = {
-            "on_browser_created": None,
             "on_page_context_created": None,
             "on_execution_started": None,
             "on_execution_ended": None,
@@ -116,38 +113,16 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
         Start the browser and initialize the browser manager.
         """
         await self.browser_manager.start()
-        await self.execute_hook(
-            "on_browser_created",
-            self.browser_manager.browser,
-            context=self.browser_manager.default_context,
-        )
 
     async def close(self):
         """
         Close the browser and clean up resources.
         """
         await self.browser_manager.close()
-        # Explicitly reset the static Playwright instance
-        BrowserManager._playwright_instance = None
-
-    async def kill_session(self, session_id: str):
-        """
-        Kill a browser session and clean up resources.
-
-        Args:
-            session_id (str): The ID of the session to kill.
-
-        Returns:
-            None
-        """
-        # Log a warning message and no need kill session, in new version auto kill session
-        self.logger.warning("Session auto-kill is enabled in the new version. No need to manually kill sessions.")
-        await self.browser_manager.kill_session(session_id)
 
     def set_hook(self, hook_type: str, hook: Callable):
         """
         Set a hook function for a specific hook type. Following are list of hook types:
-        - on_browser_created: Called when a new browser instance is created.
         - on_page_context_created: Called when a new page context is created.
         - on_user_agent_updated: Called when the user agent is updated.
         - on_execution_started: Called when the execution starts.
@@ -597,24 +572,24 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 )
 
             # Handle page navigation and content loading
+            async def page_go(url: str):
+                if config.experimental.get("use_csp_nonce", False):
+                    nonce = hashlib.sha256(os.urandom(32)).hexdigest()
+                    # Add CSP headers to the request
+                    await page.set_extra_http_headers(
+                        {
+                            "Content-Security-Policy": f"default-src 'self'; script-src 'self' 'nonce-{nonce}' 'strict-dynamic'"
+                        }
+                    )
+                return await page.goto(
+                    url, wait_until=config.wait_until, timeout=config.page_timeout
+                )
+
             if not config.js_only:
                 await self.execute_hook("before_goto", page, context=context, url=url, config=config)
 
                 try:
-                    # Generate a unique nonce for this request
-                    if config.experimental.get("use_csp_nonce", False):
-                        nonce = hashlib.sha256(os.urandom(32)).hexdigest()
-
-                        # Add CSP headers to the request
-                        await page.set_extra_http_headers(
-                            {
-                                "Content-Security-Policy": f"default-src 'self'; script-src 'self' 'nonce-{nonce}' 'strict-dynamic'"
-                            }
-                        )
-
-                    response = await page.goto(
-                        url, wait_until=config.wait_until, timeout=config.page_timeout
-                    )
+                    response = await page_go(url)
                     redirected_url = page.url
                 except Error as e:
                     # Allow navigation to be aborted when downloading files
@@ -622,6 +597,18 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                     if 'net::ERR_ABORTED' in str(e) and self.browser_config.accept_downloads:
                         self.logger.info(f"Navigation aborted, likely due to file download: {url}")
                         response = None
+                    # if we have the proxy_provider, we should try to navigate again with the proxy
+                    elif config.proxy_provider:
+                        page, context = await self.browser_manager.get_page(crawlerRunConfig=config, refresh=True)
+                        try:
+                            response = await page_go(url)
+                            redirected_url = page.url
+                        except Error as e:
+                            if 'net::ERR_ABORTED' in str(e) and self.browser_config.accept_downloads:
+                                self.logger.info(f"Navigation aborted, likely due to file download: {url}")
+                                response = None
+                            else:
+                                raise RuntimeError(f"Failed on navigating ACS-GOTO:\n{str(e)}")
                     else:
                         raise RuntimeError(f"Failed on navigating ACS-GOTO:\n{str(e)}")
 
@@ -912,9 +899,10 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                         
                         # Clean up console capture
                         await self.adapter.cleanup_console_capture(page, handle_console, handle_error)
-                    
-                    # Close the page
-                    await page.close()
+                    # await page.close()
+                # Close the page
+                # seems should close in all the situation here, not sure, let's see
+                await page.close()
 
     # async def _handle_full_page_scan(self, page: Page, scroll_delay: float = 0.1):
     async def _handle_full_page_scan(self, page: Page, scroll_delay: float = 0.1, max_scroll_steps: Optional[int] = None):
@@ -1173,7 +1161,7 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             end_time = time.perf_counter()
             self._downloaded_files.append(download_path)
 
-            self.logger.success(f"Downloaded {suggested_filename} successfully")
+            self.logger.success(f"Downloaded {suggested_filename} successfully, took {end_time - start_time:.2f} seconds")
         except Exception as e:
             self.logger.error(f"Failed to handle download: {str(e)}")
 
@@ -1485,24 +1473,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             return base64.b64encode(buffered.getvalue()).decode("utf-8")
         # finally:
         #     await page.close()
-
-    async def export_storage_state(self, path: str = None) -> dict:
-        """
-        Exports the current storage state (cookies, localStorage, sessionStorage)
-        to a JSON file at the specified path.
-
-        Args:
-            path (str): The path to save the storage state JSON file
-
-        Returns:
-            dict: The exported storage state
-        """
-        if self.default_context:
-            state = await self.default_context.storage_state(path=path)
-            self.logger.info(f"Exported storage state to {path}")
-            return state
-        else:
-            self.logger.warning("No default_context available to export storage state.")
 
     async def robust_execute_user_script(
         self, page: Page, js_code: Union[str, List[str]]
