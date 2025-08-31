@@ -2,6 +2,8 @@ import hashlib
 from .config import (
     SCREENSHOT_HEIGHT_TRESHOLD,
     PAGE_TIMEOUT,
+    VIEWPORT_WIDTH,
+    VIEWPORT_HEIGHT,
 )
 
 from .proxy_providers import ProxyProvider
@@ -202,8 +204,8 @@ class BrowserConfig:
     def __init__(
         self,
         headless: bool = False,
-        viewport_width: int = 1920,
-        viewport_height: int = 1080,
+        viewport_width: int = VIEWPORT_WIDTH,
+        viewport_height: int = VIEWPORT_HEIGHT,
         accept_downloads: bool = False,
         downloads_path: str = None,
         ignore_https_errors: bool = True,
@@ -229,8 +231,8 @@ class BrowserConfig:
     def from_kwargs(kwargs: dict) -> "BrowserConfig":
         return BrowserConfig(
             headless=kwargs.get("headless", True),
-            viewport_width=kwargs.get("viewport_width", 1920),
-            viewport_height=kwargs.get("viewport_height", 1080),
+            viewport_width=kwargs.get("viewport_width", VIEWPORT_WIDTH),
+            viewport_height=kwargs.get("viewport_height", VIEWPORT_HEIGHT),
             accept_downloads=kwargs.get("accept_downloads", False),
             downloads_path=kwargs.get("downloads_path"),
             ignore_https_errors=kwargs.get("ignore_https_errors", True),
