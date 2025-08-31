@@ -256,18 +256,23 @@
     // 15. 时区和日期
     Date.prototype.getTimezoneOffset = likeNative(() => -480, nativeToStringFunctionString); // UTC+8
 
-    // 16. 屏幕信息伪造
+    // 16. 屏幕信息伪造 - 使用实际屏幕尺寸避免显示偏移
+    const realScreenWidth = screen.width;
+    const realScreenHeight = screen.height;
+    const realAvailWidth = screen.availWidth;
+    const realAvailHeight = screen.availHeight;
+    
     Object.defineProperty(screen, 'width', {
-        get: likeNative(() => 1920, nativeToStringFunctionString)
+        get: likeNative(() => realScreenWidth, nativeToStringFunctionString)
     });
     Object.defineProperty(screen, 'height', {
-        get: likeNative(() => 1080, nativeToStringFunctionString)
+        get: likeNative(() => realScreenHeight, nativeToStringFunctionString)
     });
     Object.defineProperty(screen, 'availWidth', {
-        get: likeNative(() => 1920, nativeToStringFunctionString)
+        get: likeNative(() => realAvailWidth, nativeToStringFunctionString)
     });
     Object.defineProperty(screen, 'availHeight', {
-        get: likeNative(() => 1040, nativeToStringFunctionString)
+        get: likeNative(() => realAvailHeight, nativeToStringFunctionString)
     });
     Object.defineProperty(screen, 'colorDepth', {
         get: likeNative(() => 24, nativeToStringFunctionString)

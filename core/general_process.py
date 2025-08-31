@@ -25,7 +25,7 @@ from wis import (
     CrawlResult,
     search_with_engine
 )
-from web_crawler_configs import crawler_config_map
+from custom_processes import crawler_config_map
 from wis.config import MAX_URLS_PER_TASK, EXCLUDE_EXTERNAL_LINKS
 from tools.general_utils import Recorder
 

@@ -430,6 +430,223 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 "URL must start with 'http://', 'https://', 'file://', or 'raw:'"
             )
 
+    async def _check_login_status(self, page: Page, url: str) -> bool:
+        """
+        检查页面的登录状态，按照准确度和运算量优化的顺序进行检测
+        
+        Args:
+            page (Page): 当前页面对象
+            url (str): 页面URL
+            
+        Returns:
+            bool: True 表示已登录，False 表示未登录
+        """
+        
+        # 1. 检查 localStorage - 高准确度，低运算量，优先检查
+        try:
+            local_storage = await page.evaluate('''() => {
+                const storage = {};
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    storage[key] = localStorage.getItem(key);
+                }
+                return storage;
+            }''')
+            
+            # 检查常见的登录标识
+            login_keys = ['accesstoken', 'authtoken', 'userinfo', 'isloggedin', 'loginstate']
+            storage_str = str(local_storage).lower()
+            
+            for key in login_keys:
+                if key in storage_str:
+                    if self.logger:
+                        self.logger.debug(f"Found login-related data in localStorage: {key}")
+                    return True
+                    
+        except Exception as e:
+            if self.logger:
+                self.logger.warning(f"Failed to check localStorage: {e}")
+        
+        # 2. 检查 sessionStorage - 高准确度，低运算量
+        try:
+            session_storage = await page.evaluate('''() => {
+                const storage = {};
+                for (let i = 0; i < sessionStorage.length; i++) {
+                    const key = sessionStorage.key(i);
+                    storage[key] = sessionStorage.getItem(key);
+                }
+                return storage;
+            }''')
+            
+            storage_str = str(session_storage).lower()
+            login_keys = ['accesstoken', 'authtoken', 'userinfo', 'isloggedin', 'loginstate']
+            
+            for key in login_keys:
+                if key in storage_str:
+                    if self.logger:
+                        self.logger.debug(f"Found login-related data in sessionStorage: {key}")
+                    return True
+                
+        except Exception as e:
+            if self.logger:
+                self.logger.warning(f"Failed to check sessionStorage: {e}")
+        
+        # 3. 检查 Cookie - 高准确度，低运算量
+        try:
+            cookies = await page.context.cookies(url)
+            login_cookie_names = ['login', 'sid', 'authtoken']
+            
+            for cookie in cookies:
+                cookie_name = cookie['name'].lower()
+                for name_pattern in login_cookie_names:
+                    if name_pattern == cookie_name:
+                        if self.logger:
+                            self.logger.debug(f"Found login-related cookie: {cookie['name']}")
+                        return True
+                
+        except Exception as e:
+            if self.logger:
+                self.logger.warning(f"Failed to check cookies: {e}")
+        
+        # 4. 检查页面中的用户信息元素 - 中等准确度，中等运算量
+        try:
+            user_element_selectors = [
+                # 用户头像和信息
+                '.avatar', '.user-avatar', '.profile-img', '.profile-image',
+                '.username', '.user-name', '.profile-name', '.user-info',
+                # 登出相关元素
+                '.logout', '.sign-out', '.log-out',
+                # 中文登出
+                '*:has-text("退出")', '*:has-text("注销")', '*:has-text("登出")',
+                # 英文登出
+                'button:has-text("Logout")', 'a:has-text("Logout")',
+                'button:has-text("Sign Out")', 'a:has-text("Sign Out")',
+                'button:has-text("Log Out")', 'a:has-text("Log Out")'
+            ]
+            
+            for selector in user_element_selectors:
+                try:
+                    elements = await page.query_selector_all(selector)
+                    if elements:
+                        if self.logger:
+                            self.logger.debug(f"Found user element: {selector}")
+                        return True
+                except Exception:
+                    continue
+                    
+        except Exception as e:
+            if self.logger:
+                self.logger.warning(f"Failed to check user elements: {e}")
+        
+        # 5. 最后检查登录相关元素 - 使用特征文本和表单元素检测
+        login_element_selectors = [
+            # 中文登录相关文本元素
+            '*:has-text("登录")', '*:has-text("登錄")', '*:has-text("立即登录")', '*:has-text("马上登录")',
+            # 英文登录相关文本元素
+            '*:has-text("Login")', '*:has-text("Log In")', '*:has-text("Sign In")', '*:has-text("Log On")',
+            # 表单元素（高准确度）
+            'input[name="username" i]', 'input[name="password" i]', 
+            'input[name="email" i]', 'input[type="password"]',
+            'form[id*="login" i]', 'form[class*="login" i]',
+            # 登录按钮和链接
+            'button[id*="login" i]', 'button[class*="login" i]',
+            'a[href*="login" i]', 'a[href*="signin" i]',
+            # 验证相关元素
+            '.verification', '.verify-btn', '.verify', '.captcha'
+        ]
+        
+        for selector in login_element_selectors:
+            try:
+                elements = await page.query_selector_all(selector)
+                if elements:
+                    if self.logger:
+                        self.logger.debug(f"Found login element: {selector}")
+                    return False
+            except Exception:
+                continue
+        
+        return True
+
+    async def _bring_page_to_front(self, page: Page):
+        """
+        尝试让页面成为浏览器的激活页面
+        
+        Args:
+            page (Page): 要激活的页面
+            
+        Returns:
+        """
+        try:
+            # 尝试将页面置于前台
+            await page.bring_to_front()
+            
+            # 等待一小段时间确保页面已经激活
+            await asyncio.sleep(0.5)
+            
+            if self.logger:
+                self.logger.debug("Page brought to front successfully")
+            
+        except Exception as e:
+            if self.logger:
+                self.logger.warning(f"Failed to bring page to front: {e}")
+
+    async def _wait_for_user_login(self, page: Page, url: str, max_attempts: int = 2, timeout_seconds: int = 300) -> bool:
+        """
+        等待用户完成登录操作
+        
+        Args:
+            page (Page): 当前页面对象
+            url (str): 页面URL
+            max_attempts (int): 最大尝试次数
+            timeout_seconds (int): 每次等待的超时时间（秒）
+            
+        Returns:
+            bool: 是否成功登录
+        """
+        for attempt in range(max_attempts):
+            try:
+                # 尝试激活页面
+                await self._bring_page_to_front(page)
+                
+                # 提醒用户
+                print(f"\n{'='*60}")
+                print(f"🔐 登录检测 - 尝试 {attempt + 1}/{max_attempts}")
+                print(f"📍 页面URL: {url}")
+                print(f"⏰ 请在 {timeout_seconds} 秒内完成登录操作")
+                print(f"🖥️  请在浏览器中完成登录，然后按回车键继续...")
+                print(f"{'='*60}")
+                
+                # 在单独的线程中等待用户输入，同时设置超时
+                async def wait_for_user_input():
+                    loop = asyncio.get_event_loop()
+                    return await loop.run_in_executor(None, input, "按回车键继续...")
+                
+                try:
+                    # 等待用户输入或超时
+                    await asyncio.wait_for(wait_for_user_input(), timeout=timeout_seconds)
+                    return True
+                except asyncio.TimeoutError:
+                    current_url = page.url
+                    if current_url == url:
+                        await page.reload()
+                    if await self._check_login_status(page, url):
+                        return True
+                    if attempt < max_attempts - 1:
+                        print(f"🔄 将进行下一次尝试...")
+                        await asyncio.sleep(2)
+                    
+            except Exception as e:
+                if self.logger:
+                    self.logger.error(f"Error during user login wait attempt {attempt + 1}: {e}")
+                print(f"❌ 登录检测过程中出现错误: {e}")
+        
+        # 所有尝试都失败
+        print(f"⚠️  经过 {max_attempts} 次尝试仍无法确认登录状态，将继续执行...")
+        if self.logger:
+            self.logger.warning(f"Login confirmation failed after {max_attempts} attempts, continuing")
+        
+        return False
+
     async def _crawl_web(
         self, url: str, config: CrawlerRunConfig
     ) -> AsyncCrawlResponse:
@@ -590,7 +807,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
 
                 try:
                     response = await page_go(url)
-                    redirected_url = page.url
                 except Error as e:
                     # Allow navigation to be aborted when downloading files
                     # This is expected behavior for downloads in some browser engines
@@ -602,7 +818,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                         page, context = await self.browser_manager.get_page(crawlerRunConfig=config, refresh=True)
                         try:
                             response = await page_go(url)
-                            redirected_url = page.url
                         except Error as e:
                             if 'net::ERR_ABORTED' in str(e) and self.browser_config.accept_downloads:
                                 self.logger.info(f"Navigation aborted, likely due to file download: {url}")
@@ -818,8 +1033,36 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             else:
                 html = await page.content()
             
+            # 登录状态检测和用户交互逻辑
+            # 仅在非无头模式下生效（即 headless=False）且没有使用 css_selector 且需要登录时生效
+            if not self.browser_config.headless and not config.css_selector and config.need_login:
+                if not await self._check_login_status(page, url):
+                    if await self._wait_for_user_login(page, url):
+                        if self.logger:
+                            self.logger.debug("User logged in successfully, refreshing content...")
+                        
+                        # 登录成功后，给页面一些时间处理可能的动态更新
+                        await asyncio.sleep(2)
+                        
+                        # 检查页面是否还在当前URL，如果跳转了就不需要刷新
+                        current_url = page.url
+                        if current_url == url:
+                            # 如果还在同一个页面，刷新以确保获取最新内容
+                            try:
+                                if self.logger:
+                                    self.logger.debug("Refreshing page to get updated content after login")
+                                await page.reload(wait_until=config.wait_until, timeout=config.page_timeout)
+                            except Exception as e:
+                                if self.logger:
+                                    self.logger.warning(f"Failed to reload page after login: {e}")
+                        else:
+                            if self.logger:
+                                self.logger.debug(f"Page redirected from {url} to {current_url} after login")
+                        
+                        # 重新获取页面内容
+                        html = await page.content()
+                
             # # Get final HTML content
-            # html = await page.content()
             await self.execute_hook(
                 "before_return_html", page=page, html=html, context=context, config=config
             )
@@ -871,7 +1114,7 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 downloaded_files=(
                     self._downloaded_files if self._downloaded_files else None
                 ),
-                redirected_url=redirected_url,
+                redirected_url=page.url,
                 # Include captured data if enabled
                 network_requests=captured_requests if config.capture_network_requests else None,
                 console_messages=captured_console if config.capture_console_messages else None,
