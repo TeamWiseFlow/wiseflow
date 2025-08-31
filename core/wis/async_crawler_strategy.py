@@ -611,7 +611,7 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 # 提醒用户
                 print(f"\n{'='*60}")
                 print(f"🔐 登录检测 - 尝试 {attempt + 1}/{max_attempts}")
-                print(f"📍 页面URL: {url}")
+                print(f"📍 页面URL: {page.url}")
                 print(f"⏰ 请在 {timeout_seconds} 秒内完成登录操作")
                 print(f"🖥️  请在浏览器中完成登录，然后按回车键继续...")
                 print(f"{'='*60}")

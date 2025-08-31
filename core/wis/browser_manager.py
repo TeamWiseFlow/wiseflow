@@ -112,11 +112,10 @@ class BrowserManager:
     def _build_stealth_args(self) -> list:
         """构建隐蔽启动参数"""
         stealth_args = [
-            "--no-sandbox",
+            # "--no-sandbox",
             # "--disable-setuid-sandbox",
             "--disable-dev-shm-usage",
             "--disable-blink-features=AutomationControlled",
-            "--disable-features=VizDisplayCompositor",
             "--disable-features=TranslateUI",
             "--disable-ipc-flooding-protection",
             "--disable-renderer-backgrounding",
@@ -134,9 +133,6 @@ class BrowserManager:
             "--disable-extensions",
             "--disable-default-apps",
             "--disable-component-extensions-with-background-pages",
-            "--disable-gpu",
-            "--disable-gpu-compositing", 
-            "--disable-software-rasterizer",
             "--mute-audio",
             "--ignore-certificate-errors",
             "--ignore-ssl-errors",
@@ -144,8 +140,7 @@ class BrowserManager:
             # "--ignore-certificate-errors-skip-list",
             "--allow-running-insecure-content",
             "--disable-web-security",
-            f"--window-size={self.config.viewport_width},{self.config.viewport_height}",
-            "--force-device-scale-factor=1",
+            # f"--window-size={self.config.viewport_width},{self.config.viewport_height}",
             "--disable-translate",
         ]
         
@@ -171,7 +166,9 @@ class BrowserManager:
             "user_data_dir": os.path.join(PERSISTENT_CONTEXT_DIR, config.context_marker),
             "channel": "chrome",
             "headless": self.config.headless,
-            "no_viewport": True,
+            "no_viewport": False,
+            "viewport": {"width": self.config.viewport_width, "height": self.config.viewport_height},
+            "device_scale_factor": 1,
             "ignore_https_errors": True,
             "java_script_enabled": True,
             "args": args,
