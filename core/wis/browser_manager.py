@@ -140,12 +140,15 @@ class BrowserManager:
             "--mute-audio",
             "--ignore-certificate-errors",
             "--ignore-ssl-errors",
-            "--ignore-certificate-errors-spki-list",
-            "--ignore-certificate-errors-skip-list",
+            # "--ignore-certificate-errors-spki-list",
+            # "--ignore-certificate-errors-skip-list",
             "--allow-running-insecure-content",
             "--disable-web-security",
-            f"--window-size={self.config.viewport_width},{self.config.viewport_height}"
+            f"--window-size={self.config.viewport_width},{self.config.viewport_height}",
+            "--force-device-scale-factor=1",
+            "--disable-translate",
         ]
+        
         if self.config.text_mode:
             stealth_args.extend(
                 [
@@ -153,8 +156,6 @@ class BrowserManager:
                     "--disable-remote-fonts",
                     "--disable-images",
                     "--disable-javascript",
-                    "--disable-software-rasterizer",
-                    "--disable-dev-shm-usage",
                 ]
             )
 

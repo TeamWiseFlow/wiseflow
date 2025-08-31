@@ -12,7 +12,7 @@ if os.path.exists(env_path):
 root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'core')
 sys.path.append(root_path)
 from wis import AsyncWebCrawler
-from web_crawler_configs import crawler_config_map
+from custom_processes import crawler_config_map
 
 save_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'webpage_samples')
 # which include some standard sites with different html structure

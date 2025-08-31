@@ -5,7 +5,7 @@ import urllib.parse
 from lxml import html
 from typing import Tuple
 from wis import AsyncWebCrawler
-from web_crawler_configs import DEFAULT_CRAWLER_CONFIG
+from custom_processes.crawler_configs import DEFAULT_CRAWLER_CONFIG
 
 
 bing_search_url = "https://www.bing.com/search"

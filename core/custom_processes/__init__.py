@@ -1,4 +1,5 @@
-# Reserved for custom processing workflows (e.g., using Json or Regex extractors)
-# But currently no complete implementation plan
+from .crawler_configs import DEFAULT_CRAWLER_CONFIG, NEED_LOGIN_CRAWLER_CONFIG
 
-# workflows = {}
+# use a pure domain name to identify the crawler config
+crawler_config_map = {'default': DEFAULT_CRAWLER_CONFIG, 
+                      'wsj.com': NEED_LOGIN_CRAWLER_CONFIG}

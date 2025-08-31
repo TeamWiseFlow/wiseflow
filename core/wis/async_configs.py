@@ -185,8 +185,6 @@ class BrowserConfig:
                          Default: True.
         viewport_width (int): Default viewport width for pages. Default: 1080.
         viewport_height (int): Default viewport height for pages. Default: 600.
-        viewport (dict): Default viewport dimensions for pages. If set, overrides viewport_width and viewport_height.
-                         Default: None.
         verbose (bool): Enable verbose logging.
                         Default: True.
         accept_downloads (bool): Whether to allow file downloads. If True, requires a downloads_path.
