@@ -52,8 +52,7 @@ common_file_exts = [
     # PHP
     '.php', '.php3', '.php4', '.php5', '.php7', '.phtml', '.phps',
     # Additional formats
-    '.yaml', '.yml', '.asp', '.jsp'
-]
+    '.yaml', '.yml', '.asp']
 
 common_tlds = [
     '.com', '.cn', '.net', '.org', '.edu', '.gov', '.io', '.co',
