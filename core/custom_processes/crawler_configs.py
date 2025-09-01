@@ -50,8 +50,8 @@ DEFAULT_CRAWLER_CONFIG = CrawlerRunConfig(
     # c4a_script=None, # to robotexecute some c4a script in the page
     # excluded_tags = []  # leave it empty to remove all following tags: 'script', 'style', 'noscript', 'iframe', 'canvas', 'svg', 'video', 'audio', 'source', 'track', 'map', 'area'
     # for internet codebug, you can capture the network requests and console messages
-    # capture_network_requests=False,
-    # capture_console_messages=False,
+    # capture_network_requests=True,
+    # capture_console_messages=True,
 )
 
 NEED_LOGIN_CRAWLER_CONFIG = CrawlerRunConfig(

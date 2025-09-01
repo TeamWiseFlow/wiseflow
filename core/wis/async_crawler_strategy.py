@@ -616,24 +616,41 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 print(f"🖥️  请在浏览器中完成登录，然后按回车键继续...")
                 print(f"{'='*60}")
                 
-                # 在单独的线程中等待用户输入，同时设置超时
-                async def wait_for_user_input():
-                    loop = asyncio.get_event_loop()
-                    return await loop.run_in_executor(None, input, "按回车键继续...")
+                # 使用更可靠的输入方式，避免stdin状态问题
+                import sys
+                import select
                 
-                try:
-                    # 等待用户输入或超时
-                    await asyncio.wait_for(wait_for_user_input(), timeout=timeout_seconds)
+                success = False
+                start_time = time.time()
+                
+                while time.time() - start_time < timeout_seconds:
+                    # 检查是否有输入可用（非阻塞）
+                    if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+                        try:
+                            # 读取并清空输入缓冲区
+                            sys.stdin.readline()
+                            success = True
+                            break
+                        except Exception:
+                            # 如果读取失败，假设用户已完成操作
+                            success = True
+                            break
+                    
+                    # 每0.1秒检查一次，避免忙等待
+                    await asyncio.sleep(0.1)
+                
+                if success:
                     return True
-                except asyncio.TimeoutError:
-                    current_url = page.url
-                    if current_url == url:
-                        await page.reload()
-                    if await self._check_login_status(page, url):
-                        return True
-                    if attempt < max_attempts - 1:
-                        print(f"🔄 将进行下一次尝试...")
-                        await asyncio.sleep(2)
+                
+                # 超时处理
+                current_url = page.url
+                if current_url == url:
+                    await page.reload()
+                if await self._check_login_status(page, url):
+                    return True
+                if attempt < max_attempts - 1:
+                    print(f"🔄 将进行下一次尝试...")
+                    await asyncio.sleep(2)
                     
             except Exception as e:
                 if self.logger:
@@ -665,7 +682,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
         response_headers = {}
         execution_result = None
         status_code = None
-        redirected_url = url 
 
         # Reset downloaded files list for new crawl
         self._downloaded_files = []
@@ -712,36 +728,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                         self.logger.warning(f"Error capturing request details for {request.url}: {e}", tag="CAPTURE")
                     captured_requests.append({"event_type": "request_capture_error", "url": request.url, "error": str(e), "timestamp": time.time()})
 
-            async def handle_response_capture(response):
-                try:
-                    try:
-                        # body = await response.body()
-                        # json_body = await response.json()
-                        text_body = await response.text()
-                    except Exception as e:
-                        body = None
-                        # json_body = None
-                        # text_body = None
-                    captured_requests.append({
-                        "event_type": "response",
-                        "url": response.url,
-                        "status": response.status,
-                        "status_text": response.status_text,
-                        "headers": dict(response.headers), # Convert Header dict
-                        "from_service_worker": response.from_service_worker,
-                        "request_timing": response.request.timing, # Detailed timing info
-                        "timestamp": time.time(),
-                        "body" : {
-                            # "raw": body,
-                            # "json": json_body,
-                            "text": text_body
-                        }
-                    })
-                except Exception as e:
-                    if self.logger:
-                        self.logger.warning(f"Error capturing response details for {response.url}: {e}", tag="CAPTURE")
-                    captured_requests.append({"event_type": "response_capture_error", "url": response.url, "error": str(e), "timestamp": time.time()})
-
             async def handle_request_failed_capture(request):
                  try:
                     captured_requests.append({
@@ -758,7 +744,7 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                     captured_requests.append({"event_type": "request_failed_capture_error", "url": request.url, "error": str(e), "timestamp": time.time()})
 
             page.on("request", handle_request_capture)
-            page.on("response", handle_response_capture)
+            # page.on("response", handle_response_capture)
             page.on("requestfailed", handle_request_failed_capture)
 
         # Console Message Capturing
@@ -1132,7 +1118,7 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                     # Detach listeners before closing to prevent potential errors during close
                     if config.capture_network_requests:
                         page.remove_listener("request", handle_request_capture)
-                        page.remove_listener("response", handle_response_capture)
+                        # page.remove_listener("response", handle_response_capture)
                         page.remove_listener("requestfailed", handle_request_failed_capture)
                     if config.capture_console_messages:
                         # Retrieve any final console messages for undetected browsers
