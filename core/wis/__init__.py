@@ -28,7 +28,7 @@ from .async_dispatcher import (
 
 from .kuaishou import *
 from .weibo import *
-from .config.mc_config import WEIBO_PLATFORM_NAME, KUAISHOU_PLATFORM_NAME
+from .config import WEIBO_PLATFORM_NAME, KUAISHOU_PLATFORM_NAME, ALL_PLATFORMS
 from .searchengines import search_with_engine
 
 __all__ = [
@@ -59,6 +59,7 @@ __all__ = [
     "DefaultMarkdownGenerator",
     "WeixinArticleMarkdownGenerator",
     "search_with_engine",
+    "ALL_PLATFORMS",
 ]
 
 # Disable all Pydantic warnings
