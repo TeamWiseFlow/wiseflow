@@ -1,17 +1,15 @@
 # WiseFlow - Main dependencies
-# Using >= version constraints to ensure compatibility while getting security updates
 
 # Logging system
 loguru>=0.7.2
 
 # Async HTTP clients
-httpx>=0.28.1
+httpx==0.28.1
 aiohttp>=3.11.11
 requests>=2.32.3
 
 # Database and storage
 aiosqlite>=0.20.0
-# pocketbase>=0.12.0
 
 # Data validation and processing
 pydantic>=2.10.3
@@ -38,17 +36,17 @@ snowballstemmer~=2.2
 feedparser>=6.0.11
 
 # Image processing
-pillow>=10.4.0
+Pillow>=10.4.0
 
 # Environment and configuration
 python-dotenv~=1.0
 packaging>=24.2
 
 # File handling
-aiofiles>=24.1.0
+aiofiles==24.1.0
 
 # User agent and spoofing
-fake-useragent>=2.2.0
+# fake-useragent>=2.2.0
 
 # Hashing and encryption
 xxhash>=3.5.0
@@ -56,8 +54,6 @@ pyOpenSSL>=24.3.0
 
 # System and performance
 psutil>=6.1.1
-
-# Parser generator
 lark>=1.1.7
 
 # Character encoding detection
@@ -65,4 +61,4 @@ faust-cchardet>=2.1.19
 chardet>=5.2.0
 
 # Retry mechanism
-tenacity>=8.2.3
+tenacity==9.0.0

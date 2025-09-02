@@ -87,7 +87,6 @@ def to_serializable_dict(obj: Any, ignore_default_value : bool = False) -> Dict:
         
     return str(obj)
 
-
 def from_serializable_dict(data: Any) -> Any:
     """
     Recursively convert a serializable dictionary back to an object instance.
@@ -114,7 +113,6 @@ def from_serializable_dict(data: Any) -> Any:
         return {k: from_serializable_dict(v) for k, v in data.items()}
 
     return data
-
 
 def is_empty_value(value: Any) -> bool:
     """Check if a value is effectively empty/null."""
@@ -286,6 +284,7 @@ class BrowserConfig:
             return config
         return BrowserConfig.from_kwargs(config)
 
+
 class VirtualScrollConfig:
     """Configuration for virtual scroll handling.
     
@@ -330,100 +329,6 @@ class VirtualScrollConfig:
     def from_dict(cls, data: dict) -> "VirtualScrollConfig":
         """Create instance from dictionary."""
         return cls(**data)
-
-class LinkPreviewConfig:
-    """Configuration for link head extraction and scoring."""
-    
-    def __init__(
-        self,
-        include_internal: bool = True,
-        include_external: bool = False,
-        include_patterns: Optional[List[str]] = None,
-        exclude_patterns: Optional[List[str]] = None,
-        concurrency: int = 10,
-        timeout: int = 5,
-        max_links: int = 100,
-        query: Optional[str] = None,
-        score_threshold: Optional[float] = None,
-        verbose: bool = False
-    ):
-        """
-        Initialize link extraction configuration.
-        
-        Args:
-            include_internal: Whether to include same-domain links
-            include_external: Whether to include different-domain links  
-            include_patterns: List of glob patterns to include (e.g., ["*/docs/*", "*/api/*"])
-            exclude_patterns: List of glob patterns to exclude (e.g., ["*/login*", "*/admin*"])
-            concurrency: Number of links to process simultaneously
-            timeout: Timeout in seconds for each link's head extraction
-            max_links: Maximum number of links to process (prevents overload)
-            query: Query string for BM25 contextual scoring (optional)
-            score_threshold: Minimum relevance score to include links (0.0-1.0, optional)
-            verbose: Show detailed progress during extraction
-        """
-        self.include_internal = include_internal
-        self.include_external = include_external
-        self.include_patterns = include_patterns
-        self.exclude_patterns = exclude_patterns
-        self.concurrency = concurrency
-        self.timeout = timeout
-        self.max_links = max_links
-        self.query = query
-        self.score_threshold = score_threshold
-        self.verbose = verbose
-        
-        # Validation
-        if concurrency <= 0:
-            raise ValueError("concurrency must be positive")
-        if timeout <= 0:
-            raise ValueError("timeout must be positive")
-        if max_links <= 0:
-            raise ValueError("max_links must be positive")
-        if score_threshold is not None and not (0.0 <= score_threshold <= 1.0):
-            raise ValueError("score_threshold must be between 0.0 and 1.0")
-        if not include_internal and not include_external:
-            raise ValueError("At least one of include_internal or include_external must be True")
-    
-    @staticmethod
-    def from_dict(config_dict: Dict[str, Any]) -> "LinkPreviewConfig":
-        """Create LinkPreviewConfig from dictionary (for backward compatibility)."""
-        if not config_dict:
-            return None
-        
-        return LinkPreviewConfig(
-            include_internal=config_dict.get("include_internal", True),
-            include_external=config_dict.get("include_external", False),
-            include_patterns=config_dict.get("include_patterns"),
-            exclude_patterns=config_dict.get("exclude_patterns"),
-            concurrency=config_dict.get("concurrency", 10),
-            timeout=config_dict.get("timeout", 5),
-            max_links=config_dict.get("max_links", 100),
-            query=config_dict.get("query"),
-            score_threshold=config_dict.get("score_threshold"),
-            verbose=config_dict.get("verbose", False)
-        )
-    
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary format."""
-        return {
-            "include_internal": self.include_internal,
-            "include_external": self.include_external,
-            "include_patterns": self.include_patterns,
-            "exclude_patterns": self.exclude_patterns,
-            "concurrency": self.concurrency,
-            "timeout": self.timeout,
-            "max_links": self.max_links,
-            "query": self.query,
-            "score_threshold": self.score_threshold,
-            "verbose": self.verbose
-        }
-    
-    def clone(self, **kwargs) -> "LinkPreviewConfig":
-        """Create a copy with updated values."""
-        config_dict = self.to_dict()
-        config_dict.update(kwargs)
-        return LinkPreviewConfig.from_dict(config_dict)
 
 
 class CrawlerRunConfig:
