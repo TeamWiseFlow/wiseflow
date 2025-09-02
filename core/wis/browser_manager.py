@@ -217,9 +217,6 @@ class BrowserManager:
         """
         Create a new context for the given crawlerRunConfig.
         """
-        if not self.playwright:
-            await self.start()
-
         if crawlerRunConfig.proxy_provider:
             proxy_info = await crawlerRunConfig.proxy_provider.get_proxy()
             proxy = ProxySettings(
@@ -252,6 +249,9 @@ class BrowserManager:
         Returns:
             (page, context): The Page and its BrowserContext
         """
+        if not self.playwright:
+            await self.start()
+            
         async with self._contexts_lock:
             self._cleanup_expired_sessions()
 

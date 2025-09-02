@@ -190,15 +190,15 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
                 if not img_src:
                     text = text.replace(_sec, alt, 1)
                 elif remained_text_len > 150 or len(alt) > 5:
-                    _key = f"[{len(link_dict)+1}]"
+                    _key = f"[img{len(link_dict)+1}]"
                     link_dict[_key] = img_src
                     text = text.replace(_sec, alt + _key, 1)
                 elif not is_valid_img_url(img_src):
-                    _key = f"[{len(link_dict)+1}]"
+                    _key = f"[img{len(link_dict)+1}]"
                     link_dict[_key] = img_src
                     text = text.replace(_sec, alt + _key, 1)
                 else:
-                    _key = f"[{len(link_dict)+1}]"
+                    _key = f"[img{len(link_dict)+1}]"
                     link_dict[_key] = img_src
                     alt = extract_info_from_img(img_src)
                     text = text.replace(_sec, alt + _key, 1)
@@ -454,10 +454,6 @@ class WeixinArticleMarkdownGenerator(DefaultMarkdownGenerator):
                     pattern = r'href=\\x26quot;(.*?)\\x26quot;.*?\\x26gt;(.*?)\\x26lt;/a'
                     matches = re.findall(pattern, des)
                     if matches:
-                        # 使用正则表达式匹配所有的链接和描述对
-                        pattern = r'href=\\x26quot;(.*?)\\x26quot;.*?\\x26gt;(.*?)\\x26lt;/a'
-                        matches = re.findall(pattern, des)
-                        # 处理每个匹配项
                         for url, description in matches:
                             # 清理URL中的转义字符
                             cleaned_url = self._clean_weixin_url(url)
