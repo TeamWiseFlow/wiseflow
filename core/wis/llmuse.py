@@ -46,7 +46,7 @@ def perform_completion_with_backoff(messages: List, model: str = '', **kwargs):
                         # image url probility is that server cannot fetch the image, so we don't need to worry about it
                         wis_logger.warning(error_msg)
                         wis_logger.info(f"messages: {messages}")
-                    raise e
+                    return ''
                 else:
                     # other API error, retry
                     error_msg = f"{model} API error: {e.status_code}. Retry {retry+1}/{max_retries}."
@@ -69,4 +69,4 @@ def perform_completion_with_backoff(messages: List, model: str = '', **kwargs):
     # if all retries fail
     error_msg = "Max retries reached, still unable to get a valid response."
     wis_logger.warning(error_msg)
-    raise Exception(error_msg)
+    return ''

@@ -243,7 +243,7 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
             recorder.web_source += 1
 
         elif source['type'] in [KUAISHOU_PLATFORM_NAME, WEIBO_PLATFORM_NAME]:
-            if not crawlers[source['type']]:
+            if not crawlers.get(source['type']):
                 wis_logger.info(f"focus {focus_id} got {source['type']} source, but no valid crawler, skip")
                 continue
 
@@ -271,7 +271,7 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
             tasks.add(wrap_task(crawlers[source['type']].posts_list(**kwags), (task_type, source['type'])))
         
         else:
-            wis_logger.warning(f"focus {focus_id} has unvalid source {source['id']}: has no type, skip")
+            wis_logger.warning(f"focus {focus_id} has unvalid source{source['id']}: {source['type']}, skip")
             continue
     
     posts = []

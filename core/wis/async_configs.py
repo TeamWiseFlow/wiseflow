@@ -813,7 +813,6 @@ class CrawlerRunConfig:
             "scroll_delay": self.scroll_delay,
             "process_iframes": self.process_iframes,
             "remove_overlay_elements": self.remove_overlay_elements,
-            "override_navigator": self.override_navigator,
             "adjust_viewport_to_content": self.adjust_viewport_to_content,
             "screenshot": self.screenshot,
             "screenshot_wait_for": self.screenshot_wait_for,

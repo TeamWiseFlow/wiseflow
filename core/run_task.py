@@ -9,6 +9,7 @@ if env_path.exists():
 from wis import (
     KuaiShouCrawler,
     WeiboCrawler,
+    ALL_PLATFORMS,
     KUAISHOU_PLATFORM_NAME,
     WEIBO_PLATFORM_NAME,
 )
@@ -24,23 +25,24 @@ async def schedule_task():
     # initialize if any error, will raise exception
     db_manager = AsyncDatabaseManager()
     await db_manager.initialize()
-
-    ks_crawler = KuaiShouCrawler(db_manager=db_manager)
-    wb_crawler = WeiboCrawler(db_manager=db_manager)
-    try:
-        await ks_crawler.async_initialize()
-    except Exception as e:
-        wis_logger.error(f"initialize kuaishou crawler failed: {e}, will abort all the sources for kuaishou platform")
-        ks_crawler = None
-    try:
-        await wb_crawler.async_initialize()
-    except Exception as e:
-        wis_logger.error(f"initialize weibo crawler failed: {e}, will abort all the sources for weibo platform")
-        wb_crawler = None
-    crawlers = {
-        KUAISHOU_PLATFORM_NAME: ks_crawler,
-        WEIBO_PLATFORM_NAME: wb_crawler,
-    }
+    crawlers = {}
+    for platform in ALL_PLATFORMS:
+        if platform == KUAISHOU_PLATFORM_NAME:
+            try:
+                ks_crawler = KuaiShouCrawler(db_manager=db_manager)
+                await ks_crawler.async_initialize()
+                crawlers[KUAISHOU_PLATFORM_NAME] = ks_crawler
+            except Exception as e:
+                wis_logger.error(f"initialize kuaishou crawler failed: {e}, will abort all the sources for kuaishou platform")
+        elif platform == WEIBO_PLATFORM_NAME:
+            try:
+                wb_crawler = WeiboCrawler(db_manager=db_manager)
+                await wb_crawler.async_initialize()
+                crawlers[WEIBO_PLATFORM_NAME] = wb_crawler
+            except Exception as e:
+                wis_logger.error(f"initialize weibo crawler failed: {e}, will abort all the sources for weibo platform")
+        else:
+            raise ValueError(f"platform {platform} not supported")
 
     global loop_counter
     try:
