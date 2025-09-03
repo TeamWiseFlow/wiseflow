@@ -17,9 +17,9 @@ import random
 from abc import ABC, abstractmethod
 
 from .utils import get_true_memory_usage_percent
+from .config import MaxSessionPermit
 
 from typing import TYPE_CHECKING
-
 if TYPE_CHECKING:
     from .async_webcrawler import AsyncWebCrawler
 
@@ -118,7 +118,7 @@ class MemoryAdaptiveDispatcher(BaseDispatcher):
         critical_threshold_percent: float = 95.0,  # New critical threshold
         recovery_threshold_percent: float = 85.0,  # New recovery threshold
         check_interval: float = 1.0,
-        max_session_permit: int = 20,
+        max_session_permit: int = MaxSessionPermit,
         fairness_timeout: float = 600.0,  # 10 minutes before prioritizing long-waiting URLs
         memory_wait_timeout: Optional[float] = 600.0,
         rate_limiter: Optional[RateLimiter] = None,
@@ -459,8 +459,8 @@ class SemaphoreDispatcher(BaseDispatcher):
     def __init__(
         self,
         semaphore_count: int = 5,
-        max_session_permit: int = 20,
-        rate_limiter: Optional[RateLimiter] = None
+        max_session_permit: int = MaxSessionPermit,
+        rate_limiter: Optional[RateLimiter] = None,
     ):
         super().__init__(rate_limiter)
         self.semaphore_count = semaphore_count
@@ -532,13 +532,17 @@ class SemaphoreDispatcher(BaseDispatcher):
     ) -> List[CrawlerTaskResult]:
         self.crawler = crawler
 
-        semaphore = asyncio.Semaphore(self.semaphore_count)
-        tasks = []
-        for url in urls:
-            task_id = str(uuid.uuid4())
-            task = asyncio.create_task(
-                self.crawl_url(url, task_id, semaphore)
-            )
-            tasks.append(task)
+        try:
+            semaphore = asyncio.Semaphore(self.semaphore_count)
+            tasks = []
 
-        return await asyncio.gather(*tasks, return_exceptions=True)
+            for url in urls:
+                task_id = str(uuid.uuid4())
+                task = asyncio.create_task(
+                    self.crawl_url(url, task_id, semaphore)
+                )
+                tasks.append(task)
+
+            return await asyncio.gather(*tasks, return_exceptions=True)
+        finally:
+            pass

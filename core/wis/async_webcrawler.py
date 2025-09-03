@@ -269,7 +269,7 @@ class AsyncWebCrawler:
             dispatcher = MemoryAdaptiveDispatcher(
                 rate_limiter=RateLimiter(
                     base_delay=(1.0, 3.0), max_delay=60.0, max_retries=3
-                ),
+                )
             )
 
         def transform_result(task_result):

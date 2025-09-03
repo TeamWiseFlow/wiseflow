@@ -16,7 +16,9 @@ from custom_processes import crawler_config_map
 
 save_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'webpage_samples')
 # which include some standard sites with different html structure
-standard_sites = ['https://mp.weixin.qq.com/s?__biz=MjM5MTM3NTMwNA==&mid=2661608680&idx=1&sn=68b4d98cebbb5c327f36fed04bbbd198',
+standard_sites = ['https://qn.bjx.com.cn/',
+                  'https://huanbao.bjx.com.cn/news/20250730/1453496.shtml',
+                  'https://hr.bjx.com.cn/companys/50208/jobs_0_1/',
                   'https://mp.weixin.qq.com/s/jBWc1tK8_XasfmCGNo93Xg',
                   'https://www.liugong.com/',
                   "https://www.xcmg.com/aboutus/news.htm",
@@ -28,7 +30,11 @@ standard_sites = ['https://mp.weixin.qq.com/s?__biz=MjM5MTM3NTMwNA==&mid=2661608
                   'https://www.wsj.com/news/latest-headlines?mod=nav_top_section',
                   'https://www.wsj.com/tech/openai-elon-musk-mark-zuckerberg-meta-be2ee198',
                   'https://www.bloomberg.com/latest?utm_source=homepage&utm_medium=web&utm_campaign=latest',
-                  'https://www.bloomberg.com/news/articles/2025-08-21/trump-aims-to-win-majority-on-fed-board-with-attempt-to-oust-lisa-cook?srnd=phx-economics-v2'
+                  'https://www.bloomberg.com/news/articles/2025-08-21/trump-aims-to-win-majority-on-fed-board-with-attempt-to-oust-lisa-cook?srnd=phx-economics-v2',
+                  'https://www.producthunt.com/products/qoder',
+                  'https://www.producthunt.com/products/lumi-new-2',
+                  'https://www.producthunt.com/products/jogg-ai/launches/joggai-avatarx',
+                  'https://mp.weixin.qq.com/s/WY1sDXV41ABrJWtLj0v6EA'
                   ]
 
 
