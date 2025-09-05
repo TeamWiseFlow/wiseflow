@@ -9,7 +9,7 @@ from ..config.mc_config import (
     CRAWLER_MAX_NOTES_COUNT, 
     WEIBO_SEARCH_TYPE, 
     SEARCH_UP_TIME, CREATOR_SEARCH_UP_TIME)
-from ..mc_commen import AccountWithIpPoolManager, ProxyIpPool, wis_logger, create_ip_pool
+from ..mc_commen import AccountWithIpPoolManager, ProxyIpPool, wis_logger
 from .store_impl import update_weibo_note, update_weibo_note_comment
 from .client import WeiboClient
 from .exception import DataFetchError
@@ -32,16 +32,6 @@ class WeiboCrawler:
 
         """
         proxy_ip_pool: Optional[ProxyIpPool] = None
-        """
-        if config.ENABLE_IP_PROXY:
-            # weibo对代理验证中等，可以选择长时长的IP，比如1-5分钟一个IP
-            # 快代理：私密代理->按IP付费->专业版->IP有效时长为1-5分钟, 购买地址：https://www.kuaidaili.com/?ref=ldwkjqipvz6c
-            proxy_ip_pool = await create_ip_pool(
-                config.IP_PROXY_POOL_COUNT, enable_validate_ip=True
-            )
-        """
-
-        # 初始化账号池
         account_with_ip_pool = AccountWithIpPoolManager(
             platform_name=WEIBO_PLATFORM_NAME,
             proxy_ip_pool=proxy_ip_pool,

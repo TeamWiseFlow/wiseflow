@@ -138,11 +138,10 @@ def get_logger(logger_file_path: str, logger_name: str):
     if logger_name == 'wiseflow_info_scraper':
         print(f"\n{CYAN}{'#' * 50}{RESET}")
         print(f"{GREEN}Wiseflow Info Scraper {__version__}{RESET}")
-        print(f"{YELLOW}Modified by bigbrother666sh based on:{RESET}")
-        print(f"{BLUE}Crawl4ai 0.74 (https://github.com/unclecode/crawl4ai)")
-        print(f"{BLUE}MediaCrawler (https://github.com/NanmiCoder/MediaCrawler)")
-        print(f"{BLUE}with enhanced by NoDriver (https://github.com/ultrafunkamsterdam/nodriver)")
-        print(f"{MAGENTA}2025-08-31{RESET}")
+        print(f"{YELLOW}⚠️  Important Notice: This tool is only for fetching publicly released, non-intellectual property content.{RESET}")
+        print(f"{BLUE}Intended Use: For bulletin boards, notice boards, news releases, etc. of corporate portals, government agencies, industry associations, and similar organizations.{RESET}")
+        print(f"{BLUE}Strictly Prohibited: Bulk content retrieval from media/news websites is not allowed.{RESET}")
+        print(f"{MAGENTA}Disclaimer: You are solely responsible for the results of using this tool. Please evaluate carefully before use.{RESET}")
         print(f"{CYAN}{'#' * 50}{RESET}\n")
 
     return logger.bind(name=logger_name)

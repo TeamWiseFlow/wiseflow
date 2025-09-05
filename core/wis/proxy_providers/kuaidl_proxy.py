@@ -4,10 +4,8 @@ from typing import Dict, List
 import httpx
 from pydantic import BaseModel, Field
 
-from ..config.proxy_config import KDL_SECERT_ID, KDL_SIGNATURE, KDL_USER_NAME, KDL_USER_PWD
 from .base_proxy import IpInfoModel, ProxyProvider
 import time
-
 
 # 快代理的IP代理过期时间向前推移5秒
 DELTA_EXPIRED_SECOND = 5
@@ -52,7 +50,8 @@ class KuaiDaiLiProxy(ProxyProvider):
                  kdl_user_name: str, 
                  kdl_user_pwd: str, 
                  kdl_secret_id: str, 
-                 kdl_signature: str):
+                 kdl_signature: str,
+                 clear_all_cache: bool = False):
 
         self.kdl_user_name = kdl_user_name
         self.kdl_user_pwd = kdl_user_pwd
@@ -68,7 +67,7 @@ class KuaiDaiLiProxy(ProxyProvider):
             "f_et": 1,
         }
         # Call parent class constructor
-        super().__init__(uni_name, ip_pool_count, enable_validate_ip)
+        super().__init__(uni_name, ip_pool_count, enable_validate_ip, clear_all_cache)
 
     async def _supply_new_proxies(self):
         """
@@ -96,11 +95,12 @@ class KuaiDaiLiProxy(ProxyProvider):
             if ip_response.get("code") != 0:
                 self.logger.warning(f"[KuaiDaiLiProxy.get_proxies]  code not 0 and msg:{ip_response.get('msg')}")
                 raise Exception("get ip error from proxy provider and  code not 0 ...")
-
+        
             proxy_list: List[str] = ip_response.get("data", {}).get("proxy_list")
             for proxy in proxy_list:
                 proxy_model = parse_kuaidaili_proxy(proxy)
                 ip_info_model = IpInfoModel(
+                    protocol="http",  # 快代理的IP代理协议都是http
                     ip=proxy_model.ip,
                     port=proxy_model.port,
                     user=self.kdl_user_name,
@@ -114,16 +114,3 @@ class KuaiDaiLiProxy(ProxyProvider):
             self.cache_ip_infos(new_ip_infos)
             
         self.ip_pool.extend(new_ip_infos)
-
-def new_kuai_daili_proxy() -> KuaiDaiLiProxy:
-    """
-    构造快代理HTTP实例
-    Returns:
-
-    """
-    return KuaiDaiLiProxy(
-        kdl_secret_id=KDL_SECERT_ID,
-        kdl_signature=KDL_SIGNATURE,
-        kdl_user_name=KDL_USER_NAME,
-        kdl_user_pwd=KDL_USER_PWD,
-    )

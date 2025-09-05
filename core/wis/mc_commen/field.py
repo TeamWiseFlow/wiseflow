@@ -45,13 +45,8 @@ class AccountPlatfromEnum(Enum):
     """
     account platform enum
     """
-    # XHS = constant.XHS_PLATFORM_NAME
     WEIBO = WEIBO_PLATFORM_NAME
-    # DOUYIN = constant.DOUYIN_PLATFORM_NAME
     KUAISHOU = KUAISHOU_PLATFORM_NAME
-    # BILIBILI = constant.BILIBILI_PLATFORM_NAME
-    # TIEBA = constant.TIEBA_PLATFORM_NAME
-    # ZHIHU = constant.ZHIHU_PLATFORM_NAME
 
 
 class AccountInfoModel(BaseModel):
@@ -103,7 +98,7 @@ if __name__ == '__main__':
         status=AccountStatusEnum.NORMAL,
         invalid_timestamp=0,
         user_agent="user_agent_test_1",
-        platform_name=AccountPlatfromEnum.XHS
+        platform_name=AccountPlatfromEnum.WEIBO
     )
     print(aim)
     print(aim.model_dump())

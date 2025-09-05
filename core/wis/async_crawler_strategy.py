@@ -1128,10 +1128,8 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                         
                         # Clean up console capture
                         await self.adapter.cleanup_console_capture(page, handle_console, handle_error)
-                    # await page.close()
-                # Close the page
-                # seems should close in all the situation here, not sure, let's see
-                await page.close()
+                # if problems here, put this in the if block
+                await self.browser_manager.release_page(page)
 
     # async def _handle_full_page_scan(self, page: Page, scroll_delay: float = 0.1):
     async def _handle_full_page_scan(self, page: Page, scroll_delay: float = 0.1, max_scroll_steps: Optional[int] = None):

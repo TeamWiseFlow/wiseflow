@@ -19,8 +19,8 @@ pandas>=2.2.3
 openai>=1.58.1
 
 # Browser automation
-patchright>=1.49.0
-nodriver>=0.37
+patchright==1.52.5
+nodriver==0.47.0
 pdf2image>=1.17.0
 
 # HTML/XML processing
