@@ -25,17 +25,18 @@ class LocalProxy(ProxyProvider):
                  uni_name: str,
                  ip_pool_count: int, 
                  enable_validate_ip: bool,
-                 local_proxy_file: str = DEFAULT_LOCAL_PROXY_FILE):
-        
-        super().__init__(uni_name, ip_pool_count, enable_validate_ip)
+                 local_proxy_file: str = DEFAULT_LOCAL_PROXY_FILE,
+                 clear_all_cache: bool = False):
+
+        super().__init__(uni_name, ip_pool_count, enable_validate_ip, clear_all_cache)
         self.local_proxy_file = local_proxy_file
-    
+
     async def _supply_new_proxies(self):
         try:
             with open(self.local_proxy_file, "r", encoding="utf-8") as f:
                 proxy_list = json.load(f)
         except Exception as e:
-            self.logger.error(f"Failed to load local proxy file: {e}")
+            self.logger.warning(f"Failed to load local proxy file: {e}")
             raise Exception(f"Failed to load local proxy file: {e}")
         
         self.clear_all()
@@ -58,7 +59,7 @@ class LocalProxy(ProxyProvider):
             else:
                 expired_time_ts = int(expired_time_ts) + int(time.time())
 
-            ip_info = IpInfoModel(ip=ip, port=port, user=user, password=password, protocol=f"{protocol}://", expired_time_ts=expired_time_ts)
+            ip_info = IpInfoModel(ip=ip, port=port, user=user, password=password, protocol=protocol, expired_time_ts=expired_time_ts)
             self.ip_pool.append(ip_info)
 
         self.cache_ip_infos(self.ip_pool)

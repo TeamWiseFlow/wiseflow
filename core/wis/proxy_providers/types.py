@@ -1,5 +1,4 @@
 import time
-from typing import Dict
 
 from pydantic import BaseModel, Field
 
@@ -9,19 +8,17 @@ class IpInfoModel(BaseModel):
     ip: str = Field(title="ip")
     port: int = Field(title="端口")
     user: str = Field(title="IP代理认证的用户名")
-    protocol: str = Field(default="https://", title="代理IP的协议")
+    protocol: str = Field(default="https", title="代理IP的协议")
     password: str = Field(title="IP代理认证用户的密码")
     expired_time_ts: int = Field(title="IP过期时间时间戳，单位秒")
 
-    def format_httpx_proxy(self) -> Dict:
+    def format_httpx_proxy(self) -> str:
         """
-        Get the httpx proxy dict
+        Get the httpx proxy string
         Returns:
 
         """
-        httpx_proxy = {
-            f"{self.protocol}": f"http://{self.user}:{self.password}@{self.ip}:{self.port}"
-        }
+        httpx_proxy = f"{self.protocol}://{self.user}:{self.password}@{self.ip}:{self.port}"
         return httpx_proxy
 
     @property

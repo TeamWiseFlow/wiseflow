@@ -1,7 +1,7 @@
 import random
-from typing import Dict, List
+from typing import List
 import httpx
-from tenacity import retry, stop_after_attempt, wait_fixed
+import asyncio
 import os
 import time
 import sqlite3
@@ -19,9 +19,10 @@ class ProxyProvider(ABC):
         self, 
         uni_name: str,
         ip_pool_count: int, 
-        enable_validate_ip: bool) -> None:
+        enable_validate_ip: bool,
+        clear_all_cache: bool = False) -> None:
 
-        self.valid_ip_url = "https://echo.apifox.cn/"  # 验证 IP 是否有效的地址
+        self.valid_ip_url = "https://www.aiqingbaoguan.com/"  # 验证 IP 是否有效的地址
         self.ip_pool_count = ip_pool_count
         self.enable_validate_ip = enable_validate_ip
         self.uni_name = uni_name
@@ -31,11 +32,13 @@ class ProxyProvider(ABC):
         os.makedirs(base_directory, exist_ok=True)
         self._init_db()
         self._load_cached_ips()
+        if clear_all_cache:
+            self.clear_all()
     
     def _init_db(self):
         """Initialize the cache database"""
         # Use WAL mode for better concurrency and performance
-        with sqlite3.connect(self.cache_db_file) as conn:
+        with sqlite3.connect(self.cache_db_file, timeout=10.0) as conn:
             conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS ip_cache (
@@ -53,15 +56,25 @@ class ProxyProvider(ABC):
 
     def _cache_ipinfo(self, ip_info: IpInfoModel):
         """Cache IpInfoModel to database"""
-        with sqlite3.connect(self.cache_db_file) as conn:
-            # Use INSERT OR REPLACE to handle both insert and update cases
-            conn.execute(
-                """INSERT OR REPLACE INTO ip_cache 
-                   (provider_name, ip, port, user, password, protocol, expired_time_ts)
-                   VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                (self.uni_name, ip_info.ip, ip_info.port, ip_info.user, 
-                 ip_info.password, ip_info.protocol, ip_info.expired_time_ts)
-            )
+        for attempt in range(3):
+            try:
+                with sqlite3.connect(self.cache_db_file, timeout=10.0) as conn:
+                    # Use INSERT OR REPLACE to handle both insert and update cases
+                    conn.execute(
+                        """INSERT OR REPLACE INTO ip_cache 
+                           (provider_name, ip, port, user, password, protocol, expired_time_ts)
+                           VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                        (self.uni_name, ip_info.ip, ip_info.port, ip_info.user, 
+                         ip_info.password, ip_info.protocol, ip_info.expired_time_ts)
+                    )
+                break
+            except sqlite3.OperationalError as e:
+                if "database is locked" in str(e) and attempt < 2:
+                    time.sleep(0.1 * (attempt + 1))  # 递增等待时间
+                    continue
+                else:
+                    self.logger.warning(f"Database operation failed: {e}")
+                    raise
 
     def _load_cached_ips(self):
         """Load cached IPs from database, remove expired ones, and add valid ones to ip_pool"""
@@ -99,7 +112,6 @@ class ProxyProvider(ABC):
         """Cache multiple IpInfoModel instances to database"""
         for ip_info in ip_infos:
             self._cache_ipinfo(ip_info)
-        self.logger.debug(f"[{self.uni_name}] Cached {len(ip_infos)} IP infos to database")
 
     def clear_all(self):
         """Clear all cached IPs for this provider"""
@@ -113,17 +125,18 @@ class ProxyProvider(ABC):
         2. Remove invalid ips from database
         """
         current_time = int(time.time())
-        deleted_count = 0
         with sqlite3.connect(self.cache_db_file) as conn:
             cursor = conn.execute(
                 "DELETE FROM ip_cache WHERE provider_name = ? AND expired_time_ts > 0 AND expired_time_ts < ?", 
                 (self.uni_name, current_time)
             )
-            deleted_count = cursor.rowcount
-            conn.execute("DELETE FROM ip_cache WHERE provider_name = ? AND ip IN ?", (self.uni_name, tuple(self.invalid_ips)))
-            deleted_count += conn.rowcount
-        
-        self.logger.info(f"[{self.uni_name}] Removed {deleted_count} expired and invalid IPs from cache")
+            
+            # Handle invalid IPs deletion only if there are any invalid IPs
+            if self.invalid_ips:
+                # Create placeholders for the IN clause
+                placeholders = ','.join('?' * len(self.invalid_ips))
+                query = f"DELETE FROM ip_cache WHERE provider_name = ? AND ip IN ({placeholders})"
+                cursor = conn.execute(query, (self.uni_name, *self.invalid_ips))
 
     async def _is_valid_proxy(self, proxy: IpInfoModel) -> bool:
         """
@@ -132,13 +145,11 @@ class ProxyProvider(ABC):
         :return:
         """
         self.logger.debug(
-            f"[ProxyIpPool._is_valid_proxy] testing {proxy.ip} is it valid "
+            f"[ProxyIpPool._is_valid_proxy] testing {proxy.ip}:{proxy.port} is it valid "
         )
         try:
-            httpx_proxy = {
-                f"{proxy.protocol}": f"http://{proxy.user}:{proxy.password}@{proxy.ip}:{proxy.port}"
-            }
-            async with httpx.AsyncClient(proxies=httpx_proxy) as client:
+            httpx_proxy = f"{proxy.protocol}://{proxy.user}:{proxy.password}@{proxy.ip}:{proxy.port}"
+            async with httpx.AsyncClient(proxy=httpx_proxy) as client:
                 response = await client.get(self.valid_ip_url)
             if response.status_code == 200:
                 return True
@@ -146,9 +157,9 @@ class ProxyProvider(ABC):
                 return False
         except Exception as e:
             self.logger.info(
-                f"[ProxyIpPool._is_valid_proxy] testing {proxy.ip} err: {e}"
+                f"[ProxyIpPool._is_valid_proxy] testing {proxy.ip}:{proxy.port} err: {e}"
             )
-            raise e
+            return False
 
     async def mark_ip_invalid(self, proxy: IpInfoModel):
         """
@@ -156,7 +167,7 @@ class ProxyProvider(ABC):
         :param proxy:
         :return:
         """
-        self.logger.info(f"[ProxyIpPool.mark_ip_invalid] mark {proxy.ip} invalid")
+        self.logger.info(f"[ProxyIpPool.mark_ip_invalid] mark {proxy.ip}:{proxy.port} invalid")
         for p in self.ip_pool:
             if (
                 p.ip == proxy.ip
@@ -169,23 +180,42 @@ class ProxyProvider(ABC):
                 self.invalid_ips.append(p.ip)
                 break
 
-    @retry(stop=stop_after_attempt(3), wait=wait_fixed(1))
-    async def get_proxy(self) -> IpInfoModel:
+    async def get_proxy(self) -> IpInfoModel | None:
         """
         从代理池中随机提取一个代理IP
-        :return:
+        :return: IpInfoModel if successful, None if all 3 attempts failed
         """
-        if len(self.ip_pool) < 1:
-            await self._supply_new_proxies()
+        for attempt in range(3):
+            try:
+                if len(self.ip_pool) < 1:
+                    await self._supply_new_proxies()
 
-        proxy = random.choice(self.ip_pool)
-        self.ip_pool.remove(proxy)  # 取出来一个IP就应该移出掉
-        if self.enable_validate_ip:
-            if not await self._is_valid_proxy(proxy):
-                raise Exception(
-                    "[ProxyIpPool.get_proxy] current ip invalid and again get it"
+                proxy = random.choice(self.ip_pool)
+                self.ip_pool.remove(proxy)  # 取出来一个IP就应该移出掉
+                
+                if self.enable_validate_ip:
+                    if not await self._is_valid_proxy(proxy):
+                        await self.mark_ip_invalid(proxy)
+                        self.logger.info(
+                            f"[ProxyIpPool.get_proxy] Attempt {attempt + 1}/3: "
+                            f"proxy {proxy.ip}:{proxy.port} is invalid, retrying..."
+                        )
+                        if attempt < 2:  # 不是最后一次尝试，等待1秒
+                            await asyncio.sleep(1)
+                        continue
+                
+                return proxy
+                
+            except Exception as e:
+                self.logger.info(
+                    f"[ProxyIpPool.get_proxy] Attempt {attempt + 1}/3 failed: {e}"
                 )
-        return proxy
+                if attempt < 2:  # 不是最后一次尝试，等待1秒
+                    await asyncio.sleep(1)
+                continue
+        
+        self.logger.warning("[ProxyIpPool.get_proxy] All 3 attempts failed")
+        return None
     
     @abstractmethod
     async def _supply_new_proxies(self):

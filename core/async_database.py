@@ -159,9 +159,43 @@ class AsyncDatabaseManager:
         self.ready = True
         # 加载不缓存的URL列表
         await self._load_no_cache_urls()
+    
+    async def _ensure_database_directory(self):
+        """确保数据库目录存在"""
+        if not os.path.exists(DB_PATH):
+            wis_logger.info(f"Creating database directory: {DB_PATH}")
+            os.makedirs(DB_PATH, exist_ok=True)
+
+    def _generate_create_table_sql(self, table_name: str, columns: dict) -> str:
+        """根据表结构定义生成CREATE TABLE SQL语句"""
+        column_defs = []
+        # SQL reserved keywords that need to be escaped
+        reserved_keywords = {'references', 'order', 'group', 'having', 'where', 'select', 'from', 'join', 'table'}
+        
+        for col_name, col_def in columns.items():
+            # Escape column names that are SQL reserved keywords
+            if col_name.lower() in reserved_keywords:
+                escaped_col_name = f"[{col_name}]"
+            else:
+                escaped_col_name = col_name
+            column_defs.append(f"{escaped_col_name} {col_def}")
+        
+        columns_sql = ",\n    ".join(column_defs)
+        return f"""
+CREATE TABLE IF NOT EXISTS {table_name} (
+    {columns_sql}
+)
+        """.strip()
+
+    async def _create_missing_table(self, db, table_name: str, expected_columns: dict):
+        """创建缺失的表"""
+        wis_logger.info(f"Creating missing table: {table_name}")
+        create_sql = self._generate_create_table_sql(table_name, expected_columns)
+        await db.execute(create_sql)
+        wis_logger.info(f"Successfully created table: {table_name}")
 
     async def _init_db_schema(self):
-        """初始化数据库模式，包含表结构校验和缺失列自动补充"""
+        await self._ensure_database_directory()
         async with aiosqlite.connect(self.db_path, timeout=30.0) as db:
             # 检查所有必需的表是否存在
             for table_name, expected_columns in self.TABLE_SCHEMAS.items():
@@ -173,11 +207,15 @@ class AsyncDatabaseManager:
                     table_exists = await cursor.fetchone()
                 
                 if not table_exists:
-                    raise ValueError(f"Required table '{table_name}' does not exist")
-                
-                # 获取当前表的列信息
-                async with db.execute(f"PRAGMA table_info({table_name})") as cursor:
-                    current_columns_info = await cursor.fetchall()
+                    # 创建缺失的表
+                    await self._create_missing_table(db, table_name, expected_columns)
+                    # 表创建后，重新获取列信息进行后续验证
+                    async with db.execute(f"PRAGMA table_info({table_name})") as cursor:
+                        current_columns_info = await cursor.fetchall()
+                else:
+                    # 获取当前表的列信息
+                    async with db.execute(f"PRAGMA table_info({table_name})") as cursor:
+                        current_columns_info = await cursor.fetchall()
                 
                 # 构建当前列的详细信息 {列名: (类型, 是否非空)}
                 current_columns = {}
@@ -189,10 +227,21 @@ class AsyncDatabaseManager:
                         'not_null': bool(row[3])
                     }
                 
-                # 检查所有必需的列是否存在
+                reserved_keywords = {'references', 'order', 'group', 'having', 'where', 'select', 'from', 'join', 'table'}
                 for col_name, col_def in expected_columns.items():
                     if col_name not in current_columns:
-                        raise ValueError(f"Required column '{col_name}' missing in table '{table_name}'")
+                        wis_logger.info(f"Adding missing column '{col_name}' to table '{table_name}'")
+                        try:
+                            # Escape column names that are SQL reserved keywords
+                            if col_name.lower() in reserved_keywords:
+                                escaped_col_name = f"[{col_name}]"
+                            else:
+                                escaped_col_name = col_name
+                            await db.execute(f"ALTER TABLE {table_name} ADD COLUMN {escaped_col_name} {col_def}")
+                            wis_logger.info(f"Successfully added column '{col_name}' to table '{table_name}'")
+                        except Exception as e:
+                            wis_logger.warning(f"Failed to add column '{col_name}' to table '{table_name}': {str(e)}")
+                        continue
                     
                     # 检查列类型是否匹配
                     expected_type = col_def.split()[0].upper()  # 获取类型部分并转为大写

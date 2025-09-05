@@ -217,15 +217,15 @@ class BrowserManager:
         """
         Create a new context for the given crawlerRunConfig.
         """
+        proxy = None
         if crawlerRunConfig.proxy_provider:
             proxy_info = await crawlerRunConfig.proxy_provider.get_proxy()
-            proxy = ProxySettings(
-                server=f"{proxy_info.protocol}://{proxy_info.ip}:{proxy_info.port}",
-                username=proxy_info.user,
-                password=proxy_info.password,
-            )
-        else:
-            proxy = None
+            if proxy_info:
+                proxy = ProxySettings(
+                    server=f"{proxy_info.protocol}://{proxy_info.ip}:{proxy_info.port}",
+                    username=proxy_info.user,
+                    password=proxy_info.password,
+                )
 
         context = await self.playwright.chromium.launch_persistent_context(
             **self._build_browser_args
@@ -254,7 +254,7 @@ class BrowserManager:
             
         async with self._contexts_lock:
             self._cleanup_expired_sessions()
-
+            context = None
             if not refresh:
                 # If a session_id is provided and we already have it, reuse that page + context
                 if crawlerRunConfig.session_id and crawlerRunConfig.session_id in self.sessions:
@@ -263,15 +263,8 @@ class BrowserManager:
                     self.sessions[crawlerRunConfig.session_id] = (context, page, time.time(), crawlerRunConfig.context_marker)
                     return page, context
 
-            context = self.contexts.get(crawlerRunConfig.context_marker)
-        
-            if context and refresh:
-                for session_id, (_, _, _, context_marker) in self.sessions.items():
-                    if context_marker == crawlerRunConfig.context_marker:
-                        del self.sessions[session_id]
-                await context.close()
-                del self.contexts[crawlerRunConfig.context_marker]
-                context = None
+                context = self.contexts.get(crawlerRunConfig.context_marker)
+
             if not context:
                 context = await self.create_context(crawlerRunConfig)
 
@@ -283,6 +276,21 @@ class BrowserManager:
 
         return page, context
 
+    async def release_page(self, page):
+        """
+        统一的页面释放接口，处理页面关闭和context清理
+        
+        Args:
+            page: 要关闭的页面
+        """
+        context = page.context
+        if len(context.pages) == 1 and not context in self.contexts.values():
+            await context.close()
+            return
+
+        if not page.is_closed():
+            await page.close()
+            
     async def kill_session(self, session_id: str):
         """
         Kill a browser session and clean up resources.
@@ -291,9 +299,8 @@ class BrowserManager:
             session_id (str): The session ID to kill.
         """
         if session_id in self.sessions:
-            context, page, _ = self.sessions[session_id]
-            await page.close()
-            # await context.close()
+            context, page, _, _ = self.sessions[session_id]
+            await self.release_page(page)
             del self.sessions[session_id]
 
     def _cleanup_expired_sessions(self):

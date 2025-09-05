@@ -3,16 +3,11 @@ from typing import TYPE_CHECKING, Union
 
 # Crawler core types
 AsyncWebCrawler = Union['AsyncWebCrawlerType']
-CacheMode = Union['CacheModeType']
 CrawlResult = Union['CrawlResultType']
 
 # Configuration types
 BrowserConfig = Union['BrowserConfigType']
 CrawlerRunConfig = Union['CrawlerRunConfigType']
-
-# Proxy types
-ProxyRotationStrategy = Union['ProxyRotationStrategyType']
-RoundRobinProxyStrategy = Union['RoundRobinProxyStrategyType']
 
 # Extraction types
 ExtractionStrategy = Union['ExtractionStrategyType']
@@ -34,9 +29,6 @@ BaseDispatcher = Union['BaseDispatcherType']
 MemoryAdaptiveDispatcher = Union['MemoryAdaptiveDispatcherType']
 SemaphoreDispatcher = Union['SemaphoreDispatcherType']
 RateLimiter = Union['RateLimiterType']
-CrawlerMonitor = Union['CrawlerMonitorType']
-DisplayMode = Union['DisplayModeType']
-RunManyReturn = Union['RunManyReturnType']
 
 # Only import types during type checking to avoid circular imports
 if TYPE_CHECKING:
@@ -44,7 +36,6 @@ if TYPE_CHECKING:
     # Crawler core imports
     from .async_webcrawler import (
         AsyncWebCrawler as AsyncWebCrawlerType,
-        CacheMode as CacheModeType,
     )
     from .basemodels import CrawlResult as CrawlResultType
 
@@ -52,12 +43,6 @@ if TYPE_CHECKING:
     from .async_configs import (
         BrowserConfig as BrowserConfigType,
         CrawlerRunConfig as CrawlerRunConfigType,
-    )
-    
-    # Proxy imports
-    from .proxy_providers import (
-        ProxyRotationStrategy as ProxyRotationStrategyType,
-        RoundRobinProxyStrategy as RoundRobinProxyStrategyType,
     )
     
     # Extraction imports
@@ -88,8 +73,5 @@ if TYPE_CHECKING:
         MemoryAdaptiveDispatcher as MemoryAdaptiveDispatcherType,
         SemaphoreDispatcher as SemaphoreDispatcherType,
         RateLimiter as RateLimiterType,
-        CrawlerMonitor as CrawlerMonitorType,
-        DisplayMode as DisplayModeType,
-        RunManyReturn as RunManyReturnType,
     )
     
