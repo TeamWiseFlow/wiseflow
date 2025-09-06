@@ -12,12 +12,14 @@ from wis import (
     ALL_PLATFORMS,
     KUAISHOU_PLATFORM_NAME,
     WEIBO_PLATFORM_NAME,
+    AsyncWebCrawler,
 )
 
 import asyncio
 from general_process import main_process
 from async_logger import wis_logger
 from async_database import AsyncDatabaseManager
+from custom_processes import crawler_config_map
 
 loop_counter = 0
 
@@ -33,14 +35,21 @@ async def schedule_task():
                 await ks_crawler.async_initialize()
                 crawlers[KUAISHOU_PLATFORM_NAME] = ks_crawler
             except Exception as e:
-                wis_logger.error(f"initialize kuaishou crawler failed: {e}, will abort all the sources for kuaishou platform")
+                wis_logger.warning(f"initialize kuaishou crawler failed: {e}, will abort all the sources for kuaishou platform")
         elif platform == WEIBO_PLATFORM_NAME:
             try:
                 wb_crawler = WeiboCrawler(db_manager=db_manager)
                 await wb_crawler.async_initialize()
                 crawlers[WEIBO_PLATFORM_NAME] = wb_crawler
             except Exception as e:
-                wis_logger.error(f"initialize weibo crawler failed: {e}, will abort all the sources for weibo platform")
+                wis_logger.warning(f"initialize weibo crawler failed: {e}, will abort all the sources for weibo platform")
+        elif platform == 'web':
+            try:
+                web_crawler = AsyncWebCrawler(crawler_config_map=crawler_config_map, db_manager=db_manager)
+                await web_crawler.start()
+                crawlers[platform] = web_crawler
+            except Exception as e:
+                wis_logger.warning(f"initialize web crawler failed: {e}, will abort all the sources for web platform and search engines")
         else:
             raise ValueError(f"platform {platform} not supported")
 
@@ -71,6 +80,8 @@ async def schedule_task():
     finally:
         # 清理数据库资源
         try:
+            if "web" in crawlers:
+                await crawlers["web"].close()
             await db_manager.cleanup()
             wis_logger.debug("Database cleanup completed")
         except Exception as e:

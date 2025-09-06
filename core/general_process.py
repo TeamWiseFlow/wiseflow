@@ -4,12 +4,11 @@ from typing import Dict, Tuple
 import time, pickle
 import asyncio
 from custom_processes import *
-from tools.bing_search import search_with_bing
+from tools.github_search import search_with_github
 from tools.rss_parsor import fetch_rss
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from wis import (
-    AsyncWebCrawler,
     LLMExtractionStrategy,
     KUAISHOU_PLATFORM_NAME,
     WEIBO_PLATFORM_NAME,
@@ -25,7 +24,6 @@ from wis import (
     CrawlResult,
     search_with_engine
 )
-from custom_processes import crawler_config_map
 from wis.config import MAX_URLS_PER_TASK, EXCLUDE_EXTERNAL_LINKS
 from tools.general_utils import Recorder
 
@@ -219,10 +217,11 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
             sources.append({'type': WEIBO_PLATFORM_NAME, 'query': {focuspoint}})
         elif search_source == 'ks':
             sources.append({'type': KUAISHOU_PLATFORM_NAME, 'query': {focuspoint}})
-        elif search_source == 'bing':
-            tasks.add(wrap_task(search_with_bing(focuspoint, existings['web']), ('posts', 'bing')))
-        elif search_source in ['ebay', 'github', 'arxiv']:
-            tasks.add(wrap_task(search_with_engine(search_source, focuspoint, existings['web']), ('article_or_posts', search_source)))
+        elif search_source == 'github':
+            tasks.add(wrap_task(search_with_github(focuspoint, existings['web']), ('posts', 'github')))
+        elif search_source in ['ebay', 'bing', 'arxiv'] and crawlers.get('web'):
+            tasks.add(wrap_task(search_with_engine(search_source, focuspoint, crawlers['web'], existings['web']),
+                                ('article_or_posts', search_source)))
         else:
             wis_logger.warning(f"focus {focus_id} has unvalid search source {search_source}, skip")
 
@@ -424,14 +423,16 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
 
         if recorder.url_queue:
             wis_logger.debug(f"focus {focus_id} still have {len(recorder.url_queue)} urls to crawl")
-            # for each loop we use a new context for better memory usage and avoid potiential problems
-            async with AsyncWebCrawler(crawler_config_map=crawler_config_map, db_manager=db_manager) as crawler:
-                async for result in await crawler.arun_many(list(recorder.url_queue)):
+            if crawlers.get('web'):
+                async for result in await crawlers['web'].arun_many(list(recorder.url_queue)):
                     if result and result.success:
                         recorder.article_queue.append(result)
                     else:
                         recorder.crawl_failed += 1
                         recorder.total_processed += 1
+            else:
+                wis_logger.debug("'cause web crawler is not initialized, so we have to skip the batch scraping...")
+
             recorder.processed_urls.update(recorder.url_queue)
             recorder.url_queue.clear()
 

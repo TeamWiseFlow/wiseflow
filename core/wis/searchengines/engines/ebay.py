@@ -1,27 +1,14 @@
 from urllib.parse import quote
 from lxml import html
-from ..utils import extract_text, gen_useragent
+from ..utils import extract_text
 
 
-async def request(query: str, page_number: int = 1, **kwargs) -> dict:
+def gen_query_url(query: str, page_number: int = 1, **kwargs) -> dict:
     base_url = "https://www.ebay.com"
-    headers = {
-        'User-Agent': gen_useragent(),
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Accept-Encoding': 'gzip, deflate',
-        'Connection': 'keep-alive',
-        'Upgrade-Insecure-Requests': '1',
-    }
-    
-    return {
-        'url': f'{base_url}/sch/i.html?_nkw={quote(query)}&_sacat={page_number}',
-        'method': 'GET',
-        'headers': headers,
-    }
+    return f'{base_url}/sch/i.html?_nkw={quote(query)}&_sacat={page_number}'
 
 
-async def parse_response(response_text: str, **kwargs) -> list[dict]:
+def parse_response(response_text: str) -> list[dict]:
     results = []
 
     dom = html.fromstring(response_text)

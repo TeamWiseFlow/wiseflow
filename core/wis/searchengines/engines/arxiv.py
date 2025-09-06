@@ -4,25 +4,8 @@ from lxml.etree import XPath
 
 from ..utils import eval_xpath_list, eval_xpath_getindex, eval_xpath
 
-# xpaths
-arxiv_namespaces = {
-    "atom": "http://www.w3.org/2005/Atom",
-    "arxiv": "http://arxiv.org/schemas/atom",
-}
-xpath_entry = XPath('//atom:entry', namespaces=arxiv_namespaces)
-xpath_title = XPath('.//atom:title', namespaces=arxiv_namespaces)
-xpath_id = XPath('.//atom:id', namespaces=arxiv_namespaces)
-xpath_summary = XPath('.//atom:summary', namespaces=arxiv_namespaces)
-xpath_author_name = XPath('.//atom:author/atom:name', namespaces=arxiv_namespaces)
-xpath_doi = XPath('.//arxiv:doi', namespaces=arxiv_namespaces)
-xpath_pdf = XPath('.//atom:link[@title="pdf"]', namespaces=arxiv_namespaces)
-xpath_published = XPath('.//atom:published', namespaces=arxiv_namespaces)
-xpath_journal = XPath('.//arxiv:journal_ref', namespaces=arxiv_namespaces)
-xpath_category = XPath('.//atom:category/@term', namespaces=arxiv_namespaces)
-xpath_comment = XPath('./arxiv:comment', namespaces=arxiv_namespaces)
 
-
-async def request(query: str, page_number: int = 1, **kwargs) -> dict:
+def gen_request_params(query: str, page_number: int = 1, **kwargs) -> dict:
     number_of_results = 12
     offset = (page_number - 1) * number_of_results
 
@@ -35,10 +18,24 @@ async def request(query: str, page_number: int = 1, **kwargs) -> dict:
     return {'url': base_url.format(**string_args), 'method': 'GET'}
 
 
-async def parse_response(response_text: str, **kwargs) -> list[dict]:
-    # Let errors (e.g., malformed XML) propagate so that the caller can
-    # decide how to deal with them. Centralised error handling is performed
-    # in `search_with_engine`.
+def parse_response(response_text: str) -> list[dict]:
+    # xpaths
+    arxiv_namespaces = {
+        "atom": "http://www.w3.org/2005/Atom",
+        "arxiv": "http://arxiv.org/schemas/atom",
+    }
+    xpath_entry = XPath('//atom:entry', namespaces=arxiv_namespaces)
+    xpath_title = XPath('.//atom:title', namespaces=arxiv_namespaces)
+    xpath_id = XPath('.//atom:id', namespaces=arxiv_namespaces)
+    xpath_summary = XPath('.//atom:summary', namespaces=arxiv_namespaces)
+    xpath_author_name = XPath('.//atom:author/atom:name', namespaces=arxiv_namespaces)
+    xpath_doi = XPath('.//arxiv:doi', namespaces=arxiv_namespaces)
+    # xpath_pdf = XPath('.//atom:link[@title="pdf"]', namespaces=arxiv_namespaces)
+    xpath_published = XPath('.//atom:published', namespaces=arxiv_namespaces)
+    xpath_journal = XPath('.//arxiv:journal_ref', namespaces=arxiv_namespaces)
+    xpath_category = XPath('.//atom:category/@term', namespaces=arxiv_namespaces)
+    xpath_comment = XPath('./arxiv:comment', namespaces=arxiv_namespaces)
+
     results = []
     dom = etree.fromstring(response_text.encode('utf-8'))
     
