@@ -8,7 +8,7 @@ from html.parser import HTMLParser
 from html import escape
 
 from lxml import html
-from lxml.etree import ElementBase, XPath, XPathError, XPathSyntaxError
+from lxml.etree import ElementBase, XPath, XPathError
 
 
 class _NotSetClass:  # pylint: disable=too-few-public-methods
@@ -48,36 +48,38 @@ def eval_xpath_getindex(elements: ElementBase, xpath_spec, index: int, default=_
 # HTML processing utilities (copied and adapted from searx/utils.py)
 _BLOCKED_TAGS = ('script', 'style')
 
-class _HTMLTextExtractorException(Exception):
-    pass
+class HTMLTextExtractor(HTMLParser):
+    """Internal class to extract text from HTML"""
 
-class _HTMLTextExtractor(HTMLParser):
     def __init__(self):
         HTMLParser.__init__(self)
-        self.result = []
-        self.tags = []
+        self.result: list[str] = []
+        self.tags: list[str] = []
 
-    def handle_starttag(self, tag, attrs):
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         self.tags.append(tag)
         if tag == 'br':
             self.result.append(' ')
 
-    def handle_endtag(self, tag):
+    def handle_endtag(self, tag: str) -> None:
         if not self.tags:
             return
+
         if tag != self.tags[-1]:
-            raise _HTMLTextExtractorException()
+            self.result.append(f"</{tag}>")
+            return
+
         self.tags.pop()
 
     def is_valid_tag(self):
         return not self.tags or self.tags[-1] not in _BLOCKED_TAGS
 
-    def handle_data(self, data):
+    def handle_data(self, data: str) -> None:
         if not self.is_valid_tag():
             return
         self.result.append(data)
 
-    def handle_charref(self, name):
+    def handle_charref(self, name: str) -> None:
         if not self.is_valid_tag():
             return
         if name[0] in ('x', 'X'):
@@ -86,57 +88,92 @@ class _HTMLTextExtractor(HTMLParser):
             codepoint = int(name)
         self.result.append(chr(codepoint))
 
-    def handle_entityref(self, name):
+    def handle_entityref(self, name: str) -> None:
         if not self.is_valid_tag():
             return
-        self.result.append(name) # Simplified from original, might need html.entities.name2codepoint
+        # codepoint = htmlentitydefs.name2codepoint[name]
+        # self.result.append(chr(codepoint))
+        self.result.append(name)
 
     def get_text(self):
         return ''.join(self.result).strip()
 
-    def error(self, message):
+    def error(self, message: str) -> None:
+        # error handle is needed in <py3.10
+        # https://github.com/python/cpython/pull/8562/files
         raise AssertionError(message)
 
 def html_to_text(html_str: str) -> str:
+    """Extract text from a HTML string
+
+    Args:
+        * html_str (str): string HTML
+
+    Returns:
+        * str: extracted text
+
+    Examples:
+        >>> html_to_text('Example <span id="42">#2</span>')
+        'Example #2'
+
+        >>> html_to_text('<style>.span { color: red; }</style><span>Example</span>')
+        'Example'
+
+        >>> html_to_text(r'regexp: (?&lt;![a-zA-Z]')
+        'regexp: (?<![a-zA-Z]'
+
+        >>> html_to_text(r'<p><b>Lorem ipsum </i>dolor sit amet</p>')
+        'Lorem ipsum </i>dolor sit amet</p>'
+
+        >>> html_to_text(r'&#x3e &#x3c &#97')
+        '> < a'
+
+    """
     if not html_str:
         return ""
     html_str = html_str.replace('\n', ' ').replace('\r', ' ')
     html_str = ' '.join(html_str.split())
-    s = _HTMLTextExtractor()
+    s = HTMLTextExtractor()
     try:
         s.feed(html_str)
-    except AssertionError: # Error during parsing
-        s = _HTMLTextExtractor()
-        s.feed(escape(html_str, quote=True)) # Try with escaped string
-    except _HTMLTextExtractorException: # Custom internal error
-        # Potentially log this in a real scenario
-        pass # Keep it simple for now
+        s.close()
+    except AssertionError:
+        s = HTMLTextExtractor()
+        s.feed(escape(html_str, quote=True))
+        s.close()
     return s.get_text()
 
-def extract_text(xpath_results, allow_none: bool = False) -> Optional[str]:
+def extract_text(
+    xpath_results: list[ElementBase] | ElementBase | str | Number | bool | None,
+    allow_none: bool = False,
+) -> str | None:
+    """Extract text from a lxml result
+
+    * if xpath_results is list, extract the text from each result and concat the list
+    * if xpath_results is a xml element, extract all the text node from it
+      ( text_content() method from lxml )
+    * if xpath_results is a string element, then it's already done
+    """
     if isinstance(xpath_results, list):
+        # it's list of result : concat everything using recursive call
         result = ''
         for e in xpath_results:
             result = result + (extract_text(e) or '')
         return result.strip()
     if isinstance(xpath_results, ElementBase):
-        text: str = html.tostring(xpath_results, encoding='unicode', method='text', with_tail=False)
-        text = text.strip().replace('\n', ' ')
-        return ' '.join(text.split())
+        # it's a element
+        text: str = html.tostring(  # type: ignore
+            xpath_results,  # pyright: ignore[reportArgumentType]
+            encoding='unicode',
+            method='text',
+            with_tail=False,
+        )
+        text = text.strip().replace('\n', ' ')  # type: ignore
+        return ' '.join(text.split())  # type: ignore
     if isinstance(xpath_results, (str, Number, bool)):
         return str(xpath_results)
     if xpath_results is None and allow_none:
         return None
     if xpath_results is None and not allow_none:
         raise ValueError('extract_text(None, allow_none=False)')
-    raise ValueError(f'unsupported type: {type(xpath_results)}')
-
-def gen_useragent():
-    user_agents = [
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15',
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 13_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15',
-    ]
-    return random.choice(user_agents)
+    raise ValueError('unsupported type')

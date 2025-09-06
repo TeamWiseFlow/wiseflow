@@ -15,4 +15,5 @@ EXCLUDE_EXTERNAL_LINKS = True
 ALL_PLATFORMS = [
     "ks",
     "wb",
+    "web", # also for search engines
 ]
