@@ -113,7 +113,11 @@ class AsyncWebCrawler:
 
     async def arun(self, url: str, config: CrawlerRunConfig = None, session_id: str = None) -> Optional[RunManyReturn]:
         if self.db_manager:
-            cached_result = await self.db_manager.get_cached_url(url, days_threshold=30)
+            if url.startswith("https://www.bing.com/search"):
+                days_threshold = 1
+            else:
+                days_threshold = 30
+            cached_result = await self.db_manager.get_cached_url(url, days_threshold=days_threshold)
             if cached_result and cached_result.html:
                 wis_logger.debug(f"Get {url} from db cache")
                 cached_result.session_id = session_id

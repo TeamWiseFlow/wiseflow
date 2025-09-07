@@ -446,7 +446,7 @@ CREATE TABLE IF NOT EXISTS {table_name} (
     async def cache_url(self, result: CrawlResult):
         """缓存URL数据 - 优化版本"""
         # 如果有重定向URL，使用重定向URL作为主键
-        cache_url = result.redirected_url if result.redirected_url else result.url
+        cache_url = result.url
         if not cache_url:
             return
             

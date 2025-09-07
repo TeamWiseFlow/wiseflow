@@ -219,7 +219,7 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
             sources.append({'type': KUAISHOU_PLATFORM_NAME, 'query': {focuspoint}})
         elif search_source == 'github':
             tasks.add(wrap_task(search_with_github(focuspoint, existings['web']), ('posts', 'github')))
-        elif search_source in ['ebay', 'bing', 'arxiv'] and crawlers.get('web'):
+        elif search_source in ['bing', 'arxiv'] and crawlers.get('web'):
             tasks.add(wrap_task(search_with_engine(search_source, focuspoint, crawlers['web'], existings['web']),
                                 ('article_or_posts', search_source)))
         else:
