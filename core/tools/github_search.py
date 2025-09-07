@@ -71,11 +71,11 @@ async def search_with_github(query: str, existings: set[str] = set()) -> Tuple[s
             async with httpx.AsyncClient(timeout=30) as client:
                 response = await client.request(method, url, headers=headers, timeout=30)
 
-            if response.status_code != 200:
-                raise httpx.HTTPStatusError("Unexpected status", request=None, response=response)
+            response.raise_for_status()
 
             # Parse response
             search_results = parse_response(response.text)
+            break
 
         except Exception as e:
             if attempt < max_retries - 1:
