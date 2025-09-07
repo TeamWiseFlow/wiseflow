@@ -315,15 +315,17 @@ class BrowserManager:
             asyncio.create_task(self.kill_session(sid))
 
     async def close(self):
-        """Close all browser resources and clean up."""
         if self.config.sleep_on_close:
             await asyncio.sleep(0.5)
 
-        for context in self.contexts.values():
-            await context.close()
+        if self.playwright:
+            try:
+                await self.playwright.stop()
+            except Exception as e:
+                if self.logger:
+                    self.logger.warning(f"Error stopping playwright during cleanup: {e}")
+            finally:
+                self.playwright = None
+
         self.contexts.clear()
         self.sessions.clear()
-
-        if self.playwright:
-            await self.playwright.stop()
-            self.playwright = None

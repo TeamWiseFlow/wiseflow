@@ -46,10 +46,11 @@ async def search_with_engine(engine: str,
         request_params = engine_module.gen_request_params(query, **kwargs)
         method = request_params.get("method", "GET").upper()
         url = request_params["url"]
+        headers = request_params.get("headers", {})
         async with httpx.AsyncClient(timeout=60) as client:
             for attempt in range(3):
                 try:
-                    response = await client.request(method, url)
+                    response = await client.request(method, url, headers=headers)
                     response.raise_for_status
                     break
                 except Exception as e:
@@ -65,14 +66,15 @@ async def search_with_engine(engine: str,
                         )
                         return [], "", {}
         html = response.text
-    else:
+
+    elif engine == "bing":
         url = engine_module.gen_query_url(query, **kwargs)
         result = await crawler.arun(url)
         if not result or not result.success:
             wis_logger.warning(f"Search with Engine '{engine}', query '{query}', due to crawler, failed")
             return [], "", {}
         html = result.html
-    
+
     try:
         search_results = engine_module.parse_response(html)
     except Exception as e:
@@ -83,45 +85,25 @@ async def search_with_engine(engine: str,
     markdown = ""
     link_dict = {}
     for result in search_results:
+        link_url = result.get("url")
+        if not link_url or link_url in existings:
+            continue
         if engine == "bing":
             title = result.get("title", "")
             content = result.get("content", "")
             if not title and not content:
                 continue
             key = f"[{len(link_dict)+1}]"
-            link_dict[key] = url
+            link_dict[key] = link_url
             markdown += f"* {key}{title}\n"
             if content:
                 content = content.replace("\n", " ")
                 markdown += f"{content}{key}\n"
             markdown += "\n"
-
-        if engine == "ebay":
-            # for ebay engine, we treat the result as post list, need to generate the markdown and link_dict
-            url = result.get("url")
-            if not url or url in existings:
-                continue
-            title = result.get("title", "") or ""
-            title = title.replace("\n", " ")
-            content = result.get("content", "") or ""
-            content = content.replace("\n", " ")
-            # test code
-            if content:
-                wis_logger.warning(f'[UNEXPECTED]ebay {url} have content! {content}\nfrom query: {query}')
-            price = result.get("price", "")
-            shipping = result.get("shipping", "")
-            source_country = result.get("source_country", "")
-
-            key = f"[{len(link_dict)+1}]"
-            link_dict[key] = url
-            markdown += f"* {key}{title}\nPrice: {price} Shipping: {shipping}\nSource Country: {source_country} {key}\n\n"
         
         elif engine == "arxiv":
             # for arxiv engine, we have to treat the result as an article, because the url in the result is just the summary page
             # user should only use wiseflow as an information collector to find the potiencial interesting articles, and then use the url to get the full pdf
-            url = result.get("url")
-            if not url or url in existings:
-                continue
             title = result.get("title", "")
             content = result.get("content", "") or ""
             content = content.replace("\n", " ")
@@ -142,7 +124,7 @@ async def search_with_engine(engine: str,
                 comments = comments.replace("\n", " ")
                 _markdown += f"Comments: {comments}\n"
             _markdown += content
-            articles.append(CrawlResult(url=url, 
+            articles.append(CrawlResult(url=link_url, 
                                         title=title, 
                                         markdown=_markdown,
                                         author=authors,

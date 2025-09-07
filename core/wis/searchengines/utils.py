@@ -1,7 +1,7 @@
 # Utility functions for simplified engines
 from __future__ import annotations
 from lxml import html
-import random
+from random import choice
 from typing import Optional
 from numbers import Number
 from html.parser import HTMLParser
@@ -177,3 +177,25 @@ def extract_text(
     if xpath_results is None and not allow_none:
         raise ValueError('extract_text(None, allow_none=False)')
     raise ValueError('unsupported type')
+
+USER_AGENTS = {
+    "os": [
+        "Windows NT 10.0; Win64; x64",
+        "X11; Linux x86_64"
+    ],
+    "ua": "Mozilla/5.0 ({os}; rv:{version}) Gecko/20100101 Firefox/{version}",
+    "versions": [
+        "142.0",
+        "141.0"
+    ]
+}
+
+def gen_useragent(os_string: str | None = None) -> str:
+    """Return a random browser User Agent
+
+    See searx/data/useragents.json
+    """
+    return USER_AGENTS['ua'].format(
+        os=os_string or choice(USER_AGENTS['os']),
+        version=choice(USER_AGENTS['versions']),
+    )
