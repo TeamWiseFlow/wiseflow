@@ -27,21 +27,17 @@ loop_counter = 0
 shutdown_event = asyncio.Event()
 
 def signal_handler(sig, frame):
-    """处理 SIGINT 信号 (Ctrl+C)"""
     wis_logger.debug(f"Received signal {sig}, initiating graceful shutdown...")
     shutdown_event.set()
 
 async def cleanup_resources(crawlers, db_manager):
-    """清理所有资源"""
     wis_logger.debug("Starting resource cleanup...")
     
     try:
-        # 清理 web 爬虫（浏览器资源）
         if "web" in crawlers:
             wis_logger.debug("Closing web crawler...")
             await crawlers["web"].close()
             
-        # 清理数据库
         wis_logger.debug("Cleaning up database...")
         await db_manager.cleanup()
         wis_logger.debug("Resource cleanup completed successfully")
@@ -50,7 +46,6 @@ async def cleanup_resources(crawlers, db_manager):
         wis_logger.warning(f"Error during resource cleanup: {e}")
 
 async def schedule_task():
-    # 设置信号处理器
     if sys.platform != 'win32':
         signal.signal(signal.SIGINT, signal_handler)
         signal.signal(signal.SIGTERM, signal_handler)
@@ -110,13 +105,12 @@ async def schedule_task():
                     await asyncio.gather(*jobs)
                 
                 wis_logger.info('task execute loop finished, work after 3600 seconds')
-                
-                # 使用 wait_for 来允许中断 sleep
+
                 try:
                     await asyncio.wait_for(shutdown_event.wait(), timeout=3600)
-                    break  # 如果 shutdown_event 被设置，退出循环
+                    break
                 except asyncio.TimeoutError:
-                    continue  # 超时后继续下一个循环
+                    continue
                     
             except asyncio.CancelledError:
                 wis_logger.debug("Task cancelled, shutting down...")
@@ -126,7 +120,6 @@ async def schedule_task():
                 break
             except Exception as e:
                 wis_logger.warning(f"Unexpected error in main loop: {e}")
-                # 不退出循环，继续处理
                 
     except Exception as e:
         wis_logger.warning(f"Critical error during initialization: {e}")

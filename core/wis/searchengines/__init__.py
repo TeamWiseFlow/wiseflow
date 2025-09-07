@@ -46,11 +46,10 @@ async def search_with_engine(engine: str,
         request_params = engine_module.gen_request_params(query, **kwargs)
         method = request_params.get("method", "GET").upper()
         url = request_params["url"]
-        headers = request_params.get("headers", {})
         async with httpx.AsyncClient(timeout=60) as client:
             for attempt in range(3):
                 try:
-                    response = await client.request(method, url, headers=headers)
+                    response = await client.request(method, url)
                     response.raise_for_status
                     break
                 except Exception as e:
