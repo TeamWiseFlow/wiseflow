@@ -113,11 +113,7 @@ class AsyncWebCrawler:
 
     async def arun(self, url: str, config: CrawlerRunConfig = None, session_id: str = None) -> Optional[RunManyReturn]:
         if self.db_manager:
-            if url.startswith("https://www.bing.com/search"):
-                days_threshold = 1
-            else:
-                days_threshold = 30
-            cached_result = await self.db_manager.get_cached_url(url, days_threshold=days_threshold)
+            cached_result = await self.db_manager.get_cached_url(url, days_threshold=30)
             if cached_result and cached_result.html:
                 wis_logger.debug(f"Get {url} from db cache")
                 cached_result.session_id = session_id
@@ -228,8 +224,9 @@ class AsyncWebCrawler:
                 console_messages=async_response.console_messages,
                 session_id=session_id,
             )
-            if self.db_manager and success:
-                await self.db_manager.cache_url(crawl_result)
+            # if self.db_manager and success:
+            #     await self.db_manager.cache_url(crawl_result)
+            # seems should cache after markdown generated (in general_process.py)
             return CrawlResultContainer(crawl_result)
 
     async def arun_many(

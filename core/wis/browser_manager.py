@@ -320,12 +320,16 @@ class BrowserManager:
 
         if self.playwright:
             try:
-                await self.playwright.stop()
+                try:
+                    await asyncio.wait_for(self.playwright.stop(), timeout=1.0)
+                except asyncio.TimeoutError:
+                    if self.logger:
+                        self.logger.debug("Timeout stopping Playwright; forcing disconnect")
             except Exception as e:
                 if self.logger:
                     self.logger.warning(f"Error stopping playwright during cleanup: {e}")
             finally:
                 self.playwright = None
-
+                
         self.contexts.clear()
         self.sessions.clear()
