@@ -86,9 +86,8 @@ def save_existings_for_focus(focus_id: str, existings: dict) -> None:
 
 def scrap_article(article: CrawlResult, 
                   extractor: ExtractionStrategy = None, 
-                  chunking: ChunkingStrategy = None) -> Tuple[CrawlResult, bool, Dict]:
-    
-    article_updated = False
+                  chunking: ChunkingStrategy = None) -> Tuple[CrawlResult, Dict]:
+
     url = article.url
     html = article.html
     cleaned_html = article.cleaned_html
@@ -97,7 +96,7 @@ def scrap_article(article: CrawlResult,
     metadata = article.metadata
   
     if not extractor or isinstance(extractor, NoExtractionStrategy):
-        return article, article_updated, {'infos': [], 'links': set()}
+        return article, {'infos': [], 'links': set()}
 
     t1 = time.perf_counter()
     if not isinstance(extractor, LLMExtractionStrategy):
@@ -110,7 +109,7 @@ def scrap_article(article: CrawlResult,
         
         if not content:
             wis_logger.info(f"{url} has no required content to extract, skip")
-            return article, article_updated, {'infos': [], 'links': set()}
+            return article, {'infos': [], 'links': set()}
 
         chunking = chunking or IdentityChunking()
         sections = chunking.chunk(content)
@@ -118,13 +117,13 @@ def scrap_article(article: CrawlResult,
 
         # Log extraction completion
         wis_logger.debug(f"[EXTRACT] ✓ {url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
-        return article, article_updated, extracted_content
+        return article, extracted_content
         
     # if use LLMExtractionStrategy, then we need to generate markdown
     if not markdown:
         if not html and not cleaned_html:
             wis_logger.info(f"{url} has no markdown,cleaned_html or html, skip")
-            return article, article_updated, {'infos': [], 'links': set()}
+            return article, {'infos': [], 'links': set()}
         
         if "mp.weixin.qq.com" in url:
             markdown_generator = WeixinArticleMarkdownGenerator()
@@ -138,7 +137,7 @@ def scrap_article(article: CrawlResult,
         )
         if error_msg:
             wis_logger.error(f"[HTML TO MARKDOWN] ✗ {url}\n{error_msg}")
-            return article, article_updated, {'infos': [], 'links': set()}
+            return article, {'infos': [], 'links': set()}
         
         wis_logger.debug(f"[HTML TO MARKDOWN] ✓ {url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
         if not article.title or "mp.weixin.qq.com" in url:
@@ -149,7 +148,6 @@ def scrap_article(article: CrawlResult,
             article.publish_date = publish
         article.link_dict = link_dict
         article.markdown = markdown
-        article_updated = True
 
     t1 = time.perf_counter()
     if not chunking:
@@ -167,7 +165,7 @@ def scrap_article(article: CrawlResult,
                                       mode=mode,
                                       link_dict=article.link_dict)
     wis_logger.debug(f"[EXTRACT] ✓ {url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
-    return article, article_updated, extracted_content
+    return article, extracted_content
 
 async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manager=None):
     # 0. prepare the work
@@ -396,9 +394,9 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
                 for future in as_completed(futures):
                     recorder.total_processed += 1
                     try:
-                        article, article_updated, result = future.result()
+                        article, result = future.result()
                         # processed_urls.add(article.url)  # 记录成功处理的 URL
-                        if article_updated:
+                        if db_manager:
                             await db_manager.cache_url(article)
                         recorder.add_url(result['links'] - existings['web'], 'article')
                         for info in result['infos']:
