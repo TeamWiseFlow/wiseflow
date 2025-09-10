@@ -1,0 +1,88 @@
+# WiseFlow Docker 构建配置
+# 多阶段构建，支持跨平台部署
+
+# 基础镜像 - 使用官方 Python 镜像
+FROM python:3.11-slim as base
+
+# 设置环境变量
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# 安装系统依赖
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    git \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# 安装 uv 包管理器
+RUN pip install uv
+
+# 构建阶段 - 安装 Python 依赖
+FROM base as builder
+
+WORKDIR /build
+
+# 复制依赖配置文件
+COPY requirements.txt pyproject.toml ./
+
+# 创建虚拟环境并安装依赖
+RUN uv venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+RUN uv pip install -r requirements.txt
+
+# 安装 Playwright 浏览器
+RUN playwright install --with-deps chromium
+
+# 运行时阶段 - 精简镜像
+FROM python:3.11-slim as runtime
+
+# 安装运行时系统依赖
+RUN apt-get update && apt-get install -y \
+    # Playwright Chromium 依赖
+    libnss3 \
+    libatk-bridge2.0-0 \
+    libdrm2 \
+    libxcomposite1 \
+    libxrandr2 \
+    libasound2 \
+    libpangocairo-1.0-0 \
+    libatk1.0-0 \
+    libcairo-gobject2 \
+    libgtk-3-0 \
+    libgdk-pixbuf2.0-0 \
+    libxss1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# 复制虚拟环境
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# 创建应用用户
+RUN useradd --create-home --shell /bin/bash wiseflow
+USER wiseflow
+WORKDIR /home/wiseflow
+
+# 复制应用代码
+COPY --chown=wiseflow:wiseflow core/ ./core/
+COPY --chown=wiseflow:wiseflow pb/ ./pb/
+COPY --chown=wiseflow:wiseflow test/ ./test/
+COPY --chown=wiseflow:wiseflow env_sample .env.example
+COPY --chown=wiseflow:wiseflow LICENSE README.md ./
+
+# 设置工作目录权限
+RUN mkdir -p /home/wiseflow/data /home/wiseflow/logs
+VOLUME ["/home/wiseflow/data", "/home/wiseflow/logs"]
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD python -c "import core; print('WiseFlow is running')" || exit 1
+
+# 暴露端口（如果需要）
+EXPOSE 8000
+
+# 启动命令
+CMD ["python", "core/run_task.py"]

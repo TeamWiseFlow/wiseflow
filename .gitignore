@@ -10,6 +10,42 @@ pb/pb_data/
 pb/pocketbase
 work_dir
 test/webpage_samples/
-/docker
+# Docker 相关文件保留在 git 中
+# /docker  # 注释掉，允许 Docker 文件进入 git
 work_dir_for_test
 pb/pb_migrations/1750399634_created_clients.js
+
+# 打包工具文件（暂时不放入 git）
+package_builder.py
+venv_packager.py
+package_config.toml
+setup_package.py
+build_packages.py
+wiseflow_packager.spec
+build.sh
+build.bat
+
+# 打包生成的文件和目录
+dist_*/
+package_*/
+build_*/
+wiseflow_*_v*.zip
+wiseflow_*_v*.tar.gz
+INSTALL_v*.md
+PACKAGING*.md
+GITIGNORE_CONFIG.md
+
+# PyInstaller 生成的文件
+build/
+dist/
+*.spec
+
+# 临时和缓存文件
+*.tmp
+*.log
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.so
+.Python
