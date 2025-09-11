@@ -12,6 +12,7 @@ CYAN = '\033[36m'
 GREEN = '\033[32m'
 YELLOW = '\033[33m'
 BLUE = '\033[34m'
+RED = '\033[31m'
 MAGENTA = '\033[35m'
 RESET = '\033[0m'
 
@@ -139,8 +140,8 @@ def get_logger(logger_file_path: str, logger_name: str):
         print(f"\n{CYAN}{'#' * 50}{RESET}")
         print(f"{GREEN}Wiseflow Info Scraper {__version__}{RESET}")
         print(f"{YELLOW}⚠️  Important Notice: This tool is only for fetching publicly released, non-intellectual property content.{RESET}")
-        print(f"{BLUE}Intended Use: For bulletin boards, notice boards, news releases, etc. of corporate portals, government agencies, industry associations, and similar organizations.{RESET}")
-        print(f"{BLUE}Strictly Prohibited: Bulk content retrieval from media/news websites is not allowed.{RESET}")
+        print(f"{RED}Intended Use: For bulletin boards, notice boards, news releases, etc. of corporate portals, government agencies, industry associations, and similar organizations.{RESET}")
+        print(f"{RED}Strictly Prohibited: Bulk content retrieval from media/news websites is not allowed.{RESET}")
         print(f"{MAGENTA}Disclaimer: You are solely responsible for the results of using this tool. Please evaluate carefully before use.{RESET}")
         print(f"{CYAN}{'#' * 50}{RESET}\n")
 

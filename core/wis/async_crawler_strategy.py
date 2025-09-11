@@ -7,6 +7,15 @@ from abc import ABC, abstractmethod
 from typing import Callable, Dict, Any, List, Union
 from typing import Optional
 import os
+import platform
+
+# Windows-specific import
+if platform.system() == 'Windows':
+    import msvcrt
+else:
+    import sys
+    import select
+
 from patchright.async_api import Page, Error
 from patchright.async_api import TimeoutError as PlaywrightTimeoutError
 from io import BytesIO
@@ -616,28 +625,40 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 print(f"🖥️  请在浏览器中完成登录，然后按回车键继续...")
                 print(f"{'='*60}")
                 
-                # 使用更可靠的输入方式，避免stdin状态问题
-                import sys
-                import select
-                
                 success = False
                 start_time = time.time()
                 
-                while time.time() - start_time < timeout_seconds:
-                    # 检查是否有输入可用（非阻塞）
-                    if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
-                        try:
-                            # 读取并清空输入缓冲区
-                            sys.stdin.readline()
-                            success = True
-                            break
-                        except Exception:
-                            # 如果读取失败，假设用户已完成操作
-                            success = True
-                            break
-                    
-                    # 每0.1秒检查一次，避免忙等待
-                    await asyncio.sleep(0.1)
+                if platform.system() == 'Windows':
+                    # Windows-specific implementation using msvcrt
+                    while time.time() - start_time < timeout_seconds:
+                        if msvcrt.kbhit():
+                            # 读取所有可用的字符直到遇到回车键
+                            char = msvcrt.getch()
+                            if char == b'\r':  # Enter key
+                                # 清空剩余输入
+                                while msvcrt.kbhit():
+                                    msvcrt.getch()
+                                success = True
+                                break
+                        # 每0.1秒检查一次，避免忙等待
+                        await asyncio.sleep(0.1)
+                else:
+                    # Unix-like systems (Linux, macOS) - using select
+                    while time.time() - start_time < timeout_seconds:
+                        # 检查是否有输入可用（非阻塞）
+                        if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+                            try:
+                                # 读取并清空输入缓冲区
+                                sys.stdin.readline()
+                                success = True
+                                break
+                            except Exception:
+                                # 如果读取失败，假设用户已完成操作
+                                success = True
+                                break
+                        
+                        # 每0.1秒检查一次，避免忙等待
+                        await asyncio.sleep(0.1)
                 
                 if success:
                     return True
@@ -646,19 +667,12 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 current_url = page.url
                 if current_url == url:
                     await page.reload()
-                if await self._check_login_status(page, url):
-                    return True
-                if attempt < max_attempts - 1:
-                    print(f"🔄 将进行下一次尝试...")
-                    await asyncio.sleep(2)
+                return await self._check_login_status(page, url)
                     
             except Exception as e:
                 if self.logger:
-                    self.logger.error(f"Error during user login wait attempt {attempt + 1}: {e}")
-                print(f"❌ 登录检测过程中出现错误: {e}")
+                    self.logger.warning(f"Error during user login wait attempt {attempt + 1}: {e}")
         
-        # 所有尝试都失败
-        print(f"⚠️  经过 {max_attempts} 次尝试仍无法确认登录状态，将继续执行...")
         if self.logger:
             self.logger.warning(f"Login confirmation failed after {max_attempts} attempts, continuing")
         

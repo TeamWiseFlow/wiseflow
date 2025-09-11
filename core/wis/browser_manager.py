@@ -173,8 +173,10 @@ class BrowserManager:
             "java_script_enabled": True,
             "args": args,
         }
-        if os.environ.get('BROWSER_EXECUTABLE_PATH'):
-            browser_args['browser_executable_path'] = os.environ.get('BROWSER_EXECUTABLE_PATH')
+        # browser_executable_path is not supported in current patchright version
+        # Using channel="chrome" instead to auto-detect system Chrome installation
+        # if os.environ.get('BROWSER_EXECUTABLE_PATH'):
+        #     browser_args['browser_executable_path'] = os.environ.get('BROWSER_EXECUTABLE_PATH')
 
         if self.config.text_mode:
             text_mode_settings = {
