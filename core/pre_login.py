@@ -6,9 +6,15 @@ if env_path.exists():
     load_dotenv(env_path)
     
 import asyncio
-import sys
-import select
+import platform
 from typing import Optional
+
+# Windows-specific import
+if platform.system() == 'Windows':
+    import msvcrt
+else:
+    import sys
+    import select
 
 from wis import BrowserConfig, CrawlerRunConfig
 from wis.browser_manager import BrowserManager
@@ -30,17 +36,39 @@ async def _wait_until_quit(prompt: str = "Type 'quit' then Enter to close the br
     print("=" * 60)
 
     try:
-        while True:
-            if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
-                try:
-                    line = sys.stdin.readline().strip().lower()
-                except Exception:
-                    # If reading stdin fails (e.g., redirected), proceed to exit
-                    break
+        if platform.system() == 'Windows':
+            # Windows-specific implementation using msvcrt
+            input_buffer = ""
+            while True:
+                if msvcrt.kbhit():
+                    char = msvcrt.getch().decode('utf-8', errors='ignore')
+                    if char == '\r':  # Enter key
+                        print()  # New line
+                        line = input_buffer.strip().lower()
+                        if line in {"q", "quit", "exit"}:
+                            break
+                        input_buffer = ""
+                    elif char == '\b':  # Backspace
+                        if input_buffer:
+                            input_buffer = input_buffer[:-1]
+                            print('\b \b', end='', flush=True)
+                    elif char.isprintable():
+                        input_buffer += char
+                        print(char, end='', flush=True)
+                await asyncio.sleep(check_interval)
+        else:
+            # Unix-like systems (Linux, macOS) - original implementation
+            while True:
+                if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+                    try:
+                        line = sys.stdin.readline().strip().lower()
+                    except Exception:
+                        # If reading stdin fails (e.g., redirected), proceed to exit
+                        break
 
-                if line in {"q", "quit", "exit"}:
-                    break
-            await asyncio.sleep(check_interval)
+                    if line in {"q", "quit", "exit"}:
+                        break
+                await asyncio.sleep(check_interval)
     except KeyboardInterrupt:
         # Allow Ctrl-C to quit
         pass

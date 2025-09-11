@@ -61,7 +61,7 @@ if __name__ == '__main__':
         if file == 'focus_point.json': continue
         if file.endswith('_processed.json'): continue
         print(f"processing {file} ...\n")
-        with open(os.path.join(sample_dir, file), 'r') as f:
+        with open(os.path.join(sample_dir, file), 'r', encoding='utf-8') as f:
             sample = json.load(f)
         
         record_file = os.path.join(sample_dir, f'{file.split(".")[0]}_processed.json')
