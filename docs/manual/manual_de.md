@@ -4,6 +4,8 @@
 
 **4.0 Benutzer, die auf Version 4.1 upgraden möchten, müssen nach dem Pullen des neuesten Codes zuerst den Befehl ./pb/pocketbase migrate ausführen, sonst kann das Programm nicht normal starten.**
 
+**Ab Version 4.2 laden Sie bitte zuerst den Google Chrome Browser herunter und installieren Sie ihn im Standardpfad**
+
 ## 📋 Systemanforderungen
 
 - **Python**: 3.10 - 3.12 (3.12 empfohlen)
@@ -84,10 +86,10 @@ Erstellen Sie im wiseflow-Ordner (Projektstammverzeichnis) basierend auf env_sam
 
 Version 4.x erfordert keine PocketBase-Anmeldedaten in der .env-Datei und begrenzt auch nicht die PocketBase-Version. Außerdem haben wir vorübergehend die Secondary Model-Einstellung entfernt. Sie benötigen daher mindestens nur vier Parameter:
 
-- LLM_API_KEY="" # LLM-Dienstschlüssel (jeder Anbieter mit OpenAI-kompatiblem API-Format ist geeignet, empfohlen wird die Nutzung des AiHubMix-Dienstes, wiseflow-Benutzer erhalten 10% Rabatt auf OpenAI-Modelle [hier beantragen](https://aihubmix.com?aff=Gp54))
-- LLM_API_BASE=https://aihubmix.com/v1
-- PRIMARY_MODEL=o3-mini # Empfohlen o3-mini oder höheres Denkmodell
-- VL_MODEL=gpt-4o-mini # Empfohlen gpt-4o-mini oder höheres visuelles Modell
+- LLM_API_KEY="" # LLM-Dienstschlüssel (jeder Anbieter mit OpenAI-kompatiblem API-Format ist geeignet, bei lokaler Verwendung von ollama nicht erforderlich)
+- LLM_API_BASE="" # LLM-Dienstschnittstellenadresse (falls erforderlich. Für OpenAI-Benutzer, lassen Sie es leer)
+- PRIMARY_MODEL=ByteDance-Seed/Seed-OSS-36B-Instruct # Für preissensitive und einfache Extraktionsszenarien kann Qwen3-14B verwendet werden
+- VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct" # Visuelles Modell, optional aber empfehlenswert. Wird zur Analyse notwendiger Seitenbilder verwendet (das Programm entscheidet basierend auf dem Kontext, ob eine Analyse notwendig ist, nicht jedes Bild wird extrahiert), mindestens Qwen2.5-VL-7B-Instruct erforderlich
 
 ### 🚀  Los geht's!
 
@@ -98,7 +100,6 @@ source .venv/bin/activate  # Linux/macOS
 # oder Windows:
 # .venv\Scripts\activate
 uv sync # nur beim ersten Starten benötigt
-python -m playwright install --with-deps chromium # nur beim ersten Starten benötigt
 chmod +x run.sh # nur beim ersten Starten benötigt
 ./run.sh
 ```
@@ -149,12 +150,6 @@ uv sync
 
 Dies installiert wiseflow und alle seine Abhängigkeiten und stellt die Konsistenz der Abhängigkeitsversionen sicher. uv sync liest die Abhängigkeitsdeklarationen des Projekts und synchronisiert die virtuelle Umgebung.
 
-Dann Browser-Abhängigkeiten installieren:
-
-```bash
-python -m playwright install --with-deps chromium
-```
-
 Schließlich den Hauptdienst starten:
 
 ```bash
@@ -187,15 +182,34 @@ wiseflow ist eine LLM-native Anwendung. Bitte stellen Sie sicher, dass Sie dem P
 
 🌟 **wiseflow schränkt die Modellserviceanbieter nicht ein, solange der Dienst mit dem OpenAI SDK kompatibel ist, einschließlich lokal bereitgestellter Dienste wie ollama, Xinference usw.**
 
-Empfohlen: Verwenden Sie AiHubMix's Proxy-OpenAI-Modelldienst. Derzeit arbeitet WiseFlow mit AiHubMix zusammen, und WiseFlow-Benutzer erhalten 10% Rabatt auf alle OpenAI-Modelle [Hier beantragen](https://aihubmix.com?aff=Gp54)
+##### Empfehlung 1: Verwendung des MaaS-Dienstes von SiliconFlow
+
+SiliconFlow bietet MaaS-Dienste für die meisten gängigen Open-Source-Modelle an. Dank ihrer eigenen Beschleunigungstechnologie für Inferenz haben sie große Vorteile in Bezug auf Geschwindigkeit und Preis. Bei Verwendung des SiliconFlow-Dienstes kann die .env-Konfiguration wie folgt aussehen:
 
 ```
 LLM_API_KEY=Ihr_API_Schlüssel
-LLM_API_BASE=https://aihubmix.com/v1
-PRIMARY_MODEL=o3-mini
-VL_MODEL=gpt-4o-mini
-CONCURRENT_NUMBER=8
+LLM_API_BASE="https://api.siliconflow.cn/v1"
+PRIMARY_MODEL=ByteDance-Seed/Seed-OSS-36B-Instruct # Für preissensitive und einfache Extraktionsszenarien kann Qwen3-14B verwendet werden
+VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
+CONCURRENT_NUMBER=6
 ```
+
+wir empfehlen die Nutzung des Modell-Service von [Siliconflow](https://www.siliconflow.com/).
+
+##### Empfehlung 2: Verwendung von AiHubMix als Proxy für OpenAI, Claude, Gemini und andere kommerzielle Modelle
+
+Wenn Ihre Informationsquellen hauptsächlich nicht-chinesische Seiten sind und Sie auch nicht verlangen, dass die extrahierten Informationen auf Chinesisch sind, empfehlen wir die Verwendung von OpenAI, Claude, Gemini und anderen kommerziellen Modellen. Sie können den Drittanbieter-Proxy **AiHubMix** ausprobieren, der direkte Verbindungen in chinesischen Netzwerken, bequeme Zahlungen über Alipay unterstützt und das Risiko von Kontosperrungen vermeidet.
+Bei Verwendung von AiHubMix-Modellen kann die .env-Konfiguration wie folgt aussehen:
+
+```
+LLM_API_KEY=Ihr_API_Schlüssel
+LLM_API_BASE="https://aihubmix.com/v1" # siehe https://doc.aihubmix.com/
+PRIMARY_MODEL="o3-mini" #or openai/gpt-oss-20b
+VL_MODEL="gpt-4o-mini"
+CONCURRENT_NUMBER=6
+```
+
+😄 Willkommen zur Registrierung über den [AiHubMix-Einladungslink](https://aihubmix.com?aff=Gp54) 🌹
 
 ##### Lokale Bereitstellung des LLM-Dienstes
 
@@ -209,7 +223,7 @@ VL_MODEL=gestartete Modell-ID
 CONCURRENT_NUMBER=1 # basierend auf tatsächlichen Hardware-Ressourcen
 ```
 
-#### 4. Andere optionale Konfigurationen
+#### 3. Andere optionale Konfigurationen
 
 Die folgenden sind optionale Konfigurationen:
 - #VERBOSE="true" 

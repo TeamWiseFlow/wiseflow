@@ -20,33 +20,26 @@ from .async_crawler_strategy import (
     AsyncPlaywrightCrawlerStrategy,
     AsyncCrawlResponse,
 )
-from .async_configs import BrowserConfig, CrawlerRunConfig, ProxyConfig
+from .async_configs import BrowserConfig, CrawlerRunConfig
 from .async_dispatcher import BaseDispatcher, MemoryAdaptiveDispatcher, RateLimiter
 from .utils import (
     sanitize_input_encode,
-    RobotsParser,
     get_base_domain,
     preprocess_html_for_schema,
     get_content_of_website,
     extract_metadata,
     extract_metadata_using_lxml,
+    can_process_url,
     common_file_exts,
 )
-from tools.general_utils import isURL
 
+from .robotsparser import RobotsParser
 
-# for 99% of the cases, you don't need to change these configs
-DEFAULT_BROWSER_CONFIG = BrowserConfig(
-    viewport_width=1920,
-    viewport_height=1080,
-    user_agent_mode="random",
-    light_mode=True
-)
 
 class AsyncWebCrawler:
     def __init__(
         self,
-        config: BrowserConfig = DEFAULT_BROWSER_CONFIG,
+        config: BrowserConfig = BrowserConfig(),
         crawler_strategy: AsyncCrawlerStrategy = None,
         thread_safe: bool = False,
         crawler_config_map: dict = {},
@@ -133,12 +126,14 @@ class AsyncWebCrawler:
         if not isinstance(url, str) or not url:
             wis_logger.info(f"Invalid URL, make sure the URL is a non-empty string")
             return None
-        if not isURL(url):
-            wis_logger.info(f"Invalid URL formate {url}")
-            return None
-        has_common_ext = any(url.lower().endswith(ext) for ext in common_file_exts)
-        if has_common_ext:
+
+        _clean_url = url.split('?')[0].split('#')[0].lower().rstrip('/')
+        if any(_clean_url.endswith(ext) for ext in common_file_exts):
             wis_logger.debug(f'{url} is a common file, skip')
+            return None
+        
+        if not can_process_url(url):
+            wis_logger.info(f"Invalid URL formate {url}")
             return None
 
         async with self._lock or self.nullcontext():
@@ -149,19 +144,11 @@ class AsyncWebCrawler:
                 pdf_data = None
                 config = config or self.crawler_config_map.get(get_base_domain(url), self.crawler_config_map['default'])
 
-                # Update proxy configuration from rotation strategy if available
-                if config and config.proxy_rotation_strategy:
-                    next_proxy: ProxyConfig = await config.proxy_rotation_strategy.get_next_proxy()
-                    if next_proxy:
-                        wis_logger.info(f"[PROXY] Switching to {next_proxy.server}")
-                        config.proxy_config = next_proxy
-                        # config = config.clone(proxy_config=next_proxy)
-
                 t1 = time.perf_counter()
                 # Check robots.txt if enabled
                 if config and config.check_robots_txt:
                     if not await self.robots_parser.can_fetch(
-                        url, self.browser_config.user_agent
+                        url, config.user_agent
                     ):
                         wis_logger.info(f"Access denied by robots.txt")
                         return None
@@ -237,8 +224,9 @@ class AsyncWebCrawler:
                 console_messages=async_response.console_messages,
                 session_id=session_id,
             )
-            if self.db_manager and success:
-                await self.db_manager.cache_url(crawl_result)
+            # if self.db_manager and success:
+            #     await self.db_manager.cache_url(crawl_result)
+            # seems should cache after markdown generated (in general_process.py)
             return CrawlResultContainer(crawl_result)
 
     async def arun_many(
@@ -282,7 +270,7 @@ class AsyncWebCrawler:
             dispatcher = MemoryAdaptiveDispatcher(
                 rate_limiter=RateLimiter(
                     base_delay=(1.0, 3.0), max_delay=60.0, max_retries=3
-                ),
+                )
             )
 
         def transform_result(task_result):

@@ -251,22 +251,3 @@ class AccountWithIpPoolManager(AccountPoolManager):
         if not ip_info or not self.proxy_ip_pool:
             return
         await self.proxy_ip_pool.mark_ip_invalid(ip_info)
-
-
-async def create_ip_pool(
-    ip_pool_count: int,
-    enable_validate_ip: bool,
-) -> ProxyIpPool:
-    """
-     创建 IP 代理池
-    :param ip_pool_count: ip池子的数量
-    :param enable_validate_ip: 是否开启验证IP代理
-    :param ip_provider: 代理IP提供商名称
-    :return:
-    """
-    pool = ProxyIpPool(
-        ip_pool_count=ip_pool_count,
-        enable_validate_ip=enable_validate_ip
-    )
-    await pool.load_proxies()
-    return pool

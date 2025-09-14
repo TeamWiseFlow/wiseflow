@@ -1,0 +1,117 @@
+focus statement: 
+{'focuspoint': 'customer review about SAMSUNG 990 PRO SSD', 'explanation': 'pros and cons reviewed by customers so i can improve this product as a factory'}
+
+# raw materials: 28fd07_processed.json
+url: https://www.amazon.com/SAMSUNG-Computing-Workstations-MZ-V9P4T0B-AM/dp/B0CHGT1KFJ?pd_rd_w=e4i1l&content-id=amzn1.sym.1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_p=1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_r=SYA2F75W0M5ZYHSKB0K5&pd_rd_wg=h897q&pd_rd_r=618c499a-d3e6-4a32-927a-b515cc9afb3e&pd_rd_i=B0CHGT1KFJ&ref_=pd_hp_d_btf_unk_B0CHGT1KFJ&th=1
+
+## model: gpt-5-nano
+time cost: 23.111093499930575s
+tokens usage: 15373 (completion: 4791, prompt: 10582)
+
+### related urls: 
+https://www.amazon.com/SAMSUNG-Computing-Workstations-MZ-V9P4T0B-AM/dp/B0CHGT1KFJ?pd_rd_w=e4i1l&content-id=amzn1.sym.1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_p=1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_r=SYA2F75W0M5ZYHSKB0K5&pd_rd_wg=h897q&pd_rd_r=618c499a-d3e6-4a32-927a-b515cc9afb3e&pd_rd_i=B0CHGT1KFJ&ref_=pd_hp_d_btf_unk_B0CHGT1KFJ&th=1#customer-reviews_feature_div
+https://www.amazon.com/-/zh/vdp/0d22f886a55b4cdcb05f8e3af6d80435
+https://www.amazon.com/-/zh/stores/page/F50AFABA-4CDE-4A95-84D0-CA4C61819FEB?store_ref=storeRecs_dp_aplus
+https://www.amazon.com/SAMSUNG-Computing-Workstations-MZ-V9P4T0B-AM/dp/B0CHGT1KFJ?pd_rd_w=e4i1l&content-id=amzn1.sym.1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_p=1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_r=SYA2F75W0M5ZYHSKB0K5&pd_rd_wg=h897q&pd_rd_r=618c499a-d3e6-4a32-927a-b515cc9afb3e&pd_rd_i=B0CHGT1KFJ&ref_=pd_hp_d_btf_unk_B0CHGT1KFJ&th=1#customerReviews
+https://www.amazon.com/-/zh/gp/help/customer/display.html/ref=cm_cr_dp_d_omni_lm_btn?nodeId=G8UYX7LALQC8V9KA
+https://www.amazon.com/-/zh/vdp/070ce8c094e5435393102ac4848b8b3a
+https://m.media-amazon.com/images/I/91IqFdp56IL._CR6,0,3828,2160_SR342,193_CR0,126,342,67_.jpg
+https://www.amazon.com/-/zh/product-reviews/B0CHGT1KFJ/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews
+https://www.amazon.com/-/zh/vdp/07c250dbeecc4c7faacb3ecbcb0276fb
+https://www.amazon.com/-/zh/stores/Samsung%C2%AE/page/F50AFABA-4CDE-4A95-84D0-CA4C61819FEB?lp_asin=B0CHGT1KFJ&ref_=ast_bln&store_ref=bl_ast_dp_brandLogo_sto
+https://www.amazon.com/SAMSUNG-Computing-Workstations-MZ-V9P4T0B-AM/dp/B0CHGT1KFJ?pd_rd_w=e4i1l&content-id=amzn1.sym.1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_p=1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_r=SYA2F75W0M5ZYHSKB0K5&pd_rd_wg=h897q&pd_rd_r=618c499a-d3e6-4a32-927a-b515cc9afb3e&pd_rd_i=B0CHGT1KFJ&ref_=pd_hp_d_btf_unk_B0CHGT1KFJ&th=1
+https://www.amazon.com/-/zh/gp/feature.html/ref=dp_warranty_request_3P?docId=1002406021
+https://www.amazon.com/-/zh/vdp/0ae0445d0a3a4e8abaece22af2716242
+
+### related infos: 
+From the main-content, focus point: customer review content about Samsung 990 PRO SSD and its pros/cons as reported by buyers.
+
+Key extracted points (merging multiple reviews into a concise view):
+- Overall sentiment and rating:
+  - 4.7 out of 5 from 12,668 reviews, indicating strong customer satisfaction.
+
+- Pros noted by customers:
+  - Ultra-fast performance: buyers highlight extremely high speeds (official specs show up to 7,450 MB/s read and 6,900 MB/s write for certain SKUs; users describe boot and load speed improvements as “lightning fast” and “dramatic”).
+  - Substantial capacity options and value: main focus is the 4 TB version providing ample space for games, data, and heavy workloads.
+  - Real-world benefits: accelerated system startup, faster game and data loading, and significantly improved download/install times (e.g., downloads jumping to 700–800+ Mbps after fresh Windows install and NVMe upgrade).
+  - Positive experience with software/tools: compatibility with Samsung Magician for performance optimization and data migration; noted ease of upgrade in many setups.
+  - Heat management when using proper cooling: some owners report good performance under load and reference potentially lower temps with a heatsink (one user cites a high temp around 50°C under load in a specific setup).
+  - Broad compatibility: works well across desktop PCs, laptops, and even in PS5 contexts per buyer comments.
+
+- Cons or caveats highlighted by customers:
+  - OS booting and cloning caveats: a prominent review explicitly says “Great for data, sucks for your boot OS” and notes you cannot clone to make an instant bootable backup; OS installations on NVMe can raise boot-related concerns in dual-boot setups.
+  - BIOS/firmware/driver considerations: mentions disabling Intel RST/VMD in some configurations to boot Windows, which may cause headaches for dual-boot or certain motherboard configurations.
+  - Heat shield/cooling considerations: some comments indicate the stock heat sink may be too thick for certain chassis (e.g., Alienware) and users install aftermarket heatsinks for proper cooling.
+  - Packaging/handling risk: at least one review mentions a damaged package, requiring additional considerations for delivery and internal packaging.
+
+- Notable review anecdotes:
+  - A user describes dramatic speed gains and improved network/download performance after upgrading to 990 PRO and performing a fresh Windows install.
+  - Several reviewers mention pairing with a heatsink to maintain optimal temps and performance.
+  - A few reviewers compare it favorably against the 980 PRO and highlight the Gen4 performance gains and efficiency.
+
+- Relevant context and media in main-content:
+  - Video reviews and installation content are linked, offering buyer-facing demonstrations (e.g., installation video and multiple product videos).
+  - The product page includes direct links to customer reviews, related items, and tutorials (e.g., Samsung Magician guidance).
+
+If you want, I can extract direct quoted customer snippets (pros/cons) verbatim and organize them by theme (performance, cooling, OS/boot caveats, installation, etc.).
+
+
+
+# raw materials: e0ed60_processed.json
+url: https://www.amazon.com/SAMSUNG-Technology-Intelligent-Turbowrite-MZ-V9S4T0B/dp/B0DHLBDSP7/ref=pb_allspark_dp_sims_pao_desktop_session_based_d_sccl_2_2/142-2485835-4920547?pd_rd_w=iqLgV&content-id=amzn1.sym.bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_p=bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_r=8HMKY90K9W81ZVGHVVJH&pd_rd_wg=hvzIr&pd_rd_r=48e8625b-7f1c-4f68-b245-cd9acc0c1482&pd_rd_i=B0DHLBDSP7&th=1
+
+## model: gpt-5-nano
+time cost: 38.97859912493732s
+tokens usage: 57819 (completion: 22433, prompt: 35386)
+
+### related urls: 
+https://www.amazon.com/-/zh/dp/B0CHGT1KFJ/ref=pd_ci_mcx_pspc_dp_2_t_4?pd_rd_w=GNQA7&content-id=amzn1.sym.cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_p=cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_r=C6MK6DX8AN6JK3M5B7A5&pd_rd_wg=nz9Me&pd_rd_r=d4bccb7b-be6b-4bb0-a051-965be132c13e&pd_rd_i=B0CHGT1KFJ
+https://www.amazon.com/-/zh/dp/B0DX2GJ1YR/ref=pd_ci_mcx_pspc_dp_2_t_2?pd_rd_w=GNQA7&content-id=amzn1.sym.cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_p=cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_r=C6MK6DX8AN6JK3M5B7A5&pd_rd_wg=nz9Me&pd_rd_r=d4bccb7b-be6b-4bb0-a051-965be132c13e&pd_rd_i=B0DX2GJ1YR
+https://m.media-amazon.com/images/I/31xiYanSLhL._AC_.jpg
+https://www.amazon.com/dp/B0CHGT1KFJ/ref=pd_rhf_dp_s_pd_sbs_rvi_d_sccl_1_2/146-1421385-4112468?pd_rd_w=Axnkp&content-id=amzn1.sym.c6cd1cf0-b3df-427b-b589-1ce7b235f9b4&pf_rd_p=c6cd1cf0-b3df-427b-b589-1ce7b235f9b4&pf_rd_r=G4R2VQFT1WF8X5EKKM0K&pd_rd_wg=8d7kZ&pd_rd_r=1ff983fc-b309-4a6a-8b9f-661da672dedd&pd_rd_i=B0CHGT1KFJ&psc=1
+https://www.amazon.com/product-reviews/B0CHGT1KFJ/ref=pd_rhf_dp_s_pd_sbs_rvi_d_sccl_1_2_cr/146-1421385-4112468?pd_rd_w=Axnkp&content-id=amzn1.sym.c6cd1cf0-b3df-427b-b589-1ce7b235f9b4&pf_rd_p=c6cd1cf0-b3df-427b-b589-1ce7b235f9b4&pf_rd_r=G4R2VQFT1WF8X5EKKM0K&pd_rd_wg=8d7kZ&pd_rd_r=1ff983fc-b309-4a6a-8b9f-661da672dedd&pd_rd_i=B0CHGT1KFJ
+https://www.amazon.com/-/zh/dp/B0CRC7H66Z/ref=pd_ci_mcx_pspc_dp_2_t_1?pd_rd_w=GNQA7&content-id=amzn1.sym.cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_p=cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_r=C6MK6DX8AN6JK3M5B7A5&pd_rd_wg=nz9Me&pd_rd_r=d4bccb7b-be6b-4bb0-a051-965be132c13e&pd_rd_i=B0CRC7H66Z
+
+### related infos: 
+
+
+
+## model: openai/gpt-oss-20b
+time cost: 5.398859874927439s
+tokens usage: 73519 (completion: 23846, prompt: 49673)
+
+### related urls: 
+https://www.amazon.com/-/zh/gp/customer-reviews/R37N86LN9MMMYI/ref=cm_cr_dp_d_rvw_ttl?ie=UTF8&ASIN=B0DHLBDSP7
+https://www.amazon.com/-/zh/product-reviews/B0DHLBDSP7/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews
+https://www.amazon.com/dp/B0CHGT1KFJ/ref=pd_rhf_dp_s_pd_sbs_rvi_d_sccl_1_2/146-1421385-4112468?pd_rd_w=Axnkp&content-id=amzn1.sym.c6cd1cf0-b3df-427b-b589-1ce7b235f9b4&pf_rd_p=c6cd1cf0-b3df-427b-b589-1ce7b235f9b4&pf_rd_r=G4R2VQFT1WF8X5EKKM0K&pd_rd_wg=8d7kZ&pd_rd_r=1ff983fc-b309-4a6a-8b9f-661da672dedd&pd_rd_i=B0CHGT1KFJ&psc=1
+https://www.amazon.com/-/zh/gp/profile/amzn1.account.AE5PM6IWXAJHBJH23LI5BUGL25EQ/ref=cm_cr_dp_d_gw_tr?ie=UTF8
+
+### related infos: 
+
+
+
+# raw materials: f10a75_processed.json
+url: https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Fproduct-reviews%2FB0CHGT1KFJ%2Fref%3Dcm_cr_arp_d_viewopt_srt%3Fie%3DUTF8%26reviewerType%3Dall_reviews%26sortBy%3Drecent%26pageNumber%3D1&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&language=zh_CN&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+
+## model: gpt-5-nano
+time cost: 3.804082000046037s
+tokens usage: 74838 (completion: 24636, prompt: 50202)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: openai/gpt-oss-20b
+time cost: 1.1081493749516085s
+tokens usage: 75911 (completion: 25115, prompt: 50796)
+
+### related urls: 
+
+
+### related infos: 
+
+
+

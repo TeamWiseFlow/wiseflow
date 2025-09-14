@@ -4,6 +4,8 @@
 
 **4.0 users upgrading to version 4.1, after pulling the latest code, need to execute ./pb/pocketbase migrate command first, otherwise it cannot start normally.**
 
+**Starting from version 4.2, please download Google Chrome browser first and install it to the default path**
+
 ## 📋 System Requirements
 
 - **Python**: 3.10 - 3.12 (3.12 recommended)
@@ -82,10 +84,10 @@ In the wiseflow folder (project root directory), create a .env file based on env
 
 Version 4.x does not require users to provide PocketBase account credentials in .env, nor does it limit the PocketBase version. We have also temporarily removed the Secondary Model setting. Therefore, you actually only need four parameters to complete the configuration:
 
-- LLM_API_KEY="" # LLM service key (any model service provider that provides OpenAI format API is acceptable, recommended to use AiHubMix service, wiseflow users enjoy 10% discount on OpenAI models [apply here](https://aihubmix.com?aff=Gp54))
-- LLM_API_BASE=https://aihubmix.com/v1
-- PRIMARY_MODEL=o3-mini # Recommended o3-mini or higher level thinking model
-- VL_MODEL=gpt-4o-mini # Recommended gpt-4o-mini or higher level visual model
+- LLM_API_KEY="" # LLM service key (any model service provider that provides OpenAI format API is acceptable, no need to set if using locally deployed ollama)
+- LLM_API_BASE="" # LLM service base url (if any. For OpenAI users, leave it blank)
+- PRIMARY_MODEL=ByteDance-Seed/Seed-OSS-36B-Instruct # For price-sensitive and simple extraction scenarios, Qwen3-14B can be used
+- VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct" # Visual model, optional but recommended. Used for analyzing necessary page images (program will determine if analysis is necessary based on context, won't extract every image), minimum Qwen2.5-VL-7B-Instruct is sufficient
 
 ### 🚀 Let's Go!
 
@@ -96,7 +98,6 @@ source .venv/bin/activate  # Linux/macOS
 # or Windows:
 # .venv\Scripts\activate
 uv sync # only needed the first time
-python -m playwright install --with-deps chromium # only needed the first time
 chmod +x run.sh # only needed the first time
 ./run.sh
 ```
@@ -147,12 +148,6 @@ uv sync
 
 This will install WiseFlow and all its dependencies, ensuring dependency version consistency. uv sync reads the project's dependency declarations and synchronizes the virtual environment.
 
-Then install browser dependencies:
-
-```bash
-python -m playwright install --with-deps chromium
-```
-
 Finally, start the main service:
 
 ```bash
@@ -185,15 +180,33 @@ WiseFlow is an LLM-native application, please ensure stable LLM service is provi
 
 🌟 **WiseFlow does not limit the model service provider, as long as the service is compatible with OpenAI SDK, including locally deployed ollama, Xinference, and other services**
 
-Recommended: Use AiHubMix's proxied OpenAI model service. Currently, WiseFlow collaborates with AiHubMix, and WiseFlow users enjoy a 10% discount on all OpenAI models [Apply here](https://aihubmix.com?aff=Gp54)
+##### Recommendation 1: Use SiliconFlow's MaaS Service
+
+SiliconFlow provides online MaaS services for most mainstream open-source models. With their acceleration inference technology, their service has advantages in both speed and price. When using SiliconFlow's service, .env configuration can refer to:
 
 ```
 LLM_API_KEY=Your_API_KEY
-LLM_API_BASE=https://aihubmix.com/v1
-PRIMARY_MODEL=o3-mini
-VL_MODEL=gpt-4o-mini
-CONCURRENT_NUMBER=8
+LLM_API_BASE="https://api.siliconflow.cn/v1"
+PRIMARY_MODEL=ByteDance-Seed/Seed-OSS-36B-Instruct # For price-sensitive and simple extraction scenarios, Qwen3-14B can be used
+VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
+CONCURRENT_NUMBER=6
 ```
+
+we recommend using [Siliconflow](https://www.siliconflow.com/) 's model service.
+
+##### Recommendation 2: Use AiHubMix's proxied overseas closed-source commercial model services like OpenAI, Claude, Gemini
+
+When using AiHubMix's models, .env configuration can refer to:
+
+```
+LLM_API_KEY=Your_API_KEY
+LLM_API_BASE="https://aihubmix.com/v1" # For details, refer to https://doc.aihubmix.com/
+PRIMARY_MODEL="o3-mini" #or openai/gpt-oss-20b
+VL_MODEL="gpt-4o-mini"
+CONCURRENT_NUMBER=6
+```
+
+😄 Welcome to register using [AiHubMix invitation link](https://aihubmix.com?aff=Gp54) 🌹
 
 ##### Local LLM Service Deployment
 
@@ -207,14 +220,14 @@ VL_MODEL=Started model ID
 CONCURRENT_NUMBER=1 # Determine based on actual hardware resources
 ```
 
-#### 4. Other Optional Configurations
+#### 3. Other Optional Configurations
 
 The following are optional configurations:
 - #VERBOSE="true" 
 
   Whether to enable observation mode, if enabled, debug information will be recorded in the logger file (default only outputs to console)
 
-- #CONCURRENT_NUMBER=8 
+- #CONCURRENT_NUMBER=6 
 
   Used to control the number of concurrent LLM requests, default is 1 if not set (please ensure the LLM provider supports the set concurrency before enabling, use with caution for local large models unless you're confident in your hardware foundation)
 

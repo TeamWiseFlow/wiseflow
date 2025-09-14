@@ -4,6 +4,8 @@
 
 **4.0 사용자가 버전 4.1로 업그레이드하는 경우, 최신 코드를 가져온 후 먼저 ./pb/pocketbase migrate 명령을 실행해야 합니다. 그렇지 않으면 정상적으로 시작할 수 없습니다.**
 
+**4.2버전부터 먼저 google chrome 브라우저를 다운로드하고 기본 경로로 설치하세요**
+
 ## 📋 시스템 요구사항
 
 - **Python**: 3.10 - 3.12（3.12 권장）
@@ -82,10 +84,10 @@ wiseflow 폴더（프로젝트 루트 디렉토리）에서 env_sample을 기반
 
 버전 4.x에서는 사용자가 .env에서 PocketBase 계정 인증 정보를 제공할 필요가 없으며, PocketBase 버전도 제한되지 않습니다. 또한 Secondary Model 설정도 일시적으로 제거되었습니다. 따라서 실제로는 4개의 매개변수만으로 설정을 완료할 수 있습니다：
 
-- LLM_API_KEY="" # LLM 서비스 키（OpenAI 형식 API를 제공하는 모델 서비스 제공업체라면 어느 것이든 가능, AiHubMix 서비스 사용 권장, wiseflow 사용자는 OpenAI 모델에서 10% 할인 혜택 [여기서 신청](https://aihubmix.com?aff=Gp54)）
-- LLM_API_BASE=https://aihubmix.com/v1
-- PRIMARY_MODEL=o3-mini # 추천 o3-mini 또는 더 높은 수준의 사고 모델
-- VL_MODEL=gpt-4o-mini # 추천 gpt-4o-mini 또는 더 높은 수준의 시각 모델
+- LLM_API_KEY="" # LLM 서비스 키（OpenAI 형식 API를 제공하는 모델 서비스 제공업체라면 어느 것이든 가능, 로컬에서 배포된 ollama를 사용하는 경우 설정 불필요）
+- LLM_API_BASE="" # LLM 서비스 기본 URL (있는 경우. OpenAI 사용자의 경우 비워두세요)
+- PRIMARY_MODEL=ByteDance-Seed/Seed-OSS-36B-Instruct # 가격에 민감하고 추출이 복잡하지 않은 시나리오에서는 Qwen3-14B를 사용할 수 있습니다
+- VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct" # 시각 모델, 선택사항이지만 권장. 필요한 페이지 이미지 분석에 사용（프로그램은 컨텍스트에 따라 분석이 필요한지 여부를 판단하며, 모든 이미지를 추출하지는 않음）, 최소 Qwen2.5-VL-7B-Instruct로 충분합니다
 
 ### 🚀 시작해 보세요！
 
@@ -96,7 +98,6 @@ source .venv/bin/activate  # Linux/macOS
 # 또는 Windows에서:
 # .venv\Scripts\activate
 uv sync # 처음 실행할 때만 필요
-python -m playwright install --with-deps chromium # 처음 실행할 때만 필요
 chmod +x run.sh # 처음 실행할 때만 필요
 ./run.sh
 ```
@@ -147,12 +148,6 @@ uv sync
 
 이렇게 하면 WiseFlow와 모든 종속성이 설치되며, 종속성 버전의 일관성이 보장됩니다. uv sync는 프로젝트의 종속성 선언을 읽고 가상 환경을 동기화합니다.
 
-그런 다음 브라우저 종속성을 설치합니다：
-
-```bash
-python -m playwright install --with-deps chromium
-```
-
 마지막으로 메인 서비스를 시작합니다：
 
 ```bash
@@ -185,15 +180,33 @@ WiseFlow는 LLM 네이티브 애플리케이션입니다. 프로그램에 안정
 
 🌟 **WiseFlow는 모델 서비스 제공업체를 제한하지 않습니다. OpenAI SDK와 호환되는 서비스라면 로컬에서 배포된 ollama, Xinference, 기타 서비스도 포함하여 사용할 수 있습니다**
 
-권장：AiHubMix의 프록시 OpenAI 모델 서비스를 사용하세요. 현재 WiseFlow는 AiHubMix와 협력하고 있으며, WiseFlow 사용자는 모든 OpenAI 모델에서 10% 할인 혜택을 받을 수 있습니다 [여기서 신청](https://aihubmix.com?aff=Gp54)
+##### 추천 1：SiliconFlow의 MaaS 서비스 사용
+
+SiliconFlow는 대부분의 주류 오픈 소스 모델에 대한 온라인 MaaS 서비스를 제공합니다. 그들의 가속 추론 기술로 인해 서비스는 속도와 가격 모두에서 우위를 가집니다. SiliconFlow의 서비스를 사용할 때 .env 설정은 다음과 같습니다：
 
 ```
 LLM_API_KEY=Your_API_KEY
-LLM_API_BASE=https://aihubmix.com/v1
-PRIMARY_MODEL=o3-mini
-VL_MODEL=gpt-4o-mini
-CONCURRENT_NUMBER=8
+LLM_API_BASE=""
+PRIMARY_MODEL=ByteDance-Seed/Seed-OSS-36B-Instruct # 가격에 민감하고 추출이 복잡하지 않은 시나리오에서는 Qwen3-14B를 사용할 수 있습니다
+VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
+CONCURRENT_NUMBER=6
 ```
+
+[Siliconflow](https://www.siliconflow.com/)의 모델 서비스 사용을 권장합니다.
+
+##### 추천 2：AiHubMix의 프록시된 해외 클로즈드 소스 상용 모델 서비스（OpenAI, Claude, Gemini 등）사용
+
+AiHubMix의 모델을 사용할 때 .env 설정은 다음과 같습니다：
+
+```
+LLM_API_KEY=Your_API_KEY
+LLM_API_BASE="https://aihubmix.com/v1" # 자세한 내용은 https://doc.aihubmix.com/ 참조
+PRIMARY_MODEL="o3-mini" #or openai/gpt-oss-20b
+VL_MODEL="gpt-4o-mini"
+CONCURRENT_NUMBER=6
+```
+
+😄 [AiHubMix 초대 링크](https://aihubmix.com?aff=Gp54)를 사용하여 등록해 주세요 🌹
 
 ##### 로컬 LLM 서비스 배포
 
@@ -207,7 +220,7 @@ VL_MODEL=시작된 모델 ID
 CONCURRENT_NUMBER=1 # 실제 하드웨어 리소스에 따라 결정
 ```
 
-#### 4. 기타 선택적 설정
+#### 3. 기타 선택적 설정
 
 다음은 선택적 설정입니다：
 - #VERBOSE="true" 

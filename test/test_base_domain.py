@@ -2,10 +2,16 @@ import unittest
 import os
 import sys
 
+from dotenv import load_dotenv
+env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env')
+if os.path.exists(env_path):
+    load_dotenv(env_path)
+
+
 # 将core目录添加到Python路径
-core_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
+core_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'core')
 sys.path.append(core_path)
-from core.wis.utils import get_base_domain, is_external_url
+from wis.utils import get_base_domain, is_external_url
 
 class TestURLUtils(unittest.TestCase):
     def test_get_base_domain(self):
@@ -119,9 +125,9 @@ class TestURLUtils(unittest.TestCase):
 
 if __name__ == '__main__':
     # unittest.main() 
-    test_list = ['https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzIxMzkyNjE5OQ==&action=getalbum&album_id=3313733712991387654',
-                 'https://mp.weixin.qq.com/s?__biz=MzAxMjc3MjkyMg==&mid=2648392066&idx=1&sn=c46a35c0158fb83ea69405dc87806c87',
+    test_list = ['https://www.wsj.com/tech/ai/even-nvidia-has-speed-limits-fc801b89?mod=mhp',
+                 'https://www.wsj.com/politics/policy/in-trumps-second-term-a-bolder-president-charges-ahead-unchecked-1c8c5b79',
                  ]
     for url in test_list:
         print(get_base_domain(url))
-        print(is_external_url(url, 'https://mp.weixin.qq.com'))
+        # print(is_external_url(url, 'https://mp.weixin.qq.com'))

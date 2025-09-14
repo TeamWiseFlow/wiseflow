@@ -1,4 +1,4 @@
-# 默认忽略的文件
+# default ignore
 /shelf/
 /workspace.xml
 .DS_Store
@@ -10,6 +10,15 @@ pb/pb_data/
 pb/pocketbase
 work_dir
 test/webpage_samples/
-/docker
-work_dir_for_test
 pb/pb_migrations/1750399634_created_clients.js
+
+# temporary files
+*.tmp
+*.log
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.so
+.Python
+.qoder/quests/update-multi-language-documents.md

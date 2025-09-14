@@ -4,6 +4,8 @@
 
 **Les utilisateurs de la version 4.0 qui souhaitent mettre à niveau vers la version 4.1, après avoir tiré le dernier code, doivent d'abord exécuter la commande ./pb/pocketbase migrate, sinon le programme ne pourra pas démarrer normalement.**
 
+**À partir de la version 4.2, veuillez d'abord télécharger le navigateur Google Chrome et l'installer dans le chemin par défaut**
+
 ## 📋 Configuration système requise
 
 - **Python**: 3.10 - 3.12 (3.12 recommandé)
@@ -84,10 +86,10 @@ Dans le dossier wiseflow (répertoire racine du projet), créez un fichier .env 
 
 La version 4.x ne nécessite pas d'identifiants PocketBase dans le fichier .env et ne limite pas non plus la version de PocketBase. De plus, nous avons temporairement supprimé le paramètre Secondary Model. Vous n'avez donc besoin que de quatre paramètres minimum :
 
-- LLM_API_KEY="" # Clé de service LLM (tout fournisseur avec un format d'API compatible OpenAI est approprié, recommandé d'utiliser le service AiHubMix, les utilisateurs wiseflow bénéficient d'une remise de 10% sur les modèles OpenAI [postuler ici](https://aihubmix.com?aff=Gp54))
-- LLM_API_BASE=https://aihubmix.com/v1
-- PRIMARY_MODEL=o3-mini # Recommandé o3-mini ou modèle de réflexion de niveau supérieur
-- VL_MODEL=gpt-4o-mini # Recommandé gpt-4o-mini ou modèle visuel de niveau supérieur
+- LLM_API_KEY="" # Clé de service LLM (tout fournisseur avec un format d'API compatible OpenAI est approprié, non requis pour l'utilisation locale d'ollama)
+- LLM_API_BASE="" # Adresse de l'interface du service LLM (si nécessaire. Pour les utilisateurs OpenAI, laissez-le vide)
+- PRIMARY_MODEL=ByteDance-Seed/Seed-OSS-36B-Instruct # Pour les scénarios sensibles au prix et d'extraction simple, Qwen3-14B peut être utilisé
+- VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct" # Modèle visuel, optionnel mais recommandé. Utilisé pour analyser les images de page nécessaires (le programme décide en fonction du contexte si une analyse est nécessaire, pas chaque image n'est extraite), minimum Qwen2.5-VL-7B-Instruct requis
 
 ### 🚀  C'est parti !
 
@@ -98,7 +100,6 @@ source .venv/bin/activate  # Linux/macOS
 # ou Windows :
 # .venv\Scripts\activate
 uv sync # nécessaire uniquement lors de la première exécution
-python -m playwright install --with-deps chromium # nécessaire uniquement lors de la première exécution
 chmod +x run.sh # nécessaire uniquement lors de la première exécution
 ./run.sh
 ```
@@ -149,12 +150,6 @@ uv sync
 
 Cela installe wiseflow et toutes ses dépendances et assure la cohérence des versions des dépendances. uv sync lit les déclarations de dépendances du projet et synchronise l'environnement virtuel.
 
-Ensuite, installer les dépendances du navigateur :
-
-```bash
-python -m playwright install --with-deps chromium
-```
-
 Enfin, démarrer le service principal :
 
 ```bash
@@ -187,15 +182,34 @@ wiseflow est une application native LLM. Veuillez vous assurer de fournir un ser
 
 🌟 **wiseflow ne limite pas les fournisseurs de services de modèles, tant que le service est compatible avec le SDK OpenAI, y compris les services déployés localement comme ollama, Xinference, etc.**
 
-Recommandé : Utilisez le service de modèles OpenAI proxifiés par AiHubMix. Actuellement, WiseFlow collabore avec AiHubMix, et les utilisateurs WiseFlow bénéficient d'une remise de 10% sur tous les modèles OpenAI [Postuler ici](https://aihubmix.com?aff=Gp54)
+##### Recommandation 1 : Utilisation du service MaaS de SiliconFlow
+
+SiliconFlow propose des services MaaS pour la plupart des modèles open source courants. Grâce à leur propre technologie d'accélération d'inférence, ils ont de grands avantages en termes de vitesse et de prix. Lors de l'utilisation du service SiliconFlow, la configuration .env peut ressembler à ceci :
 
 ```
 LLM_API_KEY=Votre_clé_API
-LLM_API_BASE=https://aihubmix.com/v1
-PRIMARY_MODEL=o3-mini
-VL_MODEL=gpt-4o-mini
-CONCURRENT_NUMBER=8
+LLM_API_BASE=""
+PRIMARY_MODEL=ByteDance-Seed/Seed-OSS-36B-Instruct # Pour les scénarios sensibles au prix et d'extraction simple, Qwen3-14B peut être utilisé
+VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
+CONCURRENT_NUMBER=6
 ```
+
+nous recommandons d'utiliser le service de modèles de [Siliconflow](https://www.siliconflow.com/).
+
+##### Recommandation 2 : Utilisation d'AiHubMix comme proxy pour OpenAI, Claude, Gemini et autres modèles commerciaux
+
+Si vos sources d'information sont principalement des pages non chinoises et que vous ne demandez pas non plus que les informations extraites soient en chinois, nous recommandons d'utiliser OpenAI, Claude, Gemini et d'autres modèles commerciaux. Vous pouvez essayer le proxy tiers **AiHubMix**, qui prend en charge les connexions directes dans les réseaux chinois, les paiements pratiques via Alipay et évite le risque de blocage de compte.
+Lors de l'utilisation des modèles AiHubMix, la configuration .env peut ressembler à ceci :
+
+```
+LLM_API_KEY=Votre_clé_API
+LLM_API_BASE="https://aihubmix.com/v1" # voir https://doc.aihubmix.com/
+PRIMARY_MODEL="o3-mini" #or openai/gpt-oss-20b
+VL_MODEL="gpt-4o-mini"
+CONCURRENT_NUMBER=6
+```
+
+😄 Bienvenue pour vous inscrire via le [lien d'invitation AiHubMix](https://aihubmix.com?aff=Gp54) 🌹
 
 ##### Déploiement local du service LLM
 
@@ -209,7 +223,7 @@ VL_MODEL=ID_du_modèle_démarré
 CONCURRENT_NUMBER=1 # basé sur les ressources matérielles réelles
 ```
 
-#### 4. Autres configurations optionnelles
+#### 3. Autres configurations optionnelles
 
 Les suivantes sont des configurations optionnelles :
 - #VERBOSE="true" 

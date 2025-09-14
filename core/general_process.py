@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
 from async_logger import wis_logger, base_directory
 from typing import Dict, Tuple
-from wis.utils import get_base_domain
 import time, pickle
 import asyncio
 from custom_processes import *
-from tools.bing_search import search_with_bing
+from tools.github_search import search_with_github
 from tools.rss_parsor import fetch_rss
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from wis import (
-    AsyncWebCrawler,
     LLMExtractionStrategy,
     KUAISHOU_PLATFORM_NAME,
     WEIBO_PLATFORM_NAME,
     MaxLengthChunking,
-    markdown_generation_hub,
     DefaultMarkdownGenerator,
+    WeixinArticleMarkdownGenerator,
     ExtractionStrategy,
     NoExtractionStrategy,
     LLMExtractionStrategy,
@@ -26,8 +24,7 @@ from wis import (
     CrawlResult,
     search_with_engine
 )
-from web_crawler_configs import crawler_config_map
-from wis.config import MAX_URLS_PER_TASK
+from wis.config import MAX_URLS_PER_TASK, EXCLUDE_EXTERNAL_LINKS
 from tools.general_utils import Recorder
 
 
@@ -89,9 +86,8 @@ def save_existings_for_focus(focus_id: str, existings: dict) -> None:
 
 def scrap_article(article: CrawlResult, 
                   extractor: ExtractionStrategy = None, 
-                  chunking: ChunkingStrategy = None) -> Tuple[CrawlResult, bool, Dict]:
-    
-    article_updated = False
+                  chunking: ChunkingStrategy = None) -> Tuple[CrawlResult, Dict]:
+
     url = article.url
     html = article.html
     cleaned_html = article.cleaned_html
@@ -100,7 +96,7 @@ def scrap_article(article: CrawlResult,
     metadata = article.metadata
   
     if not extractor or isinstance(extractor, NoExtractionStrategy):
-        return article, article_updated, {'infos': [], 'links': set()}
+        return article, {'infos': [], 'links': set()}
 
     t1 = time.perf_counter()
     if not isinstance(extractor, LLMExtractionStrategy):
@@ -113,7 +109,7 @@ def scrap_article(article: CrawlResult,
         
         if not content:
             wis_logger.info(f"{url} has no required content to extract, skip")
-            return article, article_updated, {'infos': [], 'links': set()}
+            return article, {'infos': [], 'links': set()}
 
         chunking = chunking or IdentityChunking()
         sections = chunking.chunk(content)
@@ -121,16 +117,18 @@ def scrap_article(article: CrawlResult,
 
         # Log extraction completion
         wis_logger.debug(f"[EXTRACT] ✓ {url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
-        return article, article_updated, extracted_content
+        return article, extracted_content
         
     # if use LLMExtractionStrategy, then we need to generate markdown
     if not markdown:
         if not html and not cleaned_html:
             wis_logger.info(f"{url} has no markdown,cleaned_html or html, skip")
-            return article, article_updated, {'infos': [], 'links': set()}
+            return article, {'infos': [], 'links': set()}
         
-        domain = get_base_domain(url)
-        markdown_generator = markdown_generation_hub.get(domain, DefaultMarkdownGenerator)()
+        if "mp.weixin.qq.com" in url:
+            markdown_generator = WeixinArticleMarkdownGenerator()
+        else:
+            markdown_generator = DefaultMarkdownGenerator()
         error_msg, title, author, publish, markdown, link_dict = markdown_generator.generate_markdown(
             raw_html=html,
             cleaned_html=cleaned_html,
@@ -139,32 +137,35 @@ def scrap_article(article: CrawlResult,
         )
         if error_msg:
             wis_logger.error(f"[HTML TO MARKDOWN] ✗ {url}\n{error_msg}")
-            return article, article_updated, {'infos': [], 'links': set()}
+            return article, {'infos': [], 'links': set()}
         
         wis_logger.debug(f"[HTML TO MARKDOWN] ✓ {url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
-        if not article.title:
+        if not article.title or "mp.weixin.qq.com" in url:
             article.title = title
-        if not article.author:
+        if not article.author or "mp.weixin.qq.com" in url:
             article.author = author
-        if not article.publish_date:
+        if not article.publish_date or "mp.weixin.qq.com" in url:
             article.publish_date = publish
         article.link_dict = link_dict
         article.markdown = markdown
-        article_updated = True
 
     t1 = time.perf_counter()
     if not chunking:
         chunking = MaxLengthChunking()
     sections = chunking.chunk(article.markdown)
+    mode = 'both' if article.link_dict else 'only_info'
+    if EXCLUDE_EXTERNAL_LINKS and "mp.weixin.qq.com" in url:
+        # for weixin article, artilces from different creators share same domain but should be excluded here (even fetching will cause risk control)
+        mode = 'only_info'
     extracted_content = extractor.run(sections=sections,
                                       url=url,
                                       title=article.title,
                                       author=article.author,
                                       publish_date=article.publish_date,
-                                      mode='both' if article.link_dict else 'only_info',
+                                      mode=mode,
                                       link_dict=article.link_dict)
     wis_logger.debug(f"[EXTRACT] ✓ {url:.30}... | ⏱: {int((time.perf_counter() - t1) * 1000) / 1000:.2f}s")
-    return article, article_updated, extracted_content
+    return article, extracted_content
 
 async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manager=None):
     # 0. prepare the work
@@ -214,10 +215,11 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
             sources.append({'type': WEIBO_PLATFORM_NAME, 'query': {focuspoint}})
         elif search_source == 'ks':
             sources.append({'type': KUAISHOU_PLATFORM_NAME, 'query': {focuspoint}})
-        elif search_source == 'bing':
-            tasks.add(wrap_task(search_with_bing(focuspoint, existings['web']), ('posts', 'bing')))
-        elif search_source in ['ebay', 'github', 'arxiv']:
-            tasks.add(wrap_task(search_with_engine(search_source, focuspoint, existings['web']), ('article_or_posts', search_source)))
+        elif search_source == 'github':
+            tasks.add(wrap_task(search_with_github(focuspoint, existings['web']), ('posts', 'github')))
+        elif search_source in ['bing', 'arxiv'] and crawlers.get('web'):
+            tasks.add(wrap_task(search_with_engine(search_source, focuspoint, crawlers['web'], existings['web']),
+                                ('article_or_posts', search_source)))
         else:
             wis_logger.warning(f"focus {focus_id} has unvalid search source {search_source}, skip")
 
@@ -238,7 +240,7 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
             recorder.web_source += 1
 
         elif source['type'] in [KUAISHOU_PLATFORM_NAME, WEIBO_PLATFORM_NAME]:
-            if not crawlers[source['type']]:
+            if not crawlers.get(source['type']):
                 wis_logger.info(f"focus {focus_id} got {source['type']} source, but no valid crawler, skip")
                 continue
 
@@ -266,7 +268,7 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
             tasks.add(wrap_task(crawlers[source['type']].posts_list(**kwags), (task_type, source['type'])))
         
         else:
-            wis_logger.warning(f"focus {focus_id} has unvalid source {source['id']}: has no type, skip")
+            wis_logger.warning(f"focus {focus_id} has unvalid source{source['id']}: {source['type']}, skip")
             continue
     
     posts = []
@@ -392,9 +394,9 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
                 for future in as_completed(futures):
                     recorder.total_processed += 1
                     try:
-                        article, article_updated, result = future.result()
+                        article, result = future.result()
                         # processed_urls.add(article.url)  # 记录成功处理的 URL
-                        if article_updated:
+                        if db_manager:
                             await db_manager.cache_url(article)
                         recorder.add_url(result['links'] - existings['web'], 'article')
                         for info in result['infos']:
@@ -419,14 +421,16 @@ async def main_process(focus: dict, sources: list, crawlers: dict = {}, db_manag
 
         if recorder.url_queue:
             wis_logger.debug(f"focus {focus_id} still have {len(recorder.url_queue)} urls to crawl")
-            # for each loop we use a new context for better memory usage and avoid potiential problems
-            async with AsyncWebCrawler(crawler_config_map=crawler_config_map, db_manager=db_manager) as crawler:
-                async for result in await crawler.arun_many(list(recorder.url_queue)):
+            if crawlers.get('web'):
+                async for result in await crawlers['web'].arun_many(list(recorder.url_queue)):
                     if result and result.success:
                         recorder.article_queue.append(result)
                     else:
                         recorder.crawl_failed += 1
                         recorder.total_processed += 1
+            else:
+                wis_logger.debug("'cause web crawler is not initialized, so we have to skip the batch scraping...")
+
             recorder.processed_urls.update(recorder.url_queue)
             recorder.url_queue.clear()
 

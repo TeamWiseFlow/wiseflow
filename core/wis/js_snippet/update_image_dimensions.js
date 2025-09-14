@@ -1,8 +1,10 @@
 () => {
     return new Promise((resolve) => {
         const filterImage = (img) => {
-            // Filter out images that are too small
-            if (img.width < 100 && img.height < 100) return false;
+            // Filter out images that are too small - check multiple size sources
+            const width = Math.max(img.width, img.naturalWidth, img.offsetWidth);
+            const height = Math.max(img.height, img.naturalHeight, img.offsetHeight);
+            if (width < 100 && height < 100) return false;
 
             // Filter out images that are not visible
             const rect = img.getBoundingClientRect();

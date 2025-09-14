@@ -1,14 +1,7 @@
 # __init__.py
 import warnings
-
+from .async_configs import BrowserConfig, CrawlerRunConfig, GeolocationConfig
 from .async_webcrawler import AsyncWebCrawler
-from .async_configs import BrowserConfig, CrawlerRunConfig, ProxyConfig, GeolocationConfig
-
-from .proxy_strategy import (
-    ProxyRotationStrategy,
-    RoundRobinProxyStrategy,
-)
-
 from .extraction_strategy import (
     NoExtractionStrategy,
     ExtractionStrategy,
@@ -23,8 +16,7 @@ from .chunking_strategy import ChunkingStrategy, RegexChunking, IdentityChunking
 from .basemodels import CrawlResult
 from .markdown_generation_strategy import (
     DefaultMarkdownGenerator, 
-    WeixinArticleMarkdownGenerator, 
-    markdown_generation_hub
+    WeixinArticleMarkdownGenerator,
 )
 
 from .async_dispatcher import (
@@ -36,14 +28,13 @@ from .async_dispatcher import (
 
 from .kuaishou import *
 from .weibo import *
-from .config.mc_config import WEIBO_PLATFORM_NAME, KUAISHOU_PLATFORM_NAME
+from .config import WEIBO_PLATFORM_NAME, KUAISHOU_PLATFORM_NAME, ALL_PLATFORMS
 from .searchengines import search_with_engine
 
 __all__ = [
     "AsyncWebCrawler",
     "GeolocationConfig",
     "CrawlResult",
-    "CacheMode",
     "BrowserConfig",
     "CrawlerRunConfig",
     "ExtractionStrategy",
@@ -60,19 +51,15 @@ __all__ = [
     "BaseDispatcher",
     "MemoryAdaptiveDispatcher",
     "SemaphoreDispatcher",
-    "RateLimiter",
-    "ProxyRotationStrategy",
-    "RoundRobinProxyStrategy",
-    "ProxyConfig",
     "KuaiShouCrawler",
     "WeiboCrawler",
     "WeiboSearchType",
     "WEIBO_PLATFORM_NAME",
     "KUAISHOU_PLATFORM_NAME",
-    "markdown_generation_hub",
     "DefaultMarkdownGenerator",
     "WeixinArticleMarkdownGenerator",
     "search_with_engine",
+    "ALL_PLATFORMS",
 ]
 
 # Disable all Pydantic warnings
