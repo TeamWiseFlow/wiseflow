@@ -80,7 +80,7 @@ Nous avons sélectionné 7 échantillons de test issus de projets réels et choi
 
 Pour les modèles d'analyse auxiliaire visuelle, vous pouvez toujours utiliser : Qwen/Qwen2.5-VL-7B-Instruct (les tâches wiseflow ont actuellement une faible dépendance à cela)
 
-Pour les rapports de test détaillés, voir [LLM USE TEST](./test/reports/README.md)
+Pour les rapports de test détaillés, voir [LLM USE TEST](./test/reports/README_EN.md)
 
 Il convient de noter que les résultats de test ci-dessus ne représentent que les performances des modèles dans les tâches d'extraction d'informations wiseflow et ne peuvent pas représenter les capacités complètes des modèles. Les tâches d'extraction d'informations wiseflow peuvent être significativement différentes d'autres types de tâches (comme la planification, l'écriture, etc.). De plus, le coût est l'une de nos considérations clés car les tâches wiseflow consomment une grande quantité d'utilisation de modèles, en particulier dans les scénarios multi-sources et multi-focus.
 
