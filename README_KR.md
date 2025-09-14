@@ -62,7 +62,7 @@ https://github.com/user-attachments/assets/48998353-6c6c-4f8f-acae-dc5c45e2e0e6
 
 시각 보조 분석 모델의 경우 여전히 다음을 사용할 수 있습니다: Qwen/Qwen2.5-VL-7B-Instruct (wiseflow 작업은 현재 이에 대한 의존성이 낮습니다)
 
-자세한 테스트 보고서는 [LLM USE TEST](./test/reports/README.md)를 참조하세요
+자세한 테스트 보고서는 [LLM USE TEST](./test/reports/README_EN.md)를 참조하세요
 
 위의 테스트 결과는 wiseflow 정보 추출 작업에서의 모델 성능만을 나타내며 모델의 종합적 능력을 나타내지는 않습니다. Wiseflow 정보 추출 작업은 다른 유형의 작업(계획, 작성 등)과 현저히 다를 수 있습니다. 또한 wiseflow 작업은 많은 모델 사용량을 소모하기 때문에, 특히 다중 소스, 다중 포커스 시나리오에서 비용이 주요 고려 사항 중 하나입니다.
 

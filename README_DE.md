@@ -56,7 +56,7 @@ Wir haben 7 Testsätze aus echten Projekten sorgfältig ausgewählt und eine bre
 
 Für das visuelle Unterstützungsanalysemodell können Sie weiterhin verwenden: /Qwen/Qwen2.5-VL-7B-Instruct (wiseflow-Aufgaben sind derzeit wenig davon abhängig)
 
-Detaillierte Testberichte finden Sie unter [LLM USE TEST](./test/reports/README.md)
+Detaillierte Testberichte finden Sie unter [LLM USE TEST](./test/reports/README_EN.md)
 
 Es ist zu beachten, dass die obigen Testergebnisse nur die Leistung der Modelle bei wiseflow-Informationsextraktionsaufgaben repräsentieren und nicht die umfassenden Fähigkeiten der Modelle darstellen. Wiseflow-Informationsextraktionsaufgaben können sich deutlich von anderen Aufgabentypen (wie Planung, Schreiben usw.) unterscheiden. Außerdem sind die Kosten einer unserer Hauptfaktoren, da wiseflow-Aufgaben einen relativ hohen Modellverbrauch haben, insbesondere bei mehreren Informationsquellen und Fokuspunkten.
 

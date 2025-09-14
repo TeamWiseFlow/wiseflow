@@ -62,7 +62,7 @@ We selected 7 test samples from real projects and extensively chose mainstream m
 
 For visual auxiliary analysis models, you can still use: Qwen/Qwen2.5-VL-7B-Instruct (wiseflow tasks currently have low dependency on this)
 
-For detailed test reports, see [LLM USE TEST](./test/reports/README.md)
+For detailed test reports, see [LLM USE TEST](./test/reports/README_EN.md)
 
 It should be noted that the above test results only represent the performance of models in wiseflow information extraction tasks and cannot represent the comprehensive capabilities of the models. Wiseflow information extraction tasks may be significantly different from other types of tasks (such as planning, writing, etc.). Additionally, cost is one of our key considerations because wiseflow tasks consume a large amount of model usage, especially in multi-source, multi-focus scenarios.
 
