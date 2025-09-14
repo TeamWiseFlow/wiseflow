@@ -11,19 +11,17 @@
 https://github.com/user-attachments/assets/48998353-6c6c-4f8f-acae-dc5c45e2e0e6
 
 
-## 💰💰💰 OpenAI全シリーズモデルが1割引で利用可能！
+## 🔥🔥🔥 Wiseflow 4.2 バージョンが正式にリリースされました！
 
-本日より、wiseflowアプリケーション内でOpenAIシリーズモデルを公式価格の9割で利用できます（AiHubMixサードパーティAPIサービス提供）。
+バージョン4.2では、バージョン4.0、4.1を基盤にウェブクローリング機能を大幅に強化しました。プログラムは今、あなたのローカルの「本物の」Chrome ブラウザを直接呼び出してフェッチすることができます。これにより、ターゲットサイトによる「リスクコントロール」の確率を最大限に低減するだけでなく、永続的なユーザーデータやページ操作スクリプトのサポートなどの新機能ももたらします！（例えば、一部のウェブサイトではユーザーログイン後に完全なコンテンツを表示するため、事前にログインしてからwiseflowを使用して完全なコンテンツを取得できます）。
 
-**注意：** 割引を受けるにはaihubmixブランチに切り替える必要があります。詳細は[README](https://github.com/TeamWiseFlow/wiseflow/blob/aihubmix/README_JP.md)をご覧ください。
+バージョン4.2ではローカルChromeブラウザを直接使用するため、デプロイ時に `python -m playwright install --with-deps chromium` を実行する必要がなくなりましたが、**デフォルトインストールパスでGoogle Chromeブラウザをインストールする必要があります**。
 
-## 🔥🔥🔥 Wiseflow 4.1 バージョンが正式にリリースされました！
-
-バージョン4.1では、バージョン4.0を基盤として、さらに多くのエキサイティングな新機能が追加されました！
+さらに、検索エンジンソリューションのリファクタリングと完全なプロキシソリューションも提供しました。詳細は **[CHANGELOG](CHANGELOG.md)** をご覧ください。
 
 ### 🔍 カスタム検索ソース
 
-バージョン4.1では、フォーカスポイントごとに検索ソースを正確に設定できるようになりました。現在、bing、github、arxiv、ebayの4つの検索ソースをサポートしており、すべてプラットフォームのネイティブインターフェースを使用しているため、追加のサードパーティサービスを申請する必要はありません。
+バージョン4.1では、フォーカスポイントごとに検索ソースを正確に設定できるようになりました。現在、bing、github、arxivの検索ソースをサポートしており、すべてプラットフォームのネイティブインターフェースを使用しているため、追加のサードパーティサービスを申請する必要はありません。
 
 <img src="docs/select_search_source.gif" alt="search_source" width="360">
 
@@ -52,6 +50,32 @@ pbインターフェースで独自のフォームを作成し、特定のフォ
 
 **バージョン4.1に関する詳細な更新情報については、[CHANGELOG](CHANGELOG.md)をご覧ください。**
 
+## 🌹 最適なLLM組み合わせガイド
+
+「LLM時代において、優秀な開発者は少なくとも時間6割を適切なLLMモデルの選択に費やすべきです」 ☺️
+
+私たちは実际のプロジェクトから7つのテストサンプルを安選し、出力価格が￥4/Mトークンを超えない主流モデルを幅広く選択し、詳細なwiseflow情報抽出タスクテストを実行し、以下の使用推奨を得ました：
+
+    - パフォーマンス優先シナリオでの推奨：ByteDance-Seed/Seed-OSS-36B-Instruct
+
+    - コスト優先シナリオでは依然推奨：Qwen/Qwen3-14B
+
+視覚補助分析モデルには依然使用可能：Qwen/Qwen2.5-VL-7B-Instruct（wiseflowタスクは現在これに対する依存度が低い）
+
+詳細なテストレポートは[LLM USE TEST](./test/reports/README.md)をご覧ください
+
+以上のテスト結果はwiseflow情報抽出タスクにおけるモデルのパフォーマンスのみを表し、モデルの総合能力を表すものではありません。wiseflow情報抽出タスクと他のタイプのタスク（企画、執筆など）とは明らかに異なる可能性があります。また、wiseflowタスクはモデルの使用量消費が大きいため、特にマルチソース、マルチフォーカスシナリオでは、コストが重要な考慮事項の一つです。
+
+wiseflowはモデルサービスプロバイダーを制限しません。openaiSDKリクエストインターフェース形式と互換性があれば、既存のMaaSサービスやOllamaなどのローカルデプロイモデルサービスを選択できます。
+
+[Siliconflow](https://www.siliconflow.com/)のモデルサービスの使用を推奨します。
+
+あるいは、openaiシリーズモデルをより好む場合、'o3-mini'や'openai/gpt-oss-20b'も良い選択であり、視覚補助分析はgpt-4o-miniと組み合わせることができます。
+
+💰 現在、wiseflowアプリケーション内でAiHubMixが転送するOpenAIシリーズモデルの公式インターフェースを公式価格の9割で使用できます。
+
+**注意：** 割引を享受するにはaihubmixブランチに切り替える必要があります。詳細は[README](https://github.com/TeamWiseFlow/wiseflow/blob/aihubmix/README.md)をご覧ください
+
 ## 🧐 'ディープサーチ' VS 'ワイドサーチ'
 
 私はWiseflowを「ワイドサーチ」として位置づけています。これは現在人気の「ディープサーチ」と対比されるものです。
@@ -74,7 +98,9 @@ pbインターフェースで独自のフォームを作成し、特定のフォ
 
 **たった3ステップで始められます！**
 
-**Windowsユーザーは事前にGit Bashツールをダウンロードし、bashで以下のコマンドを実行してください [Bashダウンロードリンク](https://git-scm.com/downloads/win)**·
+**Windowsユーザーは事前にGit Bashツールをダウンロードし、bashで以下のコマンドを実行してください [Bashダウンロードリンク](https://git-scm.com/downloads/win)**
+
+**4.2バージョン以降、まずGoogle Chromeブラウザをインストールする必要があります（デフォルトインストールパスを使用）**
 
 ### 📋 プロジェクトのソースコードをダウンロードし、uvとpocketbaseをインストール
 
@@ -97,7 +123,7 @@ wiseflowフォルダ（プロジェクトのルートディレクトリ）でenv
 
 - LLM_API_KEY="" # LLM サービスのキー (すべての OpenAI 形式 API を提供するモデル サービスを使用できます。ローカルで ollama を使用してデプロイする場合は設定する必要はありません)
 - LLM_API_BASE="https://api.siliconflow.com/v1" # LLM サービスインターフェースアドレス（siliconflowサービスの使用を推奨、私の [推奨リンク](https://cloud.siliconflow.cn/i/WNLYbBpi) を使用して申請していただけると、私たち両方とも￥14のプラットフォーム報酬を獲得できます🌹）
-- PRIMARY_MODEL=Qwen/Qwen3-14B # 推奨 Qwen3-14B または同等の思考モデル
+- PRIMARY_MODEL=ByteDance-Seed/Seed-OSS-36B-Instruct # 価格敏感であまり複雑でない抽出シナリオでは Qwen3-14B を使用できます
 - VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # あったほうが良い
 
 ### 🚀 起動！
@@ -109,7 +135,6 @@ source .venv/bin/activate  # Linux/macOS
 # または Windows 上：
 # .venv\Scripts\activate
 uv sync # 初回実行時のみ必要
-python -m playwright install --with-deps chromium # 初回実行時のみ必要
 chmod +x run.sh # 初回実行時のみ必要
 ./run.sh
 ```
@@ -128,11 +153,9 @@ Wiseflowでクロールしたすべてのデータは即座にpocketbaseに保�
 
 ## 🛡️ ライセンス
 
-このプロジェクトは[Apache2.0](LICENSE)の下でオープンソースです。
+4.2バージョン以降、オープンソースライセンス契約を更新しました。詳細は [LICENSE](LICENSE) をご確認ください。
 
 商用協力については、**Email: zm.zhao@foxmail.com**までご連絡ください
-
-- 商用顧客は登録のためにご連絡ください。オープンソースバージョンは永久に無料であることを約束します。
 
 ## 📬 連絡先
 
@@ -142,6 +165,7 @@ Wiseflowでクロールしたすべてのデータは即座にpocketbaseに保�
 
 - Crawl4ai（オープンソースLLMフレンドリーウェブクローラー＆スクレイパー）https://github.com/unclecode/crawl4ai
 - MediaCrawler（xhs/dy/wb/ks/bilibili/zhihuクローラー）https://github.com/NanmiCoder/MediaCrawler
+- Patchright(Undetected Python version of the Playwright testing and automation library) https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-python
 - NoDriver（ウェブ自動化、ウェブスクレイピング、ボット、その他の創造的なアイデアのための高速フレームワークを提供）https://github.com/ultrafunkamsterdam/nodriver
 - Pocketbase（1ファイルのオープンソースリアルタイムバックエンド）https://github.com/pocketbase/pocketbase
 - Feedparser（Pythonでフィードを解析）https://github.com/kurtmckee/feedparser
@@ -154,7 +178,6 @@ Wiseflowでクロールしたすべてのデータは即座にpocketbaseに保�
 ```
 著者：Wiseflow Team
 https://github.com/TeamWiseFlow/wiseflow
-Apache2.0ライセンス
 ```
 
 ## 友好リンク

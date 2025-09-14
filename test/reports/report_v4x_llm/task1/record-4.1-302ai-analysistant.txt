@@ -1,0 +1,144 @@
+focus statement: 
+{'focuspoint': '中国地区新建石材厂与石材设备采购信息', 'restrictions': '仅限2025年之后的信息', 'explanation': '', 'role': '石材行业分析师', 'purpose': ''}
+
+# raw materials: e0c0e6_processed.json
+url: https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+
+## model: gpt-5-nano
+time cost: 7.07620783301536s
+tokens usage: 2373 (completion: 1110, prompt: 1263)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: openai/gpt-oss-20b
+time cost: 3.0285341249546036s
+tokens usage: 5247 (completion: 2656, prompt: 2591)
+
+### related urls: 
+https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+https://cg.shenzhenmc.com/zzbgg/index.jhtml
+
+### related infos: 
+
+
+
+# raw materials: 6f6ceb_processed.json
+url: https://www.stone365.com/news/channel-1.html
+
+## model: gpt-5-nano
+time cost: 17.056073207990266s
+tokens usage: 11242 (completion: 6331, prompt: 4911)
+
+### related urls: 
+
+
+### related infos: 
+- 2025-04-19：麻城石材产业园：项目建设跑出“加速度” 产业升级再添新动能，显示在中国地区的石材产业园区内正在推进的项目建设与升级，可能伴随新建石材厂的落地和扩产需求。 
+- 2025-05-08：广东封开县绿色建材产业园火热招商，表明区域性园区对石材相关厂区及设备采购的投资与落地有较强推进力，可能带来新建石材厂及相关设备需求。 
+- 2025-04-11：石材机械 多线切割机标准评审会圆满完成，体现石材设备采购与升级的标准化进展，利于后续设备引进与采购决策。 
+- 2025-05-08：2025厦门国际石材展汇报 | 展后50天，全球石材朋友圈能量持续蓬勃释放！，提示展会及行业活动可能带来设备采购信息与新厂商对接机会。
+
+
+
+## model: openai/gpt-oss-20b
+time cost: 11.874179083039053s
+tokens usage: 25054 (completion: 17758, prompt: 7296)
+
+### related urls: 
+https://www.stone365.com/news/info-4520498069854.html
+https://www.stone365.com/news/info-4675579159911.html
+https://www.stone365.com/news/info-4520449598702.html
+https://www.stone365.com/news/info-4459847042272.html
+https://www.stone365.com/news/info-4426920820674.html
+https://www.stone365.com/news/info-4494736785148.html
+https://www.stone365.com/news/info-4459822124867.html
+https://www.stone365.com/news/info-4520486442149.html
+
+### related infos: 
+After 2025, several Chinese regions announced new stone factory developments and equipment procurement activities. In April 2025, 麻城 announced accelerated construction of its stone industry park, signalling new factory projects. 云南石林县 set a “billion‑yuan” stone industry development target, implying large‑scale factory investment. 广东封开县’s green building materials industrial park attracted hot investment, indicating new factory construction. Industry data releases on 2025‑04‑18 and 2025‑04‑17 provided 2024 import/export figures for stone machinery and tools, reflecting procurement trends. A standard review on 2025‑04‑11 confirmed the approval of a multi‑line cutting machine standard, pointing to the procurement of advanced cutting equipment. These developments collectively illustrate the growth of new stone factories and the procurement of stone‑processing equipment across China in 2025.
+
+
+
+# raw materials: 2d45cd_processed.json
+url: https://www.mee.gov.cn/xxgk2018/xxgk/xxgk15/201809/t20180928_661943.html
+
+## model: gpt-5-nano
+time cost: 21.469215749995783s
+tokens usage: 76103 (completion: 20514, prompt: 55589)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: openai/gpt-oss-20b
+time cost: 20.684972417075187s
+tokens usage: 138208 (completion: 34131, prompt: 104077)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+# raw materials: 3b6d96_processed.json
+url: https://www.jimei123.com/cn/news/plate-information
+
+## model: gpt-5-nano
+time cost: 5.67309924995061s
+tokens usage: 140975 (completion: 34665, prompt: 106310)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: openai/gpt-oss-20b
+time cost: 2.3881094170501456s
+tokens usage: 143863 (completion: 35255, prompt: 108608)
+
+### related urls: 
+https://www.jimei123.com/cn/news/plate-information
+https://www.jimei123.com/cn/news/company-news
+https://www.jimei123.com/cn/news/industry-information
+
+### related infos: 
+
+
+
+# raw materials: 338f2f_processed.json
+url: https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+
+## model: gpt-5-nano
+time cost: 7.7257940410636365s
+tokens usage: 147532 (completion: 36301, prompt: 111231)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: openai/gpt-oss-20b
+time cost: 2.7082545830635354s
+tokens usage: 151392 (completion: 37473, prompt: 113919)
+
+### related urls: 
+
+
+### related infos: 
+
+
+

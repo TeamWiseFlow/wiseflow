@@ -17,7 +17,7 @@ if os.path.exists(env_path):
 from wis import MaxLengthChunking, LLMExtractionStrategy
 from async_logger import wis_logger
 
-models = ['o4-mini', 'o3-mini']
+models = ['gpt-5-nano', 'openai/gpt-oss-20b']
 
 def main(sample: dict,
          record_file: str,

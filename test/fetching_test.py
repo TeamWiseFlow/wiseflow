@@ -13,6 +13,7 @@ root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'core
 sys.path.append(root_path)
 from wis import AsyncWebCrawler
 from custom_processes import crawler_config_map
+from tools.rss_parsor import fetch_rss
 
 save_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'webpage_samples')
 # which include some standard sites with different html structure
@@ -49,11 +50,37 @@ async def main(sites: list):
             else:
                 print(f'{result.url} failed to crawl: {result.error_message}')
 
+async def rss(sites: list):
+    for site in sites:
+        articles, markdown, link_dict = await fetch_rss(site)
+        if articles:
+            for i, a in enumerate(articles): 
+                record_file = os.path.join(save_dir, f"{hashlib.sha256(site.encode()).hexdigest()[-6:]}_{i}.json")
+                with open(record_file, 'w', encoding='utf-8') as f:
+                    json.dump(a.model_dump(), f, indent=4, ensure_ascii=False)
+                print(f'saved to {record_file}')
+        elif markdown:
+            print(f'markdown: \n{markdown}')
+            record_file = os.path.join(save_dir, f"{hashlib.sha256(site.encode()).hexdigest()[-6:]}_processed.json")
+            result = {
+                'url': site,
+                'markdown': markdown,
+                'link_dict': link_dict,
+                'title': "",
+                'author': "",
+                'published_date': ""
+            }
+            with open(record_file, 'w', encoding='utf-8') as f:
+                json.dump(result, f, indent=4, ensure_ascii=False)
+            print(f'\nsaved to {record_file}\n')
+        else:
+            print(f'fetching {site} failed or no result')
 
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--sites', '-S', type=str, default='')
+    parser.add_argument('--mode', '-M', type=str, default='web')
     parser.add_argument('--save_dir', '-D', type=str, default=save_dir)
     args = parser.parse_args()
 
@@ -61,5 +88,7 @@ if __name__ == '__main__':
 
     save_dir = args.save_dir
     os.makedirs(save_dir, exist_ok=True)
-
-    asyncio.run(main(sites))
+    if args.mode == 'rss':
+        asyncio.run(rss(sites))
+    else:
+        asyncio.run(main(sites))

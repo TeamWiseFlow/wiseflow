@@ -4,6 +4,8 @@
 
 **4.0 用户升级4.1版本，拉取最新代码后，先执行一下 ./pb/pocketbase migrate 命令，否则无法正常启动。**
 
+**4.2版本起，请先下载 google chrome浏览器，并按默认路径安装**
+
 ## 📋 系统要求
 
 - **Python**: 3.10 - 3.12 （推荐 3.12）
@@ -84,7 +86,7 @@ git clone https://github.com/TeamWiseFlow/wiseflow.git
 
 - LLM_API_KEY="" # LLM 服务的 key （任何提供 OpenAI 格式 API 的模型服务商均可，本地使用 ollama 部署则无需设置）
 - LLM_API_BASE="" # LLM 服务接口地址（中国大陆地区用户推荐使用siliconflow，其他地区用户请留空）
-- PRIMARY_MODEL="Qwen/Qwen3-14B" # 推荐 Qwen3-14B 或同量级思考模型
+- PRIMARY_MODEL=ByteDance-Seed/Seed-OSS-36B-Instruct # 价格敏感且提取不复杂的场景可以使用 Qwen3-14B
 - VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct" # 视觉模型，可选但最好有。用于分析必要的页面图片（程序会根据上下判定是否有必要分析，不会每张图都提取一次），最低使用Qwen2.5-VL-7B-Instruct即可
 
 ### 🚀  起飞！
@@ -96,7 +98,6 @@ source .venv/bin/activate  # Linux/macOS
 # 或者在 Windows 上：
 # .venv\Scripts\activate
 uv sync # 仅第一次执行需要
-python -m playwright install --with-deps chromium # 仅第一次执行需要
 chmod +x run.sh # 仅第一次执行需要
 ./run.sh
 ```
@@ -148,12 +149,6 @@ uv sync
 
 这将安装 wiseflow 及其所有依赖，并确保依赖版本的一致性。uv sync 会读取项目的依赖声明，并同步虚拟环境。
 
-然后安装浏览器依赖：
-
-```bash
-python -m playwright install --with-deps chromium
-```
-
 最后启动主服务：
 
 ```bash
@@ -193,9 +188,9 @@ siliconflow（硅基流动）提供大部分主流开源模型的在线 MaaS 服
 ```
 LLM_API_KEY=Your_API_KEY
 LLM_API_BASE="https://api.siliconflow.cn/v1"
-PRIMARY_MODEL=Qwen/Qwen3-14B
+- PRIMARY_MODEL=ByteDance-Seed/Seed-OSS-36B-Instruct # 价格敏感且提取不复杂的场景可以使用 Qwen3-14B
 VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
-CONCURRENT_NUMBER=8
+CONCURRENT_NUMBER=6
 ```
       
 😄 如果您愿意，可以使用我的[siliconflow邀请链接](https://cloud.siliconflow.cn/i/WNLYbBpi)，这样我也可以获得更多token奖励 🌹
@@ -207,9 +202,9 @@ CONCURRENT_NUMBER=8
 ```
 LLM_API_KEY=Your_API_KEY
 LLM_API_BASE="https://aihubmix.com/v1" # 具体参考 https://doc.aihubmix.com/
-PRIMARY_MODEL="gpt-4o-mini"
-VL_MODEL="gpt-4o"
-CONCURRENT_NUMBER=8
+PRIMARY_MODEL="o3-mini" #or openai/gpt-oss-20b
+VL_MODEL="gpt-4o-mini"
+CONCURRENT_NUMBER=6
 ```
 
 😄 欢迎使用 [AiHubMix邀请链接](https://aihubmix.com?aff=Gp54) 注册 🌹
@@ -233,14 +228,14 @@ CONCURRENT_NUMBER=1 # 根据实际硬件资源决定
 
   是否开启观测模式，开启的话会把 debug 信息记录在 logger 文件上（默认仅输出在 console 上）；
 
-- #CONCURRENT_NUMBER=8 
+- #CONCURRENT_NUMBER=6
 
   用于控制 llm 的并发请求数量，不设定默认是1（开启前请确保 llm provider 支持设定的并发，本地大模型慎用，除非你对自己的硬件基础有信心）
 
 
 ## 🐳 Docker 部署
 
-4.x 版本的 docker 部署方案请等待后续，也希望有兴趣的开发者提 PR 贡献~
+4.x 版本的 docker 部署方案未经测试，我们即将推出一键安装包
 
 ## 🌹 付费服务
 

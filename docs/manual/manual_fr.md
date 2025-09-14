@@ -4,6 +4,8 @@
 
 **Les utilisateurs de la version 4.0 qui souhaitent mettre à niveau vers la version 4.1, après avoir tiré le dernier code, doivent d'abord exécuter la commande ./pb/pocketbase migrate, sinon le programme ne pourra pas démarrer normalement.**
 
+**À partir de la version 4.2, veuillez d'abord télécharger le navigateur Google Chrome et l'installer dans le chemin par défaut**
+
 ## 📋 Configuration système requise
 
 - **Python**: 3.10 - 3.12 (3.12 recommandé)
@@ -86,7 +88,7 @@ La version 4.x ne nécessite pas d'identifiants PocketBase dans le fichier .env 
 
 - LLM_API_KEY="" # Clé de service LLM (tout fournisseur avec un format d'API compatible OpenAI est approprié, non requis pour l'utilisation locale d'ollama)
 - LLM_API_BASE="" # Adresse de l'interface du service LLM (si nécessaire. Pour les utilisateurs OpenAI, laissez-le vide)
-- PRIMARY_MODEL=Qwen/Qwen3-14B # Recommandé Qwen3-14B ou un modèle de réflexion de niveau équivalent
+- PRIMARY_MODEL=ByteDance-Seed/Seed-OSS-36B-Instruct # Pour les scénarios sensibles au prix et d'extraction simple, Qwen3-14B peut être utilisé
 - VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct" # Modèle visuel, optionnel mais recommandé. Utilisé pour analyser les images de page nécessaires (le programme décide en fonction du contexte si une analyse est nécessaire, pas chaque image n'est extraite), minimum Qwen2.5-VL-7B-Instruct requis
 
 ### 🚀  C'est parti !
@@ -98,7 +100,6 @@ source .venv/bin/activate  # Linux/macOS
 # ou Windows :
 # .venv\Scripts\activate
 uv sync # nécessaire uniquement lors de la première exécution
-python -m playwright install --with-deps chromium # nécessaire uniquement lors de la première exécution
 chmod +x run.sh # nécessaire uniquement lors de la première exécution
 ./run.sh
 ```
@@ -149,12 +150,6 @@ uv sync
 
 Cela installe wiseflow et toutes ses dépendances et assure la cohérence des versions des dépendances. uv sync lit les déclarations de dépendances du projet et synchronise l'environnement virtuel.
 
-Ensuite, installer les dépendances du navigateur :
-
-```bash
-python -m playwright install --with-deps chromium
-```
-
 Enfin, démarrer le service principal :
 
 ```bash
@@ -193,13 +188,13 @@ SiliconFlow propose des services MaaS pour la plupart des modèles open source c
 
 ```
 LLM_API_KEY=Votre_clé_API
-LLM_API_BASE="https://api.siliconflow.com/v1" # Adresse de l'interface du service LLM (si nécessaire. Pour les utilisateurs OpenAI, laissez-le vide)
-PRIMARY_MODEL=Qwen/Qwen3-14B # Recommandé Qwen3-14B ou un modèle de réflexion de niveau équivalent
+LLM_API_BASE=""
+PRIMARY_MODEL=ByteDance-Seed/Seed-OSS-36B-Instruct # Pour les scénarios sensibles au prix et d'extraction simple, Qwen3-14B peut être utilisé
 VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
-CONCURRENT_NUMBER=8
+CONCURRENT_NUMBER=6
 ```
-      
-😄 Si vous le souhaitez, vous pouvez utiliser mon [lien d'invitation SiliconFlow](https://cloud.siliconflow.com/i/WNLYbBpi) pour que je puisse obtenir plus de récompenses de tokens 🌹
+
+nous recommandons d'utiliser le service de modèles de [Siliconflow](https://www.siliconflow.com/).
 
 ##### Recommandation 2 : Utilisation d'AiHubMix comme proxy pour OpenAI, Claude, Gemini et autres modèles commerciaux
 
@@ -209,9 +204,9 @@ Lors de l'utilisation des modèles AiHubMix, la configuration .env peut ressembl
 ```
 LLM_API_KEY=Votre_clé_API
 LLM_API_BASE="https://aihubmix.com/v1" # voir https://doc.aihubmix.com/
-PRIMARY_MODEL="gpt-4o-mini"
-VL_MODEL="gpt-4o"
-CONCURRENT_NUMBER=8
+PRIMARY_MODEL="o3-mini" #or openai/gpt-oss-20b
+VL_MODEL="gpt-4o-mini"
+CONCURRENT_NUMBER=6
 ```
 
 😄 Bienvenue pour vous inscrire via le [lien d'invitation AiHubMix](https://aihubmix.com?aff=Gp54) 🌹
