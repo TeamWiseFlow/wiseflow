@@ -17,7 +17,6 @@ https://cg.shenzhenmc.com/
 ### related infos: 
 
 
-
 ## model: Qwen/Qwen3-32B
 time cost: 36.80459262500517s
 tokens usage: 4611 (completion: 1831, prompt: 2780)
@@ -28,6 +27,24 @@ https://cg.shenzhenmc.com/zzzgg/85093.jhtml
 
 ### related infos: 
 
+## model: Qwen/Qwen3-30B-A3B-Thinking-2507
+time cost: 75.02563916600775s
+tokens usage: 3786 (completion: 2402, prompt: 1384)
+
+### related urls: 
+
+
+### related infos: 
+
+## model: ByteDance-Seed/Seed-OSS-36B-Instruct
+time cost: 12.598410959006287s
+tokens usage: 1992 (completion: 585, prompt: 1407)
+
+### related urls: 
+https://cg.shenzhenmc.com/zzbgg/index.jhtml
+https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+
+### related infos: 
 
 
 # raw materials: 6f6ceb_processed.json
@@ -81,6 +98,30 @@ https://www.stone365.com/news/info-4701952712238.html
 
 ### related infos: 
 
+## model: Qwen/Qwen3-30B-A3B-Thinking-2507
+time cost: 90.78257633396424s
+tokens usage: 10037 (completion: 4804, prompt: 5233)
+
+### related urls: 
+https://www.stone365.com/news/info-4675579159911.html
+https://www.stone365.com/news/info-4520498069854.html
+
+### related infos: 
+2025年5月8日，广东封开县绿色建材产业园正在火热招商，可能涉及新建石材厂及设备采购；2025年4月19日，麻城石材产业园项目建设加速推进，产业升级新增动能，可能包含新建石材厂及设备采购信息。
+
+
+## model: ByteDance-Seed/Seed-OSS-36B-Instruct
+time cost: 43.02827966597397s
+tokens usage: 6101 (completion: 2160, prompt: 3941)
+
+### related urls: 
+https://www.stone365.com/news/info-4459847042272.html
+https://www.stone365.com/news/info-4675579159911.html
+https://www.stone365.com/news/info-4520486442149.html
+https://www.stone365.com/news/info-4520498069854.html
+
+### related infos: 
+
 
 
 # raw materials: 2d45cd_processed.json
@@ -106,6 +147,24 @@ tokens usage: 102011 (completion: 9929, prompt: 92082)
 
 ### related infos: 
 
+## model: Qwen/Qwen3-30B-A3B-Thinking-2507
+time cost: 716.2632189580472s
+tokens usage: 58303 (completion: 9052, prompt: 49251)
+
+### related urls: 
+
+
+### related infos: 
+
+
+## model: ByteDance-Seed/Seed-OSS-36B-Instruct
+time cost: 39.26951108407229s
+tokens usage: 48880 (completion: 3199, prompt: 45681)
+
+### related urls: 
+
+
+### related infos: 
 
 
 # raw materials: 3b6d96_processed.json
@@ -131,6 +190,24 @@ tokens usage: 108755 (completion: 11463, prompt: 97292)
 
 ### related infos: 
 
+## model: Qwen/Qwen3-30B-A3B-Thinking-2507
+time cost: 10.959054457955062s
+tokens usage: 105575 (completion: 12232, prompt: 93343)
+
+### related urls: 
+
+
+### related infos: 
+
+
+## model: ByteDance-Seed/Seed-OSS-36B-Instruct
+time cost: 6.961020832997747s
+tokens usage: 51820 (completion: 3512, prompt: 48308)
+
+### related urls: 
+
+
+### related infos: 
 
 
 # raw materials: 338f2f_processed.json
@@ -159,4 +236,22 @@ tokens usage: 115807 (completion: 13073, prompt: 102734)
 ### related infos: 
 
 
+## model: Qwen/Qwen3-30B-A3B-Thinking-2507
+time cost: 37.26944954204373s
+tokens usage: 114260 (completion: 15654, prompt: 98606)
 
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: ByteDance-Seed/Seed-OSS-36B-Instruct
+time cost: 28.367251415969804s
+tokens usage: 55820 (completion: 4813, prompt: 51007)
+
+### related urls: 
+
+
+### related infos: 

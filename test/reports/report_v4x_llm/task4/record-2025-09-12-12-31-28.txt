@@ -1,0 +1,177 @@
+focus statement: 
+{'focuspoint': 'customer review about SAMSUNG 990 PRO SSD', 'explanation': 'pros and cons reviewed by customers so i can improve this product as a factory'}
+
+# raw materials: 28fd07_processed.json
+url: https://www.amazon.com/SAMSUNG-Computing-Workstations-MZ-V9P4T0B-AM/dp/B0CHGT1KFJ?pd_rd_w=e4i1l&content-id=amzn1.sym.1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_p=1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_r=SYA2F75W0M5ZYHSKB0K5&pd_rd_wg=h897q&pd_rd_r=618c499a-d3e6-4a32-927a-b515cc9afb3e&pd_rd_i=B0CHGT1KFJ&ref_=pd_hp_d_btf_unk_B0CHGT1KFJ&th=1
+
+## model: ByteDance-Seed/Seed-OSS-36B-Instruct
+time cost: 40.559700458077714s
+tokens usage: 13720 (completion: 2080, prompt: 11640)
+
+### related urls: 
+https://www.amazon.com/-/zh/gp/feature.html/ref=dp_warranty_request_3P?docId=1002406021
+https://www.amazon.com/-/zh/gp/help/customer/display.html/ref=cm_cr_dp_d_omni_lm_btn?nodeId=G8UYX7LALQC8V9KA
+https://www.amazon.com/-/zh/review/create-review/ref=cm_cr_dp_d_wr_but_top?ie=UTF8&channel=glance-detail&asin=B0CHGT1KFJ
+https://www.amazon.com/-/zh/product-reviews/B0CHGT1KFJ/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews
+https://www.amazon.com/-/zh/stores/Samsung%C2%AE/page/F50AFABA-4CDE-4A95-84D0-CA4C61819FEB?lp_asin=B0CHGT1KFJ&ref_=ast_bln&store_ref=bl_ast_dp_brandLogo_sto
+https://www.amazon.com/SAMSUNG-Computing-Workstations-MZ-V9P4T0B-AM/dp/B0CHGT1KFJ?pd_rd_w=e4i1l&content-id=amzn1.sym.1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_p=1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_r=SYA2F75W0M5ZYHSKB0K5&pd_rd_wg=h897q&pd_rd_r=618c499a-d3e6-4a32-927a-b515cc9afb3e&pd_rd_i=B0CHGT1KFJ&ref_=pd_hp_d_btf_unk_B0CHGT1KFJ&th=1#customerReviews
+https://www.amazon.com/SAMSUNG-Computing-Workstations-MZ-V9P4T0B-AM/dp/B0CHGT1KFJ?pd_rd_w=e4i1l&content-id=amzn1.sym.1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_p=1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_r=SYA2F75W0M5ZYHSKB0K5&pd_rd_wg=h897q&pd_rd_r=618c499a-d3e6-4a32-927a-b515cc9afb3e&pd_rd_i=B0CHGT1KFJ&ref_=pd_hp_d_btf_unk_B0CHGT1KFJ&th=1#averageCustomerReviewsAnchor
+
+### related infos: 
+Customer reviews of the SAMSUNG 990 PRO SSD highlight the following pros and cons for product improvement:  
+
+**Pros**:  
+- Exceptional speed: Fast boot-up (lightning-speed startup), quick program loading (from seconds to <1-2 seconds), high download speeds (up to 700–800+ Mbps), and smooth gameplay/video performance, even with full disk encryption (negligible performance loss).  
+- Versatile usability: Suitable for gaming (solves lag/crash issues with large games), PS5 (smoother than internal HDD), video editing, AI code, and sensitive projects (legal/health/security) due to reliable speed.  
+- Ample storage: 4TB capacity addresses storage shortages for games, photos, and videos.  
+- Easy installation and software support: Simple install process (with tools like ChatGPT for guidance); Samsung Magician Software excels at data migration (even when other tools fail) and enabling performance mode.  
+- Good heat management: Low operating temperatures (e.g., 50°C under pressure in Asus NUC 14 Pro); some models include a heatsink, eliminating the need for aftermarket solutions.  
+- Value for money: Often available at sale prices (e.g., under $200), deemed "well worth the money" for performance and storage.  
+- Compatibility: Works with various devices (PC, laptop, PS5, Mac) and operating systems, though encryption support is a plus for multi-use cases.  
+
+**Cons**:  
+- Packaging issues: Poor Amazon packaging led to crushed boxes, though internal packaging prevented damage—indicating a need for sturdier shipping materials.  
+- Heatsink fit problems: Samsung’s included heatsink may be too thick for specific laptops (e.g., Alienware X17 R1), requiring users to purchase aftermarket alternatives.  
+- Cloning limitations: Incompatible with cloning for bootable backups, which is a drawback for users relying on cloning to safeguard OS data.  
+- Compatibility hurdles: Need to disable Intel RST/VMD for Linux dual-boot to avoid Windows boot issues, creating a potential barrier for dual-os users.
+
+
+
+## model: Qwen/Qwen3-32B
+time cost: 32.47703604097478s
+tokens usage: 26663 (completion: 3626, prompt: 23037)
+
+### related urls: 
+https://www.amazon.com/-/zh/gp/feature.html/ref=dp_warranty_request_3P?docId=1002406021
+https://www.amazon.com/-/zh/sspa/click?ie=UTF8&spc=MTo1NDcxMjUwODIwMzE1MDIyOjE3NDc4MzYxOTA6c3BfZGV0YWlsX3RoZW1hdGljOjMwMDY2MTQ5MTg2MzIwMjo6Ojo&url=%2Fdp%2FB0DSK6Z2RL%2Fref%3Dsspa_dk_detail_2%3Fpsc%3D1%26pd_rd_i%3DB0DSK6Z2RL%26pd_rd_w%3DsKJYo%26content-id%3Damzn1.sym.bbb3fb5e-28ad-4062-a3ba-1f7b9f2e4371%26pf_rd_p%3Dbbb3fb5e-28ad-4062-a3ba-1f7b9f2e4371%26pf_rd_r%3D86344YNK6JJ5E957RYCD%26pd_rd_wg%3Dl7KzF%26pd_rd_r%3D867b2d9e-768a-476b-bada-2175edc8fabd%26s%3Dpc%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM
+https://www.amazon.com/-/zh/gp/customer-reviews/R2J3AXYFWW0JG0/ref=cm_cr_dp_d_rvw_ttl?ie=UTF8&ASIN=B0CHGT1KFJ
+https://www.amazon.com/-/zh/ap/signin?openid.return_to=https%3A%2F%2Fwww.amazon.com%2Fdp%2FB0CHGT1KFJ%2Fref%3Dcm_cr_dp_d_vote_lft%3Fie%3DUTF8%26csrfT%3DhDQovrua%252B5x7azl2CYLW68QGrtB8tG%252B61NJixDCxitTnAAAAAGgt3R4AAAAB%26reviewId%3DRQYBHKXSID2PB%23RQYBHKXSID2PB&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&marketPlaceId=ATVPDKIKX0DER&language=zh&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+https://www.amazon.com/-/zh/product-reviews/B0CHGT1KFJ/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews
+https://www.amazon.com/SAMSUNG-Computing-Workstations-MZ-V9P4T0B-AM/dp/B0CHGT1KFJ?pd_rd_w=e4i1l&content-id=amzn1.sym.1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_p=1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_r=SYA2F75W0M5ZYHSKB0K5&pd_rd_wg=h897q&pd_rd_r=618c499a-d3e6-4a32-927a-b515cc9afb3e&pd_rd_i=B0CHGT1KFJ&ref_=pd_hp_d_btf_unk_B0CHGT1KFJ&th=1
+https://www.amazon.com/-/zh/gp/customer-reviews/R343TBSUJJ1B8Q/ref=cm_cr_dp_d_rvw_ttl?ie=UTF8&ASIN=B0CHGT1KFJ
+https://www.amazon.com/-/zh/gp/profile/amzn1.account.AHZEKG3H7DTWJ4OZ3SO6C52NYRDA/ref=cm_cr_dp_d_gw_tr?ie=UTF8
+https://www.amazon.com/-/zh/stores/Samsung%C2%AE/page/F50AFABA-4CDE-4A95-84D0-CA4C61819FEB?lp_asin=B0CHGT1KFJ&ref_=ast_bln&store_ref=bl_ast_dp_brandLogo_sto
+https://www.amazon.com/-/zh/sspa/click?ie=UTF8&spc=MTo1NDcxMjUwODIwMzE1MDIyOjE3NDc4MzYxOTA6c3BfZGV0YWlsX3RoZW1hdGljOjMwMDY3MzE5NzE5OTYwMjo6Ojo&url=%2Fdp%2FB0D4YJVCK1%2Fref%3Dsspa_dk_detail_0%3Fpsc%3D1%26pd_rd_i%3DB0D4YJVCK1%26pd_rd_w%3DsKJYo%26content-id%3Damzn1.sym.bbb3fb5e-28ad-4062-a3ba-1f7b9f2e4371%26pf_rd_p%3Dbbb3fb5e-28ad-4062-a3ba-1f7b9f2e4371%26pf_rd_r%3D86344YNK6JJ5E957RYCD%26pd_rd_wg%3Dl7KzF%26pd_rd_r%3D867b2d9e-768a-476b-bada-2175edc8fabd%26s%3Dpc%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM
+https://www.amazon.com/-/zh/gp/customer-reviews/RD41TBXEF919Y/ref=cm_cr_dp_d_rvw_ttl?ie=UTF8&ASIN=B0CHGT1KFJ
+https://www.amazon.com/-/zh/product-reviews/B0CHGT1KFJ/ref=acr_dp_hist_5?ie=UTF8&filterByStar=five_star&reviewerType=all_reviews#reviews-filter-bar
+https://www.amazon.com/SAMSUNG-Computing-Workstations-MZ-V9P4T0B-AM/dp/B0CHGT1KFJ?pd_rd_w=e4i1l&content-id=amzn1.sym.1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_p=1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_r=SYA2F75W0M5ZYHSKB0K5&pd_rd_wg=h897q&pd_rd_r=618c499a-d3e6-4a32-927a-b515cc9afb3e&pd_rd_i=B0CHGT1KFJ&ref_=pd_hp_d_btf_unk_B0CHGT1KFJ&th=1#averageCustomerReviewsAnchor
+
+### related infos: 
+Customer reviews for the SAMSUNG 990 PRO SSD highlight the following pros and cons:  
+**Pros**:  
+1. Exceptional sequential read speeds (up to 7,450 MB/s) and performance for gaming, video editing, and heavy workloads.  
+2. High reliability and compatibility with systems like PS5 and PCs, with users noting smoother gameplay and faster boot times.  
+3. Samsung Magician Software is praised for effortless data migration and enabling performance mode.  
+4. Better heat management compared to older models (e.g., 980 PRO), with temperatures capped at 50°C under load.  
+5. Positive feedback on encryption performance with negligible speed loss for sensitive projects.  
+
+**Cons**:  
+1. Packaging issues reported (e.g., crushed box during shipping, but internal packaging protected the drive).  
+2. Some users require an aftermarket heatsink due to thickness incompatibility with certain laptops (e.g., Alienware X17 R1).  
+3. OS cloning limitations: M.2 NVMe drives cannot be cloned for bootable backups, making them less ideal for primary OS storage.  
+4. Potential driver/software conflicts with Intel RST/VMD in Linux systems, requiring manual adjustments.  
+5. High price point compared to alternatives, though users consider it worth the cost for premium performance.
+
+
+
+## model: Qwen/Qwen3-30B-A3B-Thinking-2507
+time cost: 69.64568795799278s
+tokens usage: 42550 (completion: 8114, prompt: 34436)
+
+### related urls: 
+https://www.amazon.com/SAMSUNG-Computing-Workstations-MZ-V9P4T0B-AM/dp/B0CHGT1KFJ?pd_rd_w=e4i1l&content-id=amzn1.sym.1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_p=1abfbf8e-3fd8-4108-ba4a-b14e5c25179c&pf_rd_r=SYA2F75W0M5ZYHSKB0K5&pd_rd_wg=h897q&pd_rd_r=618c499a-d3e6-4a32-927a-b515cc9afb3e&pd_rd_i=B0CHGT1KFJ&ref_=pd_hp_d_btf_unk_B0CHGT1KFJ&th=1#customerReviews
+https://images-na.ssl-images-amazon.com/images/G/01/x-locale/common/transparent-pixel._V192234675_.gif
+https://www.amazon.com/-/zh/product-reviews/B0CHGT1KFJ/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews
+
+### related infos: 
+Customer reviews highlight the following pros and cons for the Samsung 990 PRO SSD:
+
+Pros:
+- Extremely fast read/write speeds (up to 7450/6900 MB/s) that significantly improve system boot times, program loading, and game download speeds
+- Excellent performance for gaming, video editing, and data-intensive tasks
+- Works well with encryption (minimal performance loss even with full disk encryption)
+- Good compatibility with various systems (PC, Mac, PS5)
+- Reliable and durable performance
+- Good heat management (though some users needed additional cooling solutions)
+
+Cons:
+- Some users reported compatibility issues with certain laptop mounts (needed to create a rubber washer for proper installation)
+- Some users mentioned that it's not ideal for boot OS (can't easily clone for backup)
+- Some users needed to purchase additional cooling solutions (heatsinks) for optimal performance
+- The Samsung Magician software is recommended for performance mode activation
+
+
+
+# raw materials: e0ed60_processed.json
+url: https://www.amazon.com/SAMSUNG-Technology-Intelligent-Turbowrite-MZ-V9S4T0B/dp/B0DHLBDSP7/ref=pb_allspark_dp_sims_pao_desktop_session_based_d_sccl_2_2/142-2485835-4920547?pd_rd_w=iqLgV&content-id=amzn1.sym.bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_p=bb57ff9c-59bb-4b04-a98f-485dda19cac2&pf_rd_r=8HMKY90K9W81ZVGHVVJH&pd_rd_wg=hvzIr&pd_rd_r=48e8625b-7f1c-4f68-b245-cd9acc0c1482&pd_rd_i=B0DHLBDSP7&th=1
+
+## model: ByteDance-Seed/Seed-OSS-36B-Instruct
+time cost: 35.11831275001168s
+tokens usage: 59689 (completion: 9622, prompt: 50067)
+
+### related urls: 
+https://www.amazon.com/dp/B0CHGT1KFJ/ref=pd_rhf_dp_s_pd_sbs_rvi_d_sccl_1_2/146-1421385-4112468?pd_rd_w=Axnkp&content-id=amzn1.sym.c6cd1cf0-b3df-427b-b589-1ce7b235f9b4&pf_rd_p=c6cd1cf0-b3df-427b-b589-1ce7b235f9b4&pf_rd_r=G4R2VQFT1WF8X5EKKM0K&pd_rd_wg=8d7kZ&pd_rd_r=1ff983fc-b309-4a6a-8b9f-661da672dedd&pd_rd_i=B0CHGT1KFJ&psc=1
+
+### related infos: 
+
+
+
+## model: Qwen/Qwen3-32B
+time cost: 673.4863805839559s
+tokens usage: 76818 (completion: 11446, prompt: 65372)
+
+### related urls: 
+https://www.amazon.com/-/zh/dp/B0CHGT1KFJ/ref=pd_ci_mcx_pspc_dp_2_t_4?pd_rd_w=GNQA7&content-id=amzn1.sym.cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_p=cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_r=C6MK6DX8AN6JK3M5B7A5&pd_rd_wg=nz9Me&pd_rd_r=d4bccb7b-be6b-4bb0-a051-965be132c13e&pd_rd_i=B0CHGT1KFJ
+
+### related infos: 
+
+
+
+## model: Qwen/Qwen3-30B-A3B-Thinking-2507
+time cost: 156.18495304195676s
+tokens usage: 98846 (completion: 18165, prompt: 80681)
+
+### related urls: 
+https://www.amazon.com/dp/B0CHGT1KFJ/ref=pd_rhf_dp_s_pd_sbs_rvi_d_sccl_1_2/146-1421385-4112468?pd_rd_w=Axnkp&content-id=amzn1.sym.c6cd1cf0-b3df-427b-b589-1ce7b235f9b4&pf_rd_p=c6cd1cf0-b3df-427b-b589-1ce7b235f9b4&pf_rd_r=G4R2VQFT1WF8X5EKKM0K&pd_rd_wg=8d7kZ&pd_rd_r=1ff983fc-b309-4a6a-8b9f-661da672dedd&pd_rd_i=B0CHGT1KFJ&psc=1
+https://www.amazon.com/-/zh/dp/B0CHGT1KFJ/ref=pd_ci_mcx_pspc_dp_2_t_4?pd_rd_w=GNQA7&content-id=amzn1.sym.cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_p=cd152278-debd-42b9-91b9-6f271389fda7&pf_rd_r=C6MK6DX8AN6JK3M5B7A5&pd_rd_wg=nz9Me&pd_rd_r=d4bccb7b-be6b-4bb0-a051-965be132c13e&pd_rd_i=B0CHGT1KFJ
+
+### related infos: 
+
+
+
+# raw materials: f10a75_processed.json
+url: https://www.amazon.com/ap/signin?openid.pape.max_auth_age=3600&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Fproduct-reviews%2FB0CHGT1KFJ%2Fref%3Dcm_cr_arp_d_viewopt_srt%3Fie%3DUTF8%26reviewerType%3Dall_reviews%26sortBy%3Drecent%26pageNumber%3D1&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&language=zh_CN&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+
+## model: ByteDance-Seed/Seed-OSS-36B-Instruct
+time cost: 18.729925540974364s
+tokens usage: 99862 (completion: 18618, prompt: 81244)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: Qwen/Qwen3-32B
+time cost: 15.028499083011411s
+tokens usage: 100693 (completion: 18909, prompt: 81784)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: Qwen/Qwen3-30B-A3B-Thinking-2507
+time cost: 14.643172874930315s
+tokens usage: 101970 (completion: 19644, prompt: 82326)
+
+### related urls: 
+
+
+### related infos: 
+
+
+

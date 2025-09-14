@@ -1,0 +1,166 @@
+focus statement: 
+{'focuspoint': '即将落成的基建项目', 'explanation': ''}
+
+# raw materials: 263d6f_processed.json
+url: https://mp.weixin.qq.com/s?__biz=MzI4OTUyMTU3NQ==&mid=2247874684&idx=3&sn=41a2991359af454730bb7c211ae51af3
+
+## model: gpt-5-nano
+time cost: 2.919830417027697s
+tokens usage: 964 (completion: 336, prompt: 628)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: openai/gpt-oss-20b
+time cost: 1.3674467080272734s
+tokens usage: 2326 (completion: 1005, prompt: 1321)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+# raw materials: 410291_processed.json
+url: https://mp.weixin.qq.com/s?__biz=MzA4MjQxNjQzMA==&mid=2768989427&idx=1&sn=f6c9d26f4fb8041c86c3f17113757d96
+
+## model: gpt-5-nano
+time cost: 3.9161704999860376s
+tokens usage: 4647 (completion: 1603, prompt: 3044)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: openai/gpt-oss-20b
+time cost: 1.9548531250329688s
+tokens usage: 6688 (completion: 1856, prompt: 4832)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+# raw materials: 6a5ce8_processed.json
+url: https://mp.weixin.qq.com/s?__biz=MzAwNjMzMTA0MQ==&mid=2650608768&idx=5&sn=ef01878ca3699cb7d30145312c5cfc3b
+
+## model: gpt-5-nano
+time cost: 6.245729582966305s
+tokens usage: 8645 (completion: 3222, prompt: 5423)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: openai/gpt-oss-20b
+time cost: 1.6381682499777526s
+tokens usage: 10397 (completion: 4318, prompt: 6079)
+
+### related urls: 
+https://mp.weixin.qq.com/s?__biz=MjM5ODU1ODczMw%3D%3D&mid=2653554924&idx=1&sn=6863e48a79995fe03786c3a04c85c0e5&scene=142#wechat_redirect
+https://mp.weixin.qq.com/s?__biz=MjM5ODU1ODczMw%3D%3D&mid=2653552958&idx=1&sn=1ed1b4892b95f43febb54841b8cdc7c7&scene=142#wechat_redirect
+
+### related infos: 
+
+
+
+# raw materials: d91ba8_processed.json
+url: https://mp.weixin.qq.com/s?__biz=MzkzODczOTc0Ng==&mid=2247493630&idx=3&sn=353709b86827be88f6053950481eceb8
+
+## model: gpt-5-nano
+time cost: 13.515348291955888s
+tokens usage: 13989 (completion: 7365, prompt: 6624)
+
+### related urls: 
+https://mp.weixin.qq.com/s?__biz=MzA3NzEzNzAwOQ%3D%3D&mid=2651778408&idx=1&sn=5446a6d97d0f691edcc906b90e480d46&scene=142#wechat_redirect
+https://mp.weixin.qq.com/s?__biz=MzA3NzEzNzAwOQ%3D%3D&mid=2651778888&idx=1&sn=914a333acb5d1ae4d2651c2f85348ffb&scene=142#wechat_redirect
+https://mp.weixin.qq.com/s?__biz=MzA3NzEzNzAwOQ%3D%3D&mid=2651777212&idx=1&sn=40c2caec8c85a83d41ffa3371ad9ca8c&scene=142#wechat_redirect
+https://mp.weixin.qq.com/s?__biz=MzA3NzEzNzAwOQ%3D%3D&mid=2651778406&idx=1&sn=af8e3257408661d134d368bcbc8c5b9a&scene=142#wechat_redirect
+
+### related infos: 
+// Fri, 23 May 2025 10:57:28 +0800//即将落成的基建项目方面，文中提到：
+- 轨道交通13号线西延伸工程预计2026年底通车，已有效果图展示最新进展（来自[1]）。
+- 为推进施工，5月16日起对相关区域进行临时封闭（来自[2]）。
+- 莘庄交通枢纽又一大平台已开工建设，属于在建的基建扩建项目（来自[3]）。
+- 同时提及上海大转盘的拆除进展（来自[4]），反映城市基础设施调整的背景（可能影响相关区域发展）。
+
+
+
+## model: openai/gpt-oss-20b
+time cost: 1.3975103750126436s
+tokens usage: 15426 (completion: 8192, prompt: 7234)
+
+### related urls: 
+https://mp.weixin.qq.com/s?__biz=MzA3NzEzNzAwOQ%3D%3D&mid=2651778408&idx=1&sn=5446a6d97d0f691edcc906b90e480d46&scene=142#wechat_redirect
+https://mp.weixin.qq.com/s?__biz=MzA3NzEzNzAwOQ%3D%3D&mid=2651778888&idx=1&sn=914a333acb5d1ae4d2651c2f85348ffb&scene=142#wechat_redirect
+https://mp.weixin.qq.com/s?__biz=MzA3NzEzNzAwOQ%3D%3D&mid=2651777212&idx=1&sn=40c2caec8c85a83d41ffa3371ad9ca8c&scene=142#wechat_redirect
+https://mp.weixin.qq.com/s?__biz=MzA3NzEzNzAwOQ%3D%3D&mid=2651778406&idx=1&sn=af8e3257408661d134d368bcbc8c5b9a&scene=142#wechat_redirect
+
+### related infos: 
+// Fri, 23 May 2025 10:57:28 +0800//即将落成的基建项目包括：轨交13号线西延伸工程，预计将于2026年底通车；以及位于莘庄交通枢纽的新平台，目前已开工建设。两项工程均属于近期重点交通基础设施升级项目，值得关注。
+
+
+
+# raw materials: c543ea_processed.json
+url: https://mp.weixin.qq.com/s?__biz=MzkxOTUyMzg1MQ==&mid=2247631265&idx=3&sn=5336240b085a4e6af925876e7bdff675
+
+## model: gpt-5-nano
+time cost: 3.9238699580309913s
+tokens usage: 16739 (completion: 8912, prompt: 7827)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: openai/gpt-oss-20b
+time cost: 1.1995741670252755s
+tokens usage: 17883 (completion: 9398, prompt: 8485)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+# raw materials: 6a09b8_processed.json
+url: https://mp.weixin.qq.com/s?__biz=MjM5MjAxNDM4MA==&mid=2666945762&idx=1&sn=7a106a8c6e8c6cba2861fc75845cb0d2
+
+## model: gpt-5-nano
+time cost: 3.965626292047091s
+tokens usage: 20122 (completion: 10125, prompt: 9997)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: openai/gpt-oss-20b
+time cost: 1.1838326669530943s
+tokens usage: 22203 (completion: 10629, prompt: 11574)
+
+### related urls: 
+
+
+### related infos: 
+
+
+

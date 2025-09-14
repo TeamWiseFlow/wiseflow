@@ -4,6 +4,8 @@
 
 **4.0 Benutzer, die auf Version 4.1 upgraden möchten, müssen nach dem Pullen des neuesten Codes zuerst den Befehl ./pb/pocketbase migrate ausführen, sonst kann das Programm nicht normal starten.**
 
+**Ab Version 4.2 laden Sie bitte zuerst den Google Chrome Browser herunter und installieren Sie ihn im Standardpfad**
+
 ## 📋 Systemanforderungen
 
 - **Python**: 3.10 - 3.12 (3.12 empfohlen)
@@ -86,7 +88,7 @@ Version 4.x erfordert keine PocketBase-Anmeldedaten in der .env-Datei und begren
 
 - LLM_API_KEY="" # LLM-Dienstschlüssel (jeder Anbieter mit OpenAI-kompatiblem API-Format ist geeignet, bei lokaler Verwendung von ollama nicht erforderlich)
 - LLM_API_BASE="" # LLM-Dienstschnittstellenadresse (falls erforderlich. Für OpenAI-Benutzer, lassen Sie es leer)
-- PRIMARY_MODEL="Qwen/Qwen3-14B" # Qwen3-14B oder ein gleichwertiges Denkmodell empfohlen
+- PRIMARY_MODEL=ByteDance-Seed/Seed-OSS-36B-Instruct # Für preissensitive und einfache Extraktionsszenarien kann Qwen3-14B verwendet werden
 - VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct" # Visuelles Modell, optional aber empfehlenswert. Wird zur Analyse notwendiger Seitenbilder verwendet (das Programm entscheidet basierend auf dem Kontext, ob eine Analyse notwendig ist, nicht jedes Bild wird extrahiert), mindestens Qwen2.5-VL-7B-Instruct erforderlich
 
 ### 🚀  Los geht's!
@@ -98,7 +100,6 @@ source .venv/bin/activate  # Linux/macOS
 # oder Windows:
 # .venv\Scripts\activate
 uv sync # nur beim ersten Starten benötigt
-python -m playwright install --with-deps chromium # nur beim ersten Starten benötigt
 chmod +x run.sh # nur beim ersten Starten benötigt
 ./run.sh
 ```
@@ -149,12 +150,6 @@ uv sync
 
 Dies installiert wiseflow und alle seine Abhängigkeiten und stellt die Konsistenz der Abhängigkeitsversionen sicher. uv sync liest die Abhängigkeitsdeklarationen des Projekts und synchronisiert die virtuelle Umgebung.
 
-Dann Browser-Abhängigkeiten installieren:
-
-```bash
-python -m playwright install --with-deps chromium
-```
-
 Schließlich den Hauptdienst starten:
 
 ```bash
@@ -193,13 +188,13 @@ SiliconFlow bietet MaaS-Dienste für die meisten gängigen Open-Source-Modelle a
 
 ```
 LLM_API_KEY=Ihr_API_Schlüssel
-LLM_API_BASE="https://api.siliconflow.com/v1"
-PRIMARY_MODEL="Qwen3-14B"
+LLM_API_BASE="https://api.siliconflow.cn/v1"
+PRIMARY_MODEL=ByteDance-Seed/Seed-OSS-36B-Instruct # Für preissensitive und einfache Extraktionsszenarien kann Qwen3-14B verwendet werden
 VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
-CONCURRENT_NUMBER=8
+CONCURRENT_NUMBER=6
 ```
-      
-😄 Wenn Sie möchten, können Sie meinen [SiliconFlow-Einladungslink](https://cloud.siliconflow.com/i/WNLYbBpi) verwenden, damit ich mehr Token-Belohnungen erhalten kann 🌹
+
+wir empfehlen die Nutzung des Modell-Service von [Siliconflow](https://www.siliconflow.com/).
 
 ##### Empfehlung 2: Verwendung von AiHubMix als Proxy für OpenAI, Claude, Gemini und andere kommerzielle Modelle
 
@@ -209,9 +204,9 @@ Bei Verwendung von AiHubMix-Modellen kann die .env-Konfiguration wie folgt ausse
 ```
 LLM_API_KEY=Ihr_API_Schlüssel
 LLM_API_BASE="https://aihubmix.com/v1" # siehe https://doc.aihubmix.com/
-PRIMARY_MODEL="gpt-4o-mini"
-VL_MODEL="gpt-4o"
-CONCURRENT_NUMBER=8
+PRIMARY_MODEL="o3-mini" #or openai/gpt-oss-20b
+VL_MODEL="gpt-4o-mini"
+CONCURRENT_NUMBER=6
 ```
 
 😄 Willkommen zur Registrierung über den [AiHubMix-Einladungslink](https://aihubmix.com?aff=Gp54) 🌹

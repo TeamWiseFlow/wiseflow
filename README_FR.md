@@ -11,19 +11,17 @@ Ce qui nous manque, ce n'est pas l'information, mais la capacité à filtrer le 
 https://github.com/user-attachments/assets/48998353-6c6c-4f8f-acae-dc5c45e2e0e6
 
 
-## 💰💰💰 Réduction de 10% sur tous les modèles OpenAI !
+## 🔥🔥🔥 Lancement officiel de la version 4.2 de Wiseflow !
 
-À partir de maintenant, vous pouvez utiliser les modèles de la série OpenAI avec une réduction de 10% sur le prix officiel dans l'application wiseflow (service fourni par l'API tierce AiHubMix).
+La version 4.2 améliore considérablement les capacités de crawling web sur la base des versions 4.0 et 4.1. Le programme peut maintenant appeler directement votre navigateur Chrome local "réel" pour récupérer les données. Cela réduit non seulement au maximum la probabilité d'être "contrôlé par les risques" par les sites cibles, mais apporte également de nouvelles fonctionnalités telles que les données utilisateur persistantes et la prise en charge des scripts d'opération de page ! (Par exemple, certains sites nécessitent une connexion utilisateur pour afficher le contenu complet, vous pouvez maintenant vous connecter à l'avance et utiliser wiseflow pour obtenir le contenu complet).
 
-**Note :** Pour bénéficier de la réduction, vous devez passer à la branche aihubmix, voir [README](https://github.com/TeamWiseFlow/wiseflow/blob/aihubmix/README_FR.md) pour plus de détails.
+Comme la version 4.2 utilise directement votre navigateur Chrome local pour le crawling, vous n'avez plus besoin d'exécuter `python -m playwright install --with-deps chromium` lors du déploiement, mais vous devez **installer le navigateur Google Chrome en utilisant le chemin d'installation par défaut**.
 
-## 🔥🔥🔥 Lancement officiel de la version 4.1 de Wiseflow !
-
-La version 4.1 apporte de nombreuses nouvelles fonctionnalités intéressantes par rapport à la version 4.0 !
+De plus, nous avons également refactorisé la solution de moteur de recherche et fourni une solution proxy complète. Pour plus de détails, voir **[CHANGELOG](CHANGELOG.md)**
 
 ### 🔍 Sources de recherche personnalisées
 
-La version 4.1 prend en charge la configuration précise des sources de recherche pour les points de focalisation. Elle prend actuellement en charge quatre sources de recherche : bing, github, arxiv et ebay, toutes utilisant des interfaces de plateforme natives sans nécessiter de services tiers supplémentaires.
+La version 4.1 prend en charge la configuration précise des sources de recherche pour les points de focalisation. Elle prend actuellement en charge les sources de recherche bing, github et arxiv, toutes utilisant des interfaces de plateforme natives sans nécessiter de services tiers supplémentaires.
 
 <img src="docs/select_search_source.gif" alt="search_source" width="360">
 
@@ -70,9 +68,37 @@ Concrètement, la "Recherche Profonde" est où le LLM planifie de manière auton
 
 (Périmètre global de l'architecture 4.x. La boîte en pointillés indique les parties non terminées. Nous espérons que des développeurs communautaires compétents nous rejoindront et contribueront avec des PRs. Tous les contributeurs recevront un accès gratuit à la version pro !)
 
+## 🌹 Guide des Meilleures Combinaisons LLM
+
+« À l'ère des LLM, les excellents développeurs devraient consacrer au moins 60 % de leur temps à choisir le bon modèle LLM » ☺️
+
+Nous avons sélectionné 7 échantillons de test issus de projets réels et choisi de manière approfondie les modèles grand public avec des prix de sortie ne dépassant pas 0,6$/M tokens, effectuant des tests détaillés de tâches d'extraction d'informations wiseflow, et sommes arrivés aux recommandations d'utilisation suivantes :
+
+    - Pour les scénarios privilégiant les performances, nous recommandons : ByteDance-Seed/Seed-OSS-36B-Instruct
+
+    - Pour les scénarios privilégiant les coûts, nous recommandons toujours : Qwen/Qwen3-14B
+
+Pour les modèles d'analyse auxiliaire visuelle, vous pouvez toujours utiliser : Qwen/Qwen2.5-VL-7B-Instruct (les tâches wiseflow ont actuellement une faible dépendance à cela)
+
+Pour les rapports de test détaillés, voir [LLM USE TEST](./test/reports/README.md)
+
+Il convient de noter que les résultats de test ci-dessus ne représentent que les performances des modèles dans les tâches d'extraction d'informations wiseflow et ne peuvent pas représenter les capacités complètes des modèles. Les tâches d'extraction d'informations wiseflow peuvent être significativement différentes d'autres types de tâches (comme la planification, l'écriture, etc.). De plus, le coût est l'une de nos considérations clés car les tâches wiseflow consomment une grande quantité d'utilisation de modèles, en particulier dans les scénarios multi-sources et multi-focus.
+
+Wiseflow ne limite pas les fournisseurs de services de modèles, tant que le service est compatible avec le format d'interface de requête openaiSDK. Vous pouvez choisir des services MaaS existants ou des services de modèles déployés localement comme Ollama.
+
+nous recommandons d'utiliser le service de modèles de [Siliconflow](https://www.siliconflow.com/).
+
+Alternativement, si vous préférez les modèles de la série openai, 'o3-mini' et 'openai/gpt-oss-20b' sont également de bons choix, et l'analyse auxiliaire visuelle peut être associée à gpt-4o-mini.
+
+💰 Actuellement, vous pouvez utiliser les interfaces officielles des modèles de la série OpenAI transférées par AiHubMix à 10% de réduction du prix officiel dans l'application wiseflow.
+
+**Note :** Pour bénéficier de la réduction, vous devez passer à la branche aihubmix, voir [README](https://github.com/TeamWiseFlow/wiseflow/blob/aihubmix/README.md) pour plus de détails
+
 ## 🌟 Démarrage Rapide
 
 **Seulement trois étapes pour commencer !**
+
+**À partir de la version 4.2, vous devez d'abord installer le navigateur Google Chrome (en utilisant le chemin d'installation par défaut)**
 
 **Les utilisateurs Windows doivent d'abord télécharger l'outil Git Bash et exécuter les commandes suivantes dans bash [Lien de téléchargement Bash](https://git-scm.com/downloads/win)**
 
@@ -96,9 +122,9 @@ Dans le dossier wiseflow (répertoire racine du projet), créez un fichier .env 
 La version 4.x ne nécessite pas que l'utilisateur fournisse les identifiants pocketbase dans .env, ni ne limite la version de pocketbase. De plus, nous avons temporairement supprimé le paramètre Secondary Model. Par conséquent, vous n'avez besoin que de quatre paramètres minimum pour compléter la configuration :
 
 - LLM_API_KEY="" # Clé du service LLM (tout fournisseur de modèle offrant une API au format OpenAI, pas nécessaire si vous utilisez ollama en local)
-- LLM_API_BASE="https://api.siliconflow.com/v1" # Adresse de l'interface de service LLM (recommandé d'utiliser le service siliconflow, bienvenue pour utiliser mon [lien de recommandation](https://cloud.siliconflow.cn/i/WNLYbBpi) pour postuler, nous recevrons tous les deux une récompense de plateforme de ￥14🌹)
-- PRIMARY_MODEL=Qwen/Qwen3-14B # Recommandé Qwen3-14B ou un modèle de réflexion de niveau équivalent
-- VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # préférable
+- LLM_API_BASE="" 
+- PRIMARY_MODEL=ByteDance-Seed/Seed-OSS-36B-Instruct #modèle que vous utilisez
+- VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # mieux d'avoir
 
 ### 🚀 Décollage !
 
@@ -109,7 +135,6 @@ source .venv/bin/activate  # Linux/macOS
 # ou Windows :
 # .venv\Scripts\activate
 uv sync # nécessaire uniquement lors de la première exécution
-python -m playwright install --with-deps chromium # nécessaire uniquement lors de la première exécution
 chmod +x run.sh # nécessaire uniquement lors de la première exécution
 ./run.sh
 ```
@@ -128,11 +153,9 @@ Nous vous invitons à partager et promouvoir vos exemples d'applications de dév
 
 ## 🛡️ Licence
 
-Ce projet est open source sous [Apache2.0](LICENSE).
+À partir de la version 4.2, nous avons mis à jour l'accord de licence open source, veuillez vérifier : [LICENSE](LICENSE)
 
 Pour la coopération commerciale, veuillez contacter **Email : zm.zhao@foxmail.com**
-
-- Les clients commerciaux doivent nous contacter pour l'enregistrement, la version open source promet d'être gratuite pour toujours.
 
 ## 📬 Contact
 
@@ -142,6 +165,7 @@ Pour toute question ou suggestion, n'hésitez pas à laisser un message via [iss
 
 - Crawl4ai (Crawler & Scraper Web convivial pour LLM open source) https://github.com/unclecode/crawl4ai
 - MediaCrawler (crawler xhs/dy/wb/ks/bilibili/zhihu) https://github.com/NanmiCoder/MediaCrawler
+- Patchright(Undetected Python version of the Playwright testing and automation library) https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-python
 - NoDriver (Fournissant un framework ultra-rapide pour l'automatisation web, le webscraping, les bots et d'autres idées créatives...) https://github.com/ultrafunkamsterdam/nodriver
 - Pocketbase (Backend temps réel open source en 1 fichier) https://github.com/pocketbase/pocketbase
 - Feedparser (Parser de flux en Python) https://github.com/kurtmckee/feedparser
@@ -154,7 +178,6 @@ Si vous référencez ou citez en partie ou en totalité ce projet dans des trava
 ```
 Auteur : Wiseflow Team
 https://github.com/TeamWiseFlow/wiseflow
-Sous licence Apache2.0
 ```
 
 ## Liens Amicaux

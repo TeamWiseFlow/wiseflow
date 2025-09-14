@@ -1,0 +1,248 @@
+focus statement: 
+{'focuspoint': '混凝土搅拌站在国内，海外的最新产品，市场，技术趋势', 'explanation': ''}
+
+# raw materials: e2d679_processed.json
+url: https://www.zoomlion.com/news/industry.html
+
+## model: gpt-5-nano
+time cost: 6.355150499963202s
+tokens usage: 6283 (completion: 1240, prompt: 5043)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: openai/gpt-oss-20b
+time cost: 1.7828658339567482s
+tokens usage: 12216 (completion: 2065, prompt: 10151)
+
+### related urls: 
+https://www.zoomlion.com/product/cate_325.html
+
+### related infos: 
+
+
+
+# raw materials: 9692d0_processed.json
+url: https://www.xcmg.com/aboutus/news.htm
+
+## model: gpt-5-nano
+time cost: 22.318343749968335s
+tokens usage: 26361 (completion: 5189, prompt: 21172)
+
+### related urls: 
+https://www.xcmg.com/product/pro-list.htm?catId=32204
+https://www.xcmg.com/product/pro-detail-136866.htm
+https://www.xcmg.com/product/pro-list.htm
+
+### related infos: 
+
+
+
+# raw materials: 285ed1_processed.json
+url: https://www.liugong.com/
+
+## model: gpt-5-nano
+time cost: 13.360911249998026s
+tokens usage: 52070 (completion: 16227, prompt: 35843)
+
+### related urls: 
+https://www.liugong.com/ins/quarry-aggregates/
+http://www.liugong.com/ins/quarry-aggregates/
+https://www.liugong.com/
+https://www.liugong.com/concrete
+
+### related infos: 
+
+
+
+## model: openai/gpt-oss-20b
+time cost: 1.7483486669370905s
+tokens usage: 56571 (completion: 17078, prompt: 39493)
+
+### related urls: 
+https://www.liugong.com/ins/quarry-aggregates/
+https://www.liugong.com/concrete
+
+### related infos: 
+
+
+
+# raw materials: bc8410_processed.json
+url: https://www.cat.com/global-selector.html
+
+## model: gpt-5-nano
+time cost: 9.817976249963976s
+tokens usage: 59518 (completion: 19364, prompt: 40154)
+
+### related urls: 
+https://www.cat.com/tr_TR.html
+https://www.cat.com/de_DE.html
+https://www.cat.com/fr_FR.html
+https://www.cat.com/pt_BR.html
+https://www.cat.com/ru_RU.html
+https://www.cat.com/ja_JP.html
+https://www.cat.com/en_ZA.html
+https://www.cat.com/sv_SE.html
+https://www.cat.com/ko_KR.html
+https://www.cat.com/en_AU.html
+https://www.cat.com/zh_ZA.html
+https://www.cat.com/en_GB.html
+https://www.cat.com/zh_TW.html
+https://www.cat.com/id_ID.html
+https://www.cat.com/en_US.html
+https://www.cat.com/en_IN.html
+https://www.cat.com/it_IT.html
+https://www.cat.com/es_ES.html
+https://www.cat.com/en_MX.html
+https://www.cat.com/es_US.html
+https://www.cat.com/zh_CN.html
+https://www.cat.com/fr_DZ.html
+https://www.cat.com/ar_SA.html
+https://www.cat.com/es_MX.html
+https://www.cat.com/pl_PL.html
+https://www.cat.com/nl_NL.html
+https://www.cat.com/en_ID.html
+https://www.cat.com/fr_US.html
+https://www.cat.com/content/dam/catDotCom/global-selector-/Cat-logo.png
+
+### related infos: 
+
+
+
+## model: openai/gpt-oss-20b
+time cost: 1.0342590420041233s
+tokens usage: 60559 (completion: 19679, prompt: 40880)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+# raw materials: 9797c4_processed.json
+url: https://www.komatsu.com/en/
+
+## model: gpt-5-nano
+time cost: 11.331056917086244s
+tokens usage: 64998 (completion: 22027, prompt: 42971)
+
+### related urls: 
+https://www.komatsu.com/en/blog/2025/maximizing-efficiency-in-cement-and-aggregate-processing-with-komatsu-crushing-equipment/
+
+### related infos: 
+
+
+
+## model: openai/gpt-oss-20b
+time cost: 1.5676850830204785s
+tokens usage: 68045 (completion: 22918, prompt: 45127)
+
+### related urls: 
+https://www.komatsu.com/en/blog/2025/maximizing-efficiency-in-cement-and-aggregate-processing-with-komatsu-crushing-equipment/
+
+### related infos: 
+
+
+
+# raw materials: c5fd72_processed.json
+url: https://www.liebherr.com/en-hk/group/start-page-5221008
+
+## model: gpt-5-nano
+time cost: 14.348384291981347s
+tokens usage: 73446 (completion: 26363, prompt: 47083)
+
+### related urls: 
+https://www.liebherr.com/en-hk/earthmoving/earthmoving-5229246
+https://www.liebherr.com/en-hk/group/products/solutions/hvo-at-liebherr/hvo-at-liebherr-5221407
+https://www.liebherr.com/en-hk/group/products/solutions/heavy-duty-cranes/heavy-duty-cranes-5221405
+https://www.liebherr.com/en-hk/components/home-page-6598897
+https://www.liebherr.com/en-hk/mobile-and-crawler-cranes/mobile-and-crawler-cranes-5240525
+https://www.liebherr.com/en-hk/material-handling/material-handling-5246957
+https://www.liebherr.com/en-hk/maritime-cranes/liebherr-maritime-5244713
+https://www.liebherr.com/en-hk/deep-foundation/deep-foundation-5242328
+https://www.liebherr.com/en-hk/group/start-page-5221008
+https://www.liebherr.com/en-hk/careers/careers-5215697
+https://www.liebherr.com/en-hk/group/products/products-5221374
+https://www.liebherr.com/en-hk/group/products/solutions/liebherr-connect-7480590
+https://www.liebherr.com/en-hk/gear-technology-and-automation-systems/gear-technology-and-automation-systems-5235896
+https://www.liebherr.com/en-hk/group/solutions/drive-technologies-7530168
+https://www.liebherr.com/en-hk/fridges-freezers/home-3639831
+https://www.liebherr.com/en-hk/mining-equipment/mining-equipment-5245966
+https://www.liebherr.com/en-hk/tower-cranes/tower-cranes-5231196
+https://www.liebherr.com/en-hk/concrete-technology/concrete-technology-5231937
+https://www.liebherr.com/en-hk/group/products/hotels/hotels-5221411
+https://www.liebherr.com/en-hk/group/products/solutions/solutions-5221400
+https://www.liebherr.com/en-hk/group/disclaimer/contact-5221370
+https://www.liebherr.com/en-hk/aerospace-and-transportation-systems/liebherr-aerospace-transportation-7181051
+https://www.liebherr.com/en-hk/group/products/solutions/digital-solutions/digital-solutions-5221402
+
+### related infos: 
+
+
+
+## model: openai/gpt-oss-20b
+time cost: 1.4704118749359623s
+tokens usage: 76331 (completion: 27227, prompt: 49104)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+# raw materials: a16266_processed.json
+url: https://www.putzmeister.com/web/european-union
+
+## model: gpt-5-nano
+time cost: 19.52668220794294s
+tokens usage: 82302 (completion: 31787, prompt: 50515)
+
+### related urls: 
+https://www.putzmeister.com/web/european-union/success-stories
+https://www.putzmeister.com/web/european-union/news-article-detail/-/asset_publisher/together-for-tomorrow-psc-takes-the-stage-at-ie-expo-2025?redirect=%2Fweb%2Feuropean-union
+https://www.putzmeister.com/web/european-union/product-detail/-/product/3902/transmix-3200-tml
+https://www.putzmeister.com/web/european-union/news-article-detail/-/asset_publisher/putzmeister-presented-the-first-truck-mounted-concrete-pump-on-an-electric-chassis-at-bauma?redirect=%2Fweb%2Feuropean-union
+https://www.putzmeister.com/web/european-union/news-article-detail/-/asset_publisher/federal-minister-klara-geywitz-visits-instatiq-at-bauma-2025-a-strong-signal-for-3d-concrete-printing?redirect=%2Fweb%2Feuropean-union
+
+### related infos: 
+From the main-content, the focus point about domestic and overseas latest products, market, and technology trends related to concrete batching plants is reflected mainly through product mentions and recent news. Key extracted points:
+- Product mention likely relevant to batching/mixture systems: The TransMix is listed under the Products section, indicating a concrete mixing/batching plant-related offering.
+- Latest product/technology highlights in news:
+  - premiere of the first fully electric iONTRON truck-mounted concrete pump with Volvo eTrucks, signaling electrification trends in concrete equipment.
+  - automation and robotics emphasized at BAUMA 2025, with a focus on 3D concrete printing as a technology trend to accelerate construction and address skilled-worker shortages.
+- Market adoption signals:
+  - Tratolixo (Portugal’s largest waste management company) already using two Putzmeister lines and planning to add a third, illustrating market uptake and expansion potential.
+- Regional/trade-show context:
+  - Putzmeister at Asia's leading Trade Fair for Environmental Technology Solution, highlighting overseas market activity and innovation exposure.
+
+In summary, the main-content references a batching-related product (The TransMix), illustrates overseas/product innovation trends (electric pumps, 3D printing, automation), and shows market adoption in Europe (Tratolixo).
+
+
+
+## model: openai/gpt-oss-20b
+time cost: 3.7669528329279274s
+tokens usage: 86941 (completion: 34950, prompt: 51991)
+
+### related urls: 
+https://www.putzmeister.com/web/european-union/success-stories
+https://www.putzmeister.com/web/european-union/applications/-/product-navigation/energy
+https://www.putzmeister.com/web/european-union/news-article-detail/-/asset_publisher/together-for-tomorrow-psc-takes-the-stage-at-ie-expo-2025?redirect=%2Fweb%2Feuropean-union
+https://www.putzmeister.com/web/european-union/product-detail/-/product/3902/transmix-3200-tml
+https://www.putzmeister.com/web/european-union/products/-/product-navigation/concrete-pumps,-stationary
+https://www.putzmeister.com/web/european-union/products/-/product-navigation/truck_mounted-concrete-pumps
+https://www.putzmeister.com/web/european-union/iontron
+https://www.putzmeister.com/web/european-union/product-detail/-/product/1802/m27-4
+https://www.putzmeister.com/web/european-union/news-article-detail/-/asset_publisher/putzmeister-presented-the-first-truck-mounted-concrete-pump-on-an-electric-chassis-at-bauma?redirect=%2Fweb%2Feuropean-union
+https://www.putzmeister.com/web/european-union/success-story-detail/-/asset_publisher/underground-concreting-in-an-anhydrite-mine-with-the-putzmeister-p-720-td-double-piston-pump?redirect=%2Fweb%2Feuropean-union
+
+### related infos: 
+Putzmeister’s product portfolio for concrete mixing and pumping is clearly highlighted in the main‑content.  The company offers a range of stationary concrete pumps, solid pumps, truck‑mounted pumps (including the M27‑4 and the fully electric iONTRON), and the TransMix system—products that represent the latest innovations both in China and overseas.  These solutions are showcased at major trade fairs, such as Asia’s leading Trade Fair for Environmental Technology Solutions, underscoring Putzmeister’s market presence in Asia and globally.  The brand is also pushing technology trends toward electrification and digital construction: the first fully electric iONTRON truck‑mounted concrete pump has been launched in partnership with Volvo eTrucks, and the company highlights automation, robotics and 3D concrete printing as key drivers for the future of construction.  Success stories from a new crushing and conveying plant in Liebenau (Germany) and an expansion of lines at Portugal’s Tratolixo waste‑management facility demonstrate the global reach and continued demand for Putzmeister’s concrete‑mixing solutions.
+
+
+

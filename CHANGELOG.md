@@ -1,3 +1,34 @@
+# v4.2
+
+- 全新的网页爬取方案，使用 patchright 直连本地用户真实浏览器，从而实现更加强大的反爬虫伪装能力，以及提供用户数据持久化留存等特性；
+
+  Brand new web crawling solution: uses patchright to directly connect to the user's real local browser, providing much stronger anti-crawling disguise capabilities and features like persistent user data storage.
+
+- 配套提供预登录、清除、深度清除脚本
+
+  Provided supporting scripts for pre-login, cleanup, and deep cleanup.
+
+- 大幅简化 web crawler相关的 config
+
+  Greatly simplified web crawler-related configuration.
+
+- 新增了proxy方案（支持直连提供商服务器，动态获取，本地缓存）
+
+  Added a new proxy solution (supports direct connection to provider servers, dynamic acquisition, and local caching).
+
+- 整合 Crawler4ai script 方案，提供网页操作能力
+
+  Integrated Crawler4ai script solution, enabling web page operation capabilities.
+
+- 重构搜索引擎方案，适配新的爬取方案并修复一些累积问题
+
+  Refactored search engine solution to adapt to the new crawling approach and fixed some accumulated issues.
+
+- 升级 docker 部署方案，适配全新的打包 work flow。
+
+  Upgraded Docker deployment solution to fit the brand new packaging workflow.
+
+
 # v4.1
 
 - 通用llm提取支持设定 role 和 purpose，从而实现更加精准的提取

@@ -49,3 +49,4 @@ dist/
 __pycache__/
 *.so
 .Python
+.qoder/quests/update-multi-language-documents.md

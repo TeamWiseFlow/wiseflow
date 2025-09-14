@@ -1,0 +1,26 @@
+{
+    "url": "https://sf.caa123.org.cn/pages/lots.html",
+    "markdown": "[1]\n免费注册[2] 登录[3]\n[img14]（测试版）\n§to_be_recognized_by_visual_llm§[5]\n  * 首页[6]\n  * 拍品[7]\n  * 法院[8]\n  * 拍卖公告[9]\n  * 破产资产[10]\n  * 中拍拍辅[11]\n  * 资产招商[12]\n  * 我的参拍[13]\n\n<main-content>\n拍品类型\njavascript:void\\(0\\) - 不限\n  * javascript:void\\(0\\); - 房产 __\n  * javascript:void\\(0\\); - 土地使用权 __\n  * javascript:void\\(0\\); - 交通运输工具 __\n  * javascript:void\\(0\\); - 机器设备 __\n  * javascript:void\\(0\\); - 股权 __\n  * javascript:void\\(0\\); - 债权 __\n  * javascript:void\\(0\\); - 森林、林木使用权 __\n  * javascript:void\\(0\\); - 古玩字画 __\n  * javascript:void\\(0\\); - 存款 __\n  * javascript:void\\(0\\); - 产品、原材料 __\n  * javascript:void\\(0\\); - 知识产权 __\n  * javascript:void\\(0\\); - 基金 __\n  * javascript:void\\(0\\); - 股票 __\n  * javascript:void\\(0\\); - 债券 __\n  * javascript:void\\(0\\); - 探矿、采矿权 __\n  * javascript:void\\(0\\); - 货币现金 __\n  * javascript:void\\(0\\); - 珠宝玉石首饰 __\n  * javascript:void\\(0\\); - 集体土地所有权 __\n  * javascript:void\\(0\\); - 其他财产 __\n\n拍品所在地\n\n_全部_ __\n\n拍品状态\n  * javascript:void\\(0\\) - 正在进行\n  * javascript:void\\(0\\) - 即将开始\n  * javascript:void\\(0\\) - 已结束\n\n* javascript:void\\(0\\) - 请选择拍卖/变卖阶段 __\njavascript:void\\(0\\) - 一拍 javascript:void\\(0\\) - 二拍 javascript:void\\(0\\) - 变卖\n  * 可贷款[15] 不限购[16]\n  * 价格 -\n  *   * javascript:void\\(0\\) - 默认 javascript:void\\(0\\) - 价格 javascript:void\\(0\\) - 出价次数\n</main-content>\n\n很抱歉，没有您要找的拍品，  \n换个条件试试或者去看看今日拍卖[17]吧",
+    "link_dict": {
+        "[1]": "https://pm.caa123.org.cn",
+        "[2]": "https://sf.caa123.org.cn/pages/user/register.html",
+        "[3]": "https://sf.caa123.org.cn/pages/user/login.html",
+        "[img4]": "https://sf.caa123.org.cn/images/headbanner.png",
+        "[5]": "https://sf.caa123.org.cn/index.html",
+        "[6]": "https://sf.caa123.org.cn/index.html",
+        "[7]": "https://sf.caa123.org.cn/pages/lots.html",
+        "[8]": "https://sf.caa123.org.cn/pages/court.html",
+        "[9]": "https://sf.caa123.org.cn/pages/notice.html",
+        "[10]": "https://sf.caa123.org.cn/pages/bankrupt.html",
+        "[11]": "https://sf.caa123.org.cn/pages/pflist.html",
+        "[12]": "https://sf.caa123.org.cn/pages/invest.html",
+        "[13]": "https://paimai.caa123.org.cn/pages/user/login.html",
+        "[img14]": "https://sf.caa123.org.cn/images/sfnew_logo.png",
+        "[15]": "https://sf.caa123.org.cn/pages/lots.html#void",
+        "[16]": "https://sf.caa123.org.cn/pages/lots.html#void",
+        "[17]": "https://sf.caa123.org.cn/index.html"
+    },
+    "title": "",
+    "author": "",
+    "published_date": ""
+}

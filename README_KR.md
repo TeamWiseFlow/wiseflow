@@ -11,19 +11,17 @@
 https://github.com/user-attachments/assets/48998353-6c6c-4f8f-acae-dc5c45e2e0e6
 
 
-## 💰💰💰 OpenAI 전 시리즈 모델 10% 할인!
+## 🔥🔥🔥 Wiseflow 4.2 버전 정식 출시!
 
-지금부터 wiseflow 애플리케이션 내에서 OpenAI 시리즈 모델을 공식 가격의 90%로 사용할 수 있습니다(AiHubMix 서드파티 API 서비스 제공).
+버전 4.2는 버전 4.0과 4.1을 기반으로 웹 크롤링 기능을 크게 강화하였습니다. 프로그램이 이제 당신의 로컬 "진짜" Chrome 브라우저를 직접 호출하여 가져오기를 할 수 있습니다. 이는 대상 사이트에 의한 "위험 제어" 확률을 최대한 줄이는 것은 물론, 영구적인 사용자 데이터와 페이지 조작 스크립트 지원과 같은 새로운 기능도 가져다줍니다! (예를 들어, 일부 웹사이트에서는 사용자 로그인 후에 전체 콘텐츠를 표시하기 때문에, 이제 미리 로그인하고 wiseflow를 사용하여 완전한 콘텐츠를 얻을 수 있습니다).
 
-**주의:** 할인 혜택을 받으려면 aihubmix 브랜치로 전환해야 합니다. 자세한 내용은 [README](https://github.com/TeamWiseFlow/wiseflow/blob/aihubmix/README_KR.md)를 참조하세요.
+버전 4.2는 로컬 Chrome 브라우저를 직접 사용하기 때문에 배포 시 `python -m playwright install --with-deps chromium`을 실행할 필요가 없어졌지만, **기본 설치 경로로 Google Chrome 브라우저를 설치해야 합니다**.
 
-## 🔥🔥🔥 Wiseflow 4.1 버전 정식 출시!
-
-4.1 버전은 4.0 버전을 기반으로 여러 가지 흥미로운 새로운 기능을 제공합니다!
+또한 검색 엔진 솔루션을 리팩토링하고 완전한 프록시 솔루션도 제공했습니다. 자세한 내용은 **[CHANGELOG](CHANGELOG.md)**를 참조하세요.
 
 ### 🔍 사용자 정의 검색 소스
 
-4.1 버전은 포커스 포인트에 대한 검색 소스를 정밀하게 구성하는 것을 지원합니다. 현재 bing, github, arxiv 및 ebay 네 가지 검색 소스를 지원하며, 모두 플랫폼 네이티브 인터페이스를 사용하므로 추가적인 타사 서비스 신청이 필요 없습니다.
+4.1 버전은 포커스 포인트에 대한 검색 소스를 정밀하게 구성하는 것을 지원합니다. 현재 bing, github, arxiv 검색 소스를 지원하며, 모두 플랫폼 네이티브 인터페이스를 사용하므로 추가적인 타사 서비스 신청이 필요 없습니다.
 
 <img src="docs/select_search_source.gif" alt="search_source" width="360">
 
@@ -52,6 +50,32 @@ https://github.com/user-attachments/assets/48998353-6c6c-4f8f-acae-dc5c45e2e0e6
 
 **4.1 버전에 대한 자세한 업데이트 정보는 [CHANGELOG](CHANGELOG.md)를 참조하십시오.**
 
+## 🌹 최적의 LLM 조합 가이드
+
+"LLM 시대에 우수한 개발자는 적어도 시간의 60%를 적절한 LLM 모델 선택에 사용해야 합니다" ☺️
+
+우리는 실제 프로젝트에서 7개의 테스트 샘플을 선별하고, 출력 가격이 ¥4/M 토큰을 초과하지 않는 주류 모델을 광범위하게 선택하여 상세한 wiseflow 정보 추출 작업 테스트를 수행하여 다음과 같은 사용 권장 사항에 도달했습니다:
+
+    - 성능 우선 시나리오에서는 다음을 추천합니다: ByteDance-Seed/Seed-OSS-36B-Instruct
+
+    - 비용 우선 시나리오에서는 여전히 다음을 추천합니다: Qwen/Qwen3-14B
+
+시각 보조 분석 모델의 경우 여전히 다음을 사용할 수 있습니다: Qwen/Qwen2.5-VL-7B-Instruct (wiseflow 작업은 현재 이에 대한 의존성이 낮습니다)
+
+자세한 테스트 보고서는 [LLM USE TEST](./test/reports/README.md)를 참조하세요
+
+위의 테스트 결과는 wiseflow 정보 추출 작업에서의 모델 성능만을 나타내며 모델의 종합적 능력을 나타내지는 않습니다. Wiseflow 정보 추출 작업은 다른 유형의 작업(계획, 작성 등)과 현저히 다를 수 있습니다. 또한 wiseflow 작업은 많은 모델 사용량을 소모하기 때문에, 특히 다중 소스, 다중 포커스 시나리오에서 비용이 주요 고려 사항 중 하나입니다.
+
+Wiseflow는 모델 서비스 제공업체를 제한하지 않으며, openaiSDK 요청 인터페이스 형식과 호환되는 한 기존 MaaS 서비스나 Ollama와 같은 로컬 배포 모델 서비스를 선택할 수 있습니다.
+
+[Siliconflow](https://www.siliconflow.com/)의 모델 서비스 사용을 권장합니다.
+
+또는 openai 시리즈 모델을 선호하는 경우 'o3-mini'와 'openai/gpt-oss-20b'도 좋은 선택이며, 시각 보조 분석은 gpt-4o-mini와 짝을 이룰 수 있습니다.
+
+💰 현재 wiseflow 애플리케이션 내에서 AiHubMix가 전달하는 OpenAI 시리즈 모델 공식 인터페이스를 공식 가격의 90%로 사용할 수 있습니다.
+
+**주의:** 할인 혜택을 받으려면 aihubmix 브랜치로 전환해야 합니다. 자세한 내용은 [README](https://github.com/TeamWiseFlow/wiseflow/blob/aihubmix/README.md)를 참조하세요
+
 ## 🧐 '딥 서치' VS '와이드 서치'
 
 저는 Wiseflow를 "와이드 서치"로 포지셔닝하고 있습니다. 이는 현재 인기 있는 "딥 서치"와 대비되는 것입니다.
@@ -76,6 +100,8 @@ https://github.com/user-attachments/assets/48998353-6c6c-4f8f-acae-dc5c45e2e0e6
 
 **Windows 사용자는 사전에 Git Bash 도구를 다운로드하고 bash에서 다음 명령을 실행하세요 [Bash 다운로드 링크](https://git-scm.com/downloads/win)**
 
+**4.2 버전부터 먼저 Google Chrome 브라우저를 설치해야 합니다(기본 설치 경로 사용)**
+
 ### 📋 프로젝트 소스 코드 다운로드 및 uv와 pocketbase 설치
 
 ```bash
@@ -96,8 +122,8 @@ wiseflow 폴더(프로젝트 루트 디렉토리)에서 env_sample을 참조하�
 4.x 버전에서는 사용자가 .env 파일에 pocketbase 계정 정보를 제공할 필요가 없으며, pocketbase 버전에 대한 제한도 없습니다. 또한 보조 모델 설정도 임시로 제거되었으므로, 사실상 최소 4개의 매개변수만으로 설정을 완료할 수 있습니다:
 
 - LLM_API_KEY="" # LLM 서비스의 키 (모든 OpenAI 형식 API를 제공하는 모델 서비스를 사용할 수 있으며, 로컬에서 ollama를 사용하여 배포하는 경우 설정할 필요가 없음)
-- LLM_API_BASE="https://api.siliconflow.com/v1" #（siliconflow 서비스 사용을 권장합니다. 제 [추천 링크](https://cloud.siliconflow.cn/i/WNLYbBpi)를 사용하여 신청하시면 우리 모두 ￥14 플랫폼 보상을 받게 됩니다🌹）
-- PRIMARY_MODEL=Qwen/Qwen3-14B # 추천 Qwen3-14B 또는 동일 수준의 사고 모델
+- LLM_API_BASE=""
+- PRIMARY_MODEL=ByteDance-Seed/Seed-OSS-36B-Instruct # 가격에 민감하고 덜 복잡한 추출 시나리오에서는 Qwen3-14B를 사용할 수 있습니다
 - VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # 가지고 있는 것이 좋음
 
 ### 🚀 시작!
@@ -109,7 +135,6 @@ source .venv/bin/activate  # Linux/macOS
 # 또는 Windows에서:
 # .venv\Scripts\activate
 uv sync # 처음 실행할 때만 필요
-python -m playwright install --with-deps chromium # 처음 실행할 때만 필요
 chmod +x run.sh # 처음 실행할 때만 필요
 ./run.sh
 ```
@@ -128,11 +153,9 @@ Wiseflow로 크롤링한 모든 데이터는 즉시 pocketbase에 저장되므�
 
 ## 🛡️ 라이선스
 
-이 프로젝트는 [Apache2.0](LICENSE) 하에 오픈소스입니다.
+4.2 버전부터 오픈소스 라이선스 계약을 업데이트했습니다. 자세한 내용은 [LICENSE](LICENSE)를 확인하세요.
 
 상업적 협력에 대해서는 **Email: zm.zhao@foxmail.com**로 연락해 주세요
-
-- 상업 고객은 등록을 위해 연락해 주세요. 오픈소스 버전은 영구 무료임을 약속합니다.
 
 ## 📬 연락처
 
@@ -142,6 +165,7 @@ Wiseflow로 크롤링한 모든 데이터는 즉시 pocketbase에 저장되므�
 
 - Crawl4ai(오픈소스 LLM 친화적 웹 크롤러 & 스크래퍼) https://github.com/unclecode/crawl4ai
 - MediaCrawler(xhs/dy/wb/ks/bilibili/zhihu 크롤러) https://github.com/NanmiCoder/MediaCrawler
+- Patchright(Undetected Python version of the Playwright testing and automation library) https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-python
 - NoDriver(웹 자동화, 웹 스크래핑, 봇 및 기타 창의적인 아이디어를 위한 빠른 프레임워크 제공) https://github.com/ultrafunkamsterdam/nodriver
 - Pocketbase(1개의 파일로 된 오픈소스 실시간 백엔드) https://github.com/pocketbase/pocketbase
 - Feedparser(Python에서 피드 파싱) https://github.com/kurtmckee/feedparser
@@ -154,7 +178,6 @@ Wiseflow로 크롤링한 모든 데이터는 즉시 pocketbase에 저장되므�
 ```
 저자: Wiseflow Team
 https://github.com/TeamWiseFlow/wiseflow
-Apache2.0 라이선스
 ```
 
 ## 우호 링크

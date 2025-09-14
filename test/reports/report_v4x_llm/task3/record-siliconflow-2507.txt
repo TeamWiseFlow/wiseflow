@@ -1,0 +1,271 @@
+focus statement: 
+{'focuspoint': '混凝土搅拌站在国内，海外的最新产品，市场，技术趋势', 'explanation': ''}
+
+# raw materials: e2d679_processed.json
+url: https://www.zoomlion.com/news/industry.html
+
+## model: ByteDance-Seed/Seed-OSS-36B-Instruct
+time cost: 43.33142437506467s
+tokens usage: 6405 (completion: 1351, prompt: 5054)
+
+### related urls: 
+https://www.zoomlion.com/product/cate_350.html
+https://www.zoomlion.com/technology/create.html
+https://www.zoomlion.com/content/details17_30989.html
+https://www.zoomlion.com/global/cooperation.html
+https://www.zoomlion.com/global/pro_sell_ser.html
+https://www.zoomlion.com/global/industry.html
+http://www.zoomlion.com/global/pro_sell_ser.html
+https://www.zoomlion.com/product/cate_342.html
+https://www.zoomlion.com/technology/
+https://www.zoomlion.com/global/gn.html
+https://www.zoomlion.com/product/cate_387.html
+https://www.zoomlion.com/technology/contribution.html
+https://www.zoomlion.com/product/cate_354.html
+https://www.zoomlion.com/product/cate_325.html
+https://www.zoomlion.com/technology/star.html
+https://www.zoomlion.com/product/cate_338.html
+https://www.zoomlion.com/technology/technology.html
+https://www.zoomlion.com/global/market.html
+https://www.zoomlion.com/product/cate_362.html
+https://www.zoomlion.com/global/
+https://www.zoomlion.com/technology/make.html
+
+### related infos: 
+
+
+
+## model: Qwen/Qwen3-30B-A3B-Thinking-2507
+time cost: 76.07148070901167s
+tokens usage: 15187 (completion: 5108, prompt: 10079)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+# raw materials: 9692d0_processed.json
+url: https://www.xcmg.com/aboutus/news.htm
+
+## model: ByteDance-Seed/Seed-OSS-36B-Instruct
+time cost: 35.853794332942925s
+tokens usage: 27193 (completion: 6256, prompt: 20937)
+
+### related urls: 
+https://www.xcmg.com/product/pro-list.htm?catId=32204
+https://www.xcmg.com/product/pro-list.htm?catId=1001000304&erCatId=0&sanCatId=0
+https://www.xcmg.com/product/pro-list.htm?catId=1707&erCatId=0&sanCatId=0
+https://www.xcmg.com/product/pro-list.htm
+https://www.xcmg.com/product/pro-list.htm?catId=1001001868&erCatId=0&sanCatId=0
+https://www.xcmg.com/product/pro-list.htm?catId=1875&erCatId=0&sanCatId=0
+https://www.xcmg.com/product/pro-list.htm?catId=34865&erCatId=0&sanCatId=0
+https://www.xcmg.com/product/pro-list.htm?catId=1001000343&erCatId=0&sanCatId=0
+https://www.xcmg.com/product/pro-list.htm?catId=1870&erCatId=0&sanCatId=0
+https://www.xcmg.com/product/pro-list.htm?catId=1001000414&erCatId=0&sanCatId=0
+https://www.xcmg.com/solution/safety-rescue.htm
+https://www.xcmg.com/product/pro-list.htm?catId=1001000236&erCatId=0&sanCatId=0
+https://www.xcmg.com/product/pro-list.htm?catId=1866&erCatId=0&sanCatId=0
+https://www.xcmg.com/product/pro-list.htm?catId=1867&erCatId=0&sanCatId=0
+https://www.xcmg.com/product/pro-list.htm?catId=1001000452&erCatId=0&sanCatId=0
+https://www.xcmg.com/product/pro-list.htm?catId=1002000026&erCatId=0&sanCatId=0
+https://www.xcmg.com/product/pro-list.htm?catId=1714&erCatId=0&sanCatId=0
+https://www.xcmg.com/product/pro-list.htm?catId=1001034534&erCatId=0&sanCatId=0
+https://www.xcmg.com/product/pro-list.htm?catId=32204&erCatId=0&sanCatId=0
+https://www.xcmg.com/product/pro-list.htm?catId=1658&erCatId=0&sanCatId=0
+https://www.xcmg.com/part/part-list.htm
+https://www.xcmg.com/product/pro-list.htm?catId=1002000025&erCatId=0&sanCatId=0
+https://www.xcmg.com/aftermarket/find-dealers.htm
+
+### related infos: 
+
+
+
+## model: Qwen/Qwen3-30B-A3B-Thinking-2507
+time cost: 57.77366041706409s
+tokens usage: 41268 (completion: 9659, prompt: 31609)
+
+### related urls: 
+https://www.xcmg.com/product/pro-detail-136866.htm
+
+### related infos: 
+//design by www.jerei.com //The only mention related to concrete mixing stations in the provided content is "一体式稳定土厂拌站设备 XC400M[58]", which is listed as a hot product. However, there is no detailed information about the latest products, market, or technology trends for concrete mixing stations in the provided content. The content primarily focuses on other types of equipment like electric vehicles, loaders, and construction machinery, but does not provide specific information about concrete mixing stations.
+
+
+
+# raw materials: 285ed1_processed.json
+url: https://www.liugong.com/
+
+## model: ByteDance-Seed/Seed-OSS-36B-Instruct
+time cost: 84.51515679201111s
+tokens usage: 46765 (completion: 11229, prompt: 35536)
+
+### related urls: 
+http://www.liugong.com/ins/mining/
+http://www.liugong.com/ins/port/
+https://www.liugong.com/ins/quarry-aggregates/
+http://www.liugong.com/ins/construction/
+http://www.liugong.com/ins/material/
+https://www.liugong.com/
+http://www.liugong.com/ins/demolition/
+http://www.liugong.com/ins/landscaping/
+https://www.liugong.com/en
+http://www.liugong-europe.com/
+https://www.liugong.com/concrete
+http://www.liugong.com/ins/oil-and-gas/
+http://www.liugong.com/ins/forestry/
+http://www.liugong.com/ins/utilities/
+https://apac.liugong.com/
+http://www.liugongna.com/
+http://www.liugong.com/ins/quarry-aggregates/
+http://www.liugong.com/ins/road/
+http://www.liugong.com/ins/agriculture/
+http://www.liugong.com/ins/foundation/
+
+### related infos: 
+
+
+
+## model: Qwen/Qwen3-30B-A3B-Thinking-2507
+time cost: 73.90126412501559s
+tokens usage: 55046 (completion: 15588, prompt: 39458)
+
+### related urls: 
+http://www.liugong.com/ins/quarry-aggregates/
+https://www.liugong.com/ins/quarry-aggregates/
+
+### related infos: 
+
+
+
+# raw materials: bc8410_processed.json
+url: https://www.cat.com/global-selector.html
+
+## model: ByteDance-Seed/Seed-OSS-36B-Instruct
+time cost: 25.017423457931727s
+tokens usage: 56111 (completion: 15893, prompt: 40218)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: Qwen/Qwen3-30B-A3B-Thinking-2507
+time cost: 32.89150570798665s
+tokens usage: 58161 (completion: 17241, prompt: 40920)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+# raw materials: 9797c4_processed.json
+url: https://www.komatsu.com/en/
+
+## model: ByteDance-Seed/Seed-OSS-36B-Instruct
+time cost: 14.79409012501128s
+tokens usage: 61260 (completion: 17825, prompt: 43435)
+
+### related urls: 
+
+
+### related infos: 
+
+
+
+## model: Qwen/Qwen3-30B-A3B-Thinking-2507
+time cost: 77.12871479196474s
+tokens usage: 66868 (completion: 21114, prompt: 45754)
+
+### related urls: 
+https://www.komatsu.com/en/blog/2025/maximizing-efficiency-in-cement-and-aggregate-processing-with-komatsu-crushing-equipment/
+
+### related infos: 
+
+
+
+# raw materials: c5fd72_processed.json
+url: https://www.liebherr.com/en-hk/group/start-page-5221008
+
+## model: ByteDance-Seed/Seed-OSS-36B-Instruct
+time cost: 66.7711873339722s
+tokens usage: 70184 (completion: 22014, prompt: 48170)
+
+### related urls: 
+https://www.liebherr.com/en-hk/maritime-cranes/liebherr-maritime-5244713
+https://www.liebherr.com/en-hk/group/solutions/drive-technologies-7530168
+https://www.liebherr.com/en-hk/group/products/products-5221374
+https://www.liebherr.com/en-hk/fridges-freezers/home-3639831
+https://www.liebherr.com/en-hk/concrete-technology/concrete-technology-5231937
+https://www.liebherr.com/en-hk/material-handling/material-handling-5246957
+https://www.liebherr.com/en-hk/group/products/hotels/hotels-5221411
+https://www.liebherr.com/en-hk/tower-cranes/tower-cranes-5231196
+https://www.liebherr.com/en-hk/group/products/solutions/heavy-duty-cranes/heavy-duty-cranes-5221405
+https://www.liebherr.com/en-hk/group/products/solutions/solutions-5221400
+https://www.liebherr.com/en-hk/deep-foundation/deep-foundation-5242328
+https://www.liebherr.com/en-hk/mobile-and-crawler-cranes/mobile-and-crawler-cranes-5240525
+https://www.liebherr.com/en-hk/mining-equipment/mining-equipment-5245966
+https://www.liebherr.com/en-hk/aerospace-and-transportation-systems/liebherr-aerospace-transportation-7181051
+https://www.liebherr.com/en-hk/earthmoving/earthmoving-5229246
+https://www.liebherr.com/en-hk/group/start-page-5221008
+https://www.liebherr.com/en-hk/gear-technology-and-automation-systems/gear-technology-and-automation-systems-5235896
+https://www.liebherr.com/en-hk/group/products/solutions/liebherr-connect-7480590
+https://www.liebherr.com/en-hk/components/home-page-6598897
+https://www.liebherr.com/en-hk/group/products/solutions/hvo-at-liebherr/hvo-at-liebherr-5221407
+https://www.liebherr.com/en-hk/group/products/solutions/digital-solutions/digital-solutions-5221402
+
+### related infos: 
+
+
+
+## model: Qwen/Qwen3-30B-A3B-Thinking-2507
+time cost: 26.58828133298084s
+tokens usage: 74383 (completion: 23898, prompt: 50485)
+
+### related urls: 
+https://www.liebherr.com/en-hk/concrete-technology/concrete-technology-5231937
+
+### related infos: 
+
+
+
+# raw materials: a16266_processed.json
+url: https://www.putzmeister.com/web/european-union
+
+## model: ByteDance-Seed/Seed-OSS-36B-Instruct
+time cost: 26.812377292080782s
+tokens usage: 77347 (completion: 25138, prompt: 52209)
+
+### related urls: 
+https://www.putzmeister.com/web/european-union/news-article-detail/-/asset_publisher/putzmeister-presented-the-first-truck-mounted-concrete-pump-on-an-electric-chassis-at-bauma?redirect=%2Fweb%2Feuropean-union
+https://www.putzmeister.com/web/european-union/news-article-detail/-/asset_publisher/together-for-tomorrow-psc-takes-the-stage-at-ie-expo-2025?redirect=%2Fweb%2Feuropean-union
+https://www.putzmeister.com/web/european-union/news
+https://www.putzmeister.com/web/european-union/news-article-detail/-/asset_publisher/federal-minister-klara-geywitz-visits-instatiq-at-bauma-2025-a-strong-signal-for-3d-concrete-printing?redirect=%2Fweb%2Feuropean-union
+https://www.putzmeister.com/web/european-union/products
+https://www.putzmeister.com/web/european-union/innovations
+
+### related infos: 
+
+
+
+## model: Qwen/Qwen3-30B-A3B-Thinking-2507
+time cost: 113.3477830409538s
+tokens usage: 86698 (completion: 32882, prompt: 53816)
+
+### related urls: 
+https://www.putzmeister.com/web/european-union/news-article-detail/-/asset_publisher/putzmeister-presented-the-first-truck-mounted-concrete-pump-on-an-electric-chassis-at-bauma?redirect=%2Fweb%2Feuropean-union
+https://www.putzmeister.com/web/european-union/applications
+https://www.putzmeister.com/web/european-union/news
+https://www.putzmeister.com/web/european-union/news-article-detail/-/asset_publisher/federal-minister-klara-geywitz-visits-instatiq-at-bauma-2025-a-strong-signal-for-3d-concrete-printing?redirect=%2Fweb%2Feuropean-union
+https://www.putzmeister.com/web/european-union/products
+https://www.putzmeister.com/web/european-union/innovations
+
+### related infos: 
+
+
+

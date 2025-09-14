@@ -4,26 +4,24 @@
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/TeamWiseFlow/wiseflow)
 
-🚀 **使用大模型从海量信息、各类信源中每日挖掘你真正感兴趣的信息！**
+🚀 **使用大模型从海量信息、各类信源中每日挖掘你真正感兴趣的要点！**
 
 我们缺的不是信息，而是从海量信息中过滤噪音，从而让有价值的信息显露出来
 
 https://github.com/user-attachments/assets/48998353-6c6c-4f8f-acae-dc5c45e2e0e6
 
 
-## 💰💰💰 9折优惠使用 OpenAI 全系列模型！
+## 🔥🔥🔥 Wiseflow 4.2 版本正式发布！
 
-即日起，在 wiseflow 应用内可以官方价格的九折使用 openai 系列模型(AiHubMix提供三方服务接口)。
+4.2版本在4.0、4.1版本基础上重点强化了网页抓取能力，现在程序可以直接调用您本地“真正”的 Chrome 浏览器进行获取。这不仅最大化降低了被目标站点“风控”的概率，而且还带来了可以持久化用户数据、支持页面操作脚本等新特性！（比如部分网站需要用户登录后才能展示完整内容，您现在可以预先登录，然后再使用 wiseflow 获取完整内容）。
 
-**注意：** 享受优惠需要切换至 aihubmix 分支，详见 [README](https://github.com/TeamWiseFlow/wiseflow/blob/aihubmix/README.md)
+因为4.2版本直接使用您本地的 Chrome 浏览器进行抓取，所以现在部署时无需执行 `python -m playwright install --with-deps chromium` 了，但需要**按默认安装路径安装 google chrome 浏览器**
 
-## 🔥🔥🔥 Wiseflow 4.1 版本正式发布！
-
-4.1版本在4.0版本基础上又带来了诸多激动人心的新功能！
+除此之外，我们还重构了搜索引擎方案，以及提供了完备的 proxy 方案。具体见 **[CHANGELOG](CHANGELOG.md)**
 
 ### 🔍 自定义搜索源
 
-4.1版本支持为关注点精准配置搜索源，目前支持 bing、github、arxiv 和 ebay 四个搜索源，且均使用平台原生接口，无需额外申请第三方服务。
+4.1版本支持为关注点精准配置搜索源，目前支持 bing、github 和 arxiv三个搜索源，且均使用平台原生接口，无需额外申请第三方服务。
 
 <img src="docs/select_search_source.gif" alt="search_source" width="360">
 
@@ -46,7 +44,34 @@ https://github.com/user-attachments/assets/48998353-6c6c-4f8f-acae-dc5c45e2e0e6
 
 <img src="docs/find_person_by_wiseflow.png" alt="find_person_by_wiseflow" width="720">
 
-**有关 4.1 版本的更多更新信息，详见 [CHANGELOG](CHANGELOG.md)**
+## 🌹 最佳 LLM 搭配指南
+
+“在 LLM 时代，优秀的开发者应该把至少60%的时间花在选择合适的 LLM 模型上” ☺️
+
+我们精选了7套来自真实项目的测试样本，并广泛选择了主流的且输出价格不超过 ￥4/M tokens 的模型，进行了详细的wiseflow info extracting任务测试, 得出了如下使用推荐：
+
+    - 性能优先场景下，推荐使用：ByteDance-Seed/Seed-OSS-36B-Instruct
+
+    - 成本优先场景下，依然推荐使用：Qwen/Qwen3-14B
+
+视觉辅助分析模型，依然可以使用：/Qwen/Qwen2.5-VL-7B-Instruct （wiseflow 任务目前对此的依赖不高）
+
+详细的测试报告，可见 [LLM USE TEST](./test/reports/README.md)
+
+需要说明的是，以上测试结果仅代表模型在 wiseflow 信息提取任务上的表现，不能代表模型的综合能力和全面能力。wiseflow 信息提取任务与其他类型任务（如规划、写作等）可能存在明显不同，另外成本是我们重点考虑的因素之一，因为 wiseflow 任务对模型的使用量消耗会比较大，尤其是在多信源、多关注点情况下。
+
+wiseflow 不限定模型服务提供商，只要兼容 openaiSDK 请求接口格式即可。您可以选择已有的 Maas 服务或者 Ollama 等本地部署模型服务。
+
+对于中国大陆区域用户，我们推荐使用 Siliconflow 的模型服务
+
+🌹 欢迎使用我的 [推荐链接](https://cloud.siliconflow.cn/i/WNLYbBpi) 申请，你我都会获赠￥14平台奖励
+
+另外，如果您对 openai 系列模型更加青睐的话，'o3-mini' 和 'openai/gpt-oss-20b' 也是不错的选择，视觉辅助分析可以搭配 gpt-4o-mini。
+
+💰 目前在 wiseflow 应用内可以官方价格的九折使用由 AiHubMix 转发的 openai 系列模型官方接口。
+
+**注意：** 享受优惠需要切换至 aihubmix 分支，详见 [README](https://github.com/TeamWiseFlow/wiseflow/blob/aihubmix/README.md)
+
 
 ## 🧐  'deep search' VS 'wide search'
 
@@ -56,8 +81,9 @@ https://github.com/user-attachments/assets/48998353-6c6c-4f8f-acae-dc5c45e2e0e6
 
 ## ✋ What makes wiseflow different from other ai-powered crawlers?
 
-- 全平台的获取能力，包括网页、社交媒体（目前提供对微博和快手平台的支持）、RSS 信源、bing、github、arxiv、ebay 等；
+- 全平台的获取能力，包括网页、社交媒体（目前提供对微博和快手平台的支持）、RSS 信源、bing、github、arxiv等；
 - 独特的 html 处理流程，自动按关注点提取信息并发现值得进一步探索的链接，且仅需 14b 参数量的大模型即可很好的工作；
+- 爬查一体”策略，爬取过程中 LLM 即介入，只抓取与关注点相关的信息，有效降低平台风控概率；
 - 面向普通用户（而非开发者），无需人工介入提供 Xpath，"开箱即用"；
 - 持续迭代带来的高稳定性和高可用性，以及兼顾系统资源和速度的处理效率；
 - 将不仅仅是“爬虫”……
@@ -69,6 +95,8 @@ https://github.com/user-attachments/assets/48998353-6c6c-4f8f-acae-dc5c45e2e0e6
 ## 🌟 快速开始
 
 **只需三步即可开始使用！**
+
+**4.2版本起，必须先安装 google chrome 浏览器（使用默认安装路径）**
 
 **windows 用户请提前下载 git bash 工具，并在 bash 中执行如下命令 [bash下载链接](https://git-scm.com/downloads/win)**
 
@@ -92,9 +120,9 @@ git clone https://github.com/TeamWiseFlow/wiseflow.git
 4.x 版本无需用户在.env 中提供 pocketbase 的账密，也不限定 pocketbase 的版本, 同时我们也暂时取消了 Secondary Model 的设定, 因此你其实最少仅需四个参数即可完成配置：
 
 - LLM_API_KEY="" # LLM 服务的 key （任何提供 OpenAI 格式 API 的模型服务商均可，本地使用 ollama 部署则无需设置）
-- LLM_API_BASE="https://api.siliconflow.cn/v1" # LLM 服务接口地址（推荐使用siliconflow服务, 欢迎使用我的 [推荐链接](https://cloud.siliconflow.cn/i/WNLYbBpi) 申请，你我都会获赠￥14平台奖励🌹）
-- PRIMARY_MODEL=Qwen/Qwen3-14B # 推荐 Qwen3-14B 或同量级思考模型
-- VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # better to have
+- LLM_API_BASE="https://api.siliconflow.cn/v1" # LLM 服务接口地址（推荐使用siliconflow服务, 欢迎使用我的 [推荐链接](https://cloud.siliconflow.cn/i/WNLYbBpi) 申请，你我都会获赠￥14平台奖励）
+- PRIMARY_MODEL=ByteDance-Seed/Seed-OSS-36B-Instruct # 价格敏感且提取不复杂的场景可以使用 Qwen3-14B
+- VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct
 
 ### 🚀  起飞！
 
@@ -105,7 +133,6 @@ source .venv/bin/activate  # Linux/macOS
 # 或者在 Windows 上：
 # .venv\Scripts\activate
 uv sync # 仅第一次执行需要
-python -m playwright install --with-deps chromium # 仅第一次执行需要
 chmod +x run.sh # 仅第一次执行需要
 ./run.sh
 ```
@@ -125,11 +152,9 @@ PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 
 
 ## 🛡️ 许可协议
 
-本项目基于 [Apache2.0](LICENSE) 开源。
+自4.2版本起，我们更新了开源许可协议，敬请查阅： [LICENSE](LICENSE) 
 
 商用合作，请联系 **Email：zm.zhao@foxmail.com**
-
-- 商用客户请联系我们报备登记，开源版本承诺永远免费。
 
 ## 📬 联系方式
 
@@ -138,6 +163,7 @@ PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 
 ## 🤝 本项目基于如下优秀的开源项目：
 
 - Crawl4ai（Open-source LLM Friendly Web Crawler & Scraper） https://github.com/unclecode/crawl4ai
+- Patchright(Undetected Python version of the Playwright testing and automation library) https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-python
 - MediaCrawler（xhs/dy/wb/ks/bilibili/zhihu crawler） https://github.com/NanmiCoder/MediaCrawler
 - NoDriver（Providing a blazing fast framework for web automation, webscraping, bots and any other creative ideas...） https://github.com/ultrafunkamsterdam/nodriver
 - Pocketbase（Open Source realtime backend in 1 file） https://github.com/pocketbase/pocketbase
@@ -151,7 +177,6 @@ PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 
 ```
 Author：Wiseflow Team
 https://github.com/TeamWiseFlow/wiseflow
-Licensed under Apache2.0
 ```
 
 ## 友情链接

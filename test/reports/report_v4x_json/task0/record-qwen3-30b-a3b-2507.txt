@@ -1,0 +1,777 @@
+focus statement: 
+{'focuspoint': '中国地区新建石材厂与石材设备采购信息', 'explanation': '仅限2025年之后的信息', 'schema': {'request_information': '仅限石材相关的采购信息', 'contact': '', 'publish_date': 'YYYY-MM-DD formate'}}
+
+# raw materials: e0c0e6_processed.json
+url: https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+
+## model: Qwen/Qwen3-30B-A3B-Thinking-2507
+time cost: 59.56628654105589s
+tokens usage: 8059 (completion: 5583, prompt: 2476)
+
+### related urls: 
+
+
+### related infos: 
+{
+    "request_information": "深圳建材2024-2025年度石材采购项目",
+    "contact": "0755-23881531",
+    "publish_date": "2025-01-13"
+}
+
+
+
+## model: Qwen/Qwen3-30B-A3B-Instruct-2507
+time cost: 3.691308834007941s
+tokens usage: 10746 (completion: 5798, prompt: 4948)
+
+### related urls: 
+https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+https://cg.shenzhenmc.com/zbinfo/index.jhtml
+https://cg.shenzhenmc.com/zzzgg/index.jhtml
+https://cg.shenzhenmc.com/
+
+### related infos: 
+{
+    "request_information": "深圳建材2024-2025年度石材采购项目采购失败公告",
+    "contact": "深圳地铁智能招采管理平台 门户网站咨询电话：0755-23881531",
+    "publish_date": "2025-01-13"
+}
+
+
+
+# raw materials: 6f6ceb_processed.json
+url: https://www.stone365.com/news/channel-1.html
+
+## model: Qwen/Qwen3-30B-A3B-Thinking-2507
+time cost: 177.90665316593368s
+tokens usage: 29845 (completion: 20234, prompt: 9611)
+
+### related urls: 
+https://www.stone365.com/news/info-4426920820674.html
+https://www.stone365.com/news/info-4419014480030.html
+https://www.stone365.com/news/info-4520498069854.html
+https://www.stone365.com/news/info-4675579159911.html
+
+### related infos: 
+{
+    "request_information": "云南政府发文：支持将砂石资源作价补充高速公路建设出资缺口",
+    "contact": "",
+    "publish_date": "2025-05-13"
+}
+{
+    "request_information": "广东封开县绿色建材产业园火热招商",
+    "contact": "",
+    "publish_date": "2025-05-08"
+}
+{
+    "request_information": "通山县配置有6个矿权，占咸宁总量的四分之一",
+    "contact": "",
+    "publish_date": "2025-04-25"
+}
+
+
+
+## model: Qwen/Qwen3-30B-A3B-Instruct-2507
+time cost: 68.7550049170386s
+tokens usage: 37149 (completion: 22879, prompt: 14270)
+
+### related urls: 
+https://www.stone365.com/news/info-4478409337003.html
+https://www.stone365.com/news/info-4581153911121.html
+https://www.stone365.com/news/info-4556727174024.html
+https://www.stone365.com/news/info-4545854832830.html
+https://www.stone365.com/news/info-4720138835612.html
+https://www.stone365.com/news/info-4462184334100.html
+https://www.stone365.com/news/info-4476946494225.html
+https://www.stone365.com/news/info-4718880084469.html
+https://www.stone365.com/news/info-4701952712238.html
+https://www.stone365.com/news/info-4528927340077.html
+https://www.stone365.com/news/info-4425034380164.html
+https://www.stone365.com/news/info-4494736785148.html
+https://www.stone365.com/news/info-4675579159911.html
+https://www.stone365.com/news/info-4520498069854.html
+https://www.stone365.com/news/info-4737563525070.html
+https://www.stone365.com/news/info-4572212849941.html
+https://www.stone365.com/news/info-4652260616949.html
+https://www.stone365.com/news/info-4426920820674.html
+https://www.stone365.com/news/info-4459822124867.html
+https://www.stone365.com/news/info-4419014480030.html
+https://www.stone365.com/news/info-4573171842457.html
+
+### related infos: 
+{
+    "request_information": "广东封开县绿色建材产业园火热招商",
+    "contact": "",
+    "publish_date": "2025-05-08"
+}
+{
+    "request_information": "云南石林县锚定石材“百亿级产业”发展目标",
+    "contact": "",
+    "publish_date": "2025-04-10"
+}
+{
+    "request_information": "桂林灌阳：借 “石” 发力，开启百亿特色产业奋进征程",
+    "contact": "",
+    "publish_date": "2025-04-09"
+}
+{
+    "request_information": "麻城石材直发中亚 中亚专列进入“常态化开行”",
+    "contact": "",
+    "publish_date": "2025-04-14"
+}
+{
+    "request_information": "麻城：石材产业园：项目建设跑出“加速度” 产业升级再添新动能",
+    "contact": "",
+    "publish_date": "2025-04-19"
+}
+{
+    "request_information": "麻城：以高质量项目、高水平保护助推石材产业高质量发展",
+    "contact": "",
+    "publish_date": "2025-05-14"
+}
+{
+    "request_information": "2025年中东石材行业深度分析报告-盈天国际&云浮石材行业协会",
+    "contact": "",
+    "publish_date": "2025-04-11"
+}
+{
+    "request_information": "中东（海湾国家）石材行业分析报告",
+    "contact": "",
+    "publish_date": "2025-04-30"
+}
+{
+    "request_information": "广东封开县要搞碳酸钙，凭什么！你认为呢？",
+    "contact": "",
+    "publish_date": "2025-04-29"
+}
+{
+    "request_information": "23.76亿拍的江西芝麻白矿山，尚未投产因环保问题提前关闭",
+    "contact": "",
+    "publish_date": "2025-04-18"
+}
+{
+    "request_information": "【通知】关于2025年创新型成长型民营企业赋能行动申报的通知",
+    "contact": "",
+    "publish_date": "2025-04-11"
+}
+{
+    "request_information": "【通知】关于开展2024年度全国工商联上规模民营企业调研的通知",
+    "contact": "",
+    "publish_date": "2025-04-11"
+}
+{
+    "request_information": "贯穿水头、官桥！南安这段9公里路力争6月全部完工",
+    "contact": "",
+    "publish_date": "2025-04-21"
+}
+{
+    "request_information": "卢荣春率云浮市经贸考察团赴沙特阿拉伯、埃及开展经贸交流活动 积极培育高水平对外开放合",
+    "contact": "",
+    "publish_date": "2025-04-23"
+}
+{
+    "request_information": "2025厦门国际石材展汇报 | 展后50天，全球石材朋友圈能量持续蓬勃释放！",
+    "contact": "",
+    "publish_date": "2025-05-06"
+}
+{
+    "request_information": "中国石材协会孙卫星秘书长一行调研山东部分石材园区及企业",
+    "contact": "",
+    "publish_date": "2025-05-14"
+}
+{
+    "request_information": "中国石材协会赴四川调研",
+    "contact": "",
+    "publish_date": "2025-05-16"
+}
+{
+    "request_information": "岑溪：赵春雷调研“半边山、一面墙”露天矿山整改情况",
+    "contact": "",
+    "publish_date": "2025-05-06"
+}
+{
+    "request_information": "麻城多家石材企业上榜专精特新企业名单",
+    "contact": "",
+    "publish_date": "2025-05-12"
+}
+{
+    "request_information": "JC/T 1081-2025《装饰石材露天矿山技术规范》即将实施",
+    "contact": "",
+    "publish_date": "2025-05-14"
+}
+{
+    "request_information": "标准动态｜JC/T 1081-2025《装饰石材露天矿山技术规范》即将实施",
+    "contact": "",
+    "publish_date": "2025-05-14"
+}
+{
+    "request_information": "云南政府发文：支持将砂石资源作价补充高速公路建设出资缺口",
+    "contact": "",
+    "publish_date": "2025-05-13"
+}
+{
+    "request_information": "第77期《石材应用护理、地坪技术培训》在佛山举办",
+    "contact": "",
+    "publish_date": "2025-04-26"
+}
+{
+    "request_information": "通山县配置有6个矿权，占咸宁总量的四分之一",
+    "contact": "",
+    "publish_date": "2025-04-25"
+}
+{
+    "request_information": "新版国标《天然花岗石建筑板材》宣贯培训活动在市产业发展服务中心举行",
+    "contact": "",
+    "publish_date": "2025-04-24"
+}
+{
+    "request_information": "麻城举办新国标《天然花岗石建筑板材》宣贯培训活动",
+    "contact": "",
+    "publish_date": "2025-04-24"
+}
+{
+    "request_information": "《石材机械 多线切割机》标准评审会圆满完成",
+    "contact": "",
+    "publish_date": "2025-04-24"
+}
+{
+    "request_information": "2024年度中国石材行业发展报告（数据图表版）",
+    "contact": "",
+    "publish_date": "2025-04-15"
+}
+{
+    "request_information": "行业数据 | 2024年中国石材、机械、工具进出口数据",
+    "contact": "",
+    "publish_date": "2025-04-18"
+}
+{
+    "request_information": "解读 | 2024年中国石材、机械、工具进出口数据",
+    "contact": "",
+    "publish_date": "2025-04-17"
+}
+{
+    "request_information": "多家央国企到蛟河市参观考察石材产业发展情况",
+    "contact": "",
+    "publish_date": "2025-04-17"
+}
+{
+    "request_information": "南方日报报道丨云浮打造产业“热辣滚烫”新主场",
+    "contact": "",
+    "publish_date": "2025-04-17"
+}
+{
+    "request_information": "复苏！今年一季度GDP同比增长5.4%",
+    "contact": "",
+    "publish_date": "2025-04-16"
+}
+{
+    "request_information": "“2025中俄贸易沙龙-福建站”活动成功举办，助力企业探索外贸新路径！",
+    "contact": "",
+    "publish_date": "2025-04-17"
+}
+{
+    "request_information": "莱州市领导到访全国石材业商会交流工作",
+    "contact": "",
+    "publish_date": "2025-04-17"
+}
+{
+    "request_information": "专家科普｜科学认识放射性，放心选用石材产品",
+    "contact": "",
+    "publish_date": "2025-04-17"
+}
+{
+    "request_information": "石材线锯的最新发展与面临的挑战",
+    "contact": "",
+    "publish_date": "2025-04-17"
+}
+{
+    "request_information": "百闻不如一见，买石材认定随县！",
+    "contact": "",
+    "publish_date": "2025-04-17"
+}
+{
+    "request_information": "万里石下周解禁2581.47万股，市值6.4亿元",
+    "contact": "",
+    "publish_date": "2025-04-09"
+}
+{
+    "request_information": "“云石链全球”行动倡议，抱团出海创新篇！",
+    "contact": "",
+    "publish_date": "2025-04-28"
+}
+
+
+
+# raw materials: 2d45cd_processed.json
+url: https://www.mee.gov.cn/xxgk2018/xxgk/xxgk15/201809/t20180928_661943.html
+
+## model: Qwen/Qwen3-30B-A3B-Thinking-2507
+time cost: 189.59488608303946s
+tokens usage: 132238 (completion: 34502, prompt: 97736)
+
+### related urls: 
+
+
+### related infos: 
+{
+    "request_information": "",
+    "contact": "",
+    "publish_date": "2018-09-28"
+}
+{
+    "request_information": "",
+    "contact": "",
+    "publish_date": "2018-09-28"
+}
+{
+    "request_information": "",
+    "contact": "",
+    "publish_date": "2018-09-28"
+}
+
+
+
+## model: Qwen/Qwen3-30B-A3B-Instruct-2507
+time cost: 34.082699917024s
+tokens usage: 216475 (completion: 35285, prompt: 181190)
+
+### related urls: 
+http://sthjt.fujian.gov.cn/
+https://www.mee.gov.cn/xxgk2018/xxgk/xxgk15/201809/t20180928_661943.html
+
+### related infos: 
+{
+    "request_information": "福建省在中央环境保护督察整改中，针对建筑饰面石材行业污染和破坏生态环境问题，全面关闭了敖江流域福州罗源县和宁德古田县的饰面石材矿山，并开展废弃矿山和废弃生产场地生态环境综合治理。相关工作包括矿山关闭后的清理封闭、生产设施设备拆除、设立警示标识、生态修复治理规划制定及实施，以及将矿山环境恢复治理纳入县、乡两级党政领导生态环境保护目标责任书进行考核。",
+    "contact": "",
+    "publish_date": "2018-09-28"
+}
+{
+    "request_information": "宁德福鼎白琳石板材工业园入海排污口悬浮物浓度常年超标，最高超标17.6倍。福鼎市白琳玄武石材污水处理有限公司新建成总容量5000立方米的污水应急池并于2017年10月18日投入使用。同时，新采购的5台隔膜压力机和1台高浓缩罐已投入使用。",
+    "contact": "",
+    "publish_date": "2018-09-28"
+}
+{
+    "request_information": "莆田市秀屿区平海镇村村都有石材厂，设施简陋，污染严重，群众反映强烈。全市共有石材加工行业1458家，应拆除关闭1455家，已拆除关闭1455家，整治到位率100%。全市目前共有规上石雕企业57家，已制定石雕企业搬迁入园和整合提升方案，正在推动石雕企业搬迁入园和整合提升。",
+    "contact": "",
+    "publish_date": "2018-09-28"
+}
+{
+    "request_information": "泉州市仍有191家石材企业未办理环评审批手续，135家未建污染治理设施，污染问题突出。南安市对191家未办理环评审批手续（含135家未建污染治理设施）的石材企业开展执法检查，共出动执法人员723人次，立案查处9家，罚款52.3万元，责令整改22家。目前，已全面完成整改（其中规范手续54家，断电停产137家）。",
+    "contact": "",
+    "publish_date": "2018-09-28"
+}
+{
+    "request_information": "宁德古田县166家石材加工企业应于2016年底全部关停转产，但至督察时仅停产12家。截至2017年11月30日，古田县166家石材加工企业已全部落实大切锯机下架验收，完成企业关停要求，共计发放补偿款29884.068万元。",
+    "contact": "",
+    "publish_date": "2018-09-28"
+}
+{
+    "request_information": "",
+    "contact": "",
+    "publish_date": "2018-09-28"
+}
+
+
+
+# raw materials: 3b6d96_processed.json
+url: https://www.jimei123.com/cn/news/plate-information
+
+## model: Qwen/Qwen3-30B-A3B-Thinking-2507
+time cost: 208.35886462510098s
+tokens usage: 234775 (completion: 48683, prompt: 186092)
+
+### related urls: 
+https://www.jimei123.com/cn/exhibition
+https://www.jimei123.com/cn/series/mido-2025-collection
+
+### related infos: 
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": ""
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2025-04-22"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2025-04-02"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": ""
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2024-12-26"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2024-11-21"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2024-10-11"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2024-10-09"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2024-06-07"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2024-03-08"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2024-03-07"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2023-12-14"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2023-11-24"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2023-11-17"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2023-08-04"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2023-06-16"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2023-04-07"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2023-03-22"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": ""
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2022-11-18"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2022-10-28"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2022-10-21"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2022-10-14"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2022-09-19"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2022-09-09"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2022-08-31"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2022-06-22"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2021-05-28"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2021-05-07"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2021-04-27"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2021-04-29"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2021-04-08"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": ""
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2020-09-15"
+}
+{
+    "request_information": "",
+    "contact": "info@jimei123.com",
+    "publish_date": "2020-11-18"
+}
+
+
+
+## model: Qwen/Qwen3-30B-A3B-Instruct-2507
+time cost: 175.21525929204654s
+tokens usage: 241100 (completion: 50110, prompt: 190990)
+
+### related urls: 
+https://www.jimei123.com/cn/news/plate-information/4543.html
+https://www.jimei123.com/cn/news/plate-information/4544.html
+
+### related infos: 
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2025-04-22"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2025-04-02"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2024-12-26"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2024-11-21"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2024-10-11"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2024-10-09"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2024-06-07"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2024-03-08"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2024-03-07"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2023-12-14"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2023-11-24"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2023-11-17"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2023-08-04"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2023-06-16"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2023-04-07"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2023-03-22"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2022-11-18"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2022-10-28"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2022-10-21"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2022-10-14"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2022-09-19"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2022-09-09"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2022-08-31"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2022-06-22"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2021-05-28"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2021-05-07"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2021-04-27"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2021-04-29"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2021-04-08"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2021-04-07"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2020-09-15"
+}
+{
+    "request_information": "石材相关的采购信息未在页面中提供。",
+    "contact": "",
+    "publish_date": "2020-11-18"
+}
+
+
+
+# raw materials: 338f2f_processed.json
+url: https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+
+## model: Qwen/Qwen3-30B-A3B-Thinking-2507
+time cost: 87.26272095798049s
+tokens usage: 254335 (completion: 58207, prompt: 196128)
+
+### related urls: 
+https://cg.shenzhenmc.com/cghuowu/index.jhtml
+
+### related infos: 
+{
+    "request_information": "为拓展公司贸易品类，本次拟通过公开招标的方式招募一批石材企业。",
+    "contact": "郭工, 18617152392",
+    "publish_date": "2024-12-23"
+}
+
+
+
+## model: Qwen/Qwen3-30B-A3B-Instruct-2507
+time cost: 20.701437167008407s
+tokens usage: 260289 (completion: 59027, prompt: 201262)
+
+### related urls: 
+https://cg.shenzhenmc.com/zzbgg/83524.jhtml
+https://cg.shenzhenmc.com/zzzgg/85093.jhtml
+https://www.creditchina.gov.cn
+https://cg.shenzhenmc.com/zzzgg/index.jhtml
+https://cg.shenzhenmc.com/szmccg/j_form/dlh
+
+### related infos: 
+{
+    "request_information": "深圳建材2024-2025年度石材采购项目，采购方式为公开招标，项目类型为货物，资金来源为自有资金，项目地址以甲方指定地点为准，工期为365天。采购控制价为折扣率96%，即投标人报价不得高于或等于96%。采购范围未明确，但要求投标人须为中华人民共和国境内注册的独立法人资格石材生产企业或其授权销售公司，需提供营业执照、安全生产许可证、采矿证、环保测评证书等，销售公司还需提供授权书及从属关系证明。产品质量需满足国家标准，并提供2022年1月1日至今由第三方检测机构出具的检测报告，以及三年内无重大安全事故承诺函。业绩要求为2022年1月1日至截标日期间，至少1个金额300万元以上市政或房建工程石材供货业绩（需提供中标通知书或合同扫描件）。投标人须无重大失信、违法违纪记录，且未被列入‘信用中国’失信被执行人名单。不接受联合体投标，且投标人不得与深圳市地铁集团有限公司及其下属单位存在未决诉讼、仲裁或被暂停投标资格等情形。投标文件需线上递交，开标形式为线上开启，投标保证金为50,000元。文件获取时间为2024-12-23 15:30至2025-01-13 09:00，递交文件截止时间与开标时间均为2025-01-13 09:00。开标地点为地铁大厦一楼评定标中心。",
+    "contact": "郭工，联系电话：18617152392",
+    "publish_date": "2024-12-23"
+}
+
+
+

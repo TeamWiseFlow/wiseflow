@@ -4,6 +4,8 @@
 
 **4.0 users upgrading to version 4.1, after pulling the latest code, need to execute ./pb/pocketbase migrate command first, otherwise it cannot start normally.**
 
+**Starting from version 4.2, please download Google Chrome browser first and install it to the default path**
+
 ## 📋 System Requirements
 
 - **Python**: 3.10 - 3.12 (3.12 recommended)
@@ -84,7 +86,7 @@ Version 4.x does not require users to provide PocketBase account credentials in 
 
 - LLM_API_KEY="" # LLM service key (any model service provider that provides OpenAI format API is acceptable, no need to set if using locally deployed ollama)
 - LLM_API_BASE="" # LLM service base url (if any. For OpenAI users, leave it blank)
-- PRIMARY_MODEL=Qwen/Qwen3-14B # Recommended Qwen3-14B or equivalent thinking model
+- PRIMARY_MODEL=ByteDance-Seed/Seed-OSS-36B-Instruct # For price-sensitive and simple extraction scenarios, Qwen3-14B can be used
 - VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct" # Visual model, optional but recommended. Used for analyzing necessary page images (program will determine if analysis is necessary based on context, won't extract every image), minimum Qwen2.5-VL-7B-Instruct is sufficient
 
 ### 🚀 Let's Go!
@@ -96,7 +98,6 @@ source .venv/bin/activate  # Linux/macOS
 # or Windows:
 # .venv\Scripts\activate
 uv sync # only needed the first time
-python -m playwright install --with-deps chromium # only needed the first time
 chmod +x run.sh # only needed the first time
 ./run.sh
 ```
@@ -147,12 +148,6 @@ uv sync
 
 This will install WiseFlow and all its dependencies, ensuring dependency version consistency. uv sync reads the project's dependency declarations and synchronizes the virtual environment.
 
-Then install browser dependencies:
-
-```bash
-python -m playwright install --with-deps chromium
-```
-
 Finally, start the main service:
 
 ```bash
@@ -191,13 +186,13 @@ SiliconFlow provides online MaaS services for most mainstream open-source models
 
 ```
 LLM_API_KEY=Your_API_KEY
-LLM_API_BASE="https://api.siliconflow.com/v1" # LLM service base url (if any. For OpenAI users, leave it blank)
-PRIMARY_MODEL="Qwen/Qwen3-14B"
+LLM_API_BASE="https://api.siliconflow.cn/v1"
+PRIMARY_MODEL=ByteDance-Seed/Seed-OSS-36B-Instruct # For price-sensitive and simple extraction scenarios, Qwen3-14B can be used
 VL_MODEL="Pro/Qwen/Qwen2.5-VL-7B-Instruct"
-CONCURRENT_NUMBER=8
+CONCURRENT_NUMBER=6
 ```
 
-😄 If you'd like, you can use my [SiliconFlow invitation link](https://cloud.siliconflow.com/i/WNLYbBpi), so I can get more token rewards 🌹
+we recommend using [Siliconflow](https://www.siliconflow.com/) 's model service.
 
 ##### Recommendation 2: Use AiHubMix's proxied overseas closed-source commercial model services like OpenAI, Claude, Gemini
 
@@ -206,9 +201,9 @@ When using AiHubMix's models, .env configuration can refer to:
 ```
 LLM_API_KEY=Your_API_KEY
 LLM_API_BASE="https://aihubmix.com/v1" # For details, refer to https://doc.aihubmix.com/
-PRIMARY_MODEL="gpt-4o-mini"
-VL_MODEL="gpt-4o"
-CONCURRENT_NUMBER=8
+PRIMARY_MODEL="o3-mini" #or openai/gpt-oss-20b
+VL_MODEL="gpt-4o-mini"
+CONCURRENT_NUMBER=6
 ```
 
 😄 Welcome to register using [AiHubMix invitation link](https://aihubmix.com?aff=Gp54) 🌹
@@ -232,7 +227,7 @@ The following are optional configurations:
 
   Whether to enable observation mode, if enabled, debug information will be recorded in the logger file (default only outputs to console)
 
-- #CONCURRENT_NUMBER=8 
+- #CONCURRENT_NUMBER=6 
 
   Used to control the number of concurrent LLM requests, default is 1 if not set (please ensure the LLM provider supports the set concurrency before enabling, use with caution for local large models unless you're confident in your hardware foundation)
 
