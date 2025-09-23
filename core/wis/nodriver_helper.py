@@ -74,7 +74,10 @@ class NodriverHelper:
         """
         # print(f"coming in url: {url}")
         if not self.page:
-            await self.open_page(url)
+            try:
+                await asyncio.wait_for(self.open_page(url), timeout=timeout)
+            except asyncio.TimeoutError:
+                raise TimeoutError(f"打开页面超时（{timeout}秒）")
 
         start_time = asyncio.get_event_loop().time()
 
@@ -150,7 +153,10 @@ class NodriverHelper:
 
     async def for_mc_login(self, url: str = None, timeout: int = 600, force_login: bool = False) -> tuple[str, str]:
         if not self.page:
-            await self.open_page(url)
+            try:
+                await asyncio.wait_for(self.open_page(url), timeout=timeout)
+            except asyncio.TimeoutError:
+                raise TimeoutError(f"打开页面超时（{timeout}秒）")
 
         if force_login:
             await self.browser.cookies.clear()
