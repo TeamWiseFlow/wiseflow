@@ -8,6 +8,7 @@ from functools import lru_cache
 from .llmuse import perform_completion_with_backoff as llm
 from .config import SOCIAL_MEDIA_DOMAINS, EXCLUDE_EXTERNAL_LINKS
 from bs4 import BeautifulSoup
+from pprint import pprint
 
 # Pre-compile the regex pattern
 # LINK_PATTERN = re.compile(r'!?\[([^\]]+)\]\(([^)]+?)(?:\s+"([^"]*)")?\)')
@@ -430,6 +431,9 @@ class WeixinArticleMarkdownGenerator(DefaultMarkdownGenerator):
                 date_match = re.search(r'(\d{4}年\d{1,2}月\d{1,2}日)', publish_date_text)
                 if date_match:
                     publish_date = date_match.group(1)
+                else:
+                    # fallback to publish_date_text
+                    publish_date = publish_date_text
 
             # 1. 查找第一个包含 <h1> 元素的 div 块，提取 title
             h1_tag = soup.find('h1')
@@ -449,25 +453,34 @@ class WeixinArticleMarkdownGenerator(DefaultMarkdownGenerator):
                 if not author:
                     # 2025-03-17 found
                     # a photo-alumbs page, just get every link with the description, formate as [description](url) as the content
-                    des = metadata.get('description', '')
-                    # 使用正则表达式匹配所有的链接和描述对
-                    pattern = r'href=\\x26quot;(.*?)\\x26quot;.*?\\x26gt;(.*?)\\x26lt;/a'
-                    matches = re.findall(pattern, des)
-                    if matches:
-                        for url, description in matches:
-                            # 清理URL中的转义字符
-                            cleaned_url = self._clean_weixin_url(url)
-                            # 添加到内容中，格式为 [描述](URL)
-                            content += f'[{description.strip()}]({cleaned_url})\n'
-                    else:
-                        # 2025-08-11 found
-                        # video share content page
+                    # 2025-09-26 maybe it's a photo share page, let's try new type
+                    photo_share_desc = soup.find(id="js_image_desc")
+                    video_share_desc = soup.find(id='js_common_share_desc')
+                    author = soup.find(id='js_wx_follow_nickname').get_text(strip=True)
+                    if photo_share_desc:
                         try:
-                            share_desc = soup.find('span', id='js_common_share_desc', class_='weui-ellipsis__text')
-                            content = share_desc.get_text(strip=True)
-                            author = soup.find('div', class_='wx_follow_nickname').get_text(strip=True)
+                            content = photo_share_desc.get_text(strip=True)
+                        except Exception as e:
+                            error_msg = f"new_type_article, type 7 —— {str(e)}"
+                    elif video_share_desc:
+                        try:
+                            content = video_share_desc.get_text(strip=True)
                         except Exception as e:
                             error_msg = f"new_type_article, type 2 —— {str(e)}"
+                    else:
+                        # fallback to use metadata description
+                        des = metadata.get('description', '')
+                        # 使用正则表达式匹配所有的链接和描述对
+                        pattern = r'href=\\x26quot;(.*?)\\x26quot;.*?\\x26gt;(.*?)\\x26lt;/a'
+                        matches = re.findall(pattern, des)
+                        if matches:
+                            for url, description in matches:
+                                # 清理URL中的转义字符
+                                cleaned_url = self._clean_weixin_url(url)
+                                # 添加到内容中，格式为 [描述](URL)
+                                content += f'[{description.strip()}]({cleaned_url})\n'
+                        else:
+                            error_msg = f"new_type_article, type 6 —— {str(e)}"
                 else:
                     # 提取内容块
                     js_content = soup.find('div', id='js_content')
@@ -500,8 +513,19 @@ class WeixinArticleMarkdownGenerator(DefaultMarkdownGenerator):
                         des = content_div.get_text(strip=True)
                         content = f'[{des}]({data_url})'
                 else:
-                    # a deleted page
-                    error_msg = "it's a deleted page"
+                    # 2025-09-26 found new type
+                    author = soup.find('div', class_='wx_follow_nickname').get_text(strip=True)
+                    content_div = soup.find('p', id='js_text_desc')
+                    if content_div:
+                        try:
+                            # Generate raw markdown
+                            content = h.handle(str(content_div))
+                            content = content.replace("    ```", "```")
+                        except Exception as e:
+                            error_msg = f"Error in markdown generation: {str(e)}"
+                    else:
+                        # a deleted page
+                        error_msg = "it's a deleted page"
 
         if error_msg:
             return error_msg, title, author, publish_date, content, {}
