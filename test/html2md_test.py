@@ -7,6 +7,8 @@ import asyncio
 core_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'core')
 sys.path.append(core_path)
 
+os.environ["LLM_API_KEY"] = "no_use"
+
 from wis import WeixinArticleMarkdownGenerator, DefaultMarkdownGenerator
 
 
