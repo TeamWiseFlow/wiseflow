@@ -31,9 +31,9 @@ def perform_completion_with_backoff(messages: List, model: str = '', **kwargs):
             )
             return response
         except RateLimitError as e:
-            # rate limit error, retry
-            error_msg = f"{model} Rate limit error: {str(e)}. Retry {retry+1}/{max_retries}."
-            wis_logger.warning(error_msg)
+            if retry == max_retries - 1:
+                error_msg = f"{model} Rate limit error: {str(e)}. Already Retried {max_retries} times."
+                wis_logger.warning(error_msg)
         except APIError as e:
             if hasattr(e, 'status_code'):
                 if e.status_code in [400, 401, 413]:
@@ -67,6 +67,6 @@ def perform_completion_with_backoff(messages: List, model: str = '', **kwargs):
             wait_time *= 2
 
     # if all retries fail
-    error_msg = "Max retries reached, still unable to get a valid response."
-    wis_logger.warning(error_msg)
+    # error_msg = "Max retries reached, still unable to get a valid response."
+    # wis_logger.warning(error_msg)
     return ''
