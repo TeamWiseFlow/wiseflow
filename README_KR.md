@@ -136,7 +136,8 @@ source .venv/bin/activate  # Linux/macOS
 # .venv\Scripts\activate
 uv sync # 처음 실행할 때만 필요
 chmod +x run.sh # 처음 실행할 때만 필요
-./run.sh
+./run.sh  # Linux/macOS
+.\run.bat  # Windows
 ```
 
 자세한 사용 방법은 [docs/manual/manual_ko.md](./docs/manual/manual_ko.md)를 참조하세요
