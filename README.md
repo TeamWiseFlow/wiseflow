@@ -140,7 +140,8 @@ source .venv/bin/activate  # Linux/macOS
 # .venv\Scripts\activate
 uv sync # 仅第一次执行需要
 chmod +x run.sh # 仅第一次执行需要
-./run.sh
+./run.sh  # Linux/macOS
+.\run.bat  # Windows
 ```
 
 详细使用教程请参考 [docs/manual/manual.md](./docs/manual/manual.md)

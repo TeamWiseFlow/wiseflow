@@ -136,7 +136,8 @@ source .venv/bin/activate  # Linux/macOS
 # .venv\Scripts\activate
 uv sync # 初回実行時のみ必要
 chmod +x run.sh # 初回実行時のみ必要
-./run.sh
+./run.sh  # Linux/macOS
+.\run.bat  # Windows
 ```
 
 詳細な使用方法については、[docs/manual/manual_ja.md](./docs/manual/manual_ja.md)を参照してください
