@@ -240,12 +240,17 @@ Das Docker-Bereitstellungsschema für Version 4.x wird später folgen. Wir hoffe
 
 ## 🌹 Bezahlte Dienste
 
-Open Source ist nicht einfach ☺️ Die Dokumentation und Beratung kostet viel Zeit. Wenn Sie bereit sind, Unterstützung zu leisten, bieten wir bessere Dienstleistungen an~
+Willkommen zum Kauf der WiseFlow Pro-Version (¥488 / Jahr)
 
-- Ausführliches Tutorial-Video + 3 E-Mail-Frage-Antwort-Runden + Beitritt zur WeChat-Gruppe für zahlende Benutzer: ¥36.88
+Im Vergleich zur Open-Source-Version bietet die Pro-Version zusätzlich:
 
-Zahlungsmethode: Scannen Sie den unten stehenden QR-Code, fügen Sie dann WeChat hinzu: bigbrother666sh, und senden Sie einen Screenshot der Zahlung.
+- Zusätzliche Unterstützung für fünf große Social-Media-Plattformen: WeChat Official Account, Douyin, Bilibili, Xiaohongshu und Zhihu
+- One-Click-Programm, keine Installation oder Bereitstellung erforderlich (unterstützt Win10/11, macOS, Ubuntu)
+- Moderne Benutzeroberfläche für alle Kundengruppen (vollständig lokalisiert)
+- Detailliertes Betriebshandbuch (Feishu-Dokumentation)
+- Lokale API für einfache Integration mit anderen Systemen
+- Stabilere Architektur und optimierte Leistung
+- Abonnement enthält LLM-Nutzungsgebühren (keine zusätzliche Konfiguration erforderlich)
+- WeChat-Gruppe für zahlende Benutzer (schnelles Feedback und Community-Austausch)
 
-(Freundschaftsanfragen werden innerhalb von 8 Stunden angenommen. Sie können uns auch per E-Mail unter 35252986@qq.com kontaktieren.)
-
-<img src="alipay.png" alt="Alipay QR-Code" width="300">      <img src="weixinpay.jpg" alt="WeChat Pay QR-Code" width="300"> 
+Details: https://wiseflow.pro/ 

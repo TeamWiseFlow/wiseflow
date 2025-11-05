@@ -494,7 +494,7 @@ class WeixinArticleMarkdownGenerator(DefaultMarkdownGenerator):
                     else:
                         error_msg = 'new_type_article, type 1 —— cannot find content div'
             else:
-                # 如果找不到的话 说明是已删除或者分享页
+                # 已删除或者分享页情况
                 # 从 original_panel_tool 中找到 data-url
                 share_source = soup.find('span', id='js_share_source')
                 if share_source and share_source.get('data-url'):
@@ -514,7 +514,12 @@ class WeixinArticleMarkdownGenerator(DefaultMarkdownGenerator):
                         content = f'[{des}]({data_url})'
                 else:
                     # 2025-09-26 found new type
-                    author = soup.find('div', class_='wx_follow_nickname').get_text(strip=True)
+                    js_name = soup.find('a', id='js_name') or soup.find(id='js_wx_follow_nickname') or soup.find('div', class_='wx_follow_nickname')
+                    if not js_name:
+                        error_msg = f'2025-09-26 found new type cannot find author info, url: {base_url}'
+                        author = ''
+                    else:
+                        author = js_name.get_text(strip=True)
                     content_div = soup.find('p', id='js_text_desc')
                     if content_div:
                         try:

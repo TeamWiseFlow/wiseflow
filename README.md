@@ -4,20 +4,21 @@
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/TeamWiseFlow/wiseflow)
 
-🚀 **使用大模型从海量信息、各类信源中每日挖掘你真正感兴趣的要点！**
+🚀 **使用大模型从各类信源中每日追踪你最关注的信息！**
 
-我们缺的不是信息，而是从海量信息中过滤噪音，从而让有价值的信息显露出来
+wiseflow 能够智能监控、追踪包括主流社交媒体、网站、RSS、搜索引擎在内的各类网络信源，并从中智能提取你最关注的信息
 
-https://github.com/user-attachments/assets/48998353-6c6c-4f8f-acae-dc5c45e2e0e6
+## 🎉  WiseFlow Pro 版本现已发布！
 
+更强的抓取能力、更全面的社交媒体支持、含 UI 界面和免部署一键安装包！
 
-## 🎉 WiseFlow Pro 版本预售开启！
+https://github.com/user-attachments/assets/49b464fe-e9ea-472a-ba05-665230758a9c
 
-**Pro 版本预售优惠**：面向 GitHub 用户，预售价格 ￥36.88，最终可抵 ￥188 购买款！
+🔥🔥 **Pro 版本现已面向全网发售**：https://shouxiqingbaoguan.com/ 
 
-pro 版本额外提供对微信公众号、B站、抖音、小红书、知乎等信源的支持，同时提供一键安装包和原生的用户界面。详情见：[Pro 版本预售介绍](./docs/pro_pre_sell.md)
+🔥 即日起为 wiseflow 开源版本贡献 PR（代码、文档、成功案例分享均欢迎），一经采纳，贡献者将获赠 wiseflow pro版本一年使用权（含相关 LLM 使用费用）！
 
-## 🔥🔥🔥 Wiseflow 4.2 版本正式发布！
+## Wiseflow 4.2 开源版本
 
 4.2版本在4.0、4.1版本基础上重点强化了网页抓取能力，现在程序可以直接调用您本地“真正”的 Chrome 浏览器进行获取。这不仅最大化降低了被目标站点“风控”的概率，而且还带来了可以持久化用户数据、支持页面操作脚本等新特性！（比如部分网站需要用户登录后才能展示完整内容，您现在可以预先登录，然后再使用 wiseflow 获取完整内容）。
 
@@ -78,25 +79,31 @@ wiseflow 不限定模型服务提供商，只要兼容 openaiSDK 请求接口格
 
 **注意：** 享受优惠需要切换至 aihubmix 分支，详见 [README](https://github.com/TeamWiseFlow/wiseflow/blob/aihubmix/README.md)
 
+## 🧐  与 “ChatGPTs” /“Deepseeks”/ “豆包” 等的区别
 
-## 🧐  'deep search' VS 'wide search'
+首先，wiseflow 与这些产品一样，背后都是 llm，也就是“大模型”，但是因为被设计的用途不一样，所以在如下两类场景中，使用“ChatGPTs” /“Deepseeks”/ “豆包” 这些可能并不能满足需求（大概率，现阶段为满足这类需求，你也找不到比 wiseflow 更适合的产品 ☺️）
 
-我把 wiseflow 的产品定位称为"wide search", 这是相对于目前大火的"deep search"而言。
+你需要获取指定信源最新（数小时内发布）的内容，且你不想遗漏任何你可能感兴趣的部分
 
-具体而言"deep search"是面向某一具体问题由 llm 自主动态规划搜索路径，持续探索不同页面，采集到足够的信息后给出答案或者产出报告等；但是有的时候，我们并不带着具体的问题进行搜索，也并不需要深入探索，只需要广泛的信息采集（比如行业情报搜集、对象背景信息搜集、客户信息采集等），这个时候广度明显更有意义。虽然使用"deep search"也能实现这个任务，但那是大炮打蚊子，低效率高成本，而 wiseflow 就是专为这种"wide search"场景打造的利器。
+举例而言，比如对权威机构政策发布的跟踪、行业情报或者科技情报的跟踪、竞争对手的动态跟踪或者你只想从有限的高质量信源获取信息（摆脱推荐算法的控制🤣）等……“ChatGPTs” /“Deepseeks”/ “豆包” 等通用问答智能体并不会对指定信源做监控，他们的作用类似搜索引擎，面向的是全网信息，且通常只能获取2-3天或更长时延的“二手信息”。
 
-## ✋ What makes wiseflow different from other ai-powered crawlers?
+你需要重复性的从网络（尤其是社交媒体）中发现并提取指定信息
 
-- 全平台的获取能力，包括网页、社交媒体（目前提供对微博和快手平台的支持）、RSS 信源、bing、github、arxiv等；
-- 独特的 html 处理流程，自动按关注点提取信息并发现值得进一步探索的链接，且仅需 14b 参数量的大模型即可很好的工作；
-- 爬查一体”策略，爬取过程中 LLM 即介入，只抓取与关注点相关的信息，有效降低平台风控概率；
-- 面向普通用户（而非开发者），无需人工介入提供 Xpath，"开箱即用"；
-- 持续迭代带来的高稳定性和高可用性，以及兼顾系统资源和速度的处理效率；
-- 将不仅仅是“爬虫”……
+举例而言，从社交媒体中找寻特定领域的潜在客户、供应商或者投资人，采集他们的联系方式等……同样“ChatGPTs” /“Deepseeks”/ “豆包” 等通用问答智能体更擅长的是总结并提炼答案，而不是搜集并整理信息。
 
-<img src="docs/wiseflow4.xscope.png" alt="4.x full scope" width="720">
+## ✋ 与“爬虫”或 RPA 的区别
 
-(4.x 架构整体规划图。虚线框内为尚未完成的部分，希望有能力的社区开发者加入我们，贡献 PR。 所有contributor都将免费获赠 pro 版本的使用权！)
+首先，wiseflow 并不是爬虫，也不是传统意义上的 RPA！
+
+wiseflow 使用您使用的浏览器代替您以真实人类行为进行操作（当然，这依靠 LLM，甚至视觉 LLM）。在这个过程中不存在任何不合规行为，对于所有登录和验证操作 wiseflow 只会提醒用户，而不会越俎代庖，当然，这些操作在有效期内您只需执行一次，wiseflow会保留登录态（但不是保留用户名和密码，事实上，wiseflow 完全无法读取您输入的任何用户名和密码，您的任何操作都是在真实的官方页面上进行的）。
+
+正因为 wiseflow 使用真实浏览器（而不是无头浏览器、虚拟浏览器等），并完全模拟用户真实浏览行为，因此它具有比“爬虫”和 RPA 更强的反侦测能力，除此之外，它还具有如下特性：
+
+- 全平台采集能力：支持网站、RSS、微博、快手、Bing、GitHub、arXiv、eBay 等，Pro 版额外支持微信公众号、小红书、知乎、B站、抖音。
+- 创新的 HTML 智能解析机制：可自动识别关键信息与可延伸探索的链接。
+- “爬查一体”策略：在爬取过程中实时由 LLM 判断与提取，仅抓取相关信息，大幅降低风控风险。
+- 真正开箱即用：无需 Xpath、脚本或人工配置，普通用户也能轻松使用。
+- 完全无需担心 LLM 使用费用：所有 LLM 调用费用已包含在订阅中，无需另行配置服务或密钥。
 
 ## 🌟 快速开始
 
@@ -150,12 +157,15 @@ chmod +x run.sh # 仅第一次执行需要
 
 wiseflow 所有抓取数据都会即时存入 pocketbase，因此您可以直接操作 pocketbase 数据库来获取数据。
 
-PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 等语言的SDK。  
+PocketBase作为流行的轻量级数据库，目前已有 Go/Javascript/Python 等语言的SDK。
 
-欢迎在如下 repo 中分享并推广您的二次开发应用案例！
+另外 Pro 版本自带api，更加便于二次开发和集成至已有系统。
 
-- https://github.com/TeamWiseFlow/wiseflow_plus
+不管是基于 wiseflow 还是基于 wiseflow-pro，我们都欢迎在如下 repo 中分享并推广您的应用案例！
 
+- https://github.com/TeamWiseFlow/wiseflow-plus
+
+(在此 repo 中贡献 PR， 采纳后也一样会获赠 wiseflow-pro 一年使用权)
 
 ## 🛡️ 许可协议
 
