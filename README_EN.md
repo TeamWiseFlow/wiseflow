@@ -8,8 +8,15 @@
 
 What we lack is not information, but the ability to filter out noise from massive information to reveal valuable insights.
 
-https://github.com/user-attachments/assets/48998353-6c6c-4f8f-acae-dc5c45e2e0e6
+## 🎉  WiseFlow Pro Version Now Available!
 
+Enhanced crawling capabilities, comprehensive social media support, UI interface, and one-click installation package!
+
+https://github.com/user-attachments/assets/880af7a3-7b28-44ff-86b6-aaedecd22761
+
+🔥🔥 **Pro version is now available worldwide**: https://wiseflow.pro/ 
+
+🔥 Contributors who submit PRs (code, documentation, or success case sharing) will receive one year of WiseFlow Pro version access (including related LLM usage fees) upon acceptance!
 
 ## 🔥🔥🔥 Wiseflow 4.2 Version Officially Released!
 
@@ -76,23 +83,31 @@ Alternatively, if you prefer openai series models, 'o3-mini' and 'openai/gpt-oss
 
 **Note:** To enjoy the discount, you need to switch to the aihubmix branch, see [README](https://github.com/TeamWiseFlow/wiseflow/blob/aihubmix/README.md) for details
 
-## 🧐 'Deep Search' VS 'Wide Search'
+## 🧐  Difference from "ChatGPTs" / "Deepseeks" / "Doubao" etc.
 
-I position Wiseflow as "wide search", which is relative to the currently popular "deep search".
+First, wiseflow, like these products, is powered by LLM (large language models) behind the scenes. However, because they are designed for different purposes, in the following two scenarios, using "ChatGPTs" / "Deepseeks" / "Doubao" etc. may not meet your needs (most likely, at this stage, you won't find a product more suitable than wiseflow for these needs ☺️)
 
-Specifically, "deep search" is where LLM autonomously plans search paths for specific questions, continuously exploring different pages, collecting sufficient information to provide answers or generate reports. However, sometimes we don't search with specific questions and don't need in-depth exploration, just broad information collection (such as industry intelligence gathering, background information collection, customer information collection, etc.). In these cases, breadth is clearly more meaningful. While "deep search" can also accomplish this task, it's like using a cannon to kill a mosquito - inefficient and costly. Wiseflow is specifically designed for these "wide search" scenarios.
+You need to get the latest content (published within hours) from specified sources, and you don't want to miss any part that might interest you
 
-## ✋ What Makes Wiseflow Different from Other AI-Powered Crawlers?
+For example, tracking policy releases from authoritative institutions, tracking industry or technology intelligence, tracking competitor dynamics, or you just want to get information from limited high-quality sources (freeing yourself from the control of recommendation algorithms 🤣), etc... "ChatGPTs" / "Deepseeks" / "Doubao" and other general Q&A agents do not monitor specified sources. They function like search engines, targeting information across the entire network, and usually can only obtain "second-hand information" with a delay of 2-3 days or longer.
 
-- Full platform acquisition capabilities, including web pages, social media (currently supporting Weibo and Kuaishou platforms), RSS feeds, and search sources such as Bing, GitHub, arXiv, and eBay, etc.;
-- Unique HTML processing workflow that automatically extracts information based on focus points and discovers links worth further exploration, working well with just a 14b parameter LLM;
-- User-friendly (not just for developers), no need for manual Xpath configuration, "ready to use";
-- High stability and availability through continuous iteration, and processing efficiency that balances system resources and speed;
-- It will be more than just a "crawler"...
+You need to repeatedly discover and extract specified information from the network (especially social media)
 
-<img src="docs/wiseflow4.xscope.png" alt="4.x full scope" width="720">
+For example, finding potential customers, suppliers, or investors in specific fields from social media, collecting their contact information, etc... Similarly, "ChatGPTs" / "Deepseeks" / "Doubao" and other general Q&A agents are better at summarizing and refining answers, rather than collecting and organizing information.
 
-(4.x architecture overall scope. The dashed box indicates the unfinished parts. We hope capable community developers will join us and contribute PRs. All contributors will receive free access to the pro version!)
+## ✋ Difference from "Crawlers" or RPA
+
+First, wiseflow is not a crawler, nor is it a traditional RPA!
+
+Wiseflow uses your browser to operate on your behalf with real human behavior (of course, this relies on LLM, even visual LLM). There is no non-compliant behavior in this process. For all login and verification operations, wiseflow will only remind users and will not overstep. Of course, you only need to perform these operations once during the validity period, and wiseflow will retain the login state (but not the username and password. In fact, wiseflow cannot read any username or password you enter at all. All your operations are performed on the real official pages).
+
+Because wiseflow uses real browsers (rather than headless browsers, virtual browsers, etc.) and completely simulates real user browsing behavior, it has stronger anti-detection capabilities than "crawlers" and RPA. In addition, it has the following features:
+
+- Full platform acquisition capabilities: Supports websites, RSS, Weibo, Kuaishou, Bing, GitHub, arXiv, eBay, etc. Pro version additionally supports WeChat Official Account, Xiaohongshu, Zhihu, Bilibili, and Douyin.
+- Innovative HTML intelligent parsing mechanism: Can automatically identify key information and links worth exploring further.
+- "Crawl-and-Search-in-One" strategy: Real-time LLM judgment and extraction during crawling, only capturing relevant information, significantly reducing risk control risks.
+- Truly ready to use: No need for Xpath, scripts, or manual configuration. Ordinary users can easily use it.
+- No need to worry about LLM usage fees at all: All LLM call fees are included in the subscription, no need to configure services or keys separately.
 
 ## 🌟 Quick Start
 
@@ -150,7 +165,9 @@ As a popular lightweight database, PocketBase currently has SDKs for Go/Javascri
 
 Welcome to share and promote your secondary development application examples in the following repo!
 
-- https://github.com/TeamWiseFlow/wiseflow_plus
+- https://github.com/TeamWiseFlow/wiseflow-plus
+
+(Contributing PRs to this repo will also grant one year of WiseFlow Pro version access upon acceptance)
 
 ## 🛡️ License
 
