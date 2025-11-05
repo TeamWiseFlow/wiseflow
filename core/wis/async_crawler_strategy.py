@@ -561,7 +561,9 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             'button[id*="login" i]', 'button[class*="login" i]',
             'a[href*="login" i]', 'a[href*="signin" i]',
             # 验证相关元素
-            '.verification', '.verify-btn', '.verify', '.captcha'
+            '.verification', '.verify-btn', '.verify', '.captcha',
+            # 去验证按键
+            'button:has-text("去验证")'
         ]
         
         for selector in login_element_selectors:
@@ -640,8 +642,8 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                                     msvcrt.getch()
                                 success = True
                                 break
-                        # 每0.1秒检查一次，避免忙等待
-                        await asyncio.sleep(0.1)
+                        # 每1秒检查一次，避免忙等待
+                        await asyncio.sleep(1)
                 else:
                     # Unix-like systems (Linux, macOS) - using select
                     while time.time() - start_time < timeout_seconds:
@@ -657,8 +659,8 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                                 success = True
                                 break
                         
-                        # 每0.1秒检查一次，避免忙等待
-                        await asyncio.sleep(0.1)
+                        # 每1秒检查一次，避免忙等待
+                        await asyncio.sleep(1)
                 
                 if success:
                     return True

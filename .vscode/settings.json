@@ -1,5 +1,8 @@
 {
     "python.analysis.extraPaths": [
         "./core"
+    ],
+    "cursorpyright.analysis.extraPaths": [
+        "./core"
     ]
 }

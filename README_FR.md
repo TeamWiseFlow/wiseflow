@@ -8,8 +8,15 @@
 
 Ce qui nous manque, ce n'est pas l'information, mais la capacité à filtrer le bruit des informations massives pour faire émerger des informations précieuses.
 
-https://github.com/user-attachments/assets/48998353-6c6c-4f8f-acae-dc5c45e2e0e6
+## 🎉  La version WiseFlow Pro est maintenant disponible !
 
+Capacités de crawling améliorées, support complet des réseaux sociaux, interface utilisateur et package d'installation en un clic !
+
+https://github.com/user-attachments/assets/880af7a3-7b28-44ff-86b6-aaedecd22761
+
+🔥🔥 **La version Pro est maintenant disponible dans le monde entier** : https://wiseflow.pro/ 
+
+🔥 Les contributeurs qui soumettent des PR (code, documentation ou partage de cas de succès) recevront un an d'accès à la version WiseFlow Pro (y compris les frais d'utilisation LLM associés) lors de l'acceptation !
 
 ## 🔥🔥🔥 Lancement officiel de la version 4.2 de Wiseflow !
 
@@ -94,6 +101,32 @@ Alternativement, si vous préférez les modèles de la série openai, 'o3-mini' 
 
 **Note :** Pour bénéficier de la réduction, vous devez passer à la branche aihubmix, voir [README](https://github.com/TeamWiseFlow/wiseflow/blob/aihubmix/README.md) pour plus de détails
 
+## 🧐  Différence avec "ChatGPTs" / "Deepseeks" / "Doubao" etc.
+
+Tout d'abord, wiseflow, comme ces produits, est alimenté par LLM (grands modèles de langage) en arrière-plan. Cependant, comme ils sont conçus à des fins différentes, dans les deux scénarios suivants, utiliser "ChatGPTs" / "Deepseeks" / "Doubao" etc. peut ne pas répondre à vos besoins (très probablement, à ce stade, vous ne trouverez pas de produit plus adapté que wiseflow pour ces besoins ☺️)
+
+Vous devez obtenir le contenu le plus récent (publié dans les heures) de sources spécifiées et vous ne voulez manquer aucune partie qui pourrait vous intéresser
+
+Par exemple, le suivi des publications de politiques d'institutions autoritaires, le suivi de l'intelligence industrielle ou technologique, le suivi de la dynamique des concurrents, ou vous voulez simplement obtenir des informations de sources de haute qualité limitées (vous libérer du contrôle des algorithmes de recommandation 🤣), etc... "ChatGPTs" / "Deepseeks" / "Doubao" et autres agents Q&A généraux ne surveillent pas les sources spécifiées. Ils fonctionnent comme des moteurs de recherche, ciblant les informations sur l'ensemble du réseau, et ne peuvent généralement obtenir que des "informations de seconde main" avec un délai de 2-3 jours ou plus.
+
+Vous devez découvrir et extraire de manière répétée des informations spécifiées du réseau (en particulier les médias sociaux)
+
+Par exemple, trouver des clients potentiels, des fournisseurs ou des investisseurs dans des domaines spécifiques à partir des médias sociaux, collecter leurs coordonnées, etc... De même, "ChatGPTs" / "Deepseeks" / "Doubao" et autres agents Q&A généraux sont meilleurs pour résumer et affiner les réponses, plutôt que de collecter et organiser des informations.
+
+## ✋ Différence avec les "crawlers" ou RPA
+
+Tout d'abord, wiseflow n'est pas un crawler, ni un RPA traditionnel !
+
+Wiseflow utilise votre navigateur pour opérer en votre nom avec un comportement humain réel (bien sûr, cela repose sur LLM, même LLM visuel). Il n'y a pas de comportement non conforme dans ce processus. Pour toutes les opérations de connexion et de vérification, wiseflow ne fera qu'informer les utilisateurs et ne dépassera pas ses limites. Bien sûr, vous n'avez besoin d'effectuer ces opérations qu'une seule fois pendant la période de validité, et wiseflow conservera l'état de connexion (mais pas le nom d'utilisateur et le mot de passe. En fait, wiseflow ne peut pas lire du tout les noms d'utilisateur ou mots de passe que vous entrez. Toutes vos opérations sont effectuées sur les pages officielles réelles).
+
+Parce que wiseflow utilise de vrais navigateurs (plutôt que des navigateurs sans tête, des navigateurs virtuels, etc.) et simule complètement le comportement de navigation réel de l'utilisateur, il a des capacités anti-détection plus fortes que les "crawlers" et RPA. De plus, il a les fonctionnalités suivantes :
+
+- Capacités d'acquisition complètes sur toutes les plateformes : Prend en charge les sites Web, RSS, Weibo, Kuaishou, Bing, GitHub, arXiv, eBay, etc. La version Pro prend en charge en plus le compte officiel WeChat, Xiaohongshu, Zhihu, Bilibili et Douyin.
+- Mécanisme d'analyse HTML intelligent innovant : Peut identifier automatiquement les informations clés et les liens méritant une exploration plus approfondie.
+- Stratégie "Crawl-and-Search-in-One" : Jugement et extraction LLM en temps réel pendant le crawling, ne capture que les informations pertinentes, réduisant considérablement les risques de contrôle des risques.
+- Vraiment prêt à l'emploi : Pas besoin de Xpath, de scripts ou de configuration manuelle. Les utilisateurs ordinaires peuvent l'utiliser facilement.
+- Pas besoin de s'inquiéter des frais d'utilisation LLM : Tous les frais d'appel LLM sont inclus dans l'abonnement, pas besoin de configurer des services ou des clés séparément.
+
 ## 🌟 Démarrage Rapide
 
 **Seulement trois étapes pour commencer !**
@@ -136,7 +169,8 @@ source .venv/bin/activate  # Linux/macOS
 # .venv\Scripts\activate
 uv sync # nécessaire uniquement lors de la première exécution
 chmod +x run.sh # nécessaire uniquement lors de la première exécution
-./run.sh
+./run.sh  # Linux/macOS
+.\run.bat  # Windows
 ```
 
 Pour des instructions détaillées, voir [docs/manual/manual_fr.md](./docs/manual/manual_fr.md)
@@ -149,7 +183,9 @@ En tant que base de données légère populaire, PocketBase propose actuellement
 
 Nous vous invitons à partager et promouvoir vos exemples d'applications de développement secondaire dans le dépôt suivant !
 
-- https://github.com/TeamWiseFlow/wiseflow_plus
+- https://github.com/TeamWiseFlow/wiseflow-plus
+
+(Contribuer des PRs à ce dépôt accordera également un an d'accès à la version WiseFlow Pro lors de l'acceptation)
 
 ## 🛡️ Licence
 
