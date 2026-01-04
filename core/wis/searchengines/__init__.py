@@ -1,10 +1,12 @@
 import asyncio
 import httpx
 import importlib
-from async_logger import wis_logger
+from core.async_logger import wis_logger
 from ..basemodels import CrawlResult
 from ..async_webcrawler import AsyncWebCrawler
+from ..async_cache import SqliteCache
 from typing import List, Tuple
+from ..ws_connect import notify_user
 
 # The unified search entry for every engine under `engines/`.
 # `engine` argument specifying which engine implementation to use.
@@ -16,6 +18,7 @@ async def search_with_engine(engine: str,
                              query: str, 
                              crawler: AsyncWebCrawler, 
                              existings: set[str] = set(), 
+                             cache_manager: SqliteCache = None,
                              **kwargs) -> Tuple[List[CrawlResult], str, dict]:
     """Search given *query* with the specified *engine*.
 
@@ -36,49 +39,57 @@ async def search_with_engine(engine: str,
         A tuple of search result dictionaries, the markdown content, and the link dictionary.
     """
     # --- locate engine implementation ------------------------------------------------
-    try:
-        engine_module = importlib.import_module(f"wis.searchengines.engines.{engine}")
-    except ImportError as e:
-        wis_logger.error(f"Engine '{engine}' not found: {e}")
-        return [], "", {}
-    
-    if engine == "arxiv":
-        request_params = engine_module.gen_request_params(query, **kwargs)
-        method = request_params.get("method", "GET").upper()
-        url = request_params["url"]
-        async with httpx.AsyncClient(timeout=60) as client:
-            for attempt in range(3):
-                try:
-                    response = await client.request(method, url)
-                    response.raise_for_status
-                    break
-                except Exception as e:
-                    if attempt < 2:
-                        delay = 1 * (2 ** attempt)
-                        wis_logger.warning(
-                            f"{engine} search attempt {attempt + 1} failed with error: {str(e)}, retrying in {delay} seconds"
-                        )
-                        await asyncio.sleep(delay)
-                    else:
-                        wis_logger.warning(
-                            f"{engine} search failed after 3 attempts with error: {str(e)}"
-                        )
-                        return [], "", {}
-        html = response.text
-
-    elif engine == "bing":
-        url = engine_module.gen_query_url(query, **kwargs)
-        result = await crawler.arun(url)
-        if not result or not result.success:
-            wis_logger.warning(f"Search with Engine '{engine}', query '{query}', due to crawler, failed")
+    search_results = []
+    if cache_manager:
+        search_results = await cache_manager.get(query, namespace=engine)
+        if search_results == '**empty**':
             return [], "", {}
-        html = result.html
+        
+    if not search_results:
+        try:
+            engine_module = importlib.import_module(f"wis.searchengines.engines.{engine}")
+        except ImportError as e:
+            wis_logger.error(f"Engine '{engine}' not found: {e}")
+            return [], "", {}
+        
+        if engine == "arxiv":
+            request_params = engine_module.gen_request_params(query, **kwargs)
+            method = request_params.get("method", "GET").upper()
+            url = request_params["url"]
+            async with httpx.AsyncClient(timeout=120) as client:
+                for attempt in range(3):
+                    try:
+                        response = await client.request(method, url)
+                        response.raise_for_status
+                        break
+                    except Exception as e:
+                        if attempt < 2:
+                            delay = 1 * (2 ** attempt)
+                            wis_logger.debug(
+                                f"{engine} search attempt {attempt + 1} failed with error: {str(e)}, retrying in {delay} seconds"
+                            )
+                            await asyncio.sleep(delay)
+                        else:
+                            wis_logger.warning(
+                                f"{engine} search failed after 3 attempts with error: {str(e)}"
+                            )
+                            await notify_user(15, ['arxiv'])
+                            return [], "", {}
+            html = response.text
 
-    try:
+        elif engine == "bing":
+            url = engine_module.gen_query_url(query, **kwargs)
+            result = await crawler.arun(url)
+            if not result or not result.success:
+                wis_logger.warning(f"Search with Engine '{engine}', query '{query}', due to crawler, failed")
+                await notify_user(15, ['bing'])
+                return [], "", {}
+            html = result.html
+
         search_results = engine_module.parse_response(html)
-    except Exception as e:
-        wis_logger.warning(f"Search with Engine '{engine}', query '{query}', parse from html, failed, error:\n{e}")
-        return [], "", {}
+        wis_logger.debug(f"from {engine} got {len(search_results)} search_results")
+        if cache_manager:
+            await cache_manager.set(query, search_results, 60*24, namespace=engine)
 
     articles = []
     markdown = ""
@@ -111,7 +122,8 @@ async def search_with_engine(engine: str,
             authors = ' & '.join(result.get("authors", [])) or ""
             comments = result.get("comments", "") or ""
             journal = result.get("journal", "") or ""
-            publish_date = result.get("publishedDate", "").strftime("%Y-%m-%d") or ""
+            publish_date = result.get("publishedDate", "") or ""
+            publish_date = publish_date.split('T')[0] if publish_date and 'T' in publish_date else publish_date
             tags = ', '.join(result.get("tags", [])) or ""
             _markdown = ""
             if journal:

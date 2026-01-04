@@ -25,7 +25,7 @@ async def main(sample: dict, record_file: str):
         markdown_generator = WeixinArticleMarkdownGenerator()
     else:
         markdown_generator = DefaultMarkdownGenerator()
-    error_msg, title, author, publish, markdown, link_dict = markdown_generator.generate_markdown(
+    error_msg, title, author, publish, markdown, link_dict = await markdown_generator.generate_markdown(
         raw_html=html,
         cleaned_html=cleaned_html,
         base_url=url,

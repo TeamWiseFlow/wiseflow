@@ -4,22 +4,20 @@ build-backend = "hatchling.build"
 
 [project]
 name = "wiseflow"
-version = "4.2.0"
+version = "4.30"
 description = "WiseFlow - Use LLMs to dig out what you care about from massive amounts of information and a variety of sources daily"
 authors = [
     {name = "TeamWiseflow", email = "info@wiseflow.pro"},
 ]
 readme = "README.md"
 license = {text = "Apache-2.0"}
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.12,<3.13"
 keywords = ["web-scraping", "llm", "crawler", "ai", "automation"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers", 
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
 
@@ -28,31 +26,31 @@ dependencies = [
     "loguru>=0.7.2",
     # Async HTTP clients
     "httpx==0.28.1",
-    "aiohttp>=3.11.11",
     "requests>=2.32.3",
     # Database and storage
     "aiosqlite>=0.20.0",
-    # "pocketbase>=0.12.0",
     # Data validation and processing
     "pydantic>=2.10.3",
     "pandas>=2.2.3",
+    "parsel==1.6.0",
+    "pyhumps==3.8.0",
     # LLM API
     "openai>=1.58.1",
     # Browser automation
     "patchright==1.52.5",
-    "nodriver==0.47.0",
+    "nodriver==0.47",
     "pdf2image>=1.17.0",
     # HTML/XML processing
     "beautifulsoup4~=4.12",
     "lxml~=5.3",
-    "cssselect>=1.2.0",
+    "cssselect==1.1.0", # compatiled with mediacrawler-pro
     # Text processing
     "regex>=2024.11.6",
     "snowballstemmer~=2.2",
     # RSS and data parsing
     "feedparser>=6.0.11",
     # Image processing
-    "Pillow>=10.4.0",
+    "pillow>=10.4.0",
     # Environment and configuration
     "python-dotenv~=1.0",
     "packaging>=24.2",
@@ -61,15 +59,25 @@ dependencies = [
     # Hashing and encryption
     "xxhash>=3.5.0",
     "pyOpenSSL>=24.3.0",
+    "cryptography",
     # System and performance
     "psutil>=6.1.1",
-    # Parser generator
     "lark>=1.1.7",
+    # SignSrv requirements
+    "PyExecJS==1.5.1",
     # Character encoding detection
     "faust-cchardet>=2.1.19",
     "chardet>=5.2.0",
     # Retry mechanism
-    "tenacity==9.0.0",
+    "tenacity==9.0.0", # Compatible with SignSrv
+    # Office file processing
+    "openpyxl",
+    # Task scheduling
+    "schedule>=1.2.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "pyarmor>=8.4,<9",
+    "pyinstaller>=6.16.0",
 ]
 
 [project.optional-dependencies]
@@ -83,6 +91,7 @@ dev = [
 
 [project.scripts]
 wiseflow = "core.run_task:main"
+wiseflow-backend = "core.backend.main:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["core"]
@@ -117,7 +126,7 @@ disallow_untyped_defs = true
 
 [tool.black]
 line-length = 120
-target-version = ['py310', 'py311', 'py312']
+target-version = ['py312']
 
 [index]
 url = "https://mirrors.aliyun.com/pypi/simple/"

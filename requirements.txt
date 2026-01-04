@@ -1,11 +1,12 @@
 # WiseFlow - Main dependencies
+# Using specific versions to ensure compatibility with SignSrv requirements
 
 # Logging system
 loguru>=0.7.2
 
 # Async HTTP clients
 httpx==0.28.1
-aiohttp>=3.11.11
+# aiohttp>=3.11.11
 requests>=2.32.3
 
 # Database and storage
@@ -14,19 +15,21 @@ aiosqlite>=0.20.0
 # Data validation and processing
 pydantic>=2.10.3
 pandas>=2.2.3
+parsel==1.6.0
+pyhumps==3.8.0
 
 # LLM API
 openai>=1.58.1
 
 # Browser automation
 patchright==1.52.5
-nodriver==0.47.0
+nodriver==0.47
 pdf2image>=1.17.0
 
 # HTML/XML processing
 beautifulsoup4~=4.12
 lxml~=5.3
-cssselect>=1.2.0
+cssselect==1.1.0 # compalited with mediacrawler-pro
 
 # Text processing
 regex>=2024.11.6
@@ -51,6 +54,7 @@ aiofiles==24.1.0
 # Hashing and encryption
 xxhash>=3.5.0
 pyOpenSSL>=24.3.0
+cryptography
 
 # System and performance
 psutil>=6.1.1
@@ -61,4 +65,14 @@ faust-cchardet>=2.1.19
 chardet>=5.2.0
 
 # Retry mechanism
-tenacity==9.0.0
+tenacity==9.0.0  # Compatible with SignSrv
+
+# Office file processing
+openpyxl
+
+# Task scheduling
+schedule>=1.2.0
+
+# Backend API
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0

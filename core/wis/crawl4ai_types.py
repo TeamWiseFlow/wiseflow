@@ -11,7 +11,6 @@ CrawlerRunConfig = Union['CrawlerRunConfigType']
 
 # Extraction types
 ExtractionStrategy = Union['ExtractionStrategyType']
-LLMExtractionStrategy = Union['LLMExtractionStrategyType']
 JsonCssExtractionStrategy = Union['JsonCssExtractionStrategyType']
 JsonXPathExtractionStrategy = Union['JsonXPathExtractionStrategyType']
 
@@ -48,7 +47,6 @@ if TYPE_CHECKING:
     # Extraction imports
     from .extraction_strategy import (
         ExtractionStrategy as ExtractionStrategyType,
-        LLMExtractionStrategy as LLMExtractionStrategyType,
         JsonCssExtractionStrategy as JsonCssExtractionStrategyType,
         JsonXPathExtractionStrategy as JsonXPathExtractionStrategyType,
         RegexExtractionStrategy as RegexExtractionStrategyType,

@@ -1,4 +1,3 @@
-from datetime import datetime
 from lxml import etree
 from lxml.etree import XPath
 
@@ -71,7 +70,7 @@ def parse_response(response_text: str) -> list[dict]:
         published_element = eval_xpath_getindex(entry, xpath_published, 0, default=None)
         publishedDate = None
         if published_element is not None and published_element.text:
-            publishedDate = datetime.strptime(published_element.text, '%Y-%m-%dT%H:%M:%SZ')
+            publishedDate = published_element.text
 
         res_dict = {
             'url': url,

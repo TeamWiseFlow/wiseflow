@@ -158,34 +158,8 @@ class StringCompatibleMarkdown(str):
 CrawlResultT = TypeVar('CrawlResultT', bound=CrawlResult)
 
 
-class CrawlResultContainer(Generic[CrawlResultT]):
-    def __init__(self, results: Union[CrawlResultT, List[CrawlResultT]]):
-        # Normalize to a list
-        if isinstance(results, list):
-            self._results = results
-        else:
-            self._results = [results]
-
-    def __iter__(self):
-        return iter(self._results)
-
-    def __getitem__(self, index):
-        return self._results[index]
-
-    def __len__(self):
-        return len(self._results)
-
-    def __getattr__(self, attr):
-        # Delegate attribute access to the first element.
-        if self._results:
-            return getattr(self._results[0], attr)
-        raise AttributeError(f"{self.__class__.__name__} object has no attribute '{attr}'")
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}({self._results!r})"
-
 RunManyReturn = Union[
-    CrawlResultContainer[CrawlResultT],
+    List[CrawlResultT],
     AsyncGenerator[CrawlResultT, None]
 ]
 

@@ -1,120 +1,138 @@
-import os
 import aiosqlite
 import asyncio
+import sqlite3
 import uuid
-from typing import Optional, List, Any
+from typing import Optional, List, Any, Dict
 from contextlib import asynccontextmanager
+import time
 import json
-from dataclasses import dataclass
-from concurrent.futures import ThreadPoolExecutor
-from wis.basemodels import CrawlResult
-from wis.utils import ensure_content_dirs, generate_content_hash
 from datetime import datetime, timedelta, timezone
-from async_logger import base_directory, wis_logger
+from pathlib import Path
+import os
+import sys
 
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "..", "pb", "pb_data")
+def _detect_install_root() -> Path:
+    # 1) Prefer explicit env from launchers for portable installs
+    env_dir = os.getenv("WISEFLOW_BASE_DIR")
+    if env_dir:
+        p = Path(env_dir).expanduser().resolve()
+        try:
+            p.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            pass
+        return p
+
+    # 2) Use parent's parent of the current script
+    return Path(__file__).resolve().parent.parent
+
+    # 3) Fallback to user home
+    return Path.home()
+
+# Base directory for application data (portable if env/exe available)
+base_directory = _detect_install_root()  / "work_dir"
+base_directory.mkdir(parents=True, exist_ok=True)
 
 
-@dataclass
-class ContentMapping:
-    """内容类型映射配置"""
-    field_name: str
-    content_type_for_file: str # 文件类型/目录名
-    is_json_content: bool = False # 内容本身是否为JSON (影响序列化/反序列化)
+class NonRetryableDatabaseError(Exception):
+    """Raised to explicitly indicate an operation should not be retried."""
+    pass
 
 
 class AsyncDatabaseManager:
-    """优化后的异步数据库管理器"""
-    
-    # 内容字段映射配置 - 所有字段都存储为文件
-    CONTENT_MAPPINGS = [
-        ContentMapping("html", content_type_for_file="html"),
-        ContentMapping("markdown", content_type_for_file="markdown"),
-        ContentMapping("screenshot", content_type_for_file="screenshots"),
-        ContentMapping("cleaned_html", content_type_for_file="cleaned_html"),
-        ContentMapping("link_dict", content_type_for_file="link_dict", is_json_content=True),
-    ]
-
     # 表结构定义
     TABLE_SCHEMAS = {
-        'crawled_data': {
-            'id': 'TEXT PRIMARY KEY',
-            'url': 'TEXT NOT NULL',
-            'html': 'TEXT DEFAULT ""',
-            'markdown': 'TEXT DEFAULT ""',
-            'link_dict': 'TEXT DEFAULT ""',
-            'cleaned_html': 'TEXT DEFAULT ""',
-            'screenshot': 'TEXT DEFAULT ""',
-            'downloaded_files': 'JSON DEFAULT "[]"',
-            'title': 'TEXT DEFAULT ""',
-            'author': 'TEXT DEFAULT ""',
-            'publish_date': 'TEXT DEFAULT ""',
-            'updated': 'TEXT'  # 注意：PocketBase 中实际为 datetime 类型
-        },
         'infos': {
-            'id': 'TEXT PRIMARY KEY',
+            'id': 'TEXT PRIMARY KEY DEFAULT (LOWER(HEX(RANDOMBLOB(8))))',
+            'type': 'TEXT NOT NULL',
             'content': 'TEXT NOT NULL',
-            'focuspoint': 'TEXT',
-            'source': 'TEXT',
-            'references': 'TEXT DEFAULT ""',
-            'updated': 'TEXT'  # 注意：PocketBase 中实际为 datetime 类型
+            'refers': 'TEXT DEFAULT ""',
+            # 拼接 focuspoint（restrictions） - role/purpose 形成一个字符串，避免 focuspoint 更新的影响。info 因为反应的是当时的 focus point 信息，所以需要保留。
+            'focus_statement': 'TEXT',
+            'focus_id': 'INTEGER',
+            'source_url': 'TEXT',
+            'source_title': 'TEXT',
+            'created': 'TEXT'
         },
-        'focus_points': {
-            'id': 'TEXT PRIMARY KEY',
-            'focuspoint': 'TEXT NOT NULL',
+        'tasks': {
+            'id': 'INTEGER PRIMARY KEY AUTOINCREMENT',
+            # 这里直接引入 task 的focus组的概念, focuses 对应一个组，这个组里面包含多个 focuspoint，也可能不包含
+            # 因为实践中有用户 focus 为 "微信 hook、微信逆向、视频号下载"，虽然都是同一套信源，但写成一个 focus 提取效果很差，需要分成三个 focus，分别提取
+            # focuses 现在存储的是 focus 表的 id 列表，而不是完整的 focus 对象，通过关联查询获取完整信息
+            'focuses': 'JSON DEFAULT "[]"',
+            'search': 'JSON DEFAULT "[]"', # 只能从如下多选：bing、github、arxiv、ks, wb, bili, dy, zhihu， xhs
+            # sources 对应一个列表，每个元素是一个 dict，含两个字段：type 和 detail
+            # type 是 TEXT，只能从如下单选："web", "rss", "ks", "wb", "mp", "bili", "dy", "zhihu", "xhs"
+            'sources': 'JSON DEFAULT "[]"',
+            # 任务控制选项
+            'activated': 'BOOLEAN DEFAULT 1',
+            # 对应工作时间，是一个列表，只能从如下多选：first, second, third, fourth
+            'time_slots': 'JSON DEFAULT "[]"',
+            # 任务标题
+            'title': 'TEXT DEFAULT ""',
+            # status，对应状态，int。0：正常，2：存在无法进行的错误， 系统会跳过，除非状态码改变，1：存在需要提醒用户解决的错误，但系统会执行
+            'status': 'NUMERIC DEFAULT 0',
+            # 错误信息，TEXT，int0 时为空
+            'errors': 'TEXT DEFAULT ""',
+            'updated': 'TEXT'
+        },
+        'local_proxies': {
+            # Int, 自增
+            'id': 'INTEGER PRIMARY KEY AUTOINCREMENT',
+            'ip': 'TEXT',
+            'port': 'NUMERIC',
+            'user': 'TEXT',
+            'password': 'TEXT',
+            'apply_to': 'JSON DEFAULT "[]"',
+            'life_time': 'NUMERIC', # in minutes, 0 means never expire
+            'updated': 'TEXT'
+        },
+        'kdl_proxies': {
+            'id': 'INTEGER PRIMARY KEY AUTOINCREMENT',
+            'SECERT_ID': 'TEXT',
+            'SIGNATURE': 'TEXT',
+            'USER_NAME': 'TEXT',
+            'USER_PWD': 'TEXT',
+            'apply_to': 'JSON DEFAULT "[]"',
+            'updated': 'TEXT'
+        },
+        'mc_backup_accounts': {
+            'id': 'INTEGER PRIMARY KEY AUTOINCREMENT',
+            'platform_name': 'TEXT',
+            'account_name': 'TEXT',
+            'cookies': 'TEXT',
+            'updated': 'TEXT'
+        },
+        'focuses': {
+            'id': 'INTEGER PRIMARY KEY AUTOINCREMENT',
+            'focuspoint': 'TEXT', # 不能为空
+            'custom_schema': 'TEXT DEFAULT ""',
             'restrictions': 'TEXT DEFAULT ""',
             'explanation': 'TEXT DEFAULT ""',
-            'activated': 'BOOLEAN DEFAULT 1',
-            'freq': 'NUMERIC DEFAULT 24',
-            'search': 'JSON DEFAULT "[]"',
-            'sources': 'JSON DEFAULT "[]"',
             'role': 'TEXT DEFAULT ""',
             'purpose': 'TEXT DEFAULT ""',
-            'custom_table': 'TEXT DEFAULT ""',
+            'created': 'TEXT'
         },
-        'sources': {
-            'id': 'TEXT PRIMARY KEY',
-            'type': 'TEXT CHECK(type IN ("web", "rss", "ks", "wb", "mp"))',
-            'creators': 'TEXT DEFAULT ""',
-            'url': 'TEXT'
+        'ws_history': {
+            'id': 'INTEGER PRIMARY KEY AUTOINCREMENT',
+            'type': 'TEXT',              # notify | prompt | prompt_resolved
+            'prompt_id': 'TEXT',         # for prompt and prompt_resolved
+            'code': 'NUMERIC',
+            'params': 'JSON DEFAULT "[]"',
+            'actions': 'JSON DEFAULT "[]"',  # for prompt
+            'action_id': 'TEXT',         # for prompt_resolved
+            'timeout': 'NUMERIC',        # seconds
+            'ts': 'NUMERIC'              # unix timestamp seconds
         },
-        'wb_cache': {
-            'id': 'TEXT PRIMARY KEY',  # 对应字典中的 note_id
-            'content': 'TEXT DEFAULT ""',
-            'create_time': 'TEXT DEFAULT ""',
-            'liked_count': 'TEXT DEFAULT ""',
-            'comments_count': 'TEXT DEFAULT ""',
-            'shared_count': 'TEXT DEFAULT ""',
-            'note_url': 'TEXT DEFAULT ""',
-            'ip_location': 'TEXT DEFAULT ""',
-            'user_id': 'TEXT DEFAULT ""',
-            'nickname': 'TEXT DEFAULT ""',
-            'gender': 'TEXT DEFAULT ""',
-            'profile_url': 'TEXT DEFAULT ""',
-            'source_keyword': 'TEXT DEFAULT ""',
-            'updated': 'TEXT'  # 注意：PocketBase 中实际为 datetime 类型
-        },
-        'ks_cache': {
-            'id': 'TEXT PRIMARY KEY',  # 对应字典中的 video_id
-            'video_type': 'TEXT DEFAULT ""',
-            'title': 'TEXT DEFAULT ""',
-            'desc': 'TEXT DEFAULT ""',
-            'create_time': 'TEXT DEFAULT ""',
-            'user_id': 'TEXT DEFAULT ""',
-            'nickname': 'TEXT DEFAULT ""',
-            'liked_count': 'TEXT DEFAULT ""',
-            'viewd_count': 'TEXT DEFAULT ""',
-            'video_url': 'TEXT DEFAULT ""',
-            'video_play_url': 'TEXT DEFAULT ""',
-            'source_keyword': 'TEXT DEFAULT ""',
-            'updated': 'TEXT'  # 注意：PocketBase 中实际为 datetime 类型
-        }
     }
     
-    def __init__(self, pool_size: int = 6, max_retries: int = 3):
-        self.content_paths = ensure_content_dirs(os.path.join(base_directory, ".wis"))
-        self.db_path = os.path.join(DB_PATH, "data.db")
+    # 任务相关字段的允许值
+    ALLOWED_SEARCH = {"bing", "github", "arxiv", "ks", "wb", "bili", "dy", "zhihu", "xhs"}
+    ALLOWED_SOURCE_TYPES = {"web", "rss", "ks", "wb", "mp", "bili", "dy", "zhihu", "xhs"}
+    ALLOWED_TIME_SLOTS = {'first', 'second', 'third', 'fourth'}
+    
+    def __init__(self, pool_size: int = 6, max_retries: int = 3, logger = None):
+        self.db_path = base_directory / "data.db"
         self.max_retries = max_retries
         
         # 真正的连接池
@@ -124,16 +142,8 @@ class AsyncDatabaseManager:
         self._pool_initialized = False
         self._init_lock = asyncio.Lock()
         
-        # 文件I/O线程池
-        self._file_executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="db_file_io")
-        
-        # 内容字段映射字典，提高查找效率
-        self._content_field_map = {cm.field_name: cm for cm in self.CONTENT_MAPPINGS}
-        
-        # 不缓存的URL集合（从sources表中type为web的记录获取）
-        self.no_cache_urls = set()
-        
         self.ready = False
+        self.logger = logger
 
     async def initialize(self):
         """初始化数据库和连接池"""
@@ -141,30 +151,16 @@ class AsyncDatabaseManager:
             if self._pool_initialized:
                 return
                 
-            try:
-                wis_logger.debug("Initializing optimized database manager")
-                
-                # 确保数据库表存在
-                await self._init_db_schema()
-                
-                # 初始化真正的连接池
-                await self._init_connection_pool()
-                
-                self._pool_initialized = True
-                wis_logger.debug("Database manager initialized successfully")
-                
-            except Exception as e:
-                wis_logger.error(f"Database initialization failed: {str(e)}")
-                raise
+            # self.logger.debug("Initializing optimized database manager")
+            # 确保数据库表存在
+            await self._init_db_schema()
+            # 初始化真正的连接池
+            await self._init_connection_pool()
+            
+            self._pool_initialized = True
+            # self.logger.debug("Database manager initialized successfully")
+            
         self.ready = True
-        # 加载不缓存的URL列表
-        await self._load_no_cache_urls()
-    
-    async def _ensure_database_directory(self):
-        """确保数据库目录存在"""
-        if not os.path.exists(DB_PATH):
-            wis_logger.info(f"Creating database directory: {DB_PATH}")
-            os.makedirs(DB_PATH, exist_ok=True)
 
     def _generate_create_table_sql(self, table_name: str, columns: dict) -> str:
         """根据表结构定义生成CREATE TABLE SQL语句"""
@@ -189,13 +185,13 @@ CREATE TABLE IF NOT EXISTS {table_name} (
 
     async def _create_missing_table(self, db, table_name: str, expected_columns: dict):
         """创建缺失的表"""
-        wis_logger.info(f"Creating missing table: {table_name}")
+        self.logger.info(f"Creating missing table: {table_name}")
         create_sql = self._generate_create_table_sql(table_name, expected_columns)
         await db.execute(create_sql)
-        wis_logger.info(f"Successfully created table: {table_name}")
+        self.logger.info(f"Successfully created table: {table_name}")
 
     async def _init_db_schema(self):
-        await self._ensure_database_directory()
+        """初始化数据库模式，包含表结构校验和缺失列自动补充"""
         async with aiosqlite.connect(self.db_path, timeout=30.0) as db:
             # 检查所有必需的表是否存在
             for table_name, expected_columns in self.TABLE_SCHEMAS.items():
@@ -226,11 +222,12 @@ CREATE TABLE IF NOT EXISTS {table_name} (
                         'type': col_type,
                         'not_null': bool(row[3])
                     }
-                
+
                 reserved_keywords = {'references', 'order', 'group', 'having', 'where', 'select', 'from', 'join', 'table'}
                 for col_name, col_def in expected_columns.items():
                     if col_name not in current_columns:
-                        wis_logger.info(f"Adding missing column '{col_name}' to table '{table_name}'")
+                        # 添加缺失的列
+                        self.logger.info(f"Adding missing column '{col_name}' to table '{table_name}'")
                         try:
                             # Escape column names that are SQL reserved keywords
                             if col_name.lower() in reserved_keywords:
@@ -238,20 +235,14 @@ CREATE TABLE IF NOT EXISTS {table_name} (
                             else:
                                 escaped_col_name = col_name
                             await db.execute(f"ALTER TABLE {table_name} ADD COLUMN {escaped_col_name} {col_def}")
-                            wis_logger.info(f"Successfully added column '{col_name}' to table '{table_name}'")
+                            self.logger.info(f"Successfully added column '{col_name}' to table '{table_name}'")
                         except Exception as e:
-                            wis_logger.warning(f"Failed to add column '{col_name}' to table '{table_name}': {str(e)}")
+                            self.logger.warning(f"Failed to add column '{col_name}' to table '{table_name}': {str(e)}")
                         continue
                     
                     # 检查列类型是否匹配
                     expected_type = col_def.split()[0].upper()  # 获取类型部分并转为大写
                     current_type = current_columns[col_name]['type'].upper()
-                    
-                    # 特殊处理：允许focus_points表中search字段从BOOLEAN迁移到JSON
-                    if (table_name == 'focus_points' and col_name == 'search' and
-                        current_type == 'BOOLEAN' and expected_type == 'JSON'):
-                        wis_logger.info(f"Allowing migration of focus_points.search from BOOLEAN to JSON")
-                        continue
                     
                     # 类型匹配检查（包括 BOOLEAN 类型）
                     if expected_type != current_type:
@@ -261,117 +252,30 @@ CREATE TABLE IF NOT EXISTS {table_name} (
                     if 'NOT NULL' in col_def.upper() and not current_columns[col_name]['not_null']:
                         raise ValueError(f"Column '{col_name}' in table '{table_name}' should be NOT NULL")
             
-            # 检查并设置 crawled_data 表中 url 字段的唯一约束
-            await self._ensure_url_unique_constraint(db)
-            
-            # 添加索引提高查询性能
-            indexes = [
-                ("idx_crawled_data_url", "crawled_data", "url"),
-                # ("idx_infos_created", "infos", "updated"),
-            ]
-            
-            for index_name, table_name, column_name in indexes:
-                try:
-                    await db.execute(f"""
-                        CREATE INDEX IF NOT EXISTS {index_name} 
-                        ON {table_name}({column_name})
-                    """)
-                except Exception as e:
-                    wis_logger.warning(f"Failed to create index {index_name}: {str(e)}")
+            # 创建索引
+            await self._create_indexes(db)
             
             await db.commit()
-            wis_logger.debug("Database schema validation completed")
+            # self.logger.debug("Database schema validation completed")
 
-    async def _ensure_url_unique_constraint(self, db):
-        """确保 crawled_data 表中的 url 字段具有唯一约束"""
-        try:
-            # 检查是否已存在 url 字段的唯一索引
-            async with db.execute("PRAGMA index_list('crawled_data')") as cursor:
-                indexes = await cursor.fetchall()
-            
-            # 检查每个索引是否为 url 字段的唯一索引
-            url_unique_exists = False
-            for index_info in indexes:
-                index_name = index_info[1]  # 索引名称
-                is_unique = bool(index_info[2])  # 是否为唯一索引
-                
-                if is_unique:
-                    # 检查索引的列信息
-                    async with db.execute(f"PRAGMA index_info('{index_name}')") as cursor:
-                        index_columns = await cursor.fetchall()
-                    
-                    # 检查是否只包含 url 字段
-                    if (len(index_columns) == 1 and 
-                        index_columns[0][2] == 'url'):  # 第三个元素是列名
-                        url_unique_exists = True
-                        # wis_logger.debug(f"Found existing unique constraint on url field: {index_name}")
-                        break
-            
-            # 如果不存在唯一约束，创建一个
-            if not url_unique_exists:
-                wis_logger.info("Url in crawled_data table is not unique, creating unique constraint")
-                try:
-                    await db.execute("""
-                        CREATE UNIQUE INDEX idx_crawled_data_url_unique 
-                        ON crawled_data(url)
-                    """)
-                    wis_logger.info("Successfully created unique constraint on crawled_data.url field")
-                except Exception as e:
-                    # 如果创建失败（可能因为已存在重复数据），记录错误但不中断初始化
-                    wis_logger.error(f"Failed to create unique constraint on url field: {str(e)}")
-                    wis_logger.error("This may be due to existing duplicate URLs in the database")
-                    # 可以选择清理重复数据或提示用户手动处理
-                    await self._handle_duplicate_urls(db)
-                
-        except Exception as e:
-            wis_logger.error(f"Error checking/setting url unique constraint: {str(e)}")
-
-    async def _handle_duplicate_urls(self, db):
-        """处理数据库中的重复URL"""
-        try:
-            # 查找重复的URL
-            async with db.execute("""
-                SELECT url, COUNT(*) as count 
-                FROM crawled_data 
-                GROUP BY url 
-                HAVING COUNT(*) > 1
-            """) as cursor:
-                duplicates = await cursor.fetchall()
-            
-            if duplicates:
-                wis_logger.warning(f"Found {len(duplicates)} duplicate URLs in database")
-                
-                # 对于每个重复的URL，保留最新的记录，删除其他的
-                for url, count in duplicates:
-                    wis_logger.debug(f"Cleaning duplicate URL: {url} (found {count} copies)")
-                    
-                    # 保留最新的记录（按updated字段排序）
-                    await db.execute("""
-                        DELETE FROM crawled_data 
-                        WHERE url = ? AND id NOT IN (
-                            SELECT id FROM crawled_data 
-                            WHERE url = ? 
-                            ORDER BY updated DESC 
-                            LIMIT 1
-                        )
-                    """, (url, url))
-                
-                wis_logger.info(f"Cleaned up duplicate URLs, now attempting to create unique constraint")
-                
-                # 再次尝试创建唯一约束
-                try:
-                    await db.execute("""
-                        CREATE UNIQUE INDEX idx_crawled_data_url_unique 
-                        ON crawled_data(url)
-                    """)
-                    wis_logger.info("Successfully created unique constraint on crawled_data.url field after cleanup")
-                except Exception as e:
-                    wis_logger.error(f"Still failed to create unique constraint after cleanup: {str(e)}")
-            else:
-                wis_logger.debug("No duplicate URLs found, unique constraint creation failed for other reasons")
-                
-        except Exception as e:
-            wis_logger.error(f"Error handling duplicate URLs: {str(e)}")
+    async def _create_indexes(self, db):
+        """创建数据库索引"""
+        # 定义需要创建的索引
+        # 注意：暂不为 focuses 表创建唯一索引，因为现有数据可能存在重复
+        # 如果将来需要添加唯一约束，需要先清理重复数据，然后添加：
+        # 'idx_focuses_unique': '''CREATE UNIQUE INDEX IF NOT EXISTS idx_focuses_unique 
+        #                          ON focuses (focuspoint, restrictions, explanation, role, purpose, custom_schema)'''
+        indexes = {
+            'idx_infos_created_at': 'CREATE INDEX IF NOT EXISTS idx_infos_created_at ON infos (created)',
+            'idx_ws_history_ts': 'CREATE INDEX IF NOT EXISTS idx_ws_history_ts ON ws_history (ts)'
+        }
+        
+        for index_name, create_sql in indexes.items():
+            try:
+                await db.execute(create_sql)
+                # self.logger.debug(f"Successfully created or verified index: {index_name}")
+            except Exception as e:
+                self.logger.warning(f"Failed to create index {index_name}: {str(e)}")
 
     async def _init_connection_pool(self):
         """初始化真正的连接池"""
@@ -384,23 +288,6 @@ CREATE TABLE IF NOT EXISTS {table_name} (
             
             self._connection_pool.append(conn)
             await self._available_connections.put(conn)
-
-    async def _load_no_cache_urls(self):
-        """加载不缓存的URL列表（从sources表中type为web的记录获取）"""
-        async def _load(db):
-            urls = set()
-            async with db.execute(
-                "SELECT url FROM sources WHERE type = ? AND url IS NOT NULL AND url != ''", 
-                ("web",)
-            ) as cursor:
-                rows = await cursor.fetchall()
-                for row in rows:
-                    url = row[0].strip() if row[0] else None
-                    if url:
-                        urls.add(url)
-            return urls
-        
-        self.no_cache_urls = await self.execute_with_retry(_load)
 
     @asynccontextmanager
     async def get_connection(self):
@@ -416,8 +303,51 @@ CREATE TABLE IF NOT EXISTS {table_name} (
             # 归还连接到池中
             await self._available_connections.put(conn)
 
+    def _is_retryable_error(self, error: Exception) -> bool:
+        """判断异常是否值得重试。
+
+        仅对明显的暂时性错误进行重试，比如 SQLite 的锁冲突等。
+        对于对象不存在、约束冲突、语法错误、只读库等，直接视为不可重试。
+        """
+        # 调用方显式声明不可重试
+        if isinstance(error, NonRetryableDatabaseError):
+            return False
+
+        # 明确不可重试的异常类型
+        non_retryable_types = (
+            aiosqlite.IntegrityError,
+            aiosqlite.ProgrammingError,
+            sqlite3.IntegrityError,
+            sqlite3.ProgrammingError,
+            ValueError,
+            KeyError,
+            TypeError,
+        )
+        if isinstance(error, non_retryable_types):
+            return False
+
+        message = str(error).lower()
+
+        # 明确不可重试的错误信息
+        non_retryable_keywords = (
+            "no such table",
+            "no such column",
+            "unique constraint failed",
+            "not null constraint failed",
+            "foreign key constraint failed",
+            "readonly database",
+            "file is encrypted or is not a database",
+            "malformed",
+            "syntax error",
+            "unable to open database file",
+        )
+        if any(k in message for k in non_retryable_keywords):
+            return False
+
+        return True
+
     async def execute_with_retry(self, operation, *args):
-        """带重试的数据库操作执行"""
+        """带重试的数据库操作执行，智能判断是否需要重试"""
         for attempt in range(self.max_retries):
             try:
                 async with self.get_connection() as db:
@@ -425,9 +355,19 @@ CREATE TABLE IF NOT EXISTS {table_name} (
                     await db.commit()
                     return result
             except Exception as e:
-                if attempt == self.max_retries - 1:
+                # 非重试性错误，直接抛出
+                if not self._is_retryable_error(e):
+                    self.logger.warning(e)
                     raise
-                await asyncio.sleep(0.5 * (2 ** attempt))  # 指数退避
+
+                # 如果是最后一次尝试，直接抛出异常
+                if attempt == self.max_retries - 1:
+                    self.logger.warning(f"Max retries ({self.max_retries}) exceeded for operation")
+                    raise
+
+                # 记录重试信息并指数退避
+                wait_time = 0.5 * (2 ** attempt)
+                await asyncio.sleep(wait_time)
 
     def _generate_id(self) -> str:
         """
@@ -442,166 +382,6 @@ CREATE TABLE IF NOT EXISTS {table_name} (
         PocketBase datetime 字段兼容格式：YYYY-MM-DDTHH:MM:SS.sssZ
         """
         return datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
-
-    async def cache_url(self, result: CrawlResult):
-        """缓存URL数据 - 优化版本"""
-        # 如果有重定向URL，使用重定向URL作为主键
-        cache_url = result.url
-        if not cache_url:
-            return
-            
-        # 检查是否在不缓存的URL列表中
-        if cache_url in self.no_cache_urls:
-            wis_logger.debug(f"Skipping cache for URL {cache_url} (found in web sources)")
-            return
-        
-        # 生成15位字符串id
-        record_id = self._generate_id()
-        
-        # 获取当前UTC时间戳
-        current_time = self._get_utc_timestamp()
-        
-        # 并发存储内容到文件系统
-        content_tasks = []
-        for field_name, mapping in self._content_field_map.items():
-            if hasattr(result, field_name):
-                content = getattr(result, field_name)
-                if content:
-                    task = self._store_content_async(content, mapping.content_type_for_file)
-                    content_tasks.append((field_name, task))
-        
-        # 等待所有文件存储完成
-        content_hashes = {}
-        if content_tasks:
-            results = await asyncio.gather(*[task for _, task in content_tasks], return_exceptions=True)
-            for (field_name, _), result_hash in zip(content_tasks, results):
-                if isinstance(result_hash, Exception):
-                    wis_logger.error(f"Failed to store {field_name}: {result_hash}")
-                    content_hashes[field_name] = ""
-                else:
-                    content_hashes[field_name] = result_hash or ""
-        
-        # 数据库操作
-        async def _cache(db):
-            # 不再处理 downloaded_files 字段
-            
-            await db.execute("""
-                INSERT INTO crawled_data (
-                    id, url, html, markdown,
-                    link_dict, cleaned_html, screenshot,
-                    title, author, publish_date, updated
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(url) DO UPDATE SET
-                    html = excluded.html,
-                    markdown = excluded.markdown,
-                    link_dict = excluded.link_dict,
-                    cleaned_html = excluded.cleaned_html,
-                    screenshot = excluded.screenshot,
-                    title = excluded.title,
-                    author = excluded.author,
-                    publish_date = excluded.publish_date,
-                    updated = excluded.updated
-            """, (
-                record_id,
-                cache_url,
-                content_hashes.get("html", ""),
-                content_hashes.get("markdown", ""),
-                content_hashes.get("link_dict", ""),
-                content_hashes.get("cleaned_html", ""),
-                content_hashes.get("screenshot", ""),
-                result.title or "",
-                result.author or "",
-                result.publish_date or "",
-                current_time
-            ))
-
-        try:
-            await self.execute_with_retry(_cache)
-        except Exception as e:
-            wis_logger.error(f"Error caching URL {cache_url}: {str(e)}")
-
-    async def get_cached_url(self, url: str, days_threshold: int = 30) -> Optional[CrawlResult]:
-        """获取缓存的URL数据 - 优化版本"""
-        async def _get(db):
-            async with db.execute(
-                "SELECT * FROM crawled_data WHERE url = ?", (url,)
-            ) as cursor:
-                row = await cursor.fetchone()
-                if not row:
-                    return None
-
-                # 构建行数据字典
-                columns = [desc[0] for desc in cursor.description]
-                # Check if the cache is expired based on the updated_at timestamp
-                try:
-                    updated_index = columns.index('updated')
-                    updated_str = row[updated_index]
-                    if self.is_cache_expired(updated_str, days_threshold):
-                        wis_logger.debug(f"Cache for {url} expired (>{days_threshold} days). Returning None.")
-                        return None
-                except ValueError:
-                    # 'updated' column not found, treat as not expired (or log a warning)
-                    # This case should ideally not happen with schema initialization, but as a fallback
-                    wis_logger.warning("Column 'updated' not found in crawled_data table. Cannot check cache expiration.")
-                    return None
-                except Exception as e:
-                    # Handle potential errors during date parsing or comparison
-                    wis_logger.error(f"Error checking cache expiration for {url}: {str(e)}")
-                    return None
-
-                row_dict = dict(zip(columns, row))
-                
-                # 并发加载内容从文件系统
-                load_tasks = []
-                for field_name, mapping in self._content_field_map.items():
-                    if field_name in row_dict and row_dict[field_name]:
-                        task = self._load_content_async(row_dict[field_name], mapping.content_type_for_file)
-                        load_tasks.append((field_name, mapping, task))
-                
-                # 等待所有文件加载完成
-                if load_tasks:
-                    results = await asyncio.gather(*[task for _, _, task in load_tasks], return_exceptions=True)
-                    for (field_name, mapping, _), content in zip(load_tasks, results):
-                        if isinstance(content, Exception):
-                            wis_logger.error(f"Failed to load {field_name}: {content}")
-                            if mapping.is_json_content:
-                                if field_name == "link_dict":
-                                    row_dict[field_name] = {}
-                                else:
-                                    row_dict[field_name] = []
-                            else:
-                                row_dict[field_name] = None
-                        else:
-                            if mapping.is_json_content:
-                                deserialized = self._deserialize_json(content)
-                                if field_name == "link_dict" and not deserialized:
-                                    row_dict[field_name] = {}
-                                else:
-                                    row_dict[field_name] = deserialized
-                            else:
-                                row_dict[field_name] = content
-                
-                # If link_dict is an empty string (default from DB or failed load of empty content),
-                # ensure it's an empty dictionary for CrawlResult.
-                if row_dict.get("link_dict") == "":
-                    row_dict["link_dict"] = {}
-
-                # 不再处理 downloaded_files 字段，设置为空列表以符合 CrawlResult 的要求
-                row_dict["downloaded_files"] = []
-                
-                # 过滤并构建CrawlResult
-                valid_fields = CrawlResult.__annotations__.keys()
-                # print(f"row_dict: {row_dict}")
-                filtered_dict = {k: v for k, v in row_dict.items() if k in valid_fields}
-                filtered_dict["success"] = True
-                return CrawlResult(**filtered_dict)
-
-        try:
-            return await self.execute_with_retry(_get)
-        except Exception as e:
-            wis_logger.error(f"Error retrieving cached URL {url}: {str(e)}")
-            return None
     
     def is_cache_expired(self, updated_at: str, days_threshold: int = 30) -> bool:
         """
@@ -651,71 +431,8 @@ CREATE TABLE IF NOT EXISTS {table_name} (
             
         except (ValueError, TypeError) as e:
             # 如果时间格式解析失败，认为缓存已过期
-            wis_logger.warning(f"Failed to parse timestamp '{updated_at}': {e}")
+            self.logger.warning(f"Failed to parse timestamp '{updated_at}': {e}")
             return True
-
-    async def _store_content_async(self, content: Any, content_type: str) -> str:
-        """异步存储内容到文件系统"""
-        if not content:
-            return ""
-            
-        # 处理不同类型的内容
-        if isinstance(content, dict) or isinstance(content, list):
-            content_str = json.dumps(content, ensure_ascii=False)
-        else:
-            content_str = str(content)
-            
-        content_hash = generate_content_hash(content_str)
-        file_path = os.path.join(self.content_paths[content_type], content_hash)
-        
-        # 异步检查文件是否已存在（避免重复写入）
-        loop = asyncio.get_event_loop()
-        file_exists = await loop.run_in_executor(
-            self._file_executor,
-            os.path.exists,
-            file_path
-        )
-        
-        if not file_exists:
-            # 使用线程池进行文件I/O操作
-            await loop.run_in_executor(
-                self._file_executor,
-                self._write_file_sync,
-                file_path,
-                content_str
-            )
-        
-        return content_hash
-
-    async def _load_content_async(self, content_hash: str, content_type: str) -> Optional[str]:
-        """异步从文件系统加载内容"""
-        if not content_hash:
-            return None
-            
-        file_path = os.path.join(self.content_paths[content_type], content_hash)
-        
-        # 使用线程池进行文件I/O操作
-        loop = asyncio.get_event_loop()
-        try:
-            return await loop.run_in_executor(
-                self._file_executor,
-                self._read_file_sync,
-                file_path
-            )
-        except Exception as e:
-            wis_logger.info(f"Failed to load content from {file_path}: {e}, file maybe removed.")
-            return None
-
-    def _write_file_sync(self, file_path: str, content: str):
-        """同步写文件（在线程池中执行）"""
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        with open(file_path, "w", encoding="utf-8") as f:
-            f.write(content)
-
-    def _read_file_sync(self, file_path: str) -> str:
-        """同步读文件（在线程池中执行）"""
-        with open(file_path, "r", encoding="utf-8") as f:
-            return f.read()
 
     def _serialize_json(self, data: Any, default_as_list: bool = False) -> str:
         """序列化JSON数据"""
@@ -738,25 +455,15 @@ CREATE TABLE IF NOT EXISTS {table_name} (
     async def get_total_count(self) -> int:
         """获取缓存总数"""
         async def _count(db):
-            async with db.execute("SELECT COUNT(*) FROM crawled_data") as cursor:
+            async with db.execute("SELECT COUNT(*) FROM infos") as cursor:
                 result = await cursor.fetchone()
                 return result[0] if result else 0
 
         try:
             return await self.execute_with_retry(_count)
         except Exception as e:
-            wis_logger.error(f"Error getting total count: {str(e)}")
+            self.logger.error(f"Error getting total count: {str(e)}")
             return 0
-
-    async def clear_db(self):
-        """清空数据库"""
-        async def _clear(db):
-            await db.execute("DROP TABLE IF EXISTS crawled_data")
-        try:
-            await self.execute_with_retry(_clear)
-            wis_logger.debug("table crawled_data dropped successfully")
-        except Exception as e:
-            wis_logger.error(f"Error clearing database: {str(e)}")
 
     async def cleanup(self):
         """清理资源"""
@@ -764,534 +471,843 @@ CREATE TABLE IF NOT EXISTS {table_name} (
         for conn in self._connection_pool:
             await conn.close()
         self._connection_pool.clear()
-        
-        # 关闭线程池
-        self._file_executor.shutdown(wait=True)
 
-    async def add_info(self, content: str, focuspoint_id: str, source: str, references: str):
+    async def add_info(
+        self,
+        type: str,
+        content: str,
+        refers: str,
+        source_url: str,
+        source_title: str,
+        created: str,
+        focus_statement: str,
+        focus_id: int,
+        id: Optional[str] = None
+    ):
         """
         向 infos 表添加一条记录
 
         Args:
+            type: 记录类型
             content: 内容文本
-            focuspoint_id: 关联的 focus_points 表的 id
-            source: 关联的 sources 表的 id
-            references: 引用信息，文本格式
+            refers: 引用信息，文本格式
+            source_url: 关联的 sources 表的 url
+            source_title: 关联的 sources 表的 title
+            created: 创建时间字符串
+            focus_statement: 记录信息时的 focuspoint 描述字符串
+            focus_id: 关联的 focus 表的 id
+            id: 记录的唯一标识符，可选。如果不提供，将由数据库自动生成
         """
-        # 生成15位字符串id
-        record_id = self._generate_id()
-        
-        # 获取当前UTC时间戳
-        current_time = self._get_utc_timestamp()
-
         async def _add(db):
-            await db.execute("""
-                INSERT INTO infos (id, content, focuspoint, source, [references], updated)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """, (record_id, content, focuspoint_id, source, references or "", current_time))
+            if id:
+                sql = """
+                INSERT OR IGNORE INTO infos (id, type, content, focus_statement, focus_id, source_url, source_title, refers, created)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                RETURNING id
+                """
+                params = (
+                    id,
+                    type,
+                    content,
+                    focus_statement,
+                    focus_id,
+                    source_url,
+                    source_title,
+                    refers or "",
+                    created,
+                )
+            else:
+                sql = """
+                INSERT OR IGNORE INTO infos (type, content, focus_statement, focus_id, source_url, source_title, refers, created)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                RETURNING id
+                """
+                params = (
+                    type,
+                    content,
+                    focus_statement,
+                    focus_id,
+                    source_url,
+                    source_title,
+                    refers or "",
+                    created,
+                )
+            
+            async with db.execute(sql, params) as cursor:
+                row = await cursor.fetchone()
+                return row[0] if row else None
 
         try:
-            await self.execute_with_retry(_add)
-            wis_logger.debug("Successfully added info")
-        except Exception as e:
-            wis_logger.error(f"Error adding info for focuspoint {focuspoint_id}: {str(e)}")
-
-    async def get_activated_focus_points_with_sources(self) -> List[dict]:
-        """
-        获取所有激活的 focus_points 及其关联的 sources
-        
-        Returns:
-            List[dict]: 包含 focus_point 和关联 sources 的字典列表
-                每个字典包含:
-                - focus_point: focus_point 的所有字段
-                - sources: 关联的 sources 列表
-        """
-        result = []
-        
-        async def _get_focus_points_with_sources(db):
-            # 首先获取所有激活的 focus_points
-            focus_points_query = """
-                SELECT id, focuspoint, restrictions, explanation, activated, freq, search, sources, role, purpose, custom_table
-                FROM focus_points 
-                WHERE activated = 1
-            """
-            
-            async with db.execute(focus_points_query) as cursor:
-                focus_points_rows = await cursor.fetchall()
-                focus_points_columns = [desc[0] for desc in cursor.description]
-            
-            # 为每个 focus_point 获取关联的 sources
-            for fp_row in focus_points_rows:
-                # 构建 focus_point 字典
-                focus_point_dict = dict(zip(focus_points_columns, fp_row))
-                
-                # 解析 search 字段（兼容从BOOLEAN到JSON的迁移）
-                search_value = focus_point_dict.get('search', '[]')
-                if isinstance(search_value, (int, bool)):
-                    # 处理旧的BOOLEAN值迁移：
-                    # 0/False -> 空数组（不搜索）
-                    # 1/True -> 默认使用bing搜索
-                    focus_point_dict['search'] = ['bing'] if search_value else []
-                    wis_logger.debug(f"Migrated search field from boolean {search_value} to array {focus_point_dict['search']} for focus_point {focus_point_dict.get('id')}")
+            inserted_id = await self.execute_with_retry(_add)
+            if inserted_id:
+                self.logger.debug(f"Successfully added info with id: {inserted_id}")
+                return inserted_id
+            else:
+                if id:
+                    self.logger.info(f"Info with id {id} already exists, skipping insertion")
+                    return id
                 else:
-                    focus_point_dict['search'] = self._deserialize_json(search_value, default_as_list=True)
-                
-                # 解析 sources JSON 字段
-                sources_ids = self._deserialize_json(focus_point_dict.get('sources', '[]'), default_as_list=True)
-                
-                # 获取关联的 sources 详细信息
-                sources_list = []
-                if sources_ids:
-                    # 构建 IN 查询的占位符
-                    placeholders = ','.join(['?' for _ in sources_ids])
-                    sources_query = f"""
-                        SELECT id, type, creators, url
-                        FROM sources 
-                        WHERE id IN ({placeholders})
-                    """
-                    
-                    async with db.execute(sources_query, sources_ids) as sources_cursor:
-                        sources_rows = await sources_cursor.fetchall()
-                        sources_columns = [desc[0] for desc in sources_cursor.description]
-                        
-                        for source_row in sources_rows:
-                            source_dict = dict(zip(sources_columns, source_row))
-                            # creators 现在是 TEXT 类型，直接作为字符串处理
-                            source_dict['creators'] = source_dict.get('creators', '') or ''
-                            sources_list.append(source_dict)
-                
-                # 将 focus_point 和关联的 sources 组合
-                result.append({
-                    'focus_point': focus_point_dict,
-                    'sources': sources_list
-                })
-        
-        try:
-            await self.execute_with_retry(_get_focus_points_with_sources)
-            # wis_logger.debug(f"Retrieved {len(result)} activated focus points with their sources")
+                    self.logger.info("Info insertion skipped")
+                    return None
         except Exception as e:
-            wis_logger.error(f"Error retrieving activated focus points with sources: {str(e)}")
-            # 在出错时返回空列表
-        
-        return result
+            self.logger.warning(f"Error adding info: {str(e)}\ncontext: {id}\n{type}\n{content}\n{refers}\n{source_url}\n{source_title}\n{created}\n{focus_statement}\n{focus_id}")
+            return None
 
-    async def get_infos(self, focuspoint_id: Optional[str] = None, 
-                       source: Optional[str] = None, 
-                       daysthreshold: Optional[int] = None) -> List[dict]:
+    async def filter_infos(self, id: Optional[str] = None,
+                          source_url: Optional[str] = None,
+                          # 新增的过滤与分页条件
+                          focus_ids: Optional[List[int]] = None,
+                          start_time: Optional[str] = None,
+                          end_time: Optional[str] = None,
+                          per_focus_limit: Optional[int] = None,
+                          limit: Optional[int] = None,
+                          offset: Optional[int] = None) -> List[dict]:
         """
-        从 infos 表读取数据，支持可选的筛选条件
-        
-        Args:
-            focuspoint_id: 关联的 focus_points 表的 id，可选
-            source: 关联的 sources 表的 id，可选
-            daysthreshold: 时间阈值（天），仅返回指定天数内的记录，可选
+        从 infos 表读取数据，支持筛选条件：focus_ids、source_url、start_time、end_time、per_focus_limit、limit、offset
             
         Returns:
             List[dict]: 符合条件的 infos 记录列表，每条记录为字典格式
         """
         result = []
         
-        async def _get_infos(db):
-            # 构建查询条件
-            where_conditions = []
-            params = []
-            
-            if focuspoint_id is not None:
-                where_conditions.append("focuspoint = ?")
-                params.append(focuspoint_id)
-            
-            if source is not None:
-                where_conditions.append("source = ?")
-                params.append(source)
-            
-            if daysthreshold is not None:
-                # 计算时间阈值，使用UTC时间与数据库时间戳匹配
-                threshold_time = datetime.now(timezone.utc) - timedelta(days=daysthreshold)
-                threshold_str = threshold_time.strftime('%Y-%m-%d %H:%M:%S')
-                where_conditions.append("updated >= ?")
-                params.append(threshold_str)
-            
-            # 构建完整的查询语句
-            base_query = "SELECT id, content, focuspoint, source, [references], updated FROM infos"
-            if where_conditions:
-                query = f"{base_query} WHERE {' AND '.join(where_conditions)}"
-            else:
-                query = base_query
-            
-            # 按更新时间倒序排列
-            query += " ORDER BY updated DESC"
-            
-            async with db.execute(query, params) as cursor:
-                rows = await cursor.fetchall()
-                columns = [desc[0] for desc in cursor.description]
-                
-                for row in rows:
-                    row_dict = dict(zip(columns, row))
-                    result.append(row_dict)
-        
-        try:
-            await self.execute_with_retry(_get_infos)
-            wis_logger.debug(f"Retrieved {len(result)} info records with filters: "
-                           f"focuspoint_id={focuspoint_id}, source={source}, "
-                           f"daysthreshold={daysthreshold}")
-        except Exception as e:
-            wis_logger.error(f"Error retrieving infos: {str(e)}")
-            # 在出错时返回空列表
-        
-        return result
-
-    async def add_wb_cache(self, wb_data: dict):
-        """
-        向 wb_cache 表添加一条微博记录
-        
-        Args:
-            wb_data: 微博数据字典，包含以下键值：
-                - note_id: 微博ID（会被映射为数据库中的id字段）
-                - content: 微博内容
-                - create_time: 创建时间
-                - liked_count: 点赞数
-                - comments_count: 评论数
-                - shared_count: 转发数
-                - note_url: 微博链接
-                - ip_location: IP位置
-                - user_id: 用户ID
-                - nickname: 用户昵称
-                - gender: 性别
-                - profile_url: 用户主页链接
-                - source_keyword: 来源关键词
-        """
-        if not wb_data.get('note_id'):
-            wis_logger.error("wb_data must contain 'note_id' field")
-            return
-
-        # 获取当前UTC时间戳
-        current_time = self._get_utc_timestamp()
-
-        async def _add_wb(db):
-            await db.execute("""
-                INSERT INTO wb_cache (
-                    id, content, create_time, liked_count, comments_count, 
-                    shared_count, note_url, ip_location, user_id, nickname, 
-                    gender, profile_url, source_keyword, updated
+        async def _filter_infos(db):
+            # 如果提供了 id，则忽略其他条件
+            if id is not None:
+                base_query = (
+                    "SELECT id, type, content, focus_statement, focus_id, source_url, source_title, refers, created FROM infos"
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(id) DO UPDATE SET
-                    content = excluded.content,
-                    create_time = excluded.create_time,
-                    liked_count = excluded.liked_count,
-                    comments_count = excluded.comments_count,
-                    shared_count = excluded.shared_count,
-                    note_url = excluded.note_url,
-                    ip_location = excluded.ip_location,
-                    user_id = excluded.user_id,
-                    nickname = excluded.nickname,
-                    gender = excluded.gender,
-                    profile_url = excluded.profile_url,
-                    source_keyword = excluded.source_keyword,
-                    updated = excluded.updated
-            """, (
-                wb_data.get('note_id', ''),
-                wb_data.get('content', ''),
-                wb_data.get('create_time', ''),
-                wb_data.get('liked_count', ''),
-                wb_data.get('comments_count', ''),
-                wb_data.get('shared_count', ''),
-                wb_data.get('note_url', ''),
-                wb_data.get('ip_location', ''),
-                wb_data.get('user_id', ''),
-                wb_data.get('nickname', ''),
-                wb_data.get('gender', ''),
-                wb_data.get('profile_url', ''),
-                wb_data.get('source_keyword', ''),
-                current_time
-            ))
-
-        try:
-            await self.execute_with_retry(_add_wb)
-            #wis_logger.debug(f"Successfully added/updated wb_cache for note_id: {wb_data.get('note_id')}")
-        except Exception as e:
-            wis_logger.error(f"Error adding wb_cache for note_id {wb_data.get('note_id')}: {str(e)}")
-
-    async def get_wb_cache(self, 
-                          note_id: Optional[str] = None,
-                          user_id: Optional[str] = None,
-                          source_keyword: Optional[str] = None,
-                          daysthreshold: Optional[int] = None) -> List[dict]:
-        """
-        从 wb_cache 表读取微博数据，支持可选的筛选条件
-        
-        Args:
-            note_id: 微博ID，可选
-            user_id: 用户ID，可选
-            source_keyword: 来源关键词，可选
-            daysthreshold: 时间阈值（天），仅返回指定天数内的记录，可选
-            
-        Returns:
-            List[dict]: 符合条件的微博记录列表，每条记录为字典格式
-                注意：数据库中的 id 字段会被映射为字典中的 note_id 字段
-        """
-        result = []
-        
-        async def _get_wb_cache(db):
-            # 构建查询条件
-            where_conditions = []
-            params = []
-            
-            if note_id:
-                where_conditions.append("id = ?")
-                params.append(note_id)
-            
-            if user_id:
-                where_conditions.append("user_id = ?")
-                params.append(user_id)
-            
-            if source_keyword:
-                where_conditions.append("source_keyword = ?")
-                params.append(source_keyword)
-            
-            if daysthreshold:
-                # 计算时间阈值，使用UTC时间与数据库时间戳匹配
-                threshold_time = datetime.now(timezone.utc) - timedelta(days=daysthreshold)
-                threshold_str = threshold_time.strftime('%Y-%m-%d %H:%M:%S')
-                where_conditions.append("updated >= ?")
-                params.append(threshold_str)
-            
-            # 构建完整的查询语句
-            base_query = """
-                SELECT id, content, create_time, liked_count, comments_count, 
-                       shared_count, note_url, ip_location, user_id, nickname, 
-                       gender, profile_url, source_keyword, updated 
-                FROM wb_cache
-            """
-            if where_conditions:
-                query = f"{base_query} WHERE {' AND '.join(where_conditions)}"
+                query = f"{base_query} WHERE id = ?"
+                params = [id]
             else:
-                query = base_query
-            
-            # 按更新时间倒序排列
-            query += " ORDER BY updated DESC"
-            
-            async with db.execute(query, params) as cursor:
-                rows = await cursor.fetchall()
-                columns = [desc[0] for desc in cursor.description]
+                # 构建查询条件
+                where_conditions = []
+                params = []
                 
-                for row in rows:
-                    row_dict = dict(zip(columns, row))
-                    
-                    # 将数据库中的 id 字段映射为字典中的 note_id 字段
-                    if 'id' in row_dict:
-                        row_dict['note_id'] = row_dict.pop('id')
-                    
-                    result.append(row_dict)
-        
-        try:
-            await self.execute_with_retry(_get_wb_cache)
-            wis_logger.debug(f"Retrieved {len(result)} wb_cache records with filters: "
-                            f"note_id={note_id}, user_id={user_id}, "
-                            f"source_keyword={source_keyword}, daysthreshold={daysthreshold}")
-        except Exception as e:
-            wis_logger.error(f"Error retrieving wb_cache: {str(e)}")
-            # 在出错时返回空列表
-        
-        return result
-
-    async def add_ks_cache(self, ks_data: dict):
-        """
-        向 ks_cache 表添加一条快手视频记录
-        
-        Args:
-            ks_data: 快手视频数据字典，包含以下键值：
-                - video_id: 视频ID（会被映射为数据库中的id字段）
-                - video_type: 视频类型
-                - title: 标题
-                - desc: 描述
-                - create_time: 创建时间
-                - user_id: 用户ID
-                - nickname: 用户昵称
-                - liked_count: 点赞数
-                - viewd_count: 观看数
-                - video_url: 视频链接
-                - video_play_url: 视频播放链接
-                - source_keyword: 来源关键词
-        """
-        if not ks_data.get('video_id'):
-            wis_logger.error("ks_data must contain 'video_id' field")
-            return
-
-        # 获取当前UTC时间戳
-        current_time = self._get_utc_timestamp()
-
-        async def _add_ks(db):
-            await db.execute("""
-                INSERT INTO ks_cache (
-                    id, video_type, title, desc, create_time, user_id, 
-                    nickname, liked_count, viewd_count, video_url, 
-                    video_play_url, source_keyword, updated
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(id) DO UPDATE SET
-                    video_type = excluded.video_type,
-                    title = excluded.title,
-                    desc = excluded.desc,
-                    create_time = excluded.create_time,
-                    user_id = excluded.user_id,
-                    nickname = excluded.nickname,
-                    liked_count = excluded.liked_count,
-                    viewd_count = excluded.viewd_count,
-                    video_url = excluded.video_url,
-                    video_play_url = excluded.video_play_url,
-                    source_keyword = excluded.source_keyword,
-                    updated = excluded.updated
-            """, (
-                ks_data.get('video_id', ''),
-                ks_data.get('video_type', ''),
-                ks_data.get('title', ''),
-                ks_data.get('desc', ''),
-                ks_data.get('create_time', ''),
-                ks_data.get('user_id', ''),
-                ks_data.get('nickname', ''),
-                ks_data.get('liked_count', ''),
-                ks_data.get('viewd_count', ''),
-                ks_data.get('video_url', ''),
-                ks_data.get('video_play_url', ''),
-                ks_data.get('source_keyword', ''),
-                current_time
-            ))
-
-        try:
-            await self.execute_with_retry(_add_ks)
-            # wis_logger.debug(f"Successfully added/updated ks_cache for video_id: {ks_data.get('video_id')}")
-        except Exception as e:
-            wis_logger.error(f"Error adding ks_cache for video_id {ks_data.get('video_id')}: {str(e)}")
-
-    async def get_ks_cache(self, 
-                          video_id: Optional[str] = None,
-                          user_id: Optional[str] = None,
-                          source_keyword: Optional[str] = None,
-                          daysthreshold: Optional[int] = None) -> List[dict]:
-        """
-        从 ks_cache 表读取快手视频数据，支持可选的筛选条件
-        
-        Args:
-            video_id: 视频ID，可选
-            user_id: 用户ID，可选
-            source_keyword: 来源关键词，可选
-            daysthreshold: 时间阈值（天），仅返回指定天数内的记录，可选
-            
-        Returns:
-            List[dict]: 符合条件的快手视频记录列表，每条记录为字典格式
-                注意：数据库中的 id 字段会被映射为字典中的 video_id 字段
-        """
-        result = []
-        
-        async def _get_ks_cache(db):
-            # 构建查询条件
-            where_conditions = []
-            params = []
-            
-            if video_id:
-                where_conditions.append("id = ?")
-                params.append(video_id)
-            
-            if user_id:
-                where_conditions.append("user_id = ?")
-                params.append(user_id)
-            
-            if source_keyword:
-                where_conditions.append("source_keyword = ?")
-                params.append(source_keyword)
-            
-            if daysthreshold:
-                # 计算时间阈值，使用UTC时间与数据库时间戳匹配
-                threshold_time = datetime.now(timezone.utc) - timedelta(days=daysthreshold)
-                threshold_str = threshold_time.strftime('%Y-%m-%d %H:%M:%S')
-                where_conditions.append("updated >= ?")
-                params.append(threshold_str)
-            
-            # 构建完整的查询语句
-            base_query = """
-                SELECT id, video_type, title, desc, create_time, user_id, 
-                       nickname, liked_count, viewd_count, video_url, 
-                       video_play_url, source_keyword, updated 
-                FROM ks_cache
-            """
-            if where_conditions:
-                query = f"{base_query} WHERE {' AND '.join(where_conditions)}"
-            else:
-                query = base_query
-            
-            # 按更新时间倒序排列
-            query += " ORDER BY updated DESC"
-            
-            async with db.execute(query, params) as cursor:
-                rows = await cursor.fetchall()
-                columns = [desc[0] for desc in cursor.description]
+                # 批量 focus 过滤
+                if focus_ids:
+                    placeholders = ','.join(['?'] * len(focus_ids))
+                    where_conditions.append(f"focus_id IN ({placeholders})")
+                    params.extend([int(x) for x in focus_ids])
                 
-                for row in rows:
-                    row_dict = dict(zip(columns, row))
-                    
-                    # 将数据库中的 id 字段映射为字典中的 video_id 字段
-                    if 'id' in row_dict:
-                        row_dict['video_id'] = row_dict.pop('id')
-                    
-                    result.append(row_dict)
+                if source_url is not None:
+                    where_conditions.append("source_url = ?")
+                    params.append(source_url)
+
+                # start_time / end_time 区间过滤（ISO8601 字符串，含 Z）
+                if start_time:
+                    try:
+                        _ = datetime.fromisoformat(start_time.replace('Z', ''))
+                        where_conditions.append("created >= ?")
+                        params.append(start_time)
+                    except Exception:
+                        self.logger.warning(f"Invalid start_time: {start_time}")
+                        pass
+                if end_time:
+                    try:
+                        _ = datetime.fromisoformat(end_time.replace('Z', ''))
+                        where_conditions.append("created <= ?")
+                        params.append(end_time)
+                    except Exception:
+                        self.logger.warning(f"Invalid end_time: {end_time}")
+                        pass
+                
+                # 列集合
+                columns = "id, type, content, focus_statement, focus_id, source_url, source_title, refers, created"
+                base_query = f"SELECT {columns} FROM infos"
+
+                # 若需要按 focus_id 进行每组限制，优先尝试使用窗口函数
+                if per_focus_limit is not None and per_focus_limit > 0 and focus_ids:
+                    where_sql = f" WHERE {' AND '.join(where_conditions)}" if where_conditions else ""
+                    window_query = (
+                        f"SELECT {columns} FROM ("
+                        f"  SELECT {columns}, ROW_NUMBER() OVER (PARTITION BY focus_id ORDER BY created DESC) AS rn"
+                        f"  FROM infos{where_sql}"
+                        f") t WHERE rn <= ? ORDER BY created DESC"
+                    )
+                    try:
+                        async with db.execute(window_query, params + [int(per_focus_limit)]) as cursor:
+                            rows = await cursor.fetchall()
+                            colnames = [desc[0] for desc in cursor.description]
+                            for row in rows:
+                                result.append(dict(zip(colnames, row)))
+                        return  # early return via outer try; result consumed below
+                    except Exception as e:
+                        # 窗口函数不可用或其他失败，回退到应用层分组逻辑
+                        pass
+
+                # 常规路径：构建完整查询并可选分页
+                if where_conditions:
+                    query = f"{base_query} WHERE {' AND '.join(where_conditions)}"
+                else:
+                    query = base_query
+
+                # 排序与分页（按 created 倒序）
+                query += " ORDER BY created DESC"
+
+                # 若未指定每组限制，则可以使用总量 limit/offset 进行分页
+                if not focus_ids and limit is not None:
+                    if offset is None:
+                        offset_val = 0
+                    else:
+                        offset_val = int(offset)
+                    query += " LIMIT ? OFFSET ?"
+                    exec_params = params + [int(limit), offset_val]
+                else:
+                    exec_params = params
+
+                # 执行查询
+                async with db.execute(query, exec_params) as cursor:
+                    # 如果需要每组限制但没有窗口函数支持，则在应用层过滤
+                    if per_focus_limit is not None and per_focus_limit > 0 and focus_ids:
+                        per_focus_counts: dict[int, int] = {int(fid): 0 for fid in focus_ids}
+                        colnames = [desc[0] for desc in cursor.description]
+                        async for row in cursor:
+                            row_dict = dict(zip(colnames, row))
+                            fid = int(row_dict.get('focus_id')) if row_dict.get('focus_id') is not None else None
+                            if fid is None or fid not in per_focus_counts:
+                                continue
+                            if per_focus_counts[fid] < int(per_focus_limit):
+                                result.append(row_dict)
+                                per_focus_counts[fid] += 1
+                                # 若所有 focus 均已达到上限，则可提前结束
+                                if all(c >= int(per_focus_limit) for c in per_focus_counts.values()):
+                                    break
+                    else:
+                        rows = await cursor.fetchall()
+                        colnames = [desc[0] for desc in cursor.description]
+                        for row in rows:
+                            result.append(dict(zip(colnames, row)))
         
         try:
-            await self.execute_with_retry(_get_ks_cache)
-            wis_logger.debug(f"Retrieved {len(result)} ks_cache records with filters: "
-                            f"video_id={video_id}, user_id={user_id}, "
-                            f"source_keyword={source_keyword}, daysthreshold={daysthreshold}")
+            await self.execute_with_retry(_filter_infos)
         except Exception as e:
-            wis_logger.error(f"Error retrieving ks_cache: {str(e)}")
-            # 在出错时返回空列表
-        
-        return result
-
-    async def _get_table_schema_info(self, table_name: str) -> Optional[dict]:
-        """
-        获取表的结构信息（内部函数）
-        
-        Args:
-            table_name: 表名称
-            
-        Returns:
-            Optional[dict]: 包含表信息的字典，格式为:
-                {
-                    'exists': bool,  # 表是否存在
-                    'columns': dict  # 字段名到类型的映射 {field_name: field_type}
-                }
-                如果获取失败则返回None
-        """
-        if not table_name:
+            self.logger.error(f"Error filtering infos: {str(e)}")
             return None
+        
+        return result
+
+    async def delete_info(self, info_id: str) -> Optional[str]:
+        """
+        根据 id 删除指定的 info 记录
+        
+        Args:
+            info_id: 要删除的 info 记录的 id
             
-        async def _get_schema_info(db):
-            # 1. 检查表是否存在
-            async with db.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' AND name=?", 
-                (table_name,)
-            ) as cursor:
-                table_exists = await cursor.fetchone() is not None
+        """
+        if not info_id:
+            self.logger.warning("Info ID cannot be empty")
+            return None
+
+        async def _delete(db):
+            await db.execute("DELETE FROM infos WHERE id = ?", (info_id,))
+
+        try:
+            await self.execute_with_retry(_delete)
+            self.logger.debug(f"Successfully deleted info with id: {info_id}")
+            return info_id
+        except Exception as e:
+            self.logger.error(f"Error deleting info {info_id}: {str(e)}")
+            return None
+
+    async def count_infos_by_focus(self, focus_id: Optional[int] = None) -> Dict[int, int]:
+        """
+        统计 infos 数量，按 focus_id 分组
+        
+        Args:
+            focus_id: 可选的 focus_id，如果提供则只统计该 focus_id 的数量
             
-            if not table_exists:
-                return {'exists': False, 'columns': {}}
-            
-            # 2. 获取表的字段信息
-            async with db.execute(f"PRAGMA table_info({table_name})") as cursor:
-                columns_info = await cursor.fetchall()
-            
-            if not columns_info:
-                return {'exists': True, 'columns': {}}
-            
-            # 构建字段名到类型的映射
-            columns = {col_info[1]: col_info[2].upper() for col_info in columns_info}
-            
-            return {'exists': True, 'columns': columns}
+        Returns:
+            Dict[int, int]: 字典，key 为 focus_id，value 为该 focus_id 的 infos 数量
+        """
+        result = {}
+        
+        async def _count(db):
+            if focus_id is not None:
+                # 只统计指定的 focus_id
+                async with db.execute(
+                    "SELECT focus_id, COUNT(*) as count FROM infos WHERE focus_id = ? GROUP BY focus_id",
+                    (focus_id,)
+                ) as cursor:
+                    async for row in cursor:
+                        fid = row[0]
+                        count = row[1]
+                        if fid is not None:
+                            result[int(fid)] = int(count)
+            else:
+                # 统计所有 focus_id
+                async with db.execute(
+                    "SELECT focus_id, COUNT(*) as count FROM infos GROUP BY focus_id"
+                ) as cursor:
+                    async for row in cursor:
+                        fid = row[0]
+                        count = row[1]
+                        if fid is not None:
+                            result[int(fid)] = int(count)
         
         try:
-            return await self.execute_with_retry(_get_schema_info)
+            await self.execute_with_retry(_count)
+            return result
         except Exception as e:
-            wis_logger.warning(f"Error retrieving schema info for table '{table_name}': {str(e)}")
+            self.logger.error(f"Error counting infos by focus: {str(e)}")
+            return {}
+    
+    # ---------------------- tasks CRUD ----------------------
+    def _validate_task_inputs(self, search: list | None, sources: list | None, time_slots: list | None) -> str | None:
+        """校验任务字段值是否合法，非法返回错误信息字符串，合法返回 None"""
+        # search 校验
+        if search is not None:
+            if not isinstance(search, list) or any(not isinstance(s, str) for s in search):
+                return "search 必须为字符串列表"
+            for s in search:
+                if s not in self.ALLOWED_SEARCH:
+                    return f"search 包含非法值: {s}"
+
+        # sources 校验
+        if sources is not None:
+            if not isinstance(sources, list):
+                return "sources 必须为列表"
+            for src in sources:
+                if not isinstance(src, dict):
+                    return "sources 列表元素必须为对象"
+                src_type = src.get('type')
+                if src_type not in self.ALLOWED_SOURCE_TYPES:
+                    return f"sources.type 非法: {src_type}"
+                if 'detail' not in src:
+                    return "sources 每项必须包含 detail 字段"
+                detail = src.get('detail')
+                if not isinstance(detail, list):
+                    return "sources.detail 必须为列表"
+                if any(not isinstance(item, str) for item in detail):
+                    return "sources.detail 列表元素必须为字符串"
+
+        # time_slots 校验
+        if time_slots is not None:
+            if not isinstance(time_slots, list) or any(not isinstance(t, str) for t in time_slots):
+                return "time_slots 必须为字符串列表"
+            for t in time_slots:
+                if t not in self.ALLOWED_TIME_SLOTS:
+                    return f"time_slots 包含非法值: {t}"
+
+        return None
+    
+    def _process_web_sources(self, sources: list) -> list:
+        """
+        处理 sources 列表：
+        - 对于所有类型，合并相同 type 的 source，detail 列表去重
+        - 对于 type 为 'web' 或 'rss' 的条目，先对 detail 列表中的每一项使用 extract_urls 拆分，然后将所有拆分出的 URL 合并
+        
+        Args:
+            sources: 原始 sources 列表，每个 source 的 detail 字段为字符串列表
+            
+        Returns:
+            处理后的 sources 列表，detail 字段始终为列表格式
+        """
+        if not sources:
+            return sources or []
+            
+        from core.wis.utils import extract_urls
+        
+        # 用于合并相同 type 的 source
+        merged_sources = {}
+        
+        for source in sources:
+            if not isinstance(source, dict):
+                continue
+                
+            source_type = source.get('type')
+            detail = source.get('detail', [])
+
+            if not source_type or not detail:
+                continue
+            
+            # 确保 detail 是list[str]
+            if isinstance(detail, list):
+                pass
+            elif isinstance(detail, str):
+                detail = [detail]
+            else:
+                continue
+            
+            # 初始化合并的 source
+            if source_type not in merged_sources:
+                merged_sources[source_type] = {
+                    'type': source_type,
+                    'detail': []
+                }
+            
+            if source_type in ['web', 'rss']:
+                # 对于 web 和 rss 类型，先对 detail 列表中的每一项使用 extract_urls 拆分
+                for d in detail:
+                    if not isinstance(d, str) or not d.strip():
+                        continue
+                    # 使用 extract_urls 解析 URL
+                    extracted_urls = extract_urls(d)
+                    if extracted_urls:
+                        # 将拆分出的 URL 添加到合并列表中并去重
+                        for url in extracted_urls:
+                            url_stripped = url.strip()
+                            if url_stripped and url_stripped not in merged_sources[source_type]['detail']:
+                                merged_sources[source_type]['detail'].append(url_stripped)
+            else:
+                # 对于其他类型，直接添加 detail 项并去重
+                for item in detail:
+                    if isinstance(item, str) and item.strip():
+                        item_stripped = item.strip()
+                        # if item_stripped not in ['?', '？'] and len(item_stripped) < 3:
+                        #    continue
+                        if item_stripped not in merged_sources[source_type]['detail']:
+                            merged_sources[source_type]['detail'].append(item_stripped)
+        
+        # 返回合并后的 sources 列表
+        return list(merged_sources.values())
+
+    def _is_focus_payload_empty(self, focus: dict) -> bool:
+        """
+        判断 focus 是否需要被忽略：仅当 focuspoint/restrictions/role/purpose
+        这四个字段全部为空字符串或缺失时视为“空 focus”
+        """
+        focus_fields = ('focuspoint', 'restrictions', 'role', 'purpose')
+        for field in focus_fields:
+            value = focus.get(field)
+            if isinstance(value, str):
+                if value.strip():
+                    return False
+            elif value not in (None, ''):
+                return False
+
+        return True
+
+    async def add_task(self,
+                       focuses: list = None,
+                       search: list = None,
+                       sources: list = None,
+                       activated: bool = True,
+                       time_slots: list = None,
+                       title: str = "",
+                       status: int = 0,
+                       errors: set = None) -> Optional[int]:
+        """  
+        新增一条 task，返回生成的 id
+        
+        Args:
+            focuses: focus 列表，每个元素可以是：
+                    - dict: 包含 focuspoint, restrictions, explanation, role, purpose, custom_schema，会创建新的 focus 记录
+                    - int: 现有的 focus id
+        """
+        # 字段校验（先于任何数据库写入）
+        error_msg = self._validate_task_inputs(
+            search=search or [],
+            sources=sources or [],
+            time_slots=time_slots or []
+        )
+        if error_msg:
+            self.logger.warning(f"add_task 参数非法: {error_msg}")
+            return None
+
+        now = self._get_utc_timestamp()
+        
+        # 处理 focuses 参数：为 dict 类型的 focus 创建记录，获取 focus_ids
+        focus_ids = set()
+        if focuses:
+            for focus_item in focuses:
+                if isinstance(focus_item, dict):
+                    if self._is_focus_payload_empty(focus_item):
+                        continue
+                    # 如果是 dict，创建新的 focus 记录
+                    focus_id = await self.create_or_update_focus(
+                        focuspoint=focus_item.get('focuspoint', ''),
+                        restrictions=focus_item.get('restrictions', ''),
+                        explanation=focus_item.get('explanation', ''),
+                        role=focus_item.get('role', ''),
+                        purpose=focus_item.get('purpose', ''),
+                        custom_schema=focus_item.get('custom_schema', '')
+                    )
+                    if focus_id:
+                        focus_ids.add(focus_id)
+                elif isinstance(focus_item, int):
+                    # 如果是 int，直接使用现有的 focus id
+                    focus_ids.add(focus_item)
+                else:
+                    self.logger.warning(f"Invalid focus item type: {type(focus_item)}, expected dict or int")
+        
+        # 处理 sources: 对 type 为 'web' 的条目使用 extract_urls 处理
+        processed_sources = self._process_web_sources(sources)
+        
+        # 处理 error_msg: 如果是 set 类型，用 "|" 拼接成字符串
+        errors_str = ""
+        if errors:
+            errors_str = "|".join(str(item) for item in errors)
+        
+        async def _add(db):
+            cursor = await db.execute(
+                """
+                INSERT INTO tasks (focuses, search, sources, activated, time_slots, title, status, errors, updated)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    self._serialize_json(list(focus_ids), default_as_list=True),  # 存储 focus_ids 而不是原始 focuses
+                    self._serialize_json(search or [], default_as_list=True),
+                    self._serialize_json(processed_sources, default_as_list=True),
+                    1 if activated else 0,
+                    self._serialize_json(time_slots or [], default_as_list=True),
+                    (title or "").strip(),
+                    status or 0,
+                    errors_str,
+                    now,
+                ),
+            )
+            return cursor.lastrowid
+
+        try:
+            return await self.execute_with_retry(_add)
+        except Exception as e:
+            self.logger.error(f"Error adding task: {e}")
+            return None
+
+    async def list_tasks(self, only_activated: bool = False) -> List[dict]:
+        result: List[dict] = []
+
+        async def _list(db):
+            base = "SELECT id, focuses, search, sources, activated, time_slots, title, status, errors, updated FROM tasks"
+            query = base + (" WHERE activated = 1" if only_activated else "") + " ORDER BY id DESC"
+            async with db.execute(query) as cursor:
+                rows = await cursor.fetchall()
+                cols = [d[0] for d in cursor.description]
+                for r in rows:
+                    item = dict(zip(cols, r))
+                    # 反序列化 JSON 字段
+                    focus_ids = self._deserialize_json(item.get('focuses', '[]'), default_as_list=True)
+                    item['search'] = self._deserialize_json(item.get('search', '[]'), default_as_list=True)
+                    sources = self._deserialize_json(item.get('sources', '[]'), default_as_list=True)
+                    item['time_slots'] = self._deserialize_json(item.get('time_slots', '[]'), default_as_list=True)
+                    
+                    # 规范化 sources：确保每个 source 的 detail 是列表格式（兼容旧数据）
+                    normalized_sources = []
+                    for src in sources:
+                        if not isinstance(src, dict):
+                            continue
+                        normalized_src = src.copy()
+                        detail = src.get('detail', [])
+                        # 如果是字符串，转换为列表；如果已经是列表，保持不变
+                        if isinstance(detail, str):
+                            normalized_src['detail'] = [detail] if detail else []
+                        elif not isinstance(detail, list):
+                            normalized_src['detail'] = []
+                        else:
+                            normalized_src['detail'] = detail
+                        normalized_sources.append(normalized_src)
+                    item['sources'] = normalized_sources
+                    
+                    # 转换布尔值字段
+                    item['activated'] = bool(item.get('activated', 1))
+                    
+                    # 处理 errors：用 '|' split 并转为 set
+                    errors = item.get('errors', '') or ''
+                    if errors:
+                        item['errors'] = errors.split('|')
+                    else:
+                        item['errors'] = []
+                    
+                    # 关联读取 focus 信息
+                    if focus_ids:      
+                        item['focuses'] = await self.get_focuses_by_ids(focus_ids)
+                    else:
+                        item['focuses'] = []
+                    
+                    result.append(item)
+
+        try:
+            await self.execute_with_retry(_list)
+        except Exception as e:
+            self.logger.error(f"Error listing tasks: {e}")
+            return None
+        return result
+
+    async def update_task(self, task_id: int, **fields) -> Optional[int]:
+        """
+        更新 task，自动刷新 updated。支持的字段：focuses, search, sources, activated, time_slots, status, errors
+        
+        Args:
+            focuses: focus 列表，每个元素可以是：
+                    - dict: 包含 focuspoint, restrictions, explanation, role, purpose, custom_schema，会创建新的 focus 记录
+                    - int: 现有的 focus id
+            errors: 错误信息集合，set 类型
+        """
+        if not task_id:
+            return None
+        allowed = {"focuses", "search", "sources", "activated", "time_slots", "title", "status", "errors", "updated"}
+        updates = {}
+        
+        # 仅校验用户传入的字段
+        validation_error = self._validate_task_inputs(
+            search=fields.get('search', None),
+            sources=fields.get('sources', None),
+            time_slots=fields.get('time_slots', None)
+        )
+        if validation_error:
+            self.logger.warning(f"update_task 参数非法: {validation_error}")
+            return None
+
+        # 检查是否传入了 error_msg，如果没有则清空错误并重置状态
+        if 'errors' not in fields:
+            updates['errors'] = ""
+            updates['status'] = 0
+        
+        for k, v in fields.items():
+            if k not in allowed:
+                continue
+                
+            if k == "focuses":
+                # 特殊处理 focuses 字段
+                focus_ids = set()
+                if v:
+                    for focus_item in v:
+                        if isinstance(focus_item, dict):
+                            if self._is_focus_payload_empty(focus_item):
+                                continue
+                            # 如果是 dict，创建新的 focus 记录
+                            focus_id = await self.create_or_update_focus(
+                                focuspoint=focus_item.get('focuspoint', ''),
+                                restrictions=focus_item.get('restrictions', ''),
+                                explanation=focus_item.get('explanation', ''),
+                                role=focus_item.get('role', ''),
+                                purpose=focus_item.get('purpose', ''),
+                                custom_schema=focus_item.get('custom_schema', '')
+                            )
+                            if focus_id:
+                                focus_ids.add(focus_id)
+                        elif isinstance(focus_item, int):
+                            # 如果是 int，直接使用现有的 focus id
+                            focus_ids.add(focus_item)
+                        else:
+                            self.logger.warning(f"Invalid focus item type: {type(focus_item)}, expected dict or int")
+                updates[k] = self._serialize_json(list(focus_ids), default_as_list=True)
+            elif k == "sources":
+                # 特殊处理 sources 字段：对 type 为 'web' 的条目使用 extract_urls 处理
+                processed_sources = self._process_web_sources(v)
+                updates[k] = self._serialize_json(processed_sources, default_as_list=True)
+            elif k in {"search", "time_slots"}:
+                updates[k] = self._serialize_json(v or [], default_as_list=True)
+            elif k == "activated":
+                updates[k] = 1 if v else 0
+            elif k == "errors":
+                # 处理 error_msg: 如果是 set 类型，用 "|" 拼接成字符串
+                if v:
+                    updates['errors'] = "|".join(str(item) for item in v)
+                else:
+                    updates['errors'] = ""
+                    updates['status'] = 0
+            else:
+                updates[k] = v
+
+        # 如果传入了 errors 但没有传入 status，则不自动重置 status
+        # 只有当完全没有传入 errors 时才会清空错误并重置状态（在开头已经处理）
+
+        if not updates:
+            return task_id
+
+        set_clause = ", ".join([f"{k} = ?" for k in updates.keys()])
+        params = list(updates.values()) + [task_id]
+
+        async def _upd(db):
+            await db.execute(f"UPDATE tasks SET {set_clause} WHERE id = ?", params)
+
+        try:
+            await self.execute_with_retry(_upd)
+            return task_id
+        except Exception as e:
+            self.logger.error(f"Error updating task {task_id}: {e}")
+            return None
+
+    async def delete_task(self, task_id: int) -> Optional[int]:
+        if not task_id:
+            return None
+
+        async def _del(db):
+            await db.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
+
+        try:
+            await self.execute_with_retry(_del)
+            return task_id
+        except Exception as e:
+            self.logger.error(f"Error deleting task {task_id}: {e}")
+            return None
+
+    async def clear_task_error(self, task_id: int) -> Optional[int]:
+        """
+        清除指定 task 的错误信息并将状态重置为正常
+        
+        Args:
+            task_id: task 的 id
+            
+        Returns:
+            bool: 操作是否成功
+        """
+        if not task_id:
+            return None
+
+        async def _clear_error(db):
+            await db.execute(
+                "UPDATE tasks SET errors = ?, status = ?, updated = ? WHERE id = ?",
+                ("", 0, self._get_utc_timestamp(), task_id)
+            )
+
+        try:
+            await self.execute_with_retry(_clear_error)
+            self.logger.debug(f"Successfully cleared error for task {task_id}")
+            return task_id
+        except Exception as e:
+            self.logger.error(f"Error clearing task error for {task_id}: {e}")
+            return None
+
+    # ---------------------- local_proxies CRUD ----------------------
+    async def add_local_proxy(self, ip: str, port: int, user: str = '', password: str = '', life_time: int = 0, apply_to: Optional[List[str]] = None) -> Optional[int]:
+        """新增一条本地代理记录，返回自增id"""
+        now = self._get_utc_timestamp()
+        async def _add(db):
+            cursor = await db.execute(
+                """
+                INSERT INTO local_proxies (ip, port, user, password, life_time, apply_to, updated)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (ip, port, user or '', password or '', life_time or 0, self._serialize_json(apply_to or [], default_as_list=True), now),
+            )
+            return cursor.lastrowid
+
+        try:
+            return await self.execute_with_retry(_add)
+        except Exception as e:
+            self.logger.error(f"Error adding local proxy: {e}")
+            return None
+
+    async def list_local_proxies(self) -> List[dict]:
+        """获取所有本地代理记录"""
+        result: List[dict] = []
+
+        async def _list(db):
+            async with db.execute("SELECT id, ip, port, user, password, life_time, apply_to, updated FROM local_proxies ORDER BY updated DESC") as cursor:
+                rows = await cursor.fetchall()
+                cols = [d[0] for d in cursor.description]
+                for r in rows:
+                    item = dict(zip(cols, r))
+                    item['apply_to'] = self._deserialize_json(item.get('apply_to', '[]'), default_as_list=True)
+                    result.append(item)
+
+        try:
+            await self.execute_with_retry(_list)
+        except Exception as e:
+            self.logger.error(f"Error listing local proxies: {e}")
+            return None
+        return result
+
+    async def update_local_proxy(self, proxy_id: int, **fields) -> Optional[int]:
+        """按需更新本地代理字段: 支持 ip, port, user, password, life_time"""
+        allowed = {'ip', 'port', 'user', 'password', 'life_time', 'apply_to'}
+        to_update = {k: v for k, v in fields.items() if k in allowed}
+        if not to_update:
+            return None
+
+        if 'apply_to' in to_update:
+            to_update['apply_to'] = self._serialize_json(to_update['apply_to'] or [], default_as_list=True)
+
+        set_clause = ', '.join([f"{k} = ?" for k in to_update.keys()]) + ", updated = ?"
+        params = list(to_update.values()) + [self._get_utc_timestamp(), proxy_id]
+
+        async def _upd(db):
+            await db.execute(f"UPDATE local_proxies SET {set_clause} WHERE id = ?", params)
+
+        try:
+            await self.execute_with_retry(_upd)
+            return proxy_id
+        except Exception as e:
+            self.logger.error(f"Error updating local proxy {proxy_id}: {e}")
+            return None
+
+    async def delete_local_proxy(self, proxy_id: int) -> Optional[int]:
+        """删除指定 id 的本地代理记录"""
+        async def _del(db):
+            await db.execute("DELETE FROM local_proxies WHERE id = ?", (proxy_id,))
+
+        try:
+            await self.execute_with_retry(_del)
+            return proxy_id
+        except Exception as e:
+            self.logger.error(f"Error deleting local proxy {proxy_id}: {e}")
+            return None
+
+    # ----------------------- kdl_proxies CRUD -----------------------
+    async def add_kdl_proxy(self, SECERT_ID: str, SIGNATURE: str, USER_NAME: str, USER_PWD: str, apply_to: Optional[List[str]] = None) -> Optional[int]:
+        """新增一条快代理配置，返回自增id"""
+        now = self._get_utc_timestamp()
+        async def _add(db):
+            cursor = await db.execute(
+                """
+                INSERT INTO kdl_proxies (SECERT_ID, SIGNATURE, USER_NAME, USER_PWD, apply_to, updated)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (SECERT_ID or '', SIGNATURE or '', USER_NAME or '', USER_PWD or '', self._serialize_json(apply_to or [], default_as_list=True), now),
+            )
+            return cursor.lastrowid
+
+        try:
+            return await self.execute_with_retry(_add)
+        except Exception as e:
+            self.logger.error(f"Error adding kdl proxy: {e}")
+            return None
+
+    async def list_kdl_proxies(self) -> List[dict]:
+        """获取所有快代理配置"""
+        result: List[dict] = []
+
+        async def _list(db):
+            async with db.execute("SELECT id, SECERT_ID, SIGNATURE, USER_NAME, USER_PWD, apply_to, updated FROM kdl_proxies ORDER BY updated DESC") as cursor:
+                rows = await cursor.fetchall()
+                cols = [d[0] for d in cursor.description]
+                for r in rows:
+                    item = dict(zip(cols, r))
+                    item['apply_to'] = self._deserialize_json(item.get('apply_to', '[]'), default_as_list=True)
+                    result.append(item)
+
+        try:
+            await self.execute_with_retry(_list)
+        except Exception as e:
+            self.logger.error(f"Error listing kdl proxies: {e}")
+            return None
+        return result
+
+    async def update_kdl_proxy(self, proxy_id: int, **fields) -> Optional[int]:
+        """按需更新快代理字段: 支持 SECERT_ID, SIGNATURE, USER_NAME, USER_PWD"""
+        allowed = {'SECERT_ID', 'SIGNATURE', 'USER_NAME', 'USER_PWD', 'apply_to'}
+        to_update = {k: v for k, v in fields.items() if k in allowed}
+        if not to_update:
+            return None
+
+        if 'apply_to' in to_update:
+            to_update['apply_to'] = self._serialize_json(to_update['apply_to'] or [], default_as_list=True)
+
+        set_clause = ', '.join([f"{k} = ?" for k in to_update.keys()]) + ", updated = ?"
+        params = list(to_update.values()) + [self._get_utc_timestamp(), proxy_id]
+
+        async def _upd(db):
+            await db.execute(f"UPDATE kdl_proxies SET {set_clause} WHERE id = ?", params)
+
+        try:
+            await self.execute_with_retry(_upd)
+            return proxy_id
+        except Exception as e:
+            self.logger.error(f"Error updating kdl proxy {proxy_id}: {e}")
+            return None
+
+    async def delete_kdl_proxy(self, proxy_id: int) -> Optional[int]:
+        """删除指定 id 的快代理配置"""
+        async def _del(db):
+            await db.execute("DELETE FROM kdl_proxies WHERE id = ?", (proxy_id,))
+
+        try:
+            await self.execute_with_retry(_del)
+            return proxy_id
+        except Exception as e:
+            self.logger.error(f"Error deleting kdl proxy {proxy_id}: {e}")
             return None
 
     async def _add_missing_columns(self, table_name: str, columns: dict) -> dict:
@@ -1322,199 +1338,109 @@ CREATE TABLE IF NOT EXISTS {table_name} (
                     try:
                         await db.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} TEXT")
                         updated_columns[column_name] = 'TEXT'
-                        wis_logger.info(f"Added column '{column_name}' to table '{table_name}'")
+                        self.logger.info(f"Added column '{column_name}' to table '{table_name}'")
                     except Exception as e:
-                        wis_logger.warning(f"Failed to add column '{column_name}' to table '{table_name}': {str(e)}")
+                        self.logger.warning(f"Failed to add column '{column_name}' to table '{table_name}': {str(e)}")
             
             try:
                 await self.execute_with_retry(_add_columns)
             except Exception as e:
-                wis_logger.warning(f"Error adding missing columns to table '{table_name}': {str(e)}")
+                self.logger.warning(f"Error adding missing columns to table '{table_name}': {str(e)}")
         
         return updated_columns
 
-    async def get_custom_table_schema(self, table_name: str) -> Optional[dict]:
-        """
-        获取自定义表的字段结构和第一行数据
-        
-        Args:
-            table_name: 表名称
-            
-        Returns:
-            Optional[dict]: 字段名到第一行值的映射字典，如果表不存在或读取失败则返回None
-                           key是字段名称，value是该字段对应的第一行值，没有值则为空字符串
-                           不包含 focuspoint、source、id、created、updated 字段
-        """
-        if not table_name:
-            wis_logger.warning("Table name cannot be empty")
+    # ---------------------- mc_backup_accounts CRUD ----------------------
+    async def add_mc_backup_account(self, platform_name: str, cookies: str) -> Optional[int]:
+        """新增一条 mc_backup_accounts 记录，返回自增id"""
+        if not platform_name or not cookies:
+            self.logger.warning("platform_name and cookies cannot be empty")
             return None
-        
-        # 使用共用的表结构信息获取函数
-        schema_info = await self._get_table_schema_info(table_name)
-        if not schema_info or not schema_info['exists']:
-            wis_logger.warning(f"Table '{table_name}' does not exist")
-            return None
-        
-        columns = schema_info['columns']
-        if not columns:
-            wis_logger.warning(f"Failed to get column information for table '{table_name}'")
-            return None
-        
-        # 检查并添加缺失的 focuspoint 和 source 字段
-        # pb 好像无效，先注释掉
-        # columns = await self._add_missing_columns(table_name, columns)
-        
-        # 定义要排除的字段
-        excluded_fields = {'focuspoint', 'source', 'id', 'created', 'updated'}
-        
-        # 获取第一行数据
-        async def _get_first_row(db):
-            first_row_values = {}
-            try:
-                async with db.execute(f"SELECT * FROM {table_name} LIMIT 1") as cursor:
-                    first_row = await cursor.fetchone()
-                    
-                    if first_row:
-                        # 将第一行的值与字段名对应
-                        column_names = list(columns.keys())
-                        for i, column_name in enumerate(column_names):
-                            # 跳过排除的字段
-                            if column_name in excluded_fields:
-                                continue
-                            # 将值转换为字符串，None值转为空字符串
-                            value = first_row[i] if first_row[i] is not None else ''
-                            first_row_values[column_name] = str(value)
-                    else:
-                        # 没有数据行，所有字段值设为空字符串（排除指定字段）
-                        for column_name in columns.keys():
-                            if column_name not in excluded_fields:
-                                first_row_values[column_name] = ''
-                            
-            except Exception as e:
-                wis_logger.warning(f"Failed to fetch first row from table '{table_name}': {str(e)}")
-                # 即使获取第一行失败，也返回字段结构，值设为空字符串（排除指定字段）
-                for column_name in columns.keys():
-                    if column_name not in excluded_fields:
-                        first_row_values[column_name] = ''
             
-            return first_row_values
+        now = self._get_utc_timestamp()
         
-        try:
-            result = await self.execute_with_retry(_get_first_row)
-            if result:
-                wis_logger.debug(f"Successfully retrieved schema for table '{table_name}' with {len(result)} columns (excluding {excluded_fields})")
-            return result
-        except Exception as e:
-            wis_logger.warning(f"Error retrieving schema for table '{table_name}': {str(e)}")
-            return None
-
-    async def add_custom_info(self, custom_table: str, focuspoint_id: str, source: str, info: dict):
-        """
-        向自定义表添加信息记录
-        
-        Args:
-            custom_table: 自定义表名
-            focuspoint_id: 焦点ID
-            source: 源ID  
-            info: 要插入的信息字典
-        """
-        if not custom_table:
-            wis_logger.error("Custom table name cannot be empty")
-            return
+        async def _add(db):
+            now_str = datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')
+            account_name = f"{platform_name}_{now_str}"
             
-        if not info:
-            wis_logger.warning(f"Info dict is empty for custom table '{custom_table}'")
-            return
-
-        # 1. 使用共用函数获取表结构信息
-        schema_info = await self._get_table_schema_info(custom_table)
-        if not schema_info:
-            wis_logger.error(f"Error getting schema info for table '{custom_table}'")
-            return
-            
-        if not schema_info['exists']:
-            wis_logger.error(f"Custom table '{custom_table}' does not exist in database")
-            return
-            
-        table_columns = schema_info['columns']
-        if not table_columns:
-            wis_logger.error(f"Failed to get column information for table '{custom_table}'")
-            return
-
-        # 2. 检查字段差异并记录警告
-        table_fields = set(table_columns.keys())
-        info_fields = set(info.keys())
-        
-        missing_in_table = info_fields - table_fields
-        if missing_in_table:
-            wis_logger.warning(f"Table '{custom_table}' missing fields from info: {missing_in_table}")
-        
-        missing_in_info = table_fields - info_fields - {'focuspoint', 'source', 'updated', 'id', 'created'}
-        if missing_in_info:
-            wis_logger.warning(f"Info missing fields present in table '{custom_table}': {missing_in_info}")
-
-        # 3. 准备数据进行插入
-        insert_data = {}
-        current_time = self._get_utc_timestamp()
-        
-        # 添加特殊字段
-        if 'focuspoint' in table_columns:
-            insert_data['focuspoint'] = focuspoint_id
-        if 'source' in table_columns:
-            insert_data['source'] = source
-        if 'updated' in table_columns:
-            insert_data['updated'] = current_time
-        if 'created' in table_columns:
-            insert_data['created'] = current_time
-
-        insert_data['id'] = self._generate_id()
-
-        # 处理info中的字段
-        for field_name, field_value in info.items():
-            if field_name not in table_columns:
-                continue  # 跳过表中不存在的字段
-                
-            # 获取表中字段的类型
-            field_type = table_columns[field_name]
-            
-            # 处理空值情况
-            if field_value is None or field_value == '':
-                insert_data[field_name] = ''
-                continue
-            
-            # 尝试类型转换
-            try:
-                converted_value = self._convert_value_to_type(field_value, field_type)
-                insert_data[field_name] = converted_value
-            except Exception as e:
-                wis_logger.warning(f"Failed to convert value '{field_value}' to type '{field_type}' for field '{field_name}' in table '{custom_table}': {str(e)}")
-                # 转换失败则舍弃这个值
-                continue
-
-        # 为表中存在但info中没有的字段设置空值
-        for field_name in table_columns:
-            if field_name not in insert_data:
-                insert_data[field_name] = ''
-
-        # 4. 执行插入操作
-        async def _insert_custom_info(db):
-            if not insert_data:
-                wis_logger.warning(f"No valid data to insert into table '{custom_table}'")
-                return
-                
-            fields = list(insert_data.keys())
-            placeholders = ', '.join(['?' for _ in fields])
-            field_names = ', '.join(fields)
-            values = [insert_data[field] for field in fields]
-            
-            query = f"INSERT INTO {custom_table} ({field_names}) VALUES ({placeholders})"
-            await db.execute(query, values)
+            cursor = await db.execute(
+                """
+                INSERT INTO mc_backup_accounts (platform_name, account_name, cookies, updated)
+                VALUES (?, ?, ?, ?)
+                """,
+                (platform_name, account_name, cookies, now),
+            )
+            return cursor.lastrowid
 
         try:
-            await self.execute_with_retry(_insert_custom_info)
-            wis_logger.debug(f"Successfully added info to custom table '{custom_table}' for focuspoint '{focuspoint_id}'")
+            return await self.execute_with_retry(_add)
         except Exception as e:
-            wis_logger.error(f"Error adding info to custom table '{custom_table}': {str(e)}")
+            self.logger.error(f"Error adding mc_backup_account: {e}")
+            return None
+
+    async def list_mc_backup_accounts(self, platform_name: Optional[str] = None) -> List[dict]:
+        """获取 mc_backup_accounts 记录，可按平台过滤"""
+        result: List[dict] = []
+
+        async def _list(db):
+            if platform_name:
+                query = "SELECT id, platform_name, account_name, cookies, updated FROM mc_backup_accounts WHERE platform_name = ? ORDER BY updated DESC"
+                params = (platform_name,)
+            else:
+                query = "SELECT id, platform_name, account_name, cookies, updated FROM mc_backup_accounts ORDER BY updated DESC"
+                params = ()
+                
+            async with db.execute(query, params) as cursor:
+                rows = await cursor.fetchall()
+                cols = [d[0] for d in cursor.description]
+                for r in rows:
+                    item = dict(zip(cols, r))
+                    result.append(item)
+
+        try:
+            await self.execute_with_retry(_list)
+        except Exception as e:
+            self.logger.error(f"Error listing mc_backup_accounts: {e}")
+            return None
+        return result
+
+    async def update_mc_backup_account(self, account_id: int, **fields) -> Optional[int]:
+        """按需更新 mc_backup_account 字段: 支持 platform_name, cookies"""
+        allowed = {'platform_name', 'cookies'}
+        to_update = {k: v for k, v in fields.items() if k in allowed}
+        if not to_update:
+            return None
+
+        # 如果更新了 platform_name，需要重新生成 account_name
+        if 'platform_name' in to_update:
+            new_platform_name = to_update['platform_name']
+            now_str = datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')
+            new_account_name = f"{new_platform_name}_{now_str}"
+            to_update['account_name'] = new_account_name
+
+        set_clause = ', '.join([f"{k} = ?" for k in to_update.keys()]) + ", updated = ?"
+        params = list(to_update.values()) + [self._get_utc_timestamp(), account_id]
+
+        async def _upd(db):
+            await db.execute(f"UPDATE mc_backup_accounts SET {set_clause} WHERE id = ?", params)
+
+        try:
+            await self.execute_with_retry(_upd)
+            return account_id
+        except Exception as e:
+            self.logger.error(f"Error updating mc_backup_account {account_id}: {e}")
+            return None
+
+    async def delete_mc_backup_account(self, account_id: int) -> Optional[int]:
+        """删除指定 id 的 mc_backup_account 记录"""
+        async def _del(db):
+            await db.execute("DELETE FROM mc_backup_accounts WHERE id = ?", (account_id,))
+
+        try:
+            await self.execute_with_retry(_del)
+            return account_id
+        except Exception as e:
+            self.logger.error(f"Error deleting mc_backup_account {account_id}: {e}")
+            return None
 
     def _convert_value_to_type(self, value: any, sql_type: str) -> any:
         """
@@ -1576,3 +1502,262 @@ CREATE TABLE IF NOT EXISTS {table_name} (
                 
         except (ValueError, TypeError, json.JSONDecodeError) as e:
             raise ValueError(f"Cannot convert value '{value}' to type '{sql_type}': {str(e)}")
+
+    # ---------------------- focuses CRUD ----------------------
+    async def get_focus_by_id(self, focus_id: int) -> Optional[dict]:
+        """
+        根据 id 获取单个 focus 记录
+        
+        Args:
+            focus_id: focus 的 id
+            
+        Returns:
+            Optional[dict]: 成功返回 focus 字典，失败返回None
+        """
+        async def _get(db):
+            async with db.execute(
+                "SELECT id, focuspoint, custom_schema, restrictions, explanation, role, purpose, created FROM focuses WHERE id = ?", 
+                (focus_id,)
+            ) as cursor:
+                row = await cursor.fetchone()
+                if row:
+                    columns = [desc[0] for desc in cursor.description]
+                    result = dict(zip(columns, row))
+                    return result
+                return None
+
+        try:
+            return await self.execute_with_retry(_get)
+        except Exception as e:
+            self.logger.error(f"Error getting focus by id {focus_id}: {e}")
+            return None
+
+    async def get_focuses_by_ids(self, focus_ids: List[int]) -> List[dict]:
+        """
+        根据 id 列表批量获取 focus 记录
+        
+        Args:
+            focus_ids: focus id 列表
+            
+        Returns:
+            List[dict]: focus 记录列表
+        """
+        if not focus_ids:
+            return []
+            
+        result = []
+        
+        async def _get_batch(db):
+            # 构建 IN 查询的占位符
+            placeholders = ','.join(['?' for _ in focus_ids])
+            query = f"""
+                SELECT id, focuspoint, custom_schema, restrictions, explanation, role, purpose 
+                FROM focuses 
+                WHERE id IN ({placeholders})
+            """
+            
+            async with db.execute(query, focus_ids) as cursor:
+                rows = await cursor.fetchall()
+                columns = [desc[0] for desc in cursor.description]
+                
+                for row in rows:
+                    focus_dict = dict(zip(columns, row))
+                    result.append(focus_dict)
+
+        try:
+            await self.execute_with_retry(_get_batch)
+        except Exception as e:
+            self.logger.error(f"Error getting focuses by ids {focus_ids}: {e}")
+            return None
+            
+        return result
+
+    async def list_all_focuses(self) -> List[dict]:
+        """
+        获取所有 focus 记录
+        
+        Returns:
+            List[dict]: 所有 focus 记录列表，按创建时间倒序
+        """
+        result = []
+        
+        async def _list(db):
+            async with db.execute(
+                "SELECT id, focuspoint, custom_schema, restrictions, explanation, role, purpose, created FROM focuses ORDER BY created DESC"
+            ) as cursor:
+                rows = await cursor.fetchall()
+                columns = [desc[0] for desc in cursor.description]
+                
+                for row in rows:
+                    focus_dict = dict(zip(columns, row))
+                    result.append(focus_dict)
+
+        try:
+            await self.execute_with_retry(_list)
+        except Exception as e:
+            self.logger.error(f"Error listing all focuses: {e}")
+            return None
+            
+        return result
+
+    async def create_or_update_focus(self, focuspoint: str, restrictions: str = '', explanation: str = '', role: str = '', purpose: str = '', custom_schema: str = '') -> int:
+        """
+        创建或返回已存在的 focus 记录
+        先通过精确查询检查是否存在完全匹配的记录，如果存在则返回已有 focus_id
+        只有都不匹配时才创建新记录
+        
+        Args:
+            focuspoint: 焦点内容
+            restrictions: 限制条件
+            explanation: 解释说明
+            role: 角色
+            purpose: 目的
+            custom_schema: 自定义 schema
+            
+        Returns:
+            int: 已存在或新创建的 focus id
+        """
+        # 标准化输入
+        fp = focuspoint.strip() or ''
+        res = restrictions.strip() or ''
+        exp = explanation.strip() or ''
+        r = role.strip() or ''
+        p = purpose.strip() or ''
+        cs = custom_schema.strip() or ''
+
+        if not fp and not res:
+            self.logger.warning(f"create_or_update_focus: focuspoint/restrictions are all empty, skip")
+            return None
+        
+        # 先通过精确查询检查是否存在完全匹配的记录
+        async def _find_existing(db):
+            async with db.execute(
+                """
+                SELECT id FROM focuses 
+                WHERE focuspoint = ? 
+                  AND restrictions = ? 
+                  AND explanation = ? 
+                  AND role = ? 
+                  AND purpose = ? 
+                  AND custom_schema = ?
+                LIMIT 1
+                """,
+                (fp, res, exp, r, p, cs)
+            ) as cursor:
+                row = await cursor.fetchone()
+                return row[0] if row else None
+        
+        # 插入新记录
+        async def _insert(db):
+            current_time = self._get_utc_timestamp()
+            cursor = await db.execute(
+                """
+                INSERT INTO focuses (focuspoint, custom_schema, restrictions, explanation, role, purpose, created)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (fp, cs, res, exp, r, p, current_time),
+            )
+            return cursor.lastrowid
+        
+        try:
+            # 先查询是否存在
+            existing_id = await self.execute_with_retry(_find_existing)
+            if existing_id is not None:
+                return existing_id
+            
+            # 不存在则插入新记录
+            return await self.execute_with_retry(_insert)
+        except Exception as e:
+            self.logger.error(f"Error in create_or_update_focus: {e}")
+            # 如果插入失败，再次尝试查询（可能是并发插入导致）
+            try:
+                existing_id = await self.execute_with_retry(_find_existing)
+                if existing_id is not None:
+                    return existing_id
+            except Exception as query_error:
+                self.logger.error(f"Error querying existing focus after insert failure: {query_error}")
+            # 如果查询也失败，抛出异常
+            return None
+
+    # ---------------------- ws_history CRUD ----------------------
+    async def add_ws_history(self,
+                             type: str,
+                             code: int | None = None,
+                             params: List[str] | None = None,
+                             prompt_id: str | None = None,
+                             actions: List[dict] | None = None,
+                             action_id: str | None = None,
+                             timeout: int | None = None,
+                             ts: float | None = None) -> Optional[int]:
+        """
+        添加一条 websocket 历史消息，存储完整消息字段。
+        对于 notify 而言，prompt_id 和 actions 可以为空。
+        """
+        # Use provided ts (seconds) from producer to keep consistent with frontend broadcast
+        # Fall back to current time if not provided
+        _ts = float(ts) if ts is not None else time.time()
+
+        async def _add(db):
+            cursor = await db.execute(
+                """
+                INSERT INTO ws_history (type, prompt_id, code, params, actions, action_id, timeout, ts)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    (type or '').strip(),
+                    (prompt_id or '').strip() if prompt_id else None,
+                    int(code) if code is not None else None,
+                    self._serialize_json(params or [], default_as_list=True),
+                    self._serialize_json(actions or [], default_as_list=True),
+                    (action_id or '').strip() if action_id else None,
+                    int(timeout) if timeout is not None else None,
+                    _ts,
+                ),
+            )
+            return cursor.lastrowid
+
+        try:
+            return await self.execute_with_retry(_add)
+        except Exception as e:
+            self.logger.error(f"Error adding ws_history: {e}")
+            return None
+
+    async def list_ws_history(self, limit: int = 10, offset: int = 0) -> List[dict]:
+        """
+        按时间降序分页获取 ws_history 记录。读取前自动清理超过24小时的记录。
+        """
+        result: List[dict] = []
+
+        async def _cleanup_and_list(db):
+            # 清理超过24小时的数据
+            cutoff_time = time.time() - 24 * 3600
+            try:
+                await db.execute("DELETE FROM ws_history WHERE ts < ?", (cutoff_time,))
+            except Exception as e:
+                # best-effort cleanup
+                self.logger.warning(f"Failed to cleanup ws_history: {e}")
+
+            query = (
+                """
+                SELECT type, prompt_id, code, params, actions, action_id, timeout, ts
+                FROM ws_history
+                ORDER BY ts DESC
+                LIMIT ? OFFSET ?
+                """
+            )
+            params = [limit, offset]
+            async with db.execute(query, params) as cursor:
+                rows = await cursor.fetchall()
+                cols = [d[0] for d in cursor.description]
+                for r in rows:
+                    item = dict(zip(cols, r))
+                    item['params'] = self._deserialize_json(item.get('params', '[]'), default_as_list=True)
+                    item['actions'] = self._deserialize_json(item.get('actions', '[]'), default_as_list=True)
+                    result.append(item)
+
+        try:
+            await self.execute_with_retry(_cleanup_and_list)
+        except Exception as e:
+            self.logger.error(f"Error listing ws_history: {e}")
+            return None
+        return result

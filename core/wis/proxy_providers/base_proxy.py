@@ -2,18 +2,17 @@ import random
 from typing import List
 import httpx
 import asyncio
-import os
 import time
 import sqlite3
-from async_logger import wis_logger, base_directory
-from pathlib import Path
+from core.async_logger import wis_logger, base_directory
 from .types import IpInfoModel
 from abc import ABC, abstractmethod
+from ..ws_connect import notify_user
 
 
 class ProxyProvider(ABC):
 
-    cache_db_file = Path(base_directory) / "proxy_cache.db"
+    cache_db_file = base_directory / "proxy_cache.db"
 
     def __init__(
         self, 
@@ -22,14 +21,13 @@ class ProxyProvider(ABC):
         enable_validate_ip: bool,
         clear_all_cache: bool = False) -> None:
 
-        self.valid_ip_url = "https://www.aiqingbaoguan.com/"  # 验证 IP 是否有效的地址
+        self.valid_ip_url = "https://shouxiqingbaoguan.com/"  # 验证 IP 是否有效的地址
         self.ip_pool_count = ip_pool_count
         self.enable_validate_ip = enable_validate_ip
         self.uni_name = uni_name
         self.ip_pool: List[IpInfoModel] = []
         self.invalid_ips: List[str] = []
         self.logger = wis_logger
-        os.makedirs(base_directory, exist_ok=True)
         self._init_db()
         self._load_cached_ips()
         if clear_all_cache:
@@ -74,7 +72,7 @@ class ProxyProvider(ABC):
                     continue
                 else:
                     self.logger.warning(f"Database operation failed: {e}")
-                    raise
+                    # raise
 
     def _load_cached_ips(self):
         """Load cached IPs from database, remove expired ones, and add valid ones to ip_pool"""
@@ -180,10 +178,12 @@ class ProxyProvider(ABC):
                 self.invalid_ips.append(p.ip)
                 break
 
+    # 这里错误全部内部处理、通知用户，不反馈上层 （这都属于不影响大 loop 的执行层）
     async def get_proxy(self) -> IpInfoModel | None:
         """
         从代理池中随机提取一个代理IP
         :return: IpInfoModel if successful, None if all 3 attempts failed
+        fall back to None
         """
         for attempt in range(3):
             try:
@@ -215,6 +215,7 @@ class ProxyProvider(ABC):
                 continue
         
         self.logger.warning("[ProxyIpPool.get_proxy] All 3 attempts failed")
+        await notify_user(23, [self.uni_name])
         return None
     
     @abstractmethod

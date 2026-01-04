@@ -1,14 +1,12 @@
 import asyncio
 import time
-import os
 from patchright.async_api import async_playwright
 from patchright.async_api import ProxySettings
-from .config import DOWNLOAD_PAGE_TIMEOUT
 from .async_configs import BrowserConfig, CrawlerRunConfig
-from async_logger import base_directory
+from core.async_database import base_directory
 
 
-PERSISTENT_CONTEXT_DIR = os.path.join(base_directory, ".crawl4ai", "contexts")
+PERSISTENT_CONTEXT_DIR = base_directory / ".crawl4ai" / "contexts"
 
 class BrowserManager:
     """
@@ -101,6 +99,13 @@ class BrowserManager:
         self.session_ttl = 1800  # 30 minutes
 
         self._contexts_lock = asyncio.Lock()
+    
+    async def __aenter__(self):
+        await self.start()
+        return self
+    
+    async def __aexit__(self, exc_type, exc_value, traceback):
+        await self.close()
 
     async def start(self):
 
@@ -163,7 +168,7 @@ class BrowserManager:
         args = self._build_stealth_args()
 
         browser_args = {
-            "user_data_dir": os.path.join(PERSISTENT_CONTEXT_DIR, config.context_marker),
+            "user_data_dir": str(PERSISTENT_CONTEXT_DIR / config.context_marker),
             "channel": "chrome",
             "headless": self.config.headless,
             "no_viewport": False,
@@ -189,12 +194,13 @@ class BrowserManager:
         if self.config.accept_downloads:
             browser_args["accept_downloads"] = True
             if not self.config.downloads_path:
-                self.config.downloads_path = os.path.join(base_directory, "downloads")
+                self.config.downloads_path = str(base_directory / "downloads")
             browser_args["downloads_path"] = self.config.downloads_path
-            os.makedirs(browser_args["downloads_path"], exist_ok=True)
+            downloads_dir = base_directory / "downloads"
+            downloads_dir.mkdir(parents=True, exist_ok=True)
             # Set download-related timeouts at browser level
-            browser_args["navigation_timeout"] = DOWNLOAD_PAGE_TIMEOUT
-            browser_args["timeout"] = DOWNLOAD_PAGE_TIMEOUT
+            browser_args["navigation_timeout"] = config['DOWNLOAD_PAGE_TIMEOUT']
+            browser_args["timeout"] = config['DOWNLOAD_PAGE_TIMEOUT']
 
         if proxy:
             browser_args["proxy"] = proxy
@@ -319,19 +325,33 @@ class BrowserManager:
     async def close(self):
         if self.config.sleep_on_close:
             await asyncio.sleep(0.5)
+        # Close all contexts first to ensure pages and downloads are flushed
+        try:
+            async with self._contexts_lock:
+                contexts_to_close = list(self.contexts.values())
+                self.contexts.clear()
+            for ctx in contexts_to_close:
+                try:
+                    await ctx.close()
+                except Exception as e:
+                    if self.logger:
+                        self.logger.debug(f"Context close failed: {e}")
+        except Exception as e:
+            if self.logger:
+                self.logger.debug(f"Error while closing contexts: {e}")
 
+        # Clear session tracking
+        self.sessions.clear()
+
+        # Stop Playwright driver with a slightly longer timeout
         if self.playwright:
             try:
-                try:
-                    await asyncio.wait_for(self.playwright.stop(), timeout=1.0)
-                except asyncio.TimeoutError:
-                    if self.logger:
-                        self.logger.debug("Timeout stopping Playwright; forcing disconnect")
+                await asyncio.wait_for(self.playwright.stop(), timeout=5.0)
+            except asyncio.TimeoutError:
+                if self.logger:
+                    self.logger.debug("Timeout stopping Playwright; forcing disconnect")
             except Exception as e:
                 if self.logger:
                     self.logger.warning(f"Error stopping playwright during cleanup: {e}")
             finally:
                 self.playwright = None
-                
-        self.contexts.clear()
-        self.sessions.clear()

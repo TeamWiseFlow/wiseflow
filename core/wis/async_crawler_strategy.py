@@ -7,15 +7,7 @@ from abc import ABC, abstractmethod
 from typing import Callable, Dict, Any, List, Union
 from typing import Optional
 import os
-import platform
-
-# Windows-specific import
-if platform.system() == 'Windows':
-    import msvcrt
-else:
-    import sys
-    import select
-
+from .ws_connect import ask_user
 from patchright.async_api import Page, Error
 from patchright.async_api import TimeoutError as PlaywrightTimeoutError
 from io import BytesIO
@@ -24,7 +16,7 @@ import hashlib
 import uuid
 from .js_snippet import load_js_script
 from .basemodels import AsyncCrawlResponse
-from .config import SCREENSHOT_HEIGHT_TRESHOLD
+from .config import config
 from .async_configs import BrowserConfig, CrawlerRunConfig
 from .ssl_certificate import SSLCertificate
 from .browser_manager import BrowserManager
@@ -92,6 +84,10 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
 
         # Initialize session management
         self._downloaded_files = []
+        
+        # 验证事件：当有页面需要用户验证时，其他抓取任务等待
+        self._verification_event = asyncio.Event()
+        self._verification_event.set()  # 初始状态：没有验证，可以继续
 
         # Initialize hooks system
         self.hooks = {
@@ -363,10 +359,172 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             **kwargs,
         ))
         return session_id
+    
+    async def _check_status(
+        self, page: Page, url: str, response_headers: Optional[Dict[str, str]] = None
+    ) -> bool:
+        """
+        检查当前页面是否进入了验证页（如 DataDome、Cloudflare、Akamai、Weixin 等）
 
+        Args:
+            page (Page): Playwright 页面对象
+            url (str): 当前页面 URL
+            response_headers (dict, optional): 响应头（如可从 httpx、browsercontext 拿到）
+
+        Returns:
+            bool: True 表示遇到反爬验证页，False 表示正常
+        """
+        suspected_cloudflare = False
+
+        # 1️⃣ 首先检查 response_headers 层面特征
+        if response_headers:
+            headers = {k.lower(): v for k, v in response_headers.items()}
+            # DataDome
+            if (
+                "x-datadome" in headers
+                or "x-datadome-cid" in headers
+                or "x-dd-b" in headers
+            ):
+                self.logger.info(f"[AntiBot] DataDome detected from headers: {headers}")
+                return True
+
+            # Cloudflare IUAM / CAPTCHA
+            server_header = headers.get("server", "").lower()
+            cf_cache_status_raw = headers.get("cf-cache-status")
+            cf_cache_status = cf_cache_status_raw.lower() if isinstance(cf_cache_status_raw, str) else ""
+            cf_ray_present = "cf-ray" in headers
+            suspected_cloudflare = cf_ray_present or "cloudflare" in server_header
+
+            if suspected_cloudflare:
+                cloudflare_challenge_header_prefixes = (
+                    "cf-chl",
+                    "cf-iuam",
+                    "cf-bm",
+                    "cf-turnstile",
+                    "cf-mitigated",
+                    "cf-2fa",
+                )
+                challenge_headers = [
+                    key for key in headers
+                    if key.startswith(cloudflare_challenge_header_prefixes)
+                ]
+
+                if challenge_headers and "text/html" in headers.get("content-type", "").lower():
+                    self.logger.info(f"[AntiBot] Cloudflare challenge headers detected: {challenge_headers}; full headers: {headers}")
+                    return True
+
+                # `cf-cache-status: HIT/MISS/EXPIRED/REVALIDATED` 等值表示常态缓存命中或正常回源
+                safe_cache_indicators = {"hit", "miss", "expired", "revalidated"}
+                if cf_cache_status and cf_cache_status not in safe_cache_indicators:
+                    self.logger.info(
+                        f"[AntiBot] Cloudflare unusual cache status detected from headers: {headers}"
+                    )
+                    return True
+
+                server_timing_header = headers.get("server-timing", "").lower()
+                if server_timing_header.startswith("cfcachestatus"):
+                    cache_state_hint = server_timing_header.split(";", maxsplit=1)[0].split(":", maxsplit=1)[-1].strip()
+                    if cache_state_hint in safe_cache_indicators:
+                        suspected_cloudflare = False
+
+                if cf_cache_status in safe_cache_indicators and not challenge_headers:
+                    # 典型静态资源缓存命中或正常回源，不应视为挑战
+                    suspected_cloudflare = False
+
+            # Akamai bot manager
+            if "akamai" in server_header or "akamai" in headers.get("via", "").lower():
+                self.logger.info(f"[AntiBot] Akamai detected from headers: {headers}")
+                return True
+
+        # 页面元素特征检测（适配 weixin、其他验证页）
+        verification_element_selectors = [
+            'div.geetest_panel',              # 极验容器
+            'iframe[src*="captcha"]',         # 通用 iframe 验证
+            'iframe[src*="datadome"]',        # DataDome iframe
+        ]
+
+        if suspected_cloudflare:
+            verification_element_selectors.extend([
+                '#challenge-stage',
+                '#cf-stage',
+                'form#challenge-form',
+                'div.cf-browser-verification',
+                'div[id^="cf-error-details"]',
+            ])
+
+        for selector in verification_element_selectors:
+            try:
+                elements = await page.query_selector_all(selector)
+                if elements:
+                    self.logger.info(f"[AntiBot] Found verification element: {selector}")
+                    return True
+            except Exception:
+                continue
+
+        if suspected_cloudflare:
+            page_title = ""
+            try:
+                page_title = await page.title()
+            except Exception:
+                pass
+
+            normalized_title = page_title.lower() if page_title else ""
+            cloudflare_title_hints = ("attention required", "just a moment", "cloudflare")
+            if any(hint in normalized_title for hint in cloudflare_title_hints):
+                self.logger.info(f"[AntiBot] Cloudflare detected from page title: {page_title}")
+                return True
+
+            # 某些情况下页面标题可能是普通内容，但 HTML 里包含 Cloudflare 挑战标志
+            try:
+                html_content = await page.content()
+            except Exception:
+                html_content = ""
+
+            if html_content:
+                lower_html_content = html_content.lower()
+                cloudflare_html_snippets = (
+                    "attention required!",
+                    "just a moment...",
+                    "cf-browser-verification",
+                    "cf-challenge",
+                    "cf-im-under-attack",
+                    "cloudflare",
+                )
+                if any(snippet in lower_html_content for snippet in cloudflare_html_snippets):
+                    self.logger.info("[AntiBot] Cloudflare challenge markers found in page content")
+                    return True
+
+        # 5️⃣ 特殊站点定制逻辑（如微信）
+        if "mp.weixin.qq.com" in url:
+            try:
+                elements = await page.query_selector_all('button:has-text("去验证")')
+                if elements:
+                    self.logger.info(f"[AntiBot] Found verification element for wx mp: button:has-text:去验证")
+                    return True
+            except Exception:
+                pass
+
+        # 没检测到异常情况
+        return False
+    
+    async def _bring_page_to_front(self, page: Page):
+        """
+        try to bring the page to the front of the browser
+        
+        Args:
+            page (Page): the page object
+            
+        Returns:
+        """
+        try:
+            # try to bring the page to the front of the browser
+            await page.bring_to_front()
+            
+        except Exception as e:
+            self.logger.warning(f"Failed to bring page to front: {e}")
+        
     async def crawl(
-        self, url: str, config: CrawlerRunConfig, **kwargs
-    ) -> AsyncCrawlResponse:
+        self, url: str, config: CrawlerRunConfig, **kwargs) -> AsyncCrawlResponse:
         """
         Crawls a given URL or processes raw HTML/local file content based on the URL prefix.
 
@@ -439,250 +597,8 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 "URL must start with 'http://', 'https://', 'file://', or 'raw:'"
             )
 
-    async def _check_login_status(self, page: Page, url: str) -> bool:
-        """
-        检查页面的登录状态，按照准确度和运算量优化的顺序进行检测
-        
-        Args:
-            page (Page): 当前页面对象
-            url (str): 页面URL
-            
-        Returns:
-            bool: True 表示已登录，False 表示未登录
-        """
-        
-        # 1. 检查 localStorage - 高准确度，低运算量，优先检查
-        try:
-            local_storage = await page.evaluate('''() => {
-                const storage = {};
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    storage[key] = localStorage.getItem(key);
-                }
-                return storage;
-            }''')
-            
-            # 检查常见的登录标识
-            login_keys = ['accesstoken', 'authtoken', 'userinfo', 'isloggedin', 'loginstate']
-            storage_str = str(local_storage).lower()
-            
-            for key in login_keys:
-                if key in storage_str:
-                    if self.logger:
-                        self.logger.debug(f"Found login-related data in localStorage: {key}")
-                    return True
-                    
-        except Exception as e:
-            if self.logger:
-                self.logger.warning(f"Failed to check localStorage: {e}")
-        
-        # 2. 检查 sessionStorage - 高准确度，低运算量
-        try:
-            session_storage = await page.evaluate('''() => {
-                const storage = {};
-                for (let i = 0; i < sessionStorage.length; i++) {
-                    const key = sessionStorage.key(i);
-                    storage[key] = sessionStorage.getItem(key);
-                }
-                return storage;
-            }''')
-            
-            storage_str = str(session_storage).lower()
-            login_keys = ['accesstoken', 'authtoken', 'userinfo', 'isloggedin', 'loginstate']
-            
-            for key in login_keys:
-                if key in storage_str:
-                    if self.logger:
-                        self.logger.debug(f"Found login-related data in sessionStorage: {key}")
-                    return True
-                
-        except Exception as e:
-            if self.logger:
-                self.logger.warning(f"Failed to check sessionStorage: {e}")
-        
-        # 3. 检查 Cookie - 高准确度，低运算量
-        try:
-            cookies = await page.context.cookies(url)
-            login_cookie_names = ['login', 'sid', 'authtoken']
-            
-            for cookie in cookies:
-                cookie_name = cookie['name'].lower()
-                for name_pattern in login_cookie_names:
-                    if name_pattern == cookie_name:
-                        if self.logger:
-                            self.logger.debug(f"Found login-related cookie: {cookie['name']}")
-                        return True
-                
-        except Exception as e:
-            if self.logger:
-                self.logger.warning(f"Failed to check cookies: {e}")
-        
-        # 4. 检查页面中的用户信息元素 - 中等准确度，中等运算量
-        try:
-            user_element_selectors = [
-                # 用户头像和信息
-                '.avatar', '.user-avatar', '.profile-img', '.profile-image',
-                '.username', '.user-name', '.profile-name', '.user-info',
-                # 登出相关元素
-                '.logout', '.sign-out', '.log-out',
-                # 中文登出
-                '*:has-text("退出")', '*:has-text("注销")', '*:has-text("登出")',
-                # 英文登出
-                'button:has-text("Logout")', 'a:has-text("Logout")',
-                'button:has-text("Sign Out")', 'a:has-text("Sign Out")',
-                'button:has-text("Log Out")', 'a:has-text("Log Out")'
-            ]
-            
-            for selector in user_element_selectors:
-                try:
-                    elements = await page.query_selector_all(selector)
-                    if elements:
-                        if self.logger:
-                            self.logger.debug(f"Found user element: {selector}")
-                        return True
-                except Exception:
-                    continue
-                    
-        except Exception as e:
-            if self.logger:
-                self.logger.warning(f"Failed to check user elements: {e}")
-        
-        # 5. 最后检查登录相关元素 - 使用特征文本和表单元素检测
-        login_element_selectors = [
-            # 中文登录相关文本元素
-            '*:has-text("登录")', '*:has-text("登錄")', '*:has-text("立即登录")', '*:has-text("马上登录")',
-            # 英文登录相关文本元素
-            '*:has-text("Login")', '*:has-text("Log In")', '*:has-text("Sign In")', '*:has-text("Log On")',
-            # 表单元素（高准确度）
-            'input[name="username" i]', 'input[name="password" i]', 
-            'input[name="email" i]', 'input[type="password"]',
-            'form[id*="login" i]', 'form[class*="login" i]',
-            # 登录按钮和链接
-            'button[id*="login" i]', 'button[class*="login" i]',
-            'a[href*="login" i]', 'a[href*="signin" i]',
-            # 验证相关元素
-            '.verification', '.verify-btn', '.verify', '.captcha',
-            # 去验证按键
-            'button:has-text("去验证")'
-        ]
-        
-        for selector in login_element_selectors:
-            try:
-                elements = await page.query_selector_all(selector)
-                if elements:
-                    if self.logger:
-                        self.logger.debug(f"Found login element: {selector}")
-                    return False
-            except Exception:
-                continue
-        
-        return True
-
-    async def _bring_page_to_front(self, page: Page):
-        """
-        尝试让页面成为浏览器的激活页面
-        
-        Args:
-            page (Page): 要激活的页面
-            
-        Returns:
-        """
-        try:
-            # 尝试将页面置于前台
-            await page.bring_to_front()
-            
-            # 等待一小段时间确保页面已经激活
-            await asyncio.sleep(0.5)
-            
-            if self.logger:
-                self.logger.debug("Page brought to front successfully")
-            
-        except Exception as e:
-            if self.logger:
-                self.logger.warning(f"Failed to bring page to front: {e}")
-
-    async def _wait_for_user_login(self, page: Page, url: str, max_attempts: int = 2, timeout_seconds: int = 300) -> bool:
-        """
-        等待用户完成登录操作
-        
-        Args:
-            page (Page): 当前页面对象
-            url (str): 页面URL
-            max_attempts (int): 最大尝试次数
-            timeout_seconds (int): 每次等待的超时时间（秒）
-            
-        Returns:
-            bool: 是否成功登录
-        """
-        for attempt in range(max_attempts):
-            try:
-                # 尝试激活页面
-                await self._bring_page_to_front(page)
-                
-                # 提醒用户
-                print(f"\n{'='*60}")
-                print(f"🔐 登录检测 - 尝试 {attempt + 1}/{max_attempts}")
-                print(f"📍 页面URL: {page.url}")
-                print(f"⏰ 请在 {timeout_seconds} 秒内完成登录操作")
-                print(f"🖥️  请在浏览器中完成登录，然后按回车键继续...")
-                print(f"{'='*60}")
-                
-                success = False
-                start_time = time.time()
-                
-                if platform.system() == 'Windows':
-                    # Windows-specific implementation using msvcrt
-                    while time.time() - start_time < timeout_seconds:
-                        if msvcrt.kbhit():
-                            # 读取所有可用的字符直到遇到回车键
-                            char = msvcrt.getch()
-                            if char == b'\r':  # Enter key
-                                # 清空剩余输入
-                                while msvcrt.kbhit():
-                                    msvcrt.getch()
-                                success = True
-                                break
-                        # 每1秒检查一次，避免忙等待
-                        await asyncio.sleep(1)
-                else:
-                    # Unix-like systems (Linux, macOS) - using select
-                    while time.time() - start_time < timeout_seconds:
-                        # 检查是否有输入可用（非阻塞）
-                        if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
-                            try:
-                                # 读取并清空输入缓冲区
-                                sys.stdin.readline()
-                                success = True
-                                break
-                            except Exception:
-                                # 如果读取失败，假设用户已完成操作
-                                success = True
-                                break
-                        
-                        # 每1秒检查一次，避免忙等待
-                        await asyncio.sleep(1)
-                
-                if success:
-                    return True
-                
-                # 超时处理
-                current_url = page.url
-                if current_url == url:
-                    await page.reload()
-                return await self._check_login_status(page, url)
-                    
-            except Exception as e:
-                if self.logger:
-                    self.logger.warning(f"Error during user login wait attempt {attempt + 1}: {e}")
-        
-        if self.logger:
-            self.logger.warning(f"Login confirmation failed after {max_attempts} attempts, continuing")
-        
-        return False
-
     async def _crawl_web(
-        self, url: str, config: CrawlerRunConfig
-    ) -> AsyncCrawlResponse:
+        self, url: str, config: CrawlerRunConfig) -> AsyncCrawlResponse:
         """
         Internal method to crawl web URLs with the specified configuration.
         Includes optional network and console capturing.
@@ -694,6 +610,9 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
         Returns:
             AsyncCrawlResponse: The response containing HTML, headers, status code, and optional data
         """
+        # 等待验证事件：如果有其他页面正在验证，当前任务暂停
+        await self._verification_event.wait()
+        
         config.url = url
         response_headers = {}
         execution_result = None
@@ -712,68 +631,83 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
         # Call hook after page creation
         await self.execute_hook("on_page_context_created", page, context=context, config=config)
 
-        # Network Request Capturing
-        if config.capture_network_requests:
-            async def handle_request_capture(request):
-                try:
-                    post_data_str = None
-                    try:
-                        # Be cautious with large post data
-                        post_data = request.post_data_buffer
-                        if post_data:
-                             # Attempt to decode, fallback to base64 or size indication
-                             try:
-                                 post_data_str = post_data.decode('utf-8', errors='replace')
-                             except UnicodeDecodeError:
-                                 post_data_str = f"[Binary data: {len(post_data)} bytes]"
-                    except Exception:
-                        post_data_str = "[Error retrieving post data]"
-
-                    captured_requests.append({
-                        "event_type": "request",
-                        "url": request.url,
-                        "method": request.method,
-                        "headers": dict(request.headers), # Convert Header dict
-                        "post_data": post_data_str,
-                        "resource_type": request.resource_type,
-                        "is_navigation_request": request.is_navigation_request(),
-                        "timestamp": time.time()
-                    })
-                except Exception as e:
-                    if self.logger:
-                        self.logger.warning(f"Error capturing request details for {request.url}: {e}", tag="CAPTURE")
-                    captured_requests.append({"event_type": "request_capture_error", "url": request.url, "error": str(e), "timestamp": time.time()})
-
-            async def handle_request_failed_capture(request):
-                 try:
-                    captured_requests.append({
-                        "event_type": "request_failed",
-                        "url": request.url,
-                        "method": request.method,
-                        "resource_type": request.resource_type,
-                        "failure_text": str(request.failure) if request.failure else "Unknown failure",
-                        "timestamp": time.time()
-                    })
-                 except Exception as e:
-                    if self.logger:
-                        self.logger.warning(f"Error capturing request failed details for {request.url}: {e}", tag="CAPTURE")
-                    captured_requests.append({"event_type": "request_failed_capture_error", "url": request.url, "error": str(e), "timestamp": time.time()})
-
-            page.on("request", handle_request_capture)
-            # page.on("response", handle_response_capture)
-            page.on("requestfailed", handle_request_failed_capture)
-
         # Console Message Capturing
         handle_console = None
-        handle_error = None
-        if config.capture_console_messages:
-            # Set up console capture using adapter
-            handle_console = await self.adapter.setup_console_capture(page, captured_console)
-            handle_error = await self.adapter.setup_error_capture(page, captured_console)
+        handle_error = None # 视 patchright 实现而定
 
-        # Set up console logging if requested
-        # Note: For undetected browsers, console logging won't work directly
-        # but captured messages can still be logged after retrieval
+        # 适用于 async_crawler_strategy.py
+        async def page_go(url: str):
+            nonlocal page, context
+            max_retries = 2
+            backoff_base = 2  # seconds
+
+            # 定义可安全重试的错误标识
+            transient_error_signatures = (
+                "net::ERR_NETWORK_CHANGED",
+                "net::ERR_CONNECTION_RESET",
+                "net::ERR_CONNECTION_CLOSED",
+                "net::ERR_INTERNET_DISCONNECTED",
+                "Navigation timeout",
+            )
+
+            for attempt in range(1, max_retries + 1):
+                try:
+                    # 如果启用 CSP nonce
+                    if config.experimental.get("use_csp_nonce", False):
+                        nonce = hashlib.sha256(os.urandom(32)).hexdigest()
+                        await page.set_extra_http_headers({
+                            "Content-Security-Policy": (
+                                f"default-src 'self'; "
+                                f"script-src 'self' 'nonce-{nonce}' 'strict-dynamic'"
+                            )
+                        })
+
+                    return await page.goto(
+                        url, wait_until=config.wait_until, timeout=config.page_timeout
+                    )
+                except Exception as e:
+                    err_str = str(e)
+
+                    # ✅ 情况1：下载任务导致的中断（非错误）
+                    if "net::ERR_ABORTED" in err_str and self.browser_config.accept_downloads:
+                        self.logger.info(f"Navigation aborted (file download likely): {url}")
+                        return None
+
+                    # ✅ 情况2：临时网络问题，可重试
+                    if any(sig in err_str for sig in transient_error_signatures):
+                        if attempt < max_retries:
+                            sleep_time = backoff_base * attempt
+                            self.logger.info(f"[PageGo] Transient network issue detected, this is the {attempt} times, retrying in {sleep_time}s...")
+                            await asyncio.sleep(sleep_time)
+                            continue
+
+                    self.logger.warning(err_str)
+                    break
+
+            # 代理存在且可刷新（可能代理故障）
+            if config.proxy_provider:
+                try:
+                    self.logger.info(f"[PageGo] Refreshing browser page/context via proxy provider...")
+                    page, context = await self.browser_manager.get_page(
+                        crawlerRunConfig=config, refresh=True
+                    )
+                    # 如果启用 CSP nonce
+                    if config.experimental.get("use_csp_nonce", False):
+                        nonce = hashlib.sha256(os.urandom(32)).hexdigest()
+                        await page.set_extra_http_headers({
+                            "Content-Security-Policy": (
+                                f"default-src 'self'; "
+                                f"script-src 'self' 'nonce-{nonce}' 'strict-dynamic'"
+                            )
+                        })
+                    await asyncio.sleep(1.5)
+                    return await page.goto(
+                        url, wait_until=config.wait_until, timeout=config.page_timeout
+                    )
+                except Exception as e:
+                    err_str = str(e)
+                    self.logger.warning(f"{err_str}\nAfter {max_retries} Attempt and proxy change, still failed...")
+                    raise RuntimeError(f"Failed on navigating ACS-GOTO after {max_retries} attempts: {url}")
 
         try:
             # Get SSL certificate information if requested and URL is HTTPS
@@ -790,45 +724,9 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                     ),
                 )
 
-            # Handle page navigation and content loading
-            async def page_go(url: str):
-                if config.experimental.get("use_csp_nonce", False):
-                    nonce = hashlib.sha256(os.urandom(32)).hexdigest()
-                    # Add CSP headers to the request
-                    await page.set_extra_http_headers(
-                        {
-                            "Content-Security-Policy": f"default-src 'self'; script-src 'self' 'nonce-{nonce}' 'strict-dynamic'"
-                        }
-                    )
-                return await page.goto(
-                    url, wait_until=config.wait_until, timeout=config.page_timeout
-                )
-
             if not config.js_only:
                 await self.execute_hook("before_goto", page, context=context, url=url, config=config)
-
-                try:
-                    response = await page_go(url)
-                except Error as e:
-                    # Allow navigation to be aborted when downloading files
-                    # This is expected behavior for downloads in some browser engines
-                    if 'net::ERR_ABORTED' in str(e) and self.browser_config.accept_downloads:
-                        self.logger.info(f"Navigation aborted, likely due to file download: {url}")
-                        response = None
-                    # if we have the proxy_provider, we should try to navigate again with the proxy
-                    elif config.proxy_provider:
-                        page, context = await self.browser_manager.get_page(crawlerRunConfig=config, refresh=True)
-                        try:
-                            response = await page_go(url)
-                        except Error as e:
-                            if 'net::ERR_ABORTED' in str(e) and self.browser_config.accept_downloads:
-                                self.logger.info(f"Navigation aborted, likely due to file download: {url}")
-                                response = None
-                            else:
-                                raise RuntimeError(f"Failed on navigating ACS-GOTO:\n{str(e)}")
-                    else:
-                        raise RuntimeError(f"Failed on navigating ACS-GOTO:\n{str(e)}")
-
+                response = await page_go(url)
                 await self.execute_hook(
                     "after_goto", page, context=context, url=url, response=response, config=config
                 )
@@ -854,12 +752,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 
                     status_code = first_resp.status
                     response_headers = first_resp.headers
-                # if response is None:
-                #     status_code = 200
-                #     response_headers = {}
-                # else:
-                #     status_code = response.status
-                #     response_headers = response.headers
 
             else:
                 status_code = 200
@@ -1010,6 +902,9 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             # Handle overlay removal
             if config.remove_overlay_elements:
                 await self.remove_overlay_elements(page)
+            
+            # 最后等待 1s，让页面完成变化
+            await asyncio.sleep(1)
 
             if config.css_selector:
                 try:
@@ -1026,44 +921,53 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                             )
                             html_parts.append(content)
                         except Error as e:
-                            print(f"Warning: Could not get content for selector '{selector}': {str(e)}")
+                            self.logger.warning(f"Warning: Could not get content for selector '{selector}': {str(e)}")
                     
                     # Wrap in a div to create a valid HTML structure
                     html = f"<div class='crawl4ai-result'>\n" + "\n".join(html_parts) + "\n</div>"                    
                 except Error as e:
                     raise RuntimeError(f"Failed to extract HTML content: {str(e)}")
             else:
+                if await self._check_status(page, url, response_headers):
+                    # 先等待 5s，让其他可能已经在进行中的页面完成抓取
+                    await asyncio.sleep(5)
+                    # 清除验证事件，暂停其他抓取任务
+                    self._verification_event.clear()
+                    try:
+                        start_time = time.monotonic()
+                        while True:
+                            await self._bring_page_to_front(page)
+                            if await ask_user(115, [page.url], timeout=90):
+                                self.logger.info(f"user confirmed verified: {page.url}")
+                                break
+                            
+                            if time.monotonic() - start_time > 180:
+                                raise RuntimeError("page encountered verification page, user not respond in time, break")
+
+                            response = await page_go(url)
+                            if response is None:
+                                raise RuntimeError("page encountered verification page, re-fresh failed")
+                            
+                            first_resp = response
+                            req = response.request
+                            while req and req.redirected_from:
+                                prev_req = req.redirected_from
+                                prev_resp = await prev_req.response()
+                                if prev_resp:    # keep earliest
+                                    first_resp = prev_resp
+                                req = prev_req
+                    
+                            status_code = first_resp.status
+                            response_headers = first_resp.headers
+                            
+                            if not await self._check_status(page, url, response_headers):
+                                break
+                    finally:
+                        # 恢复验证事件，允许其他任务继续
+                        self._verification_event.set()
+
                 html = await page.content()
-            
-            # 登录状态检测和用户交互逻辑
-            # 仅在非无头模式下生效（即 headless=False）且没有使用 css_selector 且需要登录时生效
-            if not self.browser_config.headless and not config.css_selector and config.need_login:
-                if not await self._check_login_status(page, url):
-                    if await self._wait_for_user_login(page, url):
-                        if self.logger:
-                            self.logger.debug("User logged in successfully, refreshing content...")
-                        
-                        # 登录成功后，给页面一些时间处理可能的动态更新
-                        await asyncio.sleep(2)
-                        
-                        # 检查页面是否还在当前URL，如果跳转了就不需要刷新
-                        current_url = page.url
-                        if current_url == url:
-                            # 如果还在同一个页面，刷新以确保获取最新内容
-                            try:
-                                if self.logger:
-                                    self.logger.debug("Refreshing page to get updated content after login")
-                                await page.reload(wait_until=config.wait_until, timeout=config.page_timeout)
-                            except Exception as e:
-                                if self.logger:
-                                    self.logger.warning(f"Failed to reload page after login: {e}")
-                        else:
-                            if self.logger:
-                                self.logger.debug(f"Page redirected from {url} to {current_url} after login")
-                        
-                        # 重新获取页面内容
-                        html = await page.content()
-                
+
             # # Get final HTML content
             await self.execute_hook(
                 "before_return_html", page=page, html=html, context=context, config=config
@@ -1097,11 +1001,6 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 await asyncio.sleep(delay)
                 return await page.content()
 
-            # For undetected browsers, retrieve console messages before returning
-            if config.capture_console_messages and hasattr(self.adapter, 'retrieve_console_messages'):
-                final_messages = await self.adapter.retrieve_console_messages(page)
-                captured_console.extend(final_messages)
-
             # Return complete response
             return AsyncCrawlResponse(
                 html=html,
@@ -1122,28 +1021,11 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 console_messages=captured_console if config.capture_console_messages else None,
             )
 
-        except Exception as e:
-            raise e
-
         finally:
             # If no session_id is given we should close the page
-            if not config.session_id:
-                total_pages = len(page.context.pages)
-    
-                if total_pages > 1 and not self.browser_config.headless:
-                    # Detach listeners before closing to prevent potential errors during close
-                    if config.capture_network_requests:
-                        page.remove_listener("request", handle_request_capture)
-                        # page.remove_listener("response", handle_response_capture)
-                        page.remove_listener("requestfailed", handle_request_failed_capture)
-                    if config.capture_console_messages:
-                        # Retrieve any final console messages for undetected browsers
-                        if hasattr(self.adapter, 'retrieve_console_messages'):
-                            final_messages = await self.adapter.retrieve_console_messages(page)
-                            captured_console.extend(final_messages)
-                        
-                        # Clean up console capture
-                        await self.adapter.cleanup_console_capture(page, handle_console, handle_error)
+            if not config.session_id and 'page' in locals():
+                # total_pages = len(page.context.pages)
+                # if total_pages > 1 and not self.browser_config.headless:
                 # if problems here, put this in the if block
                 await self.browser_manager.release_page(page)
 
@@ -1619,7 +1501,7 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             # Set a large viewport
             large_viewport_height = min(
                 page_height,
-                kwargs.get("screenshot_height_threshold", SCREENSHOT_HEIGHT_TRESHOLD),
+                kwargs.get("screenshot_height_threshold", config['SCREENSHOT_HEIGHT_TRESHOLD']),
             )
             await page.set_viewport_size(
                 {"width": page_width, "height": large_viewport_height}
