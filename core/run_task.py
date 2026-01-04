@@ -120,7 +120,7 @@ async def execute_time_slot_tasks(time_slot: str):
                     required_platforms.add(source['type'])
                 
             if 'bing' in search or 'github' in search:
-                # bing 和 github 需要 web 支持 （mp 也需要，但会在 warm up 中处理, 避免因此影响预登录判断）
+                # bing 和 github 需要 web 支持
                 required_platforms.add('web')
 
             task_job_count[task_id] = {'count': len(focuses), 'status': 0, 'msg': set(), 'apply_count': 0, 'total_processed': 0, 

@@ -7,7 +7,6 @@ import time
 import webbrowser
 from core.wis import (SqliteCache, 
                  AsyncWebCrawler, 
-                 CRAWLER_MAP,
                  CrawlerRunConfig, 
                  BrowserConfig)
 
@@ -50,7 +49,7 @@ async def load_proxies(db: AsyncDatabaseManager, required_platforms: set) -> dic
                 try:
                     proxy_provider = KuaiDaiLiProxy(
                         uni_name=f"{platform}_kdl_proxy",
-                        ip_pool_count=2,  # 快代理可以获取多个IP，按 mediacrawler-pro 建议，2个够了
+                        ip_pool_count=2,  # 快代理可以获取多个IP，2个够了
                         enable_validate_ip=False,
                         kdl_user_name=selected_kdl_proxy.get('USER_NAME', ''),
                         kdl_user_pwd=selected_kdl_proxy.get('USER_PWD', ''),
@@ -257,10 +256,8 @@ async def pre_login(
                     return False
 
                 start_time = time.monotonic()
-                # 这里可能性太多了，不能做类似 mc 那样的自动检测
                 # 首先用户点击登录，可能会跳转，跳转页面很可能检测不出来登录状态，或者会产生误判。这个时候就会发生用户正在操作，突然网页关了
                 # 其次登录好之后，我也不知道它会不会跳回来
-                # mc那边实际上是我做过针对性测试
                 # 这里也只能让用户来手动确认了，但可以设定一个时间（每次问询已经是等待3min了），超时了就自然过，这对应用户完成操作，没有回来点确认的情况
                 while True:
                     if await _check_login_status():
@@ -298,9 +295,8 @@ async def prepare_to_work(db_manager: AsyncDatabaseManager, cache_manager: Sqlit
         except Exception as e:
             wis_logger.info(f"自动打开浏览器登录页失败: {e}")
     
-    # 1. prepare proxies and backup accounts for mc
+    # 1. prepare proxies
     proxies = await load_proxies(db_manager, set(crawlers.keys()))
-    backup_accounts = await db_manager.list_mc_backup_accounts()
 
     # 2. init crawlers
     # 这一步所有的错误都已经在 crawler 中进行记录和用户反馈（而且已经完成了全部用户引导动作），这里仅需捕捉后兜底通知用户即可

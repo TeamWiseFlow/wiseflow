@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "wiseflow"
 version = "4.30"
-description = "WiseFlow - Use LLMs to dig out what you care about from massive amounts of information and a variety of sources daily"
+description = "WiseFlow - Use LLMs to track and extract websites, RSS feeds, and social media"
 authors = [
     {name = "TeamWiseflow", email = "info@wiseflow.pro"},
 ]
@@ -76,8 +76,6 @@ dependencies = [
     "schedule>=1.2.0",
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.30.0",
-    "pyarmor>=8.4,<9",
-    "pyinstaller>=6.16.0",
 ]
 
 [project.optional-dependencies]

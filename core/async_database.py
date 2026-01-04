@@ -60,10 +60,8 @@ class AsyncDatabaseManager:
             # 因为实践中有用户 focus 为 "微信 hook、微信逆向、视频号下载"，虽然都是同一套信源，但写成一个 focus 提取效果很差，需要分成三个 focus，分别提取
             # focuses 现在存储的是 focus 表的 id 列表，而不是完整的 focus 对象，通过关联查询获取完整信息
             'focuses': 'JSON DEFAULT "[]"',
-            'search': 'JSON DEFAULT "[]"', # 只能从如下多选：bing、github、arxiv、ks, wb, bili, dy, zhihu， xhs
-            # sources 对应一个列表，每个元素是一个 dict，含两个字段：type 和 detail
-            # type 是 TEXT，只能从如下单选："web", "rss", "ks", "wb", "mp", "bili", "dy", "zhihu", "xhs"
-            'sources': 'JSON DEFAULT "[]"',
+            'search': 'JSON DEFAULT "[]"', # 只能从如下多选：bing、github、arxiv
+            'sources': 'JSON DEFAULT "[]"', # type 是 TEXT，只能从如下单选："web", "rss"
             # 任务控制选项
             'activated': 'BOOLEAN DEFAULT 1',
             # 对应工作时间，是一个列表，只能从如下多选：first, second, third, fourth
@@ -96,13 +94,6 @@ class AsyncDatabaseManager:
             'apply_to': 'JSON DEFAULT "[]"',
             'updated': 'TEXT'
         },
-        'mc_backup_accounts': {
-            'id': 'INTEGER PRIMARY KEY AUTOINCREMENT',
-            'platform_name': 'TEXT',
-            'account_name': 'TEXT',
-            'cookies': 'TEXT',
-            'updated': 'TEXT'
-        },
         'focuses': {
             'id': 'INTEGER PRIMARY KEY AUTOINCREMENT',
             'focuspoint': 'TEXT', # 不能为空
@@ -127,8 +118,8 @@ class AsyncDatabaseManager:
     }
     
     # 任务相关字段的允许值
-    ALLOWED_SEARCH = {"bing", "github", "arxiv", "ks", "wb", "bili", "dy", "zhihu", "xhs"}
-    ALLOWED_SOURCE_TYPES = {"web", "rss", "ks", "wb", "mp", "bili", "dy", "zhihu", "xhs"}
+    ALLOWED_SEARCH = {"bing", "github", "arxiv"}
+    ALLOWED_SOURCE_TYPES = {"web", "rss"}
     ALLOWED_TIME_SLOTS = {'first', 'second', 'third', 'fourth'}
     
     def __init__(self, pool_size: int = 6, max_retries: int = 3, logger = None):
@@ -1348,99 +1339,6 @@ CREATE TABLE IF NOT EXISTS {table_name} (
                 self.logger.warning(f"Error adding missing columns to table '{table_name}': {str(e)}")
         
         return updated_columns
-
-    # ---------------------- mc_backup_accounts CRUD ----------------------
-    async def add_mc_backup_account(self, platform_name: str, cookies: str) -> Optional[int]:
-        """新增一条 mc_backup_accounts 记录，返回自增id"""
-        if not platform_name or not cookies:
-            self.logger.warning("platform_name and cookies cannot be empty")
-            return None
-            
-        now = self._get_utc_timestamp()
-        
-        async def _add(db):
-            now_str = datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')
-            account_name = f"{platform_name}_{now_str}"
-            
-            cursor = await db.execute(
-                """
-                INSERT INTO mc_backup_accounts (platform_name, account_name, cookies, updated)
-                VALUES (?, ?, ?, ?)
-                """,
-                (platform_name, account_name, cookies, now),
-            )
-            return cursor.lastrowid
-
-        try:
-            return await self.execute_with_retry(_add)
-        except Exception as e:
-            self.logger.error(f"Error adding mc_backup_account: {e}")
-            return None
-
-    async def list_mc_backup_accounts(self, platform_name: Optional[str] = None) -> List[dict]:
-        """获取 mc_backup_accounts 记录，可按平台过滤"""
-        result: List[dict] = []
-
-        async def _list(db):
-            if platform_name:
-                query = "SELECT id, platform_name, account_name, cookies, updated FROM mc_backup_accounts WHERE platform_name = ? ORDER BY updated DESC"
-                params = (platform_name,)
-            else:
-                query = "SELECT id, platform_name, account_name, cookies, updated FROM mc_backup_accounts ORDER BY updated DESC"
-                params = ()
-                
-            async with db.execute(query, params) as cursor:
-                rows = await cursor.fetchall()
-                cols = [d[0] for d in cursor.description]
-                for r in rows:
-                    item = dict(zip(cols, r))
-                    result.append(item)
-
-        try:
-            await self.execute_with_retry(_list)
-        except Exception as e:
-            self.logger.error(f"Error listing mc_backup_accounts: {e}")
-            return None
-        return result
-
-    async def update_mc_backup_account(self, account_id: int, **fields) -> Optional[int]:
-        """按需更新 mc_backup_account 字段: 支持 platform_name, cookies"""
-        allowed = {'platform_name', 'cookies'}
-        to_update = {k: v for k, v in fields.items() if k in allowed}
-        if not to_update:
-            return None
-
-        # 如果更新了 platform_name，需要重新生成 account_name
-        if 'platform_name' in to_update:
-            new_platform_name = to_update['platform_name']
-            now_str = datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')
-            new_account_name = f"{new_platform_name}_{now_str}"
-            to_update['account_name'] = new_account_name
-
-        set_clause = ', '.join([f"{k} = ?" for k in to_update.keys()]) + ", updated = ?"
-        params = list(to_update.values()) + [self._get_utc_timestamp(), account_id]
-
-        async def _upd(db):
-            await db.execute(f"UPDATE mc_backup_accounts SET {set_clause} WHERE id = ?", params)
-
-        try:
-            await self.execute_with_retry(_upd)
-            return account_id
-        except Exception as e:
-            self.logger.error(f"Error updating mc_backup_account {account_id}: {e}")
-            return None
-
-    async def delete_mc_backup_account(self, account_id: int) -> Optional[int]:
-        """删除指定 id 的 mc_backup_account 记录"""
-        async def _del(db):
-            await db.execute("DELETE FROM mc_backup_accounts WHERE id = ?", (account_id,))
-
-        try:
-            await self.execute_with_retry(_del)
-            return account_id
-        except Exception as e:
-            self.logger.error(f"Error deleting mc_backup_account {account_id}: {e}")
-            return None
 
     def _convert_value_to_type(self, value: any, sql_type: str) -> any:
         """

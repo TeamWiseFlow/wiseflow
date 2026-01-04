@@ -70,8 +70,8 @@ class UserIdRequest(BaseModel):
 
 
 # 任务字段允许值
-ALLOWED_SEARCH = {"bing", "github", "arxiv", "ks", "wb", "bili", "dy", "zhihu", "xhs"}
-ALLOWED_SOURCE_TYPES = {"web", "rss", "ks", "wb", "mp", "bili", "dy", "zhihu", "xhs"}
+ALLOWED_SEARCH = {"bing", "github", "arxiv"}
+ALLOWED_SOURCE_TYPES = {"web", "rss"}
 ALLOWED_TIME_SLOTS = {'first', 'second', 'third', 'fourth'}
 
 def _validate_task_inputs(search: Optional[List[str]] = None,
@@ -115,8 +115,8 @@ def _validate_task_inputs(search: Optional[List[str]] = None,
 
 class TaskRequest(BaseModel):
     focuses: List[Dict | int] = []
-    search: Optional[List[str]] = None  # bing、github、arxiv、ks, wb, bili, dy, zhihu, xhs
-    sources: List[Dict] = []  # type: web/rss/ks/wb/mp/bili/dy/zhihu/xhs, detail: List[str]
+    search: Optional[List[str]] = None  # bing、github、arxiv
+    sources: List[Dict] = []  # type: web/rss, detail: List[str]
     activated: Optional[bool] = True
     time_slots: Optional[List[str]] = None  # morning、afternoon、evening、dawn
     title: Optional[str] = None  # 任务标题，可选
@@ -147,11 +147,6 @@ class KdlProxyRequest(BaseModel):
     USER_NAME: str
     USER_PWD: str
     apply_to: List[str] = []
-
-
-class BackupAccountRequest(BaseModel):
-    platform_name: str
-    cookies: str
 
 
 class UserNotifyRequest(BaseModel):
@@ -479,47 +474,6 @@ async def update_kdl_proxies(proxy_id: int, request: KdlProxyRequest):
         return APIResponse(success=True, msg="", data=proxy_id)
     else:
         return APIResponse(success=False, msg="KDL代理更新失败", data=None)
-
-# 20-23. mc_backup_accounts CRUD
-@app.get("/list_mc_backup_accounts")
-async def list_mc_backup_accounts():
-    accounts = await db_manager.list_mc_backup_accounts()
-    if accounts is not None:
-        return APIResponse(success=True, msg="", data=accounts)
-    else:
-        return APIResponse(success=False, msg="获取备份账户列表失败", data=[])
-
-@app.delete("/del_mc_backup_accounts")
-async def del_mc_backup_accounts(account_id: int):
-    result = await db_manager.delete_mc_backup_account(account_id)
-    if result is not None:
-        return APIResponse(success=True, msg="", data=None)
-    else:
-        return APIResponse(success=False, msg="MC备份账户删除失败", data=None)
-
-@app.post("/add_mc_backup_accounts")
-async def add_mc_backup_accounts(request: BackupAccountRequest):
-    account_id = await db_manager.add_mc_backup_account(
-        platform_name=request.platform_name,
-        cookies=request.cookies
-    )
-    
-    if account_id is not None:
-        return APIResponse(success=True, msg="", data=account_id)
-    else:
-        return APIResponse(success=False, msg="MC备份账户创建失败", data=None)
-
-@app.put("/update_mc_backup_accounts")
-async def update_mc_backup_accounts(account_id: int, request: BackupAccountRequest):
-    result = await db_manager.update_mc_backup_account(
-        account_id=account_id,
-        platform_name=request.platform_name,
-        cookies=request.cookies
-    )
-    if result is not None:
-        return APIResponse(success=True, msg="", data=result)
-    else:
-        return APIResponse(success=False, msg="备份账户更新失败", data=None)
 
 # 24. list_config
 @app.get("/list_config")
