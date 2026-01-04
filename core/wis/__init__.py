@@ -1,45 +1,24 @@
-# __init__.py
 import warnings
-from .async_configs import BrowserConfig, CrawlerRunConfig, GeolocationConfig
-from .async_webcrawler import AsyncWebCrawler
-from .extraction_strategy import (
-    NoExtractionStrategy,
-    ExtractionStrategy,
-    LLMExtractionStrategy,
-    JsonCssExtractionStrategy,
-    JsonXPathExtractionStrategy,
-    JsonLxmlExtractionStrategy,
-    RegexExtractionStrategy
-)
-from .chunking_strategy import ChunkingStrategy, RegexChunking, IdentityChunking, MaxLengthChunking
+import importlib
+from typing import Any, Dict, Tuple
 
-from .basemodels import CrawlResult
-from .markdown_generation_strategy import (
-    DefaultMarkdownGenerator, 
-    WeixinArticleMarkdownGenerator,
-)
+#
+# Lazy exports to reduce import-time overhead and avoid side effects under spawn.
+# Accessing attributes will import the corresponding submodules on demand and cache them.
+#
 
-from .async_dispatcher import (
-    MemoryAdaptiveDispatcher,
-    SemaphoreDispatcher,
-    RateLimiter,
-    BaseDispatcher,
-)
-
-from .kuaishou import *
-from .weibo import *
-from .config import WEIBO_PLATFORM_NAME, KUAISHOU_PLATFORM_NAME, ALL_PLATFORMS
-from .searchengines import search_with_engine
+"CRAWLER_MAP" = {}
 
 __all__ = [
+    # Core runtime
     "AsyncWebCrawler",
-    "GeolocationConfig",
-    "CrawlResult",
     "BrowserConfig",
     "CrawlerRunConfig",
+    "GeolocationConfig",
+    "CrawlResult",
+    # Extraction and chunking
     "ExtractionStrategy",
     "NoExtractionStrategy",
-    "LLMExtractionStrategy",
     "JsonCssExtractionStrategy",
     "JsonXPathExtractionStrategy",
     "JsonLxmlExtractionStrategy",
@@ -48,20 +27,60 @@ __all__ = [
     "RegexChunking",
     "IdentityChunking",
     "MaxLengthChunking",
+    # Dispatchers
     "BaseDispatcher",
     "MemoryAdaptiveDispatcher",
     "SemaphoreDispatcher",
-    "KuaiShouCrawler",
-    "WeiboCrawler",
-    "WeiboSearchType",
-    "WEIBO_PLATFORM_NAME",
-    "KUAISHOU_PLATFORM_NAME",
+    "RateLimiter",
+    # Other utilities
     "DefaultMarkdownGenerator",
     "WeixinArticleMarkdownGenerator",
     "search_with_engine",
-    "ALL_PLATFORMS",
+    "ExtractManager",
+    "SqliteCache",
+    "MAIN_CACHE_FILE",
+    # Dynamic mapping
+    "CRAWLER_MAP",
 ]
+
+_LAZY_ATTRS: Dict[str, Tuple[str, str]] = {
+    # Core runtime
+    "AsyncWebCrawler": ("core.wis.async_webcrawler", "AsyncWebCrawler"),
+    "BrowserConfig": ("core.wis.async_configs", "BrowserConfig"),
+    "CrawlerRunConfig": ("core.wis.async_configs", "CrawlerRunConfig"),
+    "GeolocationConfig": ("core.wis.async_configs", "GeolocationConfig"),
+    "CrawlResult": ("core.wis.basemodels", "CrawlResult"),
+    # Extraction and chunking
+    "ExtractionStrategy": ("core.wis.extraction_strategy", "ExtractionStrategy"),
+    "NoExtractionStrategy": ("core.wis.extraction_strategy", "NoExtractionStrategy"),
+    "JsonCssExtractionStrategy": ("core.wis.extraction_strategy", "JsonCssExtractionStrategy"),
+    "JsonXPathExtractionStrategy": ("core.wis.extraction_strategy", "JsonXPathExtractionStrategy"),
+    "JsonLxmlExtractionStrategy": ("core.wis.extraction_strategy", "JsonLxmlExtractionStrategy"),
+    "RegexExtractionStrategy": ("core.wis.extraction_strategy", "RegexExtractionStrategy"),
+    "ChunkingStrategy": ("core.wis.chunking_strategy", "ChunkingStrategy"),
+    "RegexChunking": ("core.wis.chunking_strategy", "RegexChunking"),
+    "IdentityChunking": ("core.wis.chunking_strategy", "IdentityChunking"),
+    "MaxLengthChunking": ("core.wis.chunking_strategy", "MaxLengthChunking"),
+    # Dispatchers
+    "BaseDispatcher": ("core.wis.async_dispatcher", "BaseDispatcher"),
+    "MemoryAdaptiveDispatcher": ("core.wis.async_dispatcher", "MemoryAdaptiveDispatcher"),
+    "SemaphoreDispatcher": ("core.wis.async_dispatcher", "SemaphoreDispatcher"),
+    "RateLimiter": ("core.wis.async_dispatcher", "RateLimiter"),
+    # Other utilities
+    "DefaultMarkdownGenerator": ("core.wis.markdown_generation_strategy", "DefaultMarkdownGenerator"),
+    "WeixinArticleMarkdownGenerator": ("core.wis.markdown_generation_strategy", "WeixinArticleMarkdownGenerator"),
+    "search_with_engine": ("core.wis.searchengines", "search_with_engine"),
+    "ExtractManager": ("core.wis.extractor", "ExtractManager"),
+    "SqliteCache": ("core.wis.async_cache", "SqliteCache"),
+    "MAIN_CACHE_FILE": ("core.wis.async_cache", "MAIN_CACHE_FILE"),
+}
+
+def _resolve(name: str) -> Any:
+    module_path, attr = _LAZY_ATTRS[name]
+    mod = importlib.import_module(module_path)
+    value = getattr(mod, attr)
+    globals()[name] = value  # cache for future access
+    return value
 
 # Disable all Pydantic warnings
 warnings.filterwarnings("ignore", module="pydantic")
-# pydantic_warnings.filter_warnings()

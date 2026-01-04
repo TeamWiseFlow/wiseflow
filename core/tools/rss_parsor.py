@@ -1,37 +1,61 @@
 import httpx
 import feedparser
-from async_logger import wis_logger
-from wis import CrawlResult
+from core.async_logger import wis_logger
+from core.wis import CrawlResult, SqliteCache
 from typing import List, Tuple
+from core.wis.ws_connect import notify_user
+from core.tools.general_utils import normalize_publish_date
+import asyncio
 
 
-async def fetch_rss(url, existings: set=set()) -> Tuple[List[CrawlResult], str, dict]:
-    try:
-        async with httpx.AsyncClient(timeout=30) as client:
-            response = await client.get(url)
-            response.raise_for_status()
-        content = response.content  # bytes
+async def fetch_rss(url, existings: set=set(), cache_manager: SqliteCache = None) -> Tuple[List[CrawlResult], str, dict]:
+    entries = None
+    if cache_manager:
+        entries = await cache_manager.get(url, namespace='rss')
+        if entries == '**empty**':
+            return [], '', {}
+        
+    if not entries:
+        max_retries = 3
+        base_delay = 10  # seconds
+        for attempt in range(max_retries):
+            try:
+                async with httpx.AsyncClient(timeout=30) as client:
+                    response = await client.get(url)
+                    response.raise_for_status()
+                content = response.content  # bytes
+                break
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    delay = base_delay * (2 ** attempt)
+                    wis_logger.debug(f"fetching RSS from {url} attempt {attempt + 1} failed with error: {str(e)}, retrying in {delay} seconds")
+                    await asyncio.sleep(delay)
+                else:
+                    wis_logger.warning(f"fetching RSS from {url} failed after {max_retries} attempts with error: {str(e)}")
+                    await notify_user(15, [url])
+                    return [], '', {}
+        
         parsed = feedparser.parse(content)
-    except Exception as e:
-        wis_logger.error(f"Error fetching RSS from {url}: {e}")
-        return [], '', {}
-    
-    if parsed.get("bozo", False):
-        wis_logger.error(f"Error parsing RSS from {url}: {parsed.get('bozo_exception', '')}")
-        return [], '', {}
+        if parsed.get("bozo", False):
+            wis_logger.warning(f"Error parsing RSS from {url}: {parsed.get('bozo_exception', '')}")
+            raise RuntimeError(f"RSS from {url}: {parsed.get('bozo_exception', '')}")
+        
+        entries = parsed.entries
+        if cache_manager:
+            await cache_manager.set(url, entries, 60*24, namespace='rss')
     
     results = []
     markdown = ''
     link_dict = {}
-    for entry in parsed.entries:
+    for entry in entries:
         html_parts = []
         description = ''
         article_url = entry.get('link', url)
         if article_url in existings:
             continue
         # 1. 如果 entry 有 content 字段，遍历每个 content_item
-        if 'content' in entry:
-            for content_item in entry.content:
+        if 'content' in entry and entry['content']:
+            for content_item in entry['content']:
                 t = content_item.get('type', '').lower()
                 if t.startswith('text/') or t == 'application/xhtml+xml':
                     # 尝试多种字段名
@@ -55,7 +79,7 @@ async def fetch_rss(url, existings: set=set()) -> Tuple[List[CrawlResult], str, 
         # 4. 拼接所有内容为一个整体 html
         author = entry.get('author', '')
         title = entry.get('title', '')
-        publish_date = entry.get('published', '')
+        publish_date = normalize_publish_date(entry.get('published', '')) or entry.get('published', '')
         if html_parts:
             html = '\n\n'.join(html_parts)
             results.append(CrawlResult(

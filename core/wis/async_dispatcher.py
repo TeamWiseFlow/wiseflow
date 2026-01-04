@@ -17,7 +17,7 @@ import random
 from abc import ABC, abstractmethod
 
 from .utils import get_true_memory_usage_percent
-from .config import MaxSessionPermit
+from .config import config
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -49,7 +49,7 @@ class RateLimiter:
             self.domains[domain] = DomainState()
             state = self.domains[domain]
 
-        now = time.time()
+        now = time.perf_counter()
         if state.last_request_time:
             wait_time = max(0, state.current_delay - (now - state.last_request_time))
             if wait_time > 0:
@@ -59,7 +59,7 @@ class RateLimiter:
         if state.current_delay == 0:
             state.current_delay = random.uniform(*self.base_delay)
 
-        state.last_request_time = time.time()
+        state.last_request_time = time.perf_counter()
 
     def update_delay(self, url: str, status_code: int) -> bool:
         domain = self.get_domain(url)
@@ -118,7 +118,7 @@ class MemoryAdaptiveDispatcher(BaseDispatcher):
         critical_threshold_percent: float = 95.0,  # New critical threshold
         recovery_threshold_percent: float = 85.0,  # New recovery threshold
         check_interval: float = 1.0,
-        max_session_permit: int = MaxSessionPermit,
+        max_session_permit: int = config['MaxSessionPermit'],
         fairness_timeout: float = 600.0,  # 10 minutes before prioritizing long-waiting URLs
         memory_wait_timeout: Optional[float] = 600.0,
         rate_limiter: Optional[RateLimiter] = None,
@@ -146,14 +146,14 @@ class MemoryAdaptiveDispatcher(BaseDispatcher):
             if self.current_memory_percent >= self.memory_threshold_percent:
                 if not self.memory_pressure_mode:
                     self.memory_pressure_mode = True
-                    self._high_memory_start_time = time.time()
+                    self._high_memory_start_time = time.perf_counter()
                 else:
                     if self._high_memory_start_time is None:
-                        self._high_memory_start_time = time.time()
+                        self._high_memory_start_time = time.perf_counter()
                     if (
                         self.memory_wait_timeout is not None
                         and self._high_memory_start_time is not None
-                        and time.time() - self._high_memory_start_time >= self.memory_wait_timeout
+                        and time.perf_counter() - self._high_memory_start_time >= self.memory_wait_timeout
                     ):
                         raise MemoryError(
                             "Memory usage exceeded threshold for"
@@ -186,7 +186,7 @@ class MemoryAdaptiveDispatcher(BaseDispatcher):
         task_id: str,
         retry_count: int = 0,
     ) -> CrawlerTaskResult:
-        start_time = time.time()
+        start_time = time.perf_counter()
         error_message = ""
         memory_usage = peak_memory = 0.0
         
@@ -203,7 +203,7 @@ class MemoryAdaptiveDispatcher(BaseDispatcher):
             # Check if we're in critical memory state
             if self.current_memory_percent >= self.critical_threshold_percent:
                 # Requeue this task with increased priority and retry count
-                enqueue_time = time.time()
+                enqueue_time = time.perf_counter()
                 priority = self._get_priority_score(enqueue_time - start_time, retry_count + 1)
                 await self.task_queue.put((priority, (url, task_id, retry_count + 1, enqueue_time)))
                 
@@ -218,7 +218,7 @@ class MemoryAdaptiveDispatcher(BaseDispatcher):
                     memory_usage=0,
                     peak_memory=0,
                     start_time=start_time,
-                    end_time=time.time(),
+                    end_time=time.perf_counter(),
                     error_message="Requeued due to critical memory pressure",
                     retry_count=retry_count + 1
                 )
@@ -246,7 +246,7 @@ class MemoryAdaptiveDispatcher(BaseDispatcher):
             )
             
         finally:
-            end_time = time.time()
+            end_time = time.perf_counter()
             self.concurrent_sessions -= 1
             
         return CrawlerTaskResult(
@@ -278,7 +278,7 @@ class MemoryAdaptiveDispatcher(BaseDispatcher):
             for url in urls:
                 task_id = str(uuid.uuid4())
                 # Add to queue with initial priority 0, retry count 0, and current time
-                await self.task_queue.put((0, (url, task_id, 0, time.time())))
+                await self.task_queue.put((0, (url, task_id, 0, time.perf_counter())))
 
             active_tasks = []
 
@@ -329,8 +329,6 @@ class MemoryAdaptiveDispatcher(BaseDispatcher):
                     
                 # Update priorities for waiting tasks if needed
                 await self._update_queue_priorities()
-                
-            return results
 
         except Exception as e:
             pass               
@@ -338,6 +336,7 @@ class MemoryAdaptiveDispatcher(BaseDispatcher):
         finally:
             # Clean up
             memory_monitor.cancel()
+            return results
                 
     async def _update_queue_priorities(self):
         """Periodically update priorities of items in the queue to prevent starvation"""
@@ -350,8 +349,8 @@ class MemoryAdaptiveDispatcher(BaseDispatcher):
         
         # Drain the queue (with a safety timeout to prevent blocking)
         try:
-            drain_start = time.time()
-            while not self.task_queue.empty() and time.time() - drain_start < 5.0:  # 5 second safety timeout
+            drain_start = time.perf_counter()
+            while not self.task_queue.empty() and time.perf_counter() - drain_start < 5.0:  # 5 second safety timeout
                 try:
                     # Get item from queue with timeout
                     priority, (url, task_id, retry_count, enqueue_time) = await asyncio.wait_for(
@@ -359,7 +358,7 @@ class MemoryAdaptiveDispatcher(BaseDispatcher):
                     )
                     
                     # Calculate new priority based on current wait time
-                    current_time = time.time()
+                    current_time = time.perf_counter()
                     wait_time = current_time - enqueue_time
                     new_priority = self._get_priority_score(wait_time, retry_count)
                     
@@ -459,7 +458,7 @@ class SemaphoreDispatcher(BaseDispatcher):
     def __init__(
         self,
         semaphore_count: int = 5,
-        max_session_permit: int = MaxSessionPermit,
+        max_session_permit: int = config['MaxSessionPermit'],
         rate_limiter: Optional[RateLimiter] = None,
     ):
         super().__init__(rate_limiter)
@@ -472,7 +471,7 @@ class SemaphoreDispatcher(BaseDispatcher):
         task_id: str,
         semaphore: asyncio.Semaphore = None,
     ) -> CrawlerTaskResult:
-        start_time = time.time()
+        start_time = time.perf_counter()
         error_message = ""
         memory_usage = peak_memory = 0.0
 
@@ -498,7 +497,7 @@ class SemaphoreDispatcher(BaseDispatcher):
                             memory_usage=memory_usage,
                             peak_memory=peak_memory,
                             start_time=start_time,
-                            end_time=time.time(),
+                            end_time=time.perf_counter(),
                             error_message=error_message,
                         )
 
@@ -512,7 +511,7 @@ class SemaphoreDispatcher(BaseDispatcher):
             )
 
         finally:
-            end_time = time.time()
+            end_time = time.perf_counter()
 
         return CrawlerTaskResult(
             task_id=task_id,

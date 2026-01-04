@@ -9,7 +9,7 @@ from textwrap import wrap
 from typing import Dict, List, Optional, Tuple, Union
 
 from . import config
-from ._typing import OutCallback
+from .h_typing import OutCallback
 from .elements import AnchorElement, ListElement
 from .utils import (
     dumb_css_parser,

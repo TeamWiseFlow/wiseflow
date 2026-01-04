@@ -1,11 +1,11 @@
 import asyncio
 import httpx
-from datetime import datetime
-from async_logger import wis_logger
+from core.async_logger import wis_logger
 from typing import Tuple
 from urllib.parse import urlencode
-from dateutil import parser
 import json
+from core.wis import SqliteCache
+from core.wis.ws_connect import notify_user
 
 
 def gen_request(query: str) -> dict:
@@ -45,7 +45,7 @@ def parse_response(response_text: str) -> list[dict]:
                 # 'package_name': item.get('name'),
                 # 'version': item.get('updated_at'),
                 'maintainer': item.get('owner', {}).get('login'),
-                'publishedDate': parser.parse(item.get("updated_at") or item.get("created_at")),
+                'publishedDate': item.get("updated_at") or item.get("created_at"),
                 'tags': item.get('topics', []),
                 'popularity': item.get('stargazers_count'),
                 'license_name': lic.get('name'),
@@ -57,42 +57,48 @@ def parse_response(response_text: str) -> list[dict]:
 
     return results
 
-async def search_with_github(query: str, existings: set[str] = set()) -> Tuple[str, dict]:
-    request_params = gen_request(query)
-    max_retries = 3
-    base_delay = 10  # seconds
-    search_results = []
-    for attempt in range(max_retries):
-        try:
-            method = request_params.get("method", "GET").upper()
-            url = request_params["url"]
-            headers = request_params.get("headers")
+async def search_with_github(query: str, existings: set[str] = set(), cache_manager: SqliteCache = None) -> Tuple[str, dict]:
+    raw_result = None
+    if cache_manager:
+        raw_result = await cache_manager.get(query, namespace='github_search')
+        if raw_result == '**empty**':
+            return '', {}
+        
+    if not raw_result:
+        request_params = gen_request(query)
+        max_retries = 3
+        base_delay = 10  # seconds
+        for attempt in range(max_retries):
+            try:
+                method = request_params.get("method", "GET").upper()
+                url = request_params["url"]
+                headers = request_params.get("headers")
 
-            async with httpx.AsyncClient(timeout=30) as client:
-                response = await client.request(method, url, headers=headers, timeout=30)
+                async with httpx.AsyncClient(timeout=30) as client:
+                    response = await client.request(method, url, headers=headers, timeout=30)
+                response.raise_for_status()
+                break
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    delay = base_delay * (2 ** attempt)
+                    wis_logger.debug(f"github search attempt {attempt + 1} failed with error: {str(e)}, retrying in {delay} seconds")
+                    await asyncio.sleep(delay)
+                else:
+                    wis_logger.warning(
+                        f"github search failed after {max_retries} attempts with error: {str(e)}"
+                    )
+                    await notify_user(15, ['github'])
+                    return "", {}
+        
+        # Parse response
+        raw_result = parse_response(response.text)
 
-            response.raise_for_status()
-
-            # Parse response
-            search_results = parse_response(response.text)
-            break
-
-        except Exception as e:
-            if attempt < max_retries - 1:
-                delay = base_delay * (2 ** attempt)
-                wis_logger.warning(
-                    f"github search attempt {attempt + 1} failed with error: {str(e)}, retrying in {delay} seconds"
-                )
-                await asyncio.sleep(delay)
-            else:
-                wis_logger.error(
-                    f"github search failed after {max_retries} attempts with error: {str(e)}"
-                )
-                return "", {}
+        if cache_manager:
+            await cache_manager.set(query, raw_result, 60*24, namespace='github_search')
     
     markdown = ""
     link_dict = {}
-    for result in search_results:
+    for result in raw_result:
         # for github engine, we treat the result as post list, need to generate the markdown and link_dict
         # the content in search result is the description of the repo, we need to get the full content from the url
         # but there's a chance the full content crawler will fail, in this case, at least we still can get every infos here and more links...
@@ -111,10 +117,10 @@ async def search_with_github(query: str, existings: set[str] = set()) -> Tuple[s
         license = result.get("license_name", "") or ""
         popularity = result.get("popularity", "") or ""
         maintainer = result.get("maintainer", "") or ""
-        # Convert datetime to date string format
-        date_str = publish_date.strftime("%Y-%m-%d") if isinstance(publish_date, datetime) else str(publish_date)
+        # Extract date part from datetime string (format: 2024-01-01T12:00:00Z -> 2024-01-01)
+        date_str = publish_date.split('T')[0] if publish_date and 'T' in publish_date else str(publish_date)
         key = f"[{len(link_dict)+1}]"
         link_dict[key] = url
-        markdown += f"* {key}{title}\nLicense: {license} Popularity: {popularity}\nTags: {tags}\nMaintainer: {maintainer}\n{content}\nPublished Date: {date_str}\n\n"
+        markdown += f"* {key}{title}\nLicense: {license}\nPopularity: {popularity}\nTags: {tags}\nMaintainer: {maintainer}\n{content}\nPublished Date: {date_str}\n\n"
 
     return markdown, link_dict

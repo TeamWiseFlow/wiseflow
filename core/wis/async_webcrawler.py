@@ -1,8 +1,7 @@
-import os
 import time
 from typing import Optional, List
 import asyncio
-
+# from .config import config
 from .utils import configure_windows_event_loop
 configure_windows_event_loop()
 
@@ -11,10 +10,9 @@ from contextlib import asynccontextmanager
 from .basemodels import (
     CrawlResult,
     DispatchResult,
-    CrawlResultContainer,
     RunManyReturn
 )
-from async_logger import wis_logger, base_directory
+from core.async_logger import wis_logger, base_directory
 from .async_crawler_strategy import (
     AsyncCrawlerStrategy,
     AsyncPlaywrightCrawlerStrategy,
@@ -24,7 +22,6 @@ from .async_configs import BrowserConfig, CrawlerRunConfig
 from .async_dispatcher import BaseDispatcher, MemoryAdaptiveDispatcher, RateLimiter
 from .utils import (
     sanitize_input_encode,
-    get_base_domain,
     preprocess_html_for_schema,
     get_content_of_website,
     extract_metadata,
@@ -32,8 +29,7 @@ from .utils import (
     can_process_url,
     common_file_exts,
 )
-
-from .robotsparser import RobotsParser
+from core.tools.general_utils import normalize_publish_date
 
 
 class AsyncWebCrawler:
@@ -68,12 +64,11 @@ class AsyncWebCrawler:
         self._lock = asyncio.Lock() if thread_safe else None
 
         # Initialize directories
-        self.crawl4ai_folder = os.path.join(base_directory, ".crawl4ai")
-        # os.makedirs(self.crawl4ai_folder, exist_ok=True)
-        os.makedirs(os.path.join(self.crawl4ai_folder, "cache"), exist_ok=True)
+        self.crawl4ai_folder = base_directory / ".crawl4ai"
+        cache_dir = self.crawl4ai_folder / "cache"
+        cache_dir.mkdir(parents=True, exist_ok=True)
 
         # Initialize robots parser
-        self.robots_parser = RobotsParser(cache_dir=self.crawl4ai_folder)
         self.db_manager = db_manager
         self.crawler_config_map = crawler_config_map
         self.ready = False
@@ -111,13 +106,14 @@ class AsyncWebCrawler:
         """异步空上下文管理器"""
         yield
 
-    async def arun(self, url: str, config: CrawlerRunConfig = None, session_id: str = None) -> Optional[RunManyReturn]:
+    async def arun(self, url: str, config: CrawlerRunConfig = None, session_id: str = None) -> Optional[CrawlResult]:
         if self.db_manager:
-            cached_result = await self.db_manager.get_cached_url(url, days_threshold=30)
-            if cached_result and cached_result.html:
-                wis_logger.debug(f"Get {url} from db cache")
+            cached_result = await self.db_manager.get(url)
+            if cached_result and isinstance(cached_result, dict) and cached_result.get("html"):
+                wis_logger.debug(f"[CACHE FOUND] ✓ {url:.30}... ")
+                cached_result = CrawlResult(**cached_result)
                 cached_result.session_id = session_id
-                return CrawlResultContainer(cached_result)
+                return cached_result
             
         # Auto-start if not ready
         if not self.ready:
@@ -133,8 +129,14 @@ class AsyncWebCrawler:
             return None
         
         if not can_process_url(url):
-            wis_logger.info(f"Invalid URL formate {url}")
+            wis_logger.info(f"Invalid URL formate or in forbidden list: {url}")
             return None
+        
+        # need_login = False
+        # for need_login_domain in config['NEED_LOGIN_DOMAINS']:
+        #    if need_login_domain in _clean_url:
+        #        need_login = True
+        #        break
 
         async with self._lock or self.nullcontext():
             try:
@@ -142,23 +144,18 @@ class AsyncWebCrawler:
                 async_response: AsyncCrawlResponse = None
                 screenshot_data = None
                 pdf_data = None
-                config = config or self.crawler_config_map.get(get_base_domain(url), self.crawler_config_map['default'])
+                # config = config or self.crawler_config_map.get(get_base_domain(url), self.crawler_config_map['default'])
+                # pro 版本无需根据domain获取config
+                config = config or self.crawler_config_map['default']
 
                 t1 = time.perf_counter()
-                # Check robots.txt if enabled
-                if config and config.check_robots_txt:
-                    if not await self.robots_parser.can_fetch(
-                        url, config.user_agent
-                    ):
-                        wis_logger.info(f"Access denied by robots.txt")
-                        return None
-
                 ##############################
                 # Call CrawlerStrategy.crawl #
                 ##############################
                 async_response = await self.crawler_strategy.crawl(
                     url,
                     config=config,  # Pass the entire config object
+                    # need_login=need_login,
                 )
 
                 html = "" if async_response.status_code in [403, 404, 429] else sanitize_input_encode(async_response.html)
@@ -173,12 +170,9 @@ class AsyncWebCrawler:
                 else:
                     wis_logger.info(f"[FETCH] ✗ {url} | ⏱: {t2 - t1:.2f}s")
             except Exception as e:
-                error_message = f"[Crawl Failed] {url}\n{str(e)}"
-                wis_logger.warning(error_message)
-                return CrawlResultContainer(
-                    CrawlResult(
-                        url=url, html="", success=False, error_message=error_message
-                    )
+                wis_logger.error(f"[Crawl Failed] {url}\n{str(e)}")
+                return CrawlResult(
+                    url=url, html="", success=False, error_message=str(e)
                 )
             if success:
                 try:
@@ -203,13 +197,14 @@ class AsyncWebCrawler:
                 cleaned_html = ''
                 metadata = {}
 
+            publish_date = metadata.get("publish_date") or last_modified
             crawl_result = CrawlResult(
                 url=url,
                 html=html,
                 cleaned_html=cleaned_html,
                 screenshot=screenshot_data,
                 pdf=pdf_data,
-                publish_date=metadata.get("publish_date") or last_modified,
+                publish_date=normalize_publish_date(publish_date) or publish_date,
                 title=metadata.get("title") or "",
                 author=metadata.get("author") or "",
                 success=success,
@@ -224,10 +219,10 @@ class AsyncWebCrawler:
                 console_messages=async_response.console_messages,
                 session_id=session_id,
             )
-            # if self.db_manager and success:
-            #     await self.db_manager.cache_url(crawl_result)
-            # seems should cache after markdown generated (in general_process.py)
-            return CrawlResultContainer(crawl_result)
+            if self.db_manager and success and not url.startswith("https://www.bing.com/search"):
+                # 这里文章相当于“信源”，考虑网页刷新率没那么高，我们先缓存5小时
+                await self.db_manager.set(url, crawl_result.model_dump(), 60*5)
+            return crawl_result
 
     async def arun_many(
         self,
@@ -270,7 +265,7 @@ class AsyncWebCrawler:
             dispatcher = MemoryAdaptiveDispatcher(
                 rate_limiter=RateLimiter(
                     base_delay=(1.0, 3.0), max_delay=60.0, max_retries=3
-                )
+                ),
             )
 
         def transform_result(task_result):

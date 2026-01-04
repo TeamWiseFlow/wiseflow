@@ -1,10 +1,9 @@
 import json
-import os
+import time
 from typing import List
 from .base_proxy import IpInfoModel, ProxyProvider, base_directory
-import time
 
-DEFAULT_LOCAL_PROXY_FILE = os.path.join(base_directory, "proxy_setting.json")
+DEFAULT_LOCAL_PROXY_FILE = base_directory / "proxy_setting.json"
 """
 You Must give a json file as following format:
 [

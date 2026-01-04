@@ -2,17 +2,13 @@
 Clean C4A-Script API with Result pattern
 No exceptions - always returns results
 modified by bigbrother666sh to compile with wiseflow llm-use
-2025-08-24
 """
 
 from __future__ import annotations
 import pathlib
 import regex as re
 from typing import Union, List, Optional
-
-# JSON_SCHEMA_BUILDER is still used elsewhere,
-# but we now also need the new script-builder prompt.
-from ..prompts import GENERATE_JS_SCRIPT_PROMPT, GENERATE_SCRIPT_PROMPT
+from core.wis.llmuse import llm_async, performance_model
 
 from .result import (
     CompilationResult, ValidationResult, ErrorDetail, WarningDetail,
@@ -20,7 +16,13 @@ from .result import (
 )
 from .script import Compiler
 from lark.exceptions import UnexpectedToken, UnexpectedCharacters
-from ..llmuse import perform_completion_with_backoff
+
+
+GENERATE_SCRIPT_PROMPT = """Based on the user goal and HTML snippet, generate a Crawl4AI DSL (C4A-Script) to automate the task.
+Output ONLY the code. Do not include markdown code blocks or any explanatory text."""
+
+GENERATE_JS_SCRIPT_PROMPT = """Based on the user goal and HTML snippet, generate raw JavaScript to automate the task in a browser environment.
+Output ONLY the code. Do not include markdown code blocks or any explanatory text."""
 
 
 class C4ACompiler:
@@ -319,7 +321,7 @@ class C4ACompiler:
         )
 
     @staticmethod
-    def generate_script(
+    async def generate_script(
         html: str,
         query: str | None = None,
         mode: str = "c4a",
@@ -340,7 +342,7 @@ class C4ACompiler:
         user_prompt = "\n".join(
             [
                 "## GOAL",
-                "<<goael>>",
+                "<<goal>>",
                 (query or "Prepare the page for crawling."),
                 "<</goal>>",
                 "",
@@ -354,21 +356,23 @@ class C4ACompiler:
             ]
         )
 
-        # Call the LLM with retry/back-off logic
-        full_prompt =  f"{GENERATE_SCRIPT_PROMPT}\n\n{user_prompt}" if mode == "c4a" else f"{GENERATE_JS_SCRIPT_PROMPT}\n\n{user_prompt}"
         messages = [
-            {"role": "user", "content": full_prompt}
+            {"role": "system", "content": GENERATE_SCRIPT_PROMPT if mode == "c4a" else GENERATE_JS_SCRIPT_PROMPT},
+            {"role": "user", "content": user_prompt}
         ]
-        
-        response = perform_completion_with_backoff(
+
+        # Call the LLM with retry/back-off logic
+        response = await llm_async(
             messages=messages,
-            model=model,
-            temperature=0.1,
-            **completion_kwargs,
+            model=model or performance_model,
+            **completion_kwargs
         )
         
+        if not response or not response.choices:
+            raise RuntimeError("LLM returned empty response.")
+
         # Extract content from the response
-        raw_response = response.strip()
+        raw_response = response.choices[0].message.content.strip()
 
         # Strip accidental markdown fences (```js … ```)
         clean = re.sub(r"^```(?:[a-zA-Z0-9_-]+)?\s*|```$", "", raw_response, flags=re.MULTILINE).strip()

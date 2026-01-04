@@ -3,34 +3,50 @@ from typing import Optional, Dict, Any, Tuple
 from .html2text import CustomHTML2Text
 import regex as re
 from .utils import normalize_url, url_pattern, is_valid_img_url, is_external_url, get_base_domain
-import os
-from functools import lru_cache
-from .llmuse import perform_completion_with_backoff as llm
-from .config import SOCIAL_MEDIA_DOMAINS, EXCLUDE_EXTERNAL_LINKS
+from core.wis.utils import normalize_publish_date
+from .config import config
 from bs4 import BeautifulSoup
-from pprint import pprint
+from .llmuse import llm_async, vl_model, VL_PROMPT_EXTRACT_TEXT_FROM_IMG
+import asyncio
 
 # Pre-compile the regex pattern
 # LINK_PATTERN = re.compile(r'!?\[([^\]]+)\]\(([^)]+?)(?:\s+"([^"]*)")?\)')
 
-vl_model = os.environ.get("VL_MODEL", "")
-if not vl_model:
-    print("VL_MODEL not set, will skip extracting info from img, some info may be lost!")
+# Simple async cache for image info
+_img_info_cache = {}
 
-@lru_cache(maxsize=1000)
-def extract_info_from_img(url: str) -> str:
-    if not vl_model:
-        return '§to_be_recognized_by_visual_llm§'
+async def extract_info_from_img(url: str) -> str:
     if not is_valid_img_url(url):
         return ''
-    try:
-        llm_output = llm([{"role": "user",
-            "content": [{"type": "image_url", "image_url": {"url": url, "detail": "high"}},
-            {"type": "text", "text": "提取图片中的所有文字，如果图片不包含文字或者文字很少或者你判断图片仅是网站logo、商标、图标等，则输出NA。注意请仅输出提取出的文字，不要输出别的任何内容。"}]}],
-            model=vl_model)
-        return llm_output.choices[0].message.content
-    except Exception as e:
+    
+    if url in _img_info_cache:
+        return _img_info_cache[url]
+    
+    if not vl_model:
         return ''
+
+    messages = [
+        {
+            "role": "user",
+            "content": [
+                {"type": "image_url", "image_url": {"url": url, "detail": "high"}},
+                {"type": "text", "text": VL_PROMPT_EXTRACT_TEXT_FROM_IMG}
+            ]
+        }
+    ]
+
+    llm_response = await llm_async(
+        messages=messages,
+        model=vl_model,
+    )
+
+    if llm_response and llm_response.choices:
+        result = llm_response.choices[0].message.content.strip()
+        _img_info_cache[url] = result
+        return result
+
+    return ''
+
 
 class MarkdownGenerationStrategy(ABC):
     """Abstract base class for markdown generation strategies."""
@@ -43,7 +59,7 @@ class MarkdownGenerationStrategy(ABC):
         self.options = options or {}
 
     @abstractmethod
-    def generate_markdown(
+    async def generate_markdown(
         self,
         input_html: str,
         base_url: str = "",
@@ -80,7 +96,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
     ):
         super().__init__(options)
 
-    def convert_links_to_citations(self, markdown: str, base_url: str = "", exclude_external_links: bool = True) -> Tuple[str, dict]:
+    async def convert_links_to_citations(self, markdown: str, base_url: str = "", exclude_external_links: bool = True) -> Tuple[str, dict]:
         """
         bigbrother666sh modified:
         use wisefow V3.9's preprocess instead
@@ -96,7 +112,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             markdown = markdown.replace(_sec, f'§{alt}||{src}§', 1)
 
         sections = re.split(r'\n{2,}', markdown)
-        def check_url_text(text) -> Tuple[float, str]:
+        async def check_url_text(text) -> Tuple[float, str]:
             # 找到所有[part0](part1)格式的片段，使用非贪婪匹配并考虑嵌套括号的情况
             valid_link_num = 0
             len_without_link = len(text)
@@ -110,22 +126,14 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
                 link_text = link_text.strip()
                 if _title and _title not in link_text:
                     link_text = f"{_title} - {link_text}"
-                """
-                # for protecting_links model
-                real_url_pattern = r'<(.*?)>'
-                real_url = re.search(real_url_pattern, link_url, re.DOTALL)
-                if real_url:
-                    _url = real_url.group(1).strip()
-                else:
-                    _url = re.sub(quote_pattern, '', link_url, re.DOTALL).strip()
-                """
+
                 _url = re.findall(url_pattern, link_url)
                 if not _url or _url[0].startswith(('#', 'javascript:')):
                     text = text.replace(_sec, link_text, 1)
                     len_without_link += len(link_text)
                     continue
 
-                if get_base_domain(_url[0]) in SOCIAL_MEDIA_DOMAINS:
+                if get_base_domain(_url[0]) in config['SOCIAL_MEDIA_DOMAINS']:
                     text = text.replace(_sec, link_text + _url[0], 1)
                     len_without_link += len(link_text)
                     continue
@@ -136,6 +144,10 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
                     continue
 
                 url = normalize_url(_url[0], base_url)
+                if url.startswith("http") and len(url.split('://')[1].split('/')) <= 2:
+                    text = text.replace(_sec, link_text, 1)
+                    valid_link_num += 1
+                    continue
 
                 # 分离§§内的内容和后面的内容
                 img_marker_pattern = r'§(.*?)\|\|(.*?)§'
@@ -159,7 +171,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
                             link_dict[_key] = img_src
                             link_text = img_alt
                         else:
-                            link_text = extract_info_from_img(img_src)
+                            link_text = await extract_info_from_img(img_src)
                             _key = f"[img{len(link_dict)+1}]"
                             link_dict[_key] = img_src
                     else:
@@ -201,7 +213,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
                 else:
                     _key = f"[img{len(link_dict)+1}]"
                     link_dict[_key] = img_src
-                    alt = extract_info_from_img(img_src)
+                    alt = await extract_info_from_img(img_src)
                     text = text.replace(_sec, alt + _key, 1)
                 len_without_link += len(alt)
 
@@ -214,6 +226,8 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
                     text = text.replace(url, '', 1)
                     continue
                 url = normalize_url(url, base_url)
+                if url.startswith("http") and len(url.split('://')[1].split('/')) <= 2:
+                    continue
                 _key = f"[{len(link_dict)+1}]"
                 link_dict[_key] = url
                 text = text.replace(url, _key, 1)
@@ -221,7 +235,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             score = valid_link_num / len_without_link if len_without_link > 0 else 999
             return score, text
 
-        sections = [check_url_text(section) for section in sections if section.strip()]
+        sections = await asyncio.gather(*[check_url_text(section) for section in sections if section.strip()])
         if not link_dict:
             markdown = '\n\n'.join(text.strip() for _, text in sections)
             return markdown, link_dict
@@ -269,7 +283,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             markdown += f"\n</main-content>"
         return markdown.strip(), link_dict
 
-    def generate_markdown(
+    async def generate_markdown(
         self,
         raw_html: str,
         cleaned_html: str,
@@ -277,7 +291,7 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
         metadata: Optional[Dict[str, Any]] = None,
         html2text_options: Optional[Dict[str, Any]] = None,
         options: Optional[Dict[str, Any]] = None,
-        exclude_external_links: bool = EXCLUDE_EXTERNAL_LINKS,
+        exclude_external_links: bool = config['EXCLUDE_EXTERNAL_LINKS'],
         **kwargs,
     ) -> Tuple[str, str, str, str, str, dict]:
         """
@@ -338,19 +352,21 @@ class DefaultMarkdownGenerator(MarkdownGenerationStrategy):
             raw_markdown = raw_markdown.replace("    ```", "```")
 
             # Convert links to citations
-            markdown, link_dict = self.convert_links_to_citations(raw_markdown, base_url, exclude_external_links)
-            return '', title, author, publish_date, markdown, link_dict
+            markdown, link_dict = await self.convert_links_to_citations(raw_markdown, base_url, exclude_external_links)
+            return '', title, author, normalize_publish_date(publish_date) or publish_date, markdown, link_dict
         except Exception as e:
+            if str(e) in ['99', '97', '98', '91']:
+                raise RuntimeError(str(e))
             # If anything fails, return empty strings with error message
             error_msg = f"Error in markdown generation: {str(e)}"
-            return error_msg, title, author, publish_date, '', {}
+            return error_msg, title, author, normalize_publish_date(publish_date) or publish_date, '', {}
 
 
 class WeixinArticleMarkdownGenerator(DefaultMarkdownGenerator):
     def __init__(self, options: Optional[Dict[str, Any]] = None):
         self.options = options or {}
 
-    def generate_markdown(
+    async def generate_markdown(
         self, 
         raw_html: str,
         cleaned_html: str,
@@ -358,7 +374,7 @@ class WeixinArticleMarkdownGenerator(DefaultMarkdownGenerator):
         metadata: Optional[Dict[str, Any]] = None,
         html2text_options: Optional[Dict[str, Any]] = None,
         options: Optional[Dict[str, Any]] = None,
-        exclude_external_links: bool = EXCLUDE_EXTERNAL_LINKS,
+        exclude_external_links: bool = config['EXCLUDE_EXTERNAL_LINKS'],
         **kwargs,) -> Tuple[str, str, str, str, str, dict]:
         """
         Generate markdown for weixin official accout artilces(mp.weixin.qq.com).
@@ -494,7 +510,7 @@ class WeixinArticleMarkdownGenerator(DefaultMarkdownGenerator):
                     else:
                         error_msg = 'new_type_article, type 1 —— cannot find content div'
             else:
-                # 已删除或者分享页情况
+                # 已删除或者分享页
                 # 从 original_panel_tool 中找到 data-url
                 share_source = soup.find('span', id='js_share_source')
                 if share_source and share_source.get('data-url'):
@@ -536,11 +552,13 @@ class WeixinArticleMarkdownGenerator(DefaultMarkdownGenerator):
             return error_msg, title, author, publish_date, content, {}
         # Convert links to citations
         try:
-            markdown, link_dict = self.convert_links_to_citations(content, base_url, exclude_external_links)
-            return '', title, author, publish_date, markdown, link_dict
+            markdown, link_dict = await self.convert_links_to_citations(content, base_url, exclude_external_links)
+            return '', title, author, normalize_publish_date(publish_date) or publish_date, markdown, link_dict
         except Exception as e:
+            if str(e) in ['99', '97', '98', '91']:
+                raise RuntimeError(str(e))
             error_msg = f"Error in markdown generation: {str(e)}"
-            return error_msg, title, author, publish_date, '', {}
+            return error_msg, title, author, normalize_publish_date(publish_date) or publish_date, '', {}
 
     def _clean_weixin_url(self, url):
         """

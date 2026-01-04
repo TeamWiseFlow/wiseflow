@@ -1,26 +1,18 @@
-import time
 from bs4 import BeautifulSoup, Comment, element, Tag, NavigableString
 import json
-import html
 import lxml
 import regex as re
 import os
 import platform
 from array import array
-from .config import MIN_WORD_THRESHOLD
-import httpx
-from socket import gaierror
-from typing import Dict, List, Callable, Tuple, Sequence
+from typing import List, Callable, Tuple, Sequence
 from urllib.parse import urljoin
 import xxhash
-import cProfile
-import pstats
-from functools import wraps
 import asyncio
 from lxml import etree, html as lhtml
 from urllib.parse import urlparse, urlunparse
 from functools import lru_cache
-
+from .config import config
 from . import __version__
 import psutil
 import subprocess
@@ -93,6 +85,25 @@ params_to_remove = [
     'xps', 'xpt', 'xpu', 'xpv',
     'xpw', 'xpx', 'xpy', 'xpz'
 ]
+
+def extract_urls(text):
+    # Regular expression to match http, https, and www URLs
+    urls = re.findall(url_pattern, text)
+    # urls = {quote(url.rstrip('/'), safe='/:?=&') for url in urls}
+    cleaned_urls = set()
+    for url in urls:
+        if url.startswith(("www.", "WWW.")):
+            url = f"https://www.{url[4:]}"
+
+        try:
+            parsed = urlparse(url)
+            if not parsed.netloc or not parsed.scheme:
+                continue
+            cleaned_urls.add(url)
+        except Exception:
+            continue
+
+    return cleaned_urls
 
 @lru_cache(maxsize=1000)
 def normalize_url(url: str, base_url: str = None) -> str:
@@ -170,12 +181,15 @@ def is_valid_img_url(url: str) -> bool:
     clean_url = url.split('?')[0].split('#')[0].lower().rstrip('/')
     return any(clean_url.endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.webp'])
 
-@lru_cache(maxsize=1000)
 def can_process_url(url: str) -> bool:
         """
         Validate the URL format and apply filtering.
         For the starting URL (depth 0), filtering is bypassed.
         """
+        for forbidden_domain in config['FORBIDDEN_DOMAINS']:
+            if forbidden_domain in url:
+                return False
+
         try:
             parsed = urlparse(url)
             if not parsed.scheme or not parsed.netloc:
@@ -407,26 +421,6 @@ def get_system_memory():
     else:
         raise OSError("Unsupported operating system")
 
-def beautify_html(escaped_html):
-    """
-    Beautifies an escaped HTML string.
-
-    Parameters:
-    escaped_html (str): A string containing escaped HTML.
-
-    Returns:
-    str: A beautifully formatted HTML string.
-    """
-    # Unescape the HTML string
-    unescaped_html = html.unescape(escaped_html)
-
-    # Use BeautifulSoup to parse and prettify the HTML
-    soup = BeautifulSoup(unescaped_html, "html.parser")
-    pretty_html = soup.prettify()
-
-    return pretty_html
-
-
 def split_and_parse_json_objects(json_string):
     """
     Splits a JSON string which is a list of objects and tries to parse each object.
@@ -544,72 +538,8 @@ def escape_json_string(s):
 
     return s
 
-
-def replace_inline_tags(soup, tags, only_text=False):
-    """
-    Replace inline HTML tags with Markdown-style equivalents.
-
-    How it works:
-    1. Maps specific tags (e.g., <b>, <i>) to Markdown syntax.
-    2. Finds and replaces all occurrences of these tags in the provided BeautifulSoup object.
-    3. Optionally replaces tags with their text content only.
-
-    Args:
-        soup (BeautifulSoup): Parsed HTML content.
-        tags (List[str]): List of tags to replace.
-        only_text (bool): Whether to replace tags with plain text. Defaults to False.
-
-    Returns:
-        BeautifulSoup: Updated BeautifulSoup object with replaced tags.
-    """
-
-    tag_replacements = {
-        "b": lambda tag: f"**{tag.text}**",
-        "i": lambda tag: f"*{tag.text}*",
-        "u": lambda tag: f"__{tag.text}__",
-        "span": lambda tag: f"{tag.text}",
-        "del": lambda tag: f"~~{tag.text}~~",
-        "ins": lambda tag: f"++{tag.text}++",
-        "sub": lambda tag: f"~{tag.text}~",
-        "sup": lambda tag: f"^^{tag.text}^^",
-        "strong": lambda tag: f"**{tag.text}**",
-        "em": lambda tag: f"*{tag.text}*",
-        "code": lambda tag: f"`{tag.text}`",
-        "kbd": lambda tag: f"`{tag.text}`",
-        "var": lambda tag: f"_{tag.text}_",
-        "s": lambda tag: f"~~{tag.text}~~",
-        "q": lambda tag: f'"{tag.text}"',
-        "abbr": lambda tag: f"{tag.text} ({tag.get('title', '')})",
-        "cite": lambda tag: f"_{tag.text}_",
-        "dfn": lambda tag: f"_{tag.text}_",
-        "time": lambda tag: f"{tag.text}",
-        "small": lambda tag: f"<small>{tag.text}</small>",
-        "mark": lambda tag: f"=={tag.text}==",
-    }
-
-    replacement_data = [
-        (tag, tag_replacements.get(tag, lambda t: t.text)) for tag in tags
-    ]
-
-    for tag_name, replacement_func in replacement_data:
-        for tag in soup.find_all(tag_name):
-            replacement_text = tag.text if only_text else replacement_func(tag)
-            tag.replace_with(replacement_text)
-
-    return soup
-
-    # for tag_name in tags:
-    #     for tag in soup.find_all(tag_name):
-    #         if not only_text:
-    #             replacement_text = tag_replacements.get(tag_name, lambda t: t.text)(tag)
-    #             tag.replace_with(replacement_text)
-    #         else:
-    #             tag.replace_with(tag.text)
-
-    # return soup
-
 def get_content_of_website(
-    html, word_count_threshold=MIN_WORD_THRESHOLD, tags_to_remove=None):
+    html, tags_to_remove=None):
     """
     bigbrother666 modified this function, 2025-05-18
     an alternative to preprocess_html_for_schema, just return cleaned_html
@@ -628,6 +558,8 @@ def get_content_of_website(
     Returns:
         str: cleaned_html
     """
+    # from .config import config
+    word_count_threshold = config['MIN_WORD_THRESHOLD']
 
     try:
         if not html:
@@ -671,7 +603,7 @@ def get_content_of_website(
         body = remove_empty_and_low_word_count_elements(body, word_count_threshold)
 
         def remove_small_text_tags(
-            body: Tag, word_count_threshold: int = MIN_WORD_THRESHOLD
+            body: Tag, word_count_threshold: int = config['MIN_WORD_THRESHOLD']
         ):
             # We'll use a list to collect all tags that don't meet the word count requirement
             tags_to_remove = []
@@ -852,9 +784,6 @@ def extract_metadata(html, soup=None):
     Args:
         url (str): The website URL.
         html (str): The HTML content of the website.
-        word_count_threshold (int): Minimum word count for content inclusion. Defaults to MIN_WORD_THRESHOLD.
-        css_selector (Optional[str]): CSS selector to extract specific content. Defaults to None.
-        **kwargs: Additional options for customization.
 
     Returns:
         Dict[str, Any]: Extracted content including Markdown, cleaned HTML, media, links, and metadata.
@@ -920,82 +849,6 @@ def extract_metadata(html, soup=None):
     
     return metadata
 
-
-def extract_xml_tags(string):
-    """
-    Extracts XML tags from a string.
-
-    Args:
-        string (str): The input string containing XML tags.
-
-    Returns:
-        List[str]: A list of XML tags extracted from the input string.
-    """
-    tags = re.findall(r"<(\w+)>", string)
-    return list(set(tags))
-
-
-def extract_xml_data_legacy(tags, string):
-    """
-    Extract data for specified XML tags from a string.
-
-    How it works:
-    1. Searches the string for each tag using regex.
-    2. Extracts the content within the tags.
-    3. Returns a dictionary of tag-content pairs.
-
-    Args:
-        tags (List[str]): The list of XML tags to extract.
-        string (str): The input string containing XML data.
-
-    Returns:
-        Dict[str, str]: A dictionary with tag names as keys and extracted content as values.
-    """
-
-    data = {}
-
-    for tag in tags:
-        pattern = f"<{tag}>(.*?)</{tag}>"
-        match = re.search(pattern, string, re.DOTALL)
-        if match:
-            data[tag] = match.group(1).strip()
-        else:
-            data[tag] = ""
-
-    return data
-
-def extract_xml_data(tags, string):
-    """
-    Extract data for specified XML tags from a string, returning the longest content for each tag.
-
-    How it works:
-    1. Finds all occurrences of each tag in the string using regex.
-    3. Returns a dictionary of tag-content pairs.
-
-    Args:
-        tags (List[str]): The list of XML tags to extract.
-        string (str): The input string containing XML data.
-
-    Returns:
-        Dict[str, str]: A dictionary with tag names as keys and longest extracted content as values.
-    """
-
-    data = {}
-
-    for tag in tags:
-        pattern = f"<{tag}>(.*?)</{tag}>"
-        matches = re.findall(pattern, string, re.DOTALL)
-        
-        if matches:
-            # Find the longest content for this tag
-            # longest_content = max(matches, key=len).strip()
-            # 改为返回所有匹配
-            data[tag] = matches
-        else:
-            data[tag] = []
-
-    return data
-
 def merge_chunks_based_on_token_threshold(chunks, token_threshold):
     """
     Merges small chunks into larger ones based on the total token threshold.
@@ -1026,101 +879,6 @@ def merge_chunks_based_on_token_threshold(chunks, token_threshold):
         merged_sections.append("\n\n".join(current_chunk))
 
     return merged_sections
-
-def wrap_text(draw, text, font, max_width):
-    """
-    Wrap text to fit within a specified width for rendering.
-
-    How it works:
-    1. Splits the text into words.
-    2. Constructs lines that fit within the maximum width using the provided font.
-    3. Returns the wrapped text as a single string.
-
-    Args:
-        draw (ImageDraw.Draw): The drawing context for measuring text size.
-        text (str): The text to wrap.
-        font (ImageFont.FreeTypeFont): The font to use for measuring text size.
-        max_width (int): The maximum width for each line.
-
-    Returns:
-        str: The wrapped text.
-    """
-
-    # Wrap the text to fit within the specified width
-    lines = []
-    words = text.split()
-    while words:
-        line = ""
-        while (
-            words and draw.textbbox((0, 0), line + words[0], font=font)[2] <= max_width
-        ):
-            line += words.pop(0) + " "
-        lines.append(line)
-    return "\n".join(lines)
-
-def format_html(html_string):
-    """
-    Prettify an HTML string using BeautifulSoup.
-
-    How it works:
-    1. Parses the HTML string with BeautifulSoup.
-    2. Formats the HTML with proper indentation.
-    3. Returns the prettified HTML string.
-
-    Args:
-        html_string (str): The HTML string to format.
-
-    Returns:
-        str: The prettified HTML string.
-    """
-
-    soup = BeautifulSoup(html_string, "lxml.parser")
-    return soup.prettify()
-
-def fast_format_html(html_string):
-    """
-    A fast HTML formatter that uses string operations instead of parsing.
-
-    Args:
-        html_string (str): The HTML string to format
-
-    Returns:
-        str: The formatted HTML string
-    """
-    # Initialize variables
-    indent = 0
-    indent_str = "  "  # Two spaces for indentation
-    formatted = []
-    # in_content = False
-
-    # Split by < and > to separate tags and content
-    parts = html_string.replace(">", ">\n").replace("<", "\n<").split("\n")
-
-    for part in parts:
-        if not part.strip():
-            continue
-
-        # Handle closing tags
-        if part.startswith("</"):
-            indent -= 1
-            formatted.append(indent_str * indent + part)
-
-        # Handle self-closing tags
-        elif part.startswith("<") and part.endswith("/>"):
-            formatted.append(indent_str * indent + part)
-
-        # Handle opening tags
-        elif part.startswith("<"):
-            formatted.append(indent_str * indent + part)
-            indent += 1
-
-        # Handle content between tags
-        else:
-            content = part.strip()
-            if content:
-                formatted.append(indent_str * indent + content)
-
-    return "\n".join(formatted)
 
 @lru_cache(maxsize=1000)
 def get_base_domain(url: str) -> str:
@@ -1459,78 +1217,6 @@ def clean_tokens(tokens: list[str]) -> list[str]:
         and not token.startswith("⬆")
     ]
 
-def profile_and_time(func):
-    """
-    Decorator to profile a function's execution time and performance.
-
-    How it works:
-    1. Records the start time before executing the function.
-    2. Profiles the function's execution using `cProfile`.
-    3. Prints the elapsed time and profiling statistics.
-
-    Args:
-        func (Callable): The function to decorate.
-
-    Returns:
-        Callable: The decorated function with profiling and timing enabled.
-    """
-
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        # Start timer
-        start_time = time.perf_counter()
-
-        # Setup profiler
-        profiler = cProfile.Profile()
-        profiler.enable()
-
-        # Run function
-        result = func(self, *args, **kwargs)
-
-        # Stop profiler
-        profiler.disable()
-
-        # Calculate elapsed time
-        elapsed_time = time.perf_counter() - start_time
-
-        # Print timing
-        print(f"[PROFILER] Scraping completed in {elapsed_time:.2f} seconds")
-
-        # Print profiling stats
-        stats = pstats.Stats(profiler)
-        stats.sort_stats("cumulative")  # Sort by cumulative time
-        stats.print_stats(20)  # Print top 20 time-consuming functions
-
-        return result
-
-    return wrapper
-
-
-def generate_content_hash(content: str) -> str:
-    """Generate a unique hash for content"""
-    return xxhash.xxh64(content.encode()).hexdigest()
-    # return hashlib.sha256(content.encode()).hexdigest()
-
-
-def ensure_content_dirs(base_path: str) -> Dict[str, str]:
-    """Create content directories if they don't exist"""
-    dirs = {
-        "html": "html_content",
-        "markdown": "markdown",
-        "link_dict": "link_dict",
-        "screenshots": "screenshot",
-        "cleaned_html": "cleaned_html",
-    }
-
-    content_paths = {}
-    for key, dirname in dirs.items():
-        path = os.path.join(base_path, dirname)
-        os.makedirs(path, exist_ok=True)
-        content_paths[key] = path
-
-    return content_paths
-
-
 def configure_windows_event_loop():
     """
     Configure the Windows event loop to use ProactorEventLoop.
@@ -1549,7 +1235,6 @@ def configure_windows_event_loop():
     """
     if platform.system() == "Windows":
         asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
-
 
 def truncate(value, threshold):
     if len(value) > threshold:
@@ -1573,63 +1258,6 @@ def optimize_html(html_str, threshold=200):
             _element.tail = truncate(_element.tail, threshold)
     
     return lxml.html.tostring(root, encoding='unicode', pretty_print=False)
-
-class HeadPeekr:
-    @staticmethod
-    async def fetch_head_section(url, timeout=0.3):
-        headers = {
-            "User-Agent": "Mozilla/5.0 (compatible; CrawlBot/1.0)",
-            "Accept": "text/html",
-            "Connection": "close"  # Force close after response
-        }
-        try:
-            async with httpx.AsyncClient(timeout=timeout) as client:
-                response = await client.get(url, headers=headers, follow_redirects=True)
-                
-                # Handle redirects explicitly by using the final URL
-                if response.url != url:
-                    url = str(response.url)
-                    response = await client.get(url, headers=headers)
-                
-                content = b""
-                async for chunk in response.aiter_bytes():
-                    content += chunk
-                    if b"</head>" in content:
-                        break  # Stop after detecting </head>
-                return content.split(b"</head>")[0] + b"</head>"
-        except (httpx.HTTPError, gaierror) :
-            return None
-
-    @staticmethod
-    async def peek_html(url, timeout=0.3):
-        head_section = await HeadPeekr.fetch_head_section(url, timeout=timeout)
-        if head_section:
-            return head_section.decode("utf-8", errors="ignore")
-        return None
-
-    @staticmethod
-    def extract_meta_tags(head_content: str):
-        meta_tags = {}
-        
-        # Find all meta tags
-        meta_pattern = r'<meta[^>]+>'
-        for meta_tag in re.finditer(meta_pattern, head_content):
-            tag = meta_tag.group(0)
-            
-            # Extract name/property and content
-            name_match = re.search(r'name=["\'](.*?)["\']', tag)
-            property_match = re.search(r'property=["\'](.*?)["\']', tag)
-            content_match = re.search(r'content=["\'](.*?)["\']', tag)
-            
-            if content_match and (name_match or property_match):
-                key = name_match.group(1) if name_match else property_match.group(1)
-                meta_tags[key] = content_match.group(1)
-                
-        return meta_tags
-
-    def get_title(head_content: str):
-        title_match = re.search(r'<title>(.*?)</title>', head_content, re.IGNORECASE | re.DOTALL)
-        return title_match.group(1) if title_match else None
 
 def preprocess_html_for_schema(html_content, tags_to_remove: list[str] = None):
     """
@@ -1739,27 +1367,6 @@ def preprocess_html_for_schema(html_content, tags_to_remove: list[str] = None):
         # Fallback for parsing errors
         # return html_content[:max_size] if len(html_content) > max_size else html_content
         return ''
-    
-@lru_cache(maxsize=1000)
-def extract_extension(url: str) -> str:
-    """Extracts file extension from a URL."""
-    # Remove scheme (http://, https://) if present
-    if "://" in url:
-        url = url.split("://", 1)[-1]  # Get everything after '://'
-
-    # Remove domain (everything up to the first '/')
-    path_start = url.find("/")
-    path = url[path_start:] if path_start != -1 else ""
-
-    # Extract last filename in path
-    filename = path.rsplit("/", 1)[-1] if "/" in path else ""
-
-    # Extract and validate extension
-    if "." not in filename:
-        return ""
-
-    return filename.rpartition(".")[-1].lower()
-
 
 def get_true_available_memory_gb() -> float:
     """Get truly available memory including inactive pages (cross-platform)"""
