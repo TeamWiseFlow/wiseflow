@@ -1,3 +1,9 @@
+# v4.30
+
+- 升级为与 pro 版本一样的架构，同时具有一样的 api，可无缝共享 [wiseflow+](https://github.com/TeamWiseFlow/wiseflow-plus) 生态！
+
+  Upgraded to the same architecture as the pro version, with the same api, seamlessly sharing the [wiseflow+](https://github.com/TeamWiseFlow/wiseflow-plus) ecosystem!
+
 # v4.2
 
 - 全新的网页爬取方案，使用 patchright 直连本地用户真实浏览器，从而实现更加强大的反爬虫伪装能力，以及提供用户数据持久化留存等特性；

@@ -4,7 +4,6 @@ from core.async_logger import wis_logger, base_directory
 import json
 import asyncio
 import time
-import webbrowser
 from core.wis import (SqliteCache, 
                  AsyncWebCrawler, 
                  CrawlerRunConfig, 
@@ -14,7 +13,6 @@ from core.wis.browser_manager import BrowserManager
 from core.custom_processes import DEFAULT_CRAWLER_CONFIG, crawler_config_map
 from core.async_database import AsyncDatabaseManager
 from core.wis.proxy_providers import KuaiDaiLiProxy, LocalProxy
-import sys
 
 
 async def load_proxies(db: AsyncDatabaseManager, required_platforms: set) -> dict:
@@ -289,11 +287,7 @@ async def pre_login(
 async def prepare_to_work(db_manager: AsyncDatabaseManager, cache_manager: SqliteCache, crawlers: dict):
     # 打开控制台页面（前端）
     if not await ping_frontend():
-        print("\033[35mwiseflow 预检程序即将启动，请确保已在本地使用浏览器打开了 https://shouxiqingbaoguan.com/app 页面，并已登录有效账号\033[0m")
-        try:
-            webbrowser.open("https://shouxiqingbaoguan.com/app")
-        except Exception as e:
-            wis_logger.info(f"自动打开浏览器登录页失败: {e}")
+        print("\033[35mwiseflow 预检程序即将启动\033[0m")
     
     # 1. prepare proxies
     proxies = await load_proxies(db_manager, set(crawlers.keys()))

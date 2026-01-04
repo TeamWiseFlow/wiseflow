@@ -7,8 +7,8 @@ from core.async_logger import wis_logger
 
 base_url = os.environ.get('LLM_API_BASE', "")
 token = os.environ.get('LLM_API_KEY', "")
-performance_model = os.environ.get("PERFORMANCE_MODEL", "")
-selected_model = os.environ.get("SELECTED_MODEL", "")
+performance_model = os.environ.get("PRIMARY_MODEL", "")
+selected_model = performance_model
 vl_model = os.environ.get("VL_MODEL", "")
 qa_model = os.environ.get("QA_MODEL", performance_model)
 

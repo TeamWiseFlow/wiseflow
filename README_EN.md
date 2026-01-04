@@ -57,6 +57,19 @@ You can now specify the program to find relevant content on social media platfor
 
 **For more update information on version 4.1, please see the [CHANGELOG](CHANGELOG.md)**
 
+## Comparison between Open Source and Pro Versions
+
+| Features | Open Source | Pro Version |
+| :--- | :---: | :---: |
+| **Source Acquisition** | Basic sources (Websites, RSS, Search Engines, etc.) | **Expanded support for 9 major categories** (including mainstream social media) |
+| **Installation** | Manual environment setup and deployment (Python/uv/pb) | **One-click executable** (Win/Mac/Ubuntu, no installation needed) |
+| **User Interface** | Command Line / Basic API | **Modern User Interface** |
+| **Documentation** | GitHub README / Markdown | **Detailed Operation Manual** (Feishu/Lark) |
+| **Integration** | Requires custom development | **Provides Local API** for easy integration |
+| **Architecture** | Community maintained | **More stable architecture & optimized performance** |
+| **LLM Costs** | Users configure their own API keys and pay | **Subscription includes LLM costs** (no config needed) |
+| **Technical Support** | GitHub Issues | **Paid User Community** (Fast feedback & exchange) |
+
 ## 🌹 Best LLM Combination Guide
 
 "In the LLM era, excellent developers should spend at least 60% of their time choosing the right LLM model" ☺️
