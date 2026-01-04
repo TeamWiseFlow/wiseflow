@@ -17,3 +17,7 @@ https://github.com/user-attachments/assets/49b464fe-e9ea-472a-ba05-665230758a9c
 # 4.2-pro-en
 
 https://github.com/user-attachments/assets/880af7a3-7b28-44ff-86b6-aaedecd22761
+
+¥ 4.30-pro-speech
+
+https://github.com/user-attachments/assets/57f8569c-e20a-4564-a669-1200d56c5725
