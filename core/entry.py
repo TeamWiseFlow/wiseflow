@@ -16,6 +16,16 @@ _project_root = _current_dir.parent
 if str(_project_root) not in sys.path:
     sys.path.insert(0, str(_project_root))
 
+# Load environment variables from .env in project root
+try:
+    from dotenv import load_dotenv
+    _env_path = _project_root / ".env"
+    if _env_path.exists():
+        load_dotenv(_env_path)
+except ImportError:
+    # python-dotenv is not strictly required but highly recommended
+    pass
+
 # ANSI color codes
 CYAN = '\033[36m'
 GREEN = '\033[32m'
@@ -60,7 +70,6 @@ def _serve_backend() -> None:
             shutdown_logger()
         except Exception:
             pass
-
 
 def _run_tasks() -> None:
     # Import task scheduler routines
@@ -156,7 +165,8 @@ if __name__ == "__main__":
         print(f"{BLUE}适用范围：企业门户、政府部门、行业协会等的公告栏、通知栏、新闻发布栏等{RESET}")
         print(f"{RED}严格禁止：用于媒体网站、交易网站等受知识产权保护内容的获取{RESET}")
         print(f"{MAGENTA}免责声明：使用结果由用户自行承担，请谨慎评估后使用{RESET}")
-        print(f"{GREEN}wiseflow pro 版本：更全面的获取能力、更佳的提取效果、免部署一键运行 + web UI 界面，详情了解：https://shouxiqingbaoguan.com/{RESET}")
+        print(f"{GREEN}wiseflow pro 版本：更全面的获取能力、更佳的提取效果、免部署一键运行 + web UI 界面，详情了解：{RESET}")
+        print(f"{GREEN}https://shouxiqingbaoguan.com/{RESET}")
         print(f"{CYAN}{'#' * 50}{RESET}\n")
     
     main()

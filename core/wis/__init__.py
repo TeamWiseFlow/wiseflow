@@ -7,7 +7,7 @@ from typing import Any, Dict, Tuple
 # Accessing attributes will import the corresponding submodules on demand and cache them.
 #
 
-"CRAWLER_MAP" = {}
+CRAWLER_MAP = {}
 
 __all__ = [
     # Core runtime
@@ -84,3 +84,11 @@ def _resolve(name: str) -> Any:
 
 # Disable all Pydantic warnings
 warnings.filterwarnings("ignore", module="pydantic")
+
+def __getattr__(name: str) -> Any:
+    if name in _LAZY_ATTRS:
+        return _resolve(name)
+    raise AttributeError(f"module {__name__} has no attribute {name}")
+
+def __dir__() -> list[str]:
+    return sorted(__all__)
