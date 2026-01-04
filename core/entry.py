@@ -147,21 +147,16 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    # Required for PyInstaller/frozen executables: ensure child processes do not re-run main
-    try:
-        mp.freeze_support()
-    except Exception:
-        pass
-
     # Print banner only in main process, before spawning children
     if os.environ.get("WISEFLOW_CHILD_PROCESS") != "1":
         _enable_windows_ansi_colors()
         print(f"\n{CYAN}{'#' * 50}{RESET}")
-        print(f"{GREEN}Wiseflow Info Scraper Pro Edition v4.30{RESET}")
+        print(f"{GREEN}Wiseflow v4.30{RESET}")
         print(f"{YELLOW}⚠️  重要提示：本工具仅限于获取公开发布的非知识产权内容{RESET}")
         print(f"{BLUE}适用范围：企业门户、政府部门、行业协会等的公告栏、通知栏、新闻发布栏等{RESET}")
         print(f"{RED}严格禁止：用于媒体网站、交易网站等受知识产权保护内容的获取{RESET}")
         print(f"{MAGENTA}免责声明：使用结果由用户自行承担，请谨慎评估后使用{RESET}")
+        print(f"{GREEN}wiseflow pro 版本：更全面的获取能力、更佳的提取效果、免部署一键运行 + web UI 界面，详情了解：https://shouxiqingbaoguan.com/{RESET}")
         print(f"{CYAN}{'#' * 50}{RESET}\n")
     
     main()

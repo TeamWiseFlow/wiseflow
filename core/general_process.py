@@ -109,7 +109,7 @@ async def main_process(focus: dict,
             wis_logger.warning(f"{focus_name} has unvalid source type: {source}, wiseflow opensource edition does not support any social media platform, pls try pro edition.")
             continue
         
-    # 2. fetching mediacrawler posts and analyzing search engine results
+    # 2. analyzing search engine results
     second_stage_tasks = set()
     for coro in asyncio.as_completed(tasks):
         # 防御性代码，这里拦截的都应该是对应程序代码级错误，或者是信源的解析方案已经失效（此时也得改代码）
@@ -137,9 +137,6 @@ async def main_process(focus: dict,
         if markdown and link_dict:
             wis_logger.debug(f'from {source_name} get {len(link_dict)} posts for {focus_name}, need to be extracted further...')
             second_stage_tasks.add(wrap_task(extractor(markdown=markdown, link_dict=link_dict, mode='only_link'), (source_name, task_type)))
-            if source_name not in recorder.mc_count:
-                recorder.mc_count[source_name] = 0
-            recorder.mc_count[source_name] += len(link_dict)
     
     third_stage_tasks = set()
     for coro in asyncio.as_completed(second_stage_tasks):
