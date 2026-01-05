@@ -26,11 +26,11 @@ https://github.com/user-attachments/assets/880af7a3-7b28-44ff-86b6-aaedecd22761
 
 بدعم من <a href="https://www.baotianqi.cn" target="_blank"><img src="./docs/logos/tianqibao.png" alt="Tianqibao" height="40"/></a>
 
-[Thordata](https://www.thordata.com/?ls=github&lk=wiseflow): احصل على وكلاء (Proxies) عالميين موثوقين بقيمة لا تقبل المنافسة. جمع البيانات بنقرة واحدة مع استقرار وتوافق على مستوى المؤسسات. انضم إلى آلاف المطورين الذين يستخدمون ThorData للعمليات واسعة النطاق.
+[Thordata](https://www.thordata.com/products/serp-api?ls=github&lk=wiseflow): احصل على وكلاء (Proxies) عالميين موثوقين بقيمة لا تقبل المنافسة. جمع البيانات بنقرة واحدة مع استقرار وتوافق على مستوى المؤسسات. انضم إلى آلاف المطورين الذين يستخدمون ThorData للعمليات واسعة النطاق.
 
 🎁 عرض حصري: سجل للحصول على تجربة مجانية للوكلاء السكنيين و 2,000 مكالمة SERP API مجانية!
 
-<a href="https://www.thordata.com/?ls=github&lk=wiseflow" target="_blank"><img src="./docs/logos/thordata_cn.png" alt="Thordata" height="120"/></a>
+<a href="https://www.thordata.com/products/serp-api?ls=github&lk=wiseflow" target="_blank"><img src="./docs/logos/thordata_en.png" alt="Thordata" height="120"/></a>
 
 ## مقارنة بين نسخة wiseflow مفتوحة المصدر ونسخة pro
 

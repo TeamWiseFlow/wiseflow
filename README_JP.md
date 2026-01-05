@@ -26,11 +26,11 @@ wiseflow オープンソースバージョンは pro バージョンと同じア
 
 Powered By <a href="https://www.baotianqi.cn" target="_blank"><img src="./docs/logos/tianqibao.png" alt="天気宝" height="40"/></a>
 
-[Thordata](https://www.thordata.com/?ls=github&lk=wiseflow)：信頼できるグローバルプロキシを圧倒的な価値で。エンタープライズグレードの安定性とコンプライアンスを備えたワンクリックデータ収集。大規模な運用のために ThorData を使用している何千もの開発者に加わりましょう。
+[Thordata](https://www.thordata.com/products/serp-api?ls=github&lk=wiseflow)：信頼できるグローバルプロキシを圧倒的な価値で。エンタープライズグレードの安定性とコンプライアンスを備えたワンクリックデータ収集。大規模な運用のために ThorData を使用している何千もの開発者に加わりましょう。
 
 🎁 限定オファー：住宅用プロキシの無料試用と 2,000 回の無料 SERP API 呼び出しにサインアップ！
 
-<a href="https://www.thordata.com/?ls=github&lk=wiseflow" target="_blank"><img src="./docs/logos/thordata_cn.png" alt="Thordata" height="120"/></a>
+<a href="https://www.thordata.com/products/serp-api?ls=github&lk=wiseflow" target="_blank"><img src="./docs/logos/thordata_en.png" alt="Thordata" height="120"/></a>
 
 ## wiseflow オープンソースバージョンと pro バージョンの比較
 

@@ -26,11 +26,11 @@ The Wiseflow open-source version has been upgraded to the same architecture as t
 
 Powered By <a href="https://www.baotianqi.cn" target="_blank"><img src="./docs/logos/tianqibao.png" alt="Tianqibao" height="40"/></a>
 
-[Thordata](https://www.thordata.com/?ls=github&lk=wiseflow): Get Reliable Global Proxies at an Unbeatable Value. One-click data collection with enterprise-grade stability and compliance. Join thousands of developers using ThorData for high-scale operations. 
+[Thordata](https://www.thordata.com/products/serp-api?ls=github&lk=wiseflow): Get Reliable Global Proxies at an Unbeatable Value. One-click data collection with enterprise-grade stability and compliance. Join thousands of developers using ThorData for high-scale operations. 
 
 🎁 Exclusive Offer: Sign up for a free Residential Proxy trial and 2,000 FREE SERP API calls!
 
-<a href="https://www.thordata.com/?ls=github&lk=wiseflow" target="_blank"><img src="./docs/logos/thordata_en.png" alt="Thordata" height="120"/></a>
+<a href="https://www.thordata.com/products/serp-api?ls=github&lk=wiseflow" target="_blank"><img src="./docs/logos/thordata_en.png" alt="Thordata" height="120"/></a>
 
 ## Comparison between Wiseflow Open Source and Pro Versions
 
