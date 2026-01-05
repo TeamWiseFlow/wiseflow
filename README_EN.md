@@ -4,155 +4,95 @@
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/TeamWiseFlow/wiseflow)
 
-🚀 **Use large language models to mine information you're truly interested in from massive data and various sources daily!**
+🚀 **Use large language models to track the information you care about most daily from various sources!**
 
-What we lack is not information, but the ability to filter out noise from massive information to reveal valuable insights.
+Wiseflow intelligently monitors and tracks various network sources, including mainstream social media, websites, RSS, and search engines, and intelligently extracts the information you are most concerned about.
 
-## 🎉  WiseFlow Pro Version Now Available!
+## 🎉 WiseFlow Pro Version Now Available!
 
-Enhanced crawling capabilities, comprehensive social media support, UI interface, and one-click installation package!
+Stronger crawling capabilities, more comprehensive social media support, includes a Web UI, and a one-click installation package!
 
 https://github.com/user-attachments/assets/880af7a3-7b28-44ff-86b6-aaedecd22761
 
-🔥🔥 **Pro version is now available worldwide**: https://wiseflow.pro/ 
+🔥🔥 **Pro version is now available worldwide**: https://shouxiqingbaoguan.com/ 
 
-🔥 Contributors who submit PRs (code, documentation, or success case sharing) will receive one year of WiseFlow Pro version access (including related LLM usage fees) upon acceptance!
+🌹 From today, contributors who submit PRs to the Wiseflow open-source version (code, documentation, and success case sharing are all welcome) will receive a one-year subscription to Wiseflow Pro upon acceptance!
 
-## 🔥🔥🔥 Wiseflow 4.2 Version Officially Released!
+## Wiseflow 4.30 Open Source Version
 
-Version 4.2 significantly enhances web crawling capabilities based on versions 4.0 and 4.1. The program can now directly call your local "real" Chrome browser for fetching. This not only maximizes the reduction of being "risk-controlled" by target sites, but also brings new features such as persistent user data and support for page operation scripts! (For example, some websites require user login to display complete content, you can now pre-login and then use wiseflow to get complete content).
+The Wiseflow open-source version has been upgraded to the same architecture as the Pro version, featuring the same API, and can seamlessly share the [wiseflow+](https://github.com/TeamWiseFlow/wiseflow-plus) ecosystem!
 
-Since version 4.2 directly uses your local Chrome browser for crawling, you no longer need to execute `python -m playwright install --with-deps chromium` during deployment, but you need to **install Google Chrome browser using the default installation path**.
+## Sponsors
 
-In addition, we have also refactored the search engine solution and provided a complete proxy solution. For details, see **[CHANGELOG](CHANGELOG.md)**
+Powered By <a href="https://www.baotianqi.cn" target="_blank"><img src="./docs/logos/tianqibao.png" alt="Tianqibao" height="40"/></a>
 
-### 🔍 Custom Search Sources
+[Thordata](https://www.thordata.com/?ls=github&lk=wiseflow): Get Reliable Global Proxies at an Unbeatable Value. One-click data collection with enterprise-grade stability and compliance. Join thousands of developers using ThorData for high-scale operations. 
 
-Version 4.1 supports precise configuration of search sources for focus points. It currently supports bing, github, and arxiv search sources, all using native platform interfaces without requiring additional third-party services.
+🎁 Exclusive Offer: Sign up for a free Residential Proxy trial and 2,000 FREE SERP API calls!
 
-<img src="docs/select_search_source.gif" alt="search_source" width="360">
+<a href="https://www.thordata.com/?ls=github&lk=wiseflow" target="_blank"><img src="./docs/logos/thordata_en.png" alt="Thordata" height="120"/></a>
 
+## Comparison between Wiseflow Open Source and Pro Versions
 
-### 🧠 Let the AI Think from Your Perspective!
-
-Version 4.1 supports setting roles and objectives for focus points to guide the LLM in analyzing and extracting information from a specific perspective or for a specific purpose. However, please note:
-
-    - If the focus point itself is very specific, setting roles and objectives will have little impact on the results.
-    - The most important factor affecting the quality of the final results is always the source of information. Be sure to provide sources that are highly relevant to the focus point.
-
-For test cases on how setting roles and objectives affects extraction results, please refer to [task1](test/reports/report_v4x_llm/task1).
-
-
-### ⚙️ Custom Extraction Mode
-
-You can now create your own forms in the pb interface and configure them for specific focus points. The LLM will then extract information accurately according to the form fields.
-
-
-### 👥 Creator Search Mode for Social Media Sources
-
-You can now specify the program to find relevant content on social media platforms based on focus points, and further find the homepage information of the content creators. Combined with the "Custom Extraction Mode", wiseflow can help you search for potential customers, partners, or investors' contact information across the entire network.
-
-<img src="docs/find_person_by_wiseflow.png" alt="find_person_by_wiseflow" width="720">
-
-
-**For more update information on version 4.1, please see the [CHANGELOG](CHANGELOG.md)**
-
-## Comparison between Open Source and Pro Versions
-
-| Features | Open Source | Pro Version |
+| Feature | Open Source | Pro Version |
 | :--- | :---: | :---: |
-| **Source Acquisition** | Basic sources (Websites, RSS, Search Engines, etc.) | **Expanded support for 9 major categories** (including mainstream social media) |
-| **Installation** | Manual environment setup and deployment (Python/uv/pb) | **One-click executable** (Win/Mac/Ubuntu, no installation needed) |
-| **User Interface** | Command Line / Basic API | **Modern User Interface** |
-| **Documentation** | GitHub README / Markdown | **Detailed Operation Manual** (Feishu/Lark) |
-| **Integration** | Requires custom development | **Provides Local API** for easy integration |
-| **Architecture** | Community maintained | **More stable architecture & optimized performance** |
-| **LLM Costs** | Users configure their own API keys and pay | **Subscription includes LLM costs** (no config needed) |
-| **Technical Support** | GitHub Issues | **Paid User Community** (Fast feedback & exchange) |
+| **Monitored Sources** | web, rss | web, rss, plus 7 major Chinese self-media platforms |
+| **Search Sources** | bing, github, arxiv | bing, github, arxiv, plus 6 major Chinese self-media platforms |
+| **Installation** | Manual environment setup and deployment | No installation needed, one-click run |
+| **User Interface** | No UI | Chinese web UI |
+| **LLM Cost** | User-provided LLM service or local LLM | Subscription includes LLM costs (no config needed) |
+| **Technical Support** | GitHub Issues | WeChat group for paid users |
+| **Price** | Free | ￥488/year |
+| **Target Audience** | Community exploration and learning | Daily use (Individual or Enterprise) |
 
-## 🌹 Best LLM Combination Guide
+## 🧐 Wiseflow Positioning
 
-"In the LLM era, excellent developers should spend at least 60% of their time choosing the right LLM model" ☺️
+Wiseflow is not a general-purpose agent like ChatGPT or Manus; it focuses on information monitoring and extraction, supporting user-specified sources with scheduled tasks to ensure the latest information is always obtained (supports up to 4 times a day, i.e., every 6 hours). Wiseflow also supports comprehensive information searching across specified platforms (e.g., "finding people").
 
-We selected 7 test samples from real projects and extensively chose mainstream models with output prices not exceeding $0.6/M tokens, conducting detailed wiseflow info extracting task tests, and arrived at the following usage recommendations:
+However, do not equate Wiseflow with traditional crawlers or RPA! Wiseflow's acquisition behavior is entirely driven by LLM, using real browsers (instead of headless or virtual browsers), and its acquisition and extraction actions are performed simultaneously:
 
-    - For performance-priority scenarios, we recommend: ByteDance-Seed/Seed-OSS-36B-Instruct
-
-    - For cost-priority scenarios, we still recommend: Qwen/Qwen3-14B
-
-For visual auxiliary analysis models, you can still use: Qwen/Qwen2.5-VL-7B-Instruct (wiseflow tasks currently have low dependency on this)
-
-For detailed test reports, see [LLM USE TEST](./test/reports/README_EN.md)
-
-It should be noted that the above test results only represent the performance of models in wiseflow information extraction tasks and cannot represent the comprehensive capabilities of the models. Wiseflow information extraction tasks may be significantly different from other types of tasks (such as planning, writing, etc.). Additionally, cost is one of our key considerations because wiseflow tasks consume a large amount of model usage, especially in multi-source, multi-focus scenarios.
-
-Wiseflow does not limit model service providers, as long as the service is compatible with openaiSDK request interface format. You can choose existing MaaS services or locally deployed model services like Ollama.
-
-we recommend using [Siliconflow](https://www.siliconflow.com/) 's model service.
-
-Alternatively, if you prefer openai series models, 'o3-mini' and 'openai/gpt-oss-20b' are also good choices, and visual auxiliary analysis can be paired with gpt-4o-mini.
-
-💰 Currently, you can use OpenAI series model official interfaces forwarded by AiHubMix at 10% off the official price within the wiseflow application.
-
-**Note:** To enjoy the discount, you need to switch to the aihubmix branch, see [README](https://github.com/TeamWiseFlow/wiseflow/blob/aihubmix/README.md) for details
-
-## 🧐  Difference from "ChatGPTs" / "Deepseeks" / "Doubao" etc.
-
-First, wiseflow, like these products, is powered by LLM (large language models) behind the scenes. However, because they are designed for different purposes, in the following two scenarios, using "ChatGPTs" / "Deepseeks" / "Doubao" etc. may not meet your needs (most likely, at this stage, you won't find a product more suitable than wiseflow for these needs ☺️)
-
-You need to get the latest content (published within hours) from specified sources, and you don't want to miss any part that might interest you
-
-For example, tracking policy releases from authoritative institutions, tracking industry or technology intelligence, tracking competitor dynamics, or you just want to get information from limited high-quality sources (freeing yourself from the control of recommendation algorithms 🤣), etc... "ChatGPTs" / "Deepseeks" / "Doubao" and other general Q&A agents do not monitor specified sources. They function like search engines, targeting information across the entire network, and usually can only obtain "second-hand information" with a delay of 2-3 days or longer.
-
-You need to repeatedly discover and extract specified information from the network (especially social media)
-
-For example, finding potential customers, suppliers, or investors in specific fields from social media, collecting their contact information, etc... Similarly, "ChatGPTs" / "Deepseeks" / "Doubao" and other general Q&A agents are better at summarizing and refining answers, rather than collecting and organizing information.
-
-## ✋ Difference from "Crawlers" or RPA
-
-First, wiseflow is not a crawler, nor is it a traditional RPA!
-
-Wiseflow uses your browser to operate on your behalf with real human behavior (of course, this relies on LLM, even visual LLM). There is no non-compliant behavior in this process. For all login and verification operations, wiseflow will only remind users and will not overstep. Of course, you only need to perform these operations once during the validity period, and wiseflow will retain the login state (but not the username and password. In fact, wiseflow cannot read any username or password you enter at all. All your operations are performed on the real official pages).
-
-Because wiseflow uses real browsers (rather than headless browsers, virtual browsers, etc.) and completely simulates real user browsing behavior, it has stronger anti-detection capabilities than "crawlers" and RPA. In addition, it has the following features:
-
-- Full platform acquisition capabilities: Supports websites, RSS, Weibo, Kuaishou, Bing, GitHub, arXiv, eBay, etc. Pro version additionally supports WeChat Official Account, Xiaohongshu, Zhihu, Bilibili, and Douyin.
-- Innovative HTML intelligent parsing mechanism: Can automatically identify key information and links worth exploring further.
-- "Crawl-and-Search-in-One" strategy: Real-time LLM judgment and extraction during crawling, only capturing relevant information, significantly reducing risk control risks.
+- Innovative HTML intelligent parsing mechanism: Automatically identifies key information and links worth exploring further.
+- "Crawl-and-Search-in-One" strategy: Real-time LLM judgment and extraction during crawling, capturing only relevant information, significantly reducing risk control risks.
 - Truly ready to use: No need for Xpath, scripts, or manual configuration. Ordinary users can easily use it.
-- No need to worry about LLM usage fees at all: All LLM call fees are included in the subscription, no need to configure services or keys separately.
+
+    ……
+
+For more, please refer to: https://shouxiqingbaoguan.com/
 
 ## 🌟 Quick Start
 
-**Just three steps to get started!**
+**Get started in just three steps!**
 
-**Starting from version 4.2, you must first install Google Chrome browser (using the default installation path)**
+**From version 4.2 onwards, Google Chrome must be installed (using the default installation path).**
 
-**Windows users please download Git Bash tool in advance and execute the following commands in bash [Bash Download Link](https://git-scm.com/downloads/win)**
+**Windows users, please download the Git Bash tool in advance and execute the following commands in bash. [Bash Download Link](https://git-scm.com/downloads/win)**
 
-### 📋 Download Project Source Code and Install uv and pocketbase
+### 📋 Install environment management tool uv and download Wiseflow source code
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 ```
 
-The above operations will complete the installation of uv. 
+The above operation will complete the installation of uv and download the Wiseflow source code.
 
-Next, go to [pocketbase docs](https://pocketbase.io/docs/) to download the corresponding pocketbase program for your system and place it in the [.pb](./pb/) folder.
+### 📥 Configure .env file based on env_sample
 
-You can also try using install_pocketbase.sh (for MacOS/Linux) or install_pocketbase.ps1 (for Windows) to install.
+In the wiseflow folder (project root directory), create a .env file based on env_sample and fill in the relevant settings (mainly LLM service configuration).
 
-### 📥 Configure .env File Based on env_sample
+**The Wiseflow open-source version requires users to configure their own LLM service.**
 
-In the wiseflow folder (project root directory), create a .env file based on env_sample and fill in the relevant settings
+Wiseflow does not limit model service providers, as long as the service is compatible with the OpenAI SDK request interface format. You can choose existing MaaS services or locally deployed model services like Ollama.
 
-Version 4.x does not require users to provide pocketbase credentials in .env, nor does it restrict pocketbase version. Additionally, we have temporarily removed the Secondary Model setting. Therefore, you only need a minimum of four parameters to complete the configuration:
+For users in Mainland China, we recommend using the Siliconflow model service.
 
-- LLM_API_KEY="" # LLM service key (any model provider offering OpenAI format API, not required if using ollama locally)
-- LLM_API_BASE="" 
-- PRIMARY_MODEL=ByteDance-Seed/Seed-OSS-36B-Instruct #model you used
-- VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct # better to have
+😄 Feel free to use my [referral link](https://cloud.siliconflow.cn/i/WNLYbBpi) to apply—both you and I will receive a ￥14 platform reward.
+
+If you prefer to use overseas closed-source models such as OpenAI, you can use the AiHubMix model service, which works smoothly in Mainland China:
+
+😄 You are welcome to register with my [AiHubMix invitation link](https://aihubmix.com?aff=Gp54).
+
+Overseas users can use the international version of Siliconflow: https://www.siliconflow.com/
 
 ### 🚀 Take Off!
 
@@ -160,31 +100,27 @@ Version 4.x does not require users to provide pocketbase credentials in .env, no
 cd wiseflow
 uv venv # only needed the first time
 source .venv/bin/activate  # Linux/macOS
-# or Windows:
+# or on Windows:
 # .venv\Scripts\activate
 uv sync # only needed the first time
-chmod +x run.sh # only needed the first time
-./run.sh  # Linux/macOS
-.\run.bat  # Windows
+python core/entry.py
 ```
 
-For detailed usage instructions, please refer to [docs/manual/manual_en.md](./docs/manual/manual_en.md)
+## 📚 How to use data crawled by Wiseflow in your own programs
 
-## 📚 How to Use Data Crawled by Wiseflow in Your Own Programs
+Refer to [wiseflow backend api](./core/backend/README.md)
 
-All data crawled by Wiseflow will be instantly stored in pocketbase, so you can directly operate the pocketbase database to obtain data.
-
-As a popular lightweight database, PocketBase currently has SDKs for Go/Javascript/Python and other languages.
-
-Welcome to share and promote your secondary development application examples in the following repo!
+Whether based on Wiseflow or Wiseflow Pro, we welcome you to share and promote your application cases in the following repo!
 
 - https://github.com/TeamWiseFlow/wiseflow-plus
 
-(Contributing PRs to this repo will also grant one year of WiseFlow Pro version access upon acceptance)
+(Contributing PRs to this repo will also grant a one-year subscription to Wiseflow Pro upon acceptance)
+
+**The architecture of version 4.2x is not fully compatible with 4.30. The final version of 4.2x (v4.29) is no longer maintained. For code reference, you can switch to the "2025" branch.**
 
 ## 🛡️ License
 
-Starting from version 4.2, we have updated the open source license agreement, please check: [LICENSE](LICENSE)
+Since version 4.2, we have updated the open-source license agreement. Please check: [LICENSE](LICENSE) 
 
 For commercial cooperation, please contact **Email: zm.zhao@foxmail.com**
 
@@ -192,15 +128,18 @@ For commercial cooperation, please contact **Email: zm.zhao@foxmail.com**
 
 For any questions or suggestions, welcome to leave a message through [issue](https://github.com/TeamWiseFlow/wiseflow/issues).
 
+For Pro version requirements or cooperation feedback, please contact the "Manager" of AI Chief Intelligence Officer via WeChat:
+
+<img src="docs/wechat.jpg" alt="wechat" width="360">
+
 ## 🤝 This Project is Based on the Following Excellent Open Source Projects:
 
 - Crawl4ai (Open-source LLM Friendly Web Crawler & Scraper) https://github.com/unclecode/crawl4ai
+- Patchright (Undetected Python version of the Playwright testing and automation library) https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-python
 - MediaCrawler (xhs/dy/wb/ks/bilibili/zhihu crawler) https://github.com/NanmiCoder/MediaCrawler
-- Patchright(Undetected Python version of the Playwright testing and automation library) https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-python
 - NoDriver (Providing a blazing fast framework for web automation, webscraping, bots and any other creative ideas...) https://github.com/ultrafunkamsterdam/nodriver
-- Pocketbase (Open Source realtime backend in 1 file) https://github.com/pocketbase/pocketbase
 - Feedparser (Parse feeds in Python) https://github.com/kurtmckee/feedparser
-- SearXNG（a free internet metasearch engine which aggregates results from various search services and databases） https://github.com/searxng/searxng
+- SearXNG (A free internet metasearch engine which aggregates results from various search services and databases) https://github.com/searxng/searxng
 
 ## Citation
 
