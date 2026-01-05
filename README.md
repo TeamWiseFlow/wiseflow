@@ -26,9 +26,9 @@ wiseflow 开源版本现已升级为与 pro 版本一样的架构，同时具有
 
 Powered By <a href="https://www.baotianqi.cn" target="_blank"><img src="./docs/logos/tianqibao.png" alt="天气宝" height="40"/></a>
 
-[Thordata](https://www.thordata.com/?ls=github&lk=wiseflow)：可靠且经济高效的代理服务提供商。一键采集公网数据，为企业和开发者提供稳定、高效且合规的全球代理 IP 服务。注册即可免费试用住宅代理，并获得 2000 次免费 SERP API 调用。
+[Thordata](https://www.thordata.com/products/serp-api?ls=github&lk=wiseflow)：可靠且经济高效的代理服务提供商。一键采集公网数据，为企业和开发者提供稳定、高效且合规的全球代理 IP 服务。注册即可免费试用住宅代理，并获得 2000 次免费 SERP API 调用。
 
-<a href="https://www.thordata.com/?ls=github&lk=wiseflow" target="_blank"><img src="./docs/logos/thordata_cn.png" alt="Thordata" height="120"/></a>
+<a href="https://www.thordata.com/products/serp-api?ls=github&lk=wiseflow" target="_blank"><img src="./docs/logos/thordata_cn.png" alt="Thordata" height="120"/></a>
 
 ## wiseflow 开源版本与 pro 版本的对比
 

@@ -26,11 +26,11 @@ wiseflow 오픈 소스 버전은 이제 pro 버전과 동일한 아키텍처로 
 
 Powered By <a href="https://www.baotianqi.cn" target="_blank"><img src="./docs/logos/tianqibao.png" alt="날씨보" height="40"/></a>
 
-[Thordata](https://www.thordata.com/?ls=github&lk=wiseflow): 합리적인 가격으로 신뢰할 수 있는 글로벌 프록시를 이용하세요. 엔터프라이즈급 안정성과 규정 준수를 갖춘 원클릭 데이터 수집. 대규모 운영을 위해 ThorData를 사용하는 수천 명의 개발자와 함께하세요.
+[Thordata](https://www.thordata.com/products/serp-api?ls=github&lk=wiseflow): 합리적인 가격으로 신뢰할 수 있는 글로벌 프록시를 이용하세요. 엔터프라이즈급 안정성과 규정 준수를 갖춘 원클릭 데이터 수집. 대규모 운영을 위해 ThorData를 사용하는 수천 명의 개발자와 함께하세요.
 
 🎁 독점 혜택: 주거용 프록시 무료 체험과 2,000회의 무료 SERP API 호출에 가입하세요!
 
-<a href="https://www.thordata.com/?ls=github&lk=wiseflow" target="_blank"><img src="./docs/logos/thordata_cn.png" alt="Thordata" height="120"/></a>
+<a href="https://www.thordata.com/products/serp-api?ls=github&lk=wiseflow" target="_blank"><img src="./docs/logos/thordata_en.png" alt="Thordata" height="120"/></a>
 
 ## wiseflow 오픈 소스 버전과 pro 버전 비교
 
