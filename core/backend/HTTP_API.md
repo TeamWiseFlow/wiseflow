@@ -24,7 +24,7 @@ http 接口，统一响应格式为：
 - `success: true` - 操作成功，`data` 字段包含有效结果
 - `success: false` - 操作失败，`msg` 字段包含失败原因，`data` 可能为 `null` 或默认值
 
-http 涉及如下27个接口。
+http 涉及如下26个接口。
 
 ### 2、list_task 
 
@@ -36,7 +36,7 @@ AsyncDatabaseManager 和 数据库schema 参考  [core/async_database.py](../cor
 
 ### 3、del_task
 
-仅接收一个 task_id 的参数，字符串格式。
+仅接收一个 task_id 的参数，int 格式。
 
 backend 接收后，调用 AsyncDatabaseManager 的 对应方法删除本地数据库中 task 表对应项目。成功时返回被删除的 task_id，失败时 msg 会有失败详情。
 
@@ -44,7 +44,7 @@ AsyncDatabaseManager 和 数据库schema 参考  [core/async_database.py](../cor
 
 ### 4、read_task
 
-此接口用 GET 方法即可，仅接收一个 task_id 的参数，字符串格式。
+此接口用 GET 方法即可，仅接收一个 task_id 的参数，int 格式。
 
 backend 接收后，调用 AsyncDatabaseManager 的 对应方法读取本地数据库中 task 表中对应条目。成功时返回任务详情，任务不存在时返回空结果，查询失败时 msg 会有失败详情。
 
@@ -57,11 +57,10 @@ AsyncDatabaseManager 和 数据库schema 参考  [core/async_database.py](../cor
 请求体主要字段：
 
 - `focuses: (int|object)[]`（可选）
-- `search: string[]`（可选）
-- `title: string[]`（可选）
-- `sources: {type, detail}[]`（可选）
+- `search: ("bing"|"github"|"arxiv")[]`（可选）
+- `sources: {type, detail}[]`（可选，type 仅支持 "web"|"rss"）
 - `activated: boolean`（可选，默认 true）
-- `time_slots: ("1st"|"2nd"|"3rd"|"4th")[]`（可选）
+- `time_slots: ("first"|"second"|"third"|"fourth")[]`（可选）
 - `title: string`（可选，默认空字符串）
 
 backend 接收后，调用 AsyncDatabaseManager 的 对应方法在本地数据库的 tasks 表中新增一个项目。成功时返回新增的 task_id，失败时 msg 会有失败详情。
@@ -72,7 +71,7 @@ AsyncDatabaseManager 和 数据库schema 参考  [core/async_database.py](../cor
 
 接收一个请求体， 必须包含 task_id 和 需要更改的内容。支持更新 `title` 字段。
 
-可更新字段：`focuses`、`search`、`sources`、`activated`、`time_slots`、`title`、`status`、`errors`。
+可更新字段：`focuses`、`search`、`sources`、`activated`、`time_slots`、`title`。
 
 backend 接收后，调用 AsyncDatabaseManager 的 对应方法更新本地数据库的 tasks 中的项目。成功时返回被更新的 task_id，失败时 msg 会有失败详情。
 
@@ -161,33 +160,46 @@ backend 接收后，调用 AsyncDatabaseManager 的 对应方法删除本地数�
 
 AsyncDatabaseManager 和 数据库schema 参考  [core/async_database.py](../core/async_database.py)
 
-### 10、 read_info
+### 10、info_stat
 
-此接口用 POST 方法，支持复杂的条件查询和分页，接收 JSON 请求体。
+此接口用 GET 方法，接收一个可选参数：
+
+- `focus_id`：指定 focus_id 时仅返回该 focus 的统计数量；不传时返回全部 focus 的统计数量
+
+返回格式示例：
+
+```json
+{
+  "success": true,
+  "msg": "",
+  "data": {
+    "1": 120,
+    "2": 45
+  }
+}
+```
+
+AsyncDatabaseManager 和 数据库schema 参考  [core/async_database.py](../core/async_database.py)
+
+### 11、 read_info
+
+此接口用 POST 方法，支持条件查询和分页，接收 JSON 请求体。
 
 **请求参数：**
 
 - `focuses`：要查询的 focus ID 列表，数组类型，可选（不填表示查询所有 focus）
-- `per_focus_limit`：每个 focus 最多返回的信息数量，整数，可选（默认 50，最大 50）
-- `limit`：总体返回数量限制，整数，可选（默认 20，最大 1000）
+- `limit`：总体返回数量限制，整数，可选（默认 20）
 - `offset`：分页偏移量，整数，可选（默认 0）
 - `start_time`：时间范围开始，ISO 8601 UTC 格式，可选
 - `end_time`：时间范围结束，ISO 8601 UTC 格式，可选
 - `source_url`：按来源 URL 精确查询，可选（与其他条件可组合）
 - `info_id`：按 info 唯一 ID 精确查询，可选
 
-**重要限制：**
-- `per_focus_limit` 和 `limit` 不能同时为 0
-- 使用单次批量查询优化，支持窗口函数或应用层分组
-  
-> 说明：当提供 `info_id` 或 `source_url` 进行精确查询时，即使 `per_focus_limit = 0` 且 `limit = 0`，也允许查询；否则会返回错误。
-
 **请求示例：**
 
 ```json
 {
   "focuses": [1, 2, 3],
-  "per_focus_limit": 30,
   "limit": 100,
   "offset": 0,
   "start_time": "2025-01-01T00:00:00Z",
@@ -243,7 +255,6 @@ AsyncDatabaseManager 和 数据库schema 参考  [core/async_database.py](../cor
 - 返回结果按 `created` 时间降序排列（新 -> 旧）
 - 时间格式统一使用 ISO 8601 UTC（如 2025-01-01T00:00:00Z）
 - 支持灵活的时间范围查询和分页
-- 当同时指定 `per_focus_limit` 和 `limit` 时，两个限制都会生效
 - 前端生成时间：JavaScript 用 `new Date().toISOString()`，Python 用 `datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')`
 
 AsyncDatabaseManager 和 数据库schema 参考  [core/async_database.py](../core/async_database.py)
@@ -251,7 +262,7 @@ AsyncDatabaseManager 和 数据库schema 参考  [core/async_database.py](../cor
 
 ### 12、13、14、15 local_proxies 的增删改查接口：
 
-分别对应 local_proxies表单的 list、del、update 和 add 
+分别对应 local_proxies 表单的 list、del、update 和 add 
 
 - **list**: 成功时返回代理列表，失败时 msg 会有失败详情
 - **add**: 成功时返回新增代理的 id，失败时 msg 会有失败详情  
@@ -271,28 +282,17 @@ AsyncDatabaseManager 和 数据库schema 参考  [core/async_database.py](../cor
 
 AsyncDatabaseManager 和 数据库schema 参考  [core/async_database.py](../core/async_database.py)
 
-### 20、21、22、23 mc_backup_accounts 的增删改查接口：
-
-分别对应 mc_backup_accounts 表单的 list、del、update 和 add 
-
-- **list**: 成功时返回备份账户列表，失败时 msg 会有失败详情
-- **add**: 成功时返回新增备份账户的 id，失败时 msg 会有失败详情
-- **update**: 成功时返回更新后备份账户的id，失败时 msg 会有失败详情
-- **del**: 成功时返回被删除的备份账户 id，失败时 msg 会有失败详情 
-
-AsyncDatabaseManager 和 数据库schema 参考  [core/async_database.py](../core/async_database.py)
-
-# 24、list_config 接口
+# 20、list_config 接口
 
 本接口使用 GET 方法即可，backend 接收后，返回的主体数据是一个字典，包含了目前运行中的 config 字典
 
-# 25、reset_config 接口
+# 21、reset_config 接口
 
 本接口使用 GET 方法即可，backend 接收后 会把运行中的 config 重置为默认值，只返回成功与否
 
 **注意：这里仅仅是删除本地保存的用户配置文件，需要提醒用户，设置更改要重新启动 wiseflow 本地程序**
 
-# 26、update_config 接口
+# 22、update_config 接口
 
 本接口使用 POST 方法，payload 是需要更新的项目
 
@@ -302,7 +302,7 @@ backend 接收后会对应更新相关的项目，并把更新后的项目，保
 
 **注意：这里仅仅是更新本地保存的用户配置文件，需要提醒用户，设置更改要重新启动 wiseflow 本地程序**
 
-# 27、clear_task_errors 接口
+# 23、clear_task_errors 接口
 
 本接口使用 GET 方法，仅接收一个 task_id 的参数，int格式。
 
@@ -310,7 +310,61 @@ backend 接收后，调用 AsyncDatabaseManager 的 clear_task_error 方法清�
 
 AsyncDatabaseManager 和 数据库schema 参考 [core/async_database.py](../core/async_database.py)
 
-# 28、ws_history 接口
+### 24、user_notify
+
+此接口用 POST 方法，向前端推送通知（不等待用户响应）。
+
+请求体：
+
+- `code: int`
+- `params: string[]`（可选）
+- `timeout: int`（可选，默认 30）
+
+返回格式：
+
+```json
+{
+  "success": true
+}
+```
+
+### 25、user_prompt
+
+此接口用 POST 方法，向前端推送交互提示并等待用户操作。
+
+请求体：
+
+- `code: int`
+- `params: string[]`（可选）
+- `timeout: int`（可选，默认 30）
+- `actions: {id,label}[]`（可选，默认提供一个完成按钮）
+
+返回格式（result 为 action_id，超时则为 null）：
+
+```json
+{
+  "result": "done"
+}
+```
+
+### 26、ws_ping
+
+此接口用 POST 方法，通过 websocket ping 确认前端是否在线。
+
+请求体：
+
+- `timeout: int`（可选，默认 3，范围 1-30）
+
+返回格式：
+
+```json
+{
+  "alive": true
+}
+```
+
+# 27、ws_history 接口
+
 
 本接口使用 GET 方法，接收 `limit` 和 `offset` 两个参数。
 

@@ -550,11 +550,10 @@ CREATE TABLE IF NOT EXISTS {table_name} (
                           focus_ids: Optional[List[int]] = None,
                           start_time: Optional[str] = None,
                           end_time: Optional[str] = None,
-                          per_focus_limit: Optional[int] = None,
                           limit: Optional[int] = None,
                           offset: Optional[int] = None) -> List[dict]:
         """
-        从 infos 表读取数据，支持筛选条件：focus_ids、source_url、start_time、end_time、per_focus_limit、limit、offset
+        从 infos 表读取数据，支持筛选条件：focus_ids、source_url、start_time、end_time、limit、offset
             
         Returns:
             List[dict]: 符合条件的 infos 记录列表，每条记录为字典格式
@@ -606,26 +605,6 @@ CREATE TABLE IF NOT EXISTS {table_name} (
                 columns = "id, type, content, focus_statement, focus_id, source_url, source_title, refers, created"
                 base_query = f"SELECT {columns} FROM infos"
 
-                # 若需要按 focus_id 进行每组限制，优先尝试使用窗口函数
-                if per_focus_limit is not None and per_focus_limit > 0 and focus_ids:
-                    where_sql = f" WHERE {' AND '.join(where_conditions)}" if where_conditions else ""
-                    window_query = (
-                        f"SELECT {columns} FROM ("
-                        f"  SELECT {columns}, ROW_NUMBER() OVER (PARTITION BY focus_id ORDER BY created DESC) AS rn"
-                        f"  FROM infos{where_sql}"
-                        f") t WHERE rn <= ? ORDER BY created DESC"
-                    )
-                    try:
-                        async with db.execute(window_query, params + [int(per_focus_limit)]) as cursor:
-                            rows = await cursor.fetchall()
-                            colnames = [desc[0] for desc in cursor.description]
-                            for row in rows:
-                                result.append(dict(zip(colnames, row)))
-                        return  # early return via outer try; result consumed below
-                    except Exception as e:
-                        # 窗口函数不可用或其他失败，回退到应用层分组逻辑
-                        pass
-
                 # 常规路径：构建完整查询并可选分页
                 if where_conditions:
                     query = f"{base_query} WHERE {' AND '.join(where_conditions)}"
@@ -635,33 +614,66 @@ CREATE TABLE IF NOT EXISTS {table_name} (
                 # 排序与分页（按 created 倒序）
                 query += " ORDER BY created DESC"
 
-                # 若未指定每组限制，则可以使用总量 limit/offset 进行分页
-                if not focus_ids and limit is not None:
+                exec_params = params
+
+                # 执行查询
+                if focus_ids:
+                    # 按每个 focus_id 的 created 倒序进行分页
+                    where_sql = f" WHERE {' AND '.join(where_conditions)}" if where_conditions else ""
+                    offset_val = int(offset) if offset is not None else 0
+                    try:
+                        if limit is not None:
+                            window_query = (
+                                f"SELECT {columns} FROM ("
+                                f"  SELECT {columns}, ROW_NUMBER() OVER (PARTITION BY focus_id ORDER BY created DESC) AS rn"
+                                f"  FROM infos{where_sql}"
+                                f") t WHERE rn > ? AND rn <= ? ORDER BY created DESC"
+                            )
+                            query_params = params + [offset_val, offset_val + int(limit)]
+                        else:
+                            window_query = (
+                                f"SELECT {columns} FROM ("
+                                f"  SELECT {columns}, ROW_NUMBER() OVER (PARTITION BY focus_id ORDER BY created DESC) AS rn"
+                                f"  FROM infos{where_sql}"
+                                f") t WHERE rn > ? ORDER BY created DESC"
+                            )
+                            query_params = params + [offset_val]
+                        async with db.execute(window_query, query_params) as cursor:
+                            rows = await cursor.fetchall()
+                            colnames = [desc[0] for desc in cursor.description]
+                            for row in rows:
+                                result.append(dict(zip(colnames, row)))
+                        return  # early return via outer try; result consumed below
+                    except Exception:
+                        # 窗口函数不可用或其他失败，回退到应用层分组逻辑
+                        pass
+
+                if limit is not None:
                     if offset is None:
                         offset_val = 0
                     else:
                         offset_val = int(offset)
                     query += " LIMIT ? OFFSET ?"
                     exec_params = params + [int(limit), offset_val]
-                else:
-                    exec_params = params
 
-                # 执行查询
                 async with db.execute(query, exec_params) as cursor:
-                    # 如果需要每组限制但没有窗口函数支持，则在应用层过滤
-                    if per_focus_limit is not None and per_focus_limit > 0 and focus_ids:
+                    if focus_ids:
+                        # 应用层按 focus_id 分组分页
                         per_focus_counts: dict[int, int] = {int(fid): 0 for fid in focus_ids}
+                        per_focus_skips: dict[int, int] = {int(fid): 0 for fid in focus_ids}
                         colnames = [desc[0] for desc in cursor.description]
                         async for row in cursor:
                             row_dict = dict(zip(colnames, row))
                             fid = int(row_dict.get('focus_id')) if row_dict.get('focus_id') is not None else None
                             if fid is None or fid not in per_focus_counts:
                                 continue
-                            if per_focus_counts[fid] < int(per_focus_limit):
+                            if per_focus_skips[fid] < (int(offset) if offset is not None else 0):
+                                per_focus_skips[fid] += 1
+                                continue
+                            if limit is None or per_focus_counts[fid] < int(limit):
                                 result.append(row_dict)
                                 per_focus_counts[fid] += 1
-                                # 若所有 focus 均已达到上限，则可提前结束
-                                if all(c >= int(per_focus_limit) for c in per_focus_counts.values()):
+                                if limit is not None and all(c >= int(limit) for c in per_focus_counts.values()):
                                     break
                     else:
                         rows = await cursor.fetchall()

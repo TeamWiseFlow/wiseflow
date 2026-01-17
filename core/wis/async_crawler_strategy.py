@@ -414,7 +414,7 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                     return True
 
                 # `cf-cache-status: HIT/MISS/EXPIRED/REVALIDATED` 等值表示常态缓存命中或正常回源
-                safe_cache_indicators = {"hit", "miss", "expired", "revalidated"}
+                safe_cache_indicators = {"hit", "miss", "expired", "revalidated", "dynamic"}
                 if cf_cache_status and cf_cache_status not in safe_cache_indicators:
                     self.logger.info(
                         f"[AntiBot] Cloudflare unusual cache status detected from headers: {headers}"
