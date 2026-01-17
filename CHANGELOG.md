@@ -1,3 +1,17 @@
+# v4.3.1
+
+- 后端新增 info_stat 统计接口，并补齐 user_notify、user_prompt、ws_ping 等前端交互相关接口。
+
+  Added info_stat statistics endpoint and completed frontend interaction endpoints such as user_notify, user_prompt, and ws_ping.
+
+- read_info 参数与 task time_slots 枚举同步为当前实现。
+
+  Synced read_info parameters and task time_slots enum with the current implementation.
+
+- 后端接口文档更新，移除已弃用的 mc_backup_accounts CRUD 说明。
+
+  Updated backend API docs and removed deprecated mc_backup_accounts CRUD descriptions.
+
 # v4.30
 
 - 升级为与 pro 版本一样的架构，同时具有一样的 api，可无缝共享 [wiseflow+](https://github.com/TeamWiseFlow/wiseflow-plus) 生态！

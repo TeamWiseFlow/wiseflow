@@ -303,7 +303,8 @@ async def list_info(start_time: Optional[str] = None, max_items_per_focus: int =
     infos = await db_manager.filter_infos(
         focus_ids=focus_ids,
         start_time=(start_time or None),
-        per_focus_limit=per_focus_limit,
+        limit=per_focus_limit,
+        offset=0,
     )
 
     # 2) 组装为 { focus_id: [infos...] }，保证所有 focus_id 都存在键
@@ -343,7 +344,6 @@ async def info_stat(focus_id: Optional[int] = None):
 # 11. read_info
 class ReadInfoRequest(BaseModel):
     focuses: Optional[List[int]] = None
-    per_focus_limit: Optional[int] = 50
     limit: Optional[int] = 20
     offset: Optional[int] = 0
     start_time: Optional[str] = None
@@ -358,17 +358,12 @@ async def read_info(request: ReadInfoRequest):
     按条件读取 infos：支持 focus 列表、时间范围、分页。
     返回符合条件的 infos 列表（按 created 降序）。
     """
-    if request.per_focus_limit and request.limit and (request.per_focus_limit + request.limit) < 1:
-        if not request.source_url and not request.info_id:
-            return APIResponse(success=False, msg="per_focus_limit 和 limit 不能同时为0", data=[])
-    
     infos = await db_manager.filter_infos(
         source_url=(request.source_url or None),
         id=(request.info_id or None),
         focus_ids=request.focuses or None,
         start_time=(request.start_time or None),
         end_time=(request.end_time or None),
-        per_focus_limit=(request.per_focus_limit if request.per_focus_limit is not None else 50),
         limit=(request.limit if request.limit is not None else 20),
         offset=(request.offset if request.offset is not None else 0),
     )
