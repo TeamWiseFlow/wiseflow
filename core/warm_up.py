@@ -307,7 +307,7 @@ async def prepare_to_work(db_manager: AsyncDatabaseManager, cache_manager: Sqlit
             wis_logger.warning(f"during web pre-login process, error occurred: {e}")
             await notify_user(74)
 
-    if "web" in crawlers or "bing" in crawlers:
+    if "web" in crawlers or "bing" in crawlers or "rss" in crawlers:
         try:
             crawler = AsyncWebCrawler(crawler_config_map=crawler_config_map, db_manager=cache_manager)
             await crawler.start()
