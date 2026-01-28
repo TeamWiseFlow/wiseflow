@@ -439,7 +439,7 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
         # 页面元素特征检测（适配 weixin、其他验证页）
         verification_element_selectors = [
             'div.geetest_panel',              # 极验容器
-            'iframe[src*="captcha"]',         # 通用 iframe 验证
+            # 'iframe[src*="captcha"]',         # 通用 iframe 验证, github 会误伤
             'iframe[src*="datadome"]',        # DataDome iframe
         ]
 
