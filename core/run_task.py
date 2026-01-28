@@ -56,7 +56,8 @@ def calculate_limit_hours(updated_str: str) -> int:
         time_diff = current_time - updated_time
         hours_diff = int(time_diff.total_seconds() / 3600)
         
-        # 返回小时数差 + 6
+        if hours_diff < 18:
+            return 24
         return hours_diff + 6
     except Exception as e:
         wis_logger.warning(f"计算 limit_hours 失败: {e}, 使用默认值 24")
