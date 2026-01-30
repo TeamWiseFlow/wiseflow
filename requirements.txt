@@ -22,7 +22,7 @@ pyhumps==3.8.0
 openai>=1.58.1
 
 # Browser automation
-patchright==1.52.5
+patchright==1.57.2
 nodriver==0.47
 pdf2image>=1.17.0
 

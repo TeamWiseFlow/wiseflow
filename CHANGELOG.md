@@ -1,3 +1,12 @@
+# v4.32
+- bug fix；
+
+- import error\can not work when use rss souces only.
+
+- update patchright to 1.57.2
+
+- clean useless code
+
 # v4.3.1
 
 - 后端新增 info_stat 统计接口，并补齐 user_notify、user_prompt、ws_ping 等前端交互相关接口。

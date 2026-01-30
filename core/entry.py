@@ -160,7 +160,7 @@ if __name__ == "__main__":
     if os.environ.get("WISEFLOW_CHILD_PROCESS") != "1":
         _enable_windows_ansi_colors()
         print(f"\n{CYAN}{'#' * 50}{RESET}")
-        print(f"{GREEN}Wiseflow v4.30{RESET}")
+        print(f"{GREEN}Wiseflow v4.32{RESET}")
         print(f"{YELLOW}⚠️  重要提示：本工具仅限于获取公开发布的非知识产权内容{RESET}")
         print(f"{BLUE}适用范围：企业门户、政府部门、行业协会等的公告栏、通知栏、新闻发布栏等{RESET}")
         print(f"{RED}严格禁止：用于媒体网站、交易网站等受知识产权保护内容的获取{RESET}")

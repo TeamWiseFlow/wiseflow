@@ -2,10 +2,7 @@ from bs4 import BeautifulSoup, Comment, element, Tag, NavigableString
 import json
 import lxml
 import regex as re
-import os
 import platform
-from array import array
-from typing import List, Callable, Tuple, Sequence
 from urllib.parse import urljoin
 import xxhash
 import asyncio
@@ -16,7 +13,6 @@ from .config import config
 from . import __version__
 import psutil
 import subprocess
-from itertools import chain
 from urllib.parse import urlparse, urljoin, urlunparse, parse_qs, urlencode
 
 
@@ -45,13 +41,6 @@ common_file_exts = [
     '.php', '.php3', '.php4', '.php5', '.php7', '.phtml', '.phps',
     # Additional formats
     '.yaml', '.yml', '.asp']
-
-common_tlds = [
-    '.com', '.cn', '.net', '.org', '.edu', '.gov', '.io', '.co',
-    '.info', '.biz', '.me', '.tv', '.cc', '.xyz', '.app', '.dev',
-    '.cloud', '.ai', '.tech', '.online', '.store', '.shop', '.site',
-    '.top', '.vip', '.pro', '.ltd', '.group', '.team', '.work'
-]
 
 url_pattern = r'((?:https?://|www\.)[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|])'
 
@@ -203,223 +192,40 @@ def can_process_url(url: str) -> bool:
 
         return True
 
-def free_port() -> int:
+def extract_xml_data(tags, string):
     """
-    Determines a free port using sockets.
-    """
-    import socket
+    Extract data for specified XML tags from a string, returning the longest content for each tag.
 
-    free_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    free_socket.bind(("127.0.0.1", 0))
-    free_socket.listen(5)
-    port: int = free_socket.getsockname()[1]
-    free_socket.close()
-    return port
+    How it works:
+    1. Finds all occurrences of each tag in the string using regex.
+    3. Returns a dictionary of tag-content pairs.
 
-def merge_chunks(
-    docs: Sequence[str], 
-    target_size: int,
-    overlap: int = 0,
-    word_token_ratio: float = 1.0,
-    splitter: Callable = None
-) -> List[str]:
-    """Merges documents into chunks of specified token size.
-    
     Args:
-        docs: Input documents
-        target_size: Desired token count per chunk
-        overlap: Number of tokens to overlap between chunks
-        word_token_ratio: Multiplier for word->token conversion
+        tags (List[str]): The list of XML tags to extract.
+        string (str): The input string containing XML data.
+
+    Returns:
+        Dict[str, str]: A dictionary with tag names as keys and longest extracted content as values.
     """
-    # Pre-tokenize all docs and store token counts
-    splitter = splitter or str.split
-    token_counts = array('I')
-    all_tokens: List[List[str]] = []
-    total_tokens = 0
-    
-    for doc in docs:
-        tokens = splitter(doc)
-        count = int(len(tokens) * word_token_ratio)
-        if count:  # Skip empty docs
-            token_counts.append(count)
-            all_tokens.append(tokens)
-            total_tokens += count
-    
-    if not total_tokens:
-        return []
 
-    # Pre-allocate chunks
-    num_chunks = max(1, (total_tokens + target_size - 1) // target_size)
-    chunks: List[List[str]] = [[] for _ in range(num_chunks)]
-    
-    curr_chunk = 0
-    curr_size = 0
-    
-    # Distribute tokens
-    for tokens in chain.from_iterable(all_tokens):
-        if curr_size >= target_size and curr_chunk < num_chunks - 1:
-            if overlap > 0:
-                overlap_tokens = chunks[curr_chunk][-overlap:]
-                curr_chunk += 1
-                chunks[curr_chunk].extend(overlap_tokens)
-                curr_size = len(overlap_tokens)
-            else:
-                curr_chunk += 1
-                curr_size = 0
-                
-        chunks[curr_chunk].append(tokens)
-        curr_size += 1
+    if '</think>' in string:
+        string = string.split('</think>')[1]
 
-    # Return only non-empty chunks
-    return [' '.join(chunk) for chunk in chunks if chunk]
+    data = {}
 
-class InvalidCSSSelectorError(Exception):
-    pass
-
-SPLITS = bytearray([
-    # Control chars (0-31) + space (32)
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    # Special chars (33-47): ! " # $ % & ' ( ) * + , - . /
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    # Numbers (48-57): Treat as non-splits
-    0,0,0,0,0,0,0,0,0,0,
-    # More special chars (58-64): : ; < = > ? @
-    1,1,1,1,1,1,1,
-    # Uppercase (65-90): Keep
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    # More special chars (91-96): [ \ ] ^ _ `
-    1,1,1,1,1,1,
-    # Lowercase (97-122): Keep
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    # Special chars (123-126): { | } ~
-    1,1,1,1,
-    # Extended ASCII
-    *([1] * 128)
-])
-
-# Additional split chars for HTML/code
-HTML_CODE_CHARS = {
-    # HTML specific
-    '•', '►', '▼', '©', '®', '™', '→', '⇒', '≈', '≤', '≥',
-    # Programming symbols  
-    '+=', '-=', '*=', '/=', '=>', '<=>', '!=', '==', '===',
-    '++', '--', '<<', '>>', '&&', '||', '??', '?:', '?.', 
-    # Common Unicode
-    '…', '"', '"', ''', ''', '«', '»', '—', '–',
-    # Additional splits
-    '+', '=', '~', '@', '#', '$', '%', '^', '&', '*',
-    '(', ')', '{', '}', '[', ']', '|', '\\', '/', '`',
-    '<', '>', ',', '.', '?', '!', ':', ';', '-', '_'
-}
-
-def advanced_split(text: str) -> list[str]:
-    result = []
-    word = array('u')
-    
-    i = 0
-    text_len = len(text)
-    
-    while i < text_len:
-        char = text[i]
-        o = ord(char)
+    for tag in tags:
+        pattern = f"<{tag}>(.*?)</{tag}>"
+        matches = re.findall(pattern, string, re.DOTALL)
         
-        # Fast path for ASCII
-        if o < 256 and SPLITS[o]:
-            if word:
-                result.append(word.tounicode())
-                word = array('u')
-        # Check for multi-char symbols
-        elif i < text_len - 1:
-            two_chars = char + text[i + 1]
-            if two_chars in HTML_CODE_CHARS:
-                if word:
-                    result.append(word.tounicode())
-                    word = array('u')
-                i += 1  # Skip next char since we used it
-            else:
-                word.append(char)
+        if matches:
+            # Find the longest content for this tag
+            # longest_content = max(matches, key=len).strip()
+            # 改为返回所有匹配
+            data[tag] = matches
         else:
-            word.append(char)
-        i += 1
-            
-    if word:
-        result.append(word.tounicode())
-        
-    return result
+            data[tag] = []
 
-def calculate_semaphore_count():
-    """
-    Calculate the optimal semaphore count based on system resources.
-
-    How it works:
-    1. Determines the number of CPU cores and total system memory.
-    2. Sets a base count as half of the available CPU cores.
-    3. Limits the count based on memory, assuming 2GB per semaphore instance.
-    4. Returns the minimum value between CPU and memory-based limits.
-
-    Returns:
-        int: The calculated semaphore count.
-    """
-
-    cpu_count = os.cpu_count()
-    memory_gb = get_system_memory() / (1024**3)  # Convert to GB
-    base_count = max(1, cpu_count // 2)
-    memory_based_cap = int(memory_gb / 2)  # Assume 2GB per instance
-    return min(base_count, memory_based_cap)
-
-
-def get_system_memory():
-    """
-    Get the total system memory in bytes.
-
-    How it works:
-    1. Detects the operating system.
-    2. Reads memory information from system-specific commands or files.
-    3. Converts the memory to bytes for uniformity.
-
-    Returns:
-        int: The total system memory in bytes.
-
-    Raises:
-        OSError: If the operating system is unsupported.
-    """
-
-    system = platform.system()
-    if system == "Linux":
-        with open("/proc/meminfo", "r") as mem:
-            for line in mem:
-                if line.startswith("MemTotal:"):
-                    return int(line.split()[1]) * 1024  # Convert KB to bytes
-    elif system == "Darwin":  # macOS
-        import subprocess
-
-        output = subprocess.check_output(["sysctl", "-n", "hw.memsize"]).decode("utf-8")
-        return int(output.strip())
-    elif system == "Windows":
-        import ctypes
-
-        kernel32 = ctypes.windll.kernel32
-        c_ulonglong = ctypes.c_ulonglong
-
-        class MEMORYSTATUSEX(ctypes.Structure):
-            _fields_ = [
-                ("dwLength", ctypes.c_ulong),
-                ("dwMemoryLoad", ctypes.c_ulong),
-                ("ullTotalPhys", c_ulonglong),
-                ("ullAvailPhys", c_ulonglong),
-                ("ullTotalPageFile", c_ulonglong),
-                ("ullAvailPageFile", c_ulonglong),
-                ("ullTotalVirtual", c_ulonglong),
-                ("ullAvailVirtual", c_ulonglong),
-                ("ullAvailExtendedVirtual", c_ulonglong),
-            ]
-
-        memoryStatus = MEMORYSTATUSEX()
-        memoryStatus.dwLength = ctypes.sizeof(MEMORYSTATUSEX)
-        kernel32.GlobalMemoryStatusEx(ctypes.byref(memoryStatus))
-        return memoryStatus.ullTotalPhys
-    else:
-        raise OSError("Unsupported operating system")
+    return data
 
 def split_and_parse_json_objects(json_string):
     """
@@ -508,35 +314,6 @@ def sanitize_input_encode(text: str) -> str:
     except Exception as e:
         raise ValueError(f"Error sanitizing input: {str(e)}") from e
 
-
-def escape_json_string(s):
-    """
-    Escapes characters in a string to be JSON safe.
-
-    Parameters:
-    s (str): The input string to be escaped.
-
-    Returns:
-    str: The escaped string, safe for JSON encoding.
-    """
-    # Replace problematic backslash first
-    s = s.replace("\\", "\\\\")
-
-    # Replace the double quote
-    s = s.replace('"', '\\"')
-
-    # Escape control characters
-    s = s.replace("\b", "\\b")
-    s = s.replace("\f", "\\f")
-    s = s.replace("\n", "\\n")
-    s = s.replace("\r", "\\r")
-    s = s.replace("\t", "\\t")
-
-    # Additional problematic characters
-    # Unicode control characters
-    s = re.sub(r"[\x00-\x1f\x7f-\x9f]", lambda x: "\\u{:04x}".format(ord(x.group())), s)
-
-    return s
 
 def get_content_of_website(
     html, tags_to_remove=None):
@@ -849,37 +626,6 @@ def extract_metadata(html, soup=None):
     
     return metadata
 
-def merge_chunks_based_on_token_threshold(chunks, token_threshold):
-    """
-    Merges small chunks into larger ones based on the total token threshold.
-
-    :param chunks: List of text chunks to be merged based on token count.
-    :param token_threshold: Max number of tokens for each merged chunk.
-    :return: List of merged text chunks.
-    """
-    merged_sections = []
-    current_chunk = []
-    total_token_so_far = 0
-
-    for chunk in chunks:
-        chunk_token_count = (
-            len(chunk.split()) * 1.3
-        )  # Estimate token count with a factor
-        if total_token_so_far + chunk_token_count < token_threshold:
-            current_chunk.append(chunk)
-            total_token_so_far += chunk_token_count
-        else:
-            if current_chunk:
-                merged_sections.append("\n\n".join(current_chunk))
-            current_chunk = [chunk]
-            total_token_so_far = chunk_token_count
-
-    # Add the last chunk if it exists
-    if current_chunk:
-        merged_sections.append("\n\n".join(current_chunk))
-
-    return merged_sections
-
 @lru_cache(maxsize=1000)
 def get_base_domain(url: str) -> str:
     """
@@ -989,234 +735,6 @@ def is_external_url(url: str, base_url: str) -> bool:
         return False
 
 
-def clean_tokens(tokens: list[str]) -> list[str]:
-    """
-    Clean a list of tokens by removing noise, stop words, and short tokens.
-
-    How it works:
-    1. Defines a set of noise words and stop words.
-    2. Filters tokens based on length and exclusion criteria.
-    3. Excludes tokens starting with certain symbols (e.g., "↑", "▲").
-
-    Args:
-        tokens (list[str]): The list of tokens to clean.
-
-    Returns:
-        list[str]: The cleaned list of tokens.
-    """
-
-    # Set of tokens to remove
-    noise = {
-        "ccp",
-        "up",
-        "↑",
-        "▲",
-        "⬆️",
-        "a",
-        "an",
-        "at",
-        "by",
-        "in",
-        "of",
-        "on",
-        "to",
-        "the",
-    }
-
-    STOP_WORDS = {
-        "a",
-        "an",
-        "and",
-        "are",
-        "as",
-        "at",
-        "be",
-        "by",
-        "for",
-        "from",
-        "has",
-        "he",
-        "in",
-        "is",
-        "it",
-        "its",
-        "of",
-        "on",
-        "that",
-        "the",
-        "to",
-        "was",
-        "were",
-        "will",
-        "with",
-        # Pronouns
-        "i",
-        "you",
-        "he",
-        "she",
-        "it",
-        "we",
-        "they",
-        "me",
-        "him",
-        "her",
-        "us",
-        "them",
-        "my",
-        "your",
-        "his",
-        "her",
-        "its",
-        "our",
-        "their",
-        "mine",
-        "yours",
-        "hers",
-        "ours",
-        "theirs",
-        "myself",
-        "yourself",
-        "himself",
-        "herself",
-        "itself",
-        "ourselves",
-        "themselves",
-        # Common verbs
-        "am",
-        "is",
-        "are",
-        "was",
-        "were",
-        "be",
-        "been",
-        "being",
-        "have",
-        "has",
-        "had",
-        "having",
-        "do",
-        "does",
-        "did",
-        "doing",
-        # Prepositions
-        "about",
-        "above",
-        "across",
-        "after",
-        "against",
-        "along",
-        "among",
-        "around",
-        "at",
-        "before",
-        "behind",
-        "below",
-        "beneath",
-        "beside",
-        "between",
-        "beyond",
-        "by",
-        "down",
-        "during",
-        "except",
-        "for",
-        "from",
-        "in",
-        "inside",
-        "into",
-        "near",
-        "of",
-        "off",
-        "on",
-        "out",
-        "outside",
-        "over",
-        "past",
-        "through",
-        "to",
-        "toward",
-        "under",
-        "underneath",
-        "until",
-        "up",
-        "upon",
-        "with",
-        "within",
-        # Conjunctions
-        "and",
-        "but",
-        "or",
-        "nor",
-        "for",
-        "yet",
-        "so",
-        "although",
-        "because",
-        "since",
-        "unless",
-        # Articles
-        "a",
-        "an",
-        "the",
-        # Other common words
-        "this",
-        "that",
-        "these",
-        "those",
-        "what",
-        "which",
-        "who",
-        "whom",
-        "whose",
-        "when",
-        "where",
-        "why",
-        "how",
-        "all",
-        "any",
-        "both",
-        "each",
-        "few",
-        "more",
-        "most",
-        "other",
-        "some",
-        "such",
-        "can",
-        "cannot",
-        "can't",
-        "could",
-        "couldn't",
-        "may",
-        "might",
-        "must",
-        "mustn't",
-        "shall",
-        "should",
-        "shouldn't",
-        "will",
-        "won't",
-        "would",
-        "wouldn't",
-        "not",
-        "n't",
-        "no",
-        "nor",
-        "none",
-    }
-
-    # Single comprehension, more efficient than multiple passes
-    return [
-        token
-        for token in tokens
-        if len(token) > 2
-        and token not in noise
-        and token not in STOP_WORDS
-        and not token.startswith("↑")
-        and not token.startswith("▲")
-        and not token.startswith("⬆")
-    ]
-
 def configure_windows_event_loop():
     """
     Configure the Windows event loop to use ProactorEventLoop.
@@ -1235,29 +753,6 @@ def configure_windows_event_loop():
     """
     if platform.system() == "Windows":
         asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
-
-def truncate(value, threshold):
-    if len(value) > threshold:
-        return value[:threshold] + '...'  # Add ellipsis to indicate truncation
-    return value
-
-def optimize_html(html_str, threshold=200):
-    root = lxml.html.fromstring(html_str)
-    
-    for _element in root.iter():
-        # Process attributes
-        for attr in list(_element.attrib):
-            _element.attrib[attr] = truncate(_element.attrib[attr], threshold)
-        
-        # Process text content
-        if _element.text and len(_element.text) > threshold:
-            _element.text = truncate(_element.text, threshold)
-            
-        # Process tail text
-        if _element.tail and len(_element.tail) > threshold:
-            _element.tail = truncate(_element.tail, threshold)
-    
-    return lxml.html.tostring(root, encoding='unicode', pretty_print=False)
 
 def preprocess_html_for_schema(html_content, tags_to_remove: list[str] = None):
     """
@@ -1428,16 +923,70 @@ def get_true_memory_usage_percent() -> float:
     return max(0.0, min(100.0, used_percent))
 
 
-def get_memory_stats() -> Tuple[float, float, float]:
+def extract_date_from_url(url: str) -> str:
     """
-    Get comprehensive memory statistics.
+    Extract date from URL path or query parameters.
     
+    Supports common URL date patterns:
+    - /2024/01/15/article-title
+    - /2024-01-15/article
+    - /20240115/article
+    - /news/2024/1/15/
+    - ?date=2024-01-15
+    
+    Args:
+        url: The URL to extract date from
+        
     Returns:
-        Tuple[float, float, float]: (used_percent, available_gb, total_gb)
+        str: Date string in YYYY-MM-DD format, or empty string if not found
     """
-    vm = psutil.virtual_memory()
-    total_gb = vm.total / (1024**3)
-    available_gb = get_true_available_memory_gb()
-    used_percent = get_true_memory_usage_percent()
+    if not url:
+        return ""
     
-    return used_percent, available_gb, total_gb
+    try:
+        parsed = urlparse(url)
+        path = parsed.path
+        query = parsed.query
+        
+        # Pattern 1: YYYY/MM/DD or YYYY-MM-DD in path
+        pattern1 = re.search(r'/(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:/|$)', path)
+        if pattern1:
+            year, month, day = pattern1.groups()
+            year, month, day = int(year), int(month), int(day)
+            if 1990 <= year <= 2100 and 1 <= month <= 12 and 1 <= day <= 31:
+                return f"{year:04d}-{month:02d}-{day:02d}"
+        
+        # Pattern 2: YYYYMMDD in path (8 consecutive digits)
+        pattern2 = re.search(r'/(\d{4})(\d{2})(\d{2})(?:/|[^0-9]|$)', path)
+        if pattern2:
+            year, month, day = pattern2.groups()
+            year, month, day = int(year), int(month), int(day)
+            if 1990 <= year <= 2100 and 1 <= month <= 12 and 1 <= day <= 31:
+                return f"{year:04d}-{month:02d}-{day:02d}"
+        
+        # Pattern 3: Check query parameters for date
+        if query:
+            params = parse_qs(query)
+            for key in ['date', 'publish_date', 'pubdate', 'd', 'dt']:
+                if key in params and params[key]:
+                    date_val = params[key][0]
+                    # Try to parse YYYY-MM-DD or YYYYMMDD
+                    date_match = re.match(r'^(\d{4})[-/]?(\d{2})[-/]?(\d{2})$', date_val)
+                    if date_match:
+                        year, month, day = date_match.groups()
+                        year, month, day = int(year), int(month), int(day)
+                        if 1990 <= year <= 2100 and 1 <= month <= 12 and 1 <= day <= 31:
+                            return f"{year:04d}-{month:02d}-{day:02d}"
+        
+        # Pattern 4: YYYY/M/D (single digit month/day)
+        pattern4 = re.search(r'/(\d{4})/(\d{1,2})/(\d{1,2})(?:/|$)', path)
+        if pattern4:
+            year, month, day = pattern4.groups()
+            year, month, day = int(year), int(month), int(day)
+            if 1990 <= year <= 2100 and 1 <= month <= 12 and 1 <= day <= 31:
+                return f"{year:04d}-{month:02d}-{day:02d}"
+        
+    except Exception:
+        pass
+    
+    return ""
