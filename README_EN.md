@@ -4,9 +4,9 @@
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/TeamWiseFlow/wiseflow)
 
-🚀 **Use large language models to track the information you care about most daily from various sources!**
+🚀 **Continuously extract the information you need from the entire internet**
 
-Wiseflow intelligently monitors and tracks various network sources, including mainstream social media, websites, RSS, and search engines, and intelligently extracts the information you are most concerned about.
+Supports mainstream self-media platforms, sites requiring pre-login, designated source tracking, daily collection via scheduled tasks, and automatic extraction by large models (summary mode, custom form mode)...
 
 ## 🎉 WiseFlow Pro Version Now Available!
 
@@ -18,9 +18,9 @@ https://github.com/user-attachments/assets/880af7a3-7b28-44ff-86b6-aaedecd22761
 
 🌹 From today, contributors who submit PRs to the Wiseflow open-source version (code, documentation, and success case sharing are all welcome) will receive a one-year subscription to Wiseflow Pro upon acceptance!
 
-## Wiseflow 4.30 Open Source Version
+## Wiseflow Open Source Version
 
-The Wiseflow open-source version has been upgraded to the same architecture as the Pro version, featuring the same API, and can seamlessly share the [wiseflow+](https://github.com/TeamWiseFlow/wiseflow-plus) ecosystem!
+Starting from version 4.30, the wiseflow open-source version has been upgraded to the same architecture as the pro version, featuring the same API, and can seamlessly share the [wiseflow+](https://github.com/TeamWiseFlow/wiseflow-plus) ecosystem!
 
 ## Sponsors
 

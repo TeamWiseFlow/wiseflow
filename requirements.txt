@@ -74,5 +74,8 @@ openpyxl
 schedule>=1.2.0
 
 # Backend API
-fastapi>=0.115.0
+fastapi>=0.125.0
 uvicorn[standard]>=0.30.0
+
+# Security: explicit version requirement for transitive dependencies
+urllib3>=2.6.3

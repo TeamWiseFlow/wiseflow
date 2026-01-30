@@ -4,9 +4,9 @@
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/TeamWiseFlow/wiseflow)
 
-🚀 **大規模言語モデルを使用して、日々の様々なソースからあなたが最も関心のある情報を追跡しましょう！**
+🚀 **インターネット全体から必要な情報を継続的に抽出します**
 
-wiseflow は、主要なソーシャルメディア、ウェブサイト、RSS、検索エンジンを含む様々なネットワークソースをインテリジェントに監視・追跡し、あなたが最も関心のある情報をインテリジェントに抽出します。
+主要な自メディアプラットフォーム、事前ログインが必要なサイト、特定の情報源の追跡、スケジュールタスクによる毎日の収集、大規模言語モデルによる自動抽出（要約モード、カスタムフォームモード）などをサポートしています……
 
 ## 🎉 WiseFlow Pro バージョンがリリースされました！
 
@@ -18,9 +18,9 @@ https://github.com/user-attachments/assets/57f8569c-e20a-4564-a669-1200d56c5725
 
 🌹 本日より、wiseflow オープンソースバージョンへの PR（コード、ドキュメント、成功事例の共有を歓迎）を提供し、採用された貢献者には wiseflow pro バージョンの 1 年間使用権を贈呈します！
 
-## Wiseflow 4.30 オープンソースバージョン
+## Wiseflow オープンソース版
 
-wiseflow オープンソースバージョンは pro バージョンと同じアーキテクチャにアップグレードされ、同じ API を備えており、[wiseflow+](https://github.com/TeamWiseFlow/wiseflow-plus) エコシステムをシームレスに共有できます！
+バージョン 4.30 以降、wiseflow オープンソース版は pro 版と同じアーキテクチャにアップグレードされ、同じ API を備えており、[wiseflow+](https://github.com/TeamWiseFlow/wiseflow-plus) エコシステムをシームレスに共有できます！
 
 ## スポンサー
 
