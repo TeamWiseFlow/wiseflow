@@ -18,9 +18,13 @@ https://github.com/user-attachments/assets/57f8569c-e20a-4564-a669-1200d56c5725
 
 🌹 即日起为 wiseflow 开源版本贡献 PR（代码、文档、成功案例分享均欢迎），一经采纳，贡献者将获赠 wiseflow pro版本一年使用权！
 
-## Wiseflow 4.30 开源版本
+另外如果你想“零折腾、零成本”快速看下 wiseflow pro 的信息获取能力，欢迎参与我们的“情报小站”计划，你可以至：https://yqeupxazxi.feishu.cn/wiki/OROrwv54biwThBkbghpcxOEsnZe 感兴趣的“情报小站”微信群，我们使用 wiseflow pro 根据每个情报小站的主题每日抓取最新资讯。
 
-wiseflow 开源版本现已升级为与 pro 版本一样的架构，同时具有一样的 api，可无缝共享 [wiseflow+](https://github.com/TeamWiseFlow/wiseflow-plus) 生态！
+如果你有合作建设特定领域的“情报小站”的想法，也欢迎与我们联系！
+
+## Wiseflow 开源版本
+
+自4.30版本开始，wiseflow 开源版本现已升级为与 pro 版本一样的架构，同时具有一样的 api，可无缝共享 [wiseflow+](https://github.com/TeamWiseFlow/wiseflow-plus) 生态！
 
 ## 赞助商
 

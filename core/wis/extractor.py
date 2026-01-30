@@ -8,7 +8,7 @@ from .llmuse import *
 from .chunking_strategy import ChunkingStrategy, MaxLengthChunking
 from .extraction_strategy import ExtractionStrategy
 from .markdown_generation_strategy import DefaultMarkdownGenerator, WeixinArticleMarkdownGenerator
-from .utils import split_and_parse_json_objects
+from .utils import split_and_parse_json_objects, extract_xml_data, extract_date_from_url
 import asyncio
 from datetime import datetime
 from typing import Optional, TYPE_CHECKING, Tuple, Any, List, Dict
@@ -23,41 +23,6 @@ VERBOSE = _env_to_bool(os.environ.get('WISEFLOW_VERBOSE', 'False'), False)
 _chunker = MaxLengthChunking(max_length=config['MAX_CHUNK_SIZE'])
 default_markdown_generator = DefaultMarkdownGenerator()
 weixin_markdown_generator = WeixinArticleMarkdownGenerator()
-
-def extract_xml_data(tags, string):
-    """
-    Extract data for specified XML tags from a string, returning the longest content for each tag.
-
-    How it works:
-    1. Finds all occurrences of each tag in the string using regex.
-    3. Returns a dictionary of tag-content pairs.
-
-    Args:
-        tags (List[str]): The list of XML tags to extract.
-        string (str): The input string containing XML data.
-
-    Returns:
-        Dict[str, str]: A dictionary with tag names as keys and longest extracted content as values.
-    """
-
-    if '</think>' in string:
-        string = string.split('</think>')[1]
-
-    data = {}
-
-    for tag in tags:
-        pattern = f"<{tag}>(.*?)</{tag}>"
-        matches = re.findall(pattern, string, re.DOTALL)
-        
-        if matches:
-            # Find the longest content for this tag
-            # longest_content = max(matches, key=len).strip()
-            # 改为返回所有匹配
-            data[tag] = matches
-        else:
-            data[tag] = []
-
-    return data
 
 def hash_calculate(text: str) -> str:
     if not text:
@@ -253,7 +218,11 @@ class ExtractManager:
                 author = ps_author
             if not publish_date or "mp.weixin.qq.com" in url:
                 publish_date = publish
-        
+            
+            # If publish_date is still empty, try to extract from URL
+            if not publish_date:
+                publish_date = extract_date_from_url(url)
+            
             if article and url:
                 article.title = title
                 article.author = author

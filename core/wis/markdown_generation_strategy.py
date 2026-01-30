@@ -3,7 +3,7 @@ from typing import Optional, Dict, Any, Tuple
 from .html2text import CustomHTML2Text
 import regex as re
 from .utils import normalize_url, url_pattern, is_valid_img_url, is_external_url, get_base_domain
-from core.wis.utils import normalize_publish_date
+from core.tools.general_utils import normalize_publish_date
 from .config import config
 from bs4 import BeautifulSoup
 from .llmuse import llm_async, vl_model, VL_PROMPT_EXTRACT_TEXT_FROM_IMG
