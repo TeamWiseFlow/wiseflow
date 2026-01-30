@@ -4,9 +4,9 @@
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/TeamWiseFlow/wiseflow)
 
-🚀 **使用大模型从各类信源中每日追踪你最关注的信息！**
+🚀 **从整个互联网中持续提取你需要的信息**
 
-wiseflow 能够智能监控、追踪包括主流社交媒体、网站、RSS、搜索引擎在内的各类网络信源，并从中智能提取你最关注的信息
+支持主流自媒体平台、支持需要预登录的站点、支持指定信源追踪，定时任务每日采集、大模型自动提取（摘要模式、自定义表单模式）……
 
 ## 🎉  WiseFlow Pro 版本现已发布！
 
