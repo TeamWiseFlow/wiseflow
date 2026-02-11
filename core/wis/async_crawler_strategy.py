@@ -483,12 +483,9 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             if html_content:
                 lower_html_content = html_content.lower()
                 cloudflare_html_snippets = (
-                    "attention required!",
-                    "just a moment...",
                     "cf-browser-verification",
                     "cf-challenge",
                     "cf-im-under-attack",
-                    "cloudflare",
                 )
                 if any(snippet in lower_html_content for snippet in cloudflare_html_snippets):
                     self.logger.info("[AntiBot] Cloudflare challenge markers found in page content")
