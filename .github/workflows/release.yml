@@ -1,0 +1,87 @@
+name: Auto Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [master]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Determine bump type from PR labels
+        id: bump
+        run: |
+          LABELS='${{ toJSON(github.event.pull_request.labels.*.name) }}'
+          if echo "$LABELS" | grep -q '"major"'; then
+            echo "type=major" >> "$GITHUB_OUTPUT"
+          elif echo "$LABELS" | grep -q '"minor"'; then
+            echo "type=minor" >> "$GITHUB_OUTPUT"
+          else
+            echo "type=patch" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Calculate new version
+        id: version
+        run: |
+          CURRENT=$(cat version | tr -d '[:space:]')
+          # Strip leading 'v' for parsing
+          NUM=${CURRENT#v}
+
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$NUM"
+          MAJOR=${MAJOR:-0}
+          MINOR=${MINOR:-0}
+          PATCH=${PATCH:-0}
+
+          BUMP="${{ steps.bump.outputs.type }}"
+          if [ "$BUMP" = "major" ]; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+          elif [ "$BUMP" = "minor" ]; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+          else
+            PATCH=$((PATCH + 1))
+          fi
+
+          NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
+          echo "new=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          echo "New version: $NEW_VERSION"
+
+      - name: Update version file
+        run: echo "${{ steps.version.outputs.new }}" > version
+
+      - name: Commit and tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add version
+          git commit -m "chore: bump version to ${{ steps.version.outputs.new }}"
+          git tag "${{ steps.version.outputs.new }}"
+          git push origin master --tags
+
+      - name: Package addon
+        run: |
+          cd addon
+          zip -r "../wiseflow-addon-${{ steps.version.outputs.new }}.zip" .
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.version.outputs.new }}" \
+            "wiseflow-addon-${{ steps.version.outputs.new }}.zip" \
+            --title "${{ steps.version.outputs.new }}" \
+            --generate-notes
