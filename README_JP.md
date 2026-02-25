@@ -22,12 +22,6 @@ https://github.com/user-attachments/assets/57f8569c-e20a-4564-a669-1200d56c5725
 
 バージョン 4.30 以降、wiseflow オープンソース版は pro 版と同じアーキテクチャにアップグレードされ、同じ API を備えており、[wiseflow+](https://github.com/TeamWiseFlow/wiseflow-plus) エコシステムをシームレスに共有できます！
 
-## スポンサー
-
-Powered By <a href="https://www.baotianqi.cn" target="_blank"><img src="./docs/logos/tianqibao.png" alt="天気宝" height="40"/></a>
-
-[Thordata](https://www.thordata.com/products/serp-api?ls=github&lk=wiseflow)：信頼できるグローバルプロキシを圧倒的な価値で。エンタープライズグレードの安定性とコンプライアンスを備えたワンクリックデータ収集。大規模な運用のために ThorData を使用している何千もの開発者に加わりましょう。
-
 🎁 限定オファー：住宅用プロキシの無料試用と 2,000 回の無料 SERP API 呼び出しにサインアップ！
 
 <a href="https://www.thordata.com/products/serp-api?ls=github&lk=wiseflow" target="_blank"><img src="./docs/logos/thordata_en.png" alt="Thordata" height="120"/></a>

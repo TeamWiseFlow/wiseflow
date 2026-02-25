@@ -22,16 +22,6 @@ https://github.com/user-attachments/assets/880af7a3-7b28-44ff-86b6-aaedecd22761
 
 Starting from version 4.30, the wiseflow open-source version has been upgraded to the same architecture as the pro version, featuring the same API, and can seamlessly share the [wiseflow+](https://github.com/TeamWiseFlow/wiseflow-plus) ecosystem!
 
-## Sponsors
-
-Powered By <a href="https://www.baotianqi.cn" target="_blank"><img src="./docs/logos/tianqibao.png" alt="Tianqibao" height="40"/></a>
-
-[Thordata](https://www.thordata.com/products/serp-api?ls=github&lk=wiseflow): Get Reliable Global Proxies at an Unbeatable Value. One-click data collection with enterprise-grade stability and compliance. Join thousands of developers using ThorData for high-scale operations. 
-
-🎁 Exclusive Offer: Sign up for a free Residential Proxy trial and 2,000 FREE SERP API calls!
-
-<a href="https://www.thordata.com/products/serp-api?ls=github&lk=wiseflow" target="_blank"><img src="./docs/logos/thordata_en.png" alt="Thordata" height="120"/></a>
-
 ## Comparison between Wiseflow Open Source and Pro Versions
 
 | Feature | Open Source | Pro Version |
