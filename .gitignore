@@ -6,11 +6,6 @@
 __pycache__
 .env
 .venv/
-pb/pb_data/
-pb/pocketbase
-work_dir
-test/webpage_samples/
-pb/pb_migrations/1750399634_created_clients.js
 
 # temporary files
 *.tmp
@@ -21,4 +16,4 @@ pb/pb_migrations/1750399634_created_clients.js
 __pycache__/
 *.so
 .Python
-.qoder/quests/update-multi-language-documents.md
+patchright/

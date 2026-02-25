@@ -1,145 +1,104 @@
-# AI Chief Intelligence Officer (Wiseflow)
+# Wiseflow
 
-**[简体中文](README.md) | [English](README_EN.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [العربية](README_AR.md)**
+**[中文](README.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [العربية](README_AR.md)**
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/TeamWiseFlow/wiseflow)
+🚀 **STEP INTO 5.x**
 
-🚀 **Continuously extract the information you need from the entire internet**
+> 📌 **Looking for 4.x?** The original v4.30 and earlier code is available on the [`4.x` branch](https://github.com/TeamWiseFlow/wiseflow/tree/4.x).
 
-Supports mainstream self-media platforms, sites requiring pre-login, designated source tracking, daily collection via scheduled tasks, and automatic extraction by large models (summary mode, custom form mode)...
+```
+"My life has a limit, but knowledge has none. To pursue the limitless with the limited — that is perilous!" — Zhuangzi, Inner Chapters, Nourishing the Lord of Life
+```
 
-## 🎉 WiseFlow Pro Version Now Available!
+Wiseflow 4.x (and earlier versions) achieved powerful data acquisition capabilities in specific scenarios through a series of precisely engineered workflows, but still had significant limitations:
 
-Stronger crawling capabilities, more comprehensive social media support, includes a Web UI, and a one-click installation package!
+- 1. Unable to acquire interactive content (content that only appears after clicking, especially in dynamically loaded scenarios)
+- 2. Limited to information filtering and extraction, with virtually no downstream task capabilities
+- ……
 
-https://github.com/user-attachments/assets/880af7a3-7b28-44ff-86b6-aaedecd22761
+Although we have been dedicated to improving its functionality and expanding its boundaries, the real world is complex, and so is the real internet. Rules can never be exhaustive, so a fixed workflow can never adapt to all scenarios. This is not a problem with wiseflow — it's a problem with traditional software!
 
-🔥🔥 **Pro version is now available worldwide**: https://shouxiqingbaoguan.com/ 
+However, the rapid advancement of Agents over the past year has shown us the technical possibility of fully simulating human internet behavior driven by large language models. The emergence of [openclaw](https://github.com/openclaw/openclaw) has further strengthened this belief.
 
-🌹 From today, contributors who submit PRs to the Wiseflow open-source version (code, documentation, and success case sharing are all welcome) will receive a one-year subscription to Wiseflow Pro upon acceptance!
+What's even more remarkable is that through our early experiments and exploration, we discovered that integrating wiseflow's acquisition capabilities into openclaw as "plugins" perfectly solves the two limitations mentioned above. We will be releasing exciting real demo videos soon, along with open-sourcing these "plugins".
 
-## Wiseflow Open Source Version
-
-Starting from version 4.30, the wiseflow open-source version has been upgraded to the same architecture as the pro version, featuring the same API, and can seamlessly share the [wiseflow+](https://github.com/TeamWiseFlow/wiseflow-plus) ecosystem!
-
-## Comparison between Wiseflow Open Source and Pro Versions
-
-| Feature | Open Source | Pro Version |
-| :--- | :---: | :---: |
-| **Monitored Sources** | web, rss | web, rss, plus 7 major Chinese self-media platforms |
-| **Search Sources** | bing, github, arxiv | bing, github, arxiv, plus 6 major Chinese self-media platforms |
-| **Installation** | Manual environment setup and deployment | No installation needed, one-click run |
-| **User Interface** | No UI | Chinese web UI |
-| **LLM Cost** | User-provided LLM service or local LLM | Subscription includes LLM costs (no config needed) |
-| **Technical Support** | GitHub Issues | WeChat group for paid users |
-| **Price** | Free | ￥488/year |
-| **Target Audience** | Community exploration and learning | Daily use (Individual or Enterprise) |
-
-## 🧐 Wiseflow Positioning
-
-Wiseflow is not a general-purpose agent like ChatGPT or Manus; it focuses on information monitoring and extraction, supporting user-specified sources with scheduled tasks to ensure the latest information is always obtained (supports up to 4 times a day, i.e., every 6 hours). Wiseflow also supports comprehensive information searching across specified platforms (e.g., "finding people").
-
-However, do not equate Wiseflow with traditional crawlers or RPA! Wiseflow's acquisition behavior is entirely driven by LLM, using real browsers (instead of headless or virtual browsers), and its acquisition and extraction actions are performed simultaneously:
-
-- Innovative HTML intelligent parsing mechanism: Automatically identifies key information and links worth exploring further.
-- "Crawl-and-Search-in-One" strategy: Real-time LLM judgment and extraction during crawling, capturing only relevant information, significantly reducing risk control risks.
-- Truly ready to use: No need for Xpath, scripts, or manual configuration. Ordinary users can easily use it.
-
-    ……
-
-For more, please refer to: https://shouxiqingbaoguan.com/
+It should be noted, however, that openclaw's plugin system is quite different from what we traditionally understand as "plugins" (similar to Claude Code's plugins). Therefore, we had to introduce the concept of "add-on". To be precise, wiseflow 5.x will appear in the form of an openclaw add-on. The original openclaw does not have an "add-on" architecture, but in practice, you only need a few simple shell commands to complete this "transformation". We have also prepared a ready-to-use enhanced version of openclaw with a series of preset configurations for real business scenarios: [openclaw_for_business](https://github.com/TeamWiseFlow/openclaw_for_business). You can simply clone it and extract the wiseflow release into the add-on folder of openclaw_for_business.
 
 ## 🌟 Quick Start
 
-**Get started in just three steps!**
-
-**From version 4.2 onwards, Google Chrome must be installed (using the default installation path).**
-
-**Windows users, please download the Git Bash tool in advance and execute the following commands in bash. [Bash Download Link](https://git-scm.com/downloads/win)**
-
-### 📋 Install environment management tool uv and download Wiseflow source code
+Copy this directory to the `addons/` directory of openclaw_for_business:
 
 ```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-git clone https://github.com/TeamWiseFlow/wiseflow.git
+# Option 1: Clone from the wiseflow repository
+git clone https://github.com/TeamWiseFlow/wiseflow.git /tmp/wiseflow
+cp -r /tmp/wiseflow/addon <openclaw_for_business>/addons/wiseflow
+
+# Option 2: If you already have the wiseflow repository
+Download the latest release from https://github.com/TeamWiseFlow/wiseflow/releases
+Extract and place it in <openclaw_for_business>/addons
 ```
 
-The above operation will complete the installation of uv and download the Wiseflow source code.
+Restart openclaw after installation to take effect.
 
-### 📥 Configure .env file based on env_sample
+## Directory Structure
 
-In the wiseflow folder (project root directory), create a .env file based on env_sample and fill in the relevant settings (mainly LLM service configuration).
-
-**The Wiseflow open-source version requires users to configure their own LLM service.**
-
-Wiseflow does not limit model service providers, as long as the service is compatible with the OpenAI SDK request interface format. You can choose existing MaaS services or locally deployed model services like Ollama.
-
-For users in Mainland China, we recommend using the Siliconflow model service.
-
-😄 Feel free to use my [referral link](https://cloud.siliconflow.cn/i/WNLYbBpi) to apply—both you and I will receive a ￥14 platform reward.
-
-If you prefer to use overseas closed-source models such as OpenAI, you can use the AiHubMix model service, which works smoothly in Mainland China:
-
-😄 You are welcome to register with my [AiHubMix invitation link](https://aihubmix.com?aff=Gp54).
-
-Overseas users can use the international version of Siliconflow: https://www.siliconflow.com/
-
-### 🚀 Take Off!
-
-```bash
-cd wiseflow
-uv venv # only needed the first time
-source .venv/bin/activate  # Linux/macOS
-# or on Windows:
-# .venv\Scripts\activate
-uv sync # only needed the first time
-python core/entry.py
+```
+addon/
+├── addon.json                    # Metadata
+├── overrides.sh                  # pnpm overrides: playwright-core → patchright-core
+├── patches/
+│   └── 001-browser-tab-recovery.patch  # Tab recovery patch
+├── skills/
+│   └── browser-guide/SKILL.md    # Browser usage best practices
+├── docs/                         # Technical documentation
+│   ├── anti-detection-research.md
+│   └── openclaw-extension-architecture.md
+└── tests/                        # Test cases and scripts
+    ├── README.md
+    └── run-managed-tests.mjs
 ```
 
-## 📚 How to use data crawled by Wiseflow in your own programs
+## WiseFlow Pro is Now Available!
 
-Refer to [wiseflow backend api](./core/backend/README.md)
+Stronger scraping capabilities, more comprehensive social media support, with UI interface and one-click installation package — no deployment needed!
 
-Whether based on Wiseflow or Wiseflow Pro, we welcome you to share and promote your application cases in the following repo!
+https://github.com/user-attachments/assets/57f8569c-e20a-4564-a669-1200d56c5725
 
-- https://github.com/TeamWiseFlow/wiseflow-plus
+🔥 **Pro version is now on sale**: https://shouxiqingbaoguan.com/
 
-(Contributing PRs to this repo will also grant a one-year subscription to Wiseflow Pro upon acceptance)
+🌹 Starting today, contribute PRs to the wiseflow open-source version (code, documentation, and successful case studies are all welcome). Once accepted, contributors will receive a one-year license for wiseflow Pro!
 
-**The architecture of version 4.2x is not fully compatible with 4.30. The final version of 4.2x (v4.29) is no longer maintained. For code reference, you can switch to the "2025" branch.**
+📥 🎉 📚
 
 ## 🛡️ License
 
-Since version 4.2, we have updated the open-source license agreement. Please check: [LICENSE](LICENSE) 
+Since version 4.2, we have updated our open-source license. Please refer to: [LICENSE](LICENSE)
 
 For commercial cooperation, please contact **Email: zm.zhao@foxmail.com**
 
 ## 📬 Contact
 
-For any questions or suggestions, welcome to leave a message through [issue](https://github.com/TeamWiseFlow/wiseflow/issues).
+For any questions or suggestions, feel free to leave a message via [issue](https://github.com/TeamWiseFlow/wiseflow/issues).
 
-For Pro version requirements or cooperation feedback, please contact the "Manager" of AI Chief Intelligence Officer via WeChat:
+For Pro version requirements or cooperation feedback, please contact the "AI Chief Intelligence Officer" via WeChat:
 
 <img src="docs/wechat.jpg" alt="wechat" width="360">
 
-## 🤝 This Project is Based on the Following Excellent Open Source Projects:
+## 🤝 wiseflow 5.x is built on the following excellent open-source projects:
 
-- Crawl4ai (Open-source LLM Friendly Web Crawler & Scraper) https://github.com/unclecode/crawl4ai
 - Patchright (Undetected Python version of the Playwright testing and automation library) https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-python
-- MediaCrawler (xhs/dy/wb/ks/bilibili/zhihu crawler) https://github.com/NanmiCoder/MediaCrawler
-- NoDriver (Providing a blazing fast framework for web automation, webscraping, bots and any other creative ideas...) https://github.com/ultrafunkamsterdam/nodriver
 - Feedparser (Parse feeds in Python) https://github.com/kurtmckee/feedparser
-- SearXNG (A free internet metasearch engine which aggregates results from various search services and databases) https://github.com/searxng/searxng
+- SearXNG (a free internet metasearch engine which aggregates results from various search services and databases) https://github.com/searxng/searxng
 
 ## Citation
 
-If you reference or cite part or all of this project in related work, please note the following information:
+If you reference or cite part or all of this project in your work, please include the following information:
 
 ```
 Author: Wiseflow Team
 https://github.com/TeamWiseFlow/wiseflow
 ```
 
-## Friendly Links
+## Partners
 
 [<img src="docs/logos/SiliconFlow.png" alt="siliconflow" width="360">](https://siliconflow.com/)

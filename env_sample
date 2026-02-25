@@ -1,8 +1,0 @@
-LLM_API_BASE="https://api.siliconflow.cn/v1" # any provider compiled with openai sdk, and siliconflow recommanded
-LLM_API_KEY={your token} # apply at https://cloud.siliconflow.cn/i/WNLYbBpi
-PRIMARY_MODEL=Qwen/Qwen3-32B
-VL_MODEL=Pro/Qwen/Qwen2.5-VL-7B-Instruct
-
-## belowing is optional, go as you need
-# VERBOSE=true ##for detail log info. If not need, remove this item.
-# CONCURRENT_NUMBER=6 ##make sure your llm provider supports it(leave default is 1)
