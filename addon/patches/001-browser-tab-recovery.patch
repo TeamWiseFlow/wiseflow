@@ -1,0 +1,278 @@
+diff --git a/src/agents/tools/browser-tool.test.ts b/src/agents/tools/browser-tool.test.ts
+index d3ef8d660..b6f4b0c8e 100644
+--- a/src/agents/tools/browser-tool.test.ts
++++ b/src/agents/tools/browser-tool.test.ts
+@@ -260,6 +260,48 @@ describe("browser tool snapshot maxChars", () => {
+     );
+     expect(gatewayMocks.callGatewayTool).not.toHaveBeenCalled();
+   });
++
++  it("recovers snapshot when target tab disappears", async () => {
++    browserClientMocks.browserSnapshot
++      .mockRejectedValueOnce(new Error("404: tab not found"))
++      .mockResolvedValueOnce({
++        ok: true,
++        format: "ai",
++        targetId: "new-tab",
++        url: "https://example.com",
++        snapshot: "recovered",
++      });
++    browserClientMocks.browserTabs.mockResolvedValueOnce([
++      {
++        targetId: "new-tab",
++        type: "page",
++        title: "Recovered",
++        url: "https://example.com",
++      },
++    ]);
++
++    const tool = createBrowserTool();
++    const result = await tool.execute?.("call-1", {
++      action: "snapshot",
++      snapshotFormat: "ai",
++      targetId: "stale-tab",
++    });
++
++    expect(browserClientMocks.browserSnapshot).toHaveBeenNthCalledWith(
++      1,
++      undefined,
++      expect.objectContaining({ targetId: "stale-tab" }),
++    );
++    expect(browserClientMocks.browserSnapshot).toHaveBeenNthCalledWith(
++      2,
++      undefined,
++      expect.objectContaining({ targetId: "new-tab" }),
++    );
++    expect(result?.details).toMatchObject({
++      targetId: "new-tab",
++      ok: true,
++    });
++  });
+ });
+ 
+ describe("browser tool snapshot labels", () => {
+@@ -421,4 +463,38 @@ describe("browser tool external content wrapping", () => {
+       }),
+     });
+   });
++
++  it("recovers act when target tab disappears", async () => {
++    browserActionsMocks.browserAct
++      .mockRejectedValueOnce(new Error("404: tab not found"))
++      .mockResolvedValueOnce({ ok: true, targetId: "new-tab" });
++    browserClientMocks.browserTabs.mockResolvedValueOnce([
++      {
++        targetId: "new-tab",
++        type: "page",
++        title: "Recovered",
++        url: "https://example.com",
++      },
++    ]);
++
++    const tool = createBrowserTool();
++    const result = await tool.execute?.("call-1", {
++      action: "act",
++      request: { kind: "click", ref: "e1", targetId: "stale-tab" },
++    });
++
++    expect(browserActionsMocks.browserAct).toHaveBeenNthCalledWith(
++      1,
++      undefined,
++      expect.objectContaining({ targetId: "stale-tab" }),
++      expect.objectContaining({ profile: undefined }),
++    );
++    expect(browserActionsMocks.browserAct).toHaveBeenNthCalledWith(
++      2,
++      undefined,
++      expect.objectContaining({ targetId: "new-tab" }),
++      expect.objectContaining({ profile: undefined }),
++    );
++    expect(result?.details).toMatchObject({ ok: true, targetId: "new-tab" });
++  });
+ });
+diff --git a/src/agents/tools/browser-tool.ts b/src/agents/tools/browser-tool.ts
+index b99adb4bf..68c8e81ff 100644
+--- a/src/agents/tools/browser-tool.ts
++++ b/src/agents/tools/browser-tool.ts
+@@ -70,6 +70,25 @@ function formatTabsToolResult(tabs: unknown[]): AgentToolResult<unknown> {
+   };
+ }
+ 
++function isTabResolutionError(err: unknown): boolean {
++  const msg = String(err).toLowerCase();
++  return msg.includes("tab not found") || msg.includes("ambiguous target id prefix");
++}
++
++function pickFallbackTargetId(tabs: unknown[]): string | undefined {
++  const list = tabs.filter((tab): tab is { targetId?: unknown; type?: unknown } => {
++    return Boolean(tab && typeof tab === "object");
++  });
++  const pages = list.filter((tab) => {
++    const type = typeof tab.type === "string" ? tab.type : "page";
++    return type === "page";
++  });
++  const primary = pages[0] ?? list[0];
++  const raw = primary?.targetId;
++  return typeof raw === "string" && raw.trim() ? raw.trim() : undefined;
++}
++
++
+ function readOptionalTargetAndTimeout(params: Record<string, unknown>) {
+   const targetId = typeof params.targetId === "string" ? params.targetId.trim() : undefined;
+   const timeoutMs =
+@@ -321,6 +340,18 @@ export function createBrowserTool(opts?: {
+           }
+         : null;
+ 
++      const listTabsForRecovery = async (): Promise<unknown[]> => {
++        if (proxyRequest) {
++          const result = await proxyRequest({
++            method: "GET",
++            path: "/tabs",
++            profile,
++          });
++          return ((result as { tabs?: unknown[] }).tabs ?? []).filter(Boolean);
++        }
++        return await browserTabs(baseUrl, { profile }).catch(() => []);
++      };
++
+       switch (action) {
+         case "status":
+           if (proxyRequest) {
+@@ -488,15 +519,16 @@ export function createBrowserTool(opts?: {
+               : undefined;
+           const selector = typeof params.selector === "string" ? params.selector.trim() : undefined;
+           const frame = typeof params.frame === "string" ? params.frame.trim() : undefined;
+-          const snapshot = proxyRequest
+-            ? ((await proxyRequest({
+-                method: "GET",
+-                path: "/snapshot",
+-                profile,
+-                query: {
+-                  format,
+-                  targetId,
+-                  limit,
++          const runSnapshot = async (retryTargetId: string | undefined) => {
++            return proxyRequest
++              ? ((await proxyRequest({
++                  method: "GET",
++                  path: "/snapshot",
++                  profile,
++                  query: {
++                    format,
++                    targetId: retryTargetId,
++                    limit,
+                   ...(typeof resolvedMaxChars === "number" ? { maxChars: resolvedMaxChars } : {}),
+                   refs,
+                   interactive,
+@@ -506,12 +538,12 @@ export function createBrowserTool(opts?: {
+                   frame,
+                   labels,
+                   mode,
+-                },
+-              })) as Awaited<ReturnType<typeof browserSnapshot>>)
+-            : await browserSnapshot(baseUrl, {
+-                format,
+-                targetId,
+-                limit,
++                  },
++                })) as Awaited<ReturnType<typeof browserSnapshot>>)
++              : await browserSnapshot(baseUrl, {
++                  format,
++                  targetId: retryTargetId,
++                  limit,
+                 ...(typeof resolvedMaxChars === "number" ? { maxChars: resolvedMaxChars } : {}),
+                 refs,
+                 interactive,
+@@ -521,8 +553,27 @@ export function createBrowserTool(opts?: {
+                 frame,
+                 labels,
+                 mode,
+-                profile,
+-              });
++                  profile,
++                });
++          };
++
++          let snapshot: Awaited<ReturnType<typeof browserSnapshot>>;
++          try {
++            snapshot = await runSnapshot(targetId);
++          } catch (err) {
++            if (!isTabResolutionError(err)) {
++              throw err;
++            }
++            const tabs = await listTabsForRecovery();
++            const recoveredTargetId = pickFallbackTargetId(tabs);
++            if (!recoveredTargetId) {
++              throw new Error(
++                `Browser tab was lost and no recoverable tab is available. Run action=tabs${profile ? ` profile="${profile}"` : ""} to refresh tab state.`,
++                { cause: err },
++              );
++            }
++            snapshot = await runSnapshot(recoveredTargetId);
++          }
+           if (snapshot.format === "ai") {
+             const extractedText = snapshot.snapshot ?? "";
+             const wrappedSnapshot = wrapExternalContent(extractedText, {
+@@ -797,16 +848,26 @@ export function createBrowserTool(opts?: {
+             return jsonResult(result);
+           } catch (err) {
+             const msg = String(err);
+-            if (msg.includes("404:") && msg.includes("tab not found") && profile === "chrome") {
+-              const tabs = proxyRequest
+-                ? ((
+-                    (await proxyRequest({
+-                      method: "GET",
+-                      path: "/tabs",
++            if (isTabResolutionError(err)) {
++              const tabs = await listTabsForRecovery();
++              const fallbackTargetId = pickFallbackTargetId(tabs);
++              if (fallbackTargetId) {
++                const recoveredRequest = { ...request, targetId: fallbackTargetId };
++                const recovered = proxyRequest
++                  ? await proxyRequest({
++                      method: "POST",
++                      path: "/act",
++                      profile,
++                      body: recoveredRequest,
++                    })
++                  : await browserAct(baseUrl, recoveredRequest as Parameters<typeof browserAct>[1], {
+                       profile,
+-                    })) as { tabs?: unknown[] }
+-                  ).tabs ?? [])
+-                : await browserTabs(baseUrl, { profile }).catch(() => []);
++                    });
++                return jsonResult(recovered);
++              }
++            }
++            if (msg.includes("404:") && msg.includes("tab not found") && profile === "chrome") {
++              const tabs = await listTabsForRecovery();
+               if (!tabs.length) {
+                 throw new Error(
+                   "No Chrome tabs are attached via the OpenClaw Browser Relay extension. Click the toolbar icon on the tab you want to control (badge ON), then retry.",
+diff --git a/src/browser/client-fetch.ts b/src/browser/client-fetch.ts
+index a349cf22a..55a0b4ce6 100644
+--- a/src/browser/client-fetch.ts
++++ b/src/browser/client-fetch.ts
+@@ -90,6 +90,12 @@ function withLoopbackBrowserAuth(
+ }
+ 
+ function enhanceBrowserFetchError(url: string, err: unknown, timeoutMs: number): Error {
++  const msg = String(err);
++  const msgLower = msg.toLowerCase();
++  // Preserve tab-resolution errors so callers can recover with a fresh tab lookup.
++  if (msgLower.includes("tab not found") || msgLower.includes("ambiguous target id prefix")) {
++    return err instanceof Error ? err : new Error(msg);
++  }
+   const isLocal = !isAbsoluteHttp(url);
+   // Human-facing hint for logs/diagnostics.
+   const operatorHint = isLocal
+@@ -100,8 +106,6 @@ function enhanceBrowserFetchError(url: string, err: unknown, timeoutMs: number):
+   const modelHint =
+     "Do NOT retry the browser tool — it will keep failing. " +
+     "Use an alternative approach or inform the user that the browser is currently unavailable.";
+-  const msg = String(err);
+-  const msgLower = msg.toLowerCase();
+   const looksLikeTimeout =
+     msgLower.includes("timed out") ||
+     msgLower.includes("timeout") ||
