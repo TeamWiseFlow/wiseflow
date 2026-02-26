@@ -47,3 +47,33 @@ openclaw_for_business/
 ```
 
 Install: copy `addon/` → `<openclaw>/addons/wiseflow`, then restart OpenClaw.
+
+## Development Workflow
+
+### 远程仓库
+
+- **origin** → `git@github.com:bigbrother666sh/wiseflow.git`（个人开发仓库）
+- **upstream** → `git@github.com:TeamWiseFlow/wiseflow.git`（TeamWiseflow 正式发布仓库）
+
+### 开发流程
+
+1. 默认在 `master` 分支上开发，按需创建功能分支
+2. 开发完成后推送到 **origin**（个人仓库���
+3. 阶段性成果通过 GitHub PR 从 origin 合并到 **upstream**（TeamWiseflow 正式仓库）
+
+### 本地归档分支
+
+- **`4.x`** — 仅本地保留，归档 v4.30 及之前的代码
+
+### 版本管理
+
+版本号存储在 `version` 文件中，格式为 `vMAJOR.MINOR.PATCH`。当 PR 合并到 upstream 的 master 时，GitHub Action 自动递增版本号并创建 Release。通过 PR 标签控制递增类型：
+- `major` 标签 → 大版本升级
+- `minor` 标签 → 功能版本升级
+- 无标签或 `patch` 标签 → 补丁版本升级（默认）
+
+**不要手动修改 `version` 文件**，由 CI 自动维护。
+
+## Permissions
+
+Claude Code 被授权在本仓库中执行任何 git 命令（包括 push、branch、tag 等），无需逐次确认。
