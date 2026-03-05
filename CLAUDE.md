@@ -4,15 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Wiseflow v5.x is an **OpenClaw add-on** that enhances browser automation with anti-detection capabilities. It replaces Playwright with Patchright (undetected fork) and adds tab recovery, agent skills, and anti-bot strategies. The distributable unit is the `addon/` directory, which gets copied into an OpenClaw installation.
+Wiseflow v5.x is an **OpenClaw_for_business add-on** that enhances browser automation with anti-detection capabilities. It replaces Playwright with Patchright (undetected fork) and adds tab recovery, agent skills, and anti-bot strategies. The distributable unit is the `wiseflow/` directory, which gets copied into an OpenClaw installation.
 
 Requires: OpenClaw >= 2026.2
 
-## Architecture
+## OpenClaw_for_business Add-on Architecture
+
+**OpenClaw_for_business is also called "OFB" for short.**
 
 ### Three-Layer Add-on Loading
 
-OpenClaw's `apply-addons.sh` processes add-ons in this order:
+OpenClaw_for_business's `apply-addons.sh` processes our add-ons in this order:
 
 1. **`overrides.sh`** — pnpm overrides that swap `playwright-core` → `patchright-core` at the package manager level. Controlled by `PATCHRIGHT_VERSION` env var (default: 1.57.0). Also patches documentation references.
 
@@ -24,13 +26,11 @@ OpenClaw's `apply-addons.sh` processes add-ons in this order:
 
 | Path | Purpose |
 |------|---------|
-| `addon/addon.json` | Package manifest (name, version, openclaw dependency) |
-| `addon/overrides.sh` | pnpm override script, receives `$ADDON_DIR` and `$OPENCLAW_DIR` |
-| `addon/patches/001-browser-tab-recovery.patch` | Tab resilience patch for browser tool |
-| `addon/skills/browser-guide/SKILL.md` | Agent browser best practices |
+| `wiseflow/addon.json` | Package manifest (name, version, openclaw dependency) |
+| `wiseflow/overrides.sh` | pnpm override script, receives `$ADDON_DIR` and `$OPENCLAW_DIR` |
+| `wiseflow/patches/001-browser-tab-recovery.patch` | Tab resilience patch for browser tool |
+| `wiseflow/skills/browser-guide/SKILL.md` | Agent browser best practices |
 | `tests/run-managed-tests.mjs` | Automated test suite (Node.js ESM) |
-| `patchright/` | Browser anti-detection patches (gitignored, built separately) |
-| `reference/` | Archived v4.x code (search engines, RSS parser, GitHub search) |
 | `docs/anti-detection-research.md` | Technical analysis of detection mechanisms |
 | `version` | Current version string (v5.0) |
 
@@ -39,14 +39,14 @@ OpenClaw's `apply-addons.sh` processes add-ons in this order:
 ```
 openclaw_for_business/
   addons/
-    wiseflow/          ← copy of addon/ directory
+    wiseflow/          ← copy of wiseflow/ directory
       addon.json
       overrides.sh
       patches/
       skills/
 ```
 
-Install: copy `addon/` → `<openclaw>/addons/wiseflow`, then restart OpenClaw.
+Install: copy `wiseflow/` → `<openclaw>/addons/wiseflow`, then restart OpenClaw.
 
 ## Development Workflow
 
@@ -55,15 +55,14 @@ Install: copy `addon/` → `<openclaw>/addons/wiseflow`, then restart OpenClaw.
 - **origin** → `git@github.com:bigbrother666sh/wiseflow.git`（个人开发仓库）
 - **upstream** → `git@github.com:TeamWiseFlow/wiseflow.git`（TeamWiseflow 正式发布仓库）
 
-### 开发流程
+### 开发流程与注意事项
 
 1. 默认在 `master` 分支上开发，按需创建功能分支
-2. 开发完成后推送到 **origin**（个人仓库���
-3. 阶段性成果通过 GitHub PR 从 origin 合并到 **upstream**（TeamWiseflow 正式仓库）
-
-### 本地归档分支
-
-- **`4.x`** — 仅本地保留，归档 v4.30 及之前的代码
+2. 因为本项目是 openclaw_for_business 的一个 addon，因此每次开发记得先更新下放置在 tests/ 下的openclaw_for_business代码仓，如果没有，你需要从 https://github.com/TeamWiseFlow/openclaw_for_business 获取最新代码放置在 tests/ 下)，然后看下它的更新情况，保证我们的开发始终可以适配
+3. 遵循 tdd（测试驱动开发）流程，每次开发之后必须进行完整测试
+4. 本项目建立在其他一些开源项目基础上，比如[patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright), 随着项目发展，你需要记录一份我们的依赖清单，对于每一个你都可以 clone 一份代码到项目根目录下，以便随时查看我们是否有必要跟着升级，但记得同步更新 .gitignore 文件, 避免混入提交，同时 tests/ 下的openclaw_for_business 代码仓也永远不要提交
+5. 开发完成后推送到 **origin**（个人仓库)
+6. 阶段性成果通过 GitHub PR 从 origin 合并到 **upstream**（TeamWiseflow 正式仓库）
 
 ### 版本管理
 
