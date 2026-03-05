@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Wiseflow v5.x is an **OpenClaw_for_business add-on** that enhances browser automation with anti-detection capabilities. It replaces Playwright with Patchright (undetected fork) and adds tab recovery, agent skills, and anti-bot strategies. The distributable unit is the `wiseflow/` directory, which gets copied into an OpenClaw installation.
+Wiseflow v5.x is an **OpenClaw_for_business add-on** that enhances browser automation with anti-detection capabilities for [openclaw](https://github.com/openclaw/openclaw). It replaces Playwright with Patchright (undetected fork) and adds tab recovery, agent skills, and anti-bot strategies. The distributable unit is the `wiseflow/` directory, which gets copied into an OpenClaw installation.
 
 Requires: OpenClaw >= 2026.2
 
@@ -58,7 +58,7 @@ Install: copy `wiseflow/` → `<openclaw>/addons/wiseflow`, then restart OpenCla
 ### 开发流程与注意事项
 
 1. 默认在 `master` 分支上开发，按需创建功能分支
-2. 因为本项目是 openclaw_for_business 的一个 addon，因此每次开发记得先更新下放置在 tests/ 下的openclaw_for_business代码仓，如果没有，你需要从 https://github.com/TeamWiseFlow/openclaw_for_business 获取最新代码放置在 tests/ 下)，然后看下它的更新情况，保证我们的开发始终可以适配
+2. 本项目是基于 openclaw 进行 patch，同时必须遵循 openclaw_for_business(OFB)的 add-on 加载机制。因此你应该保证在 tests/ 下面始终放置一份来自 https://github.com/openclaw/openclaw 的代码克隆，同时放置一份 https://github.com/bigbrother666sh/openclaw_for_business/blob/main/scripts/apply-addons.sh，每次开发前都应该进行一次拉取，然后基于最新的 openclaw 代码进行开发，并保证最后的产出适配apply-addons.sh
 3. 遵循 tdd（测试驱动开发）流程，每次开发之后必须进行完整测试
 4. 本项目建立在其他一些开源项目基础上，比如[patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright), 随着项目发展，你需要记录一份我们的依赖清单，对于每一个你都可以 clone 一份代码到项目根目录下，以便随时查看我们是否有必要跟着升级，但记得同步更新 .gitignore 文件, 避免混入提交，同时 tests/ 下的openclaw_for_business 代码仓也永远不要提交
 5. 开发完成后推送到 **origin**（个人仓库)
