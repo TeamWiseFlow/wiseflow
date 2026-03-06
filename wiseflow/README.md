@@ -17,10 +17,10 @@
 ```bash
 # 方式一：从 wiseflow 仓库复制
 git clone https://github.com/TeamWiseFlow/wiseflow.git /tmp/wiseflow
-cp -r /tmp/wiseflow/addon <openclaw_for_business>/addons/wiseflow
+cp -r /tmp/wiseflow/wiseflow <openclaw_for_business>/addons/wiseflow
 
 # 方式二：如果已有 wiseflow 仓库
-cp -r /path/to/wiseflow/addon <openclaw_for_business>/addons/wiseflow
+cp -r /path/to/wiseflow/wiseflow <openclaw_for_business>/addons/wiseflow
 ```
 
 安装后重启 openclaw 即可生效（`dev.sh` 会自动扫描并应用）。
@@ -28,19 +28,13 @@ cp -r /path/to/wiseflow/addon <openclaw_for_business>/addons/wiseflow
 ## 目录结构
 
 ```
-addon/
+wiseflow/
 ├── addon.json                    # 元数据
 ├── overrides.sh                  # pnpm overrides: playwright-core → patchright-core
 ├── patches/
 │   └── 001-browser-tab-recovery.patch  # 标签页恢复补丁
 ├── skills/
 │   └── browser-guide/SKILL.md    # 浏览器使用最佳实践
-├── docs/                         # 技术文档
-│   ├── anti-detection-research.md
-│   └── openclaw-extension-architecture.md
-└── tests/                        # 测试用例和脚本
-    ├── README.md
-    └── run-managed-tests.mjs
 ```
 
 ## 三层加载机制
@@ -58,4 +52,4 @@ addon 被 `apply-addons.sh` 加载时按以下顺序执行：
 
 ## 测试
 
-参见 [tests/README.md](tests/README.md) 了解浏览器反检测测试用例。
+参见项目根目录的 [tests/README.md](../tests/README.md) 了解浏览器反检测测试用例。

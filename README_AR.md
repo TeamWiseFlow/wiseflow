@@ -28,30 +28,32 @@
 
 ## 🌟 البدء السريع
 
-انسخ هذا المجلد إلى مجلد `addons/` الخاص بـ openclaw_for_business:
+قم بتنزيل الحزمة المتكاملة (التي تشمل openclaw_for_business و��ضافة wiseflow) مباشرةً من [Releases](https://github.com/TeamWiseFlow/wiseflow/releases) لهذا المستودع، ثم فك الضغط وشغّل سكريبت النشر بنقرة واحدة.
+
+### [بديل] التثبيت اليدوي
+
+> ملاحظة: تحتاج أولاً إلى تنزيل ونشر openclaw_for_business من: https://github.com/TeamWiseFlow/openclaw_for_business/releases
+
+انسخ مجلد `wiseflow` من هذا المستودع (وليس المستودع بأكمله) إلى مجلد `addons/` الخاص بـ openclaw_for_business:
 
 <div dir="ltr">
 
 ```bash
 # الطريقة 1: الاستنساخ من مستودع wiseflow
 git clone https://github.com/TeamWiseFlow/wiseflow.git /tmp/wiseflow
-cp -r /tmp/wiseflow/addon <openclaw_for_business>/addons/wiseflow
-
-# الطريقة 2: إذا كان لديك مستودع wiseflow بالفعل
-# قم بتنزيل أحدث إصدار من https://github.com/TeamWiseFlow/wiseflow/releases
-# فك الضغط وضعه في <openclaw_for_business>/addons
+cp -r /tmp/wiseflow/wiseflow <openclaw_for_business>/addons/wiseflow
 ```
 
 </div>
 
-أعد تشغيل openclaw بعد التثبيت لتفعيل التغييرات.
+أعد تشغيل openclaw_for_business بعد التثبيت لتفعيل التغييرات.
 
 ## هيكل المجلدات
 
 <div dir="ltr">
 
 ```
-addon/
+wiseflow/
 ├── addon.json                    # البيانات الوصفية
 ├── overrides.sh                  # pnpm overrides: playwright-core → patchright-core
 ├── patches/
@@ -84,7 +86,7 @@ https://github.com/user-attachments/assets/57f8569c-e20a-4564-a669-1200d56c5725
 
 منذ الإصدار 4.2، قمنا بتحديث ترخيصنا مفتوح المصدر. يرجى الاطلاع على: [LICENSE](LICENSE)
 
-للتعاون التجاري، يرجى التواصل عبر **البريد الإلكتروني: zm.zhao@foxmail.com**
+للتعاون التجاري، ير��ى التواصل عبر **البريد الإلكتروني: zm.zhao@foxmail.com**
 
 ## 📬 اتصل بنا
 

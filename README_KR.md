@@ -18,7 +18,7 @@ wiseflow 4.x(이전 버전 포함)는 일련의 정밀한 워크플로우를 통
 
 기능 개선과 범위 확장에 꾸준히 노력해 왔지만, 현실 세계는 복잡하고 인터넷도 마찬가지입니다. 규칙을 완전히 망라하는 것은 불가능하므로, 고정된 워크플로우로는 모든 시나리오에 대응할 수 없습니다. 이것은 wiseflow의 문제가 아니라 전통적인 소프트웨어의 문제입니다!
 
-그러나 지난 1년간 Agent 기술의 비약적인 발전은 대규모 언어 모델로 인간의 인터넷 행동을 완전히 시뮬레이션하는 것이 기술적으로 가능하다는 것을 보여주었습니다. [openclaw](https://github.com/openclaw/openclaw)의 등장은 이러한 확신을 더욱 굳건히 했습니다.
+그러나 지난 1년간 Agent 기술의 비약적인 발전은 대규모 언어 모델로 인간의 인터넷 행동을 ��전히 시뮬레이션하는 것이 기술적으로 가능하다는 것을 보여주었습니다. [openclaw](https://github.com/openclaw/openclaw)의 등장은 이러한 확신을 더욱 굳건히 했습니다.
 
 더욱 놀라운 것은, 초기 실험과 탐색을 통해 wiseflow의 데이터 수집 능력을 "플러그인" 형태로 openclaw에 통합하면 위에서 언급한 두 가지 한계를 완벽하게 해결할 수 있다는 것을 발견했습니다. 앞으로 흥미진진한 실제 데모 영상을 순차적으로 공개하고, 이 "플러그인"들을 오픈소스로 릴리스할 예정입니다.
 
@@ -26,24 +26,26 @@ wiseflow 4.x(이전 버전 포함)는 일련의 정밀한 워크플로우를 통
 
 ## 🌟 빠른 시작
 
-이 디렉토리를 openclaw_for_business의 `addons/` 디렉토리에 복사하세요:
+본 저장소의 [Releases](https://github.com/TeamWiseFlow/wiseflow/releases)에서 openclaw_for_business와 wiseflow addon이 포함된 통합 패키지를 직접 다운로드하고, 압축 해제 후 원클릭 배포 스크립트를 실행하세요.
+
+### 【대안】수동 설치
+
+> 주의: 먼저 openclaw_for_business를 다운로드하여 배포해야 합니다. 다운로드 주소: https://github.com/TeamWiseFlow/openclaw_for_business/releases
+
+저장소 내의 `wiseflow` 폴더(저장소 전체가 아님)를 openclaw_for_business의 `addons/` 디렉토리에 복사하세요:
 
 ```bash
 # 방법 1: wiseflow 저장소에서 클론
 git clone https://github.com/TeamWiseFlow/wiseflow.git /tmp/wiseflow
-cp -r /tmp/wiseflow/addon <openclaw_for_business>/addons/wiseflow
-
-# 방법 2: 이미 wiseflow 저장소가 있는 경우
-https://github.com/TeamWiseFlow/wiseflow/releases 에서 최신 릴리스를 다운로드
-압축 해제 후 <openclaw_for_business>/addons 에 배치
+cp -r /tmp/wiseflow/wiseflow <openclaw_for_business>/addons/wiseflow
 ```
 
-설치 후 openclaw를 재시작하면 적용됩니다.
+설치 후 openclaw_for_business를 재시작하면 적용됩니다.
 
 ## 디렉토리 구조
 
 ```
-addon/
+wiseflow/
 ├── addon.json                    # 메타데이터
 ├── overrides.sh                  # pnpm overrides: playwright-core → patchright-core
 ├── patches/
