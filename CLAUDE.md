@@ -68,7 +68,9 @@ Install: copy `wiseflow/` → `<openclaw>/addons/wiseflow`, then restart OpenCla
 4. 本项目建立在其他一些开源项目基础上，比如[patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright), 随着项目发展，你需要记录一份我们的依赖清单，对于每一个你都可以 clone 一份代码到项目根目录下，以便随时查看我们是否有必要跟着升级，但记得同步更新 .gitignore 文件, 避免混入提交，同时 tests/ 下的openclaw_for_business 代码仓也永远不要提交
 5. 开发完成后推送到 **origin**（个人仓库)
 6. 阶段性成果通过 GitHub PR 从 origin 合并到 **upstream**（TeamWiseflow 正式仓库）
-7. **upstream**（TeamWiseflow 正式仓库）每次合并 PR 后通过 github actions 自动更新版本号并触发 release 打包发布
+7. **upstream**（TeamWiseflow 正式仓库）每次合并 PR 后自动更新版本号并触发 release 打包发布
+
+注：有时我会通过在 .claude/ 中留下 TODO.md 的方式下发开发任务，这些任务你完成后需要把 TODO.md 改名为 {date}_done.md
 
 ### 版本管理
 
