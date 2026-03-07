@@ -26,24 +26,26 @@ It should be noted, however, that openclaw's plugin system is quite different fr
 
 ## 🌟 Quick Start
 
-Copy this directory to the `addons/` directory of openclaw_for_business:
+Download the integrated package (which includes openclaw_for_business and the wiseflow addon) directly from this repository's [Releases](https://github.com/TeamWiseFlow/wiseflow/releases), extract it, and run the one-click deployment script.
+
+### [Alternative] Manual Installation
+
+> Note: You need to first download and deploy openclaw_for_business from: https://github.com/TeamWiseFlow/openclaw_for_business/releases
+
+Copy the `wiseflow` folder from this repository (not the repository itself) to the `addons/` directory of openclaw_for_business:
 
 ```bash
 # Option 1: Clone from the wiseflow repository
 git clone https://github.com/TeamWiseFlow/wiseflow.git /tmp/wiseflow
-cp -r /tmp/wiseflow/addon <openclaw_for_business>/addons/wiseflow
-
-# Option 2: If you already have the wiseflow repository
-Download the latest release from https://github.com/TeamWiseFlow/wiseflow/releases
-Extract and place it in <openclaw_for_business>/addons
+cp -r /tmp/wiseflow/wiseflow <openclaw_for_business>/addons/wiseflow
 ```
 
-Restart openclaw after installation to take effect.
+Restart openclaw_for_business after installation to take effect.
 
 ## Directory Structure
 
 ```
-addon/
+wiseflow/
 ├── addon.json                    # Metadata
 ├── overrides.sh                  # pnpm overrides: playwright-core → patchright-core
 ├── patches/

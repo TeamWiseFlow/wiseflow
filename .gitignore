@@ -17,3 +17,4 @@ __pycache__/
 *.so
 .Python
 patchright/
+tests/openclaw_for_business/
