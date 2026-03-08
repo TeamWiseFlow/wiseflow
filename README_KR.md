@@ -47,14 +47,20 @@ cp -r /tmp/wiseflow/wiseflow <openclaw_for_business>/addons/wiseflow
 ```
 wiseflow/
 ├── addon.json                    # 메타데이터
-├── overrides.sh                  # pnpm overrides: playwright-core → patchright-core
+├── overrides.sh                  # pnpm overrides + 내장 web_search 비활성화
 ├── patches/
-│   └── 001-browser-tab-recovery.patch  # 탭 복구 패치
+│   ├── 001-browser-tab-recovery.patch        # 탭 복구 패치
+│   └── 002-disable-web-search-env-var.patch  # 내장 web_search 비활성화 (env var)
 ├── skills/
-│   └── browser-guide/SKILL.md    # 브라우저 사용 모범 사례
+│   ├── browser-guide/SKILL.md    # 브라우저 모범 사례 (로그인/캡차/지연 로딩 등)
+│   ├── smart-search/SKILL.md     # 다중 플랫폼 검색 URL 빌더 (내장 web_search 대체)
+│   └── rss-reader/               # RSS/Atom 피드 리더
+│       ├── SKILL.md
+│       ├── package.json
+│       └── scripts/fetch-rss.mjs
 ├── docs/                         # 기술 문서
 │   ├── anti-detection-research.md
-│   └── openclaw-extension-architecture.md
+│   └── more_powerful_search_skill/
 └── tests/                        # 테스트 케이스 및 스크립트
     ├── README.md
     └── run-managed-tests.mjs

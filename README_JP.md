@@ -47,14 +47,20 @@ cp -r /tmp/wiseflow/wiseflow <openclaw_for_business>/addons/wiseflow
 ```
 wiseflow/
 ├── addon.json                    # メタデータ
-├── overrides.sh                  # pnpm overrides: playwright-core → patchright-core
+├── overrides.sh                  # pnpm overrides + 内蔵 web_search を無効化
 ├── patches/
-│   └── 001-browser-tab-recovery.patch  # タブ復元パッチ
+│   ├── 001-browser-tab-recovery.patch        # タブ復元パッチ
+│   └── 002-disable-web-search-env-var.patch  # 内蔵 web_search の無効化（env var）
 ├── skills/
-│   └── browser-guide/SKILL.md    # ブラウザ使用のベストプラクティス
+│   ├── browser-guide/SKILL.md    # ブラウザのベストプラクティス（ログイン/CAPTCHA/遅延ロードなど）
+│   ├── smart-search/SKILL.md     # マルチプラットフォーム検索URL構築（内蔵 web_search の代替）
+│   └── rss-reader/               # RSS/Atom フィードリーダー
+│       ├── SKILL.md
+│       ├── package.json
+│       └── scripts/fetch-rss.mjs
 ├── docs/                         # 技術ドキュメント
 │   ├── anti-detection-research.md
-│   └── openclaw-extension-architecture.md
+│   └── more_powerful_search_skill/
 └── tests/                        # テストケースとスクリプト
     ├── README.md
     └── run-managed-tests.mjs
