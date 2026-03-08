@@ -1,7 +1,7 @@
 {
   "name": "wiseflow",
   "version": "0.1.0",
-  "description": "浏览器反检测 + Tab Recovery + 互联网能力增强",
+  "description": "浏览器反检测 + Tab Recovery + 互联网搜索增强（smart-search / rss-reader skills + 禁用内置 web_search）",
   "requires": {
     "openclaw": ">=2026.2"
   }

@@ -41,3 +41,16 @@ for file in "${DOC_FILES[@]}"; do
     fi
   fi
 done
+
+# ─── 禁用内置 web_search 工具（由 smart-search skill 通过浏览器替代） ──────────
+# openclaw 加载顺序：CWD/.env → OPENCLAW_STATE_DIR/.env（不覆盖已有值）
+# 这里写入 OPENCLAW_STATE_DIR/.env（默认 ~/.openclaw/.env）
+OPENCLAW_STATE_DIR="${OPENCLAW_STATE_DIR:-$HOME/.openclaw}"
+ENV_FILE="$OPENCLAW_STATE_DIR/.env"
+mkdir -p "$OPENCLAW_STATE_DIR"
+if ! grep -q "OPENCLAW_DISABLE_WEB_SEARCH" "$ENV_FILE" 2>/dev/null; then
+  echo "OPENCLAW_DISABLE_WEB_SEARCH=1" >> "$ENV_FILE"
+  echo "    → injected OPENCLAW_DISABLE_WEB_SEARCH=1 into $ENV_FILE"
+else
+  echo "    → OPENCLAW_DISABLE_WEB_SEARCH already set in $ENV_FILE"
+fi

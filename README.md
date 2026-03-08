@@ -47,14 +47,20 @@ cp -r /tmp/wiseflow/wiseflow <openclaw_for_business>/addons/wiseflow
 ```
 wiseflow/
 ├── addon.json                    # 元数据
-├── overrides.sh                  # pnpm overrides: playwright-core → patchright-core
+├── overrides.sh                  # pnpm overrides + 禁用内置 web_search
 ├── patches/
-│   └── 001-browser-tab-recovery.patch  # 标签页恢复补丁
+│   ├── 001-browser-tab-recovery.patch        # 标签页恢复补丁
+│   └── 002-disable-web-search-env-var.patch  # 禁用内置 web_search（env var）
 ├── skills/
-│   └── browser-guide/SKILL.md    # 浏览器使用最佳实践
+│   ├── browser-guide/SKILL.md    # 浏览器最佳实践（登录/验证码/懒加载等）
+│   ├── smart-search/SKILL.md     # 多平台搜索 URL 构造（替代内置 web_search）
+│   └── rss-reader/               # RSS/Atom Feed 读取器
+│       ├── SKILL.md
+│       ├── package.json
+│       └── scripts/fetch-rss.mjs
 ├── docs/                         # 技术文档
 │   ├── anti-detection-research.md
-│   └── openclaw-extension-architecture.md
+│   └── more_powerful_search_skill/
 └── tests/                        # 测试用例和脚本
     ├── README.md
     └── run-managed-tests.mjs
