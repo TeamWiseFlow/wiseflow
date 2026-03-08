@@ -62,10 +62,10 @@ Install: copy `wiseflow/` → `<openclaw>/addons/wiseflow`, then restart OpenCla
 ### 开发流程与注意事项
 
 1. 默认在 `master` 分支上开发，按需创建功能分支
-2. 本项目是基于 openclaw 进行 patch，同时必须遵循 openclaw_for_business(OFB)的 add-on 加载机制。因此你应该保证在 tests/ 下面始终克隆一份来自 https://github.com/openclaw/openclaw 的代码，同时克隆一份 https://github.com/bigbrother666sh/openclaw_for_business/blob/main/scripts/apply-addons.sh 
+2. 本项目是基于 openclaw 进行 patch，同时必须遵循 openclaw_for_business(OFB)的 add-on 加载机制。因此你应该保证在 代码仓根目录始终克隆一份来自 https://github.com/openclaw/openclaw 的代码，同时下载一份 https://github.com/bigbrother666sh/openclaw_for_business/blob/main/scripts/apply-addons.sh 
 每次开发前都应该进行一次拉取，然后基于最新的 openclaw 代码进行开发，并保证最后的产出适配 apply-addons.sh
 3. 遵循 tdd（测试驱动开发）流程，每次开发之后必须进行完整测试
-4. 本项目建立在其他一些开源项目基础上，比如[patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright), 随着项目发展，你需要记录一份我们的依赖清单，对于每一个你都可以 clone 一份代码到项目根目录下，以便随时查看我们是否有必要跟着升级，但记得同步更新 .gitignore 文件, 避免混入提交，同时 tests/ 下的openclaw_for_business 代码仓也永远不要提交
+4. 本项目建立在其他一些开源项目基础上，比如[patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright), 随着项目发展，你需要记录一份我们的依赖清单，对于每一个你都可以 clone 一份代码到项目根目录下，以便随时查看我们是否有必要跟着升级，但记得同步更新 .gitignore 文件, 避免混入提交
 5. 开发完成后推送到 **origin**（个人仓库)
 6. 阶段性成果通过 GitHub PR 从 origin 合并到 **upstream**（TeamWiseflow 正式仓库）
 7. **upstream**（TeamWiseflow 正式仓库）每次合并 PR 后自动更新版本号并触发 release 打包发布

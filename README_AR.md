@@ -55,14 +55,20 @@ cp -r /tmp/wiseflow/wiseflow <openclaw_for_business>/addons/wiseflow
 ```
 wiseflow/
 ├── addon.json                    # البيانات الوصفية
-├── overrides.sh                  # pnpm overrides: playwright-core → patchright-core
+├── overrides.sh                  # pnpm overrides + تعطيل web_search المدمج
 ├── patches/
-│   └── 001-browser-tab-recovery.patch  # رقعة استعادة علامات التبويب
+│   ├── 001-browser-tab-recovery.patch        # رقعة استعادة علامات التبويب
+│   └── 002-disable-web-search-env-var.patch  # تعطيل web_search المدمج (env var)
 ├── skills/
-│   └── browser-guide/SKILL.md    # أفضل ممارسات استخدام المتصفح
+│   ├── browser-guide/SKILL.md    # أفضل ممارسات المتصفح (تسجيل الدخول/CAPTCHA/التحميل الكسول، إلخ)
+│   ├── smart-search/SKILL.md     # منشئ URL البحث متعدد المنصات (يحل محل web_search المدمج)
+│   └── rss-reader/               # قارئ خلاصات RSS/Atom
+│       ├── SKILL.md
+│       ├── package.json
+│       └── scripts/fetch-rss.mjs
 ├── docs/                         # التوثيق التقني
 │   ├── anti-detection-research.md
-│   └── openclaw-extension-architecture.md
+│   └── more_powerful_search_skill/
 └── tests/                        # حالات الاختبار والنصوص البرمجية
     ├── README.md
     └── run-managed-tests.mjs
