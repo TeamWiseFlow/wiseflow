@@ -6,7 +6,7 @@ metadata:
     "openclaw":
       {
         "emoji": "🔍",
-        "always": false,
+        "always": true,
       },
   }
 ---
@@ -61,12 +61,7 @@ https://www.baidu.com/s?wd={keyword}
 
 Baidu Images:
 ```
-https://image.baidu.com/search/index?wd={keyword}
-```
-
-Baidu IT / Developer (开发者搜索):
-```
-https://kaifa.baidu.com/search?wd={keyword}
+https://image.baidu.com/search/index?tn=baiduimage&fm=result&ie=utf-8&word={keyword}
 ```
 
 ### Quark / 夸克 (recommended for Chinese news and mobile content)

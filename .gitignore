@@ -23,3 +23,5 @@ __pycache__/
 patchright/
 tests/openclaw_for_business/
 tests/openclaw/
+openclaw/
+openclaw_for_business/
