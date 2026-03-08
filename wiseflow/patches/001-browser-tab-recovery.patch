@@ -203,10 +203,10 @@ index 957688912..c27cc22f5 100644
      throw err;
    }
 diff --git a/src/agents/tools/browser-tool.test.ts b/src/agents/tools/browser-tool.test.ts
-index eaaec53f1..84f7aacd7 100644
+index 3c54cb636..58a21e6af 100644
 --- a/src/agents/tools/browser-tool.test.ts
 +++ b/src/agents/tools/browser-tool.test.ts
-@@ -276,6 +276,48 @@ describe("browser tool snapshot maxChars", () => {
+@@ -282,6 +282,48 @@ describe("browser tool snapshot maxChars", () => {
      );
      expect(gatewayMocks.callGatewayTool).not.toHaveBeenCalled();
    });
@@ -255,7 +255,7 @@ index eaaec53f1..84f7aacd7 100644
  });
  
  describe("browser tool url alias support", () => {
-@@ -528,10 +570,18 @@ describe("browser tool external content wrapping", () => {
+@@ -571,10 +613,18 @@ describe("browser tool external content wrapping", () => {
  describe("browser tool act stale target recovery", () => {
    registerBrowserToolAfterEachReset();
  
@@ -276,7 +276,7 @@ index eaaec53f1..84f7aacd7 100644
  
      const tool = createBrowserTool();
      const result = await tool.execute?.("call-1", {
-@@ -554,9 +604,43 @@ describe("browser tool act stale target recovery", () => {
+@@ -597,9 +647,43 @@ describe("browser tool act stale target recovery", () => {
      expect(browserActionsMocks.browserAct).toHaveBeenNthCalledWith(
        2,
        undefined,
@@ -322,28 +322,17 @@ index eaaec53f1..84f7aacd7 100644
 +  });
  });
 diff --git a/src/browser/client-fetch.ts b/src/browser/client-fetch.ts
-index 9f9f6daf0..0979d3a9b 100644
+index 8f13da4e1..4291223d5 100644
 --- a/src/browser/client-fetch.ts
 +++ b/src/browser/client-fetch.ts
-@@ -99,6 +99,12 @@ function withLoopbackBrowserAuth(
- }
- 
- function enhanceBrowserFetchError(url: string, err: unknown, timeoutMs: number): Error {
-+  const msg = String(err);
-+  const msgLower = msg.toLowerCase();
+@@ -134,6 +134,10 @@ function enhanceBrowserFetchError(url: string, err: unknown, timeoutMs: number):
+   const operatorHint = resolveBrowserFetchOperatorHint(url);
+   const msg = String(err);
+   const msgLower = msg.toLowerCase();
 +  // Preserve tab-resolution errors so callers can recover with a fresh tab lookup.
 +  if (msgLower.includes("tab not found") || msgLower.includes("ambiguous target id prefix")) {
 +    return err instanceof Error ? err : new Error(msg);
 +  }
-   const isLocal = !isAbsoluteHttp(url);
-   // Human-facing hint for logs/diagnostics.
-   const operatorHint = isLocal
-@@ -109,8 +115,6 @@ function enhanceBrowserFetchError(url: string, err: unknown, timeoutMs: number):
-   const modelHint =
-     "Do NOT retry the browser tool — it will keep failing. " +
-     "Use an alternative approach or inform the user that the browser is currently unavailable.";
--  const msg = String(err);
--  const msgLower = msg.toLowerCase();
    const looksLikeTimeout =
      msgLower.includes("timed out") ||
      msgLower.includes("timeout") ||
