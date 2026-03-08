@@ -47,14 +47,20 @@ Restart openclaw_for_business after installation to take effect.
 ```
 wiseflow/
 ├── addon.json                    # Metadata
-├── overrides.sh                  # pnpm overrides: playwright-core → patchright-core
+├── overrides.sh                  # pnpm overrides + disable built-in web_search
 ├── patches/
-│   └── 001-browser-tab-recovery.patch  # Tab recovery patch
+│   ├── 001-browser-tab-recovery.patch        # Tab recovery patch
+│   └── 002-disable-web-search-env-var.patch  # Disable built-in web_search (env var)
 ├── skills/
-│   └── browser-guide/SKILL.md    # Browser usage best practices
+│   ├── browser-guide/SKILL.md    # Browser best practices (login/captcha/lazy-loading, etc.)
+│   ├── smart-search/SKILL.md     # Multi-platform search URL builder (replaces built-in web_search)
+│   └── rss-reader/               # RSS/Atom Feed reader
+│       ├── SKILL.md
+│       ├── package.json
+│       └── scripts/fetch-rss.mjs
 ├── docs/                         # Technical documentation
 │   ├── anti-detection-research.md
-│   └── openclaw-extension-architecture.md
+│   └── more_powerful_search_skill/
 └── tests/                        # Test cases and scripts
     ├── README.md
     └── run-managed-tests.mjs

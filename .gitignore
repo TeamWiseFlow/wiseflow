@@ -1,3 +1,7 @@
+# node
+node_modules/
+package-lock.json
+
 # default ignore
 /shelf/
 /workspace.xml
@@ -18,3 +22,6 @@ __pycache__/
 .Python
 patchright/
 tests/openclaw_for_business/
+tests/openclaw/
+openclaw/
+openclaw_for_business/
