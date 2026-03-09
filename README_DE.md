@@ -24,9 +24,49 @@ Noch bemerkenswerter ist, dass wir durch frühe Experimente und Erforschung entd
 
 Es ist jedoch zu beachten, dass das Plugin-System von openclaw sich erheblich von dem unterscheidet, was wir traditionell unter „Plugins" verstehen (ähnlich den Plugins von Claude Code). Daher mussten wir das Konzept des „Add-ons" einführen. Genau genommen wird wiseflow 5.x als openclaw Add-on erscheinen. Das originale openclaw verfügt nicht über eine „Add-on"-Architektur, aber in der Praxis benötigen Sie nur wenige einfache Shell-Befehle, um diese „Umgestaltung" durchzuführen. Wir haben auch eine sofort einsatzbereite, erweiterte Version von openclaw mit voreingestellten Konfigurationen für reale Geschäftsszenarien vorbereitet: [openclaw_for_business](https://github.com/TeamWiseFlow/openclaw_for_business). Sie können es einfach klonen und das wiseflow-Release in den Add-on-Ordner von openclaw_for_business entpacken.
 
+## ✨ Hauptfunktionen
+
+Das wiseflow Add-on bietet derzeit drei zentrale Verbesserungen für openclaw:
+
+### 1. Anti-Erkennungs-Browser
+
+Ersetzt das in openclaw integrierte Playwright durch [Patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright) (ein unerkannter Fork von Playwright) und reduziert damit erheblich die Wahrscheinlichkeit, dass automatisierte Browser von Ziel-Websites erkannt und blockiert werden. Dadurch lassen sich ohne die Installation einer Chrome-Relay-Extension mit einem verwalteten Browser gleichwertige oder sogar überlegene Web-Erfassungs- und Bedienungsfähigkeiten gegenüber einer Relay-Konfiguration erzielen.
+
+### 2. Automatische Tab-Wiederherstellung
+
+Wenn ein Ziel-Browser-Tab während eines Agent-Vorgangs unerwartet geschlossen oder verloren geht, führt das System automatisch eine snapshot-basierte Tab-Wiederherstellung durch, damit Aufgaben nicht durch Tab-Verlust unterbrochen werden.
+
+### 3. Smart Search
+
+Ersetzt die eingebaute `web_search` von openclaw durch leistungsfähigere Suchfunktionen. Im Vergleich zum ursprünglich integrierten web search tool bietet Smart Search drei zentrale Vorteile:
+
+- **Völlig kostenlos, kein API-Schlüssel erforderlich**: Keine Abhängigkeit von Drittanbieter-Such-APIs — null Kosten
+- **Echtzeit-Suche für maximale Aktualität**: Steuert den Browser direkt zu Zielseiten oder großen Social-Media-Plattformen (Weibo, Twitter/X, Facebook usw.), um die zuletzt veröffentlichten Inhalte sofort abzurufen
+- **Benutzerdefinierbare Suchquellen**: Benutzer können ihre Suchquellen frei festlegen, um präzise und zielgerichtete Informationsabfragen zu ermöglichen
+
 ## 🌟 Schnellstart
 
-Laden Sie das integrierte Paket (enthält openclaw_for_business und das wiseflow Addon) direkt aus den [Releases](https://github.com/TeamWiseFlow/wiseflow/releases) dieses Repositories herunter, entpacken Sie es und führen Sie das Ein-Klick-Deployment-Skript aus.
+Laden Sie das integrierte Paket (enthält openclaw_for_business und das wiseflow Addon) direkt aus den [Releases](https://github.com/TeamWiseFlow/wiseflow/releases) dieses Repositories herunter.
+
+1. Das Archiv herunterladen und entpacken
+2. In den entpackten Ordner wechseln
+3. Startmodus auswählen:
+
+   **Debug-Modus** (Einzelstart, für Tests und Entwicklung):
+   ```bash
+   ./scripts/dev.sh gateway
+   ```
+
+   **Produktionsmodus** (als Systemdienst installieren, für den Dauerbetrieb):
+   ```bash
+   ./scripts/reinstall-daemon.sh
+   ```
+
+> **Systemanforderungen**
+> - **Ubuntu 22.04** wird empfohlen
+> - **Windows WSL2**-Umgebung wird unterstützt
+> - **macOS** wird unterstützt
+> - Die direkte Ausführung unter **nativem Windows** wird **nicht unterstützt**
 
 ### [Alternative] Manuelle Installation
 

@@ -21,6 +21,7 @@ __pycache__/
 *.so
 .Python
 patchright/
+patchright-v*/
 tests/openclaw_for_business/
 tests/openclaw/
 openclaw/
