@@ -31,8 +31,12 @@ jobs:
         with:
           version: latest
 
+      - name: Read openclaw version
+        id: oc_version
+        run: echo "version=$(cat openclaw-version)" >> "$GITHUB_OUTPUT"
+
       - name: Clone openclaw
-        run: git clone --depth=1 https://github.com/openclaw/openclaw.git openclaw
+        run: git clone --depth=1 --branch ${{ steps.oc_version.outputs.version }} https://github.com/openclaw/openclaw.git openclaw
 
       - name: Clone openclaw_for_business
         run: git clone --depth=1 https://github.com/TeamWiseFlow/openclaw_for_business.git openclaw_for_business
@@ -118,8 +122,12 @@ jobs:
           git tag "${{ steps.version.outputs.new }}"
           git push origin master --tags
 
+      - name: Read openclaw version
+        id: oc_version
+        run: echo "version=$(cat openclaw-version)" >> "$GITHUB_OUTPUT"
+
       - name: Clone openclaw
-        run: git clone --depth=1 https://github.com/openclaw/openclaw.git openclaw
+        run: git clone --depth=1 --branch ${{ steps.oc_version.outputs.version }} https://github.com/openclaw/openclaw.git openclaw
 
       - name: Clone openclaw_for_business
         run: git clone --depth=1 https://github.com/TeamWiseFlow/openclaw_for_business.git openclaw_for_business
@@ -129,9 +137,13 @@ jobs:
           cp -r wiseflow openclaw_for_business/addons/wiseflow
           cp -r openclaw openclaw_for_business/openclaw
 
-      - name: Package release (exclude .git directories)
+      - name: Package release
         run: |
-          find openclaw_for_business -type d -name ".git" -exec rm -rf {} + 2>/dev/null || true
+          # 保留 openclaw/.git：apply-addons.sh 中 git apply --3way 依赖 git 仓库上下文
+          # 仅删除其他 .git 目录（wiseflow 本身、openclaw_for_business 等）
+          find openclaw_for_business -type d -name ".git" \
+            ! -path "*/openclaw/.git" \
+            -exec rm -rf {} + 2>/dev/null || true
           zip -r "wiseflow-${{ steps.version.outputs.new }}.zip" openclaw_for_business
 
       - name: Create GitHub Release
