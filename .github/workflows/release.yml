@@ -9,55 +9,9 @@ permissions:
   contents: write
 
 jobs:
-  # E2E tests on multiple platforms — must pass before any release
-  test:
-    if: github.event.pull_request.merged == true
-    strategy:
-      matrix:
-        os: [ubuntu-24.04, macos-latest]
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - name: Checkout wiseflow
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: latest
-
-      - name: Clone openclaw
-        run: git clone --depth=1 https://github.com/openclaw/openclaw.git openclaw
-
-      - name: Clone openclaw_for_business
-        run: git clone --depth=1 https://github.com/TeamWiseFlow/openclaw_for_business.git openclaw_for_business
-
-      - name: Set up addon directory structure
-        run: |
-          cp -r wiseflow openclaw_for_business/addons/wiseflow
-          cp -r openclaw openclaw_for_business/openclaw
-
-      # Run setup-crew.sh + apply-addons.sh separately.
-      # We intentionally skip the `pnpm openclaw daemon install` step that
-      # reinstall-daemon.sh would also execute: daemon installation requires
-      # a real user session (systemd on Linux, launchd on macOS) and cannot
-      # be meaningfully tested in a headless CI runner.
-      - name: Run setup-crew.sh
-        run: bash scripts/setup-crew.sh
-        working-directory: openclaw_for_business
-
-      - name: Run apply-addons.sh
-        run: bash scripts/apply-addons.sh
-        working-directory: openclaw_for_business
-
-  # Version bump and release — only runs if all test matrix jobs pass
   release:
-    needs: test
+    # CI 已在 PR 期间验证过，此处直接做版本 bump + 打包发布
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -118,8 +72,12 @@ jobs:
           git tag "${{ steps.version.outputs.new }}"
           git push origin master --tags
 
+      - name: Read openclaw version
+        id: oc_version
+        run: echo "version=$(cat openclaw-version)" >> "$GITHUB_OUTPUT"
+
       - name: Clone openclaw
-        run: git clone --depth=1 https://github.com/openclaw/openclaw.git openclaw
+        run: git clone --depth=1 --branch ${{ steps.oc_version.outputs.version }} https://github.com/openclaw/openclaw.git openclaw
 
       - name: Clone openclaw_for_business
         run: git clone --depth=1 https://github.com/TeamWiseFlow/openclaw_for_business.git openclaw_for_business
@@ -129,9 +87,13 @@ jobs:
           cp -r wiseflow openclaw_for_business/addons/wiseflow
           cp -r openclaw openclaw_for_business/openclaw
 
-      - name: Package release (exclude .git directories)
+      - name: Package release
         run: |
-          find openclaw_for_business -type d -name ".git" -exec rm -rf {} + 2>/dev/null || true
+          # 保留 openclaw/.git：apply-addons.sh 中 git apply --3way 依赖 git 仓库上下文
+          # 仅删除其他 .git 目录（wiseflow 本身、openclaw_for_business 等）
+          find openclaw_for_business -type d -name ".git" \
+            ! -path "*/openclaw/.git" \
+            -exec rm -rf {} + 2>/dev/null || true
           zip -r "wiseflow-${{ steps.version.outputs.new }}.zip" openclaw_for_business
 
       - name: Create GitHub Release
