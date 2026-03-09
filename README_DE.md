@@ -30,7 +30,7 @@ Das wiseflow Add-on bietet derzeit drei zentrale Verbesserungen für openclaw:
 
 ### 1. Anti-Erkennungs-Browser
 
-Ersetzt das in openclaw integrierte Playwright durch [Patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright) (ein unerkannter Fork von Playwright) und reduziert damit erheblich die Wahrscheinlichkeit, dass automatisierte Browser von Ziel-Websites erkannt und blockiert werden.
+Ersetzt das in openclaw integrierte Playwright durch [Patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright) (ein unerkannter Fork von Playwright) und reduziert damit erheblich die Wahrscheinlichkeit, dass automatisierte Browser von Ziel-Websites erkannt und blockiert werden. Dadurch lassen sich ohne die Installation einer Chrome-Relay-Extension mit einem verwalteten Browser gleichwertige oder sogar überlegene Web-Erfassungs- und Bedienungsfähigkeiten gegenüber einer Relay-Konfiguration erzielen.
 
 ### 2. Automatische Tab-Wiederherstellung
 
@@ -38,10 +38,10 @@ Wenn ein Ziel-Browser-Tab während eines Agent-Vorgangs unerwartet geschlossen o
 
 ### 3. Smart Search
 
-Ersetzt die eingebaute `web_search` von openclaw durch leistungsfähigere Suchfunktionen. Im Vergleich zu ähnlichen Lösungen auf dem Markt bietet Smart Search drei zentrale Vorteile:
+Ersetzt die eingebaute `web_search` von openclaw durch leistungsfähigere Suchfunktionen. Im Vergleich zum ursprünglich integrierten web search tool bietet Smart Search drei zentrale Vorteile:
 
 - **Völlig kostenlos, kein API-Schlüssel erforderlich**: Keine Abhängigkeit von Drittanbieter-Such-APIs — null Kosten
-- **Echtzeit-Suche für maximale Aktualität**: Steuert den Browser direkt zu Zielseiten oder großen Social-Media-Plattformen (Weibo, Twitter/X, Reddit usw.), um die zuletzt veröffentlichten Inhalte sofort abzurufen
+- **Echtzeit-Suche für maximale Aktualität**: Steuert den Browser direkt zu Zielseiten oder großen Social-Media-Plattformen (Weibo, Twitter/X, Facebook usw.), um die zuletzt veröffentlichten Inhalte sofort abzurufen
 - **Benutzerdefinierbare Suchquellen**: Benutzer können ihre Suchquellen frei festlegen, um präzise und zielgerichtete Informationsabfragen zu ermöglichen
 
 ## 🌟 Schnellstart
