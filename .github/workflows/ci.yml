@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+# 同一 PR/分支有新 commit 时，自动取消正在运行的旧任务
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, macos-latest]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
+      - name: Read openclaw version
+        id: oc_version
+        run: echo "version=$(cat openclaw-version)" >> "$GITHUB_OUTPUT"
+
+      - name: Clone openclaw
+        run: git clone --depth=1 --branch ${{ steps.oc_version.outputs.version }} https://github.com/openclaw/openclaw.git openclaw
+
+      - name: Clone openclaw_for_business
+        run: git clone --depth=1 https://github.com/TeamWiseFlow/openclaw_for_business.git openclaw_for_business
+
+      - name: Set up addon directory structure
+        run: |
+          cp -r wiseflow openclaw_for_business/addons/wiseflow
+          cp -r openclaw openclaw_for_business/openclaw
+
+      # Run setup-crew.sh + apply-addons.sh separately.
+      # We intentionally skip the `pnpm openclaw daemon install` step that
+      # reinstall-daemon.sh would also execute: daemon installation requires
+      # a real user session (systemd on Linux, launchd on macOS) and cannot
+      # be meaningfully tested in a headless CI runner.
+      - name: Run setup-crew.sh
+        run: bash scripts/setup-crew.sh
+        working-directory: openclaw_for_business
+
+      - name: Run apply-addons.sh
+        run: bash scripts/apply-addons.sh
+        working-directory: openclaw_for_business
