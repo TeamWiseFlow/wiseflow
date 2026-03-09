@@ -1,8 +1,8 @@
 diff --git a/src/agents/tools/browser-tool.actions.ts b/src/agents/tools/browser-tool.actions.ts
-index 957688912..c27cc22f5 100644
+index 673585d16..ca0631bd7 100644
 --- a/src/agents/tools/browser-tool.actions.ts
 +++ b/src/agents/tools/browser-tool.actions.ts
-@@ -62,16 +62,35 @@ function isChromeStaleTargetError(profile: string | undefined, err: unknown): bo
+@@ -62,27 +62,36 @@ function isChromeStaleTargetError(profile: string | undefined, err: unknown): bo
    return msg.includes("404:") && msg.includes("tab not found");
  }
  
@@ -12,6 +12,11 @@ index 957688912..c27cc22f5 100644
 -  const targetId = typeof request.targetId === "string" ? request.targetId.trim() : undefined;
 -  if (!targetId) {
 -    return null;
+-  }
+-  const retryRequest = { ...request };
+-  delete retryRequest.targetId;
+-  return retryRequest as Parameters<typeof browserAct>[1];
++
 +function isTabResolutionError(err: unknown): boolean {
 +  const msg = String(err).toLowerCase();
 +  return msg.includes("tab not found") || msg.includes("ambiguous target id prefix");
@@ -28,8 +33,17 @@ index 957688912..c27cc22f5 100644
 +  const primary = pages[0] ?? list[0];
 +  const raw = primary?.targetId;
 +  return typeof raw === "string" && raw.trim() ? raw.trim() : undefined;
-+}
-+
+ }
+ 
+-function canRetryChromeActWithoutTargetId(request: Parameters<typeof browserAct>[1]): boolean {
+-  const typedRequest = request as Partial<Record<"kind" | "action", unknown>>;
+-  const kind =
+-    typeof typedRequest.kind === "string"
+-      ? typedRequest.kind
+-      : typeof typedRequest.action === "string"
+-        ? typedRequest.action
+-        : "";
+-  return kind === "hover" || kind === "scrollIntoView" || kind === "wait";
 +async function listTabsForRecovery(params: {
 +  baseUrl?: string;
 +  profile?: string;
@@ -39,73 +53,37 @@ index 957688912..c27cc22f5 100644
 +  if (proxyRequest) {
 +    const result = await proxyRequest({ method: "GET", path: "/tabs", profile });
 +    return ((result as { tabs?: unknown[] }).tabs ?? []).filter(Boolean);
-   }
--  const retryRequest = { ...request };
--  delete retryRequest.targetId;
--  return retryRequest as Parameters<typeof browserAct>[1];
++  }
 +  return await browserTabs(baseUrl, { profile }).catch(() => []);
  }
  
  export async function executeTabsAction(params: {
-@@ -133,14 +152,30 @@ export async function executeSnapshotAction(params: {
-     typeof input.depth === "number" && Number.isFinite(input.depth) ? input.depth : undefined;
-   const selector = typeof input.selector === "string" ? input.selector.trim() : undefined;
-   const frame = typeof input.frame === "string" ? input.frame.trim() : undefined;
+@@ -163,17 +172,37 @@ export async function executeSnapshotAction(params: {
+     labels,
+     mode,
+   };
 -  const snapshot = proxyRequest
 -    ? ((await proxyRequest({
 -        method: "GET",
 -        path: "/snapshot",
 -        profile,
--        query: {
+-        query: snapshotQuery,
+-      })) as Awaited<ReturnType<typeof browserSnapshot>>)
+-    : await browserSnapshot(baseUrl, {
+-        ...snapshotQuery,
+-        profile,
+-      });
 +  const runSnapshot = async (retryTargetId: string | undefined) => {
 +    return proxyRequest
 +      ? ((await proxyRequest({
 +          method: "GET",
 +          path: "/snapshot",
 +          profile,
-+          query: {
-+            format,
-+            targetId: retryTargetId,
-+            limit,
-+            ...(typeof resolvedMaxChars === "number" ? { maxChars: resolvedMaxChars } : {}),
-+            refs,
-+            interactive,
-+            compact,
-+            depth,
-+            selector,
-+            frame,
-+            labels,
-+            mode,
-+          },
++          query: { ...snapshotQuery, targetId: retryTargetId },
 +        })) as Awaited<ReturnType<typeof browserSnapshot>>)
 +      : await browserSnapshot(baseUrl, {
-           format,
--          targetId,
++          ...snapshotQuery,
 +          targetId: retryTargetId,
-           limit,
-           ...(typeof resolvedMaxChars === "number" ? { maxChars: resolvedMaxChars } : {}),
-           refs,
-@@ -151,23 +186,26 @@ export async function executeSnapshotAction(params: {
-           frame,
-           labels,
-           mode,
--        },
--      })) as Awaited<ReturnType<typeof browserSnapshot>>)
--    : await browserSnapshot(baseUrl, {
--        format,
--        targetId,
--        limit,
--        ...(typeof resolvedMaxChars === "number" ? { maxChars: resolvedMaxChars } : {}),
--        refs,
--        interactive,
--        compact,
--        depth,
--        selector,
--        frame,
--        labels,
--        mode,
--        profile,
--      });
 +          profile,
 +        });
 +  };
@@ -129,31 +107,12 @@ index 957688912..c27cc22f5 100644
    if (snapshot.format === "ai") {
      const extractedText = snapshot.snapshot ?? "";
      const wrappedSnapshot = wrapExternalContent(extractedText, {
-@@ -302,46 +340,37 @@ export async function executeActAction(params: {
+@@ -308,46 +337,37 @@ export async function executeActAction(params: {
          });
      return jsonResult(result);
    } catch (err) {
 -    if (isChromeStaleTargetError(profile, err)) {
 -      const retryRequest = stripTargetIdFromActRequest(request);
--      // Some Chrome relay targetIds can go stale between snapshots and actions.
--      // Retry once without targetId to let relay use the currently attached tab.
--      if (retryRequest) {
--        try {
--          const retryResult = proxyRequest
--            ? await proxyRequest({
--                method: "POST",
--                path: "/act",
--                profile,
--                body: retryRequest,
--              })
--            : await browserAct(baseUrl, retryRequest, {
--                profile,
--              });
--          return jsonResult(retryResult);
--        } catch {
--          // Fall through to explicit stale-target guidance.
--        }
--      }
 -      const tabs = proxyRequest
 -        ? ((
 -            (await proxyRequest({
@@ -173,14 +132,32 @@ index 957688912..c27cc22f5 100644
 -            })) as { tabs?: unknown[] }
 -          ).tabs ?? [])
 -        : await browserTabs(baseUrl, { profile }).catch(() => []);
--      if (!tabs.length) {
+-      // Some Chrome relay targetIds can go stale between snapshots and actions.
+-      // Only retry safe read-only actions, and only when exactly one tab remains attached.
+-      if (retryRequest && canRetryChromeActWithoutTargetId(request) && tabs.length === 1) {
+-        try {
+-          const retryResult = proxyRequest
+-            ? await proxyRequest({
+-                method: "POST",
+-                path: "/act",
+-                profile,
+-                body: retryRequest,
+-              })
+-            : await browserAct(baseUrl, retryRequest, {
+-                profile,
+-              });
+-          return jsonResult(retryResult);
+-        } catch {
+-          // Fall through to explicit stale-target guidance.
+-        }
 +              body: recoveredRequest,
 +            })
 +          : await browserAct(baseUrl, recoveredRequest as Parameters<typeof browserAct>[1], {
 +              profile,
 +            });
 +        return jsonResult(recovered);
-+      }
+       }
+-      if (!tabs.length) {
 +      // No specific tab found — give Chrome-specific guidance if applicable.
 +      if (isChromeStaleTargetError(profile, err)) {
 +        if (!tabs.length) {
@@ -203,14 +180,13 @@ index 957688912..c27cc22f5 100644
      throw err;
    }
 diff --git a/src/agents/tools/browser-tool.test.ts b/src/agents/tools/browser-tool.test.ts
-index 3c54cb636..58a21e6af 100644
+index 81996afb4..e272ce81b 100644
 --- a/src/agents/tools/browser-tool.test.ts
 +++ b/src/agents/tools/browser-tool.test.ts
-@@ -282,6 +282,48 @@ describe("browser tool snapshot maxChars", () => {
-     );
-     expect(gatewayMocks.callGatewayTool).not.toHaveBeenCalled();
+@@ -260,6 +260,48 @@ describe("browser tool snapshot maxChars", () => {
+     expect(Object.hasOwn(opts ?? {}, "maxChars")).toBe(false);
    });
-+
+ 
 +  it("recovers snapshot when target tab disappears", async () => {
 +    browserClientMocks.browserSnapshot
 +      .mockRejectedValueOnce(new Error("404: tab not found"))
@@ -252,18 +228,20 @@ index 3c54cb636..58a21e6af 100644
 +      ok: true,
 +    });
 +  });
- });
- 
- describe("browser tool url alias support", () => {
-@@ -571,10 +613,18 @@ describe("browser tool external content wrapping", () => {
++
+   it("routes to node proxy when target=node", async () => {
+     mockSingleBrowserProxyNode();
+     const tool = createBrowserTool();
+@@ -617,11 +659,18 @@ describe("browser tool external content wrapping", () => {
  describe("browser tool act stale target recovery", () => {
    registerBrowserToolAfterEachReset();
  
--  it("retries chrome act once without targetId when tab id is stale", async () => {
+-  it("retries safe chrome act once without targetId when exactly one tab remains", async () => {
 +  it("recovers act by retrying with fallback tab targetId when tab is stale", async () => {
      browserActionsMocks.browserAct
        .mockRejectedValueOnce(new Error("404: tab not found"))
 -      .mockResolvedValueOnce({ ok: true });
+-    browserClientMocks.browserTabs.mockResolvedValueOnce([{ targetId: "only-tab" }]);
 +      .mockResolvedValueOnce({ ok: true, targetId: "recovered-tab" });
 +    browserClientMocks.browserTabs.mockResolvedValueOnce([
 +      {
@@ -276,7 +254,7 @@ index 3c54cb636..58a21e6af 100644
  
      const tool = createBrowserTool();
      const result = await tool.execute?.("call-1", {
-@@ -597,9 +647,43 @@ describe("browser tool act stale target recovery", () => {
+@@ -644,29 +693,43 @@ describe("browser tool act stale target recovery", () => {
      expect(browserActionsMocks.browserAct).toHaveBeenNthCalledWith(
        2,
        undefined,
@@ -286,7 +264,10 @@ index 3c54cb636..58a21e6af 100644
      );
      expect(result?.details).toMatchObject({ ok: true });
    });
-+
+ 
+-  it("does not retry mutating chrome act requests without targetId", async () => {
+-    browserActionsMocks.browserAct.mockRejectedValueOnce(new Error("404: tab not found"));
+-    browserClientMocks.browserTabs.mockResolvedValueOnce([{ targetId: "only-tab" }]);
 +  it("recovers act when target tab disappears (non-chrome profile)", async () => {
 +    browserActionsMocks.browserAct
 +      .mockRejectedValueOnce(new Error("404: tab not found"))
@@ -299,13 +280,25 @@ index 3c54cb636..58a21e6af 100644
 +        url: "https://example.com",
 +      },
 +    ]);
-+
-+    const tool = createBrowserTool();
+ 
+     const tool = createBrowserTool();
+-    await expect(
+-      tool.execute?.("call-1", {
+-        action: "act",
+-        profile: "chrome",
+-        request: {
+-          kind: "click",
+-          targetId: "stale-tab",
+-          ref: "btn-1",
+-        },
+-      }),
+-    ).rejects.toThrow(/Run action=tabs profile="chrome"/i);
 +    const result = await tool.execute?.("call-1", {
 +      action: "act",
 +      request: { kind: "click", ref: "e1", targetId: "stale-tab" },
 +    });
-+
+ 
+-    expect(browserActionsMocks.browserAct).toHaveBeenCalledTimes(1);
 +    expect(browserActionsMocks.browserAct).toHaveBeenNthCalledWith(
 +      1,
 +      undefined,
@@ -319,20 +312,5 @@ index 3c54cb636..58a21e6af 100644
 +      expect.objectContaining({ profile: undefined }),
 +    );
 +    expect(result?.details).toMatchObject({ ok: true, targetId: "new-tab" });
-+  });
+   });
  });
-diff --git a/src/browser/client-fetch.ts b/src/browser/client-fetch.ts
-index 8f13da4e1..4291223d5 100644
---- a/src/browser/client-fetch.ts
-+++ b/src/browser/client-fetch.ts
-@@ -134,6 +134,10 @@ function enhanceBrowserFetchError(url: string, err: unknown, timeoutMs: number):
-   const operatorHint = resolveBrowserFetchOperatorHint(url);
-   const msg = String(err);
-   const msgLower = msg.toLowerCase();
-+  // Preserve tab-resolution errors so callers can recover with a fresh tab lookup.
-+  if (msgLower.includes("tab not found") || msgLower.includes("ambiguous target id prefix")) {
-+    return err instanceof Error ? err : new Error(msg);
-+  }
-   const looksLikeTimeout =
-     msgLower.includes("timed out") ||
-     msgLower.includes("timeout") ||
