@@ -30,7 +30,7 @@ wiseflow add-on 目前为 openclaw 提供以下三项核心增益：
 
 ### 1. 反检测浏览器
 
-将 openclaw 内置的 Playwright 替换为 [Patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright)（Playwright 的反检测 fork），显著降低自动化浏览器被目标网站识别和拦截的概率。
+将 openclaw 内置的 Playwright 替换为 [Patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright)（Playwright 的反检测 fork），显著降低自动化浏览器被目标网站识别和拦截的概率。从而实现不需要安装 chrome relay extension，只用托管浏览器也能达到与 relay 同样、甚至更优的网络获取与操作能力。
 
 ### 2. 标签页自动恢复
 
@@ -38,11 +38,11 @@ wiseflow add-on 目前为 openclaw 提供以下三项核心增益：
 
 ### 3. Smart Search（智能搜索）
 
-替代 openclaw 内置的 `web_search`，提供更强大的搜索能力。相比市面上同类方案，Smart Search 具备三大核心优势：
+替代 openclaw 内置的 `web_search`，提供更强大的搜索能力。相比原版内置的 web search tool，Smart Search 具备三大核心优势：
 
 - **完全免费，无需 API Key**：不依赖任何第三方搜索 API，零成本使用
-- **即时搜索，时效性最佳**：直接驱动浏览器前往目标页面或各大社交媒体平台（微博、Twitter/X、Reddit 等）进行搜索，第一时间获取最新发布的内容
-- **信源可自定义**：用户可以自由指定搜索来源，精准匹配自己的信息需求
+- **即时搜索，时效性最佳**：直接驱动浏览器前往目标页面或各大社交媒体平台（微博、Twitter/X、facebook 等）进行搜索，第一时间获取最新发布的内容
+- **信源可自定义**：用户可以自由指定搜索源，精准匹配自己的信息需求
 
 ## 🌟 快速开始
 
