@@ -24,9 +24,49 @@ What's even more remarkable is that through our early experiments and exploratio
 
 It should be noted, however, that openclaw's plugin system is quite different from what we traditionally understand as "plugins" (similar to Claude Code's plugins). Therefore, we had to introduce the concept of "add-on". To be precise, wiseflow 5.x will appear in the form of an openclaw add-on. The original openclaw does not have an "add-on" architecture, but in practice, you only need a few simple shell commands to complete this "transformation". We have also prepared a ready-to-use enhanced version of openclaw with a series of preset configurations for real business scenarios: [openclaw_for_business](https://github.com/TeamWiseFlow/openclaw_for_business). You can simply clone it and extract the wiseflow release into the add-on folder of openclaw_for_business.
 
+## ✨ Key Features
+
+The wiseflow add-on currently provides three core enhancements to openclaw:
+
+### 1. Anti-Detection Browser
+
+Replaces openclaw's built-in Playwright with [Patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright) (an undetected fork of Playwright), significantly reducing the likelihood of automated browsers being identified and blocked by target websites.
+
+### 2. Automatic Tab Recovery
+
+When a target browser tab is unexpectedly closed or lost during an Agent operation, the system automatically performs snapshot-based tab recovery, ensuring tasks are not interrupted by tab loss.
+
+### 3. Smart Search
+
+Replaces openclaw's built-in `web_search` with more powerful search capabilities. Compared to similar solutions on the market, Smart Search has three core advantages:
+
+- **Completely free, no API key required**: Does not rely on any third-party search APIs — zero cost
+- **Real-time search for maximum timeliness**: Directly drives the browser to target pages or major social media platforms (Weibo, Twitter/X, Reddit, etc.) to search for the latest published content
+- **User-configurable search sources**: Users can freely specify their search sources for precise, targeted information retrieval
+
 ## 🌟 Quick Start
 
-Download the integrated package (which includes openclaw_for_business and the wiseflow addon) directly from this repository's [Releases](https://github.com/TeamWiseFlow/wiseflow/releases), extract it, and run the one-click deployment script.
+Download the integrated package (which includes openclaw_for_business and the wiseflow addon) directly from this repository's [Releases](https://github.com/TeamWiseFlow/wiseflow/releases).
+
+1. Download and extract the archive
+2. Enter the extracted directory
+3. Choose your startup mode:
+
+   **Debug mode** (single startup, for testing and development):
+   ```bash
+   ./scripts/dev.sh gateway
+   ```
+
+   **Production mode** (install as a system service for long-term operation):
+   ```bash
+   ./scripts/reinstall-daemon.sh
+   ```
+
+> **System Requirements**
+> - **Ubuntu 22.04** is recommended
+> - **Windows WSL2** environment is supported
+> - **macOS** is supported
+> - Running directly on **native Windows** is **not supported**
 
 ### [Alternative] Manual Installation
 
