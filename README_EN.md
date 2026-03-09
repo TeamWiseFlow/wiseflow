@@ -30,7 +30,7 @@ The wiseflow add-on currently provides three core enhancements to openclaw:
 
 ### 1. Anti-Detection Browser
 
-Replaces openclaw's built-in Playwright with [Patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright) (an undetected fork of Playwright), significantly reducing the likelihood of automated browsers being identified and blocked by target websites.
+Replaces openclaw's built-in Playwright with [Patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright) (an undetected fork of Playwright), significantly reducing the likelihood of automated browsers being identified and blocked by target websites. This means that without installing the Chrome relay extension, a managed browser alone can achieve the same — or even better — web acquisition and operation capabilities as a relay setup.
 
 ### 2. Automatic Tab Recovery
 
@@ -38,10 +38,10 @@ When a target browser tab is unexpectedly closed or lost during an Agent operati
 
 ### 3. Smart Search
 
-Replaces openclaw's built-in `web_search` with more powerful search capabilities. Compared to similar solutions on the market, Smart Search has three core advantages:
+Replaces openclaw's built-in `web_search` with more powerful search capabilities. Compared to the original built-in web search tool, Smart Search has three core advantages:
 
 - **Completely free, no API key required**: Does not rely on any third-party search APIs — zero cost
-- **Real-time search for maximum timeliness**: Directly drives the browser to target pages or major social media platforms (Weibo, Twitter/X, Reddit, etc.) to search for the latest published content
+- **Real-time search for maximum timeliness**: Directly drives the browser to target pages or major social media platforms (Weibo, Twitter/X, Facebook, etc.) to search for the latest published content
 - **User-configurable search sources**: Users can freely specify their search sources for precise, targeted information retrieval
 
 ## 🌟 Quick Start

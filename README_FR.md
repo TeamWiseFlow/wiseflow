@@ -30,7 +30,7 @@ Le module complémentaire wiseflow apporte actuellement trois améliorations ess
 
 ### 1. Navigateur anti-détection
 
-Remplace le Playwright intégré d'openclaw par [Patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright) (un fork non détectable de Playwright), réduisant considérablement le risque que les navigateurs automatisés soient identifiés et bloqués par les sites cibles.
+Remplace le Playwright intégré d'openclaw par [Patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright) (un fork non détectable de Playwright), réduisant considérablement le risque que les navigateurs automatisés soient identifiés et bloqués par les sites cibles. Cela permet d'atteindre des capacités d'acquisition et d'opération web équivalentes, voire supérieures à celles d'une configuration relay, en utilisant uniquement un navigateur géré sans installer d'extension Chrome relay.
 
 ### 2. Récupération automatique des onglets
 
@@ -38,10 +38,10 @@ Lorsqu'un onglet cible est fermé ou perdu de manière inattendue lors d'une op�
 
 ### 3. Smart Search
 
-Remplace le `web_search` intégré d'openclaw par des capacités de recherche plus puissantes. Comparé aux solutions similaires du marché, Smart Search présente trois avantages clés :
+Remplace le `web_search` intégré d'openclaw par des capacités de recherche plus puissantes. Comparé à l'outil web search intégré d'origine, Smart Search présente trois avantages clés :
 
 - **Entièrement gratuit, sans clé API** : Ne dépend d'aucune API de recherche tierce — coût zéro
-- **Recherche en temps réel pour une actualité maximale** : Pilote directement le navigateur vers les pages cibles ou les grandes plateformes de médias sociaux (Weibo, Twitter/X, Reddit, etc.) pour récupérer immédiatement les contenus publiés récemment
+- **Recherche en temps réel pour une actualité maximale** : Pilote directement le navigateur vers les pages cibles ou les grandes plateformes de médias sociaux (Weibo, Twitter/X, Facebook, etc.) pour récupérer immédiatement les contenus publiés récemment
 - **Sources de recherche personnalisables** : Les utilisateurs peuvent librement spécifier leurs sources de recherche pour une récupération d'informations précise et ciblée
 
 ## 🌟 Démarrage rapide
