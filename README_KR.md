@@ -24,9 +24,49 @@ wiseflow 4.x(이전 버전 포함)는 일련의 정밀한 워크플로우를 통
 
 다만, openclaw의 플러그인 시스템은 우리가 전통적으로 이해하는 "플러그인"(Claude Code의 플러그인과 유사한 것)과는 다르기 때문에, "add-on"이라는 개념을 별도로 도입해야 했습니다. 정확히 말하면, wiseflow 5.x는 openclaw add-on 형태로 제공됩니다. 원래 openclaw에는 "add-on" 아키텍처가 없지만, 실제로는 몇 가지 간단한 셸 명령어만으로 이 "개조"를 완료할 수 있습니다. 또한 실제 비즈니스 시나리오를 위한 프리셋 설정이 포함된 즉시 사용 가능한 openclaw 강화 버전인 [openclaw_for_business](https://github.com/TeamWiseFlow/openclaw_for_business)도 준비했습니다. 클론한 후 wiseflow 릴리스를 openclaw_for_business의 add-on 폴더에 배치하면 됩니다.
 
+## ✨ 주요 기능
+
+wiseflow add-on은 현재 openclaw에 다음 세 가지 핵심 기능을 제공합니다:
+
+### 1. 탐지 방지 브라우저
+
+openclaw 내장 Playwright를 [Patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright)(Playwright의 탐지 방지 포크)로 교체하여, 자동화 브라우저가 대상 웹사이트에 감지·차단될 가능성을 크게 줄입니다.
+
+### 2. 자동 탭 복구
+
+Agent 작업 중 대상 탭이 예기치 않게 닫히거나 사라질 경우, 스냅샷 기반 탭 복구를 자동으로 수행하여 탭 소실로 인한 작업 중단을 방지합니다.
+
+### 3. 스마트 검색
+
+openclaw 내장 `web_search`를 더욱 강력한 검색 기능으로 대체합니다. 유사 솔루션 대비 스마트 검색의 세 가지 핵심 강점:
+
+- **완전 무료, API 키 불필요**: 서드파티 검색 API에 의존하지 않아 비용 제로
+- **실시간 검색, 최고의 시의성**: 브라우저를 직접 대상 페이지나 주요 소셜 미디어 플랫폼(Weibo, Twitter/X, Reddit 등)으로 이동하여 최신 게시물을 즉시 검색
+- **검색 출처 사용자 정의 가능**: 사용자가 검색 출처를 자유롭게 지정하여 필요한 정보를 정확하게 취득
+
 ## 🌟 빠른 시작
 
-본 저장소의 [Releases](https://github.com/TeamWiseFlow/wiseflow/releases)에서 openclaw_for_business와 wiseflow addon이 포함된 통합 패키지를 직접 다운로드하고, 압축 해제 후 원클릭 배포 스크립트를 실행하세요.
+본 저장소의 [Releases](https://github.com/TeamWiseFlow/wiseflow/releases)에서 openclaw_for_business와 wiseflow addon이 포함된 통합 패키지를 다운로드하세요.
+
+1. 압축 파일을 다운로드하고 압축을 해제합니다
+2. 압축 해제된 폴더로 이동합니다
+3. 시작 방식을 선택합니다:
+
+   **디버그 모드**（단회 실행, 테스트 및 개발용）:
+   ```bash
+   ./scripts/dev.sh gateway
+   ```
+
+   **프로덕션 모드**（시스템 서비스로 설치, 장기 운영용）:
+   ```bash
+   ./scripts/reinstall-daemon.sh
+   ```
+
+> **시스템 요구사항**
+> - **Ubuntu 22.04** 권장
+> - **Windows WSL2** 환경 지원
+> - **macOS** 지원
+> - **Windows 네이티브** 환경에서의 직접 실행은 **지원하지 않음**
 
 ### 【대안】수동 설치
 

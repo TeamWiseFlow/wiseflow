@@ -24,9 +24,49 @@ Plus remarquable encore, grâce à nos expériences et explorations préliminair
 
 Il convient de noter que le système de plugins d'openclaw diffère considérablement de ce que nous comprenons traditionnellement par « plugins » (similaires aux plugins de Claude Code). Nous avons donc dû introduire le concept d'« add-on ». Pour être précis, wiseflow 5.x apparaîtra sous la forme d'un add-on openclaw. L'openclaw original ne dispose pas d'une architecture « add-on », mais en pratique, vous n'avez besoin que de quelques commandes shell simples pour effectuer cette « transformation ». Nous avons également préparé une version améliorée d'openclaw prête à l'emploi avec des configurations prédéfinies pour des scénarios commerciaux réels : [openclaw_for_business](https://github.com/TeamWiseFlow/openclaw_for_business). Vous pouvez simplement le cloner et extraire la release wiseflow dans le dossier add-on d'openclaw_for_business.
 
+## ✨ Fonctionnalités principales
+
+Le module complémentaire wiseflow apporte actuellement trois améliorations essentielles à openclaw :
+
+### 1. Navigateur anti-détection
+
+Remplace le Playwright intégré d'openclaw par [Patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright) (un fork non détectable de Playwright), réduisant considérablement le risque que les navigateurs automatisés soient identifiés et bloqués par les sites cibles.
+
+### 2. Récupération automatique des onglets
+
+Lorsqu'un onglet cible est fermé ou perdu de manière inattendue lors d'une opération Agent, le système effectue automatiquement une récupération d'onglet basée sur des snapshots, garantissant que les tâches ne soient pas interrompues par une perte d'onglet.
+
+### 3. Smart Search
+
+Remplace le `web_search` intégré d'openclaw par des capacités de recherche plus puissantes. Comparé aux solutions similaires du marché, Smart Search présente trois avantages clés :
+
+- **Entièrement gratuit, sans clé API** : Ne dépend d'aucune API de recherche tierce — coût zéro
+- **Recherche en temps réel pour une actualité maximale** : Pilote directement le navigateur vers les pages cibles ou les grandes plateformes de médias sociaux (Weibo, Twitter/X, Reddit, etc.) pour récupérer immédiatement les contenus publiés récemment
+- **Sources de recherche personnalisables** : Les utilisateurs peuvent librement spécifier leurs sources de recherche pour une récupération d'informations précise et ciblée
+
 ## 🌟 Démarrage rapide
 
-Téléchargez le package intégré (qui inclut openclaw_for_business et le wiseflow addon) directement depuis les [Releases](https://github.com/TeamWiseFlow/wiseflow/releases) de ce dépôt, extrayez-le et exécutez le script de déploiement en un clic.
+Téléchargez le package intégré (qui inclut openclaw_for_business et le wiseflow addon) directement depuis les [Releases](https://github.com/TeamWiseFlow/wiseflow/releases) de ce dépôt.
+
+1. Télécharger et extraire l'archive
+2. Accéder au dossier extrait
+3. Choisir le mode de démarrage :
+
+   **Mode débogage** (démarrage unique, pour les tests et le développement) :
+   ```bash
+   ./scripts/dev.sh gateway
+   ```
+
+   **Mode production** (installation en tant que service système, pour un fonctionnement à long terme) :
+   ```bash
+   ./scripts/reinstall-daemon.sh
+   ```
+
+> **Configuration requise**
+> - **Ubuntu 22.04** est recommandé
+> - L'environnement **Windows WSL2** est pris en charge
+> - **macOS** est pris en charge
+> - L'exécution directe sur **Windows natif** n'est **pas prise en charge**
 
 ### [Alternative] Installation manuelle
 
