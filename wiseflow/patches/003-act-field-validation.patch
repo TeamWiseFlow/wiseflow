@@ -171,19 +171,20 @@ index 81996afb4..713ac26f3 100644
 +  });
 +});
 diff --git a/src/agents/tools/browser-tool.ts b/src/agents/tools/browser-tool.ts
-index 200013ff1..a43425a98 100644
+index 200013ff1..b292cff3c 100644
 --- a/src/agents/tools/browser-tool.ts
 +++ b/src/agents/tools/browser-tool.ts
-@@ -298,6 +298,8 @@ export function createBrowserTool(opts?: {
+@@ -298,6 +298,9 @@ export function createBrowserTool(opts?: {
        "When using refs from snapshot (e.g. e12), keep the same tab: prefer passing targetId from the snapshot response into subsequent actions (act/click/type/etc).",
        'For stable, self-resolving refs across calls, use snapshot with refs="aria" (Playwright aria-ref ids). Default refs="role" are role+name-based.',
        "Use snapshot+act for UI automation. Avoid act:wait by default; use only in exceptional cases when no reliable UI state exists.",
 +      'act kind=click/type/hover/scrollIntoView requires ref (from a fresh snapshot); kind=press requires key (e.g. "Enter"); kind=fill requires fields (array of {ref,value} objects). Always call snapshot immediately before act — never reuse refs from a prior snapshot call.',
 +      "Tab hygiene: after completing a task, close every tab you opened with action=close targetId=<id> to avoid accumulating unused tabs.",
++      "Login heuristic: do NOT assume a social network or public site requires login just because it is social media — many platforms allow viewing and searching without an account, and the browser may already hold the user's session. Only prompt the user for login when an explicit login wall (sign-in form, OAuth redirect, 'log in to continue' gate) appears or the task provably cannot proceed without authentication.",
        `target selects browser location (sandbox|host|node). Default: ${targetDefault}.`,
        hostHint,
      ].join(" "),
-@@ -416,6 +418,9 @@ export function createBrowserTool(opts?: {
+@@ -416,6 +419,9 @@ export function createBrowserTool(opts?: {
            return await executeTabsAction({ baseUrl, profile, proxyRequest });
          case "open": {
            const targetUrl = readTargetUrlParam(params);
@@ -193,7 +194,7 @@ index 200013ff1..a43425a98 100644
            if (proxyRequest) {
              const result = await proxyRequest({
                method: "POST",
-@@ -423,7 +428,11 @@ export function createBrowserTool(opts?: {
+@@ -423,7 +429,11 @@ export function createBrowserTool(opts?: {
                profile,
                body: { url: targetUrl },
              });
@@ -206,7 +207,7 @@ index 200013ff1..a43425a98 100644
            }
            const opened = await browserOpenTab(baseUrl, targetUrl, { profile });
            trackSessionBrowserTab({
-@@ -432,7 +441,11 @@ export function createBrowserTool(opts?: {
+@@ -432,7 +442,11 @@ export function createBrowserTool(opts?: {
              baseUrl,
              profile,
            });
