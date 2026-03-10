@@ -19,6 +19,11 @@ on:
 permissions:
   contents: write
 
+# 防止多个 PR 同时 merge 时并发触发重复 release
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   release:
     # CI 已在 PR 期间验证过，此处直接做版本 bump + 打包发布
@@ -83,16 +88,22 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add version
-          git commit -m "chore: bump version to ${{ steps.version.outputs.new }}"
+          git commit -m "chore: bump version to ${{ steps.version.outputs.new }} [skip ci]"
           git tag "${{ steps.version.outputs.new }}"
           git push origin master --tags
 
-      - name: Read openclaw version
-        id: oc_version
-        run: echo "version=$(cat openclaw-version)" >> "$GITHUB_OUTPUT"
+      - name: Read pinned openclaw version
+        id: pin
+        run: |
+          source openclaw.version
+          echo "commit=$OPENCLAW_COMMIT" >> "$GITHUB_OUTPUT"
+          echo "version=$OPENCLAW_VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Clone openclaw
-        run: git clone --depth=1 --branch ${{ steps.oc_version.outputs.version }} https://github.com/openclaw/openclaw.git openclaw
+      - name: Clone openclaw at pinned commit
+        run: |
+          git clone --branch v${{ steps.pin.outputs.version }} --depth=1 \
+            https://github.com/openclaw/openclaw.git openclaw
+          git -C openclaw checkout ${{ steps.pin.outputs.commit }}
 
       - name: Clone openclaw_for_business
         run: git clone --depth=1 https://github.com/TeamWiseFlow/openclaw_for_business.git openclaw_for_business
