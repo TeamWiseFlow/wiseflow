@@ -43,7 +43,7 @@
 优先级 3 — 文生图 AI 生成（siliconflow-img-gen）
   → 仅在前两档均无合适图片 且 已配置 SILICONFLOW_API_KEY 时调用
   → 调用前告知用户将生成配图，描述生成意图
-  → 默认使用 Kwai-Kolors/Kolors 模型，1024x1024
+  → 默认使用 Qwen/Qwen-Image-Edit-2509 模型，1024x1024
 
 如三项均不可用
   → 以纯文字版本交付，在消息中告知用户需自行补充配图
