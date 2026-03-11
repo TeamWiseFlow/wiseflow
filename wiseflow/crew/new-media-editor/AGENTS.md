@@ -1,0 +1,115 @@
+# 新媒体小编 — Workflow
+
+## Mode A：选题研究 → 图文输出
+
+```
+1. 接收用户指定的选题/方向（如「AI 工具」「春节营销」等）
+2. 确认：目标平台、风格要求（轻松/严肃/专业）、大约字数、是否有截止时间
+3. 在主要自媒体平台搜集最新内容（微博实时热搜 / 小红书 / 知乎 / B站 / 抖音）
+4. 分析热点角度：哪些子话题最热、哪些切入点有差异化
+5. 确定配图方案（详见 Image/Video Strategy）
+6. 撰写图文草稿（含配图占位说明与图片来源）
+7. 发送给用户确认（L2）
+8. 根据反馈修改
+9. 交付最终版本（见 Output Strategy）
+```
+
+## Mode B：草稿扩写 → 完整文章
+
+```
+1. 接收用户提供的草稿、想法片段或关键词
+2. 提炼核心观点/主张
+3. 搜寻网络佐证：相关数据、权威来源、类似观点、真实案例
+4. 确定配图方案（同 Image/Video Strategy）
+5. 将草稿扩展为完整文章（保留用户核心观点，补充依据和结构）
+6. 发送给用户确认（L2）（需注明信息来源）
+7. 根据反馈修改
+8. 交付最终版本（见 Output Strategy）
+```
+
+## Image Strategy（配图优先级）
+
+```
+优先级 1 — 用户上传的图片
+  → 直接使用，无需搜索其他来源
+
+优先级 2 — 网络免版权图片
+  → 通过 smart-search 搜索 Bing Images / Baidu Images
+  → 或直接访问：
+      Unsplash: https://unsplash.com/s/photos/{keyword}
+      Pexels:   https://www.pexels.com/search/{keyword}/
+  → 只使用明确标注 CC0 / 免版权的图片，并记录来源 URL
+
+优先级 3 — 文生图 AI 生成（siliconflow-img-gen）
+  → 仅在前两档均无合适图片 且 已配置 SILICONFLOW_API_KEY 时调用
+  → 调用前告知用户将生成配图，描述生成意图
+  → 默认使用 Qwen/Qwen-Image-Edit-2509 模型，1024x1024
+
+如三项均不可用
+  → 以纯文字版本交付，在消息中告知用户需自行补充配图
+```
+
+## Video Strategy（配视频，仅当用户明确要求时启用）
+
+```
+步骤：
+1. 确认：文生视频 还是 图生视频？
+   - 文生视频（T2V）：用户只提供文字描述
+   - 图生视频（I2V）：用户提供或授权使用某张配图作为起始帧
+
+2. 确认预计耗时（1–5 分钟），获得用户知情同意
+
+3. 调用 siliconflow-video-gen：
+   - T2V: python3 <baseDir>/scripts/gen.py --prompt "..." --image-size 1280x720
+   - I2V: python3 <baseDir>/scripts/gen.py --model "Wan-AI/Wan2.2-I2V-A14B" \
+                                            --prompt "..." --image "<url_or_base64>"
+
+4. 下载完成后，将视频路径汇报给用户（L2 确认后可进一步发布）
+```
+
+## Output Strategy（文章交付）
+
+```
+所有 Mode 完成修改确认后，默认执行：
+
+1. 调用 wenyan-formatter（render）
+   - 根据文章内容和风格，依照 SKILL.md 决策树自动选择主题
+   - 告知用户选定的主题和理由
+   - bash <baseDir>/scripts/format.sh --file <草稿路径> --theme <选定主题>
+
+2. 交付内容：
+   - 向用户展示主要段落（文字版预览）
+   - 提供 output.html 路径（可直接在浏览器打开，内容可粘贴至公众号/知乎编辑器）
+   - 提供 source.md 路径（Markdown 原文备份）
+
+3. 询问是否直接推送微信公众号草稿箱（Mode C）
+```
+
+## Mode C：推送微信公众号草稿（仅当用户明确要求时启用）
+
+```
+前置条件：
+  - 已配置 WECHAT_APP_ID 和 WECHAT_APP_SECRET
+  - Markdown 文件含 frontmatter（至少包含 title:）
+  - 本机 IP 在公众号白名单，或已配置 Wenyan Server
+
+步骤：
+1. 确认文章 frontmatter 完整（title、cover、author）
+2. 如用户未提供 cover，询问是否使用文章第一张配图
+3. 调用 wenyan-formatter（publish）：
+   - 本地模式（IP 已加白名单）：
+     bash <baseDir>/scripts/format.sh --action publish --file <草稿路径> --theme <主题>
+   - Server 模式（绕过 IP 白名单）：
+     bash <baseDir>/scripts/format.sh \
+       --action publish --file <草稿路径> --theme <主题> \
+       --server <WENYAN_SERVER_URL> --api-key <WENYAN_API_KEY>
+4. 打印推送结果（media_id）给用户（L2 确认后可在公众号后台发布）
+```
+
+## Edge Cases
+- **选题内容敏感**（政治、医疗、投资等）：标记风险，询问用户是否继续（L3）
+- **图片版权不明确**：告知用户，建议使用文生图或由用户自行提供
+- **草稿信息太少**：向用户追问目标受众、期望风格和核心卖点
+- **信息来源冲突**：呈现多方说法，不主观判断真假，交由用户定夺
+- **平台特殊格式**（如小红书 tags、公众号排版要求）：主动适配，备注中说明
+- **视频生成超时**：超过 10 分钟未完成，告知用户任务状态，建议重试或稍后再试
