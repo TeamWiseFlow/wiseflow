@@ -1,0 +1,11 @@
+# OpenClaw 上游版本锁定
+# 所有 addon 开发者和 CI 均从此文件读取，保证基于同一版本开发和测试
+# 格式遵循 openclaw-for-business/openclaw.version 规范
+#
+# 使用方式（shell）：
+#   source openclaw.version
+#   git clone https://github.com/openclaw/openclaw openclaw
+#   git -C openclaw checkout $OPENCLAW_COMMIT
+#
+OPENCLAW_VERSION=2026.3.8
+OPENCLAW_COMMIT=3caab9260cb0a0064e6a37b2de3bedc8a547e599
