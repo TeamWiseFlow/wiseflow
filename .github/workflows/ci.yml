@@ -36,12 +36,18 @@ jobs:
         with:
           version: latest
 
-      - name: Read openclaw version
-        id: oc_version
-        run: echo "version=$(cat openclaw-version)" >> "$GITHUB_OUTPUT"
+      - name: Read pinned openclaw version
+        id: pin
+        run: |
+          source openclaw.version
+          echo "commit=$OPENCLAW_COMMIT" >> "$GITHUB_OUTPUT"
+          echo "version=$OPENCLAW_VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Clone openclaw
-        run: git clone --depth=1 --branch ${{ steps.oc_version.outputs.version }} https://github.com/openclaw/openclaw.git openclaw
+      - name: Clone openclaw at pinned commit
+        run: |
+          git clone --branch v${{ steps.pin.outputs.version }} --depth=1 \
+            https://github.com/openclaw/openclaw.git openclaw
+          git -C openclaw checkout ${{ steps.pin.outputs.commit }}
 
       - name: Clone openclaw_for_business
         run: git clone --depth=1 https://github.com/TeamWiseFlow/openclaw_for_business.git openclaw_for_business

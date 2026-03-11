@@ -60,11 +60,3 @@ When a page indicates that content is behind a paywall or requires a specific su
 1. Send a message to the user describing the situation: _"xx 页面需要订阅，请在浏览器中登录有效账号或者完成付费，完成后请通知我。"_（xx 为页面标题）.
 2. Wait for the user to confirm.
 3. If no response arrives within **5 minutes**, continue with whatever content is accessible (summary, headline, or any visible excerpt).
-
-## 6. Tab Cleanup
-
-Proactively manage tabs to avoid clutter:
-
-1. **Close early**: as soon as you have extracted all needed information from a page and confirmed it is no longer relevant to the current task, close that tab immediately — do not wait until the entire task is finished.
-2. **Final sweep**: when the overall task is complete, verify that all tabs you opened have been closed. Close any that remain.
-3. Do **not** close tabs that were open before your task started.

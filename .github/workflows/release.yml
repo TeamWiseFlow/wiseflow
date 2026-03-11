@@ -4,14 +4,30 @@ on:
   pull_request_target:
     types: [closed]
     branches: [master]
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Version bump type'
+        required: false
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
 
 permissions:
   contents: write
 
+# 防止多个 PR 同时 merge 时并发触发重复 release
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   release:
     # CI 已在 PR 期间验证过，此处直接做版本 bump + 打包发布
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
     steps:
@@ -24,13 +40,17 @@ jobs:
       - name: Determine bump type from PR labels
         id: bump
         run: |
-          LABELS='${{ toJSON(github.event.pull_request.labels.*.name) }}'
-          if echo "$LABELS" | grep -q '"major"'; then
-            echo "type=major" >> "$GITHUB_OUTPUT"
-          elif echo "$LABELS" | grep -q '"minor"'; then
-            echo "type=minor" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "type=${{ inputs.bump_type }}" >> "$GITHUB_OUTPUT"
           else
-            echo "type=patch" >> "$GITHUB_OUTPUT"
+            LABELS='${{ toJSON(github.event.pull_request.labels.*.name) }}'
+            if echo "$LABELS" | grep -q '"major"'; then
+              echo "type=major" >> "$GITHUB_OUTPUT"
+            elif echo "$LABELS" | grep -q '"minor"'; then
+              echo "type=minor" >> "$GITHUB_OUTPUT"
+            else
+              echo "type=patch" >> "$GITHUB_OUTPUT"
+            fi
           fi
 
       - name: Calculate new version
@@ -68,16 +88,22 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add version
-          git commit -m "chore: bump version to ${{ steps.version.outputs.new }}"
+          git commit -m "chore: bump version to ${{ steps.version.outputs.new }} [skip ci]"
           git tag "${{ steps.version.outputs.new }}"
           git push origin master --tags
 
-      - name: Read openclaw version
-        id: oc_version
-        run: echo "version=$(cat openclaw-version)" >> "$GITHUB_OUTPUT"
+      - name: Read pinned openclaw version
+        id: pin
+        run: |
+          source openclaw.version
+          echo "commit=$OPENCLAW_COMMIT" >> "$GITHUB_OUTPUT"
+          echo "version=$OPENCLAW_VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Clone openclaw
-        run: git clone --depth=1 --branch ${{ steps.oc_version.outputs.version }} https://github.com/openclaw/openclaw.git openclaw
+      - name: Clone openclaw at pinned commit
+        run: |
+          git clone --branch v${{ steps.pin.outputs.version }} --depth=1 \
+            https://github.com/openclaw/openclaw.git openclaw
+          git -C openclaw checkout ${{ steps.pin.outputs.commit }}
 
       - name: Clone openclaw_for_business
         run: git clone --depth=1 https://github.com/TeamWiseFlow/openclaw_for_business.git openclaw_for_business

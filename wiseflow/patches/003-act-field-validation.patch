@@ -1,0 +1,222 @@
+diff --git a/src/agents/tools/browser-tool.actions.ts b/src/agents/tools/browser-tool.actions.ts
+index 673585d16..52274bf46 100644
+--- a/src/agents/tools/browser-tool.actions.ts
++++ b/src/agents/tools/browser-tool.actions.ts
+@@ -54,6 +54,41 @@ function formatTabsToolResult(tabs: unknown[]): AgentToolResult<unknown> {
+   };
+ }
+ 
++// Kinds that require a ref from the current snapshot before acting.
++const REF_REQUIRED_KINDS = new Set(["click", "type", "hover", "scrollIntoView"]);
++
++// Pre-validate act request fields before hitting the browser server so the LLM
++// receives a clear, actionable error message rather than a raw HTTP 400.
++function validateActRequest(request: Parameters<typeof browserAct>[1]): void {
++  const req = request as Record<string, unknown>;
++  const kind = typeof req.kind === "string" ? req.kind : "";
++
++  if (REF_REQUIRED_KINDS.has(kind)) {
++    const ref = typeof req.ref === "string" ? req.ref.trim() : "";
++    if (!ref) {
++      throw new Error(
++        `act kind="${kind}" requires ref. Call action=snapshot first to get current element refs, then retry with a ref from the snapshot result.`,
++      );
++    }
++  }
++
++  if (kind === "press") {
++    const key = typeof req.key === "string" ? req.key.trim() : "";
++    if (!key) {
++      throw new Error(`act kind="press" requires key (e.g. "Enter", "Tab", "Escape").`);
++    }
++  }
++
++  if (kind === "fill") {
++    const fields = Array.isArray(req.fields) ? req.fields : null;
++    if (!fields || fields.length === 0) {
++      throw new Error(
++        `act kind="fill" requires fields (array of {ref, value} objects). Call action=snapshot first to get element refs.`,
++      );
++    }
++  }
++}
++
+ function isChromeStaleTargetError(profile: string | undefined, err: unknown): boolean {
+   if (profile !== "chrome") {
+     return false;
+@@ -295,6 +330,7 @@ export async function executeActAction(params: {
+   proxyRequest: BrowserProxyRequest | null;
+ }): Promise<AgentToolResult<unknown>> {
+   const { request, baseUrl, profile, proxyRequest } = params;
++  validateActRequest(request);
+   try {
+     const result = proxyRequest
+       ? await proxyRequest({
+diff --git a/src/agents/tools/browser-tool.test.ts b/src/agents/tools/browser-tool.test.ts
+index 81996afb4..713ac26f3 100644
+--- a/src/agents/tools/browser-tool.test.ts
++++ b/src/agents/tools/browser-tool.test.ts
+@@ -670,3 +670,113 @@ describe("browser tool act stale target recovery", () => {
+     expect(browserActionsMocks.browserAct).toHaveBeenCalledTimes(1);
+   });
+ });
++
++describe("browser tool act field validation", () => {
++  registerBrowserToolAfterEachReset();
++
++  it("rejects click without ref before calling browserAct", async () => {
++    const tool = createBrowserTool();
++    await expect(
++      tool.execute?.("call-1", {
++        action: "act",
++        request: { kind: "click", targetId: "t1" },
++      }),
++    ).rejects.toThrow(/requires ref.*action=snapshot/i);
++    expect(browserActionsMocks.browserAct).not.toHaveBeenCalled();
++  });
++
++  it("rejects type without ref before calling browserAct", async () => {
++    const tool = createBrowserTool();
++    await expect(
++      tool.execute?.("call-1", {
++        action: "act",
++        request: { kind: "type", text: "hello" },
++      }),
++    ).rejects.toThrow(/requires ref.*action=snapshot/i);
++    expect(browserActionsMocks.browserAct).not.toHaveBeenCalled();
++  });
++
++  it("rejects hover without ref before calling browserAct", async () => {
++    const tool = createBrowserTool();
++    await expect(
++      tool.execute?.("call-1", {
++        action: "act",
++        request: { kind: "hover" },
++      }),
++    ).rejects.toThrow(/requires ref.*action=snapshot/i);
++    expect(browserActionsMocks.browserAct).not.toHaveBeenCalled();
++  });
++
++  it("rejects press without key before calling browserAct", async () => {
++    const tool = createBrowserTool();
++    await expect(
++      tool.execute?.("call-1", {
++        action: "act",
++        request: { kind: "press" },
++      }),
++    ).rejects.toThrow(/requires key/i);
++    expect(browserActionsMocks.browserAct).not.toHaveBeenCalled();
++  });
++
++  it("rejects fill without fields before calling browserAct", async () => {
++    const tool = createBrowserTool();
++    await expect(
++      tool.execute?.("call-1", {
++        action: "act",
++        request: { kind: "fill" },
++      }),
++    ).rejects.toThrow(/requires fields/i);
++    expect(browserActionsMocks.browserAct).not.toHaveBeenCalled();
++  });
++
++  it("rejects fill with empty fields array before calling browserAct", async () => {
++    const tool = createBrowserTool();
++    await expect(
++      tool.execute?.("call-1", {
++        action: "act",
++        request: { kind: "fill", fields: [] },
++      }),
++    ).rejects.toThrow(/requires fields/i);
++    expect(browserActionsMocks.browserAct).not.toHaveBeenCalled();
++  });
++
++  it("passes click with valid ref through to browserAct", async () => {
++    browserActionsMocks.browserAct.mockResolvedValueOnce({ ok: true });
++    const tool = createBrowserTool();
++    await tool.execute?.("call-1", {
++      action: "act",
++      request: { kind: "click", ref: "e12" },
++    });
++    expect(browserActionsMocks.browserAct).toHaveBeenCalledTimes(1);
++  });
++
++  it("passes press with valid key through to browserAct", async () => {
++    browserActionsMocks.browserAct.mockResolvedValueOnce({ ok: true });
++    const tool = createBrowserTool();
++    await tool.execute?.("call-1", {
++      action: "act",
++      request: { kind: "press", key: "Enter" },
++    });
++    expect(browserActionsMocks.browserAct).toHaveBeenCalledTimes(1);
++  });
++
++  it("passes fill with valid fields through to browserAct", async () => {
++    browserActionsMocks.browserAct.mockResolvedValueOnce({ ok: true });
++    const tool = createBrowserTool();
++    await tool.execute?.("call-1", {
++      action: "act",
++      request: { kind: "fill", fields: [{ ref: "e5", value: "test" }] },
++    });
++    expect(browserActionsMocks.browserAct).toHaveBeenCalledTimes(1);
++  });
++
++  it("passes wait (no ref required) through to browserAct", async () => {
++    browserActionsMocks.browserAct.mockResolvedValueOnce({ ok: true });
++    const tool = createBrowserTool();
++    await tool.execute?.("call-1", {
++      action: "act",
++      request: { kind: "wait", timeMs: 500 },
++    });
++    expect(browserActionsMocks.browserAct).toHaveBeenCalledTimes(1);
++  });
++});
+diff --git a/src/agents/tools/browser-tool.ts b/src/agents/tools/browser-tool.ts
+index 200013ff1..b292cff3c 100644
+--- a/src/agents/tools/browser-tool.ts
++++ b/src/agents/tools/browser-tool.ts
+@@ -298,6 +298,9 @@ export function createBrowserTool(opts?: {
+       "When using refs from snapshot (e.g. e12), keep the same tab: prefer passing targetId from the snapshot response into subsequent actions (act/click/type/etc).",
+       'For stable, self-resolving refs across calls, use snapshot with refs="aria" (Playwright aria-ref ids). Default refs="role" are role+name-based.',
+       "Use snapshot+act for UI automation. Avoid act:wait by default; use only in exceptional cases when no reliable UI state exists.",
++      'act kind=click/type/hover/scrollIntoView requires ref (from a fresh snapshot); kind=press requires key (e.g. "Enter"); kind=fill requires fields (array of {ref,value} objects). Always call snapshot immediately before act — never reuse refs from a prior snapshot call.',
++      "Tab hygiene: after completing a task, close every tab you opened with action=close targetId=<id> to avoid accumulating unused tabs.",
++      "Login heuristic: do NOT assume a social network or public site requires login just because it is social media — many platforms allow viewing and searching without an account, and the browser may already hold the user's session. Only prompt the user for login when an explicit login wall (sign-in form, OAuth redirect, 'log in to continue' gate) appears or the task provably cannot proceed without authentication.",
+       `target selects browser location (sandbox|host|node). Default: ${targetDefault}.`,
+       hostHint,
+     ].join(" "),
+@@ -416,6 +419,9 @@ export function createBrowserTool(opts?: {
+           return await executeTabsAction({ baseUrl, profile, proxyRequest });
+         case "open": {
+           const targetUrl = readTargetUrlParam(params);
++          // Remind the LLM to close this tab once the task is complete.
++          const closeHint =
++            "Tab opened. Close it when done: action=close targetId=<the targetId from this response>.";
+           if (proxyRequest) {
+             const result = await proxyRequest({
+               method: "POST",
+@@ -423,7 +429,11 @@ export function createBrowserTool(opts?: {
+               profile,
+               body: { url: targetUrl },
+             });
+-            return jsonResult(result);
++            const base = jsonResult(result);
++            return {
++              ...base,
++              content: [...base.content, { type: "text" as const, text: closeHint }],
++            };
+           }
+           const opened = await browserOpenTab(baseUrl, targetUrl, { profile });
+           trackSessionBrowserTab({
+@@ -432,7 +442,11 @@ export function createBrowserTool(opts?: {
+             baseUrl,
+             profile,
+           });
+-          return jsonResult(opened);
++          const base = jsonResult(opened);
++          return {
++            ...base,
++            content: [...base.content, { type: "text" as const, text: closeHint }],
++          };
+         }
+         case "focus": {
+           const targetId = readStringParam(params, "targetId", {
