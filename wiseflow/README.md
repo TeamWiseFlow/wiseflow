@@ -1,6 +1,6 @@
 # Wiseflow Addon for OpenClaw
 
-浏览器反检测 + Tab Recovery + Smart Search + RSS Reader。
+浏览器反检测 + Tab Recovery + Smart Search + RSS Reader + 新媒体小编 Crew。
 
 本目录是 [wiseflow](https://github.com/TeamWiseFlow/wiseflow) 提供给 [openclaw-for-business](https://github.com/TeamWiseFlow/openclaw_for_business) 的标准 addon 包。
 
@@ -30,6 +30,32 @@
 
 支持读取 RSS/Atom Feed，可订阅任意支持标准 feed 格式的内容源。
 
+### 6. 新媒体小编 Crew
+
+开箱即用的中文自媒体内容创作 AI Agent，配置于 `crew/new-media-editor/`。
+
+**核心工作流：**
+
+- **Mode A**：选题调研 → 热点分析 → 图文草稿
+  深入采集微博实时热搜、小红书、知乎、B 站、抖音等平台的最新内容，分析热点角度与差异化切入点，生成完整图文草稿。
+
+- **Mode B**：草稿扩写 → 完整文章
+  接收用户的草稿片段或关键词，搜寻网络佐证（数据、权威来源、真实案例），扩展为结构完整的文章。
+
+- **文章排版（Output Strategy）**：定稿后自动调用 [文颜（Wenyan）](https://github.com/caol64/wenyan) 将 Markdown 渲染为公众号风格 HTML，内置 7 套主题并根据文章内容智能匹配，同时生成 Markdown 原文备份。
+
+- **Mode C**：推送微信公众号草稿箱（需配置 `WECHAT_APP_ID`/`WECHAT_APP_SECRET`）
+
+**Crew 专属技能：**
+
+| 技能 | 说明 |
+|------|------|
+| `siliconflow-img-gen` | 文生图，调用 SiliconFlow API 生成配图（需 `SILICONFLOW_API_KEY`） |
+| `siliconflow-video-gen` | 文生视频 / 图生视频（需 `SILICONFLOW_API_KEY`） |
+| `wenyan-formatter` | Markdown → 公众号风格 HTML 渲染，或直接推送草稿箱 |
+
+
+
 ## 安装
 
 将本目录复制到 openclaw_for_business 的 `addons/` 目录：
@@ -53,14 +79,34 @@ wiseflow/
 ├── overrides.sh                  # pnpm overrides: playwright-core → patchright-core + 禁用内置 web_search
 ├── patches/
 │   ├── 001-browser-tab-recovery.patch        # 标签页恢复补丁
-│   └── 002-disable-web-search-env-var.patch  # 禁用内置 web_search（env var）
-├── skills/
+│   ├── 002-disable-web-search-env-var.patch  # 禁用内置 web_search（env var）
+│   └── 003-act-field-validation.patch        # ACT 字段校验补丁
+├── skills/                       # 全局技能（所有 Agent 可用）
 │   ├── browser-guide/SKILL.md    # 浏览器使用最佳实践
 │   ├── smart-search/SKILL.md     # 多平台搜索 URL 构造（替代内置 web_search）
 │   └── rss-reader/               # RSS/Atom Feed 读取器
 │       ├── SKILL.md
 │       ├── package.json
-│       └── scripts/fetch-rss.mjs
+│       └─��� scripts/fetch-rss.mjs
+└── crew/                         # 预设 AI Agent（Crew 模板）
+    └── new-media-editor/         # 新媒体小编
+        ├── IDENTITY.md           # Agent 身份设定
+        ├── SOUL.md               # 价值观与行为准则
+        ├── AGENTS.md             # 工作流程（Mode A/B/C + Image/Video Strategy）
+        ├── TOOLS.md              # 工具清单与使用规则
+        ├── BUILTIN_SKILLS        # 内置全局技能列表
+        ├── DENIED_SKILLS         # 禁用技能列表
+        ├── MEMORY.md / TASKS.md / HEARTBEAT.md / USER.md
+        └── skills/               # Crew 专属技能
+            ├── siliconflow-img-gen/   # 文生图（SiliconFlow Images API）
+            │   ├── SKILL.md
+            │   └── scripts/gen.py
+            ├── siliconflow-video-gen/ # 文生视频（SiliconFlow Video API）
+            │   ├── SKILL.md
+            │   └── scripts/gen.py
+            └── wenyan-formatter/      # Markdown 排版 & 公众号发布
+                ├── SKILL.md
+                └── scripts/format.sh
 ```
 
 ## 三层加载机制
@@ -75,7 +121,17 @@ addon 被 `apply-addons.sh` 加载时按以下顺序执行：
 
 - OpenClaw >= 2026.2
 - pnpm（由 openclaw_for_business 提供）
+- Node.js >= 18（wenyan-formatter 使用 `npx`，需要 Node.js 环境）
 
 ## 测试
 
 参见项目根目录的 [tests/README.md](../tests/README.md) 了解浏览器反检测测试用例。
+
+## 开源致谢
+
+本 addon 集成或依赖以下开源项目：
+
+- [Patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright) — Playwright 的反检测 fork，Apache-2.0
+- [文颜（Wenyan）](https://github.com/caol64/wenyan) — 多平台 Markdown 排版工具，Apache-2.0
+  `wenyan-formatter` 技能通过调用 `@wenyan-md/cli`（[wenyan-cli](https://github.com/caol64/wenyan-cli)）实现 Markdown 渲染与公众号发布能力。
+
