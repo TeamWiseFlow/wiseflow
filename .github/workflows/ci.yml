@@ -1,10 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches: [master]
-    paths-ignore:
-      - 'version'   # 跳过 release bot 的版本号 bump commit，避免重复跑
   pull_request:
     branches: [master]
     types: [opened, synchronize, reopened]  # 明确排除 closed
