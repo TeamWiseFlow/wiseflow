@@ -54,9 +54,17 @@ wiseflow add-on 目前为 openclaw 提供以下四项核心增益：
 - 草稿扩写 + 网络佐证（Mode B）
 - 文章定稿后自动调用 [文颜（Wenyan）](https://github.com/caol64/wenyan) 渲染为公众号风格 HTML，支持 7 套内置主题智能匹配
 - 可直接推送微信公众号草稿箱（Mode C，需配置 `WECHAT_APP_ID`/`WECHAT_APP_SECRET`）
-- 支持 AI 文生图（[SiliconFlow](https://siliconflow.com/) 图片/视频生成，需配置 `SILICONFLOW_API_KEY`）
+- 支持 AI 文生图（[SiliconFlow](https://cloud.siliconflow.cn/i/WNLYbBpi) 图片/视频生成，需配置 `SILICONFLOW_API_KEY`）
 
 ## 🌟 快速开始
+
+> **💡 模型费用说明**
+>
+> wiseflow5.x 底层基于 openclaw，Agent 工作流对 token 消耗有一定要求，建议先准备好大模型 API：
+>
+> - **国内用户（推荐）**：[硅基流动（SiliconFlow）](https://cloud.siliconflow.cn/i/WNLYbBpi) — 注册并实名认证可领取免费全平台模型代金券，覆盖上手阶段所需费用（配置模板中已预置 siliconflow.cn 的最佳实践，可直接使用）。😄 欢迎使用我的[推荐链接](https://cloud.siliconflow.cn/i/WNLYbBpi)注册，你我都会获赠 ¥16 平台奖励
+> - **OpenAI / 海外闭源模型**：推荐 [AiHubMix](https://aihubmix.com?aff=Gp54) — 国内直连无障碍。😄 欢迎使用我的[邀请链接](https://aihubmix.com?aff=Gp54)注册
+> - **海外用户**：可直接使用 SiliconFlow 国际版：https://www.siliconflow.com/
 
 直接从本代码仓的 [Releases](https://github.com/TeamWiseFlow/wiseflow/releases) 下载包含了 openclaw_for_business 和 wiseflow addon 的整合压缩包。
 
@@ -176,4 +184,4 @@ https://github.com/TeamWiseFlow/wiseflow
 
 ## 友情链接
 
-[<img src="docs/logos/SiliconFlow.png" alt="siliconflow" width="360">](https://siliconflow.com/)
+[<img src="https://github.com/TeamWiseFlow/wiseflow/raw/4.x/docs/logos/SiliconFlow.png" alt="siliconflow" width="360">](https://cloud.siliconflow.cn/i/WNLYbBpi)
