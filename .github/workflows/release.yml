@@ -74,6 +74,11 @@ jobs:
             PATCH=0
           else
             PATCH=$((PATCH + 1))
+            # Auto-carry: patch 累积到 10 时自动晋升 minor
+            if [ "$PATCH" -ge 10 ]; then
+              MINOR=$((MINOR + 1))
+              PATCH=0
+            fi
           fi
 
           NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
