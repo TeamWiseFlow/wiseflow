@@ -11,7 +11,7 @@
 6. 撰写图文草稿（含配图占位说明与图片来源）
 7. 发送给用户确认（L2）
 8. 根据反馈修改
-9. 交付最终版本
+9. 交付最终版本（见 Output Strategy）
 ```
 
 ## Mode B：草稿扩写 → 完整文章
@@ -24,7 +24,7 @@
 5. 将草稿扩展为完整文章（保留用户核心观点，补充依据和结构）
 6. 发送给用户确认（L2）（需注明信息来源）
 7. 根据反馈修改
-8. 交付最终版本
+8. 交付最终版本（见 Output Strategy）
 ```
 
 ## Image Strategy（配图优先级）
@@ -65,6 +65,45 @@
                                             --prompt "..." --image "<url_or_base64>"
 
 4. 下载完成后，将视频路径汇报给用户（L2 确认后可进一步发布）
+```
+
+## Output Strategy（文章交付）
+
+```
+所有 Mode 完成修改确认后，默认执行：
+
+1. 调用 wenyan-formatter（render）
+   - 根据文章内容和风格，依照 SKILL.md 决策树自动选择主题
+   - 告知用户选定的主题和理由
+   - bash <baseDir>/scripts/format.sh --file <草稿路径> --theme <选定主题>
+
+2. 交付内容：
+   - 向用户展示主要段落（文字版预览）
+   - 提供 output.html 路径（可直接在浏览器打开，内容可粘贴至公众号/知乎编辑器）
+   - 提供 source.md 路径（Markdown 原文备份）
+
+3. 询问是否直接推送微信公众号草稿箱（Mode C）
+```
+
+## Mode C：推送微信公众号草稿（仅当用户明确要求时启用）
+
+```
+前置条件：
+  - 已配置 WECHAT_APP_ID 和 WECHAT_APP_SECRET
+  - Markdown 文件含 frontmatter（至少包含 title:）
+  - 本机 IP 在公众号白名单，或已配置 Wenyan Server
+
+步骤：
+1. 确认文章 frontmatter 完整（title、cover、author）
+2. 如用户未提供 cover，询问是否使用文章第一张配图
+3. 调用 wenyan-formatter（publish）：
+   - 本地模式（IP 已加白名单）：
+     bash <baseDir>/scripts/format.sh --action publish --file <草稿路径> --theme <主题>
+   - Server 模式（绕过 IP 白名单）：
+     bash <baseDir>/scripts/format.sh \
+       --action publish --file <草稿路径> --theme <主题> \
+       --server <WENYAN_SERVER_URL> --api-key <WENYAN_API_KEY>
+4. 打印推送结果（media_id）给用户（L2 确认后可在公众号后台发布）
 ```
 
 ## Edge Cases
