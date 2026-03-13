@@ -20,11 +20,11 @@
 
 - **完全免费，无需 API Key**：不依赖任何第三方搜索 API，零成本使用
 - **即时搜索，时效性最佳**：直接驱动浏览器前往目标页面或各大社交媒体平台（微博、Twitter/X、facebook 等）进行搜索，第一时间获取最新发布的内容
-- **信源可自定义**：用户可以自由指定搜索源，精准匹配自己的信息需求
+- **信源可自定��**：用户可以自由指定搜索源，精准匹配自己的信息需求
 
 ### 4. Browser Guide 技能
 
-教会 agent 处理登录墙、验证码、懒加载、付费墙等场景的最佳实践。
+教会 agent 处��登录墙、验证码、懒加载、付费墙等场景的最佳实践。
 
 ### 5. RSS Reader 技能
 
@@ -37,7 +37,7 @@
 **核心工作流：**
 
 - **Mode A**：选题调研 → 热点分析 → 图文草稿
-  深入采集微博实时热搜、小红书、知乎、B 站、抖音等平台的最新内容，分析热点角度与差异化切入点，生成完整图文草稿。
+  深入采集微博实时热搜、小红书、知乎、B 站、抖音等平台的最新内容，分析热点角度与��异化切入点，生成完整图文草稿。
 
 - **Mode B**：草稿扩写 → 完整文章
   接收用户的草稿片段或关键词，搜寻网络佐证（数据、权威来源、真实案例），扩展为结构完整的文章。
@@ -75,27 +75,30 @@ cp -r /path/to/wiseflow/wiseflow <openclaw_for_business>/addons/wiseflow
 
 ```
 wiseflow/
-├── addon.json                    # 元数据
+├── addon.json                    # 元数据（名称、版本、描述）
 ├── overrides.sh                  # pnpm overrides: playwright-core → patchright-core + 禁用内置 web_search
 ├── patches/
 │   ├── 001-browser-tab-recovery.patch        # 标签页恢复补丁
 │   ├── 002-disable-web-search-env-var.patch  # 禁用内置 web_search（env var）
-│   └── 003-act-field-validation.patch        # ACT 字段校验补丁
+│   ├── 003-act-field-validation.patch        # ACT 字段校验补丁
+│   └── 004-web-fetch-allow-rfc2544.patch     # 允许 RFC 2544 假 IP（代理 fake-IP DNS 兼容）
 ├── skills/                       # 全局技能（所有 Agent 可用）
 │   ├── browser-guide/SKILL.md    # 浏览器使用最佳实践
 │   ├── smart-search/SKILL.md     # 多平台搜索 URL 构造（替代内置 web_search）
 │   └── rss-reader/               # RSS/Atom Feed 读取器
 │       ├── SKILL.md
 │       ├── package.json
-│       └─��� scripts/fetch-rss.mjs
-└── crew/                         # 预设 AI Agent（Crew 模板）
-    └── new-media-editor/         # 新媒体小编
+│       └── scripts/fetch-rss.mjs
+└── crew/                         # Crew 模板（由 HRBP 管理）
+    └── new-media-editor/         # 新媒体小编（command-tier: T1）
+        ├── SOUL.md               # 角色定义 + 权限级别声明
         ├── IDENTITY.md           # Agent 身份设定
-        ├── SOUL.md               # 价值观与行为准则
         ├── AGENTS.md             # 工作流程（Mode A/B/C + Image/Video Strategy）
         ├── TOOLS.md              # 工具清单与使用规则
+        ├── BOOTSTRAP.md          # 首次启动引导
         ├── BUILTIN_SKILLS        # 内置全局技能列表
         ├── DENIED_SKILLS         # 禁用技能列表
+        ├── ALLOWED_COMMANDS      # 命令权限微调（T1 + bash/python3/node/npx）
         ├── MEMORY.md / TASKS.md / HEARTBEAT.md / USER.md
         └── skills/               # Crew 专属技能
             ├── siliconflow-img-gen/   # 文生图（SiliconFlow Images API）
@@ -109,13 +112,14 @@ wiseflow/
                 └── scripts/format.sh
 ```
 
-## 三层加载机制
+## 四层加载机制
 
 addon 被 `apply-addons.sh` 加载时按以下顺序执行：
 
-1. **overrides.sh** — 运行 pnpm overrides 替换 playwright-core 为 patchright-core，并禁用内置 web_search（最稳健，不依赖行号）
-2. **patches/*.patch** — 应用 git patch（精确代码改动，上游更新时可能需调整）
-3. **skills/*/SKILL.md** — 安装自定义技能到 openclaw
+1. **overrides.sh** — pnpm overrides 替换 playwright-core 为 patchright-core，并禁用内置 web_search（最稳健，不依赖行号）
+2. **patches/*.patch** — git patch 精确代码改动（上游更新时可能需调整）
+3. **skills/*/SKILL.md** — 全局技能安装（所有 Agent 可见）
+4. **crew/*/** — Crew 模板安装到 `crews/`，由 HRBP 管理实例化
 
 ## 要求
 
@@ -125,7 +129,7 @@ addon 被 `apply-addons.sh` 加载时按以下顺序执行：
 
 ## 测试
 
-参见项目根目录的 [tests/README.md](../tests/README.md) 了解浏览器反检测测试用例。
+参见���目根目录的 [tests/README.md](../tests/README.md) 了解浏览器反检测测试用例。
 
 ## 开源致谢
 
@@ -134,4 +138,3 @@ addon 被 `apply-addons.sh` 加载时按以下顺序执行：
 - [Patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright) — Playwright 的反检测 fork，Apache-2.0
 - [文颜（Wenyan）](https://github.com/caol64/wenyan) — 多平台 Markdown 排版工具，Apache-2.0
   `wenyan-formatter` 技能通过调用 `@wenyan-md/cli`（[wenyan-cli](https://github.com/caol64/wenyan-cli)）实现 Markdown 渲染与公众号发布能力。
-
