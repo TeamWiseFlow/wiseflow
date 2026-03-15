@@ -60,3 +60,13 @@ When a page indicates that content is behind a paywall or requires a specific su
 1. Send a message to the user describing the situation: _"xx 页面需要订阅，请在浏览器中登录有效账号或者完成付费，完成后请通知我。"_（xx 为页面标题）.
 2. Wait for the user to confirm.
 3. If no response arrives within **5 minutes**, continue with whatever content is accessible (summary, headline, or any visible excerpt).
+
+## 6. QR Code Login
+
+Some platforms (e.g., WeChat Official Account backend at mp.weixin.qq.com, Xiaohongshu creator center, X/Twitter) show a QR code on the login page instead of a password form. When this happens:
+
+1. Use `snapshot` to locate the QR code image element on the page.
+2. Take a screenshot scoped to the QR code area and send it to the user as an image with the message: _"xx 页面需要扫码登录，请用手机扫描截图中的二维码完成登录，完成后请通知我。"_（xx 为平台名称，例如"微信公众号后台"、"小红书创作者中心"、"X"）.
+3. After sending, poll the page every **3 seconds** using `snapshot`: check for signs of successful login such as a URL change away from the login page, disappearance of the QR code element, or appearance of a username, avatar, or dashboard element.
+4. Once a successful login is detected, resume the original task without waiting for the user to reply.
+5. If no scan occurs within **3 minutes**, send the message: _"扫码超时，我将继续处理当前可访问的内容。"_ and continue with whatever is accessible.
