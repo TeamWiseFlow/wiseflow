@@ -41,9 +41,10 @@ jobs:
 
       - name: Clone openclaw at pinned commit
         run: |
-          git clone --branch v${{ steps.pin.outputs.version }} --depth=1 \
-            https://github.com/openclaw/openclaw.git openclaw
-          git -C openclaw checkout ${{ steps.pin.outputs.commit }}
+          git init openclaw
+          git -C openclaw remote add origin https://github.com/openclaw/openclaw.git
+          git -C openclaw fetch --depth=1 origin ${{ steps.pin.outputs.commit }}
+          git -C openclaw checkout FETCH_HEAD
 
       - name: Clone openclaw_for_business
         run: git clone --depth=1 https://github.com/TeamWiseFlow/openclaw_for_business.git openclaw_for_business
