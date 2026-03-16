@@ -1,8 +1,8 @@
 diff --git a/src/agents/tools/browser-tool.actions.ts b/src/agents/tools/browser-tool.actions.ts
-index 673585d16..ca0631bd7 100644
+index a4b6cb456..8fd27500c 100644
 --- a/src/agents/tools/browser-tool.actions.ts
 +++ b/src/agents/tools/browser-tool.actions.ts
-@@ -62,27 +62,36 @@ function isChromeStaleTargetError(profile: string | undefined, err: unknown): bo
+@@ -81,27 +81,35 @@ function isChromeStaleTargetError(profile: string | undefined, err: unknown): bo
    return msg.includes("404:") && msg.includes("tab not found");
  }
  
@@ -16,23 +16,9 @@ index 673585d16..ca0631bd7 100644
 -  const retryRequest = { ...request };
 -  delete retryRequest.targetId;
 -  return retryRequest as Parameters<typeof browserAct>[1];
-+
 +function isTabResolutionError(err: unknown): boolean {
 +  const msg = String(err).toLowerCase();
 +  return msg.includes("tab not found") || msg.includes("ambiguous target id prefix");
-+}
-+
-+function pickFallbackTargetId(tabs: unknown[]): string | undefined {
-+  const list = tabs.filter((tab): tab is { targetId?: unknown; type?: unknown } => {
-+    return Boolean(tab && typeof tab === "object");
-+  });
-+  const pages = list.filter((tab) => {
-+    const type = typeof tab.type === "string" ? tab.type : "page";
-+    return type === "page";
-+  });
-+  const primary = pages[0] ?? list[0];
-+  const raw = primary?.targetId;
-+  return typeof raw === "string" && raw.trim() ? raw.trim() : undefined;
  }
  
 -function canRetryChromeActWithoutTargetId(request: Parameters<typeof browserAct>[1]): boolean {
@@ -44,6 +30,19 @@ index 673585d16..ca0631bd7 100644
 -        ? typedRequest.action
 -        : "";
 -  return kind === "hover" || kind === "scrollIntoView" || kind === "wait";
++function pickFallbackTargetId(tabs: unknown[]): string | undefined {
++  const list = tabs.filter((tab): tab is { targetId?: unknown; type?: unknown } => {
++    return Boolean(tab && typeof tab === "object");
++  });
++  const pages = list.filter((tab) => {
++    const type = typeof tab.type === "string" ? tab.type : "page";
++    return type === "page";
++  });
++  const primary = pages[0] ?? list[0];
++  const raw = primary?.targetId;
++  return typeof raw === "string" && raw.trim() ? raw.trim() : undefined;
++}
++
 +async function listTabsForRecovery(params: {
 +  baseUrl?: string;
 +  profile?: string;
@@ -58,7 +57,7 @@ index 673585d16..ca0631bd7 100644
  }
  
  export async function executeTabsAction(params: {
-@@ -163,17 +172,37 @@ export async function executeSnapshotAction(params: {
+@@ -182,17 +190,37 @@ export async function executeSnapshotAction(params: {
      labels,
      mode,
    };
@@ -107,7 +106,7 @@ index 673585d16..ca0631bd7 100644
    if (snapshot.format === "ai") {
      const extractedText = snapshot.snapshot ?? "";
      const wrappedSnapshot = wrapExternalContent(extractedText, {
-@@ -308,46 +337,37 @@ export async function executeActAction(params: {
+@@ -303,46 +331,37 @@ export async function executeActAction(params: {
          });
      return jsonResult(result);
    } catch (err) {
@@ -168,23 +167,23 @@ index 673585d16..ca0631bd7 100644
 +        }
          throw new Error(
 -          "No Chrome tabs are attached via the OpenClaw Browser Relay extension. Click the toolbar icon on the tab you want to control (badge ON), then retry.",
-+          `Chrome tab not found (stale targetId?). Run action=tabs profile="chrome" and use one of the returned targetIds.`,
++          `Chrome tab not found (stale targetId?). Run action=tabs profile="chrome-relay" and use one of the returned targetIds.`,
            { cause: err },
          );
        }
 -      throw new Error(
--        `Chrome tab not found (stale targetId?). Run action=tabs profile="chrome" and use one of the returned targetIds.`,
+-        `Chrome tab not found (stale targetId?). Run action=tabs profile="chrome-relay" and use one of the returned targetIds.`,
 -        { cause: err },
 -      );
      }
      throw err;
    }
 diff --git a/src/agents/tools/browser-tool.test.ts b/src/agents/tools/browser-tool.test.ts
-index 81996afb4..e272ce81b 100644
+index adaaea782..9cd664527 100644
 --- a/src/agents/tools/browser-tool.test.ts
 +++ b/src/agents/tools/browser-tool.test.ts
-@@ -260,6 +260,48 @@ describe("browser tool snapshot maxChars", () => {
-     expect(Object.hasOwn(opts ?? {}, "maxChars")).toBe(false);
+@@ -287,6 +287,48 @@ describe("browser tool snapshot maxChars", () => {
+     expect(opts?.mode).toBeUndefined();
    });
  
 +  it("recovers snapshot when target tab disappears", async () => {
@@ -229,14 +228,14 @@ index 81996afb4..e272ce81b 100644
 +    });
 +  });
 +
-   it("routes to node proxy when target=node", async () => {
-     mockSingleBrowserProxyNode();
-     const tool = createBrowserTool();
-@@ -617,11 +659,18 @@ describe("browser tool external content wrapping", () => {
+   it("defaults to host when using profile=chrome-relay (even in sandboxed sessions)", async () => {
+     setResolvedBrowserProfiles({
+       "chrome-relay": {
+@@ -745,16 +787,23 @@ describe("browser tool external content wrapping", () => {
  describe("browser tool act stale target recovery", () => {
    registerBrowserToolAfterEachReset();
  
--  it("retries safe chrome act once without targetId when exactly one tab remains", async () => {
+-  it("retries safe chrome-relay act once without targetId when exactly one tab remains", async () => {
 +  it("recovers act by retrying with fallback tab targetId when tab is stale", async () => {
      browserActionsMocks.browserAct
        .mockRejectedValueOnce(new Error("404: tab not found"))
@@ -254,18 +253,31 @@ index 81996afb4..e272ce81b 100644
  
      const tool = createBrowserTool();
      const result = await tool.execute?.("call-1", {
-@@ -644,29 +693,43 @@ describe("browser tool act stale target recovery", () => {
+       action: "act",
+-      profile: "chrome-relay",
++      profile: "chrome",
+       request: {
+         kind: "hover",
+         targetId: "stale-tab",
+@@ -767,34 +816,48 @@ describe("browser tool act stale target recovery", () => {
+       1,
+       undefined,
+       expect.objectContaining({ targetId: "stale-tab", kind: "hover", ref: "btn-1" }),
+-      expect.objectContaining({ profile: "chrome-relay" }),
++      expect.objectContaining({ profile: "chrome" }),
+     );
      expect(browserActionsMocks.browserAct).toHaveBeenNthCalledWith(
        2,
        undefined,
 -      expect.not.objectContaining({ targetId: expect.anything() }),
+-      expect.objectContaining({ profile: "chrome-relay" }),
 +      expect.objectContaining({ targetId: "recovered-tab" }),
-       expect.objectContaining({ profile: "chrome" }),
++      expect.objectContaining({ profile: "chrome" }),
      );
      expect(result?.details).toMatchObject({ ok: true });
    });
  
--  it("does not retry mutating chrome act requests without targetId", async () => {
+-  it("does not retry mutating chrome-relay act requests without targetId", async () => {
 -    browserActionsMocks.browserAct.mockRejectedValueOnce(new Error("404: tab not found"));
 -    browserClientMocks.browserTabs.mockResolvedValueOnce([{ targetId: "only-tab" }]);
 +  it("recovers act when target tab disappears (non-chrome profile)", async () => {
@@ -285,14 +297,14 @@ index 81996afb4..e272ce81b 100644
 -    await expect(
 -      tool.execute?.("call-1", {
 -        action: "act",
--        profile: "chrome",
+-        profile: "chrome-relay",
 -        request: {
 -          kind: "click",
 -          targetId: "stale-tab",
 -          ref: "btn-1",
 -        },
 -      }),
--    ).rejects.toThrow(/Run action=tabs profile="chrome"/i);
+-    ).rejects.toThrow(/Run action=tabs profile="chrome-relay"/i);
 +    const result = await tool.execute?.("call-1", {
 +      action: "act",
 +      request: { kind: "click", ref: "e1", targetId: "stale-tab" },
