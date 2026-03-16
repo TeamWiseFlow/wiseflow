@@ -3,5 +3,5 @@
   "version": "0.3.0",
   "description": "浏览器反检测 + Tab Recovery + 互联网搜索增强（smart-search / rss-reader skills + 禁用内置 web_search）+ 新媒体小编 Crew 模板",
   "auto-activate": false,
-  "external_crews": ["new-media-editor"]
+  "internal_crews": ["new-media-editor"]
 }
