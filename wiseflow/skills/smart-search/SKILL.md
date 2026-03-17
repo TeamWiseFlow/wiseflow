@@ -23,6 +23,26 @@ Use this skill whenever the user asks you to search for information on the web o
 
 ---
 
+## Cookie Warmup — CRITICAL for Authenticated Platforms
+
+Many platforms will return empty results or redirect to login if you navigate **directly** to a search URL without first visiting the home page. Always warm up the session in two steps:
+
+| Platform | Step 1 (warmup) | Step 2 (search) |
+|----------|-----------------|-----------------|
+| 知乎 | Navigate `https://www.zhihu.com` | Navigate to search URL |
+| Reddit | Navigate `https://www.reddit.com` | Navigate to search URL |
+| 微博 | Navigate `https://weibo.com` | Navigate to search URL |
+| YouTube | Navigate `https://www.youtube.com` | Navigate to search URL |
+| 雪球 | Navigate `https://xueqiu.com` | Navigate to search URL |
+| 路透社 | Navigate `https://www.reuters.com` | Navigate to search URL |
+| Bilibili | Navigate `https://www.bilibili.com` | Navigate to search URL |
+| 小红书 | Navigate `https://www.xiaohongshu.com` | Navigate to search URL |
+
+**Platforms that do NOT need warmup** (public APIs / no auth required):
+- Bing, Baidu, Quark, GitHub, arXiv, Wikipedia, BBC, HackerNews, V2EX
+
+---
+
 ## General Web Search
 
 ### Bing (recommended for English and international content)
@@ -189,8 +209,11 @@ For sort and filter options: interact with the page UI after navigating.
 ### 小红书 (Xiaohongshu / RED / 红薯)
 
 ```
-https://www.xiaohongshu.com/search_result?keyword={keyword}&source=web_explore_feed
+https://www.xiaohongshu.com/search_result?keyword={keyword}&source=web_search_result_notes
 ```
+
+> **Note**: Use `source=web_search_result_notes` (not `web_explore_feed`) to get search results instead of explore feed.
+> After navigating, wait ~3 seconds and scroll down twice — results use lazy loading.
 
 For channel selection, filter, and sort: interact with the page UI after navigating.
 
@@ -240,6 +263,8 @@ Multi-keyword: join with `%20`
 
 Add "Near You" filter: append `&lf=on`
 
+> **Note**: Twitter/X uses heavy client-side rendering. After navigating, wait at least **5 seconds** before taking a snapshot to ensure tweet content has loaded.
+
 Multi-keyword: join with `%20`
 
 ### Facebook
@@ -253,6 +278,23 @@ Multi-keyword: join with `%20`
 For filter and sort options: interact with the page UI after navigating.
 
 Multi-keyword: join with `%20`
+
+### Reddit
+
+```
+https://www.reddit.com/search/?q={keyword}
+```
+
+Sort options: `&sort=relevance` | `hot` | `top` | `new` | `comments`
+
+Time filter (for `sort=top`): `&t=hour` | `day` | `week` | `month` | `year` | `all`
+
+Search within a specific subreddit:
+```
+https://www.reddit.com/r/{subreddit}/search/?q={keyword}&restrict_sr=on&sort=relevance&t=all
+```
+
+Multi-keyword: join with `+`
 
 ---
 
@@ -286,6 +328,25 @@ Example:
 https://github.com/search?q=wiseflow+addon&type=repositories&s=stars&o=desc&l=Python
 ```
 
+### LinkedIn
+
+Job search (cookie warmup required — navigate `https://www.linkedin.com` first):
+```
+https://www.linkedin.com/jobs/search/?keywords={keyword}&location={location}
+```
+
+People search:
+```
+https://www.linkedin.com/search/results/people/?keywords={keyword}
+```
+
+Company search:
+```
+https://www.linkedin.com/search/results/companies/?keywords={keyword}
+```
+
+Multi-keyword: join with `%20`
+
 ---
 
 ## After Navigating
@@ -297,3 +358,60 @@ https://github.com/search?q=wiseflow+addon&type=repositories&s=stars&o=desc&l=Py
    - Modifying the URL's pagination parameter, or
    - Clicking the "Next page" button on the page.
 5. Close the tab immediately after extracting all needed information.
+
+---
+
+## Financial Platforms
+
+### 雪球 (Xueqiu) — Stocks & Finance
+
+Stock/symbol search (cookie warmup required — navigate `https://xueqiu.com` first):
+```
+https://xueqiu.com/search?q={keyword}
+```
+
+Example queries: `茅台`, `AAPL`, `腾讯`, `SH600519`
+
+For stock detail page: `https://xueqiu.com/S/{symbol}` (e.g., `/S/SH600519`)
+
+---
+
+## Tech Communities
+
+### Hacker News (public, no login required)
+
+```
+https://news.ycombinator.com/
+```
+
+Search via Algolia (unofficial but reliable):
+```
+https://hn.algolia.com/?q={keyword}
+```
+
+Sort by date: `&dateRange=pastWeek` | `pastMonth` | `pastYear`
+
+### V2EX (public, no login required)
+
+Search (Google site search approach, most reliable):
+```
+https://www.google.com/search?q=site:v2ex.com+{keyword}
+```
+
+Or navigate directly to V2EX and use the built-in search:
+```
+https://www.v2ex.com/?q={keyword}
+```
+
+---
+
+## News
+
+### Reuters
+
+News search (cookie warmup required — navigate `https://www.reuters.com` first):
+```
+https://www.reuters.com/search/news?blob={keyword}
+```
+
+Multi-keyword: join with `+`
