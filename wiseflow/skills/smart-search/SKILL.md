@@ -37,13 +37,37 @@ Many platforms will return empty results or redirect to login if you navigate **
 | 路透社 | Navigate `https://www.reuters.com` | Navigate to search URL |
 | Bilibili | Navigate `https://www.bilibili.com` | Navigate to search URL |
 | 小红书 | Navigate `https://www.xiaohongshu.com` | Navigate to search URL |
+| TikTok | Navigate `https://www.tiktok.com` | Navigate to search URL |
 
 **Platforms that do NOT need warmup** (public APIs / no auth required):
-- Bing, Baidu, Quark, GitHub, arXiv, Wikipedia, BBC, HackerNews, V2EX
+- Google, Bing, Baidu, Quark, GitHub, arXiv, Wikipedia, BBC, HackerNews, V2EX
 
 ---
 
 ## General Web Search
+
+### Google (recommended for global content, no login required)
+
+```
+https://www.google.com/search?q={keyword}
+```
+
+Time filters (append to URL):
+- Last hour: `&tbs=qdr:h`
+- Last day: `&tbs=qdr:d`
+- Last week: `&tbs=qdr:w`
+- Last month: `&tbs=qdr:m`
+- Last year: `&tbs=qdr:y`
+
+Exact date range: `&tbs=cdr:1,cd_min:MM/DD/YYYY,cd_max:MM/DD/YYYY`
+
+### Google News
+
+```
+https://www.google.com/search?q={keyword}&tbm=nws
+```
+
+Sort by date: append `&tbs=sbd:1`
 
 ### Bing (recommended for English and international content)
 
@@ -295,6 +319,16 @@ https://www.reddit.com/r/{subreddit}/search/?q={keyword}&restrict_sr=on&sort=rel
 ```
 
 Multi-keyword: join with `+`
+
+### TikTok (international)
+
+```
+https://www.tiktok.com/search?q={keyword}
+```
+
+> **Note**: Cookie warmup required — navigate `https://www.tiktok.com` first. Wait ~3 seconds after navigating to search results for content to load.
+
+Multi-keyword: join with `%20`
 
 ---
 
