@@ -1,8 +1,8 @@
 diff --git a/src/agents/tools/web-search.ts b/src/agents/tools/web-search.ts
-index 1e4983f85..aa7dac794 100644
+index 6e9518f1e..2731d6452 100644
 --- a/src/agents/tools/web-search.ts
 +++ b/src/agents/tools/web-search.ts
-@@ -420,6 +420,10 @@ function resolveSearchConfig(cfg?: OpenClawConfig): WebSearchConfig {
+@@ -539,6 +539,10 @@ function resolveSearchConfig(cfg?: OpenClawConfig): WebSearchConfig {
  }
  
  function resolveSearchEnabled(params: { search?: WebSearchConfig; sandboxed?: boolean }): boolean {
