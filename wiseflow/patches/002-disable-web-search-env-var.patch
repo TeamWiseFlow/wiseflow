@@ -1,12 +1,11 @@
-diff --git a/src/agents/tools/web-search.ts b/src/agents/tools/web-search.ts
-index 6e9518f1e..2731d6452 100644
---- a/src/agents/tools/web-search.ts
-+++ b/src/agents/tools/web-search.ts
-@@ -539,6 +539,10 @@ function resolveSearchConfig(cfg?: OpenClawConfig): WebSearchConfig {
- }
- 
- function resolveSearchEnabled(params: { search?: WebSearchConfig; sandboxed?: boolean }): boolean {
-+  // Allow disabling via env var (e.g., set by wiseflow addon to route searches through the browser)
+diff --git a/src/web-search/runtime.ts b/src/web-search/runtime.ts
+index 31040fb3df..ec915c0bf5 100644
+--- a/src/web-search/runtime.ts
++++ b/src/web-search/runtime.ts
+@@ -43,6 +43,9 @@ export function resolveWebSearchEnabled(params: {
+   search?: WebSearchConfig;
+   sandboxed?: boolean;
+ }): boolean {
 +  if (process.env.OPENCLAW_DISABLE_WEB_SEARCH === "1") {
 +    return false;
 +  }
