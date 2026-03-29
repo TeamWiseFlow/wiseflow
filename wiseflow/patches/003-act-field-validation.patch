@@ -1,8 +1,8 @@
-diff --git a/src/agents/tools/browser-tool.actions.ts b/src/agents/tools/browser-tool.actions.ts
-index a4b6cb456..5d1d37b74 100644
---- a/src/agents/tools/browser-tool.actions.ts
-+++ b/src/agents/tools/browser-tool.actions.ts
-@@ -73,6 +73,41 @@ function formatConsoleToolResult(result: {
+diff --git a/extensions/browser/src/browser-tool.actions.ts b/extensions/browser/src/browser-tool.actions.ts
+index bbd92145c0..d79c3fed84 100644
+--- a/extensions/browser/src/browser-tool.actions.ts
++++ b/extensions/browser/src/browser-tool.actions.ts
+@@ -112,6 +112,41 @@ function formatConsoleToolResult(result: {
    };
  }
  
@@ -42,9 +42,9 @@ index a4b6cb456..5d1d37b74 100644
 +}
 +
  function isChromeStaleTargetError(profile: string | undefined, err: unknown): boolean {
-   if (profile !== "chrome-relay" && profile !== "chrome") {
+   if (!profile) {
      return false;
-@@ -290,6 +325,7 @@ export async function executeActAction(params: {
+@@ -343,6 +378,7 @@ export async function executeActAction(params: {
    proxyRequest: BrowserProxyRequest | null;
  }): Promise<AgentToolResult<unknown>> {
    const { request, baseUrl, profile, proxyRequest } = params;
@@ -52,11 +52,11 @@ index a4b6cb456..5d1d37b74 100644
    try {
      const result = proxyRequest
        ? await proxyRequest({
-diff --git a/src/agents/tools/browser-tool.test.ts b/src/agents/tools/browser-tool.test.ts
-index adaaea782..d59a081b5 100644
---- a/src/agents/tools/browser-tool.test.ts
-+++ b/src/agents/tools/browser-tool.test.ts
-@@ -798,3 +798,113 @@ describe("browser tool act stale target recovery", () => {
+diff --git a/extensions/browser/src/browser-tool.test.ts b/extensions/browser/src/browser-tool.test.ts
+index c9d48521a3..a05bc04b42 100644
+--- a/extensions/browser/src/browser-tool.test.ts
++++ b/extensions/browser/src/browser-tool.test.ts
+@@ -818,3 +818,113 @@ describe("browser tool act stale target recovery", () => {
      expect(browserActionsMocks.browserAct).toHaveBeenCalledTimes(1);
    });
  });
