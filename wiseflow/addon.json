@@ -2,8 +2,8 @@
   "name": "wiseflow",
   "version": "0.3.0",
   "description": "浏览器反检测 + Tab Recovery + 互联网搜索增强（smart-search / rss-reader skills + 禁用内置 web_search）+ 新媒体小编 Crew 模板",
-  "openclaw_version": "2026.3.24",
-  "openclaw_commit": "cff6dc94e30794a269eb7805b6e636c3634a088c",
+  "openclaw_version": "2026.3.28",
+  "openclaw_commit": "f9b1079283a8ee25a7cee77c8f8225d5c813bc30",
   "auto-activate": false,
   "internal_crews": ["new-media-editor"]
 }
