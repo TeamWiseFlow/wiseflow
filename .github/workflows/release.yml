@@ -111,22 +111,16 @@ jobs:
           git -C openclaw fetch --depth=1 origin ${{ steps.pin.outputs.commit }}
           git -C openclaw checkout FETCH_HEAD
 
-      - name: Clone openclaw_for_business
-        run: git clone --depth=1 https://github.com/TeamWiseFlow/openclaw_for_business.git openclaw_for_business
-
-      - name: Set up release directory structure
-        run: |
-          cp -r wiseflow openclaw_for_business/addons/wiseflow
-          cp -r openclaw openclaw_for_business/openclaw
-
       - name: Package release
         run: |
-          # 保留 openclaw/.git：apply-addons.sh 中 git apply --3way 依赖 git 仓库上下文
-          # 仅删除其他 .git 目录（wiseflow 本身、openclaw_for_business 等）
-          find openclaw_for_business -type d -name ".git" \
-            ! -path "*/openclaw/.git" \
-            -exec rm -rf {} + 2>/dev/null || true
-          zip -r "wiseflow-${{ steps.version.outputs.new }}.zip" openclaw_for_business
+          RELEASE_DIR="wiseflow-${{ steps.version.outputs.new }}"
+          # 复制整个项目到发布目录（保留 openclaw/.git 供 git apply --3way 使用）
+          cp -r . "../$RELEASE_DIR"
+          # 删除主仓库 .git 目录，保留 openclaw/.git
+          rm -rf "../$RELEASE_DIR/.git"
+          cd ..
+          zip -r "$RELEASE_DIR.zip" "$RELEASE_DIR"
+          mv "$RELEASE_DIR.zip" "$GITHUB_WORKSPACE/"
 
       - name: Create GitHub Release
         env:

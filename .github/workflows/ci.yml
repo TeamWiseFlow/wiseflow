@@ -46,14 +46,6 @@ jobs:
           git -C openclaw fetch --depth=1 origin ${{ steps.pin.outputs.commit }}
           git -C openclaw checkout FETCH_HEAD
 
-      - name: Clone openclaw_for_business
-        run: git clone --depth=1 https://github.com/TeamWiseFlow/openclaw_for_business.git openclaw_for_business
-
-      - name: Set up addon directory structure
-        run: |
-          cp -r wiseflow openclaw_for_business/addons/wiseflow
-          cp -r openclaw openclaw_for_business/openclaw
-
       # Run setup-crew.sh + apply-addons.sh separately.
       # We intentionally skip the `pnpm openclaw daemon install` step that
       # reinstall-daemon.sh would also execute: daemon installation requires
@@ -61,8 +53,6 @@ jobs:
       # be meaningfully tested in a headless CI runner.
       - name: Run setup-crew.sh
         run: bash scripts/setup-crew.sh
-        working-directory: openclaw_for_business
 
       - name: Run apply-addons.sh
         run: bash scripts/apply-addons.sh
-        working-directory: openclaw_for_business
