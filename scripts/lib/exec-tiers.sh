@@ -226,7 +226,7 @@ const socket = existing.socket || {};
 if (!socket.path) socket.path = "~/.openclaw/exec-approvals.sock";
 if (!socket.token) socket.token = crypto.randomBytes(24).toString("base64url");
 
-// wiseflow 全局默认：deny + off（飞书无审批 UI）
+// OFB 全局默认：deny + off（飞书无审批 UI）
 const defaults = {
   security: "deny",
   ask: "off",
