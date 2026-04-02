@@ -554,9 +554,9 @@ generate_ofb_env_md() {
 
   if [ -d "$workspace_dir" ]; then
     cat > "$workspace_dir/OFB_ENV.md" << ENVEOF
-# OFB 环境信息（由 setup-crew.sh 自动生成，勿手动编辑）
+# wiseflow 环境信息（由 setup-crew.sh 自动生成，勿手动编辑）
 
-- **OFB 项目路径**：$PROJECT_ROOT
+- **wiseflow 项目路径**：$PROJECT_ROOT
 - **openclaw 子目录**：$PROJECT_ROOT/openclaw
 - **配置文件**：$OPENCLAW_HOME/openclaw.json
 - **对内 Crew 通讯录**：$OPENCLAW_HOME/crew_templates/TEAM_DIRECTORY.md
@@ -579,7 +579,7 @@ cd $PROJECT_ROOT && ./scripts/apply-addons.sh
 # 生产模式重装后台服务
 cd $PROJECT_ROOT && ./scripts/reinstall-daemon.sh
 
-# 升级 OFB 系统（须确认系统空闲）
+# 升级 wiseflow 系统（须确认系统空闲）
 cd $PROJECT_ROOT && ./scripts/upgrade.sh
 
 # 直接调用上游 CLI（如需）

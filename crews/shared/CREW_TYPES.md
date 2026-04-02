@@ -1,6 +1,6 @@
 # Crew 类型系统
 
-> 本文件是 OFB Crew 类型系统的权威定义。所有模板和脚本均依据此文件判断 Crew 行为。
+> 本文件是 wiseflow Crew 类型系统的权威定义。所有模板和脚本均依据此文件判断 Crew 行为。
 
 ---
 
@@ -24,7 +24,7 @@
 **内置对内 Crew（全局唯一，不可删除）**：
 - `main` — 路由调度器、对内 crew 生命周期管理（不含 hrbp 和 it-engineer）（T2）
 - `hrbp` — 对外 Crew 生命周期管理（T3）
-- `it-engineer` — OFB 系统运维（T3）
+- `it-engineer` — wiseflow 系统运维（T3）
 
 ---
 

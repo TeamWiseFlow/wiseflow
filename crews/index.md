@@ -10,15 +10,15 @@
 
 | 模板 ID | 名称 | 简介 | 类型 | 版本 |
 |---------|------|------|------|------|
-| main | Main Agent | 路由调度器，消息入口，对内 crew 生命周期管理 | internal | OFB built-in |
-| hrbp | HRBP | 对外 Crew 生命周期管理（招聘/调岗/解雇/升级） | internal | OFB built-in |
-| it-engineer | IT Engineer | OFB 系统部署、维护、升级、排障 | internal | OFB built-in |
+| main | Main Agent | 路由调度器，消息入口，对内 crew 生命周期管理 | internal | wiseflow built-in |
+| hrbp | HRBP | 对外 Crew 生命周期管理（招聘/调岗/解雇/升级） | internal | wiseflow built-in |
+| it-engineer | IT Engineer | wiseflow 系统部署、维护、升级、排障 | internal | wiseflow built-in |
 
 ## 对外 Crew 模板（External — 由 HRBP 管理）
 
 | 模板 ID | 名称 | 简介 | 类型 | 版本 |
 |---------|------|------|------|------|
-| sales-cs | 销售型客服 | 客户咨询、问题解答、成交导向、客户调研，bind-only | external | OFB official |
+| sales-cs | 销售型客服 | 客户咨询、问题解答、成交导向、客户调研，bind-only | external | wiseflow official |
 
 ## 用户自建模板（User-created）
 

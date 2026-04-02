@@ -29,7 +29,7 @@
 以下为内置全局 Crew，不可删除、不可多实例：
 - `main` — 本 agent（自身）
 - `hrbp` — 对外 crew 管理员
-- `it-engineer` — OFB 系统运维
+- `it-engineer` — wiseflow 系统运维
 
 ## 重要约束
 - 删除是不可逆操作（归档后可恢复，但需手动操作）

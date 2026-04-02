@@ -1,6 +1,6 @@
 # 命令权限分层规范（Command Tier System）
 
-> 本文件定义 OFB 各 Crew 的 shell 命令执行权限层级。
+> 本文件定义 wiseflow 各 Crew 的 shell 命令执行权限层级。
 > **权限由 `exec-approvals.json` + `tools.exec` 自动强制执行**，本文件作为 LLM 行为指导和开发者参考。
 > 更新日期：2026-03-13
 
@@ -65,7 +65,7 @@ git, npm, pnpm, bun, node, python, python3, pip, pip3, cp, mv, mkdir, rm, touch,
 
 ## T3 — admin
 
-**完整系统操作，含 OFB 所有维护脚本。** `security: full` 允许执行任何命令。
+**完整系统操作，含 wiseflow 所有维护脚本。** `security: full` 允许执行任何命令。
 
 仍需遵守安全底线（即使 T3 也不允许）：
 - `rm -rf /` 或 `rm -rf ~/`

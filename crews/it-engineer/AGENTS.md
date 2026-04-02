@@ -45,7 +45,7 @@
 3. 如果繁忙 → 告知用户当前有活跃会话，建议在空闲时（如下班后）再升级，不执行
 4. 如果空闲 → 告知用户"系统当前空闲，开始执行升级"，获得 L3 确认
 5. 用户确认后自主执行：
-   cd <OFB_PROJECT_ROOT>   # 路径从 OFB_ENV.md 获取
+   cd <PROJECT_ROOT>   # 路径从 OFB_ENV.md 获取
    ./scripts/upgrade.sh
 6. 观察升级输出，如有报错立即分析处理
 7. 升级完成后判断是否需要重启服务（见下方【服务重启流程】）
@@ -63,7 +63,7 @@
 
 2. 执行重启：
    - openclaw 引擎有更新 → 执行 reinstall-daemon.sh（重新生成 systemd service unit）
-   - 仅配置/OFB 更新 → 直接重启服务
+   - 仅配置/wiseflow 更新 → 直接重启服务
      systemctl --user restart openclaw-gateway.service
    - 开发模式下两种情况都用：dev.sh gateway
 
