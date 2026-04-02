@@ -29,6 +29,8 @@ wiseflow 是基于 [openclaw](https://github.com/openclaw/openclaw) 的一套旨
 ```bash
 git clone https://github.com/TeamWiseFlow/wiseflow.git
 cd wiseflow
+git clone https://github.com/openclaw/openclaw.git
+cd ..
 ```
 
 2. 进入解压缩后的代码目录，根据需求选择启动方式：
@@ -255,7 +257,6 @@ wiseflow/
 - Patchright(Undetected Python version of the Playwright testing and automation library) https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-python
 - Feedparser（Parse feeds in Python） https://github.com/kurtmckee/feedparser
 - SearXNG（a free internet metasearch engine which aggregates results from various search services and databases） https://github.com/searxng/searxng
-- 文颜（Wenyan）多平台 Markdown 排版与发布工具（新媒体小编 Crew 通过 wenyan-formatter 技能调用） https://github.com/caol64/wenyan
 
 ## Citation
 
