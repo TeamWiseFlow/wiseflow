@@ -1,0 +1,9 @@
+{
+  "id": "awada",
+  "channels": ["awada"],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

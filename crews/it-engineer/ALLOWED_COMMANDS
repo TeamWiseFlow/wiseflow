@@ -1,0 +1,11 @@
+# IT Engineer — ALLOWED_COMMANDS
+# 基础层级：T3 (admin)
+# 在 T3 基础上额外声明 OFB 专属维护脚本
+
++./scripts/dev.sh
++./scripts/reinstall-daemon.sh
++./scripts/setup-crew.sh
++./scripts/apply-addons.sh
++./scripts/update-upstream.sh
++./scripts/upgrade.sh
++./scripts/setup-wsl2.sh
