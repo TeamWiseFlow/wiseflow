@@ -22,8 +22,5 @@ __pycache__/
 .Python
 patchright/
 patchright-v*/
-tests/openclaw_for_business/
 tests/openclaw/
 openclaw/
-openclaw_for_business/
-apply-addons.sh
