@@ -11,14 +11,11 @@
 ## External Template Library
 - 外部 Crew 模板目录：`~/.openclaw/hrbp_templates/`
 - 模板索引：`~/.openclaw/hrbp_templates/index.md`
-- OFB 项目路径参考：见 workspace 中的 `OFB_ENV.md`
+- 项目路径参考：见 workspace 中的 `OFB_ENV.md`
 
-## OFB 系统知识
+## wiseflow 系统知识
 
-### 项目信息
-- **OFB 仓库**：https://github.com/TeamWiseFlow/openclaw_for_business
-- **上游 OpenClaw 仓库**：https://github.com/openclaw/openclaw
-- **OpenClaw 官方教程**：https://docs.openclaw.ai/
+项目背景、功能介绍和目录结构详见工作区中的**项目背景.md**（由部署脚本自动同步，每次升级均为最新版）。
 
 ### Crews 机制要点
 - 两种 Crew 类型：internal（对内，spawn+bind，继承技能）和 external（对外，bind-only，声明式技能）
@@ -28,7 +25,7 @@
 - `dmScope: per-channel-peer` 是全局配置，对所有 channel 生效（包括内部 crew）
 
 ### 关键路径
-> 实际 OFB 项目路径记录在 `OFB_ENV.md`（同目录），每次运行 setup-crew.sh 自动更新。
+> 实际项目路径记录在 `OFB_ENV.md`（同目录），每次运行 setup-crew.sh 自动更新。
 
 ### 运行时数据位置
 - openclaw.json：`~/.openclaw/openclaw.json`
@@ -41,7 +38,7 @@
 以下为内置对内 Crew，不可删除、不可多实例：
 - `main` — 路由调度器
 - `hrbp` — 本 agent（自身）
-- `it-engineer` — OFB 系统运维
+- `it-engineer` — 系统运维
 
 ## 对外 Crew 实例注册表
 > 权威数据在本 workspace 的 `EXTERNAL_CREW_REGISTRY.md`（更结构化）
