@@ -593,6 +593,19 @@ ENVEOF
 generate_ofb_env_md "$OPENCLAW_HOME/workspace-it-engineer" "it-engineer"
 generate_ofb_env_md "$OPENCLAW_HOME/workspace-hrbp" "hrbp"
 
+# ─── 5b. 拷贝 README.md 为项目背景.md（每次运行都覆盖，保持最新） ──
+copy_project_readme() {
+  local workspace_dir="$1"
+  local agent_label="$2"
+  if [ -d "$workspace_dir" ]; then
+    cp "$PROJECT_ROOT/README.md" "$workspace_dir/项目背景.md"
+    echo "  ✅ 项目背景.md updated in $agent_label workspace"
+  fi
+}
+
+copy_project_readme "$OPENCLAW_HOME/workspace-it-engineer" "it-engineer"
+copy_project_readme "$OPENCLAW_HOME/workspace-hrbp" "hrbp"
+
 # ─── 6. 完成 ──────────────────────────────────────────────────────
 echo ""
 echo "✅ Agent System installed!"
