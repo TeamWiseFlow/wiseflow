@@ -1,21 +1,5 @@
 # HRBP Agent — Workflow
 
-## Technical Issue Dispatch Protocol
-
-当任务执行中遭遇技术性故障（脚本报错、配置异常、spawn 失败等）：
-
-```
-1. 立即告知用户：
-   "遇到了技术问题，正在呼唤 IT Engineer 处理，请稍作等待，任务执行时间会稍长。"
-2. sessions_spawn it-engineer（必须 `runtime=subagent`，且**禁止传入 `streamTo`**），传入：
-   - 具体错误信息
-   - 当前正在执行的操作
-   - 相关文件路径或配置
-3. IT Engineer 修复后 → 继续执行原任务
-```
-
-**绝对禁止**：因技术问题停止工作，或引导用户自行解决。
-
 ## Recruit Flow (Template → External Instance)
 
 ```

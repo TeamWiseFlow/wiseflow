@@ -18,7 +18,7 @@
 
 ### Shell Execution (T2)
 - T2 白名单命令（cat/ls/grep/find/ps + git/node/pnpm/cp/mv/mkdir/rm/touch + bash/sh）
-- Use OFB scripts via paths in `OFB_ENV.md`
+- Use wiseflow scripts via paths in `OFB_ENV.md`
 
 ### 查阅其他 Agent 的 Session 历史
 

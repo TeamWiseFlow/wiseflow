@@ -1,16 +1,16 @@
 #!/bin/bash
-# upgrade.sh - 一键升级 OFB（自身代码 + openclaw 引擎 + 配置同步）
+# upgrade.sh - 一键升级 wiseflow（自身代码 + openclaw 引擎 + 配置同步）
 #
 # 适用场景：
 #   - 通过 release 包安装的用户（首次运行会自动 git init）
 #   - git clone 安装的用户（直接拉取最新代码）
 #
 # 执行流程：
-#   1. 验证 OFB 目录合法性
+#   1. 验证 wiseflow 项目目录合法性
 #   2. 初始化 git remote（如未初始化）或验证 remote URL
-#   3. git fetch + reset --hard 拉取最新 OFB 代码
+#   3. git fetch + reset --hard 拉取最新 wiseflow 代码
 #      - addons/ 在 .gitignore 中，不受影响
-#      - ~/.openclaw/ 在 OFB 目录外，不受影响
+#      - ~/.openclaw/ 在 wiseflow 项目目录外，不受影响
 #   4. 读取 openclaw.version，按锚定版本检出 openclaw 子目录
 #      - 若已是目标 commit，跳过耗时的 install/build
 #   5. 调用 apply-addons.sh（内含 setup-crew.sh，只需调一次）
@@ -18,7 +18,7 @@
 # ⚠️  升级前请确保系统空闲（无 agent 会话正在处理任务）
 set -e
 
-OFB_REPO="https://github.com/TeamWiseFlow/openclaw_for_business.git"
+OFB_REPO="https://github.com/TeamWiseFlow/wiseflow.git"
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OPENCLAW_DIR="$PROJECT_ROOT/openclaw"
 VERSION_FILE="$PROJECT_ROOT/openclaw.version"
@@ -53,15 +53,15 @@ done
 
 cd "$PROJECT_ROOT"
 
-echo "🔄 OpenClaw for Business — Upgrade"
+echo "🔄 wiseflow — Upgrade"
 echo "   Project root: $PROJECT_ROOT"
 echo ""
 
-# ─── 1. 验证当前目录是 OFB 项目 ──────────────────────────────────
+# ─── 1. 验证当前目录是 wiseflow 项目 ──────────────────────────────────
 if [ ! -f "$PROJECT_ROOT/scripts/apply-addons.sh" ] || [ ! -d "$OPENCLAW_DIR" ]; then
-  echo "❌ This does not look like an OFB project directory."
+  echo "❌ This does not look like a wiseflow project directory."
   echo "   Expected: scripts/apply-addons.sh and openclaw/ subdirectory"
-  echo "   Please run this script from within your OFB project folder."
+  echo "   Please run this script from within your wiseflow project folder."
   exit 1
 fi
 
@@ -78,9 +78,9 @@ else
     echo "  ✅ Remote 'origin' added: $OFB_REPO"
   elif [ "$CURRENT_REMOTE" != "$OFB_REPO" ]; then
     echo "  ℹ️  Current remote: $CURRENT_REMOTE"
-    echo "  ℹ️  Official OFB repo: $OFB_REPO"
+    echo "  ℹ️  Official wiseflow repo: $OFB_REPO"
     echo ""
-    echo "  Remote is not the official OFB repo. Continue anyway? [y/N]"
+    echo "  Remote is not the official wiseflow repo. Continue anyway? [y/N]"
     read -r reply
     case "$reply" in
       y|Y) echo "  Continuing with existing remote..." ;;
@@ -89,18 +89,18 @@ else
   fi
 fi
 
-# ─── 3. 拉取最新 OFB 代码 ────────────────────────────────────────
-echo "📥 Fetching latest OFB code..."
-git fetch origin main
+# ─── 3. 拉取最新 wiseflow 代码 ────────────────────────────────────────
+echo "📥 Fetching latest wiseflow code..."
+git fetch origin master
 
-COMMITS_BEHIND="$(git rev-list HEAD..origin/main --count 2>/dev/null || echo "?")"
+COMMITS_BEHIND="$(git rev-list HEAD..origin/master --count 2>/dev/null || echo "?")"
 if [ "$COMMITS_BEHIND" = "0" ]; then
-  echo "  ✅ OFB code is already up to date."
+  echo "  ✅ wiseflow code is already up to date."
   OFB_UPDATED=false
 else
   echo "  📊 $COMMITS_BEHIND new commit(s) available"
-  git reset --hard origin/main
-  echo "  ✅ OFB code updated"
+  git reset --hard origin/master
+  echo "  ✅ wiseflow code updated"
   OFB_UPDATED=true
 fi
 echo ""
@@ -169,7 +169,7 @@ if [ "$OPENCLAW_UPDATED" = "true" ]; then
   echo "  Production: cd $PROJECT_ROOT && ./scripts/reinstall-daemon.sh --skip-addons"
   echo "  Dev mode:   cd $PROJECT_ROOT && ./scripts/dev.sh gateway"
 else
-  echo "Next steps — only OFB config updated; a simple service restart is enough:"
+  echo "Next steps — only wiseflow config updated; a simple service restart is enough:"
   echo "  Production: systemctl --user restart openclaw-gateway.service"
   echo "  Dev mode:   cd $PROJECT_ROOT && ./scripts/dev.sh gateway"
 fi

@@ -2,7 +2,7 @@
 # ⚠️  DEPRECATED — use scripts/upgrade.sh instead
 #
 # This script has been merged into upgrade.sh, which:
-#   - Handles both OFB code and openclaw engine updates in one step
+#   - Handles both wiseflow code and openclaw engine updates in one step
 #   - Respects the openclaw.version pin (no more tracking main blindly)
 #   - Calls apply-addons.sh (which already includes setup-crew.sh)
 #

@@ -3,11 +3,11 @@
 > 本文件由 **HRBP** 维护，记录所有可用的对外 Crew 模板。
 > Crew 类型说明详见 `CREW_TYPES.md`。
 
-## 官方模板（OFB official）
+## 官方模板（wiseflow official）
 
 | 模板 ID | 名称 | 简介 | 版本 |
 |---------|------|------|------|
-| sales-cs | 销售型客服 | 客户咨询、问题解答、成交导向、客户调研，bind-only | OFB official |
+| sales-cs | 销售型客服 | 客户咨询、问题解答、成交导向、客户调研，bind-only | wiseflow official |
 
 ## 用户自建模板（User-created）
 

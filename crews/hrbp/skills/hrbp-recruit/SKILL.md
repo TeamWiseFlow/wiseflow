@@ -38,7 +38,7 @@ After user confirms the proposal:
 2. Copy template files as starting point
 3. Apply instance-specific customizations (name, role tuning, etc.)
 4. Create optional skill config file:
-   - `BUILTIN_SKILLS` — one bundled skill per line（表示”在 OFB 基线技能之外追加”）
+   - `BUILTIN_SKILLS` — one bundled skill per line（表示”在 wiseflow 基线技能之外追加”）
 5. Copy shared protocols (`RULES.md`, `TEMPLATES.md`) into the workspace
 6. **[If template uses `customer-db` skill]** Initialize the customer database:
    - Ask the user to define the database schema (tables, fields, types)
