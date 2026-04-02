@@ -1,0 +1,7 @@
+# Main Agent — ALLOWED_COMMANDS
+# 基础层级：T2 (dev tools)
+# 在 T2 基础上放行三个 Crew 生命周期管理脚本
+
++./skills/crew-recruit/scripts/recruit-internal-crew.sh
++./skills/crew-list/scripts/list-internal-crews.sh
++./skills/crew-dismiss/scripts/dismiss-internal-crew.sh

@@ -1,3 +1,8 @@
+# v5.2
+
+- combine ofb and wiseflow
+- publish sales-db and self-media operator
+
 # v5.0
 
 upgrage workflow to Agent!

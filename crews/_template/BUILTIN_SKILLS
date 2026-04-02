@@ -1,0 +1,7 @@
+# Optional extra bundled OpenClaw skills for this role.
+# Format: one skill name per line (or comma-separated on one line).
+# These are ADDITIVE on top of OFB baseline bundled skills.
+# Use "all" to include all discoverable bundled skills.
+# Example:
+# github
+# browser-guide

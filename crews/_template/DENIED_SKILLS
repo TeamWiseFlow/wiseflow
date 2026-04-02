@@ -1,0 +1,5 @@
+# Default denied bundled skills for non-IT crews.
+# Remove lines if this crew should access them.
+github
+gh-issues
+coding-agent
