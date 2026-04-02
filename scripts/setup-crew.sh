@@ -1,0 +1,610 @@
+#!/bin/bash
+# setup-crew.sh - 多 Agent 系统安装脚本
+# 将 crews/ 中的内置模板、共享协议、模板库部署到 ~/.openclaw/
+# 幂等设计：已存在的 workspace 不会覆盖（除非 --force）
+set -e
+
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+CREWS_DIR="$PROJECT_ROOT/crews"
+ADDONS_DIR="$PROJECT_ROOT/addons"
+OPENCLAW_HOME="$HOME/.openclaw"
+CONFIG_PATH="$OPENCLAW_HOME/openclaw.json"
+FORCE=false
+
+# 内置 Crew 列表（全局唯一，不可删除，不可多实例）
+# 这些都是对内 Crew（crew-type: internal）
+BUILTIN_CREWS="main hrbp it-engineer"
+SYNC_TEAM_DIRECTORY_SCRIPT="$CREWS_DIR/hrbp/skills/hrbp-common/scripts/sync-team-directory.sh"
+
+source "$SCRIPT_DIR/lib/agent-skills.sh"
+source "$SCRIPT_DIR/lib/exec-tiers.sh"
+
+DENIED_OVERRIDES=""
+
+usage() {
+  echo "Usage: $0 [--force] [--denied-skills <agent-id>:<skill1,skill2>]"
+  echo ""
+  echo "Options:"
+  echo "  --force                              Overwrite existing workspace files"
+  echo "  --denied-skills <agent-id>:<skills>  Override denied skills for one agent (internal crews only)"
+  echo ""
+  echo "Examples:"
+  echo "  $0"
+  echo "  $0 --force"
+  echo "  $0 --denied-skills hrbp:apple-notes,slack"
+  echo "  $0 --denied-skills main:slack --denied-skills hrbp:github,coding-agent"
+  exit 1
+}
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --force)
+      FORCE=true
+      shift
+      ;;
+    --denied-skills)
+      [ -z "$2" ] && { echo "❌ --denied-skills requires <agent-id>:<skills>"; usage; }
+      case "$2" in
+        *:*)
+          DENIED_OVERRIDES="${DENIED_OVERRIDES}
+$2"
+          ;;
+        *)
+          echo "❌ Invalid format for --denied-skills: $2"
+          echo "   Expected: <agent-id>:<skill1,skill2>"
+          exit 1
+          ;;
+      esac
+      shift 2
+      ;;
+    *)
+      echo "❌ Unknown option: $1"
+      usage
+      ;;
+  esac
+done
+
+resolve_denied_override_for_agent() {
+  local agent_id="$1"
+  local line=""
+  local key=""
+  local value=""
+
+  while IFS= read -r line; do
+    [ -n "$line" ] || continue
+    key="${line%%:*}"
+    value="${line#*:}"
+    if [ "$key" = "$agent_id" ]; then
+      printf '%s\n' "$value"
+      return
+    fi
+  done <<< "$DENIED_OVERRIDES"
+}
+
+resolve_builtin_file_for_agent() {
+  local agent_id="$1"
+  local workspace_dir="$2"
+
+  local workspace_file="$workspace_dir/BUILTIN_SKILLS"
+  if [ -f "$workspace_file" ]; then
+    printf '%s\n' "$workspace_file"
+    return
+  fi
+
+  # 兼容老版本已存在 workspace（未携带 BUILTIN_SKILLS 文件）：
+  # 回退到仓库模板中的 BUILTIN_SKILLS 作为默认额外技能来源。
+  local template_file="$CREWS_DIR/$agent_id/BUILTIN_SKILLS"
+  if [ -f "$template_file" ]; then
+    printf '%s\n' "$template_file"
+    return
+  fi
+
+  printf '%s\n' "$workspace_file"
+}
+
+# resolve_crew_type 由 agent-skills.sh 提供（唯一权威实现）
+
+resolve_template_crew_type() {
+  local template_dir="$1"
+  resolve_crew_type "$template_dir/SOUL.md"
+}
+
+sync_agent_skill_filter() {
+  local agent_id="$1"
+  local agent_override=""
+  agent_override="$(resolve_denied_override_for_agent "$agent_id")"
+
+  local workspace_dir=""
+  workspace_dir="$(node -e "
+    const fs = require('fs');
+    const c = JSON.parse(fs.readFileSync('$CONFIG_PATH', 'utf8'));
+    const agent = (c.agents?.list || []).find((entry) => entry.id === '$agent_id');
+    const configured = typeof agent?.workspace === 'string' && agent.workspace.trim()
+      ? agent.workspace.trim()
+      : '~/.openclaw/workspace-$agent_id';
+    console.log(configured.replace(/^~(?=\\/|$)/, process.env.HOME));
+  " 2>/dev/null)"
+
+  if [ -z "$workspace_dir" ] || [ ! -d "$workspace_dir" ]; then
+    echo "  ⚠️  workspace for agent '$agent_id' not found, skip skill filter sync"
+    return
+  fi
+
+  local denied_file="$workspace_dir/DENIED_SKILLS"
+  local builtin_file=""
+  builtin_file="$(resolve_builtin_file_for_agent "$agent_id" "$workspace_dir")"
+  local skills_result=""
+  skills_result="$(resolve_agent_skills_json \
+    "$agent_id" \
+    "$workspace_dir" \
+    "" \
+    "$builtin_file" \
+    "$agent_override" \
+    "$denied_file" \
+    "$PROJECT_ROOT" \
+    "$OPENCLAW_HOME")"
+
+  # JSON 数组 → 写入明确的 allowlist
+  AGENT_ID="$agent_id" AGENT_SKILLS_RESULT="$skills_result" node -e "
+    const fs = require('fs');
+    const c = JSON.parse(fs.readFileSync('$CONFIG_PATH', 'utf8'));
+    const list = c.agents?.list || [];
+    const idx = list.findIndex((entry) => entry.id === process.env.AGENT_ID);
+    if (idx >= 0) {
+      const skillsResult = process.env.AGENT_SKILLS_RESULT || '';
+      list[idx] = { ...list[idx], skills: JSON.parse(skillsResult || '[]') };
+      fs.writeFileSync('$CONFIG_PATH', JSON.stringify(c, null, 2) + '\\n');
+    }
+  "
+}
+
+if [ ! -d "$CREWS_DIR" ]; then
+  echo "❌ crews/ directory not found at $CREWS_DIR"
+  exit 1
+fi
+
+# 检查是否应通过 apply-addons.sh 调用（确保 global skills 已安装到 openclaw/skills/）
+CALLED_FROM_APPLY_ADDONS="${CALLED_FROM_APPLY_ADDONS:-false}"
+if [ "$CALLED_FROM_APPLY_ADDONS" != "true" ] && [ -d "$ADDONS_DIR" ]; then
+  addon_count="$(find "$ADDONS_DIR" -mindepth 2 -maxdepth 2 -name addon.json 2>/dev/null | wc -l)"
+  if [ "$addon_count" -gt 0 ]; then
+    echo "⚠️  检测到 $addon_count 个 addon，建议通过 apply-addons.sh 运行以确保 addon global skills 正确安装"
+    echo "   直接运行 setup-crew.sh 可能导致 addon 提供的 global skills 未被纳入 crew 技能配置"
+  fi
+fi
+
+echo "📦 Setting up Agent System (crews)..."
+
+# ─── 1. 安装内置 Crew workspace（main / hrbp / it-engineer） ────
+for agent_id in $BUILTIN_CREWS; do
+  agent_dir="$CREWS_DIR/$agent_id"
+  [ -d "$agent_dir" ] || continue
+  dest="$OPENCLAW_HOME/workspace-$agent_id"
+
+  if [ -d "$dest" ] && [ "$FORCE" != "true" ]; then
+    echo "  ⚠️  workspace-$agent_id already exists, keeping user files (use --force to overwrite)"
+    # 仅做幂等注入（有标记则跳过，不覆盖用户编辑的内容）
+    inject_file_edit_guide "$dest/TOOLS.md"
+    continue
+  fi
+
+  mkdir -p "$dest"
+  cp "$agent_dir"/*.md "$dest/"
+  # 复制 DENIED_SKILLS（如有）
+  if [ -f "$agent_dir/DENIED_SKILLS" ]; then
+    cp "$agent_dir/DENIED_SKILLS" "$dest/"
+  fi
+  # 复制 BUILTIN_SKILLS（如有）
+  if [ -f "$agent_dir/BUILTIN_SKILLS" ]; then
+    cp "$agent_dir/BUILTIN_SKILLS" "$dest/"
+  fi
+  # 幂等同步 ALLOWED_COMMANDS（不覆盖 workspace 已有条目）
+  if [ -f "$agent_dir/ALLOWED_COMMANDS" ]; then
+    if [ ! -f "$dest/ALLOWED_COMMANDS" ]; then
+      cp "$agent_dir/ALLOWED_COMMANDS" "$dest/"
+    else
+      while IFS= read -r line; do
+        [[ "$line" =~ ^\+ ]] || continue
+        grep -qxF "$line" "$dest/ALLOWED_COMMANDS" || echo "$line" >> "$dest/ALLOWED_COMMANDS"
+      done < "$agent_dir/ALLOWED_COMMANDS"
+    fi
+  fi
+  # 复制 EXTERNAL_CREW_REGISTRY.md（如有，hrbp 专用）
+  if [ -f "$agent_dir/EXTERNAL_CREW_REGISTRY.md" ]; then
+    # 仅在首次安装时复制（保留运行时状态）
+    if [ ! -f "$dest/EXTERNAL_CREW_REGISTRY.md" ]; then
+      cp "$agent_dir/EXTERNAL_CREW_REGISTRY.md" "$dest/"
+    fi
+  fi
+  # 复制 Agent 专属 skills（如有）
+  if [ -d "$agent_dir/skills" ]; then
+    cp -r "$agent_dir/skills" "$dest/"
+    # 安装有 package.json 的 skill 的 npm 依赖
+    for skill_pkg in "$dest/skills"/*/package.json; do
+      [ -f "$skill_pkg" ] || continue
+      skill_dir="$(dirname "$skill_pkg")"
+      skill_name="$(basename "$skill_dir")"
+      echo "  📦 installing deps for skill: $skill_name"
+      (cd "$skill_dir" && npm install --production --silent 2>/dev/null) || \
+        echo "  ⚠️  npm install failed for skill: $skill_name" >&2
+    done
+  fi
+  echo "  ✅ workspace-$agent_id installed"
+  inject_file_edit_guide "$dest/TOOLS.md"
+done
+
+# ─── 2. 复制共享协议到每个已安装的内置 workspace ─────────────────
+for agent_id in $BUILTIN_CREWS; do
+  dest="$OPENCLAW_HOME/workspace-$agent_id"
+  if [ -d "$dest" ] && [ -d "$CREWS_DIR/shared" ]; then
+    cp "$CREWS_DIR/shared/"*.md "$dest/"
+  fi
+done
+echo "  ✅ Shared protocols (RULES.md, TEMPLATES.md, CREW_TYPES.md) copied"
+
+# ─── 3a. 同步对内 crew 模板库到 crew_templates/（供 Main Agent 运行时参考） ──
+CREW_TEMPLATES_DEST="$OPENCLAW_HOME/crew_templates"
+mkdir -p "$CREW_TEMPLATES_DEST"
+# 清空旧模板目录，防止类型迁移时残留
+find "$CREW_TEMPLATES_DEST" -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
+# 复制所有声明为 internal 的模板（含 addon 引入模板）
+for template_dir in "$CREWS_DIR"/*/; do
+  [ -d "$template_dir" ] || continue
+  template_id="$(basename "$template_dir")"
+  [ "$template_id" = "shared" ] && continue
+  crew_type="$(resolve_template_crew_type "$template_dir")"
+  [ "$crew_type" = "internal" ] || continue
+  cp -r "$template_dir" "$CREW_TEMPLATES_DEST/$template_id"
+done
+# 同步 shared/ 协议到 crew_templates/
+if [ -d "$CREWS_DIR/shared" ]; then
+  cp "$CREWS_DIR/shared/"*.md "$CREW_TEMPLATES_DEST/"
+fi
+# 同步对内专属索引（crew_index.md → index.md，由 Main Agent 维护）
+if [ -f "$CREWS_DIR/crew_index.md" ]; then
+  cp "$CREWS_DIR/crew_index.md" "$CREW_TEMPLATES_DEST/index.md"
+fi
+echo "  ✅ Internal crew templates synced to $CREW_TEMPLATES_DEST"
+
+# ─── 3b. 同步对外 crew 模板库到 hrbp_templates/（供 HRBP 运行时参考） ──
+HRBP_TEMPLATES_DEST="$OPENCLAW_HOME/hrbp_templates"
+mkdir -p "$HRBP_TEMPLATES_DEST"
+# 清空旧模板目录，防止类型迁移时残留
+find "$HRBP_TEMPLATES_DEST" -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
+# 复制所有声明为 external 的模板（含脚手架与 addon 引入模板）
+for template_dir in "$CREWS_DIR"/*/; do
+  [ -d "$template_dir" ] || continue
+  template_id="$(basename "$template_dir")"
+  [ "$template_id" = "shared" ] && continue
+  crew_type="$(resolve_template_crew_type "$template_dir")"
+  [ "$crew_type" = "external" ] || continue
+  cp -r "$template_dir" "$HRBP_TEMPLATES_DEST/$template_id"
+done
+# 同步对外专属索引（hrbp_index.md → index.md，由 HRBP 维护）
+if [ -f "$CREWS_DIR/hrbp_index.md" ]; then
+  cp "$CREWS_DIR/hrbp_index.md" "$HRBP_TEMPLATES_DEST/index.md"
+fi
+echo "  ✅ External crew templates synced to $HRBP_TEMPLATES_DEST"
+
+# ─── 4. 更新 openclaw.json（合并内置 Crew + skills 过滤） ────────
+if [ -f "$CONFIG_PATH" ]; then
+  echo "  📝 Merging agent config into openclaw.json..."
+
+  # 规范化所有 agent workspace 路径
+  OPENCLAW_HOME="$OPENCLAW_HOME" node -e "
+    const fs = require('fs');
+    const c = JSON.parse(fs.readFileSync('$CONFIG_PATH', 'utf8'));
+    const openclawHome = process.env.OPENCLAW_HOME || (process.env.HOME + '/.openclaw');
+    const currentHome = process.env.HOME || '';
+    let changed = false;
+
+    // 兼容旧模板误写：agents.defaults.model.imageModel 应迁移到 agents.defaults.imageModel.primary
+    const defaults = c.agents?.defaults;
+    if (defaults && defaults.model && typeof defaults.model === 'object' && !Array.isArray(defaults.model)) {
+      const misplacedImageModel = defaults.model.imageModel;
+      if (typeof misplacedImageModel === 'string' && misplacedImageModel.trim()) {
+        if (!defaults.imageModel || typeof defaults.imageModel !== 'object' || Array.isArray(defaults.imageModel)) {
+          defaults.imageModel = {};
+        }
+        if (!defaults.imageModel.primary) {
+          defaults.imageModel.primary = misplacedImageModel.trim();
+        }
+        delete defaults.model.imageModel;
+        changed = true;
+      }
+    }
+
+    for (const agent of (c.agents?.list || [])) {
+      if (typeof agent.workspace !== 'string') continue;
+      const ws = agent.workspace.trim();
+      if (ws.startsWith('~/')) {
+        agent.workspace = openclawHome + ws.slice('~/.openclaw'.length);
+        changed = true;
+      } else if (ws.startsWith('/') && currentHome && !ws.startsWith(currentHome + '/') && ws !== currentHome) {
+        const m = ws.match(/\/\.openclaw\/(workspace-[^/]+)\$/);
+        if (m) {
+          agent.workspace = openclawHome + '/' + m[1];
+          changed = true;
+        }
+      }
+    }
+    if (changed) fs.writeFileSync('$CONFIG_PATH', JSON.stringify(c, null, 2) + '\n');
+  " && echo "  ✅ Agent workspace paths normalized"
+
+  MAIN_OVERRIDE="$(resolve_denied_override_for_agent "main")"
+  HRBP_OVERRIDE="$(resolve_denied_override_for_agent "hrbp")"
+  IT_OVERRIDE="$(resolve_denied_override_for_agent "it-engineer")"
+  MAIN_BUILTIN_FILE="$(resolve_builtin_file_for_agent "main" "$OPENCLAW_HOME/workspace-main")"
+  HRBP_BUILTIN_FILE="$(resolve_builtin_file_for_agent "hrbp" "$OPENCLAW_HOME/workspace-hrbp")"
+  IT_BUILTIN_FILE="$(resolve_builtin_file_for_agent "it-engineer" "$OPENCLAW_HOME/workspace-it-engineer")"
+
+  MAIN_SKILLS_RESULT="$(resolve_agent_skills_json \
+    "main" \
+    "$OPENCLAW_HOME/workspace-main" \
+    "" \
+    "$MAIN_BUILTIN_FILE" \
+    "$MAIN_OVERRIDE" \
+    "$OPENCLAW_HOME/workspace-main/DENIED_SKILLS" \
+    "$PROJECT_ROOT" \
+    "$OPENCLAW_HOME")"
+  HRBP_SKILLS_RESULT="$(resolve_agent_skills_json \
+    "hrbp" \
+    "$OPENCLAW_HOME/workspace-hrbp" \
+    "" \
+    "$HRBP_BUILTIN_FILE" \
+    "$HRBP_OVERRIDE" \
+    "$OPENCLAW_HOME/workspace-hrbp/DENIED_SKILLS" \
+    "$PROJECT_ROOT" \
+    "$OPENCLAW_HOME")"
+  IT_SKILLS_RESULT="$(resolve_agent_skills_json \
+    "it-engineer" \
+    "$OPENCLAW_HOME/workspace-it-engineer" \
+    "" \
+    "$IT_BUILTIN_FILE" \
+    "$IT_OVERRIDE" \
+    "$OPENCLAW_HOME/workspace-it-engineer/DENIED_SKILLS" \
+    "$PROJECT_ROOT" \
+    "$OPENCLAW_HOME")"
+
+  MAIN_SKILLS_RESULT="$MAIN_SKILLS_RESULT" HRBP_SKILLS_RESULT="$HRBP_SKILLS_RESULT" IT_SKILLS_RESULT="$IT_SKILLS_RESULT" OPENCLAW_HOME="$OPENCLAW_HOME" node -e "
+    const fs = require('fs');
+    const path = require('path');
+    const c = JSON.parse(fs.readFileSync('$CONFIG_PATH', 'utf8'));
+    const openclawHome = process.env.OPENCLAW_HOME || (process.env.HOME + '/.openclaw');
+
+    const applySkills = (entry, skillsResult) => {
+      return { ...entry, skills: JSON.parse((skillsResult || '[]').trim() || '[]') };
+    };
+
+    if (!c.agents) c.agents = {};
+    if (!Array.isArray(c.agents.list)) c.agents.list = [];
+
+    const upsertAgent = (id, buildNext) => {
+      const idx = c.agents.list.findIndex((entry) => entry.id === id);
+      const prev = idx >= 0 ? c.agents.list[idx] : {};
+      const next = buildNext(prev);
+      if (idx >= 0) c.agents.list[idx] = next;
+      else c.agents.list.push(next);
+    };
+
+    const getCrewType = (id) => {
+      if (id === 'main' || id === 'hrbp' || id === 'it-engineer') return 'internal';
+      const agent = c.agents.list.find((entry) => entry.id === id);
+      if (!agent) return 'external';
+      const wsRaw = typeof agent.workspace === 'string' && agent.workspace.trim()
+        ? agent.workspace.trim()
+        : ('~/.openclaw/workspace-' + id);
+      const ws = wsRaw.replace(/^~(?=\\/|$)/, process.env.HOME || '');
+      const soulPath = path.join(ws, 'SOUL.md');
+      try {
+        const soul = fs.readFileSync(soulPath, 'utf8');
+        const match = soul.match(/^crew-type:\\s*(internal|external)\\s*$/m);
+        return match ? match[1] : 'external';
+      } catch (_) {
+        return 'external';
+      }
+    };
+
+    upsertAgent('main', (prev) => {
+      // Main Agent 只能 spawn 它招募的非内置 internal agent + it-engineer（固定）
+      const BUILTIN_IDS = new Set(['main', 'hrbp', 'it-engineer']);
+      const prevAllowAgents = Array.isArray(prev?.subagents?.allowAgents) ? prev.subagents.allowAgents : [];
+      const filteredAllowAgents = prevAllowAgents.filter(
+        (id) => !BUILTIN_IDS.has(id) && getCrewType(id) === 'internal'
+      );
+      // it-engineer 固定追加：所有对内 crew 均可 spawn IT 协助执行任务
+      const allowAgents = [...new Set([...filteredAllowAgents, 'it-engineer'])];
+      const base = {
+        ...prev,
+        id: 'main',
+        default: prev.default ?? true,
+        name: prev.name || 'Main Agent',
+        workspace: prev.workspace || openclawHome + '/workspace-main',
+        thinkingDefault: 'high',
+        reasoningDefault: 'on',
+        subagents: {
+          ...(prev.subagents || {}),
+          allowAgents: allowAgents,
+        },
+      };
+      return applySkills(base, process.env.MAIN_SKILLS_RESULT);
+    });
+
+    upsertAgent('hrbp', (prev) => {
+      // hrbp 可 spawn it-engineer 协助执行运维类任务
+      const base = {
+        ...prev,
+        id: 'hrbp',
+        name: prev.name || 'HRBP',
+        workspace: prev.workspace || openclawHome + '/workspace-hrbp',
+        thinkingDefault: 'high',
+        reasoningDefault: 'on',
+        subagents: {
+          ...(prev.subagents || {}),
+          allowAgents: ['it-engineer'],
+        },
+      };
+      return applySkills(base, process.env.HRBP_SKILLS_RESULT);
+    });
+
+    upsertAgent('it-engineer', (prev) => {
+      const base = {
+        ...prev,
+        id: 'it-engineer',
+        name: prev.name || 'IT Engineer',
+        workspace: prev.workspace || openclawHome + '/workspace-it-engineer',
+        thinkingDefault: 'high',
+        reasoningDefault: 'on',
+      };
+      return applySkills(base, process.env.IT_SKILLS_RESULT);
+    });
+
+    // 为所有其他对内 Crew 实例也追加 it-engineer spawn 权限
+    // （它们在 depth=1 时需要 maxSpawnDepth>=2，由 agents.defaults.subagents.maxSpawnDepth 保证）
+    const PROTECTED_IDS = new Set(['main', 'hrbp', 'it-engineer']);
+    for (const agent of c.agents.list) {
+      if (PROTECTED_IDS.has(agent.id)) continue;
+      const crewType = getCrewType(agent.id);
+      if (crewType === 'internal') {
+        // 非内置对内 crew：确保 it-engineer 在 allowAgents 中
+        const prevAllow = Array.isArray(agent.subagents?.allowAgents) ? agent.subagents.allowAgents : [];
+        if (!prevAllow.includes('it-engineer')) {
+          agent.subagents = {
+            ...(agent.subagents || {}),
+            allowAgents: [...new Set([...prevAllow, 'it-engineer'])],
+          };
+        }
+        // 对内 crew 默认思考/推理设置（不覆盖已有配置）
+        if (!agent.thinkingDefault) agent.thinkingDefault = 'medium';
+        if (!agent.reasoningDefault) agent.reasoningDefault = 'on';
+      } else {
+        // 对外 crew 默认思考/推理设置（不覆盖已有配置）
+        if (!agent.thinkingDefault) agent.thinkingDefault = 'medium';
+        if (!agent.reasoningDefault) agent.reasoningDefault = 'off';
+      }
+    }
+
+    // 配置飞书多账户 -> Agent 绑定（模式 B：渠道直连）
+    if (!Array.isArray(c.bindings) || c.bindings.length === 0) {
+      c.bindings = [
+        { agentId: 'main', comment: 'main-bot -> Main Agent', match: { channel: 'feishu', accountId: 'main-bot' } },
+        { agentId: 'hrbp', comment: 'hrbp-bot -> HRBP Agent', match: { channel: 'feishu', accountId: 'hrbp-bot' } },
+        { agentId: 'it-engineer', comment: 'it-engineer-bot -> IT Engineer Agent', match: { channel: 'feishu', accountId: 'it-engineer-bot' } }
+      ];
+    }
+
+    fs.writeFileSync('$CONFIG_PATH', JSON.stringify(c, null, 2) + '\\n');
+  "
+
+  # 同步所有已注册 agent 的技能过滤
+  AGENT_IDS="$(node -e "
+    const fs = require('fs');
+    const c = JSON.parse(fs.readFileSync('$CONFIG_PATH', 'utf8'));
+    console.log((c.agents?.list || []).map((entry) => entry.id).join('\\n'));
+  " 2>/dev/null)"
+  while IFS= read -r agent_id; do
+    [ -n "$agent_id" ] || continue
+    sync_agent_skill_filter "$agent_id"
+  done <<< "$AGENT_IDS"
+  echo "  ✅ Agent skill filters synchronized"
+  echo "  ✅ openclaw.json updated"
+
+  # ─── 4b. 幂等同步模板 ALLOWED_COMMANDS → workspace ────────────────
+  # 只注入模板中的 + 行（缺失时追加），不覆盖 workspace 已有条目（包括私有技能）
+  while IFS=$'\t' read -r a_id a_ws; do
+    [ -n "$a_id" ] || continue
+    template_ac="$CREWS_DIR/$a_id/ALLOWED_COMMANDS"
+    workspace_ac="$a_ws/ALLOWED_COMMANDS"
+    [ -f "$template_ac" ] || continue
+    if [ ! -f "$workspace_ac" ]; then
+      cp "$template_ac" "$workspace_ac"
+    else
+      while IFS= read -r line; do
+        [[ "$line" =~ ^\+ ]] || continue
+        grep -qxF "$line" "$workspace_ac" || echo "$line" >> "$workspace_ac"
+      done < "$template_ac"
+    fi
+  done < <(node -e "
+    const fs = require('fs');
+    const home = process.env.HOME || '';
+    const c = JSON.parse(fs.readFileSync('$CONFIG_PATH', 'utf8'));
+    for (const a of (c.agents?.list || [])) {
+      if (!a?.id) continue;
+      const ws = (typeof a.workspace === 'string' && a.workspace.trim()
+        ? a.workspace.trim() : ('~/.openclaw/workspace-' + a.id))
+        .replace(/^~(?=\/|\$)/, home);
+      console.log(a.id + '\t' + ws);
+    }
+  " 2>/dev/null)
+
+  # ─── 4c. 应用 Command Tier → exec-approvals + tools.exec ──────
+  echo "  📝 Applying command tier exec policies..."
+  EXEC_APPROVALS_PATH="$OPENCLAW_HOME/exec-approvals.json"
+  apply_exec_tiers "$CONFIG_PATH" "$EXEC_APPROVALS_PATH" "$CREWS_DIR" "$PROJECT_ROOT"
+else
+  echo "  ⚠️  openclaw.json not found at $CONFIG_PATH"
+  echo "     Will be created on first start (dev.sh / reinstall-daemon.sh)"
+fi
+
+# ─── 5. 写入 OFB_ENV.md（同时为 it-engineer 和 hrbp 写入） ──────
+generate_ofb_env_md() {
+  local workspace_dir="$1"
+  local agent_label="$2"
+
+  if [ -d "$workspace_dir" ]; then
+    cat > "$workspace_dir/OFB_ENV.md" << ENVEOF
+# OFB 环境信息（由 setup-crew.sh 自动生成，勿手动编辑）
+
+- **OFB 项目路径**：$PROJECT_ROOT
+- **openclaw 子目录**：$PROJECT_ROOT/openclaw
+- **配置文件**：$OPENCLAW_HOME/openclaw.json
+- **对内 Crew 通讯录**：$OPENCLAW_HOME/crew_templates/TEAM_DIRECTORY.md
+- **对外 Crew 注册表**：$OPENCLAW_HOME/workspace-hrbp/EXTERNAL_CREW_REGISTRY.md
+- **对内 Crew 模板目录**：$OPENCLAW_HOME/crew_templates/
+- **对外 Crew 模板目录**：$OPENCLAW_HOME/hrbp_templates/
+
+## 常用操作命令
+
+\`\`\`bash
+# 开发模式启动
+cd $PROJECT_ROOT && ./scripts/dev.sh gateway
+
+# 重新同步 crew 配置（幂等）
+cd $PROJECT_ROOT && ./scripts/setup-crew.sh
+
+# 重新应用 addons
+cd $PROJECT_ROOT && ./scripts/apply-addons.sh
+
+# 生产模式重装后台服务
+cd $PROJECT_ROOT && ./scripts/reinstall-daemon.sh
+
+# 升级 OFB 系统（须确认系统空闲）
+cd $PROJECT_ROOT && ./scripts/upgrade.sh
+
+# 直接调用上游 CLI（如需）
+cd $PROJECT_ROOT/openclaw && pnpm openclaw <subcommand>
+\`\`\`
+ENVEOF
+    echo "  ✅ OFB_ENV.md updated in $agent_label workspace"
+  fi
+}
+
+generate_ofb_env_md "$OPENCLAW_HOME/workspace-it-engineer" "it-engineer"
+generate_ofb_env_md "$OPENCLAW_HOME/workspace-hrbp" "hrbp"
+
+# ─── 6. 完成 ──────────────────────────────────────────────────────
+echo ""
+echo "✅ Agent System installed!"
+echo ""
+echo "Installed locations:"
+echo "  Workspaces:          $OPENCLAW_HOME/workspace-main/, workspace-hrbp/, workspace-it-engineer/"
+echo "  Internal templates:  $OPENCLAW_HOME/crew_templates/"
+echo "  External templates:  $OPENCLAW_HOME/hrbp_templates/"
+echo "  Config:              $CONFIG_PATH"
+
+if [ -f "$SYNC_TEAM_DIRECTORY_SCRIPT" ]; then
+  bash "$SYNC_TEAM_DIRECTORY_SCRIPT" >/dev/null 2>&1 || {
+    echo "  ⚠️  Failed to sync TEAM_DIRECTORY.md"
+  }
+fi

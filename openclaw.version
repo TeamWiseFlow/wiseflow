@@ -1,6 +1,5 @@
 # OpenClaw 上游版本锁定
 # 所有 addon 开发者和 CI 均从此文件读取，保证基于同一版本开发和测试
-# 格式遵循 openclaw-for-business/openclaw.version 规范
 #
 # 使用方式（shell）：
 #   source openclaw.version
