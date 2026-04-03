@@ -52,12 +52,32 @@ CREATE TABLE IF NOT EXISTS follow_up (
 
 // ── SQLite helpers ───────────────────────────────────────────────────────────
 
+/**
+ * Normalize a raw peer string to a canonical, DB-safe form.
+ *
+ * Rules (applied in order):
+ *   1. trim leading/trailing whitespace
+ *   2. lowercase  (openclaw already lowercases peerId when building sessionKey,
+ *                  so this makes the command path consistent with the hook path)
+ *   3. strip ASCII control characters U+0000–U+001F and U+007F
+ *      (\t \n \r \0 etc. — \t breaks tab-separated sqlite3 output parsing;
+ *       \n/\r break line-based output; \0 is a null-byte hazard in SQLite C layer)
+ *
+ * Single quotes are handled separately by sqlQuote() at the call site.
+ */
+function normalizePeer(raw: string): string {
+  return raw
+    .trim()
+    .toLowerCase()
+    .replace(/[\x00-\x1f\x7f]/g, "");
+}
+
 function extractSuffixFromSessionKey(sessionKey?: string): string | null {
   if (!sessionKey) return null;
   const preferred = sessionKey.match(/^agent:[^:]+:awada:direct:(.+)$/);
-  if (preferred?.[1]) return preferred[1];
+  if (preferred?.[1]) return normalizePeer(preferred[1]);
   const tolerant = sessionKey.match(/^agent:.*:awada:direct:(.+)$/);
-  if (tolerant?.[1]) return tolerant[1];
+  if (tolerant?.[1]) return normalizePeer(tolerant[1]);
   return null;
 }
 
@@ -70,8 +90,8 @@ function resolvePeerForCommand(ctx: {
   senderId?: string;
 }): string | null {
   if (ctx.channel !== "awada") return null;
-  // For awada channel, senderId IS the peer (user_id_external)
-  return ctx.senderId || null;
+  if (!ctx.senderId) return null;
+  return normalizePeer(ctx.senderId);
 }
 
 function sqliteExec(dbFile: string, args: string[], options?: { input?: string }) {
