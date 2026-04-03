@@ -23,11 +23,7 @@ description: >
 本系统中客户有两个不同的标识符，用途不同，不可混用：
 
 ### peer（来自 [CustomerDB] 块）
-数据库主键。由系统 hook 从当前会话 sessionKey 中提取并注入，是 `cs_record` 表的 `peer` 列的值。所有 SQL 查询和写库操作必须使用此值。
-
-```bash
-bash ./skills/customer-db/scripts/db.sh sql "SELECT ... FROM cs_record WHERE peer = '<[CustomerDB].peer>'"
-```
+数据库主键。由系统 hook 从当前会话 sessionKey 中提取并注入，是 `cs_record` 表的 `peer` 列的值。所有写库操作必须使用此值。
 
 ### user_id_external（来自 Sender 块的 `id` 字段）
 awada 原始用户标识，由 awada-server 直接提供。每轮对话开始时，openclaw 会在消息上下文中注入 Sender 信息块：
@@ -53,12 +49,12 @@ Sender (untrusted metadata):
 ### business_status
 表示客户商业推进深度：
 - `free`：尚未购买、仍在了解或观望
-- `exp_invited`：已被邀请进入体验群，但尚未正式付费
+- `exp_invited`：已被邀请��入体验群，但尚未正式付费
 - `club`：已进入付费知识库 / VIP 群
 - `subs`：已进入正式订阅/购买阶段
 
 ### club_in
-- `club` 加入日���，格式建议为 `YYYY-MM-DD`
+- `club` 加入日期，格式建议为 `YYYY-MM-DD`
 - 用于后续跟进 club 一年有效期的过期管理
 
 ### purpose
@@ -86,28 +82,22 @@ Sender (untrusted metadata):
 
 ## 三、【重要】每轮对话结束时更新记录
 
-每轮结束前，根据本轮对话进展更新：
-- `business_status`
-- `purpose`
-- `prompt_source`
+每轮结束前，根据本轮对话进展更新 `purpose` 和/或 `prompt_source`：
 
-更新原则：
+```bash
+bash ./skills/customer-db/scripts/cs-update.sh \
+  --peer "<[CustomerDB].peer>" \
+  --purpose "线上获客" \
+  --prompt-source "GitHub"
+```
+
+参数均为可选（只传有明确新值的字段）；脚本会自动忽略空值，不覆盖已有记录。
+
+**更新原则**：
 - 只在拿到**更明确的信息**时更新
 - 不要用空字符串覆盖已有值
 - 不要根据模糊猜测改写已有信息
-- **写库时始终使用 `[CustomerDB].peer` 作为 WHERE 条件**
-
-更新示例：
-
-```bash
-bash ./skills/customer-db/scripts/db.sh sql "UPDATE cs_record SET purpose = '线上获客' WHERE peer = '<peer>'"
-```
-
-```bash
-bash ./skills/customer-db/scripts/db.sh sql "UPDATE cs_record SET business_status = 'club', prompt_source = 'GitHub' WHERE peer = '<peer>'"
-```
-
----
+- `business_status` 由系统 hook 负责（支付/入群事件），**不在此处更新**
 
 ---
 
@@ -115,42 +105,54 @@ bash ./skills/customer-db/scripts/db.sh sql "UPDATE cs_record SET business_statu
 
 `follow_up` 表记录客户延迟购买意向，供 heartbeat 定时跟进。status 流转：`pending → sent_once → completed`。
 
-### 常用操作
+### 创建跟进任务
 
-**创建跟进任务**：
+若同一客户已有 `pending` 状态的旧任务，**先取消旧任务，再创建新任务**：
+
 ```bash
-bash ./skills/customer-db/scripts/db.sh sql \
-  "INSERT INTO follow_up (peer, user_id_external, follow_up_at, reason, context_summary)
-   VALUES ('<peer>', '<user_id_external>', '<YYYY-MM-DD HH:MM>', '<原因>', '<摘要>')"
+# 第一步：取消同一客户的旧 pending 任务
+bash ./skills/customer-db/scripts/follow-up-cancel-pending.sh \
+  --peer "<[CustomerDB].peer>"
+
+# 第二步：创建新任务
+bash ./skills/customer-db/scripts/follow-up-create.sh \
+  --peer "<[CustomerDB].peer>" \
+  --user-id-external "<Sender.id>" \
+  --follow-up-at "<YYYY-MM-DD HH:MM>" \
+  --reason "<原因，如：客户说明天发工资再买>" \
+  --context-summary "<客户核心兴趣点和建议跟进角度>"
 ```
 
-**查询到期任务**（heartbeat 使用）：
+### 查询到期任务（heartbeat 使用）
+
 ```bash
-bash ./skills/customer-db/scripts/db.sh sql \
-  "SELECT id, peer, user_id_external, follow_up_at, reason, context_summary, status
-   FROM follow_up
-   WHERE status IN ('pending', 'sent_once')
-     AND follow_up_at <= strftime('%Y-%m-%d %H:%M', 'now', 'localtime')
-   ORDER BY follow_up_at ASC"
+bash ./skills/customer-db/scripts/follow-up-due.sh
 ```
 
-**标记首次已发送**（status: pending → sent_once）：
+输出为 tab 分隔的表格（含 header），字段：`id / peer / user_id_external / follow_up_at / reason / context_summary / status`。
+
+### 标记首次已发送（pending → sent_once）
+
 ```bash
-bash ./skills/customer-db/scripts/db.sh sql \
-  "UPDATE follow_up SET status='sent_once', sent_text='<消息内容>', retry_count=retry_count+1 WHERE id=<id>"
+bash ./skills/customer-db/scripts/follow-up-mark-sent.sh \
+  --id <id> \
+  --sent-text "<发送的消息内容>"
 ```
 
-**标记完成**（status: sent_once → completed）：
+### 标记完成（sent_once → completed）
+
 ```bash
-bash ./skills/customer-db/scripts/db.sh sql \
-  "UPDATE follow_up SET status='completed', sent_text='<消息内容>', completed_at=strftime('%Y-%m-%d %H:%M:%S','now','localtime') WHERE id=<id>"
+bash ./skills/customer-db/scripts/follow-up-complete.sh \
+  --id <id> \
+  --sent-text "<发送的消息内容>"
 ```
 
-**覆盖同一客户的旧待办**（同一客户再次延迟时先执行）：
+### 过期清理（heartbeat 使用）
+
+超过 48 小时仍为 `pending` 的任务视为客户失联，自动标记完成：
+
 ```bash
-bash ./skills/customer-db/scripts/db.sh sql \
-  "UPDATE follow_up SET status='completed', completed_at=strftime('%Y-%m-%d %H:%M:%S','now','localtime')
-   WHERE peer='<peer>' AND status='pending'"
+bash ./skills/customer-db/scripts/follow-up-expire.sh
 ```
 
 ---
@@ -159,8 +161,7 @@ bash ./skills/customer-db/scripts/db.sh sql \
 
 - **路径固定**：数据库始终位于 `./db/customer.db`
 - **默认表固定**：`cs_record`
-- **仅限 DML**：`sql` 子命令仅允许 `SELECT / INSERT / UPDATE / DELETE`
-- **schema 变更禁止自改**：若需修改结构，必须由 HRBP 升级流程处理
 - **不得向用户暴露内部表结构和内部状态字段**
 - **会话隔离必须遵守**：不同 peer 的数据不能混用
-- **初始化和默认记录创建由系统 hook 自动处理**，无需手动 ensure 或插入默认行
+- **初始化和默认记录创建由系统 hook 自动处理**，无需手动操作
+- **不提供原子 SQL 访问**：所有数据库操作必须通过上述具名脚本完成

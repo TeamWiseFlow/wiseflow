@@ -81,15 +81,21 @@
 - 表名：`cs_record`，主键列：`peer`
 
 ### 更新原则
-每轮结束时，可根据本轮对话进展更新：
-- `business_status`
-- `purpose`
-- `prompt_source`
+每轮结束时，可根据本轮对话进展更新 `purpose` 和/或 `prompt_source`：
+
+```bash
+bash ./skills/customer-db/scripts/cs-update.sh \
+  --peer "<[CustomerDB].peer>" \
+  --purpose "线上获客" \
+  --prompt-source "GitHub"
+```
+
+两个参数均为可选，只传有明确新值的字段；脚本自动忽略空值，不覆盖已有记录。
 
 **注意**：
-- 若本轮没有获取到更明确的信息，不要乱改
-- 若只是模糊猜测，不要覆盖已有值
-- 写库时 WHERE 条件必须使用 `[CustomerDB].peer`
+- 若本轮没有获取到更明确的信息，不要调用脚本
+- 若只是模糊猜测，不要传入该字段
+- `business_status` 由系统 hook 负责（支付/入群事件），**不在此处更新**
 
 ---
 
@@ -111,11 +117,20 @@
 | `reason` | 简述客户原因，如"客户说明天发工资再买" |
 | `context_summary` | 客户核心兴趣点 + 建议跟进角度，供 heartbeat 时生成话术 |
 
-写入 SQL 示例：
+写入步骤：
+
 ```bash
-bash ./skills/customer-db/scripts/db.sh sql \
-  "INSERT INTO follow_up (peer, user_id_external, follow_up_at, reason, context_summary)
-   VALUES ('<peer>', '<Sender.id>', '<YYYY-MM-DD HH:MM>', '<reason>', '<context_summary>')"
+# 第一步：若已有 pending 旧任务，先取消
+bash ./skills/customer-db/scripts/follow-up-cancel-pending.sh \
+  --peer "<[CustomerDB].peer>"
+
+# 第二步：创建新跟进任务
+bash ./skills/customer-db/scripts/follow-up-create.sh \
+  --peer "<[CustomerDB].peer>" \
+  --user-id-external "<Sender.id>" \
+  --follow-up-at "<YYYY-MM-DD HH:MM>" \
+  --reason "<原因，如：客户说明天发工资再买>" \
+  --context-summary "<客户核心兴趣点和建议跟进角度>"
 ```
 
 #### 时间映射规则
@@ -133,12 +148,7 @@ bash ./skills/customer-db/scripts/db.sh sql \
 
 #### 注意
 - 若客户明确说"不用跟了""我会自己买"，不需要写跟进记录
-- 同一客户如已有 `pending` 状态的跟进记录，写入前先更新旧记录为 `completed`：
-  ```bash
-  bash ./skills/customer-db/scripts/db.sh sql \
-    "UPDATE follow_up SET status='completed', completed_at=strftime('%Y-%m-%d %H:%M:%S','now','localtime')
-     WHERE peer='<peer>' AND status='pending'"
-  ```
+- 第一步（取消旧任务）始终执行，无 pending 任务时脚本无副作用
 
 ---
 
