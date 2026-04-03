@@ -422,7 +422,7 @@ if [ -f "$CONFIG_PATH" ]; then
         name: prev.name || 'Main Agent',
         workspace: prev.workspace || openclawHome + '/workspace-main',
         thinkingDefault: 'high',
-        reasoningDefault: 'on',
+        reasoningDefault: 'off',
         subagents: {
           ...(prev.subagents || {}),
           allowAgents: allowAgents,
@@ -439,7 +439,7 @@ if [ -f "$CONFIG_PATH" ]; then
         name: prev.name || 'HRBP',
         workspace: prev.workspace || openclawHome + '/workspace-hrbp',
         thinkingDefault: 'high',
-        reasoningDefault: 'on',
+        reasoningDefault: 'off',
         subagents: {
           ...(prev.subagents || {}),
           allowAgents: ['it-engineer'],
@@ -455,7 +455,7 @@ if [ -f "$CONFIG_PATH" ]; then
         name: prev.name || 'IT Engineer',
         workspace: prev.workspace || openclawHome + '/workspace-it-engineer',
         thinkingDefault: 'high',
-        reasoningDefault: 'on',
+        reasoningDefault: 'off',
       };
       return applySkills(base, process.env.IT_SKILLS_RESULT);
     });
@@ -477,7 +477,7 @@ if [ -f "$CONFIG_PATH" ]; then
         }
         // 对内 crew 默认思考/推理设置（不覆盖已有配置）
         if (!agent.thinkingDefault) agent.thinkingDefault = 'medium';
-        if (!agent.reasoningDefault) agent.reasoningDefault = 'on';
+        if (!agent.reasoningDefault) agent.reasoningDefault = 'off';
       } else {
         // 对外 crew 默认思考/推理设置（不覆盖已有配置）
         if (!agent.thinkingDefault) agent.thinkingDefault = 'medium';
