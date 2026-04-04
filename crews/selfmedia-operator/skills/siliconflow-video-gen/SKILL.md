@@ -1,78 +1,61 @@
 ---
 name: siliconflow-video-gen
-description: Generate videos via SiliconFlow Video API. Supports text-to-video (T2V) and image-to-video (I2V) using Wan2.2 models. Async: submit job → poll until done → download.
+description: Generate videos via SiliconFlow Video API. Supports text-to-video (T2V) and image-to-video (I2V) using Wan2.2 models. Async flow: submit job, poll status, then download. Default output path resolves to workspace campaign_assets via relative path logic for portability.
 homepage: https://docs.siliconflow.cn/cn/userguide/capabilities/video
 metadata:
   {
     "openclaw":
       {
         "emoji": "🎬",
-        "requires": { "bins": ["python3"], "env": ["SILICONFLOW_API_KEY"] },
-        "primaryEnv": "SILICONFLOW_API_KEY",
+        "requires": { "bins": ["python3"] },
       },
   }
 ---
 
 # SiliconFlow Video Gen
 
-Generate videos using the SiliconFlow Video API (Wan2.2 models).
+通过 SiliconFlow Video API 生成视频（Wan2.2 系列）。
 
-Video generation is **asynchronous**: the API returns a `requestId` immediately, then the script polls the status endpoint until the job completes (status: `Succeed`).
+## 默认输出位置
 
-> The generated video URL is valid for **1 hour**. The script downloads the video locally automatically.
+默认输出到当前 agent workspace 下的 `campaign_assets/sf-video-<timestamp>/`。
 
-## Run
+> 脚本通过相对路径推导 workspace 根目录，不写死绝对路径，便于后续迁移。
 
-Note: Video generation typically takes **1–5 minutes**. Set exec timeout accordingly (e.g., `exec timeout=600`).
+## 运行示例
 
 ```bash
-# Text-to-video
-python3 {baseDir}/scripts/gen.py --prompt "a dolphin leaping over ocean waves at sunset"
+# 文生视频（T2V）
+python3 {baseDir}/scripts/gen.py --prompt "海边日落延时摄影"
 
-# Image-to-video (provide a public URL or local base64 image)
+# 图生视频（I2V）
 python3 {baseDir}/scripts/gen.py \
   --model "Wan-AI/Wan2.2-I2V-A14B" \
-  --prompt "the camera slowly zooms out" \
+  --prompt "镜头缓慢拉远" \
   --image "https://example.com/my-photo.jpg"
 
-# Custom resolution and output directory
+# 指定分辨率与输出目录
 python3 {baseDir}/scripts/gen.py \
-  --prompt "time-lapse of a blooming flower" \
+  --prompt "城市夜景" \
   --image-size 720x1280 \
-  --out-dir ./out/videos
-
-# Reproducible generation with a fixed seed
-python3 {baseDir}/scripts/gen.py --prompt "rocket launch" --seed 42
+  --out-dir ./campaign_assets
 ```
 
-## Parameters
+## 参数
 
-| Flag | Default | Description |
+| Flag | 默认值 | 说明 |
 |------|---------|-------------|
-| `--prompt` | required | Text description of the video |
-| `--model` | `Wan-AI/Wan2.2-T2V-A14B` | Model ID: `Wan-AI/Wan2.2-T2V-A14B` (T2V) or `Wan-AI/Wan2.2-I2V-A14B` (I2V) |
-| `--image` | — | Image URL or `data:image/...;base64,...` (required for I2V model) |
-| `--image-size` | `1280x720` | Resolution: `1280x720` (16:9), `720x1280` (9:16), `960x960` (1:1) |
-| `--negative-prompt` | — | What to avoid in the video |
-| `--seed` | — | Random seed for reproducibility |
-| `--poll-interval` | `10` | Seconds between status polls |
-| `--timeout` | `600` | Max seconds to wait for generation |
-| `--out-dir` | `./tmp/sf-video-<ts>` | Output directory |
+| `--prompt` | 必填 | 视频描述 |
+| `--model` | `Wan-AI/Wan2.2-T2V-A14B` | 模型：T2V 或 I2V |
+| `--image` | — | I2V 模式必填：图片 URL 或 base64 data URI |
+| `--image-size` | `1280x720` | 分辨率：`1280x720` / `720x1280` / `960x960` |
+| `--negative-prompt` | — | 负面提示词 |
+| `--seed` | — | 随机种子 |
+| `--poll-interval` | `10` | 轮询间隔（秒） |
+| `--timeout` | `600` | 最长等待时长（秒） |
+| `--out-dir` | `campaign_assets` | 输出根目录 |
 
-## Models
+## 输出
 
-| Model | Type | Notes |
-|-------|------|-------|
-| `Wan-AI/Wan2.2-T2V-A14B` | Text → Video | Default model |
-| `Wan-AI/Wan2.2-I2V-A14B` | Image → Video | Requires `--image` parameter |
-
-## Output
-
-- `video_<requestId>.mp4` downloaded locally
-- `result.json` with full API response
-
-## Environment Variables
-
-| Variable | Description |
-|----------|-------------|
-| `SILICONFLOW_API_KEY` | Your SiliconFlow API key (required) |
+- `video_<requestId>.mp4`
+- `result.json`（完整 API 返回）

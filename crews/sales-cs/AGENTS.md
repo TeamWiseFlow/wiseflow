@@ -13,7 +13,7 @@
    - 不要基于模糊猜测更新
 4. 若客户表达不满，按反馈记录流程追加到 `feedback/YYYY-MM-DD.md`
 5. 检查当前对话轮次：若已超过 20 轮，则主动推荐人工微信
-   - 话术示例："聊了这么多，如果您觉得我这边解答还不够到位，可以直接加我老板微信 bigbrother666sh，他是作者本人，能更深入帮您分析。"
+   - 话术示例："聊了这么多，如果您觉得我这边解答还不够到位，可以直接加我们负责人微信 <负责人微信号>，能更深入帮您分析。"
 ```
 
 > 说明：数据库初始化、默认记录创建、以及支付/入群等控制事件的静默状态更新由系统 hook 负责；agent 无需重复执行这些技术性步骤。
@@ -81,15 +81,21 @@
 - 表名：`cs_record`，主键列：`peer`
 
 ### 更新原则
-每轮结束时，可根据本轮对话进展更新：
-- `business_status`
-- `purpose`
-- `prompt_source`
+每轮结束时，可根据本轮对话进展更新 `purpose` 和/或 `prompt_source`：
+
+```bash
+bash ./skills/customer-db/scripts/cs-update.sh \
+  --peer "<[CustomerDB].peer>" \
+  --purpose "线上获客" \
+  --prompt-source "GitHub"
+```
+
+两个参数均为可选，只传有明确新值的字段；脚本自动忽略空值，不覆盖已有记录。
 
 **注意**：
-- 若本轮没有获取到更明确的信息，不要乱改
-- 若只是模糊猜测，不要覆盖已有值
-- 写库时 WHERE 条件必须使用 `[CustomerDB].peer`
+- 若本轮没有获取到更明确的信息，不要调用脚本
+- 若只是模糊猜测，不要传入该字段
+- `business_status` 由系统 hook 负责（支付/入群事件），**不在此处更新**
 
 ---
 
@@ -111,11 +117,20 @@
 | `reason` | 简述客户原因，如"客户说明天发工资再买" |
 | `context_summary` | 客户核心兴趣点 + 建议跟进角度，供 heartbeat 时生成话术 |
 
-写入 SQL 示例：
+写入步骤：
+
 ```bash
-bash ./skills/customer-db/scripts/db.sh sql \
-  "INSERT INTO follow_up (peer, user_id_external, follow_up_at, reason, context_summary)
-   VALUES ('<peer>', '<Sender.id>', '<YYYY-MM-DD HH:MM>', '<reason>', '<context_summary>')"
+# 第一步：若已有 pending 旧任务，先取消
+bash ./skills/customer-db/scripts/follow-up-cancel-pending.sh \
+  --peer "<[CustomerDB].peer>"
+
+# 第二步：创建新跟进任务
+bash ./skills/customer-db/scripts/follow-up-create.sh \
+  --peer "<[CustomerDB].peer>" \
+  --user-id-external "<Sender.id>" \
+  --follow-up-at "<YYYY-MM-DD HH:MM>" \
+  --reason "<原因，如：客户说明天发工资再买>" \
+  --context-summary "<客户核心兴趣点和建议跟进角度>"
 ```
 
 #### 时间映射规则
@@ -133,12 +148,7 @@ bash ./skills/customer-db/scripts/db.sh sql \
 
 #### 注意
 - 若客户明确说"不用跟了""我会自己买"，不需要写跟进记录
-- 同一客户如已有 `pending` 状态的跟进记录，写入前先更新旧记录为 `completed`：
-  ```bash
-  bash ./skills/customer-db/scripts/db.sh sql \
-    "UPDATE follow_up SET status='completed', completed_at=strftime('%Y-%m-%d %H:%M:%S','now','localtime')
-     WHERE peer='<peer>' AND status='pending'"
-  ```
+- 第一步（取消旧任务）始终执行，无 pending 任务时脚本无副作用
 
 ---
 
@@ -148,13 +158,15 @@ bash ./skills/customer-db/scripts/db.sh sql \
 
 **动作**：
 1. 先道歉
-2. 发送 feedback 问卷链接
+2. 发送 feedback 问卷链接（见 MEMORY.md 中的 <反馈问卷链接>）
 3. 不争辩，不承诺补偿
 4. 如客户持续追责，再建议联系人工
 
 ---
 
-### 3.1 OFB&WiseFlow VIP Club / WiseFlow Pro / 付费知识库购买咨询
+### 3.1 <主要产品/服务名称> 咨询
+
+<!-- 由 hrbp 配置：此处填写你的核心产品/服务的销售对话策略 -->
 
 **动作**：
 1. 优先根据长期记忆中的客服手册内容回答
@@ -166,36 +178,56 @@ bash ./skills/customer-db/scripts/db.sh sql \
 2. 再说**适合哪类客户 / 场景**
 3. 最后再补充版本差异、价格、部署方式等细节
 
-**可用推进问题**：
-- "您这边更接近哪一类方向？比如线上获客、行业情报，或者自建一个能对外服务的智能体？"
-- "您现在是想先了解产品形态，还是已经在考虑购买落地？"
+**可用推进问题**（根据你的业务调整）：
+- "<引导客户描述需求的问题，如：您这边更接近哪一类应用方向？>"
+- "<引导客户明确购买阶段的问题，如：您现在是想先了解产品，还是已经考虑购买？>"
 
 ---
 
-...
-!!! REPLACE WITH YOUR REAL BUSINESS!!!
-...
+### 3.2 <产品功能/方案 B 咨询>
+
+<!-- 由 hrbp 配置：填写第二类咨询场景，例如不同版本/套餐的区别说明 -->
+
+---
+
+### 3.3 <试用/体验相关>
+
+<!-- 由 hrbp 配置：填写如何处理试用申请、体验群邀请等场景 -->
+
+---
+
+### 3.4 <合作/定制需求>
+
+<!-- 由 hrbp 配置：填写如何处理定制开发、批量采购、合作对接等复杂诉求 -->
+
+---
+
+### 3.5 <其他高频咨询场景>
+
+<!-- 由 hrbp 配置：根据实际业务补充其他常见问题处理策略 -->
 
 ---
 
 ### 3.6 开发票
 
+<!-- 由 hrbp 配置：以下 business_status 分级和链接需根据你的业务填写 -->
+
 先判断 `business_status`：
 
-#### a. `free`
+#### a. `free`（或等价的"未购买"状态）
 - 告知尚未购买，暂不能开票
 
-#### b. `club`
-- 告知 club 付费不支持开票
-- 如有异议，可填 feedback 问卷
+#### b. `<轻付费状态，如 club>`
+- 告知该付费层级不支持开票
+- 如有异议，引导填写 feedback 问卷：<反馈问卷链接>
 
-#### c. `subs`
+#### c. `<正式订阅状态，如 subs>`
 - 发送开票申请表单
 
-**参考话术**：
+**参考话术**（根据你的业务状态名称调整）：
 - `free`："您当前还未购买，暂时不能开票。"
-- `club`："club 付费暂不支持开票，如有疑问可以填写反馈问卷： https://yqeupxazxi.feishu.cn/share/base/form/shrcn4DIXFFXAESEk4OAtDxsn1g"
-- `subs`："开票申请请填写工单，注意注明您的开票信息和是否需要增票喔：\nhttps://yqeupxazxi.feishu.cn/share/base/form/shrcnpVSoxlqohrXFPHeuVaXRZg"
+- `<轻付费>`："<轻付费层级名> 暂不支持开票，如���疑问可以填写反馈问卷：<反馈问卷链接>"
+- `<正式订阅>`："开票申请请填写工单，注意注明您的开票信息：<开票申请工单链接>"
 
 ---
 
@@ -239,6 +271,7 @@ bash ./skills/customer-db/scripts/db.sh sql \
 ### awada 回复发送规则（强制）
 - 在 awada 会话中，常规回复必须直接输出 assistant 文本，不要调用 `message` 工具二次发送。
 - `message` 工具仅用于明确的主动外呼场景；当前会话应答禁止使用。
+- **调用任何工具（exec / message / read 等）的 turn 中，不得包含任何面向客户的文本。** 面向客户的完整回复必须在所有工具执行完成后，在最后一个 turn 中统一输出。违反此规则会导致客户收到多条内容相近的消息。
 - 若工具调用报错（如 Unknown target / send failed），不得把报错文本透传给客户，必须改为正常人工话术重答。
 - 以下文本视为内部错误文案，禁止发送给客户：
 - ⚠️ ✉️ Message failed

@@ -287,6 +287,13 @@ if [ -f "$CREWS_DIR/hrbp_index.md" ]; then
 fi
 echo "  ✅ External crew templates synced to $HRBP_TEMPLATES_DEST"
 
+# ─── 3c. 注入渠道回复规则到所有对外 crew 模板 ────────────────────
+for template_dir in "$HRBP_TEMPLATES_DEST"/*/; do
+  [ -d "$template_dir" ] || continue
+  inject_channel_reply_rules "$template_dir/AGENTS.md"
+done
+echo "  ✅ Channel reply rules injected into external crew templates"
+
 # ─── 4. 更新 openclaw.json（合并内置 Crew + skills 过滤） ────────
 if [ -f "$CONFIG_PATH" ]; then
   echo "  📝 Merging agent config into openclaw.json..."
@@ -422,7 +429,7 @@ if [ -f "$CONFIG_PATH" ]; then
         name: prev.name || 'Main Agent',
         workspace: prev.workspace || openclawHome + '/workspace-main',
         thinkingDefault: 'high',
-        reasoningDefault: 'on',
+        reasoningDefault: 'off',
         subagents: {
           ...(prev.subagents || {}),
           allowAgents: allowAgents,
@@ -439,7 +446,7 @@ if [ -f "$CONFIG_PATH" ]; then
         name: prev.name || 'HRBP',
         workspace: prev.workspace || openclawHome + '/workspace-hrbp',
         thinkingDefault: 'high',
-        reasoningDefault: 'on',
+        reasoningDefault: 'off',
         subagents: {
           ...(prev.subagents || {}),
           allowAgents: ['it-engineer'],
@@ -455,7 +462,7 @@ if [ -f "$CONFIG_PATH" ]; then
         name: prev.name || 'IT Engineer',
         workspace: prev.workspace || openclawHome + '/workspace-it-engineer',
         thinkingDefault: 'high',
-        reasoningDefault: 'on',
+        reasoningDefault: 'off',
       };
       return applySkills(base, process.env.IT_SKILLS_RESULT);
     });
@@ -477,7 +484,7 @@ if [ -f "$CONFIG_PATH" ]; then
         }
         // 对内 crew 默认思考/推理设置（不覆盖已有配置）
         if (!agent.thinkingDefault) agent.thinkingDefault = 'medium';
-        if (!agent.reasoningDefault) agent.reasoningDefault = 'on';
+        if (!agent.reasoningDefault) agent.reasoningDefault = 'off';
       } else {
         // 对外 crew 默认思考/推理设置（不覆盖已有配置）
         if (!agent.thinkingDefault) agent.thinkingDefault = 'medium';
@@ -542,6 +549,26 @@ if [ -f "$CONFIG_PATH" ]; then
   echo "  📝 Applying command tier exec policies..."
   EXEC_APPROVALS_PATH="$OPENCLAW_HOME/exec-approvals.json"
   apply_exec_tiers "$CONFIG_PATH" "$EXEC_APPROVALS_PATH" "$CREWS_DIR" "$PROJECT_ROOT"
+
+  # ─── 4d. 注入渠道回复规则到已部署的对外 crew workspaces ──────
+  while IFS=$'\t' read -r a_id a_ws; do
+    [ -n "$a_id" ] || continue
+    [ -f "$a_ws/SOUL.md" ] || continue
+    [ "$(resolve_crew_type "$a_ws/SOUL.md")" = "external" ] || continue
+    inject_channel_reply_rules "$a_ws/AGENTS.md"
+  done < <(node -e "
+    const fs = require('fs');
+    const home = process.env.HOME || '';
+    const c = JSON.parse(fs.readFileSync('$CONFIG_PATH', 'utf8'));
+    for (const a of (c.agents?.list || [])) {
+      if (!a?.id) continue;
+      const ws = (typeof a.workspace === 'string' && a.workspace.trim()
+        ? a.workspace.trim() : ('~/.openclaw/workspace-' + a.id))
+        .replace(/^~(?=\/|\$)/, home);
+      console.log(a.id + '\t' + ws);
+    }
+  " 2>/dev/null)
+  echo "  ✅ Channel reply rules synced to deployed external crew workspaces"
 else
   echo "  ⚠️  openclaw.json not found at $CONFIG_PATH"
   echo "     Will be created on first start (dev.sh / reinstall-daemon.sh)"

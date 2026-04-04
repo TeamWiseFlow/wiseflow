@@ -20,5 +20,5 @@ message(action="sendAttachment", file_name="<文件名>")
 
 ## 完整发送流程
 
-1. 调用 `message(action="sendAttachment", file_name="...")` 发送二维码图片
-2. 紧接着发送文字提示："直接扫码（或者微信中长按识别）就能支付啦"
+1. 直接调用 `message(action="sendAttachment", file_name="...")` 发送二维码图片（**本 turn 不输出任何文字**）
+2. 工具返回后，输出文字提示："直接扫码（或者微信中长按识别）就能支付啦"

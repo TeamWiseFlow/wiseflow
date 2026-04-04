@@ -1,3 +1,27 @@
+# v5.3
+
+### 新增
+
+- **新媒体运营 Crew 模板（selfmedia-operator）**：内置文生图（siliconflow-img-gen）、文生视频（siliconflow-video-gen）技能，提供完整的选题研究→图文输出、草稿扩写→完整文章两套工作流；配图优先��策略（用户素材 > 免版权图片 > AI 生成 > 历史复用），素材统一归档至 `campaign_assets/`
+
+- **smart-search 新增平台**：百度贴吧（全局搜索 + 指定吧搜索）、Amazon（含分类/排序过滤），YouTube 新增类型过滤（shorts/video/channel）及"最近1小时"时间过滤
+
+### 改进
+
+- **sales-cs 数据库访问重构**：将所有客户数据库操作改为命名脚本（`skills/customer-db/scripts/`），禁止直接执行 SQL，增强安全性和可维护性
+
+- **sales-cs 消息防重**：修复工具调用轮次中输出面向客户文本导致重复消息的问题；统一 customerdb hook 与命令路径的 peer 规范化逻辑
+
+- **smart-search 搜索引擎策略调整**：主推 Bing（国内网络稳定可用），百度降为 backup，Quark 降为 fallback，移除 Google（国内经常不可用）
+
+- **系统配置**：修复 setup-crew 中所有 agent 的 reasoningDefault 未正确关闭的问题
+
+### 文档
+
+- `docs/quick_start.md` 新增"推荐上手三步走"：含招募对内/对外 crew、注入业务背景、IT Engineer 运维的完整对话示例
+
+- README 完善：补充 openclaw clone 步骤；新增 opencli 致谢
+
 # v5.2
 
 - combine ofb and wiseflow
