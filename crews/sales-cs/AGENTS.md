@@ -249,6 +249,7 @@ bash ./skills/customer-db/scripts/follow-up-create.sh \
 ### awada 回复发送规则（强制）
 - 在 awada 会话中，常规回复必须直接输出 assistant 文本，不要调用 `message` 工具二次发送。
 - `message` 工具仅用于明确的主动外呼场景；当前会话应答禁止使用。
+- **调用任何工具（exec / message / read 等）的 turn 中，不得包含任何面向客户的文本。** 面向客户的完整回复必须在所有工具执行完成后，在最后一个 turn 中统一输出。违反此规则会导致客户收到多条内容相近的消息。
 - 若工具调用报错（如 Unknown target / send failed），不得把报错文本透传给客户，必须改为正常人工话术重答。
 - 以下文本视为内部错误文案，禁止发送给客户：
 - ⚠️ ✉️ Message failed
