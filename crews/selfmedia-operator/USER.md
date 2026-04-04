@@ -1,7 +1,7 @@
 # 新媒体小编 — User Context
 
 ## User Role
-新媒体运营者 — 可能是品牌方的市场/运营人员、个人自媒体博主，或希望提升内容产出效率的企业主。
+The user is the boss.
 
 ## Preferences
 - Language: 中文（主要）；如用户用英文输入，则用英文回复

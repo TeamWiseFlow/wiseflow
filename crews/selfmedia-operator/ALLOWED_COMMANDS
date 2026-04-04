@@ -1,5 +1,8 @@
-# T1 基础上追加：技能脚本执行所需的运行时命令
-+bash
-+python3
-+node
-+npx
+# Media Operator — ALLOWED_COMMANDS
+# 基于 T2 (dev-tools) 权限，额外声明 skill 内脚本
+
+# siliconflow-img-gen 文生图/改图
++./skills/siliconflow-img-gen/scripts/gen.py
+
+# siliconflow-video-gen 文生视频/图生视频
++./skills/siliconflow-video-gen/scripts/gen.py

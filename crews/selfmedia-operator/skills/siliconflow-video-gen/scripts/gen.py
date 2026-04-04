@@ -24,6 +24,17 @@ I2V_MODEL = "Wan-AI/Wan2.2-I2V-A14B"
 VALID_SIZES = {"1280x720", "720x1280", "960x960"}
 
 
+def default_out_dir() -> Path:
+    """Return a migration-friendly default output directory.
+
+    Resolve from this script location:
+    <workspace>/skills/siliconflow-video-gen/scripts/gen.py
+      -> <workspace>/campaign_assets
+    """
+    workspace_root = Path(__file__).resolve().parents[3]
+    return workspace_root / "campaign_assets"
+
+
 def post_json(url, payload, api_key, timeout=60):
     data = json.dumps(payload).encode()
     req = urllib.request.Request(
@@ -75,7 +86,7 @@ def poll_until_done(request_id, api_key, poll_interval, timeout):
 
 def download_video(url, dest_path):
     """Stream-download the video file to dest_path."""
-    print(f"[info] Downloading video → {dest_path}")
+    print(f"[info] Downloading video -> {dest_path}")
     req = urllib.request.Request(url, headers={"User-Agent": "wiseflow-video-gen/1.0"})
     with urllib.request.urlopen(req, timeout=300) as resp:
         dest_path.write_bytes(resp.read())
@@ -119,7 +130,8 @@ def main():
         sys.exit(1)
 
     ts = int(time.time())
-    out_dir = Path(args.out_dir) if args.out_dir else Path(f"./tmp/sf-video-{ts}")
+    out_root = Path(args.out_dir) if args.out_dir else default_out_dir()
+    out_dir = out_root / f"sf-video-{ts}"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     payload = {
