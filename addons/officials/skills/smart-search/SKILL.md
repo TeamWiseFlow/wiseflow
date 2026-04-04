@@ -46,30 +46,7 @@ Many platforms will return empty results or redirect to login if you navigate **
 
 ## General Web Search
 
-### Google (recommended for global content, no login required)
-
-```
-https://www.google.com/search?q={keyword}
-```
-
-Time filters (append to URL):
-- Last hour: `&tbs=qdr:h`
-- Last day: `&tbs=qdr:d`
-- Last week: `&tbs=qdr:w`
-- Last month: `&tbs=qdr:m`
-- Last year: `&tbs=qdr:y`
-
-Exact date range: `&tbs=cdr:1,cd_min:MM/DD/YYYY,cd_max:MM/DD/YYYY`
-
-### Google News
-
-```
-https://www.google.com/search?q={keyword}&tbm=nws
-```
-
-Sort by date: append `&tbs=sbd:1`
-
-### Bing (recommended for English and international content)
+### Bing (recommended)
 
 ```
 https://www.bing.com/search?q={keyword}
@@ -96,7 +73,7 @@ https://www.bing.com/images/search?q={keyword}
 
 Time filters for images: `&qft=filterui:age-lt{minutes}` where minutes = 1440 (day) / 10080 (week) / 44640 (month) / 525600 (year)
 
-### Baidu (recommended for Chinese content)
+### Baidu (backup)
 
 General web search:
 ```
@@ -108,7 +85,7 @@ Baidu Images:
 https://image.baidu.com/search/index?tn=baiduimage&fm=result&ie=utf-8&word={keyword}
 ```
 
-### Quark / 夸克 (recommended for Chinese news and mobile content)
+### Quark / 夸克 (fallback)
 
 ```
 https://quark.sm.cn/s?q={keyword}
