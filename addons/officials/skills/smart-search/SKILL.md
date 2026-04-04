@@ -40,7 +40,7 @@ Many platforms will return empty results or redirect to login if you navigate **
 | TikTok | Navigate `https://www.tiktok.com` | Navigate to search URL |
 
 **Platforms that do NOT need warmup** (public APIs / no auth required):
-- Google, Bing, Baidu, Quark, GitHub, arXiv, Wikipedia, BBC, HackerNews, V2EX
+- Google, Bing, Baidu, Quark, GitHub, arXiv, Wikipedia, BBC, HackerNews, V2EX, Tieba, Amazon
 
 ---
 
@@ -163,15 +163,24 @@ https://www.youtube.com/results?search_query={keyword}
 ```
 
 Time filters (append to URL):
+- Last hour: `&sp=EgIIAQ%3D%3D`
 - Today: `&sp=EgIIAg%3D%3D`
 - This week: `&sp=EgIIAw%3D%3D`
 - This month: `&sp=EgIIBA%3D%3D`
 - This year: `&sp=EgIIBQ%3D%3D`
 
-Sort options:
-- By upload date: `&sp=CAISAhAB`
-- By view count: `&sp=CAMSAhAB`
-- By rating: `&sp=CAESAhAB`
+Type filters (append to URL, cannot combine with time/sort):
+- Videos only: `&sp=EgIQAQ%3D%3D`
+- Shorts only: `&sp=EgIQCQ%3D%3D`
+- Channels only: `&sp=EgIQAg%3D%3D`
+- Playlists only: `&sp=EgIQAw%3D%3D`
+
+Sort options (append to URL, cannot combine with type filters):
+- By upload date: `&sp=CAI%3D`
+- By view count: `&sp=CAM%3D`
+- By rating: `&sp=CAE%3D`
+
+> **Note**: `sp=` only accepts one value — type, time, and sort filters are mutually exclusive. Use whichever is most relevant.
 
 Multi-keyword: join with `+` (e.g., `wiseflow+AI+搜索`)
 
@@ -272,6 +281,21 @@ https://www.zhihu.com/search?type=content&q={keyword}&vertical=article&sort=crea
 ```
 
 Multi-keyword: join with `%20`
+
+---
+
+### 百度贴吧 (Tieba)
+
+```
+https://tieba.baidu.com/f/search/res?qw={keyword}&ie=utf-8
+```
+
+Search within a specific forum (吧):
+```
+https://tieba.baidu.com/f/search/res?qw={keyword}&kw={forum_name}&ie=utf-8
+```
+
+> **Note**: Public content, no warmup needed. Only the first page of results is reliably available. Multi-keyword: URL-encode spaces as `%20`.
 
 ---
 
@@ -447,5 +471,28 @@ News search (cookie warmup required — navigate `https://www.reuters.com` first
 ```
 https://www.reuters.com/search/news?blob={keyword}
 ```
+
+Multi-keyword: join with `+`
+
+---
+
+## Shopping
+
+### Amazon
+
+```
+https://www.amazon.com/s?k={keyword}
+```
+
+Department filter (append to URL): `&i={department}` — common values: `electronics`, `books`, `clothing-shoes-jewelry`, `grocery`, `toys-and-games`
+
+Sort options (append to URL):
+- Relevance (default): `&s=relevance-rank`
+- Price low to high: `&s=price-asc-rank`
+- Price high to low: `&s=price-desc-rank`
+- Avg customer review: `&s=review-rank`
+- Newest arrivals: `&s=date-desc-rank`
+
+> **Anti-bot protection**: Navigate and wait at least 2–3 seconds before taking a snapshot. If you encounter a robot verification page, do not retry immediately — follow the **browser-guide** skill.
 
 Multi-keyword: join with `+`
