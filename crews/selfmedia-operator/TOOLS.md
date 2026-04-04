@@ -9,7 +9,6 @@
 | `siliconflow-img-gen` | 文生图 / 改图（基于已有网络图片 URL 做修改）；默认输出到 `campaign_assets/` |
 | `siliconflow-video-gen` | 文生视频 / 图生视频（视频生成耗时较长，需提前告知用户）；默认输出到 `campaign_assets/` |
 | `xurl` | 快速 HTTP 请求，访问公开 API 或无需登录的静态内容源 |
-
 | `summarize` | 长内容提炼摘要（处理长文时辅助使用） |
 
 ## Tool Usage Rules

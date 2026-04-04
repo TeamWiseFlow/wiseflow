@@ -40,36 +40,13 @@ Many platforms will return empty results or redirect to login if you navigate **
 | TikTok | Navigate `https://www.tiktok.com` | Navigate to search URL |
 
 **Platforms that do NOT need warmup** (public APIs / no auth required):
-- Google, Bing, Baidu, Quark, GitHub, arXiv, Wikipedia, BBC, HackerNews, V2EX
+- Google, Bing, Baidu, Quark, GitHub, arXiv, Wikipedia, BBC, HackerNews, V2EX, Tieba, Amazon
 
 ---
 
 ## General Web Search
 
-### Google (recommended for global content, no login required)
-
-```
-https://www.google.com/search?q={keyword}
-```
-
-Time filters (append to URL):
-- Last hour: `&tbs=qdr:h`
-- Last day: `&tbs=qdr:d`
-- Last week: `&tbs=qdr:w`
-- Last month: `&tbs=qdr:m`
-- Last year: `&tbs=qdr:y`
-
-Exact date range: `&tbs=cdr:1,cd_min:MM/DD/YYYY,cd_max:MM/DD/YYYY`
-
-### Google News
-
-```
-https://www.google.com/search?q={keyword}&tbm=nws
-```
-
-Sort by date: append `&tbs=sbd:1`
-
-### Bing (recommended for English and international content)
+### Bing (recommended)
 
 ```
 https://www.bing.com/search?q={keyword}
@@ -96,7 +73,7 @@ https://www.bing.com/images/search?q={keyword}
 
 Time filters for images: `&qft=filterui:age-lt{minutes}` where minutes = 1440 (day) / 10080 (week) / 44640 (month) / 525600 (year)
 
-### Baidu (recommended for Chinese content)
+### Baidu (backup)
 
 General web search:
 ```
@@ -108,7 +85,7 @@ Baidu Images:
 https://image.baidu.com/search/index?tn=baiduimage&fm=result&ie=utf-8&word={keyword}
 ```
 
-### Quark / 夸克 (recommended for Chinese news and mobile content)
+### Quark / 夸克 (fallback)
 
 ```
 https://quark.sm.cn/s?q={keyword}
@@ -163,15 +140,24 @@ https://www.youtube.com/results?search_query={keyword}
 ```
 
 Time filters (append to URL):
+- Last hour: `&sp=EgIIAQ%3D%3D`
 - Today: `&sp=EgIIAg%3D%3D`
 - This week: `&sp=EgIIAw%3D%3D`
 - This month: `&sp=EgIIBA%3D%3D`
 - This year: `&sp=EgIIBQ%3D%3D`
 
-Sort options:
-- By upload date: `&sp=CAISAhAB`
-- By view count: `&sp=CAMSAhAB`
-- By rating: `&sp=CAESAhAB`
+Type filters (append to URL, cannot combine with time/sort):
+- Videos only: `&sp=EgIQAQ%3D%3D`
+- Shorts only: `&sp=EgIQCQ%3D%3D`
+- Channels only: `&sp=EgIQAg%3D%3D`
+- Playlists only: `&sp=EgIQAw%3D%3D`
+
+Sort options (append to URL, cannot combine with type filters):
+- By upload date: `&sp=CAI%3D`
+- By view count: `&sp=CAM%3D`
+- By rating: `&sp=CAE%3D`
+
+> **Note**: `sp=` only accepts one value — type, time, and sort filters are mutually exclusive. Use whichever is most relevant.
 
 Multi-keyword: join with `+` (e.g., `wiseflow+AI+搜索`)
 
@@ -272,6 +258,21 @@ https://www.zhihu.com/search?type=content&q={keyword}&vertical=article&sort=crea
 ```
 
 Multi-keyword: join with `%20`
+
+---
+
+### 百度贴吧 (Tieba)
+
+```
+https://tieba.baidu.com/f/search/res?qw={keyword}&ie=utf-8
+```
+
+Search within a specific forum (吧):
+```
+https://tieba.baidu.com/f/search/res?qw={keyword}&kw={forum_name}&ie=utf-8
+```
+
+> **Note**: Public content, no warmup needed. Only the first page of results is reliably available. Multi-keyword: URL-encode spaces as `%20`.
 
 ---
 
@@ -447,5 +448,28 @@ News search (cookie warmup required — navigate `https://www.reuters.com` first
 ```
 https://www.reuters.com/search/news?blob={keyword}
 ```
+
+Multi-keyword: join with `+`
+
+---
+
+## Shopping
+
+### Amazon
+
+```
+https://www.amazon.com/s?k={keyword}
+```
+
+Department filter (append to URL): `&i={department}` — common values: `electronics`, `books`, `clothing-shoes-jewelry`, `grocery`, `toys-and-games`
+
+Sort options (append to URL):
+- Relevance (default): `&s=relevance-rank`
+- Price low to high: `&s=price-asc-rank`
+- Price high to low: `&s=price-desc-rank`
+- Avg customer review: `&s=review-rank`
+- Newest arrivals: `&s=date-desc-rank`
+
+> **Anti-bot protection**: Navigate and wait at least 2–3 seconds before taking a snapshot. If you encounter a robot verification page, do not retry immediately — follow the **browser-guide** skill.
 
 Multi-keyword: join with `+`
