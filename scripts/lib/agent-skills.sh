@@ -272,6 +272,22 @@ console.log(JSON.stringify(Array.from(new Set(lines))));
 '
 }
 
+# 向 external crew 的 AGENTS.md 追加渠道回复规则（幂等）
+# 规则：调用工具的 turn 不得包含面向客户的文本，所有文本在最后一个 turn 统一输出
+inject_channel_reply_rules() {
+  local agents_md="$1"
+  [ -f "$agents_md" ] || return 0
+  grep -qF "## 渠道回复规则（自动注入）" "$agents_md" && return 0
+  cat >> "$agents_md" << 'RULES'
+
+---
+
+## 渠道回复规则（自动注入）
+
+调用任何工具（exec / message / read 等）的 turn 中，不得包含任何面向客户的文本。面向客户的完整回复必须在所有工具执行完成后，在最后一个 turn 中统一输出。违反此规则会导致客户收到多条内容相近的消息。
+RULES
+}
+
 # 向 workspace 的 TOOLS.md 追加通用工具调用规范（幂等）
 # 注入内容见 docs/injected_instruction.md
 inject_file_edit_guide() {
