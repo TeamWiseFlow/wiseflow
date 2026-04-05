@@ -105,6 +105,8 @@ bash ./skills/customer-db/scripts/cs-update.sh \
 
 `follow_up` 表记录客户延迟购买意向，供 heartbeat 定时跟进。status 流转：`pending → sent_once → completed`。
 
+> heartbeat 完整执行流程见 `HEARTBEAT.md`。
+
 ### 创建跟进任务
 
 若同一客户已有 `pending` 状态的旧任务，**先取消旧任务，再创建新任务**：
@@ -123,7 +125,7 @@ bash ./skills/customer-db/scripts/follow-up-create.sh \
   --context-summary "<客户核心兴趣点和建议跟进角度>"
 ```
 
-### 查询到期任务（heartbeat 使用）
+### 查询到期任务
 
 ```bash
 bash ./skills/customer-db/scripts/follow-up-due.sh
@@ -147,7 +149,7 @@ bash ./skills/customer-db/scripts/follow-up-complete.sh \
   --sent-text "<发送的消息内容>"
 ```
 
-### 过期清理（heartbeat 使用）
+### 过期清理
 
 超过 48 小时仍为 `pending` 的任务视为客户失联，自动标记完成：
 
