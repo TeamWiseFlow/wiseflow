@@ -111,6 +111,10 @@ wiseflow 的 Crew 分为两大类：`对内`和`对外`.
 
 > 说实话，市面上有很多基于 openclaw 的二开项目都支持多 crew（Agent），甚至还支持让这些 crew（Agent） 自主协同，或者带个办公室界面，你能看到他们在一起“过家家”……我认为这些都太华而不实了! 如果不能搞钱，一个 Agent Team 跟一个 chatbot 一样，只是玩具而已！
 
+看看基于 wiseflow 免费开源的 sales-cs crew template “调教“出的销售型客服有多智能！
+
+<img width="960" src="assets/nb1.jpg" />
+
 有关“多 crew 机制”设计，详见[CREW TYPE DESIGN](docs/crew-system.md)
 
 #### Crew 之间的自主协作
@@ -258,6 +262,7 @@ wiseflow/
 - Feedparser（Parse feeds in Python） https://github.com/kurtmckee/feedparser
 - SearXNG（a free internet metasearch engine which aggregates results from various search services and databases） https://github.com/searxng/searxng
 - opencli（A CLI for social media & web platforms — smart-search skill 借鉴了其搜索 URL 模式与平台适配方案） https://github.com/jackwener/opencli
+- 文颜(Markdown文章排版美化工具，支持微信公众号、今日头条、知乎等平台。) https://github.com/caol64/wenyan
 
 ## Citation
 
