@@ -115,7 +115,9 @@ wiseflow 的 Crew 分为两大类：`对内`和`对外`.
 
 <img width="960" src="assets/nb1.jpg" />
 
-有关“多 crew 机制”设计，详见[CREW TYPE DESIGN](docs/crew-system.md)
+注意，我们没有使用FAQ，也没有workflow，这是纯粹的harness工程。
+
+有关”多 crew 机制”设计，详见[CREW TYPE DESIGN](docs/crew-system.md)
 
 #### Crew 之间的自主协作
   
