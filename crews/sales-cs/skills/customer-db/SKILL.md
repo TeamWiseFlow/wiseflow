@@ -123,7 +123,17 @@ bash ./skills/customer-db/scripts/follow-up-create.sh \
   --context-summary "<客户核心兴趣点和建议跟进角度>"
 ```
 
-### 查询到期任务（heartbeat 使用）
+> heartbeat 完整执行流程见 HEARTBEAT.md
+
+### 过期清理
+
+超过 48 小时仍为 `pending` 的任务视为客户失联，自动标记完成：
+
+```bash
+bash ./skills/customer-db/scripts/follow-up-expire.sh
+```
+
+### 查询到期任务
 
 ```bash
 bash ./skills/customer-db/scripts/follow-up-due.sh
@@ -145,14 +155,6 @@ bash ./skills/customer-db/scripts/follow-up-mark-sent.sh \
 bash ./skills/customer-db/scripts/follow-up-complete.sh \
   --id <id> \
   --sent-text "<发送的消息内容>"
-```
-
-### 过期清理（heartbeat 使用）
-
-超过 48 小时仍为 `pending` 的任务视为客户失联，自动标记完成：
-
-```bash
-bash ./skills/customer-db/scripts/follow-up-expire.sh
 ```
 
 ---
