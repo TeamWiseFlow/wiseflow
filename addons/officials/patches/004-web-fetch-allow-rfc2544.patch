@@ -1,11 +1,11 @@
 diff --git a/src/agents/tools/web-fetch.ts b/src/agents/tools/web-fetch.ts
-index f4cc88e2d..cd08b177c 100644
+index faae39c38c..df4122fd50 100644
 --- a/src/agents/tools/web-fetch.ts
 +++ b/src/agents/tools/web-fetch.ts
-@@ -533,6 +533,8 @@ async function runWebFetch(params: WebFetchRuntimeParams): Promise<Record<string
-       url: params.url,
+@@ -388,6 +388,8 @@ async function runWebFetch(params: WebFetchRuntimeParams): Promise<Record<string
        maxRedirects: params.maxRedirects,
        timeoutSeconds: params.timeoutSeconds,
+       lookupFn: params.lookupFn,
 +      // Allow RFC 2544 benchmark IPs (198.18.0.0/15) used by proxy fake-IP DNS (Clash etc.)
 +      policy: { allowRfc2544BenchmarkRange: true },
        init: {
