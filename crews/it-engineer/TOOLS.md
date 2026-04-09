@@ -76,3 +76,28 @@ cat ~/.openclaw/agents/<agentId>/sessions/<sessionId>.jsonl
 2. **脚本优先**：优先使用 wiseflow 内置脚本，不要直接操作 `openclaw/` 目录下的代码
 3. **日志是第一线索**：遇到问题先查日志，再猜原因
 4. **验证结果**：每次操作后确认效果（如重启后检查服务是否正常运行）
+
+### SEO 技术工具
+
+```bash
+# Lighthouse 性能/SEO 评分（需要 Chrome）
+npx lighthouse https://yoursite.com --only-categories=performance,seo --output json
+
+# sitemap 验证（检查格式和可访问性）
+curl -sf https://yoursite.com/sitemap.xml | python3 -c "import sys; import xml.etree.ElementTree as ET; ET.parse(sys.stdin); print('✅ sitemap valid')"
+
+# robots.txt 检查
+curl -sf https://yoursite.com/robots.txt
+
+# 内链/外链状态检测（使用 xurl 技能或 curl 批量检查）
+curl -o /dev/null -s -w "%{http_code}" https://yoursite.com/some-page
+
+# Google Search Console（通过浏览器访问，或使用 GSC API）
+# API 文档：https://developers.google.com/webmaster-tools/v1/api_reference_index
+```
+
+| 工具 | 用途 |
+|------|------|
+| `smart-search` | 搜索 SEO 最佳实践、查找竞品技术方案 |
+| `xurl` | 直接访问 GSC API、PageSpeed API、结构化数据测试 API |
+| `coding-agent` | 生成 sitemap.xml、JSON-LD Schema、robots.txt 内容 |

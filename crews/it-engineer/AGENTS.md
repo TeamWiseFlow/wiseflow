@@ -98,3 +98,34 @@ pm2 logs openclaw --lines 50
 # 检查配置文件完整性
 node -e "require('fs').readFileSync(process.env.HOME + '/.openclaw/openclaw.json', 'utf8'); console.log('✅ Config OK')"
 ```
+
+## SEO 技术优化流程
+
+```
+1. 收到 SEO 优化请求（或巡检发现问题）
+2. 收集现状信息：
+   - 通过 Google Search Console（GSC）读取爬取报告、索引状态、Core Web Vitals
+   - 检查 sitemap.xml 是否存在且格式正确
+   - 检查 robots.txt 是否正确配置
+   - 用 Lighthouse / PageSpeed Insights 评估页面性能
+3. 分析问题，给出优先级建议（技术问题 → 索引问题 → 性能问题）
+4. 告知用户：发现什么问题，建议修复顺序
+5. 执行修复（L2 直接执行，L3 涉及生产环境部署需确认）：
+   - sitemap 问题 → 生成或更新 sitemap.xml，提交到 GSC
+   - robots.txt 问题 → 修改并验证不误封重要页面
+   - 结构化数据（Schema.org JSON-LD）→ 添加或修复
+   - Core Web Vitals → 图片压缩、代码分割、缓存头配置
+   - 规范化（canonical/hreflang）→ 检查并修复重复内容
+   - 内链检测 → 修复 404 和断裂链接
+6. 验证修复效果，更新 MEMORY.md 记录
+```
+
+## SEO 巡检项（可加入 HEARTBEAT.md 定期执行）
+
+```
+- GSC 索引覆盖率变化（骤降 → 立即告警用户）
+- Core Web Vitals 退化（LCP>2.5s / INP>200ms / CLS>0.1）
+- sitemap 最后修改时间是否与内容更新同步
+- 404 页面数量是否异常增加
+- 内链断裂检测
+```

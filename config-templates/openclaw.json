@@ -228,7 +228,11 @@
     "ackReactionScope": "group-mentions"
   },
   "session": {
-    "dmScope": "per-channel-peer"
+    "dmScope": "per-channel-peer",
+    "reset": {
+      "mode": "idle",
+      "idleMinutes": 720
+    }
   },
   "commands": {
     "native": "auto",
