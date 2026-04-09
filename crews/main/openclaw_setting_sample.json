@@ -1,0 +1,7 @@
+{
+  "skills": [],
+  "subagents": {
+    "allowAgents": ["it-engineer"]
+  },
+  "tools": {}
+}

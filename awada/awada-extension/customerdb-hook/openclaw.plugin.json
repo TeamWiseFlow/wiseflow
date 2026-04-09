@@ -1,0 +1,15 @@
+{
+  "id": "customerdb-hook",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "agentId": {
+        "type": "string"
+      },
+      "workspaceDir": {
+        "type": "string"
+      }
+    }
+  }
+}

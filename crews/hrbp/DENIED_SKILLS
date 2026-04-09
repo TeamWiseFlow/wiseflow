@@ -1,4 +1,9 @@
-# IT 工程师专属技能，其他 agent 不需要
+# IT 工程师专属技能
 github
 gh-issues
 coding-agent
+# 业务拓展专属技能（business-developer 使用）
+connections-optimizer
+email-ops
+pitch-deck
+social-graph-ranker
