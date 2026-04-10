@@ -59,26 +59,33 @@
   - `redis://HOST:PORT/DB`
   - `redis://:PASSWORD@HOST:PORT/DB`
 
-### 客服场景推荐配置
+### 客服场景配置要点
 
-微信客服场景通常需要两项配置组合使用：
-
-1. **`channels.awada.perMsgMaxLen`**（如 `1800`）：微信对单条消息有长度限制，超长回复会被截断。设置此项后，awada-extension 会在发送层自动将长回复拆分为多条，不影响 LLM 生成。
-
-2. **`session.dmScope: "per-channel-peer"`**：让每个微信用户（`user_id_external`）独享独立 session，用户 A 的对话上下文与用户 B 完全隔离。`session` 是顶层配置字段，与 `channels` 平级。
+1. **`channels.awada.perMsgMaxLen`**(如 `1800`):微信对单条消息有长度限制,超长回复会被截断。设置此项后,awada-extension 会在发送层自动将长回复拆分为多条,不影响 LLM 生成。
 
 ```json
 {
   "channels": {
-    "awada": { "perMsgMaxLen": 1800, "...": "其他配置" }
-  },
-  "session": {
-    "dmScope": "per-channel-peer"
+    "awada": { "perMsgMaxLen": 500, "...": "其他配置" }
   }
 }
 ```
 
-> `dmScope` 是全局设置，对所有 channel 生效。若不希望影响其他 channel，需了解上游暂不支持 per-channel 的 dmScope 配置。
+2. 如需启动 customerDB hook（自动记录客户来访、更新状态等），需要在`plugins`字段下参考如下配置：
+
+```json
+"plugins": [
+  {
+    "path": "{wiseflow 项目路径}/awada/awada-extension",
+    "config": {
+      "customerdb": {
+        "agentId": "sales-cs",
+        "workspaceDir": "/home/wukong/.openclaw/workspace-sales-cs"
+      }
+    }
+  }
+]
+```
 
 ---
 
