@@ -3,3 +3,6 @@ connections-optimizer
 email-ops
 pitch-deck
 social-graph-ranker
+# 生图/生视频技能（IT Engineer 不需要）
+siliconflow-img-gen
+siliconflow-video-gen

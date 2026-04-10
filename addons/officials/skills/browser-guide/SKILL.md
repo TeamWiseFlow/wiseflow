@@ -17,13 +17,58 @@ Follow these rules whenever you use the `browser` tool to interact with web page
 
 ## 1. Login Prompts
 
-When a page shows a login wall (sign-in form, "please log in" banner, OAuth redirect, etc.):
+When a page shows a login wall, first identify which login mechanism is offered, then follow the matching procedure below.
 
-1. **Try the browser's built-in password manager first**: check whether the login form has auto-filled credentials from saved passwords. If so, use them to complete the login.
-2. If no saved credentials are available, **do NOT make up usernames or passwords, and do NOT attempt to register a new account**.
-3. Send a message to the user: _"xx 页面需要登录，浏览器中没有预存密码，请在浏览器中完成登录或注册，完成后请通知我。"_（xx 为页面标题）.
-4. Wait for the user to confirm.
-5. If no response arrives within **5 minutes**, assume the user is unavailable and continue with whatever content is accessible.
+**General constraint: retry at most 2 times per login attempt — frequent retries risk account suspension.**
+
+### 1-A. Browser saved credentials
+
+1. Check whether the login form has auto-filled credentials from saved passwords. If so, use them.
+2. On failure, continue to 1-B / 1-C / 1-D as appropriate.
+
+### 1-B. QR Code login
+
+When the login page shows a QR code (WeChat Official Account backend, Xiaohongshu creator centre, X/Twitter, etc.):
+
+1. Use `snapshot` to locate the QR code image element. Download / screenshot it and save it to `/tmp/` (e.g., `/tmp/xhs_qr.png`).
+2. Read the file with the `Read` tool so it is displayed inline to the user:
+   ```
+   Read: /tmp/xhs_qr.png
+   ```
+3. Notify the user:
+   > "**[平台名称]** 登录已失效（或首次使用），请用 **[平台]** APP 扫描以下二维码登录。扫码并在手机上点击确认后，回复"已扫码"。"
+4. **Stop and wait** for the user to reply "已扫码"、"好了"、"扫完了" or any equivalent confirmation before continuing.
+5. While waiting, poll the page every **3 seconds** using `snapshot` for signs of successful login (URL change, QR code disappears, dashboard/avatar appears). If auto-detected, resume immediately without waiting for the user reply.
+6. If no scan occurs within **3 minutes** and no reply arrives, send: _"扫码超时，将继续处理当前可访问的内容。"_ and proceed.
+
+### 1-C. SMS verification login
+
+When the login page asks for a phone number and SMS verification code:
+
+1. Ask the user for the registered phone number for this platform:
+   > "**[平台名称]** 需要手机验证码登录，请告知您在该平台注册的手机号。"
+2. Once received, enter the phone number and trigger the SMS code request. Attempt at most **2 times** if the first trigger fails.
+3. Ask the user for the verification code:
+   > "短信验证码已发送，请将收到的验证码回复给我。"
+4. Enter the code and complete login. If login fails, inform the user and proceed with accessible content — **do not retry a third time**.
+
+### 1-D. Username / password login
+
+When only a username + password form is available:
+
+1. Check for browser-saved credentials first (see 1-A).
+2. If none, ask the user for their preference:
+   > "**[平台名称]** 需要账号密码登录，浏览器中未找到预存密码。请选择：① 您自行在浏览器中登录后告知我，② 告知用户名和密码由我代为登录。"
+3. If the user chooses ②, receive the credentials and attempt login. Retry at most **2 times** on failure.
+4. If login fails after 2 attempts, inform the user and continue with accessible content.
+
+### 1-E. Fallback — login not possible
+
+If login cannot be completed for any reason (timeout, user unavailable, repeated failures):
+
+- **Do NOT stop or abort the task.**
+- Continue with whatever content is accessible in the non-logged-in state.
+- At the end, include a note in the result: _"注：[平台名称] 未能完成登录，以下内容来自未登录状态，可能不完整。"_
 
 ## 2. Simple Verification / CAPTCHA
 
@@ -60,13 +105,3 @@ When a page indicates that content is behind a paywall or requires a specific su
 1. Send a message to the user describing the situation: _"xx 页面需要订阅，请在浏览器中登录有效账号或者完成付费，完成后请通知我。"_（xx 为页面标题）.
 2. Wait for the user to confirm.
 3. If no response arrives within **5 minutes**, continue with whatever content is accessible (summary, headline, or any visible excerpt).
-
-## 6. QR Code Login
-
-Some platforms (e.g., WeChat Official Account backend at mp.weixin.qq.com, Xiaohongshu creator center, X/Twitter) show a QR code on the login page instead of a password form. When this happens:
-
-1. Use `snapshot` to locate the QR code image element on the page.
-2. Take a screenshot scoped to the QR code area and send it to the user as an image with the message: _"xx 页面需要扫码登录，请用手机扫描截图中的二维码完成登录，完成后请通知我。"_（xx 为平台名称，例如"微信公众号后台"、"小红书创作者中心"、"X"）.
-3. After sending, poll the page every **3 seconds** using `snapshot`: check for signs of successful login such as a URL change away from the login page, disappearance of the QR code element, or appearance of a username, avatar, or dashboard element.
-4. Once a successful login is detected, resume the original task without waiting for the user to reply.
-5. If no scan occurs within **3 minutes**, send the message: _"扫码超时，我将继续处理当前可访问的内容。"_ and continue with whatever is accessible.

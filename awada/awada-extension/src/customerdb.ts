@@ -1,8 +1,38 @@
+/**
+ * CustomerDB feature — injects customer context into LLM prompts and handles
+ * silent sales commands (payment_success, club_join) without invoking an LLM.
+ *
+ * Originally a standalone plugin (customerdb-hook); merged into awada-extension
+ * so that a single plugin entry in openclaw.json covers both channel and CRM.
+ *
+ * Activated when `pluginConfig.customerdb.agentId` is set in openclaw.json:
+ *
+ *   "plugins": [{
+ *     "path": "awada/awada-extension",
+ *     "config": {
+ *       "customerdb": {
+ *         "agentId": "sales-cs",
+ *         "workspaceDir": "/home/.../.openclaw/workspace-sales-cs"
+ *       }
+ *     }
+ *   }]
+ */
+
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk/core";
-import { emptyPluginConfigSchema } from "openclaw/plugin-sdk/core";
 import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
+
+// ── Config ───────────────────────────────────────────────────────────────────
+
+export interface CustomerDbConfig {
+  /** Agent ID to attach context to. Default: "sales-cs" */
+  agentId?: string;
+  /** Workspace directory containing db/customer.db. Default: ~/.openclaw/workspace-sales-cs */
+  workspaceDir?: string;
+}
+
+// ── Types ────────────────────────────────────────────────────────────────────
 
 type CustomerRow = {
   peer: string;
@@ -19,7 +49,7 @@ type SentFollowUp = {
   sent_text: string;
 };
 
-// ── Schema DDL ──────────────────────────────────────────────────────────────
+// ── Schema DDL ───────────────────────────────────────────────────────────────
 
 const CS_RECORD_DDL = `
 CREATE TABLE IF NOT EXISTS cs_record (
@@ -50,7 +80,7 @@ CREATE TABLE IF NOT EXISTS follow_up (
 );
 `.trim();
 
-// ── SQLite helpers ───────────────────────────────────────────────────────────
+// ── Peer normalization ────────────────────────────────────────────────────────
 
 /**
  * Normalize a raw peer string to a canonical, DB-safe form.
@@ -62,8 +92,6 @@ CREATE TABLE IF NOT EXISTS follow_up (
  *   3. strip ASCII control characters U+0000–U+001F and U+007F
  *      (\t \n \r \0 etc. — \t breaks tab-separated sqlite3 output parsing;
  *       \n/\r break line-based output; \0 is a null-byte hazard in SQLite C layer)
- *
- * Single quotes are handled separately by sqlQuote() at the call site.
  */
 function normalizePeer(raw: string): string {
   return raw
@@ -72,17 +100,13 @@ function normalizePeer(raw: string): string {
     .replace(/[\x00-\x1f\x7f]/g, "");
 }
 
-function extractSuffixFromSessionKey(sessionKey?: string): string | null {
+function resolvePeerFromSessionKey(sessionKey?: string): string | null {
   if (!sessionKey) return null;
   const preferred = sessionKey.match(/^agent:[^:]+:awada:direct:(.+)$/);
   if (preferred?.[1]) return normalizePeer(preferred[1]);
   const tolerant = sessionKey.match(/^agent:.*:awada:direct:(.+)$/);
   if (tolerant?.[1]) return normalizePeer(tolerant[1]);
   return null;
-}
-
-function resolvePeerFromSessionKey(sessionKey?: string): string | null {
-  return extractSuffixFromSessionKey(sessionKey);
 }
 
 function resolvePeerForCommand(ctx: {
@@ -93,6 +117,8 @@ function resolvePeerForCommand(ctx: {
   if (!ctx.senderId) return null;
   return normalizePeer(ctx.senderId);
 }
+
+// ── SQLite helpers ────────────────────────────────────────────────────────────
 
 function sqliteExec(dbFile: string, args: string[], options?: { input?: string }) {
   const res = spawnSync("sqlite3", [dbFile, ...args], {
@@ -109,20 +135,15 @@ function sqlQuote(input: string): string {
   return `'${input.replace(/'/g, "''")}'`;
 }
 
-// ── DB initialization ────────────────────────────────────────────────────────
+// ── DB initialization ─────────────────────────────────────────────────────────
 
-function ensureDatabaseReady(params: {
-  dbFile: string;
-  schemaFile: string;
-}) {
+function ensureDatabaseReady(params: { dbFile: string; schemaFile: string }) {
   const { dbFile, schemaFile } = params;
 
-  // Ensure cs_record exists
   const tableName = sqliteExec(dbFile, [
     "SELECT name FROM sqlite_master WHERE type='table' AND name='cs_record';",
   ]);
   if (tableName !== "cs_record") {
-    // Try legacy schema.sql, fall back to inline DDL
     try {
       const schemaSql = readFileSync(schemaFile, "utf8");
       sqliteExec(dbFile, [], { input: schemaSql });
@@ -131,10 +152,10 @@ function ensureDatabaseReady(params: {
     }
   }
 
-  // Always ensure follow_up table (idempotent migration)
+  // Idempotent: always ensure follow_up table
   sqliteExec(dbFile, [], { input: FOLLOW_UP_DDL });
 
-  // Migrate: rename awada_customer_id → user_id_external if old column exists
+  // Migration: rename awada_customer_id → user_id_external if legacy column exists
   try {
     const cols = sqliteExec(dbFile, ["PRAGMA table_info(follow_up);"]);
     if (cols.includes("awada_customer_id")) {
@@ -147,7 +168,7 @@ function ensureDatabaseReady(params: {
   }
 }
 
-// ── cs_record operations ─────────────────────────────────────────────────────
+// ── cs_record operations ──────────────────────────────────────────────────────
 
 function ensurePeerRow(dbFile: string, peer: string) {
   sqliteExec(dbFile, [
@@ -173,11 +194,9 @@ function selectCustomerRow(dbFile: string, peer: string): CustomerRow | null {
     "\t",
     `SELECT peer, business_status, purpose, prompt_source, club_in, created_at, updated_at FROM cs_record WHERE peer=${sqlQuote(peer)} LIMIT 1;`,
   ]);
-
   if (!out) return null;
   const [p, business_status, purpose, prompt_source, club_in, created_at, updated_at] =
     out.split("\t");
-
   return {
     peer: p ?? peer,
     business_status: business_status ?? "free",
@@ -189,7 +208,7 @@ function selectCustomerRow(dbFile: string, peer: string): CustomerRow | null {
   };
 }
 
-// ── follow_up operations ─────────────────────────────────────────────────────
+// ── follow_up operations ──────────────────────────────────────────────────────
 
 function selectSentOnceFollowUp(dbFile: string, peer: string): SentFollowUp | null {
   const out = sqliteExec(dbFile, [
@@ -209,7 +228,7 @@ function completePendingFollowUps(dbFile: string, peer: string): void {
   ]);
 }
 
-// ── Prompt context builders ──────────────────────────────────────────────────
+// ── Prompt context builders ───────────────────────────────────────────────────
 
 const STATIC_RULES = [
   "CustomerDB 规则（每轮适用）：",
@@ -236,129 +255,112 @@ function buildFollowUpContext(followUp: SentFollowUp): string {
   return [
     "[FollowUp]",
     `你之前主动跟进过该客户，发送内容：「${followUp.sent_text}」`,
-    "客户本��是主动回复，跟进任务已自动完成。",
+    "客户本次是主动回复，跟进任务已自动完成。",
     "[/FollowUp]",
   ].join("\n");
 }
 
-// ── Plugin ───────────────────────────────────────────────────────────────────
+// ── Public registration function ─────────────��────────────────────────────────
 
-const plugin = {
-  id: "customerdb-hook",
-  name: "Sales CS CustomerDB Hook",
-  description: "Inject customer DB context and handle sales commands without LLM.",
-  configSchema: emptyPluginConfigSchema(),
-  register(api: OpenClawPluginApi) {
-    const cfg = (api.pluginConfig ?? {}) as { agentId?: string; workspaceDir?: string };
-    const agentId = cfg.agentId || "sales-cs";
-    const workspaceDir = cfg.workspaceDir || "/home/wukong/.openclaw/workspace-sales-cs";
-    const dbFile = join(workspaceDir, "db", "customer.db");
-    const schemaFile = join(workspaceDir, "db", "schema.sql");
+/**
+ * Register CustomerDB hooks and commands into the given plugin API.
+ * Called from awada-extension's register() when pluginConfig.customerdb is set.
+ */
+export function registerCustomerDb(api: OpenClawPluginApi, cfg: CustomerDbConfig): void {
+  const agentId = cfg.agentId ?? "sales-cs";
+  const workspaceDir = cfg.workspaceDir ?? `${process.env.HOME ?? "/root"}/.openclaw/workspace-sales-cs`;
+  const dbFile = join(workspaceDir, "db", "customer.db");
+  const schemaFile = join(workspaceDir, "db", "schema.sql");
 
-    // Initialize DB at plugin load (ensures follow_up table exists before heartbeat queries)
-    try {
-      ensureDatabaseReady({ dbFile, schemaFile });
-    } catch (err) {
-      api.logger.warn?.(
-        `customerdb-hook: DB init at startup failed: ${err instanceof Error ? err.message : String(err)}`,
-      );
-    }
+  try {
+    ensureDatabaseReady({ dbFile, schemaFile });
+  } catch (err) {
+    api.logger.warn?.(
+      `customerdb: DB init failed: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
 
-    const preparePeer = (peer: string) => {
-      ensurePeerRow(dbFile, peer);
-    };
+  const preparePeer = (peer: string) => ensurePeerRow(dbFile, peer);
 
-    api.registerCommand({
-      name: "payment_success",
-      description: "Mark customer as subscription-success (silent)",
-      acceptsArgs: false,
-      requireAuth: false,
-      handler: async (ctx) => {
-        try {
-          const peer = resolvePeerForCommand({
-            channel: ctx.channel,
-            senderId: ctx.senderId,
-          });
-          if (!peer) {
-            api.logger.warn?.(
-              `payment_success: peer unresolved (channel=${ctx.channel}, senderId=${ctx.senderId ?? ""})`,
-            );
-            return { text: "NO_REPLY" };
-          }
-          preparePeer(peer);
-          updateForPaymentSuccess(dbFile, peer);
-          return { text: "NO_REPLY" };
-        } catch (err) {
-          api.logger.warn?.(
-            `payment_success command failed: ${err instanceof Error ? err.message : String(err)}`,
-          );
-          return { text: "NO_REPLY" };
-        }
-      },
-    });
-
-    api.registerCommand({
-      name: "club_join",
-      description: "Mark customer as club member and stamp join date (silent)",
-      acceptsArgs: false,
-      requireAuth: false,
-      handler: async (ctx) => {
-        try {
-          const peer = resolvePeerForCommand({
-            channel: ctx.channel,
-            senderId: ctx.senderId,
-          });
-          if (!peer) {
-            api.logger.warn?.(
-              `club_join: peer unresolved (channel=${ctx.channel}, senderId=${ctx.senderId ?? ""})`,
-            );
-            return { text: "NO_REPLY" };
-          }
-          preparePeer(peer);
-          updateForClubJoin(dbFile, peer);
-          return { text: "NO_REPLY" };
-        } catch (err) {
-          api.logger.warn?.(
-            `club_join command failed: ${err instanceof Error ? err.message : String(err)}`,
-          );
-          return { text: "NO_REPLY" };
-        }
-      },
-    });
-
-    api.on("before_prompt_build", (event, ctx) => {
+  api.registerCommand({
+    name: "payment_success",
+    description: "Mark customer as subscription-success (silent)",
+    acceptsArgs: false,
+    requireAuth: false,
+    handler: async (ctx) => {
       try {
-        if (ctx.agentId !== agentId) return;
-        const peer = resolvePeerFromSessionKey(ctx.sessionKey);
-        if (!peer) return;
-
-        preparePeer(peer);
-        const row = selectCustomerRow(dbFile, peer);
-        if (!row) return;
-
-        // Check for any sent_once follow-up to inject as context
-        const sentFollowUp = selectSentOnceFollowUp(dbFile, peer);
-
-        // Customer came in — complete all pending/sent_once follow-ups
-        completePendingFollowUps(dbFile, peer);
-
-        let appendCtx = buildDynamicContext(row);
-        if (sentFollowUp) {
-          appendCtx += "\n\n" + buildFollowUpContext(sentFollowUp);
+        const peer = resolvePeerForCommand({ channel: ctx.channel, senderId: ctx.senderId });
+        if (!peer) {
+          api.logger.warn?.(
+            `payment_success: peer unresolved (channel=${ctx.channel}, senderId=${ctx.senderId ?? ""})`,
+          );
+          return { text: "NO_REPLY" };
         }
-
-        return {
-          prependSystemContext: STATIC_RULES,
-          appendSystemContext: appendCtx,
-        };
+        preparePeer(peer);
+        updateForPaymentSuccess(dbFile, peer);
+        return { text: "NO_REPLY" };
       } catch (err) {
         api.logger.warn?.(
-          `before_prompt_build customer-db injection failed: ${err instanceof Error ? err.message : String(err)}`,
+          `payment_success failed: ${err instanceof Error ? err.message : String(err)}`,
         );
-        return;
+        return { text: "NO_REPLY" };
       }
-    });
-  },
-};
+    },
+  });
 
-export default plugin;
+  api.registerCommand({
+    name: "club_join",
+    description: "Mark customer as club member and stamp join date (silent)",
+    acceptsArgs: false,
+    requireAuth: false,
+    handler: async (ctx) => {
+      try {
+        const peer = resolvePeerForCommand({ channel: ctx.channel, senderId: ctx.senderId });
+        if (!peer) {
+          api.logger.warn?.(
+            `club_join: peer unresolved (channel=${ctx.channel}, senderId=${ctx.senderId ?? ""})`,
+          );
+          return { text: "NO_REPLY" };
+        }
+        preparePeer(peer);
+        updateForClubJoin(dbFile, peer);
+        return { text: "NO_REPLY" };
+      } catch (err) {
+        api.logger.warn?.(
+          `club_join failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+        return { text: "NO_REPLY" };
+      }
+    },
+  });
+
+  api.on("before_prompt_build", (_event, ctx) => {
+    try {
+      if (ctx.agentId !== agentId) return;
+      const peer = resolvePeerFromSessionKey(ctx.sessionKey);
+      if (!peer) return;
+
+      preparePeer(peer);
+      const row = selectCustomerRow(dbFile, peer);
+      if (!row) return;
+
+      const sentFollowUp = selectSentOnceFollowUp(dbFile, peer);
+      completePendingFollowUps(dbFile, peer);
+
+      let appendCtx = buildDynamicContext(row);
+      if (sentFollowUp) {
+        appendCtx += "\n\n" + buildFollowUpContext(sentFollowUp);
+      }
+
+      return {
+        prependSystemContext: STATIC_RULES,
+        appendSystemContext: appendCtx,
+      };
+    } catch (err) {
+      api.logger.warn?.(
+        `customerdb before_prompt_build failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      return;
+    }
+  });
+}
