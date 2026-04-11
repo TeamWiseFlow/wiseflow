@@ -72,21 +72,25 @@ list_builtin_skill_names() {
   done | sort
 }
 
-# wiseflow 指定的全局基线技能（对所有对内 Crew 统一开放的 11 个上游内置技能）
+# wiseflow 指定的全局基线技能（对所有对内 Crew 统一开放的 9 个上游内置技能）
 # 变更须同步更新 config-templates/openclaw.json 的 skills.entries 确保这些技能处于 enabled 状态
+#
+# 不在此基线的说明：
+#   1password / video-frames / bluebubbles / peekaboo — 全局可用，但各 crew 须自行在 BUILTIN_SKILLS 中声明
+#   healthcheck  — 仅 it-engineer（在其 BUILTIN_SKILLS 中单独配置）
+#   model-usage  — 仅 hrbp（在其 BUILTIN_SKILLS 中单独配置）
+#   xurl / camsnap / clawhub / discord / alipay-mcp-config / canvas — 全局禁用
 list_default_global_skill_names() {
   cat <<'EOF'
-1password
-healthcheck
-model-usage
 nano-pdf
 skill-creator
 ordercli
 session-logs
 tmux
 weather
-xurl
-video-frames
+summarize
+gifgrep
+self-improving
 EOF
 }
 
