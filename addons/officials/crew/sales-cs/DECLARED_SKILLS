@@ -4,7 +4,10 @@
 
 # 知识检索与信息获取
 nano-pdf
-xurl
+session-logs
+summarize
+gifgrep
+weather
 
 # 客户数据库（SQLite，schema 由 HRBP 升级流程维护）
 customer-db

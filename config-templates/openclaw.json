@@ -107,17 +107,15 @@
         "name": "Main Agent",
         "workspace": "~/.openclaw/workspace-main",
         "skills": [
-          "1password",
-          "healthcheck",
-          "model-usage",
           "nano-pdf",
           "skill-creator",
           "ordercli",
           "session-logs",
           "tmux",
           "weather",
-          "xurl",
-          "video-frames"
+          "summarize",
+          "gifgrep",
+          "self-improving"
         ],
         "subagents": {
           "allowAgents": [
@@ -139,8 +137,6 @@
         "name": "HRBP",
         "workspace": "~/.openclaw/workspace-hrbp",
         "skills": [
-          "1password",
-          "healthcheck",
           "model-usage",
           "nano-pdf",
           "skill-creator",
@@ -148,8 +144,9 @@
           "session-logs",
           "tmux",
           "weather",
-          "xurl",
-          "video-frames"
+          "summarize",
+          "gifgrep",
+          "self-improving"
         ],
         "subagents": {
           "allowAgents": [
@@ -171,17 +168,17 @@
         "name": "IT Engineer",
         "workspace": "~/.openclaw/workspace-it-engineer",
         "skills": [
-          "1password",
           "healthcheck",
-          "model-usage",
           "nano-pdf",
           "skill-creator",
           "ordercli",
           "session-logs",
           "tmux",
           "weather",
-          "xurl",
-          "video-frames",
+          "summarize",
+          "gifgrep",
+          "self-improving",
+          "node-connect",
           "github",
           "gh-issues",
           "coding-agent"
@@ -423,6 +420,27 @@
         "enabled": true
       },
       "sag": {
+        "enabled": false
+      },
+      "xurl": {
+        "enabled": false
+      },
+      "camsnap": {
+        "enabled": false
+      },
+      "clawhub": {
+        "enabled": false
+      },
+      "discord": {
+        "enabled": false
+      },
+      "alipay-mcp-config": {
+        "enabled": false
+      },
+      "canvas": {
+        "enabled": false
+      },
+      "taskflow-inbox-triage": {
         "enabled": false
       }
     }
