@@ -461,6 +461,13 @@
     },
     "agentToAgent": {
       "enabled": false
+    },
+    "web": {
+      "fetch": {
+        "ssrfPolicy": {
+          "allowRfc2544BenchmarkRange": true
+        }
+      }
     }
   }
 }

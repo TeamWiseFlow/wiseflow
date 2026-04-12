@@ -2,11 +2,13 @@
 
 ### 新增
 
-- **新媒体运营 Crew 模板（selfmedia-operator）**：内置文生图（siliconflow-img-gen）、文生视频（siliconflow-video-gen）技能，提供完整的选题研究→图文输出、草稿扩写→完整文章两套工作流；配图优先��策略（用户素材 > 免版权图片 > AI 生成 > 历史复用），素材统一归档至 `campaign_assets/`
+- **新媒体运营 Crew 模板（selfmedia-operator）**：内置文生图（siliconflow-img-gen）、文生视频（siliconflow-video-gen）技能，提供完整的选题研究→图文输出、草稿扩写→完整文章两套工作流；配图优先策略（用户素材 > 免版权图片 > AI 生成 > 历史复用），素材统一归档至 `campaign_assets/`
 
 - **smart-search 新增平台**：百度贴吧（全局搜索 + 指定吧搜索）、Amazon（含分类/排序过滤），YouTube 新增类型过滤（shorts/video/channel）及"最近1小时"时间过滤
 
 ### 改进
+
+- **升级 OpenClaw 至 v2026.4.11**：同步上游安全加固（Browser/security SSRF 防御增强、exec 沙箱安全、媒体访问鉴权）、Dreaming/Active Memory 功能（内存子智能体、日记视图、REM 回���）、Ollama/vLLM/Feishu/Teams 若干 bug 修复；原 patch 004（web_fetch RFC2544 支持）已被上游原生集成，改为配置项并同步到 `config-templates/openclaw.json`
 
 - **sales-cs 数据库访问重构**：将所有客户数据库操作改为命名脚本（`skills/customer-db/scripts/`），禁止直接执行 SQL，增强安全性和可维护性
 
