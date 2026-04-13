@@ -81,14 +81,23 @@ if [ -f "$CONFIG_PATH" ] && [ -f "$PROJECT_ROOT/config-templates/openclaw.json" 
     };
     let changed = false;
 
-    // 将模板中所有 skills.entries 设置同步到运行配置
-    // 确保用户即使更新也能保持精简的内置 skill 集
+    // 同步 skills.entries：
+    //   enabled: true  → 强制覆写（wiseflow 功能依赖，必须保证开启）
+    //   enabled: false → 仅在运行配置中尚无该条目时写��（首次初始化语义，
+    //                    保留用户已主动开启的配置，不回退）
     if (template.skills?.entries) {
       if (!running.skills) running.skills = {};
       if (!running.skills.entries) running.skills.entries = {};
       for (const [name, entry] of Object.entries(template.skills.entries)) {
-        running.skills.entries[name] = entry;
-        changed = true;
+        if (entry && entry.enabled === true) {
+          // 强制写入：确保 wiseflow 依赖的技能始终开启
+          running.skills.entries[name] = entry;
+          changed = true;
+        } else if (!(name in running.skills.entries)) {
+          // 首次写入：用户从未配置过此条目才写默认值
+          running.skills.entries[name] = entry;
+          changed = true;
+        }
       }
     }
 
