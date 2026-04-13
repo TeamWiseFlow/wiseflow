@@ -228,7 +228,7 @@
     "dmScope": "per-channel-peer",
     "reset": {
       "mode": "idle",
-      "idleMinutes": 720
+      "idleMinutes": 2880
     }
   },
   "commands": {
@@ -326,22 +326,10 @@
   },
   "skills": {
     "entries": {
-      "apple-notes": {
-        "enabled": false
-      },
-      "apple-reminders": {
-        "enabled": false
-      },
-      "bear-notes": {
-        "enabled": false
-      },
       "notion": {
         "enabled": false
       },
       "obsidian": {
-        "enabled": false
-      },
-      "things-mac": {
         "enabled": false
       },
       "trello": {
@@ -357,9 +345,6 @@
         "enabled": true
       },
       "slack": {
-        "enabled": false
-      },
-      "imsg": {
         "enabled": false
       },
       "wacli": {
@@ -380,52 +365,13 @@
       "sherpa-onnx-tts": {
         "enabled": false
       },
-      "songsee": {
-        "enabled": false
-      },
-      "sonoscli": {
-        "enabled": false
-      },
       "spotify-player": {
-        "enabled": false
-      },
-      "himalaya": {
-        "enabled": false
-      },
-      "openhue": {
-        "enabled": false
-      },
-      "goplaces": {
-        "enabled": false
-      },
-      "gog": {
-        "enabled": false
-      },
-      "blogwatcher": {
-        "enabled": false
-      },
-      "blucli": {
-        "enabled": false
-      },
-      "eightctl": {
         "enabled": false
       },
       "mcporter": {
         "enabled": false
       },
-      "oracle": {
-        "enabled": false
-      },
-      "ordercli": {
-        "enabled": true
-      },
-      "sag": {
-        "enabled": false
-      },
       "xurl": {
-        "enabled": false
-      },
-      "camsnap": {
         "enabled": false
       },
       "clawhub": {
