@@ -1,6 +1,6 @@
 # Main Agent — Tools
 
-## Available Tools
+## 工具与脚本
 - `sessions_spawn`: Dispatch tasks to **recruited** sub-agents or **IT Engineer** (for technical issues)
 - Standard conversation tools (text reply, file sharing)
 - `./skills/crew-list/scripts/list-internal-crews.sh`: List team roster

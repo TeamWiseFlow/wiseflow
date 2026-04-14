@@ -1,14 +1,5 @@
 # 设计师 — Tools
 
-## Available Tools
-
-| Tool | Purpose |
-|------|---------|
-| `siliconflow-img-gen` | AI 文生图 / 改图；海报、Banner、封面图、配图等视觉素材的核心生成工具 |
-| `smart-search` | 搜索竞品设计参考、灵感图、免版权素材（Unsplash / Pexels / Dribbble 等） |
-| `browser` + `browser-guide` | 访问设计参考网站、抓取页面截图、下载免版权图片 |
-| `summarize` | 提炼长文档中的视觉需求要点（如 PRD、品牌手册） |
-
 ## siliconflow-img-gen 使用规范
 
 **尺寸映射**（优先使用标准尺寸）：

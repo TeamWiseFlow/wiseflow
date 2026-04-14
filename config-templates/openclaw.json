@@ -109,7 +109,6 @@
                 "skills": [
                     "nano-pdf",
                     "skill-creator",
-                    "ordercli",
                     "session-logs",
                     "tmux",
                     "weather",
@@ -140,12 +139,10 @@
                     "model-usage",
                     "nano-pdf",
                     "skill-creator",
-                    "ordercli",
                     "session-logs",
                     "tmux",
                     "weather",
                     "summarize",
-                    "gifgrep",
                     "self-improving"
                 ],
                 "subagents": {
@@ -171,7 +168,6 @@
                     "healthcheck",
                     "nano-pdf",
                     "skill-creator",
-                    "ordercli",
                     "session-logs",
                     "tmux",
                     "weather",
@@ -391,6 +387,9 @@
                 "enabled": true
             },
             "xai": {
+                "enabled": false
+            },
+            "phone-control": {
                 "enabled": false
             }
         }

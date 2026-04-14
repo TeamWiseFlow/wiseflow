@@ -1,8 +1,5 @@
 # {AGENT_NAME} — SOUL
 
-## Identity
-{Describe the agent's role and purpose}
-
 ## Core Responsibilities
 {List 3-5 key responsibilities}
 
