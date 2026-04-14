@@ -17,7 +17,6 @@ metadata:
 
 **支持平台**: `zhihu`（知乎）| `toutiao`（今日头条，含 juejin 掘金）| `medium`
 
-> 微信公众号发布请使用 **wx-mp-publisher** skill。
 
 ---
 

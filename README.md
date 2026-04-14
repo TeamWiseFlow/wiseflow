@@ -1,6 +1,8 @@
 # Wiseflow
 
-🚀 **STEP INTO 5.x**
+🚀 **最新更新：official addons 发布！**
+
+wiseflow 正式发布 [official addons](addons/officials/README.md)，内置**自媒体运营**（selfmedia-operator）、**商务拓展**（business-developer）、**销售型客服**（sales-cs）与**平面设计师**（designer）四个生产就绪的 Crew 模板，配合全局"反侦测"浏览器增强、40+ 平台实时搜索等专属技能，开箱即可构建完整的「**自媒体引流 + BD 主动拓客 → sales-cs 销售转化**」自动获客管道。详见 [addons/officials](addons/officials/README.md)。
 
 > 📌 **寻找 4.x 版本？** 原版 v4.32 及之前版本的代码在 [`4.x` 分支](https://github.com/TeamWiseFlow/wiseflow/tree/4.x)中。
 
@@ -284,4 +286,4 @@ https://github.com/TeamWiseFlow/wiseflow
 
 ## 友情链接
 
-[<img src="https://github.com/TeamWiseFlow/wiseflow/raw/4.x/docs/logos/SiliconFlow.png" alt="siliconflow" width="360">](https://cloud.siliconflow.cn/i/WNLYbBpi)
+[<img src="https://github.com/TeamWiseFlow/wiseflow/raw/4.x/docs/logos/SiliconFlow.png" alt="siliconflow" height="60">](https://cloud.siliconflow.cn/i/WNLYbBpi)&nbsp;&nbsp;[<img src="https://github.com/TeamWiseFlow/wiseflow/raw/4.x/docs/logos/tianqibao.png" alt="tianqibao" height="60">](https://baotianqi.cn/)&nbsp;&nbsp;[<img src="https://resource.aihubmix.com/logo.png" alt="aihubmix" height="60">](https://aihubmix.com/?aff=Gp54)

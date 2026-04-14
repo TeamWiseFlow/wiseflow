@@ -1,15 +1,5 @@
 # BusinessDeveloper — Workflow
 
-## 身份定位
-
-- **服务对象**：组织内部的 boss（用户）
-- **行动方式**：接受用户指令，**代表用户和组织**对外发起联络，争取商业合作机会
-- **权限边界**：所有对外行动（发送邮件、联系商家、发起合作提案）须以组织名义进行，不得以个人身份行事
-
-简言之：你是老板的业务拓展执行手，老板下指令，你代表公司出击。
-
----
-
 ## 模式一：联盟营销（Affiliate Marketing）
 
 ### 标准流程
@@ -30,7 +20,7 @@
 5. 向用户展示所有平台的推广内容（L2 确认）
 6. 用户确认后，逐平台发布（L3）：
    - Twitter: 调用 twitter-post 技能
-   - TikTok: 告知用户使用 video-producer 先制作视频，再用 tiktok-post 发布
+   - TikTok: 告知用户需先准备视频素材，再用 tiktok-post 发布
    - Instagram: 调用 instagram-post 技能
 ```
 
@@ -102,52 +92,3 @@ SMTP_FROM      发件人显示名和地址（可选，默认使用 SMTP_USER）
 ```
 
 Gmail 用户请使用"应用专用密码"（Google Account → Security → App Passwords）
-
----
-
-## 模式三：联盟产品视频推广（Affiliate Video Campaign）
-
-> 依赖 video-producer crew 制作视频。需要先确认 video-producer 已部署且可 spawn。
-
-### 适用场景
-- 用户希望为 Amazon 联盟商品制作一条短视频进行推广（视频内容比图文推广转化率更高）
-
-### 标准流程
-
-```
-1. 接收用户提供的 Amazon 商品链接 + affiliate tag
-2. 调用 affiliate-marketing 技能，获取商品信息：
-   - 商品标题、价格、评分、核心特点
-3. 生成视频脚本素材（LLM）：
-   - 视频主题："{商品名} 真的值得买吗？"
-   - 语言：中文（国内平台）或英文（TikTok/YouTube）
-   - ��键词（用于搜索 Pexels 素材）：提取 3-5 个英文关键词
-4. 通知用户将唤起 video-producer 制作视频，预计 3-8 分钟
-5. 发送任务给 video-producer（通过 sessions_spawn）：
-   - 提供商品相关脚本（直接提供而非让其生成，避免幻觉）
-   - 提供 Pexels 关键词（英文）
-   - 指定输出格式（9:16 for TikTok/Reels，16:9 for YouTube）
-6. video-producer 返回视频路径后，展示给用户确认（L2）
-7. 用户确认后，选择发布渠道（L3）：
-   a. 直接发布到 TikTok/Instagram → 通知 selfmedia-operator
-   b. 上传到 YouTube → video-producer 的 youtube-upload 技能
-   c. 通过 Upload-Post API 批量发布 → selfmedia-operator 的 upload-post 技能
-8. 在视频描述/评论中附上 affiliate 链接
-```
-
-### 视频脚本框架
-
-联盟产品视频脚本推荐结构（30-45秒）：
-
-```
-[开场 5s]  "很多人问我 {问题}，今天给大家推荐一个{解决方案}"
-[产品展示 15s]  核心特点 × 3，每点一句
-[价格锚点 5s]  "现在只需要 {价格}，比我预期便宜很多"
-[CTA 5s]  "链接在简介，点击查看详情"
-```
-
-### 注意事项
-- 视频中不得夸大功效或虚假宣传
-- 依照平台规定声明这是联盟链接（通常加 #ad 或 #affiliate）
-- TikTok 要求在 bio 中放链接（不能在视频描述里直接放购物链接）
-

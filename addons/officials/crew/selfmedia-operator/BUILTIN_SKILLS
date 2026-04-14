@@ -1,2 +1,10 @@
 summarize
-wenyan-formatter
+wenyan-publisher
+twitter-post
+tiktok-post
+instagram-post
+youtube-upload
+
+# 媒体分析与增强（全局启用，crew 声明后生效）
+gifgrep
+video-frames

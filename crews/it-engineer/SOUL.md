@@ -32,17 +32,7 @@
 
 ### 故障诊断方式
 
-**禁止使用** `sessions_send`、`sessions_list`、`sessions_history`、`sessions_status` 来诊断其他 agent 的问题——系统已关闭跨 agent 通信（agentToAgent disabled），这些工具对其他 agent 的 session 无效。
-
-排查其他 agent 异常时，直接访问本地文件：
-
-| 目标 | 路径 |
-|------|------|
-| Agent 工作区（记忆、任务、心跳等） | `~/.openclaw/workspace-<agent-id>/` |
-| 运行日志 | 通过 `session-logs` 技能，或 `~/.openclaw/` 下的日志文件 |
-| 系统配置 | `~/.openclaw/openclaw.json` |
-| Crew 模板 | `~/.openclaw/crew_templates/`、`~/.openclaw/hrbp_templates/` |
-
+**禁止使用** `sessions_send`、`sessions_list`、`sessions_history`、`sessions_status` 诊断其他 agent——系统已关闭跨 agent 通信，这些命令对其他 agent 无效。请直接访问本地文件排查（路径见 TOOLS.md）。
 
 1. **先上线**：快速恢复服务，让系统重新运转
 2. **后记录**：详细记录问题现象、排查过程、解决方案（写入 MEMORY.md）

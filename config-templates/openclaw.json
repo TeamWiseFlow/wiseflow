@@ -1,419 +1,413 @@
 {
-  "browser": {
-    "enabled": true,
-    "headless": false,
-    "defaultProfile": "openclaw",
-    "extraArgs": [
-      "--window-size=1920,1080",
-      "--window-position=0,0"
-    ],
-    "ssrfPolicy": {
-      "dangerouslyAllowPrivateNetwork": true
-    }
-  },
-  "models": {
-    "mode": "merge",
-    "providers": {
-      "siliconflow": {
-        "api": "openai-completions",
-        "baseUrl": "https://api.siliconflow.cn/v1",
-        "apiKey": "",
-        "models": [
-          {
-            "id": "Pro/moonshotai/Kimi-K2.5",
-            "name": "Kimi K2.5",
-            "input": [
-              "text",
-              "image"
-            ],
-            "cost": {
-              "input": 0.004,
-              "output": 0.021,
-              "cacheRead": 0.0007,
-              "cacheWrite": 0.0007
-            },
-            "contextWindow": 256000,
-            "maxTokens": 8192
-          },
-          {
-            "id": "Pro/MiniMaxAI/MiniMax-M2.5",
-            "name": "MiniMax M2.5",
-            "input": [
-              "text"
-            ],
-            "cost": {
-              "input": 0.0021,
-              "output": 0.0084,
-              "cacheRead": 0.00021,
-              "cacheWrite": 0.00021
-            },
-            "contextWindow": 1000000,
-            "maxTokens": 8192
-          },
-          {
-            "id": "Pro/zai-org/GLM-5",
-            "name": "GLM-5",
-            "input": [
-              "text"
-            ],
-            "cost": {
-              "input": 0.006,
-              "output": 0.022,
-              "cacheRead": 0.001,
-              "cacheWrite": 0.0015
-            },
-            "contextWindow": 1000000,
-            "maxTokens": 8192
-          }
-        ]
-      }
-    }
-  },
-  "agents": {
-    "defaults": {
-      "model": {
-        "primary": "siliconflow/Pro/zai-org/GLM-5",
-        "fallbacks": [
-          "siliconflow/Pro/MiniMaxAI/MiniMax-M2.5"
-        ]
-      },
-      "imageModel": {
-        "primary": "siliconflow/Pro/moonshotai/Kimi-K2.5"
-      },
-      "models": {
-        "siliconflow/Pro/zai-org/GLM-5": {
-          "alias": "default"
-        },
-        "siliconflow/Pro/MiniMaxAI/MiniMax-M2.5": {
-          "alias": "minimax"
-        },
-        "siliconflow/Pro/moonshotai/Kimi-K2.5": {
-          "alias": "kimi"
-        }
-      },
-      "compaction": {
-        "mode": "safeguard"
-      },
-      "maxConcurrent": 4,
-      "subagents": {
-        "maxConcurrent": 8,
-        "maxSpawnDepth": 2
-      }
-    },
-    "list": [
-      {
-        "id": "main",
-        "default": true,
-        "name": "Main Agent",
-        "workspace": "~/.openclaw/workspace-main",
-        "skills": [
-          "nano-pdf",
-          "skill-creator",
-          "ordercli",
-          "session-logs",
-          "tmux",
-          "weather",
-          "summarize",
-          "gifgrep",
-          "self-improving"
+    "browser": {
+        "enabled": true,
+        "headless": false,
+        "defaultProfile": "openclaw",
+        "extraArgs": [
+            "--window-size=1920,1080",
+            "--window-position=0,0"
         ],
-        "subagents": {
-          "allowAgents": [
-            "it-engineer"
-          ]
-        },
-        "tools": {
-          "exec": {
-            "host": "gateway",
-            "security": "allowlist",
-            "ask": "off"
-          }
-        },
-        "thinkingDefault": "high",
-        "reasoningDefault": "off"
-      },
-      {
-        "id": "hrbp",
-        "name": "HRBP",
-        "workspace": "~/.openclaw/workspace-hrbp",
-        "skills": [
-          "model-usage",
-          "nano-pdf",
-          "skill-creator",
-          "ordercli",
-          "session-logs",
-          "tmux",
-          "weather",
-          "summarize",
-          "gifgrep",
-          "self-improving"
-        ],
-        "subagents": {
-          "allowAgents": [
-            "it-engineer"
-          ]
-        },
-        "tools": {
-          "exec": {
-            "host": "gateway",
-            "security": "full",
-            "ask": "off"
-          }
-        },
-        "thinkingDefault": "high",
-        "reasoningDefault": "off"
-      },
-      {
-        "id": "it-engineer",
-        "name": "IT Engineer",
-        "workspace": "~/.openclaw/workspace-it-engineer",
-        "skills": [
-          "healthcheck",
-          "nano-pdf",
-          "skill-creator",
-          "ordercli",
-          "session-logs",
-          "tmux",
-          "weather",
-          "summarize",
-          "gifgrep",
-          "self-improving",
-          "node-connect",
-          "github",
-          "gh-issues",
-          "coding-agent"
-        ],
-        "tools": {
-          "exec": {
-            "host": "gateway",
-            "security": "full",
-            "ask": "off"
-          }
-        },
-        "thinkingDefault": "high",
-        "reasoningDefault": "off"
-      }
-    ]
-  },
-  "bindings": [
-    {
-      "agentId": "main",
-      "comment": "main-bot -> Main Agent",
-      "match": {
-        "channel": "feishu",
-        "accountId": "main-bot"
-      }
-    },
-    {
-      "agentId": "hrbp",
-      "comment": "hrbp-bot -> HRBP Agent",
-      "match": {
-        "channel": "feishu",
-        "accountId": "hrbp-bot"
-      }
-    },
-    {
-      "agentId": "it-engineer",
-      "comment": "it-engineer-bot -> IT Engineer Agent",
-      "match": {
-        "channel": "feishu",
-        "accountId": "it-engineer-bot"
-      }
-    }
-  ],
-  "messages": {
-    "ackReactionScope": "group-mentions"
-  },
-  "session": {
-    "dmScope": "per-channel-peer",
-    "reset": {
-      "mode": "idle",
-      "idleMinutes": 2880
-    }
-  },
-  "commands": {
-    "native": "auto",
-    "nativeSkills": "auto",
-    "restart": true,
-    "ownerDisplay": "raw"
-  },
-  "hooks": {
-    "internal": {
-      "enabled": true,
-      "entries": {
-        "boot-md": {
-          "enabled": false
-        },
-        "command-logger": {
-          "enabled": true
-        },
-        "session-memory": {
-          "enabled": true
-        }
-      }
-    }
-  },
-  "channels": {
-    "feishu": {
-      "enabled": true,
-      "domain": "feishu",
-      "connectionMode": "websocket",
-      "requireMention": true,
-      "streaming": true,
-      "tools": {
-        "doc": true,
-        "chat": true,
-        "wiki": true,
-        "drive": true,
-        "perm": false
-      },
-      "accounts": {
-        "main-bot": {
-          "name": "Main Bot",
-          "appId": "",
-          "appSecret": "",
-          "dmPolicy": "open",
-          "allowFrom": [
-            "*"
-          ],
-          "groupPolicy": "allowlist"
-        },
-        "hrbp-bot": {
-          "name": "HRBP Bot",
-          "appId": "",
-          "appSecret": "",
-          "dmPolicy": "open",
-          "allowFrom": [
-            "*"
-          ],
-          "groupPolicy": "allowlist"
-        },
-        "it-engineer-bot": {
-          "name": "IT Engineer Bot",
-          "appId": "",
-          "appSecret": "",
-          "dmPolicy": "open",
-          "allowFrom": [
-            "*"
-          ],
-          "groupPolicy": "allowlist"
-        }
-      }
-    }
-  },
-  "gateway": {
-    "port": 18789,
-    "mode": "local",
-    "bind": "loopback",
-    "auth": {
-      "mode": "token",
-      "token": ""
-    },
-    "tailscale": {
-      "mode": "off",
-      "resetOnExit": false
-    },
-    "nodes": {
-      "denyCommands": [
-        "camera.snap",
-        "camera.clip",
-        "screen.record",
-        "calendar.add",
-        "contacts.add",
-        "reminders.add"
-      ]
-    }
-  },
-  "skills": {
-    "entries": {
-      "notion": {
-        "enabled": false
-      },
-      "obsidian": {
-        "enabled": false
-      },
-      "trello": {
-        "enabled": false
-      },
-      "github": {
-        "enabled": true
-      },
-      "gh-issues": {
-        "enabled": true
-      },
-      "coding-agent": {
-        "enabled": true
-      },
-      "slack": {
-        "enabled": false
-      },
-      "wacli": {
-        "enabled": false
-      },
-      "gemini": {
-        "enabled": false
-      },
-      "openai-whisper": {
-        "enabled": false
-      },
-      "openai-whisper-api": {
-        "enabled": false
-      },
-      "voice-call": {
-        "enabled": false
-      },
-      "sherpa-onnx-tts": {
-        "enabled": false
-      },
-      "spotify-player": {
-        "enabled": false
-      },
-      "mcporter": {
-        "enabled": false
-      },
-      "xurl": {
-        "enabled": false
-      },
-      "clawhub": {
-        "enabled": false
-      },
-      "discord": {
-        "enabled": false
-      },
-      "alipay-mcp-config": {
-        "enabled": false
-      },
-      "canvas": {
-        "enabled": false
-      },
-      "taskflow-inbox-triage": {
-        "enabled": false
-      }
-    }
-  },
-  "plugins": {
-    "entries": {
-      "feishu": {
-        "enabled": true
-      },
-      "xai": {
-        "enabled": false
-      }
-    }
-  },
-  "tools": {
-    "exec": {
-      "host": "gateway"
-    },
-    "agentToAgent": {
-      "enabled": false
-    },
-    "web": {
-      "fetch": {
         "ssrfPolicy": {
-          "allowRfc2544BenchmarkRange": true
+            "dangerouslyAllowPrivateNetwork": true
         }
-      }
+    },
+    "models": {
+        "mode": "merge",
+        "providers": {
+            "siliconflow": {
+                "api": "openai-completions",
+                "baseUrl": "https://api.siliconflow.cn/v1",
+                "apiKey": "",
+                "models": [
+                    {
+                        "id": "Pro/moonshotai/Kimi-K2.5",
+                        "name": "Kimi K2.5",
+                        "input": [
+                            "text",
+                            "image"
+                        ],
+                        "cost": {
+                            "input": 0.004,
+                            "output": 0.021,
+                            "cacheRead": 0.0007,
+                            "cacheWrite": 0.0007
+                        },
+                        "contextWindow": 256000,
+                        "maxTokens": 8192
+                    },
+                    {
+                        "id": "Pro/MiniMaxAI/MiniMax-M2.5",
+                        "name": "MiniMax M2.5",
+                        "input": [
+                            "text"
+                        ],
+                        "cost": {
+                            "input": 0.0021,
+                            "output": 0.0084,
+                            "cacheRead": 0.00021,
+                            "cacheWrite": 0.00021
+                        },
+                        "contextWindow": 1000000,
+                        "maxTokens": 8192
+                    },
+                    {
+                        "id": "Pro/zai-org/GLM-5",
+                        "name": "GLM-5",
+                        "input": [
+                            "text"
+                        ],
+                        "cost": {
+                            "input": 0.006,
+                            "output": 0.022,
+                            "cacheRead": 0.001,
+                            "cacheWrite": 0.0015
+                        },
+                        "contextWindow": 1000000,
+                        "maxTokens": 8192
+                    }
+                ]
+            }
+        }
+    },
+    "agents": {
+        "defaults": {
+            "model": {
+                "primary": "siliconflow/Pro/zai-org/GLM-5",
+                "fallbacks": [
+                    "siliconflow/Pro/MiniMaxAI/MiniMax-M2.5"
+                ]
+            },
+            "imageModel": {
+                "primary": "siliconflow/Pro/moonshotai/Kimi-K2.5"
+            },
+            "models": {
+                "siliconflow/Pro/zai-org/GLM-5": {
+                    "alias": "default"
+                },
+                "siliconflow/Pro/MiniMaxAI/MiniMax-M2.5": {
+                    "alias": "minimax"
+                },
+                "siliconflow/Pro/moonshotai/Kimi-K2.5": {
+                    "alias": "kimi"
+                }
+            },
+            "compaction": {
+                "mode": "safeguard"
+            },
+            "maxConcurrent": 4,
+            "subagents": {
+                "maxConcurrent": 8,
+                "maxSpawnDepth": 2
+            }
+        },
+        "list": [
+            {
+                "id": "main",
+                "default": true,
+                "name": "Main Agent",
+                "workspace": "~/.openclaw/workspace-main",
+                "skills": [
+                    "nano-pdf",
+                    "skill-creator",
+                    "ordercli",
+                    "session-logs",
+                    "tmux",
+                    "weather",
+                    "summarize",
+                    "gifgrep",
+                    "self-improving"
+                ],
+                "subagents": {
+                    "allowAgents": [
+                        "it-engineer"
+                    ]
+                },
+                "tools": {
+                    "exec": {
+                        "host": "gateway",
+                        "security": "allowlist",
+                        "ask": "off"
+                    }
+                },
+                "thinkingDefault": "high",
+                "reasoningDefault": "off"
+            },
+            {
+                "id": "hrbp",
+                "name": "HRBP",
+                "workspace": "~/.openclaw/workspace-hrbp",
+                "skills": [
+                    "model-usage",
+                    "nano-pdf",
+                    "skill-creator",
+                    "ordercli",
+                    "session-logs",
+                    "tmux",
+                    "weather",
+                    "summarize",
+                    "gifgrep",
+                    "self-improving"
+                ],
+                "subagents": {
+                    "allowAgents": [
+                        "it-engineer"
+                    ]
+                },
+                "tools": {
+                    "exec": {
+                        "host": "gateway",
+                        "security": "full",
+                        "ask": "off"
+                    }
+                },
+                "thinkingDefault": "high",
+                "reasoningDefault": "off"
+            },
+            {
+                "id": "it-engineer",
+                "name": "IT Engineer",
+                "workspace": "~/.openclaw/workspace-it-engineer",
+                "skills": [
+                    "healthcheck",
+                    "nano-pdf",
+                    "skill-creator",
+                    "ordercli",
+                    "session-logs",
+                    "tmux",
+                    "weather",
+                    "summarize",
+                    "gifgrep",
+                    "self-improving",
+                    "node-connect",
+                    "github",
+                    "gh-issues",
+                    "coding-agent"
+                ],
+                "tools": {
+                    "exec": {
+                        "host": "gateway",
+                        "security": "full",
+                        "ask": "off"
+                    }
+                },
+                "thinkingDefault": "high",
+                "reasoningDefault": "off"
+            }
+        ]
+    },
+    "bindings": [
+        {
+            "agentId": "main",
+            "comment": "main-bot -> Main Agent",
+            "match": {
+                "channel": "feishu",
+                "accountId": "main-bot"
+            }
+        },
+        {
+            "agentId": "hrbp",
+            "comment": "hrbp-bot -> HRBP Agent",
+            "match": {
+                "channel": "feishu",
+                "accountId": "hrbp-bot"
+            }
+        },
+        {
+            "agentId": "it-engineer",
+            "comment": "it-engineer-bot -> IT Engineer Agent",
+            "match": {
+                "channel": "feishu",
+                "accountId": "it-engineer-bot"
+            }
+        }
+    ],
+    "messages": {
+        "ackReactionScope": "group-mentions"
+    },
+    "session": {
+        "dmScope": "per-channel-peer",
+        "reset": {
+            "mode": "idle",
+            "idleMinutes": 2880
+        }
+    },
+    "commands": {
+        "native": "auto",
+        "nativeSkills": "auto",
+        "restart": true,
+        "ownerDisplay": "raw"
+    },
+    "hooks": {
+        "internal": {
+            "enabled": true,
+            "entries": {
+                "boot-md": {
+                    "enabled": false
+                },
+                "command-logger": {
+                    "enabled": true
+                },
+                "session-memory": {
+                    "enabled": true
+                }
+            }
+        }
+    },
+    "channels": {
+        "feishu": {
+            "enabled": true,
+            "domain": "feishu",
+            "connectionMode": "websocket",
+            "requireMention": true,
+            "streaming": true,
+            "tools": {
+                "doc": true,
+                "chat": true,
+                "wiki": true,
+                "drive": true,
+                "perm": false
+            },
+            "accounts": {
+                "main-bot": {
+                    "name": "Main Bot",
+                    "appId": "",
+                    "appSecret": "",
+                    "dmPolicy": "open",
+                    "allowFrom": [
+                        "*"
+                    ],
+                    "groupPolicy": "allowlist"
+                },
+                "hrbp-bot": {
+                    "name": "HRBP Bot",
+                    "appId": "",
+                    "appSecret": "",
+                    "dmPolicy": "open",
+                    "allowFrom": [
+                        "*"
+                    ],
+                    "groupPolicy": "allowlist"
+                },
+                "it-engineer-bot": {
+                    "name": "IT Engineer Bot",
+                    "appId": "",
+                    "appSecret": "",
+                    "dmPolicy": "open",
+                    "allowFrom": [
+                        "*"
+                    ],
+                    "groupPolicy": "allowlist"
+                }
+            }
+        }
+    },
+    "gateway": {
+        "port": 18789,
+        "mode": "local",
+        "bind": "loopback",
+        "auth": {
+            "mode": "token",
+            "token": ""
+        },
+        "tailscale": {
+            "mode": "off",
+            "resetOnExit": false
+        },
+        "nodes": {
+            "denyCommands": [
+                "camera.snap",
+                "camera.clip",
+                "screen.record",
+                "calendar.add",
+                "contacts.add",
+                "reminders.add"
+            ]
+        }
+    },
+    "skills": {
+        "entries": {
+            "notion": {
+                "enabled": false
+            },
+            "obsidian": {
+                "enabled": false
+            },
+            "trello": {
+                "enabled": false
+            },
+            "github": {
+                "enabled": true
+            },
+            "gh-issues": {
+                "enabled": true
+            },
+            "coding-agent": {
+                "enabled": true
+            },
+            "slack": {
+                "enabled": false
+            },
+            "wacli": {
+                "enabled": false
+            },
+            "gemini": {
+                "enabled": false
+            },
+            "openai-whisper": {
+                "enabled": false
+            },
+            "openai-whisper-api": {
+                "enabled": false
+            },
+            "voice-call": {
+                "enabled": false
+            },
+            "sherpa-onnx-tts": {
+                "enabled": false
+            },
+            "spotify-player": {
+                "enabled": false
+            },
+            "mcporter": {
+                "enabled": false
+            },
+            "clawhub": {
+                "enabled": false
+            },
+            "alipay-mcp-config": {
+                "enabled": false
+            },
+            "canvas": {
+                "enabled": false
+            },
+            "taskflow-inbox-triage": {
+                "enabled": false
+            }
+        }
+    },
+    "plugins": {
+        "entries": {
+            "feishu": {
+                "enabled": true
+            },
+            "xai": {
+                "enabled": false
+            }
+        }
+    },
+    "tools": {
+        "exec": {
+            "host": "gateway"
+        },
+        "agentToAgent": {
+            "enabled": false
+        },
+        "web": {
+            "fetch": {
+                "ssrfPolicy": {
+                    "allowRfc2544BenchmarkRange": true
+                }
+            }
+        }
     }
-  }
 }

@@ -80,8 +80,6 @@ crews/
 ├── DESIGN.md                   # 本设计文档
 ├── index.md                    # 模板注册表（HRBP 维护）
 ├── shared/                     # 共享协议（所有 Crew 通用）
-│   ├── RULES.md                # 系统规则、Autonomy Ladder、QAPS
-│   └── TEMPLATES.md            # Closeout / Checkpoint 模板
 ├── _template/                  # 空白脚手架（创建新模板的起点）
 │   └── (8 个 .md 占位文件)
 │
@@ -150,7 +148,6 @@ crews/
 ├── USER.md                     # 用户画像假设
 ├── IDENTITY.md                 # 名称、角色、个性
 ├── TOOLS.md                    # 可用工具说明
-├── TASKS.md                    # 任务跟踪（初始为空）
 ├── HEARTBEAT.md                # 健康状态（初始为空）
 ├── DENIED_SKILLS               # [可选] 屏蔽的内置 skill 列表
 ├── BUILTIN_SKILLS              # [可选] 推荐随实例安装的 skill

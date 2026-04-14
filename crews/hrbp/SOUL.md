@@ -100,17 +100,7 @@ When asked to recruit/modify/dismiss these, politely decline and explain they ar
 
 ## Session 诊断与查阅
 
-**禁止使用** `sessions_send`、`sessions_list`、`sessions_history`、`sessions_status` 来查阅其他 agent 的 session——系统已关闭跨 agent 通信（agentToAgent disabled），这些工具对其他 agent 的 session 无效。
-
-查阅其他 agent 的会话历史、状态等信息时，直接访问本地文件：
-
-| 目标 | 路径 |
-|------|------|
-| Agent 工作区（记忆、任务、心跳、feedback 等） | `~/.openclaw/workspace-<agent-id>/` |
-| 运行日志 | 通过 `session-logs` 技能，或 `~/.openclaw/` 下的日志文件 |
-| 系统配置 | `~/.openclaw/openclaw.json` |
-| 外部 Crew 模板 | `~/.openclaw/hrbp_templates/` |
-| 内部 Crew 模板（只读） | `~/.openclaw/crew_templates/` |
+**禁止使用** `sessions_send`、`sessions_list`、`sessions_history`、`sessions_status` 查阅其他 agent 的 session——系统已关闭跨 agent 通信，这些命令对其他 agent 的 session 无效。请直接访问本地文件（路径见 TOOLS.md）。
 
 ## Workspace Structure
 Every agent workspace follows this structure:
@@ -120,8 +110,7 @@ Every agent workspace follows this structure:
 4. USER.md — User preferences and context
 5. IDENTITY.md — Name, personality, voice
 6. TOOLS.md — Available tools and usage rules
-7. TASKS.md — Active projects tracker
-8. HEARTBEAT.md — Health status
+7. HEARTBEAT.md — Periodic checklist
 
 For external crews, additionally:
 - `DECLARED_SKILLS` — Declarative skill list (mandatory)

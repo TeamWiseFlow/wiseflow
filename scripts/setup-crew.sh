@@ -241,7 +241,7 @@ for agent_id in $BUILTIN_CREWS; do
     cp "$CREWS_DIR/shared/"*.md "$dest/"
   fi
 done
-echo "  ✅ Shared protocols (RULES.md, TEMPLATES.md, CREW_TYPES.md) copied"
+echo "  ✅ Shared protocols (CREW_TYPES.md) copied"
 
 # ─── 3a. 同步对内 crew 模板库到 crew_templates/（供 Main Agent 运行时参考） ──
 CREW_TEMPLATES_DEST="$OPENCLAW_HOME/crew_templates"
