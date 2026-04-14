@@ -37,9 +37,9 @@ After user confirms the proposal:
 1. Create workspace directory: `~/.openclaw/workspace-<instance-id>/`
 2. Copy template files as starting point
 3. Apply instance-specific customizations (name, role tuning, etc.)
-4. Create optional skill config file:
-   - `BUILTIN_SKILLS` — one bundled skill per line（表示”在 wiseflow 基线技能之外追加”）
-5. Copy shared protocols (`RULES.md`, `TEMPLATES.md`) into the workspace
+4. Create skill config file:
+   - `DECLARED_SKILLS` — one skill per line（external crew 权限白名单，参考模板中的 DECLARED_SKILLS）
+5. Copy shared protocol (`CREW_TYPES.md`) into the workspace
 6. **[If template uses `customer-db` skill]** Initialize the customer database:
    - Ask the user to define the database schema (tables, fields, types)
    - Write the schema to `~/.openclaw/workspace-<instance-id>/db/schema.sql`

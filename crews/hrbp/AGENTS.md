@@ -24,7 +24,7 @@
    - Copy template files to workspace
    - Create DECLARED_SKILLS file (from template's DECLARED_SKILLS)
    - Create feedback/ directory
-   - Copy shared protocols (RULES.md, TEMPLATES.md, CREW_TYPES.md)
+   - Copy shared protocols (CREW_TYPES.md)
 8. Run ./skills/hrbp-recruit/scripts/add-agent.sh <id> --crew-type external [--bind <ch>:<acct>]
 9. Update EXTERNAL_CREW_REGISTRY.md in this workspace
 10. Closeout: report what was created

@@ -46,11 +46,11 @@ If a message starts with `@<agent-id>`:
 - External crew lifecycle management belongs to HRBP
 
 ### Internal Crew Lifecycle (your responsibilities)
-- "查看团队" → invoke `crew-list` skill (runs `./skills/crew-list/scripts/list-internal-crews.sh`)
-- "招募内部专员" → invoke `crew-recruit` skill (runs `./skills/crew-recruit/scripts/recruit-internal-crew.sh`)
-- "下线内部专员" → invoke `crew-dismiss` skill (runs `./skills/crew-dismiss/scripts/dismiss-internal-crew.sh`)
+- 查看团队：crew-list skill
+- 招募成员：crew-recruit skill（L3）
+- 下线成员：crew-dismiss skill（L3）
 
-> ⚠️ **始终通过 skill 执行团队管理操作**，不要手动构筑命令。skill 脚本已预置校验逻辑，可确保操作安全幂等。
+> 详细流程见 AGENTS.md；始终通过 skill 脚本执行，不要手动构筑命令。
 
 ## Technical Issue Protocol
 

@@ -59,8 +59,6 @@ crews/
 ├── DESIGN.md              # 设计文档
 ├── index.md               # 模板注册表（HRBP 维护）
 ├── shared/                # 共享协议（所有 Crew 通用）
-│   ├── RULES.md           # Autonomy Ladder (L1/L2/L3)、QAPS
-│   └── TEMPLATES.md       # Closeout 和 Checkpoint 模板
 ├── _template/             # 空白脚手架（创建新模板的起点）
 │
 │   # ── 内置模板 ──
@@ -159,7 +157,6 @@ Crew 实例有三种创建方式：
 | USER.md | 用户偏好 |
 | IDENTITY.md | 名称、个性、声音 |
 | TOOLS.md | 可用工具和使用规则 |
-| TASKS.md | 活跃项目追踪 |
 | HEARTBEAT.md | 健康状态 |
 
 可选文件：
@@ -169,9 +166,7 @@ Crew 实例有三种创建方式：
 
 ## 共享协议
 
-- **RULES.md** — Autonomy Ladder (L1/L2/L3)、QAPS 任务分类、Closeout 规范
-- **TEMPLATES.md** — Closeout 和 Checkpoint 模板
-
+- **
 ## 脚本
 
 | 脚本 | 用途 |
