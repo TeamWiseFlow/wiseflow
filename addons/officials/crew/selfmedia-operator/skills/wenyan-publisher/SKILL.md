@@ -20,16 +20,9 @@ metadata:
 
 ---
 
-## Prerequisites（首次运行）
-
-```bash
-cd {baseDir}
-npm install
-```
-
----
-
 ## Step 1：Render Markdown → 平台 HTML
+
+> **重要**：必须使用绝对路径调用 node，**禁止** `cd {baseDir} && node scripts/render.mjs` 这种模式（`cd` 不在权限白名单中会报 exec denied）。
 
 ```bash
 node {baseDir}/scripts/render.mjs -f article.md --platform <platform> -o /tmp/output.html
