@@ -5,3 +5,7 @@
 +./skills/crew-recruit/scripts/recruit-internal-crew.sh
 +./skills/crew-list/scripts/list-internal-crews.sh
 +./skills/crew-dismiss/scripts/dismiss-internal-crew.sh
+
+# Crew 管理工具：探查模板/skill 结构、验证脚本存在性
++test
++find
