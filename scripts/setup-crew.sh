@@ -241,7 +241,7 @@ for agent_id in $BUILTIN_CREWS; do
     cp "$CREWS_DIR/shared/"*.md "$dest/"
   fi
 done
-echo "  ✅ Shared protocols (RULES.md, TEMPLATES.md, CREW_TYPES.md) copied"
+echo "  ✅ Shared protocols (CREW_TYPES.md) copied"
 
 # ─── 3a. 同步对内 crew 模板库到 crew_templates/（供 Main Agent 运行时参考） ──
 CREW_TEMPLATES_DEST="$OPENCLAW_HOME/crew_templates"
@@ -483,7 +483,7 @@ if [ -f "$CONFIG_PATH" ]; then
           };
         }
         // 对内 crew 默认思考/推理设置（不覆盖已有配置）
-        if (!agent.thinkingDefault) agent.thinkingDefault = 'medium';
+        if (!agent.thinkingDefault) agent.thinkingDefault = 'high';
         if (!agent.reasoningDefault) agent.reasoningDefault = 'off';
       } else {
         // 对外 crew 默认思考/推理设置（不覆盖已有配置）

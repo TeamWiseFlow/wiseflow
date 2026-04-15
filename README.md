@@ -1,6 +1,8 @@
 # Wiseflow
 
-🚀 **STEP INTO 5.x**
+🚀 **最新更新：official addons 发布！**
+
+wiseflow 正式发布 [official addons](addons/officials/README.md)，内置**自媒体运营**（selfmedia-operator）、**商务拓展**（business-developer）、**销售型客服**（sales-cs）与**平面设计师**（designer）四个生产就绪的 Crew 模板，配合全局"反侦测"浏览器增强、40+ 平台实时搜索等专属技能，开箱即可构建完整的「**自媒体引流 + BD 主动拓客 → sales-cs 销售转化**」自动获客管道。详见 [addons/officials](addons/officials/README.md)。
 
 > 📌 **寻找 4.x 版本？** 原版 v4.32 及之前版本的代码在 [`4.x` 分支](https://github.com/TeamWiseFlow/wiseflow/tree/4.x)中。
 
@@ -104,9 +106,11 @@ wiseflow 的 Crew 分为两大类：`对内`和`对外`.
 
 - `对外crew` 负责服务外部客户，是帮你“搞钱”的。
   - 你可以通过 HRBP 创建并招募符合你自己业务要求的对外 crew；
-  - 目前我们已经随代码仓提供了两个对外 crew 模板：`sales customer service` （销售导向客服） `selfmedia operator` (新媒体运营)
-    - `sales customer service` 不是一个单纯回答客户咨询的客服，它以促进成交为目的，会在咨询答疑过程中以用户无感的巧妙话术促进销售、调研用户来源、记录客户信息，并具有发起收款和确认收款的能力；
-    - `selfmedia operator` 不仅仅能够帮你写稿、生图（那些你用豆包、千问、DeepSeek 也能做），它能够随时记录你的灵感，你无意中看到的素材也可以随手转发给它，它都会记住并应用在后续产出中，并且它还能**自动完成在各个自媒体平台发布**的工作
+  - 目前我们已经随代码仓提供了四个 crew 模板（位于 `addons/officials/crew/`）：
+    - `sales customer service`（销售导向客服）：不是单纯回答客户咨询的客服，以促进成交为目的，会在咨询答疑过程中以用户无感的巧妙话术促进销售、调研用户来源、记录客户信息，并具有发起收款和确认收款的能力；
+    - `selfmedia operator`（自媒体运营）：不仅仅能够帮你写稿、生图，它能够随时记录你的灵感，你无意中看到的素材也可以随手转发给它，它都会记住并应用在后续产出中，并且它还能**自动完成在各个自媒体平台发布**的工作；
+    - `designer`（设计师）：专注视觉创意设计，结合 AI 生图能力提供配图、海报、品牌素材生成服务；
+    - `business developer`（商务拓展）：具备人脉关系分析、批量邮件触达、融资演示文稿生成等商务专属能力，助力业务拓展；
   - 更多能够帮你在线搞钱的 crew template 陆续发布中……
 
 > 说实话，市面上有很多基于 openclaw 的二开项目都支持多 crew（Agent），甚至还支持让这些 crew（Agent） 自主协同，或者带个办公室界面，你能看到他们在一起“过家家”……我认为这些都太华而不实了! 如果不能搞钱，一个 Agent Team 跟一个 chatbot 一样，只是玩具而已！
@@ -214,22 +218,26 @@ wiseflow 代码仓会不会更新、添加 [official addons](addons/officials), 
 ```
 wiseflow/
 ├── openclaw/              # 上游仓库（git clone，禁止直接修改）
-├── crews/                 # Crew 模板库 + 内置 Crew（Template → Instance 模型）
+├── crews/                 # 内置 Crew 模板（全局唯一，不可删除）
 │   ├── shared/            # 共享协议（RULES.md、TEMPLATES.md）
 │   ├── _template/         # 空白脚手架（创建新模板的起点）
 │   ├── index.md           # 模板注册表（HRBP 维护）
 │   ├── main/              # [built-in] Main Agent（路由调度器）
 │   ├── hrbp/              # [built-in] HRBP（Crew 生命周期管理）
 │   │   └── skills/        # HRBP 专属技能（recruit/modify/remove/list/usage）
-│   ├── it-engineer/       # [built-in] IT Engineer（系统运维）
-│   ├── sales-cs/          # [official] 销售型客服crew模板
-│   ├── selfmedia-operator/# [official] 自媒体运营crew模板
-│   ├── ...                # [official] 不断增加的crew模板
-│   └── _template/         # 空白脚手架（创建新 Crew 模板的起点）
-├── skills/                # 全局共享技能（所有 Agent 可见）
+│   └── it-engineer/       # [built-in] IT Engineer（系统运维 + SEO 技术优化）
+│       └── skills/        # IT Engineer 专属技能（seo、session-logs 等）
+├── skills/                # 全局共享技能（所有 Crew 可见）
 ├── addons/                # addon 安装目录
 │   ├── officials/         # [official] wiseflow 官方 addon
-│   ├── ...                # 用户可以自行安装的第三方 addon
+│   │   ├── patches/       # OpenClaw 代码补丁
+│   │   ├── skills/        # 官方 addon 提供的全局技能（smart-search 等）
+│   │   └── crew/          # 官方 Crew 模板
+│   │       ├── sales-cs/          # 销售型客服
+│   │       ├── selfmedia-operator/# 自媒体运营
+│   │       ├── designer/          # 设计师
+│   │       └── business-developer/# 商务拓展
+│   └── ...                # 用户可以自行安装的第三方 addon
 ├── config-templates/      # 配置模板（开箱即用的最佳实践）
 │   └── openclaw.json      # 默认配置模板
 ├── scripts/               # 工具脚本
@@ -265,6 +273,7 @@ wiseflow/
 - SearXNG（a free internet metasearch engine which aggregates results from various search services and databases） https://github.com/searxng/searxng
 - opencli（A CLI for social media & web platforms — smart-search skill 借鉴了其搜索 URL 模式与平台适配方案） https://github.com/jackwener/opencli
 - 文颜(Markdown文章排版美化工具，支持微信公众号、今日头条、知乎等平台。) https://github.com/caol64/wenyan
+- Everything Claude Code（Claude Code 全局 skill / rule / agent 集合，wiseflow 的 complex-task 等编排 skill 借鉴了其 blueprint 和 gan-style-harness 的设计思路） https://github.com/affaan-m/everything-claude-code
 
 ## Citation
 
@@ -277,4 +286,4 @@ https://github.com/TeamWiseFlow/wiseflow
 
 ## 友情链接
 
-[<img src="https://github.com/TeamWiseFlow/wiseflow/raw/4.x/docs/logos/SiliconFlow.png" alt="siliconflow" width="360">](https://cloud.siliconflow.cn/i/WNLYbBpi)
+[<img src="https://github.com/TeamWiseFlow/wiseflow/raw/4.x/docs/logos/SiliconFlow.png" alt="siliconflow" height="60">](https://cloud.siliconflow.cn/i/WNLYbBpi)&nbsp;&nbsp;[<img src="https://github.com/TeamWiseFlow/wiseflow/raw/4.x/docs/logos/tianqibao.png" alt="tianqibao" height="60">](https://baotianqi.cn/)&nbsp;&nbsp;[<img src="https://resource.aihubmix.com/logo.png" alt="aihubmix" height="60">](https://aihubmix.com/?aff=Gp54)

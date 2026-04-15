@@ -51,7 +51,6 @@ healthcheck
 model-usage
 nano-pdf
 skill-creator
-ordercli
 session-logs
 tmux
 weather

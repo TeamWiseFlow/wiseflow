@@ -1,8 +1,10 @@
 {
   "name": "wiseflow officials",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "浏览器反检测 + Tab Recovery + 互联网搜索增强（smart-search / rss-reader skills + 禁用内置 web_search）",
-  "openclaw_version": "2026.3.28",
-  "openclaw_commit": "f9b1079283a8ee25a7cee77c8f8225d5c813bc30",
-  "auto-activate": false
+  "openclaw_version": "2026.4.11",
+  "openclaw_commit": "769908ec3f713ecde067eb8c8aa54d8f57217aff",
+  "auto-activate": false,
+  "internal_crews": ["business-developer", "designer", "selfmedia-operator"],
+  "external_crews": ["sales-cs"]
 }

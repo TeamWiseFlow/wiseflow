@@ -81,14 +81,23 @@ if [ -f "$CONFIG_PATH" ] && [ -f "$PROJECT_ROOT/config-templates/openclaw.json" 
     };
     let changed = false;
 
-    // 将模板中所有 skills.entries 设置同步到运行配置
-    // 确保用户即使更新也能保持精简的内置 skill 集
+    // 同步 skills.entries：
+    //   enabled: true  → 强制覆写（wiseflow 功能依赖，必须保证开启）
+    //   enabled: false → 仅在运行配置中尚无该条目时写��（首次初始化语义，
+    //                    保留用户已主动开启的配置，不回退）
     if (template.skills?.entries) {
       if (!running.skills) running.skills = {};
       if (!running.skills.entries) running.skills.entries = {};
       for (const [name, entry] of Object.entries(template.skills.entries)) {
-        running.skills.entries[name] = entry;
-        changed = true;
+        if (entry && entry.enabled === true) {
+          // 强制写入：确保 wiseflow 依赖的技能始终开启
+          running.skills.entries[name] = entry;
+          changed = true;
+        } else if (!(name in running.skills.entries)) {
+          // 首次写入：用户从未配置过此条目才写默认值
+          running.skills.entries[name] = entry;
+          changed = true;
+        }
       }
     }
 
@@ -197,7 +206,8 @@ if [ -d "$PROJECT_ROOT/skills" ]; then
   for skill_dir in "$PROJECT_ROOT"/skills/*/; do
     if [ -f "${skill_dir}SKILL.md" ]; then
       skill_name="$(basename "$skill_dir")"
-      cp -r "$skill_dir" "$OPENCLAW_DIR/skills/$skill_name"
+      rm -rf "$OPENCLAW_DIR/skills/$skill_name"
+      cp -r "${skill_dir%/}" "$OPENCLAW_DIR/skills/$skill_name"
       GLOBAL_SKILL_COUNT=$((GLOBAL_SKILL_COUNT + 1))
       append_global_shared_skill "$skill_name"
     fi
@@ -259,7 +269,8 @@ for addon_dir in "$ADDONS_DIR"/*/; do
       if [ -f "${skill_dir}SKILL.md" ]; then
         skill_name="$(basename "$skill_dir")"
         echo "    → $skill_name (global)"
-        cp -r "$skill_dir" "$OPENCLAW_DIR/skills/$skill_name"
+        rm -rf "$OPENCLAW_DIR/skills/$skill_name"
+        cp -r "${skill_dir%/}" "$OPENCLAW_DIR/skills/$skill_name"
         append_global_shared_skill "$skill_name"
       fi
     done
@@ -307,20 +318,17 @@ for addon_dir in "$ADDONS_DIR"/*/; do
 
       echo "    → $template_id (crew-type: $addon_crew_type)"
 
-      # 安装模板到 crews/（代码仓中，供 HRBP/Main Agent 使用）
+      # 安装/更新模板到 crews/（每次覆盖，确保升级时同步最新内容）
       template_dest="$CREWS_DIR/$template_id"
-      if [ -d "$template_dest" ]; then
-        echo "    ⚠️  template $template_id already exists in crews/, skipping copy"
-      else
-        cp -r "$template_ws" "$template_dest"
-        echo "    ✅ template $template_id installed to crews/"
-      fi
+      rm -rf "$template_dest"
+      cp -r "${template_ws%/}" "$template_dest"
+      echo "    ✅ template $template_id synced to crews/"
 
       # 在 crews/ 中的 SOUL.md 上覆盖或注入 crew-type（addon.json 声明为权威来源）
       # 确保 setup-crew.sh 重扫 crews/ 时能正确路由到 crew_templates/ 或 hrbp_templates/
       if [ -f "$template_dest/SOUL.md" ]; then
         if grep -q '^crew-type:' "$template_dest/SOUL.md" 2>/dev/null; then
-          sed -i "s/^crew-type:.*$/crew-type: $addon_crew_type/" "$template_dest/SOUL.md"
+          sed -i.bak "s/^crew-type:.*$/crew-type: $addon_crew_type/" "$template_dest/SOUL.md" && rm -f "$template_dest/SOUL.md.bak"
         else
           printf '\ncrew-type: %s\n' "$addon_crew_type" >> "$template_dest/SOUL.md"
         fi
@@ -355,13 +363,32 @@ for addon_dir in "$ADDONS_DIR"/*/; do
 
         if [ -d "$dest" ]; then
           echo "    ⚠️  workspace-$agent_id already exists, skipping auto-activate"
+          # 对外 Crew：幂等同步 DECLARED_SKILLS（仅追加模板中有但 workspace 缺失的技能）
+          if [ "$addon_crew_type" = "external" ] \
+              && [ -f "${template_ws}DECLARED_SKILLS" ] \
+              && [ -f "$dest/DECLARED_SKILLS" ]; then
+            _added=0
+            while IFS= read -r _skill; do
+              [ -n "$_skill" ] || continue
+              grep -qxF "$_skill" "$dest/DECLARED_SKILLS" 2>/dev/null || {
+                echo "$_skill" >> "$dest/DECLARED_SKILLS"
+                _added=$((_added + 1))
+              }
+            done < <(
+              sed 's/#.*$//' "${template_ws}DECLARED_SKILLS" \
+                | tr ',' '\n' \
+                | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' \
+                | awk 'NF'
+            )
+            [ "$_added" -gt 0 ] && echo "    📝 DECLARED_SKILLS: synced $_added new skill(s) from template"
+          fi
         else
           mkdir -p "$dest"
           cp "${template_ws}"*.md "$dest/"
           # 同步 crew-type 到 workspace 的 SOUL.md（addon.json 声明为准）
           if [ -f "$dest/SOUL.md" ]; then
             if grep -q '^crew-type:' "$dest/SOUL.md" 2>/dev/null; then
-              sed -i "s/^crew-type:.*$/crew-type: $addon_crew_type/" "$dest/SOUL.md"
+              sed -i.bak "s/^crew-type:.*$/crew-type: $addon_crew_type/" "$dest/SOUL.md" && rm -f "$dest/SOUL.md.bak"
             else
               printf '\ncrew-type: %s\n' "$addon_crew_type" >> "$dest/SOUL.md"
             fi
