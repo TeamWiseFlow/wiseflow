@@ -1,24 +1,17 @@
 #!/bin/bash
-# upgrade.sh - 一键升级 wiseflow（自身代码 + openclaw 引擎 + 配置同步）
+# upgrade_without_git.sh - 升级 openclaw 引擎 + 配置同步（跳过 wiseflow 和 openclaw 的 git 同步）
 #
 # 适用场景：
-#   - 通过 release 包安装的用户（首次运行会自动 git init）
-#   - git clone 安装的用户（直接拉取最新代码）
+#   - 通过 release 包安装的用户（手动解压新版 tarball 后运行，不依赖 git 拉取）
 #
 # 执行流程：
 #   1. 验证 wiseflow 项目目录合法性
-#   2. 初始化 git remote（如未初始化）或验证 remote URL
-#   3. git fetch + reset --hard 拉取最新 wiseflow 代码
-#      - addons/ 在 .gitignore 中，不受影响
-#      - ~/.openclaw/ 在 wiseflow 项目目录外，不受影响
-#   4. 读取 openclaw.version，按锚定版本检出 openclaw 子目录
-#      - 若已是目标 commit，跳过耗时的 install/build
-#   5. 调用 apply-addons.sh（内含 setup-crew.sh，只需调一次）
+#   2. 读取 openclaw.version，安装依赖并构建（跳过 git fetch/checkout）
+#   3. 调用 apply-addons.sh（内含 setup-crew.sh，只需调一次）
 #
 # ⚠️  升级前请确保系统空闲（无 agent 会话正在处理任务）
 set -e
 
-OFB_REPO="https://github.com/TeamWiseFlow/wiseflow.git"
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OPENCLAW_DIR="$PROJECT_ROOT/openclaw"
 VERSION_FILE="$PROJECT_ROOT/openclaw.version"
@@ -65,7 +58,7 @@ if [ ! -f "$PROJECT_ROOT/scripts/apply-addons.sh" ] || [ ! -d "$OPENCLAW_DIR" ];
   exit 1
 fi
 
-# ─── 4. 按锚定版本更新 openclaw 引擎 ────────────────────────────
+# ─── 2. 按锚定版本更新 openclaw 引擎（跳过 git 同步）────────────────
 if [ ! -f "$VERSION_FILE" ]; then
   echo "❌ openclaw.version not found at $VERSION_FILE"
   exit 1
@@ -81,37 +74,20 @@ fi
 
 echo "🔍 openclaw target: $OPENCLAW_VERSION ($OPENCLAW_COMMIT)"
 
-CURRENT_COMMIT="$(git -C "$OPENCLAW_DIR" rev-parse HEAD 2>/dev/null || echo "")"
-if [ "$CURRENT_COMMIT" = "$OPENCLAW_COMMIT" ]; then
-  echo "  ✅ openclaw is already at target commit, skipping install/build."
-  OPENCLAW_UPDATED=false
-else
-  echo "  Current commit: ${CURRENT_COMMIT:-"(unknown)"}"
-  echo "  Checking out target commit..."
-  git -C "$OPENCLAW_DIR" reset --hard HEAD 2>/dev/null || true
-  # 对于 shallow clone，需要带 --tags 确保 target commit 的 tree 对象被下载
-  git -C "$OPENCLAW_DIR" fetch origin --tags
-  # 若仍无法读取 tree（blobless/treeless clone），进一步 unshallow
-  if ! git -C "$OPENCLAW_DIR" cat-file -e "${OPENCLAW_COMMIT}^{tree}" 2>/dev/null; then
-    echo "  ⚠️  Shallow clone detected, unshallowing to fetch full objects..."
-    git -C "$OPENCLAW_DIR" fetch --unshallow origin 2>/dev/null || \
-      git -C "$OPENCLAW_DIR" fetch --deepen=200 origin
-  fi
-  git -C "$OPENCLAW_DIR" checkout "$OPENCLAW_COMMIT"
-  echo "  ✅ openclaw checked out at $OPENCLAW_VERSION"
+echo "  📦 Installing dependencies..."
+(cd "$OPENCLAW_DIR" && pnpm install)
 
-  echo "  📦 Installing dependencies..."
-  (cd "$OPENCLAW_DIR" && pnpm install)
+echo "  🔨 Building..."
+(cd "$OPENCLAW_DIR" && pnpm build)
 
-  echo "  🔨 Building..."
-  (cd "$OPENCLAW_DIR" && pnpm build)
+echo "  🎨 Building Control UI assets..."
+(cd "$OPENCLAW_DIR" && pnpm ui:build)
 
-  echo "  ✅ openclaw engine ready"
-  OPENCLAW_UPDATED=true
-fi
+echo "  ✅ openclaw engine ready"
+OPENCLAW_UPDATED=false
 echo ""
 
-# ─── 5. 重新应用 addons + 同步配置（apply-addons.sh 末尾会调 setup-crew.sh）
+# ─── 3. 重新应用 addons + 同步配置（apply-addons.sh 末尾会调 setup-crew.sh）
 if [ "$SKIP_ADDONS" = "true" ]; then
   echo "⏭️  Skipping apply-addons and setup-crew (--skip-addons)"
 else

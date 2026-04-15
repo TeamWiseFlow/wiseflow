@@ -206,7 +206,8 @@ if [ -d "$PROJECT_ROOT/skills" ]; then
   for skill_dir in "$PROJECT_ROOT"/skills/*/; do
     if [ -f "${skill_dir}SKILL.md" ]; then
       skill_name="$(basename "$skill_dir")"
-      cp -r "$skill_dir" "$OPENCLAW_DIR/skills/$skill_name"
+      rm -rf "$OPENCLAW_DIR/skills/$skill_name"
+      cp -r "${skill_dir%/}" "$OPENCLAW_DIR/skills/$skill_name"
       GLOBAL_SKILL_COUNT=$((GLOBAL_SKILL_COUNT + 1))
       append_global_shared_skill "$skill_name"
     fi
@@ -268,7 +269,8 @@ for addon_dir in "$ADDONS_DIR"/*/; do
       if [ -f "${skill_dir}SKILL.md" ]; then
         skill_name="$(basename "$skill_dir")"
         echo "    → $skill_name (global)"
-        cp -r "$skill_dir" "$OPENCLAW_DIR/skills/$skill_name"
+        rm -rf "$OPENCLAW_DIR/skills/$skill_name"
+        cp -r "${skill_dir%/}" "$OPENCLAW_DIR/skills/$skill_name"
         append_global_shared_skill "$skill_name"
       fi
     done
@@ -364,6 +366,25 @@ for addon_dir in "$ADDONS_DIR"/*/; do
 
         if [ -d "$dest" ]; then
           echo "    ⚠️  workspace-$agent_id already exists, skipping auto-activate"
+          # 对外 Crew：幂等同步 DECLARED_SKILLS（仅追加模板中有但 workspace 缺失的技能）
+          if [ "$addon_crew_type" = "external" ] \
+              && [ -f "${template_ws}DECLARED_SKILLS" ] \
+              && [ -f "$dest/DECLARED_SKILLS" ]; then
+            _added=0
+            while IFS= read -r _skill; do
+              [ -n "$_skill" ] || continue
+              grep -qxF "$_skill" "$dest/DECLARED_SKILLS" 2>/dev/null || {
+                echo "$_skill" >> "$dest/DECLARED_SKILLS"
+                _added=$((_added + 1))
+              }
+            done < <(
+              sed 's/#.*$//' "${template_ws}DECLARED_SKILLS" \
+                | tr ',' '\n' \
+                | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' \
+                | awk 'NF'
+            )
+            [ "$_added" -gt 0 ] && echo "    📝 DECLARED_SKILLS: synced $_added new skill(s) from template"
+          fi
         else
           mkdir -p "$dest"
           cp "${template_ws}"*.md "$dest/"

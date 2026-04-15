@@ -146,6 +146,9 @@ else
   echo "  🔨 Building..."
   (cd "$OPENCLAW_DIR" && pnpm build)
 
+  echo "  🎨 Building Control UI assets..."
+  (cd "$OPENCLAW_DIR" && pnpm ui:build)
+
   echo "  ✅ openclaw engine ready"
   OPENCLAW_UPDATED=true
 fi
