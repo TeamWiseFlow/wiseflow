@@ -328,7 +328,7 @@ for addon_dir in "$ADDONS_DIR"/*/; do
       # 确保 setup-crew.sh 重扫 crews/ 时能正确路由到 crew_templates/ 或 hrbp_templates/
       if [ -f "$template_dest/SOUL.md" ]; then
         if grep -q '^crew-type:' "$template_dest/SOUL.md" 2>/dev/null; then
-          sed -i '' "s/^crew-type:.*$/crew-type: $addon_crew_type/" "$template_dest/SOUL.md"
+          sed -i.bak "s/^crew-type:.*$/crew-type: $addon_crew_type/" "$template_dest/SOUL.md" && rm -f "$template_dest/SOUL.md.bak"
         else
           printf '\ncrew-type: %s\n' "$addon_crew_type" >> "$template_dest/SOUL.md"
         fi
@@ -388,7 +388,7 @@ for addon_dir in "$ADDONS_DIR"/*/; do
           # 同步 crew-type 到 workspace 的 SOUL.md（addon.json 声明为准）
           if [ -f "$dest/SOUL.md" ]; then
             if grep -q '^crew-type:' "$dest/SOUL.md" 2>/dev/null; then
-              sed -i '' "s/^crew-type:.*$/crew-type: $addon_crew_type/" "$dest/SOUL.md"
+              sed -i.bak "s/^crew-type:.*$/crew-type: $addon_crew_type/" "$dest/SOUL.md" && rm -f "$dest/SOUL.md.bak"
             else
               printf '\ncrew-type: %s\n' "$addon_crew_type" >> "$dest/SOUL.md"
             fi
