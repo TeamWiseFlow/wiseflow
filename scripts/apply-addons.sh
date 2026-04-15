@@ -318,14 +318,11 @@ for addon_dir in "$ADDONS_DIR"/*/; do
 
       echo "    → $template_id (crew-type: $addon_crew_type)"
 
-      # 安装模板到 crews/（代码仓中，供 HRBP/Main Agent 使用）
+      # 安装/更新模板到 crews/（每次覆盖，确保升级时同步最新内容）
       template_dest="$CREWS_DIR/$template_id"
-      if [ -d "$template_dest" ]; then
-        echo "    ⚠️  template $template_id already exists in crews/, skipping copy"
-      else
-        cp -r "$template_ws" "$template_dest"
-        echo "    ✅ template $template_id installed to crews/"
-      fi
+      rm -rf "$template_dest"
+      cp -r "${template_ws%/}" "$template_dest"
+      echo "    ✅ template $template_id synced to crews/"
 
       # 在 crews/ 中的 SOUL.md 上覆盖或注入 crew-type（addon.json 声明为权威来源）
       # 确保 setup-crew.sh 重扫 crews/ 时能正确路由到 crew_templates/ 或 hrbp_templates/
