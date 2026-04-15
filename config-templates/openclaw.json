@@ -322,6 +322,9 @@
     },
     "skills": {
         "entries": {
+            "ordercli": {
+                "enabled": false
+            },
             "notion": {
                 "enabled": false
             },
