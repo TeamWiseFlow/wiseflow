@@ -1,0 +1,7 @@
+{
+  "skills": ["shorts-compose", "t2video", "manim-explainer", "remotion-video-creation", "ui-demo", "siliconflow-img-gen", "siliconflow-video-gen", "pexels-footage", "pixabay-footage", "smart-search", "complex-task", "council"],
+  "subagents": {
+    "allowAgents": ["it-engineer"]
+  },
+  "tools": {}
+}

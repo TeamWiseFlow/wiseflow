@@ -11,3 +11,5 @@ social-graph-ranker
 siliconflow-img-gen
 siliconflow-video-gen
 gifgrep
+# 信息采集技能（HRBP 不需要）
+rss-reader
