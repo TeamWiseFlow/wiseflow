@@ -318,13 +318,15 @@ if (Array.isArray(arr)) arr.forEach((s) => { if (s && typeof s === "string") con
       while IFS= read -r -d '' f; do
         local fname
         fname="$(basename "$f")"
-        # 只允许 .sh 文件或有可执行位的文件（排除 .py .json .txt 等）
+        # 只允许 .sh/.mjs/.ts/.js 文件或有可执行位的文件（排除 .py .json .txt 等）
         case "$fname" in
           *.py|*.json|*.txt|*.md|*.yaml|*.yml) continue ;;
         esac
-        [ -x "$f" ] || [[ "$fname" == *.sh ]] || continue
-        printf '+./skills/%s/scripts/%s\n' "$skill" "$fname"
-      done < <(find "$ws_scripts_dir" -maxdepth 1 -type f -print0 2>/dev/null)
+        [ -x "$f" ] || [[ "$fname" == *.sh ]] || [[ "$fname" == *.mjs ]] || [[ "$fname" == *.ts ]] || [[ "$fname" == *.js ]] || continue
+        # 保留相对于 scripts/ 的子目录路径（支持 platforms/、vendor/ 等子目录）
+        local relpath="${f#$ws_scripts_dir/}"
+        printf '+./skills/%s/scripts/%s\n' "$skill" "$relpath"
+      done < <(find "$ws_scripts_dir" -type f -print0 2>/dev/null)
     fi
 
     # ── 全局 skill（openclaw/skills/）──────────────────────
@@ -336,9 +338,9 @@ if (Array.isArray(arr)) arr.forEach((s) => { if (s && typeof s === "string") con
         case "$fname" in
           *.py|*.json|*.txt|*.md|*.yaml|*.yml) continue ;;
         esac
-        [ -x "$f" ] || [[ "$fname" == *.sh ]] || continue
+        [ -x "$f" ] || [[ "$fname" == *.sh ]] || [[ "$fname" == *.mjs ]] || [[ "$fname" == *.ts ]] || [[ "$fname" == *.js ]] || continue
         printf '+%s\n' "$f"
-      done < <(find "$global_scripts_dir" -maxdepth 1 -type f -print0 2>/dev/null)
+      done < <(find "$global_scripts_dir" -type f -print0 2>/dev/null)
     fi
 
   done <<< "$skill_names"
