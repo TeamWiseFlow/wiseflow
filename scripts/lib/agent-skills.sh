@@ -276,6 +276,74 @@ console.log(JSON.stringify(Array.from(new Set(lines))));
 '
 }
 
+# 收集某 agent 所有 skill 的脚本路径，供自动注入 ALLOWED_COMMANDS
+#
+# 输出格式（每行一条）:
+#   +./skills/<skill>/scripts/<file>     — workspace-local skill 脚本（相对路径）
+#   +<abs_path>                          — 全局 skill 脚本（绝对路径）
+#
+# 参数:
+#   $1  workspace_dir   agent 的 workspace 目录
+#   $2  skills_json     JSON 数组字符串（resolve_agent_skills_json 的输出）
+#   $3  project_root    wiseflow 项目根目录
+#
+# 设计：只处理有执行权限（可执行位）或以 .sh 结尾的文件，跳过 .py/.json 等。
+collect_skill_script_commands() {
+  local workspace_dir="$1"
+  local skills_json="$2"
+  local project_root="$3"
+
+  [ -n "$workspace_dir" ] || return 0
+  [ -n "$skills_json" ] || return 0
+
+  # 从 JSON 数组解析 skill 名称列表
+  local skill_names
+  skill_names="$(printf '%s\n' "$skills_json" \
+    | node -e '
+const fs = require("fs");
+const raw = fs.readFileSync(0, "utf8").trim();
+let arr;
+try { arr = JSON.parse(raw); } catch(_) { arr = []; }
+if (Array.isArray(arr)) arr.forEach((s) => { if (s && typeof s === "string") console.log(s); });
+' 2>/dev/null)"
+
+  [ -n "$skill_names" ] || return 0
+
+  while IFS= read -r skill; do
+    [ -n "$skill" ] || continue
+
+    # ── workspace-local skill ──────────────────────────────
+    local ws_scripts_dir="$workspace_dir/skills/$skill/scripts"
+    if [ -d "$ws_scripts_dir" ]; then
+      while IFS= read -r -d '' f; do
+        local fname
+        fname="$(basename "$f")"
+        # 只允许 .sh 文件或有可执行位的文件（排除 .py .json .txt 等）
+        case "$fname" in
+          *.py|*.json|*.txt|*.md|*.yaml|*.yml) continue ;;
+        esac
+        [ -x "$f" ] || [[ "$fname" == *.sh ]] || continue
+        printf '+./skills/%s/scripts/%s\n' "$skill" "$fname"
+      done < <(find "$ws_scripts_dir" -maxdepth 1 -type f -print0 2>/dev/null)
+    fi
+
+    # ── 全局 skill（openclaw/skills/）──────────────────────
+    local global_scripts_dir="$project_root/openclaw/skills/$skill/scripts"
+    if [ -d "$global_scripts_dir" ]; then
+      while IFS= read -r -d '' f; do
+        local fname
+        fname="$(basename "$f")"
+        case "$fname" in
+          *.py|*.json|*.txt|*.md|*.yaml|*.yml) continue ;;
+        esac
+        [ -x "$f" ] || [[ "$fname" == *.sh ]] || continue
+        printf '+%s\n' "$f"
+      done < <(find "$global_scripts_dir" -maxdepth 1 -type f -print0 2>/dev/null)
+    fi
+
+  done <<< "$skill_names"
+}
+
 # 向 external crew 的 AGENTS.md 追加渠道回复规则（幂等）
 # 规则：调用工具的 turn 不得包含面向客户的文本，所有文本在最后一个 turn 统一输出
 inject_channel_reply_rules() {
@@ -294,6 +362,38 @@ RULES
 
 # 向 workspace 的 TOOLS.md 追加通用工具调用规范（幂等）
 # 注入内容见 docs/injected_instruction.md
+# 向 AGENTS.md 追加通用标准 section（幂等）
+# 1. Technical Issue Dispatch Protocol
+# 2. sessions_spawn 规范
+inject_agents_md_sections() {
+  local agents_md="$1"
+  [ -f "$agents_md" ] || return 0
+
+  if ! grep -qF "## Technical Issue Dispatch Protocol" "$agents_md"; then
+    cat >> "$agents_md" << 'TIDP'
+
+## Technical Issue Dispatch Protocol
+
+**当任务执行过程中遭遇技术问题或系统故障（exec 失败、配置异常、spawn 报错、脚本异常等），必须严格按以下步骤处理：**
+
+1. **立即告知用户**：主动说明遇到了技术问题，正在呼唤 IT Engineer 处理，请耐心等待，任务执行时间会稍长
+2. **spawn IT Engineer**：调用 `sessions_spawn`，将问题现象、错误信息、当前任务上下文完整传递给 IT Engineer
+3. **等待修复完成**，然后继续执行原任务
+
+**绝对禁止**：因技术问题停止工作，或要求用户自行解决系统故障。技术问题由 IT Engineer 负责，你的职责是保证用户任务顺利完成。
+TIDP
+  fi
+
+  if ! grep -qF "## sessions_spawn 规范" "$agents_md"; then
+    cat >> "$agents_md" << 'SSP'
+
+## sessions_spawn 规范
+
+> ⚠️ **禁止传入 `streamTo` 参数** — `streamTo` 仅支持 `runtime=acp`，在 subagent 模式下会报错（`streamTo is only supported for runtime=acp`）。spawn 时只传 agentId 和 task 内容即可。
+SSP
+  fi
+}
+
 inject_file_edit_guide() {
   local tools_md="$1"
   [ -f "$tools_md" ] || return 0
