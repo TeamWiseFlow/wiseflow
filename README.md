@@ -286,4 +286,6 @@ https://github.com/TeamWiseFlow/wiseflow
 
 ## 友情链接
 
-[<img src="https://github.com/TeamWiseFlow/wiseflow/raw/4.x/docs/logos/SiliconFlow.png" alt="siliconflow" height="60">](https://cloud.siliconflow.cn/i/WNLYbBpi)&nbsp;&nbsp;[<img src="https://github.com/TeamWiseFlow/wiseflow/raw/4.x/docs/logos/tianqibao.png" alt="tianqibao" height="60">](https://baotianqi.cn/)&nbsp;&nbsp;[<img src="https://resource.aihubmix.com/logo.png" alt="aihubmix" height="60">](https://aihubmix.com/?aff=Gp54)
+[<img src="https://github.com/TeamWiseFlow/wiseflow/raw/4.x/docs/logos/tianqibao.png" alt="tianqibao" height="60">](https://baotianqi.cn/)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<img src="https://resource.aihubmix.com/logo.png" alt="aihubmix" height="60">](https://aihubmix.com/?aff=Gp54)
+
+[<img src="https://github.com/TeamWiseFlow/wiseflow/raw/4.x/docs/logos/SiliconFlow.png" alt="siliconflow" height="60">](https://cloud.siliconflow.cn/i/WNLYbBpi)
