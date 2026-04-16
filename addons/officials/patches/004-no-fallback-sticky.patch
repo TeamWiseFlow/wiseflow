@@ -1,0 +1,33 @@
+diff --git a/src/gateway/session-utils.ts b/src/gateway/session-utils.ts
+index cd385d6341..8d8a6cb226 100644
+--- a/src/gateway/session-utils.ts
++++ b/src/gateway/session-utils.ts
+@@ -960,7 +960,10 @@ export function resolveSessionModelRef(
+   cfg: OpenClawConfig,
+   entry?:
+     | SessionEntry
+-    | Pick<SessionEntry, "model" | "modelProvider" | "modelOverride" | "providerOverride">,
++    | Pick<
++        SessionEntry,
++        "model" | "modelProvider" | "modelOverride" | "providerOverride" | "modelOverrideSource"
++      >,
+   agentId?: string,
+ ): { provider: string; model: string } {
+   const resolved = agentId
+@@ -971,9 +974,14 @@ export function resolveSessionModelRef(
+         defaultModel: DEFAULT_MODEL,
+       });
+ 
++  // When OPENCLAW_NO_FALLBACK_STICKY=1, auto-fallback overrides are ignored so
++  // each new turn retries the configured default model instead of the last
++  // fallback. This avoids cost drift when a provider is temporarily degraded.
++  const skipAutoFallback =
++    process.env.OPENCLAW_NO_FALLBACK_STICKY === "1" && entry?.modelOverrideSource === "auto";
+   const normalizedOverride = normalizeStoredOverrideModel({
+-    providerOverride: entry?.providerOverride,
+-    modelOverride: entry?.modelOverride,
++    providerOverride: skipAutoFallback ? undefined : entry?.providerOverride,
++    modelOverride: skipAutoFallback ? undefined : entry?.modelOverride,
+   });
+ 
+   const persisted = resolvePersistedSelectedModelRef({
