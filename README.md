@@ -39,12 +39,13 @@ cd ..
 
    **调试模式**（单次启动，适合测试和开发）：
    ```bash
+   cd openclaw && pnpm build && cd ..
    ./scripts/dev.sh gateway
    ```
 
-   **生产模式**（安装为系统服务，适合长期运行）：
+   **生产模式**（一键安装为系统服务，适合长期运行）：
    ```bash
-   ./scripts/reinstall-daemon.sh
+   ./scripts/install.sh
    ```
 
 > **系统要求**
@@ -59,7 +60,7 @@ cd ..
 
 注意：
 
-- dev.sh 或者 reinstall-daemon.sh 脚本会自动初始化一个最佳配置的openclaw.json，基础使用几乎不用改；
+- dev.sh 或者 install.sh 脚本会自动初始化一个最佳配置的openclaw.json，基础使用几乎不用改；
 - wiseflow 不改 openclaw 的原始代码，release 包中内置的 openclaw 由 CI/CD 程序自动从官方 github 代码仓抓取，请放心使用。
 
 4. 安装后如何用可以参考 [quick start](docs/quick_start.md)
@@ -240,13 +241,12 @@ wiseflow/
 │   └── ...                # 用户可以自行安装的第三方 addon
 ├── config-templates/      # 配置模板（开箱即用的最佳实践）
 │   └── openclaw.json      # 默认配置模板
-├── scripts/               # 工具脚本
-│   ├── libs/              # 脚本共享工具
-│   ├── dev.sh             # 开发模式启动（自动安装 crew 系统 + addon）
-│   ├── setup-crew.sh      # 多 crew 系统安装（幂等）
-│   ├── apply-addons.sh    # 全局 skills + addon 加载器
-│   ├── upgrade.sh         # 一键升级脚本（推荐入口）
-│   ├── reinstall-daemon.sh # 生产模式安装后台服务
+├── scripts/               # 工具脚本（详见 scripts/README.md）
+│   ├── lib/               # 脚本共享工具
+│   ├── install.sh         # 一键安装 / 升级（推荐入口）
+│   ├── apply-addons.sh    # 应用 addon（patches + skills + build + restart）
+│   ├── dev.sh             # 开发模式启动（前台运行 gateway）
+│   ├── setup-crew.sh      # 多 crew 系统安装（仅同步 markdown，幂等）
 │   └── setup-wsl2.sh      # WSL2 环境配置
 └── docs/                  # 项目文档
 ```
