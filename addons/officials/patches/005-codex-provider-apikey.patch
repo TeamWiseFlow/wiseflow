@@ -1,0 +1,36 @@
+From 08fde30132f0147d9cb87aac328e06b81ac1c965 Mon Sep 17 00:00:00 2001
+From: bigbrother666sh <wukong@DESKTOP-K31C522.localdomain>
+Date: Fri, 17 Apr 2026 08:25:10 +0800
+Subject: [PATCH] fix(codex): add apiKey to buildCodexProviderCatalog provider
+ config
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+pi-coding-agent's validateConfig now requires apiKey when custom models
+are defined. The codex provider uses token auth and previously omitted
+apiKey, causing models.json to fail validation entirely — making all
+custom providers (siliconflow etc.) invisible to the model registry
+and triggering "Unknown model" errors in the image tool.
+
+Add apiKey: "codex-app-server" (matching resolveSyntheticAuth) so
+validation passes. The actual auth still goes through the token path.
+---
+ extensions/codex/provider.ts | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/extensions/codex/provider.ts b/extensions/codex/provider.ts
+index c737a24ad5..667e7ec9be 100644
+--- a/extensions/codex/provider.ts
++++ b/extensions/codex/provider.ts
+@@ -118,6 +118,7 @@ export async function buildCodexProviderCatalog(
+   return {
+     provider: {
+       baseUrl: CODEX_BASE_URL,
++      apiKey: "codex-app-server",
+       auth: "token",
+       api: "openai-codex-responses",
+       models,
+-- 
+2.43.0
+
