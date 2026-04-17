@@ -26,23 +26,6 @@ Use this skill when:
 
 ---
 
-## Prerequisites
-
-Install dependencies once:
-```bash
-# ffmpeg (required for audio extraction and frame extraction)
-sudo apt install ffmpeg        # Ubuntu/Debian
-brew install ffmpeg            # macOS
-```
-
-Set environment variables:
-```
-SILICONFLOW_API_KEY=<your key>
-ASR_MODEL=FunAudioLLM/SenseVoiceSmall   # optional, this is the default
-```
-
----
-
 ## Workflow
 
 ### Step 1 — Check login (skip for public Bilibili videos)
