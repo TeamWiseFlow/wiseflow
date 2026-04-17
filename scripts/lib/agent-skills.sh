@@ -414,3 +414,32 @@ inject_file_edit_guide() {
 > ⚠️ **禁止传入 `streamTo` 参数** — `streamTo` 仅支持 `runtime=acp`，在 subagent 模式下会报错（`streamTo is only supported for runtime=acp`）。spawn 时只传 agentId 和 task 内容即可。
 GUIDE
 }
+
+inject_exec_guide() {
+  local tools_md="$1"
+  [ -f "$tools_md" ] || return 0
+  grep -q "## exec 命令规范" "$tools_md" && return 0
+  cat >> "$tools_md" << 'GUIDE'
+
+## exec 命令规范
+
+exec allowlist 不支持 shell 重定向符（`>`、`<`、`2>`、`&>`），使用时会导致整条命令被 deny，即使其中每个命令都已在白名单中。
+
+**避免**：
+```
+ls -la /tmp/file.txt 2>/dev/null && echo "EXISTS" || echo "NOT"
+some-cmd > /tmp/out.txt
+```
+
+**改用**：
+```bash
+# 判断文件是否存在
+[ -f /tmp/file.txt ] && echo "EXISTS" || echo "NOT"
+test -f /tmp/file.txt && echo "EXISTS" || echo "NOT"
+
+# 写文件用 write 工具；读文件用 read 工具
+```
+
+如果确实需要重定向，请改用 `bash -c "..."` 方式，并确保 `bash` 已在 exec allowlist 中（T2 及以上 tier 默认包含）。
+GUIDE
+}
