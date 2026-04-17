@@ -31,10 +31,7 @@ When a page shows a login wall, first identify which login mechanism is offered,
 When the login page shows a QR code (WeChat Official Account backend, Xiaohongshu creator centre, X/Twitter, etc.):
 
 1. Use `snapshot` to locate the QR code image element. Download / screenshot it and save it to `/tmp/` (e.g., `/tmp/xhs_qr.png`).
-2. Read the file with the `Read` tool so it is displayed inline to the user:
-   ```
-   Read: /tmp/xhs_qr.png
-   ```
+2. Send the QR code image downloaded in the previous step to the user via Feishu message, making sure to send the image itself rather than the local file path.
 3. Notify the user:
    > "**[平台名称]** 登录已失效（或首次使用），请用 **[平台]** APP 扫描以下二维码登录。扫码并在手机上点击确认后，回复"已扫码"。"
 4. **Stop and wait** for the user to reply "已扫码"、"好了"、"扫完了" or any equivalent confirmation before continuing.
