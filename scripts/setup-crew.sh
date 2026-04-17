@@ -186,6 +186,7 @@ for agent_id in $BUILTIN_CREWS; do
     echo "  ⚠️  workspace-$agent_id already exists, keeping user files (use --force to overwrite)"
     # 仅做幂等注入（有标记则跳过，不覆盖用户编辑的内容）
     inject_file_edit_guide "$dest/TOOLS.md"
+    inject_exec_guide "$dest/TOOLS.md"
     inject_agents_md_sections "$dest/AGENTS.md"
     continue
   fi
@@ -233,6 +234,7 @@ for agent_id in $BUILTIN_CREWS; do
   fi
   echo "  ✅ workspace-$agent_id installed"
   inject_file_edit_guide "$dest/TOOLS.md"
+  inject_exec_guide "$dest/TOOLS.md"
   inject_agents_md_sections "$dest/AGENTS.md"
 done
 
