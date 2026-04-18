@@ -188,6 +188,7 @@ for agent_id in $BUILTIN_CREWS; do
     inject_file_edit_guide "$dest/TOOLS.md"
     inject_exec_guide "$dest/TOOLS.md"
     inject_agents_md_sections "$dest/AGENTS.md"
+    inject_feishu_media_guide "$dest/USER.md"
     continue
   fi
 
@@ -236,6 +237,7 @@ for agent_id in $BUILTIN_CREWS; do
   inject_file_edit_guide "$dest/TOOLS.md"
   inject_exec_guide "$dest/TOOLS.md"
   inject_agents_md_sections "$dest/AGENTS.md"
+  inject_feishu_media_guide "$dest/USER.md"
 done
 
 # ─── 2. 复制共享协议到每个已安装的内置 workspace ─────────────────
@@ -632,6 +634,7 @@ if [ -f "$CONFIG_PATH" ]; then
     [ -n "$a_id" ] || continue
     [ -f "$a_ws/AGENTS.md" ] || continue
     inject_agents_md_sections "$a_ws/AGENTS.md"
+    inject_feishu_media_guide "$a_ws/USER.md"
   done < <(node -e "
     const fs = require('fs');
     const home = process.env.HOME || '';

@@ -415,6 +415,18 @@ inject_file_edit_guide() {
 GUIDE
 }
 
+inject_feishu_media_guide() {
+  local user_md="$1"
+  [ -f "$user_md" ] || return 0
+  grep -qF "## 发送图片/文件/视频等富媒体（自动注入）" "$user_md" && return 0
+  cat >> "$user_md" << 'GUIDE'
+
+## 发送图片/文件/视频等富媒体（自动注入）
+
+向用户发送图片、文件、视频或其他富媒体内容时，**必须使用飞书提供的消息能力**，不得直接输出文件路径或 base64 内容作为回复。
+GUIDE
+}
+
 inject_exec_guide() {
   local tools_md="$1"
   [ -f "$tools_md" ] || return 0
