@@ -1,9 +1,0 @@
-# Default denied bundled skills for non-IT crews.
-github
-gh-issues
-coding-agent
-# 业务拓展专属技能（business-developer 使用）
-connections-optimizer
-email-ops
-pitch-deck
-social-graph-ranker

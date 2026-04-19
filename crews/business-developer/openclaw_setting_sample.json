@@ -1,7 +1,0 @@
-{
-  "skills": ["connections-optimizer", "email-ops", "pitch-deck", "social-graph-ranker", "complex-task", "smart-search", "council"],
-  "subagents": {
-    "allowAgents": ["it-engineer", "designer"]
-  },
-  "tools": {}
-}
