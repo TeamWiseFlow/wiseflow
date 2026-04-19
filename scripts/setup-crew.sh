@@ -615,6 +615,8 @@ if [ -f "$CONFIG_PATH" ]; then
     [ "$(resolve_crew_type "$a_ws/SOUL.md")" = "external" ] || continue
     inject_channel_reply_rules "$a_ws/AGENTS.md"
     inject_agents_md_sections "$a_ws/AGENTS.md"
+    inject_file_edit_guide "$a_ws/TOOLS.md"
+    inject_exec_guide "$a_ws/TOOLS.md"
   done < <(node -e "
     const fs = require('fs');
     const home = process.env.HOME || '';
@@ -635,6 +637,8 @@ if [ -f "$CONFIG_PATH" ]; then
     [ -f "$a_ws/AGENTS.md" ] || continue
     inject_agents_md_sections "$a_ws/AGENTS.md"
     inject_feishu_media_guide "$a_ws/USER.md"
+    inject_file_edit_guide "$a_ws/TOOLS.md"
+    inject_exec_guide "$a_ws/TOOLS.md"
   done < <(node -e "
     const fs = require('fs');
     const home = process.env.HOME || '';

@@ -408,10 +408,6 @@ inject_file_edit_guide() {
 2. **大改动直接**：整文件重写走 write（先基于最新内容生成）
 3. **避免一次改太大**：拆成多个小 patch，减少 mismatch
 4. **以 read 结果为准**：别依赖聊天里渲染后的文本（如超链接形式的文件名），要以 read 工具的返回结果为准
-
-## sessions_spawn 规范
-
-> ⚠️ **禁止传入 `streamTo` 参数** — `streamTo` 仅支持 `runtime=acp`，在 subagent 模式下会报错（`streamTo is only supported for runtime=acp`）。spawn 时只传 agentId 和 task 内容即可。
 GUIDE
 }
 
@@ -423,7 +419,7 @@ inject_feishu_media_guide() {
 
 ## 发送图片/文件/视频等富媒体（自动注入）
 
-向用户发送图片、文件、视频或其他富媒体内容时，**必须使用飞书提供的消息能力**，不得直接输出文件路径或 base64 内容作为回复。
+向用户发送图片、文件、视频或其他富媒体内容时，不要在本地打开媒体文件，**必须将文件本体通过对话所在的 channel 直接发送到聊天中**，且不得直接输出文件路径或 base64 内容作为回复。
 GUIDE
 }
 

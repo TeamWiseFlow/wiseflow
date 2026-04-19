@@ -9,22 +9,22 @@
 User requests to delete/remove an existing **external** agent instance.
 
 ## Important
-**This entire procedure is L3 — every step that modifies the system requires explicit user confirmation.**
+**每个修改系统的步骤都需要用户明确确认。**
 
 ## Procedure
 
-### Step 1: Identify Target Instance (L1)
+### Step 1: Identify Target Instance
 - Check `EXTERNAL_CREW_REGISTRY.md` in your workspace for known external crew instances
 - Confirm which instance the user wants to remove
 - If ambiguous, list available external instances and ask for clarification
 
-### Step 2: Safety Check (L1)
+### Step 2: Safety Check
 - **Protected agents** (`main`, `hrbp`, `it-engineer`) **cannot be deleted** — they are internal crews, not your domain. Inform the user and abort.
 - **Verify crew type**: check `crew-type:` in the instance's SOUL.md. If it's `internal`, decline.
 - Check if the instance has active channel bindings
 - Review the instance's current workspace and configuration
 
-### Step 3: Present Removal Plan (L3 — requires confirmation)
+### Step 3: Present Removal Plan（需用户确认）
 Show the user:
 - Instance ID, name, and current responsibilities
 - Source template (the template itself will NOT be deleted)
@@ -33,7 +33,7 @@ Show the user:
 - **Explicitly state**: workspace will be archived (not permanently deleted) and can be recovered
 - Ask for explicit confirmation to proceed
 
-### Step 4: Execute Removal (L3)
+### Step 4: Execute Removal
 After user confirms:
 
 1. Run: `bash ./skills/hrbp-remove/scripts/remove-agent.sh <instance-id>`

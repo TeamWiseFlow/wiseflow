@@ -9,7 +9,7 @@ User asks about agent usage, costs, token consumption, or resource monitoring. E
 
 ## Procedure
 
-### Step 1: Clarify Query Scope (L1)
+### Step 1: Clarify Query Scope
 Determine what the user wants to see:
 - **Which agents**: All agents, or specific agent(s)?
 - **Time range**: Today, this week, this month, or cumulative?
@@ -17,7 +17,7 @@ Determine what the user wants to see:
 
 If unclear, default to: all agents, cumulative, both tokens and cost.
 
-### Step 2: Run Usage Query (L1)
+### Step 2: Run Usage Query
 Execute the appropriate command:
 
 ```bash
@@ -40,7 +40,7 @@ bash ./skills/hrbp-usage/scripts/agent-usage.sh --period weekly --days 28
 bash ./skills/hrbp-usage/scripts/agent-usage.sh --period monthly --days 90
 ```
 
-### Step 3: Interpret Results (L1)
+### Step 3: Interpret Results
 Present the data to the user with insights:
 
 1. **Overview**: Total calls, total tokens, total cost across all agents
@@ -49,7 +49,7 @@ Present the data to the user with insights:
 4. **Anomalies**: Flag any agent with unexpectedly high usage
 5. **Cost efficiency**: Compare input vs output tokens, cache hit ratio
 
-### Step 4: Recommendations (L1)
+### Step 4: Recommendations
 Based on the data, optionally suggest:
 - If an agent has zero usage → ask if it should be removed
 - If an agent has very high cost → suggest reviewing its model configuration
@@ -76,7 +76,7 @@ Present results in a clear, structured format:
 ```
 
 ## Notes
-- This skill is read-only (L1) — no system modifications
+- This skill is read-only — no system modifications
 - Data comes from OpenClaw session transcript files (`~/.openclaw/agents/<id>/sessions/*.jsonl`)
 - If no usage data exists, inform the user that agents start recording after their first interaction
 - Cost data depends on model pricing configuration in openclaw.json; if pricing not configured, cost will show as "—"
