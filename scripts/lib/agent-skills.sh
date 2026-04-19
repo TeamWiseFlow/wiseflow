@@ -451,3 +451,31 @@ test -f /tmp/file.txt && echo "EXISTS" || echo "NOT"
 如果确实需要重定向，请改用 `bash -c "..."` 方式，并确保 `bash` 已在 exec allowlist 中（T2 及以上 tier 默认包含）。
 GUIDE
 }
+
+inject_python_exec_guide() {
+  local tools_md="$1"
+  [ -f "$tools_md" ] || return 0
+  grep -qF "## Python 调用规范" "$tools_md" && return 0
+  cat >> "$tools_md" << 'GUIDE'
+
+## Python 调用规范
+
+**严禁** `python3 -c "..."` inline eval 形式——此类命令无法通过 exec allowlist，会被系统拦截。
+
+必须先将 Python 逻辑写入脚本文件，再以 `python3 /path/to/script.py` 调用：
+
+```bash
+# ❌ 禁止
+python3 -c "from PIL import Image; img.save('out.jpg')"
+
+# ✅ 正确：先写脚本，再执行
+cat > /tmp/my_script.py << 'EOF'
+from PIL import Image
+# ...
+EOF
+python3 /tmp/my_script.py
+```
+
+临时脚本统一写到 `/tmp/` 下，执行后可删除。
+GUIDE
+}

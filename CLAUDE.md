@@ -24,6 +24,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **BOOTSTRAP.md**：一次性首次运行引导，完成后删除
 - **USER.md**：服务对象信息
 
+## 创建/更新 skill 时，相关cli 操作直接以指导形式写入 SKILL.md 还是需要创建一个脚本的判断依据：
+- 1、多步骤操作且涉及中间态保存的（下一步操作的某一输入为上一步返回结果），哪怕每一步都只是一条命令，也必须做脚本！
+- 2、涉及多分支选择，且分支选择依靠明确变量的（如环境变量中是否有某个值，或者按某个入参的值判断分支）应该优先用脚本。
+- 3、涉及 python 的，必须制作脚本，最终以 “python /path/to/script.py” 的模式调用。
 
+skill 需要的常量（如各种 ID、KEY 等），搭配脚本时优先使用环境变量，搭配 SKILL.md 时优先使用同级目录下的 json 配置。
 
 Claude Code 被授权在本仓库中执行任何 git 命令（包括 push、branch、tag 等），无需逐次确认。
