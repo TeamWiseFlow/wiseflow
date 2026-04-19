@@ -524,29 +524,9 @@ if [ "$CREW_TYPE" = "external" ]; then
   fi
 
 else
-  # 内部 Crew：注入技术故障派发协议到 AGENTS.md（幂等，第三方模板可能未包含）
-  AGENTS_MD="$WORKSPACE/AGENTS.md"
-  if [ -f "$AGENTS_MD" ] && ! grep -q "## Technical Issue Dispatch Protocol" "$AGENTS_MD"; then
-    cat >> "$AGENTS_MD" << 'PROTOCOL'
-
-## Technical Issue Dispatch Protocol
-
-当任务执行中遭遇技术性故障（脚本报错、配置异常、spawn 失败等）：
-
-```
-1. 立即告知用户：
-   "遇到了技术问题，正在呼唤 IT Engineer 处理，请稍作等待，任务执行时间会稍长。"
-2. sessions_spawn it-engineer（必须 `runtime=subagent`，且**禁止传入 `streamTo`**），传入：
-   - 具体错误信息
-   - 当前正在执行的操作
-   - 相关文件路径或配置
-3. IT Engineer 修复后 → 继续执行原任务
-```
-
-**绝对禁止**：因技术问题停止工作，或引导用户自行解决。
-PROTOCOL
-    echo "  ✅ Injected Technical Issue Dispatch Protocol into AGENTS.md"
-  fi
+  # 内部 Crew：注入标准 workspace sections（幂等）
+  inject_agents_md_sections "$AGENTS_MD"
+  inject_feishu_media_guide "$WORKSPACE/USER.md"
 
   # 内部 Crew：更新 Main Agent 的 MEMORY.md
   MAIN_MEMORY="$OPENCLAW_HOME/workspace-main/MEMORY.md"
@@ -583,8 +563,13 @@ if [ "$CREW_TYPE" = "internal" ]; then
 fi
 
 echo ""
-# 向 TOOLS.md 注入文件操作规范（幂等）
+# 向 workspace 注入标准规范（幂等）
 inject_file_edit_guide "$WORKSPACE/TOOLS.md"
+inject_exec_guide "$WORKSPACE/TOOLS.md"
+if [ "$CREW_TYPE" = "external" ]; then
+  inject_channel_reply_rules "$WORKSPACE/AGENTS.md"
+  inject_agents_md_sections "$WORKSPACE/AGENTS.md"
+fi
 
 echo "✅ Agent '$AGENT_ID' registered successfully! (type: $CREW_TYPE)"
 echo ""

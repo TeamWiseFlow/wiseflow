@@ -22,5 +22,14 @@ __pycache__/
 .Python
 patchright/
 patchright-v*/
-tests/openclaw/
 openclaw/
+
+# addon crews copied into crews/ at install time — not tracked
+crews/business-developer/
+crews/designer/
+crews/pro-selfmedia-operator/
+crews/sales-cs/
+crews/selfmedia-operator/
+crews/video-producer/
+scripts/upgrade.sh
+scripts/upgrade_without_git.sh

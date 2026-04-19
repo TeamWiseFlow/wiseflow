@@ -186,7 +186,10 @@ for agent_id in $BUILTIN_CREWS; do
     echo "  ⚠️  workspace-$agent_id already exists, keeping user files (use --force to overwrite)"
     # 仅做幂等注入（有标记则跳过，不覆盖用户编辑的内容）
     inject_file_edit_guide "$dest/TOOLS.md"
+    inject_exec_guide "$dest/TOOLS.md"
+    inject_python_exec_guide "$dest/TOOLS.md"
     inject_agents_md_sections "$dest/AGENTS.md"
+    inject_feishu_media_guide "$dest/USER.md"
     continue
   fi
 
@@ -233,7 +236,10 @@ for agent_id in $BUILTIN_CREWS; do
   fi
   echo "  ✅ workspace-$agent_id installed"
   inject_file_edit_guide "$dest/TOOLS.md"
+  inject_exec_guide "$dest/TOOLS.md"
+  inject_python_exec_guide "$dest/TOOLS.md"
   inject_agents_md_sections "$dest/AGENTS.md"
+  inject_feishu_media_guide "$dest/USER.md"
 done
 
 # ─── 2. 复制共享协议到每个已安装的内置 workspace ─────────────────
@@ -611,6 +617,9 @@ if [ -f "$CONFIG_PATH" ]; then
     [ "$(resolve_crew_type "$a_ws/SOUL.md")" = "external" ] || continue
     inject_channel_reply_rules "$a_ws/AGENTS.md"
     inject_agents_md_sections "$a_ws/AGENTS.md"
+    inject_file_edit_guide "$a_ws/TOOLS.md"
+    inject_exec_guide "$a_ws/TOOLS.md"
+    inject_python_exec_guide "$a_ws/TOOLS.md"
   done < <(node -e "
     const fs = require('fs');
     const home = process.env.HOME || '';
@@ -630,6 +639,10 @@ if [ -f "$CONFIG_PATH" ]; then
     [ -n "$a_id" ] || continue
     [ -f "$a_ws/AGENTS.md" ] || continue
     inject_agents_md_sections "$a_ws/AGENTS.md"
+    inject_feishu_media_guide "$a_ws/USER.md"
+    inject_file_edit_guide "$a_ws/TOOLS.md"
+    inject_exec_guide "$a_ws/TOOLS.md"
+    inject_python_exec_guide "$a_ws/TOOLS.md"
   done < <(node -e "
     const fs = require('fs');
     const home = process.env.HOME || '';

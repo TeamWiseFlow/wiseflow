@@ -7,12 +7,12 @@ User requests a new external agent/role/assistant.
 
 ## Procedure
 
-### Step 1: Understand Requirements (L1)
+### Step 1: Understand Requirements
 - Ask the user about the new agent's purpose, specialty, and responsibilities
 - Ask if the new agent needs a direct channel binding (Mode B; external crews are bind-only)
 - Clarify the instance's name and desired ID (lowercase, hyphenated, e.g., `cs-product-a`)
 
-### Step 2: Match Template (L1)
+### Step 2: Match Template
 - Browse template library: `~/.openclaw/hrbp_templates/index.md`
 - If a matching template exists → use it as the base, proceed to Step 3
 - If no match → create a new template first:
@@ -22,7 +22,7 @@ User requests a new external agent/role/assistant.
   4. Update `~/.openclaw/hrbp_templates/index.md`
   5. Then proceed to Step 3
 
-### Step 3: Configure Instance (L1)
+### Step 3: Configure Instance
 Present an instantiation proposal to the user:
 - **Instance ID**: unique, lowercase, hyphenated (e.g., `cs-product-a`)
 - **Instance Name**: human-readable (e.g., "产品A客服")
@@ -31,7 +31,7 @@ Present an instantiation proposal to the user:
 - **Skill Customization**: optional — additional or denied skills
 - **Role Tuning**: optional — SOUL.md adjustments for this specific instance
 
-### Step 4: Generate Workspace (L2)
+### Step 4: Generate Workspace
 After user confirms the proposal:
 
 1. Create workspace directory: `~/.openclaw/workspace-<instance-id>/`
@@ -74,7 +74,7 @@ After user confirms the proposal:
    - Avoid storing PII beyond what's operationally necessary
    - Keep schema simple — the agent performs DML only; complex joins should be avoided
 
-### Step 5: Register Instance (L3 — requires user confirmation)
+### Step 5: Register Instance（需用户确认）
 1. Run:
    - `bash ./skills/hrbp-recruit/scripts/add-agent.sh <instance-id> --crew-type external`
    - Optional bind: `--bind <channel>:<accountId>`

@@ -37,6 +37,8 @@ HRBP_ADD_AGENT_SCRIPT="$PROJECT_ROOT/crews/hrbp/skills/hrbp-recruit/scripts/add-
 GLOBAL_SHARED_SKILLS_FILE="$OPENCLAW_HOME/GLOBAL_SHARED_SKILLS"
 FORCE=false
 SKIP_CREW=false
+NO_BUILD=false
+NO_RESTART=false
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -48,9 +50,17 @@ while [ $# -gt 0 ]; do
       SKIP_CREW=true
       shift
       ;;
+    --no-build)
+      NO_BUILD=true
+      shift
+      ;;
+    --no-restart)
+      NO_RESTART=true
+      shift
+      ;;
     *)
       echo "❌ Unknown option: $1"
-      echo "Usage: $0 [--force] [--skip-crew]"
+      echo "Usage: $0 [--force] [--skip-crew] [--no-build] [--no-restart]"
       exit 1
       ;;
   esac
@@ -477,5 +487,28 @@ elif [ -f "$CONFIG_PATH" ] && [ -x "$PROJECT_ROOT/scripts/setup-crew.sh" ]; then
     CALLED_FROM_APPLY_ADDONS=true "$PROJECT_ROOT/scripts/setup-crew.sh" --force
   else
     CALLED_FROM_APPLY_ADDONS=true "$PROJECT_ROOT/scripts/setup-crew.sh"
+  fi
+fi
+
+# ─── 编译 dist（patches 改的是源码，需要 build 才能生效） ──────────
+if [ "$NO_BUILD" = "true" ]; then
+  echo "⏭️  Skipping pnpm build (--no-build)"
+elif [ "$NEEDS_INSTALL" = "true" ]; then
+  echo "🔨 Building openclaw (patches applied, dist needs refresh)..."
+  cd "$OPENCLAW_DIR"
+  pnpm build
+  cd "$PROJECT_ROOT"
+  echo "✅ Build complete"
+fi
+
+# ─── 重启 gateway service（如果正在运行） ─────────────────────────
+if [ "$NO_RESTART" = "true" ]; then
+  echo "⏭️  Skipping gateway restart (--no-restart)"
+elif [ "$(uname -s)" = "Linux" ] && command -v systemctl >/dev/null 2>&1; then
+  SERVICE_NAME="openclaw-gateway"
+  if systemctl --user is-active "$SERVICE_NAME.service" >/dev/null 2>&1; then
+    echo "🔄 Restarting $SERVICE_NAME.service..."
+    systemctl --user restart "$SERVICE_NAME.service"
+    echo "✅ Gateway restarted"
   fi
 fi

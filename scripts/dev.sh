@@ -1,7 +1,10 @@
 #!/bin/bash
-# OpenClaw for Business - 开发环境启动脚本
-# 使用默认存储位置 ~/.openclaw
-
+# dev.sh - 开发环境启动脚本（前台运行 gateway）
+#
+# 执行流程：
+#   1. 初始化配置文件（如不存在，从模板创建）
+#   2. apply-addons.sh（patches + skills + crew 模板，不 build、不 restart）
+#   3. 前台运行 openclaw gateway（需要用户自行先 pnpm build）
 set -e
 
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -33,13 +36,12 @@ if grep -qi microsoft /proc/version 2>/dev/null; then
   ' "$CONFIG_PATH"
 fi
 
-# Apply addons (overrides + patches + skills + agents)，内含 setup-crew.sh
-"$PROJECT_ROOT/scripts/apply-addons.sh"
+# Apply addons（不 build、不 restart — 开发模式下用户自行 pnpm build）
+"$PROJECT_ROOT/scripts/apply-addons.sh" --no-build --no-restart
 
 ACCESS_URL="http://127.0.0.1:18789"
-ENV_NOTE=""
 
-echo "🚀 Starting OpenClaw for Business... $ENV_NOTE"
+echo "🚀 Starting gateway in dev mode..."
 echo "   Data: ~/.openclaw"
 echo "   Config: $CONFIG_PATH"
 echo "   Access: $ACCESS_URL"
@@ -50,8 +52,7 @@ cd "$PROJECT_ROOT/openclaw"
 # 根据参数决定运行模式
 case "${1:-gateway}" in
   gateway)
-    shift  # 移除 'gateway' 参数
-    # 开发模式：前台运行 + verbose 日志
+    shift 2>/dev/null || true
     pnpm openclaw gateway "$@"
     ;;
   cli)

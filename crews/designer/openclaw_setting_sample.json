@@ -1,7 +1,0 @@
-{
-  "skills": ["siliconflow-img-gen", "siliconflow-video-gen", "smart-search", "council"],
-  "subagents": {
-    "allowAgents": ["it-engineer"]
-  },
-  "tools": {}
-}
