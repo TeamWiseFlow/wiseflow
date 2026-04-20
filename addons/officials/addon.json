@@ -1,7 +1,7 @@
 {
   "name": "wiseflow officials",
-  "version": "0.3.1",
-  "description": "浏览器反检测 + Tab Recovery + 互联网搜索增强（smart-search / rss-reader skills + 禁用内置 web_search）",
+  "version": "0.4.0",
+  "description": "浏览器反检测 + Tab Recovery + 互联网搜索增强（smart-search / rss-reader skills + 禁用内置 web_search）+ 抑制过期回复（suppress-stale-reply 插件）",
   "openclaw_version": "2026.4.11",
   "openclaw_commit": "769908ec3f713ecde067eb8c8aa54d8f57217aff",
   "auto-activate": false,

@@ -1,3 +1,9 @@
+# v5.4
+
+### 新增
+
+- **suppress-stale-reply 插件 + patch 001**：用户连续快速发送多条消息时，agent 对被超越消息的回复不再发送给用户，但仍写入对话历史供下一轮上下文使用，最终用户只看到对最新消息的回复。所有走标准 inbound/outbound 路径的 channel（feishu / awada / wecom / cli 等）自动获得该能力。`/`-前缀的指令型回复（如 `/kb`、`/cc`）放行，不参与抑制。可通过 `OPENCLAW_SUPPRESS_STALE_REPLY=0` 关闭
+
 # v5.3
 
 ### 新增
