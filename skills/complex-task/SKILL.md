@@ -6,7 +6,7 @@ metadata:
     "openclaw":
       {
         "emoji": "🗂️",
-      },
+      }
   }
 ---
 

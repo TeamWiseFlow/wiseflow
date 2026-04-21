@@ -7,7 +7,7 @@ metadata:
       {
         "emoji": "🔍",
         "always": true,
-      },
+      }
   }
 ---
 
