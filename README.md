@@ -228,11 +228,14 @@ wiseflow/
 │   │   └── skills/        # HRBP 专属技能（recruit/modify/remove/list/usage）
 │   └── it-engineer/       # [built-in] IT Engineer（系统运维 + SEO 技术优化）
 │       └── skills/        # IT Engineer 专属技能（seo、session-logs 等）
-├── skills/                # 全局共享技能（所有 Crew 可见）
+├── skills/                # wiseflow 默认全局技能（smart-search / browser-guide / complex-task 等）
+├── patches/               # wiseflow 基础补丁与插件（对所有 addon 生效）
+│   ├── *.patch            # git 补丁（按序号顺序应用到 openclaw/）
+│   ├── suppress-stale-reply/  # 抑制过期回复插件
+│   └── overrides.sh       # pnpm 依赖覆盖（如替换 playwright → patchright）
 ├── addons/                # addon 安装目录
 │   ├── officials/         # [official] wiseflow 官方 addon
-│   │   ├── patches/       # OpenClaw 代码补丁
-│   │   ├── skills/        # 官方 addon 提供的全局技能（smart-search 等）
+│   │   ├── skills/        # 官方 addon 提供的额外全局技能（rss-reader / siliconflow-* 等）
 │   │   └── crew/          # 官方 Crew 模板
 │   │       ├── sales-cs/          # 销售型客服
 │   │       ├── selfmedia-operator/# 自媒体运营
@@ -244,7 +247,7 @@ wiseflow/
 ├── scripts/               # 工具脚本（详见 scripts/README.md）
 │   ├── lib/               # 脚本共享工具
 │   ├── install.sh         # 一键安装 / 升级（推荐入口）
-│   ├── apply-addons.sh    # 应用 addon（patches + skills + build + restart）
+│   ├── apply-addons.sh    # 应用补丁 + 全局技能 + addon + build + restart
 │   ├── dev.sh             # 开发模式启动（前台运行 gateway）
 │   ├── setup-crew.sh      # 多 crew 系统安装（仅同步 markdown，幂等）
 │   └── setup-wsl2.sh      # WSL2 环境配置

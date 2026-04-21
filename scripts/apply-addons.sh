@@ -1,25 +1,23 @@
 #!/bin/bash
-# apply-addons.sh - 全局 skills 安装 + 通用 addon 加载器
+# apply-addons.sh - wiseflow 基础能力安装 + addon 加载器
 #
 # 技能两级体系：
-#   - 全局 skills: skills/ (项目根目录) → 安装到 openclaw/skills/（由各 Agent 的 skills allowlist 决定可见范围）
+#   - 默认全局 skills: skills/ (项目根目录) → 安装到 openclaw/skills/
+#   - Addon 额外全局 skills: addons/<name>/skills/ → 安装到 openclaw/skills/
 #   - Agent 专属 skills: crews/<template>/skills/ → 已由 setup-crew.sh 安装到 workspace
 #
 # 每次运行时：
 #   1. 恢复 openclaw/ 到干净状态
-#   2. 安装全局 skills（项目根目录 skills/）
-#   3. 扫描 addons/*/ 目录，对每个 addon 依次执行：
-#      a. overrides.sh  — pnpm overrides / 依赖替换（高稳健性）
-#      b. patches/*.patch — git patch（逻辑新增，需精确匹配）
-#      c. skills/*/SKILL.md — 全局 skill 安装
-#      d. crew/*/  — Crew 模板安装 + 可选自动实例化
+#   2. 应用基础补丁（patches/*.patch）+ 插件路径注入（patches/suppress-stale-reply）+ 依赖覆盖（patches/overrides.sh）
+#   3. 安装默认全局 skills（项目根目录 skills/）
+#   4. 扫描 addons/*/ 目录，对每个 addon 依次执行：
+#      a. skills/*/SKILL.md — 额外全局 skill 安装
+#      b. crew/*/  — Crew 模板安装 + 可选自动实例化
 #
 # addon 目录结构：
 #   addons/<name>/
 #   ├── addon.json          # 元数据（名称、版本、描述）
-#   ├── overrides.sh        # 可选：依赖替换脚本
-#   ├── patches/*.patch     # 可选：git 补丁
-#   ├── skills/*/SKILL.md   # 可选：全局技能（所有 Agent 可见）
+#   ├── skills/*/SKILL.md   # 可选：额外全局技能（所有 Agent 可见）
 #   └── crew/               # 可选：Crew 模板
 #       └── <template-id>/
 #           ├── SOUL.md ... HEARTBEAT.md  # 模板 workspace 文件
@@ -74,10 +72,36 @@ append_global_shared_skill() {
 $skill_name"
 }
 
+NEEDS_INSTALL=false
+
 # ─── 恢复上游到干净状态 ──────────────────────────────────────────
 cd "$OPENCLAW_DIR"
 git reset --hard HEAD 2>/dev/null || true
 cd "$PROJECT_ROOT"
+
+# ─── 应用基础依赖覆盖（patches/overrides.sh） ─────────────────────
+if [ -f "$PROJECT_ROOT/patches/overrides.sh" ]; then
+  echo "🔧 Applying base overrides..."
+  ADDON_DIR="$PROJECT_ROOT/patches" OPENCLAW_DIR="$OPENCLAW_DIR" bash "$PROJECT_ROOT/patches/overrides.sh"
+  NEEDS_INSTALL=true
+fi
+
+# ─── 应用基础补丁（patches/*.patch，按序号顺序） ─────────────────
+PATCHES_DIR="$PROJECT_ROOT/patches"
+if ls "$PATCHES_DIR"/*.patch 1>/dev/null 2>&1; then
+  echo "🩹 Applying base patches..."
+  cd "$OPENCLAW_DIR"
+  for patch in $(ls "$PATCHES_DIR"/*.patch | sort); do
+    echo "  → $(basename "$patch")"
+    git apply --3way --ignore-whitespace --whitespace=fix "$patch" || {
+      echo "  ❌ Failed to apply $(basename "$patch")"
+      echo "     Hint: 上游代码可能已变更，需重新生成此补丁"
+      exit 1
+    }
+  done
+  cd "$PROJECT_ROOT"
+  NEEDS_INSTALL=true
+fi
 
 # ─── 同步 skills 禁用配置（从 config-templates 到运行配置）──────
 if [ -f "$CONFIG_PATH" ] && [ -f "$PROJECT_ROOT/config-templates/openclaw.json" ]; then
@@ -211,7 +235,7 @@ if [ -d "$AWADA_EXT" ] && [ -f "$AWADA_EXT/openclaw.plugin.json" ]; then
 fi
 
 # ─── 注入 suppress-stale-reply 插件路径（默认开启） ──────────────
-SUPPRESS_STALE_PLUGIN="$PROJECT_ROOT/addons/officials/plugins/suppress-stale-reply"
+SUPPRESS_STALE_PLUGIN="$PROJECT_ROOT/patches/suppress-stale-reply"
 if [ -d "$SUPPRESS_STALE_PLUGIN" ] && [ -f "$SUPPRESS_STALE_PLUGIN/openclaw.plugin.json" ]; then
   if [ -f "$CONFIG_PATH" ]; then
     node -e "
@@ -258,7 +282,6 @@ if [ ! -d "$ADDONS_DIR" ]; then
 fi
 
 ADDON_COUNT=0
-NEEDS_INSTALL=false
 
 for addon_dir in "$ADDONS_DIR"/*/; do
   [ -d "$addon_dir" ] || continue
@@ -274,30 +297,7 @@ for addon_dir in "$ADDONS_DIR"/*/; do
   echo "📦 Loading addon: $addon_name"
   ADDON_COUNT=$((ADDON_COUNT + 1))
 
-  # ─── 第一层：overrides（依赖替换，不依赖行号） ────────────────
-  if [ -f "$addon_dir/overrides.sh" ]; then
-    echo "  🔧 Running overrides..."
-    ADDON_DIR="$addon_dir" OPENCLAW_DIR="$OPENCLAW_DIR" bash "$addon_dir/overrides.sh"
-    NEEDS_INSTALL=true
-  fi
-
-  # ─── 第二层：git patches（精确代码改动） ───────────────────────
-  if ls "$addon_dir"/patches/*.patch 1>/dev/null 2>&1; then
-    echo "  🩹 Applying patches..."
-    cd "$OPENCLAW_DIR"
-    for patch in "$addon_dir"/patches/*.patch; do
-      echo "    → $(basename "$patch")"
-      git apply --3way --ignore-whitespace --whitespace=fix "$patch" || {
-        echo "    ❌ Failed to apply $(basename "$patch")"
-        echo "       Hint: 上游代码可能已变更，需在 $addon_name 中重新生成此补丁"
-        exit 1
-      }
-    done
-    cd "$PROJECT_ROOT"
-    NEEDS_INSTALL=true
-  fi
-
-  # ─── 第三层：全局 skills 安装 ──────────────────────────────────
+  # ─── 第一层：全局 skills 安装 ──────────────────────────────────
   if [ -d "$addon_dir/skills" ]; then
     echo "  📚 Installing global skills..."
     for skill_dir in "$addon_dir"/skills/*/; do
@@ -311,7 +311,7 @@ for addon_dir in "$ADDONS_DIR"/*/; do
     done
   fi
 
-  # ─── 第四层：Crew 模板安装（crew/ → crews/） ─────────────────
+  # ─── 第二层：Crew 模板安装（crew/ → crews/） ─────────────────
   if [ -d "$addon_dir/crew" ]; then
     echo "  🤖 Installing crew templates..."
 

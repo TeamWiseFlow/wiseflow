@@ -1,16 +1,20 @@
 # Wiseflow Official Addon
 
-wiseflow 开源社区版本自带的官方 addon，包含以下功能拓增：
+wiseflow 开源社区版本自带的官方 addon，在 wiseflow 默认全局技能（`skills/`）和基础补丁（`patches/`）之上，提供额外的全局技能和 Crew 模板。
 
-## 1. 全局技能（skills/）
+## 1. 额外全局技能（skills/）
 
-安装后对所有 crew 可见：
+安装后对所有 crew 可见（受 DENIED_SKILLS / DECLARED_SKILLS 限制）：
 
-| 技能 | 功能 | 备注 |
-|------|------|------|
-| `smart-search` | 智能搜索：驱动浏览器在 40+ 平台实时搜索，完全免费，无需 API Key | 替代 openclaw 内置 web_search |
-| `browser-guide` | 浏览器操作最佳实践：登录墙、验证码、懒加载、付费墙的处理指导 | 辅助技能，减少 agent 踩坑 |
-| `rss-reader` | RSS/Atom Feed 读取，支持订阅任意标准 feed 格式的内容源 | — |
+| 技能 | 功能 | 所需环境变量 | 适用范围 |
+|------|------|------------|----------|
+| `rss-reader` | RSS/Atom Feed 读取，支持订阅任意标准 feed 格式的内容源 | — | 全部 crew 可用 |
+| `siliconflow-img-gen` | 文生图、图片修改（SiliconFlow API） | `SILICONFLOW_API_KEY` | designer、selfmedia-operator |
+| `siliconflow-video-gen` | 文生视频 / 图生视频（SiliconFlow API） | `SILICONFLOW_API_KEY` | selfmedia-operator |
+| `connections-optimizer` | 人脉关系网络优化与拓展建议 | — | **仅 business-developer**；其余 crew DENIED |
+| `email-ops` | 批量邮件撰写与 SMTP 发送 | `SMTP_SERVER` `SMTP_USER` `SMTP_PASSWORD` | **仅 business-developer**；其余 crew DENIED |
+| `pitch-deck` | 融资/商务演示文稿生成，支持读取 .pptx 文件内容 | — | **仅 business-developer**；其余 crew DENIED |
+| `social-graph-ranker` | 社交图谱关键节点分析与排序 | — | **仅 business-developer**；其余 crew DENIED |
 
 ## 2. Crew 模板（crew/）
 
@@ -18,7 +22,6 @@ wiseflow 开源社区版本自带的官方 addon，包含以下功能拓增：
 
 | Crew / 技能层 | 核心能力 |
 |---|---|
-| 全局技能 | "反侦测"增强浏览器插件与技能、40+ 平台实时搜索、RSS 订阅、浏览器操作最佳实践 |
 | **selfmedia-operator** | 日常灵感记录、素材搜集；选题研究→图文输出、草稿扩写→完整文章；短视频 AI 生成；支持掘金 / Medium / 知乎 / 头条 / Twitter / Instagram / TikTok / YouTube 发布；可自主调用 designer 完成配图 |
 | **business-developer** | 人脉关系网络优化与拓展建议；批量邮件撰写与发送；融资 / 商务演示文稿生成；社交图谱关键节点分析与排序 |
 | **sales-cs** | 首问接待、售前咨询、销售引导一体化；客户数据库自动维护（业务状态、来源渠道、意向追踪）；内置收款发起、体验邀请、遇到客户说晚些聊等情况自动后续跟进；智能判断升级人工 |
@@ -74,7 +77,7 @@ wiseflow 开源社区版本自带的官方 addon，包含以下功能拓增：
 
 **类型**：对内（internal）`T2` 权限
 
-专注商务拓展场景，具备其他 crew 不��备的商务专属技能组合。
+专注商务拓展场景，具备其他 crew 不具备的商务专属技能组合。
 
 - `connections-optimizer`：人脉关系网络优化与拓展建议
 - `email-ops`：批量邮件撰写与发送（SMTP 配置）
@@ -115,7 +118,7 @@ wiseflow 开源社区版本自带的官方 addon，包含以下功能拓增：
                │  [线索转化]  │
                │              │
                │ 7×24 在线    │
-               │ 以成交为目标 │
+               │以成交为目标  │
                │ 收款 & 追踪  │
                └──────────────┘
 ```

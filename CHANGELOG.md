@@ -1,3 +1,15 @@
+# v5.5
+
+### 架构调整
+
+- **patches 与 addon 分离**：将代码补丁（`patches/*.patch`）、插件（`patches/suppress-stale-reply`）和依赖覆盖（`patches/overrides.sh`）从 `addons/officials/` 迁移至项目根目录 `patches/`，作为 wiseflow 的共性基础能力，对所有 addon 生效。addon 不再支持 patches 层，仅提供额外全局技能和 Crew 模板。
+
+- **默认全局技能重新划分**：`smart-search`、`browser-guide` 从 addon 专属技能迁移至 `skills/`（项目根目录），成为 wiseflow 所有 crew 默认可用的内置技能，无需依赖 official addon 即可生效。
+
+- **新增默认全局技能**：`connections-optimizer`、`email-ops`、`pitch-deck`、`social-graph-ranker` 迁至 `skills/`，作为默认全局技能（对应 crew DENIED 其他 crew 访问）。
+
+- **`apply-addons.sh` 重构**：先应用 `patches/` 下的基础补丁和覆盖，再安装默认全局技能（`skills/`），最后逐 addon 安装额外技能和 Crew 模板。addon 加载流程简化为两层（skills → crew），移除原有的 overrides 和 patches 层。
+
 # v5.4
 
 ### 新增
