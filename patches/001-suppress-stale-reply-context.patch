@@ -95,38 +95,3 @@ index 1855e738d2..642c4e742d 100644
          },
        },
        {
-diff --git a/src/infra/outbound/inbound-turn-context.ts b/src/infra/outbound/inbound-turn-context.ts
-new file mode 100644
-index 0000000000..df3ff80305
---- /dev/null
-+++ b/src/infra/outbound/inbound-turn-context.ts
-@@ -0,0 +1,29 @@
-+/**
-+ * Inbound turn context (wiseflow patch 001).
-+ *
-+ * Tracks a monotonic per-process "inbound seq" via AsyncLocalStorage so that
-+ * downstream message hooks (`message_received`, `message_sending`) can carry
-+ * the originating inbound's sequence number in their metadata payload.
-+ *
-+ * This is the seam used by the `suppress-stale-reply` plugin to drop replies
-+ * for inbounds that have been superseded by newer user messages.
-+ */
-+
-+import { AsyncLocalStorage } from "node:async_hooks";
-+
-+const storage = new AsyncLocalStorage<{ seq: number }>();
-+
-+let counter = 0;
-+
-+export function nextInboundSeq(): number {
-+  counter += 1;
-+  return counter;
-+}
-+
-+export function runWithInboundTurn<T>(seq: number, fn: () => Promise<T>): Promise<T> {
-+  return storage.run({ seq }, fn);
-+}
-+
-+export function getCurrentInboundSeq(): number | undefined {
-+  return storage.getStore()?.seq;
-+}
