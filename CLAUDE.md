@@ -28,6 +28,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 1、多步骤操作且涉及中间态保存的（下一步操作的某一输入为上一步返回结果），哪怕每一步都只是一条命令，也必须做脚本！
 - 2、涉及多分支选择，且分支选择依靠明确变量的（如环境变量中是否有某个值，或者按某个入参的值判断分支）应该优先用脚本。
 - 3、涉及 python 的，必须制作脚本，最终以 “python /path/to/script.py” 的模式调用。
+- 4、**crew 专属 skill**（`crews/` 或 `addons/officials/crew/` 下的 skill）如果包含脚本，SKILL.md 中对脚本调用的路径必须使用相对路径写法，即 `./skills/<skill-name>/scripts/<file>`，**不得**使用 `{baseDir}/scripts/...`。原因：本项目的 skill 是给 openclaw 使用的，openclaw exec allowlist 以 workspace 为 CWD 做相对路径匹配；`{baseDir}` 是 claude code 专用变量，在 openclaw 中不会展开。全局 skill（`skills/` 目录下）不受此限制，使用 `{baseDir}` 即可。
 
 skill 需要的常量（如各种 ID、KEY 等），搭配脚本时优先使用环境变量，搭配 SKILL.md 时优先使用同级目录下的 json 配置。
 

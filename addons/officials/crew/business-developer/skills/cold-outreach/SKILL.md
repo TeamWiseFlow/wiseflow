@@ -114,7 +114,7 @@ Return JSON:
 For each business with subject + body generated:
 
 ```bash
-python3 {baseDir}/scripts/send_email.py \
+python3 ./skills/cold-outreach/scripts/send_email.py \
   --to "{business_email}" \
   --subject "{subject}" \
   --body "{body}"
@@ -132,13 +132,13 @@ Wait 2–3 seconds between each send.
 
 ```bash
 # Send with inline body text
-python3 {baseDir}/scripts/send_email.py \
+python3 ./skills/cold-outreach/scripts/send_email.py \
   --to "target@example.com" \
   --subject "Subject line" \
   --body "Email body text"
 
 # Send with body from file
-python3 {baseDir}/scripts/send_email.py \
+python3 ./skills/cold-outreach/scripts/send_email.py \
   --to "target@example.com" \
   --subject "Subject line" \
   --body-file ./outreach_data/template.txt

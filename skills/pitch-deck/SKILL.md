@@ -156,10 +156,14 @@ metadata:
 
 ## PPT / PPTX 转换
 
-1. 优先用 `python3` + `python-pptx` 提取文本、图片和备注
-2. 若 `python-pptx` 不可用，询问是否安装，或降级为手动粘贴流程
-3. 保留幻灯片顺序、演讲备注、提取的图片资源
-4. 提取完成后，走与新建演示相同的风格选择流程
+```bash
+python3 {baseDir}/scripts/extract_pptx.py <file.pptx> [--images-dir /tmp/pptx_images]
+```
+
+脚本输出 JSON，包含每张幻灯片的标题、正文、演讲备注和图片路径（若指定了 `--images-dir`）。
+
+- 若 `python-pptx` 未安装（输出 `error` 字段），询问用户是否安装（`pip install python-pptx`），或降级为手动粘贴流程
+- 提取完成后，走与新建演示相同的风格选择流程，保留幻灯片顺序、演讲备注和图片资源
 
 保持跨平台兼容，不依赖 macOS 专有工具。
 

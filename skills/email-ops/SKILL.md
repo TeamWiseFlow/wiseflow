@@ -266,7 +266,7 @@ Subject: Re: [原主题]
 ## Step 5 — 发送（仅明确要求发送时）
 
 ```bash
-python3 {skills_dir}/cold-outreach/scripts/send_email.py \
+python3 {baseDir}/scripts/send_email.py \
   --to "{收件人邮箱}" \
   --subject "{主题}" \
   --body "{正文}"
