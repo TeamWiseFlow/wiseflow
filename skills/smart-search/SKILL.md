@@ -115,6 +115,22 @@ arXiv API (returns structured XML — useful for programmatic access):
 https://export.arxiv.org/api/query?search_query=all:{keyword}&max_results=10
 ```
 
+### 百度学术 (Baidu Scholar)
+
+```
+https://xueshu.baidu.com/s?wd={keyword}
+```
+
+Multi-keyword: join with `+`. No warmup needed.
+
+### 万方数据 (Wanfang Data)
+
+```
+https://s.wanfangdata.com.cn/paper?q={keyword}
+```
+
+Chinese academic papers, dissertations, and conference proceedings. No warmup needed.
+
 ### Wikipedia
 
 English:
@@ -393,6 +409,18 @@ Multi-keyword: join with `%20`
    - Modifying the URL's pagination parameter, or
    - Clicking the "Next page" button on the page.
 5. Close the tab immediately after extracting all needed information.
+
+---
+
+## Government & Policy
+
+### 国务院政策搜索 (China State Council Policy Search)
+
+```
+https://sousuo.www.gov.cn/sousuo/search.shtml?code=17da70961a7&dataTypeId=107&searchWord={keyword}
+```
+
+Searches official policy documents published on www.gov.cn. No warmup needed.
 
 ---
 
