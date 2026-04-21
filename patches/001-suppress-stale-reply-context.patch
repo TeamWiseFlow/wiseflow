@@ -43,10 +43,10 @@ index bfec455570..47ec4b7c2c 100644
  
  export async function dispatchInboundMessageWithBufferedDispatcher(params: {
 diff --git a/src/auto-reply/reply/dispatch-from-config.ts b/src/auto-reply/reply/dispatch-from-config.ts
-index 7370606f2c..fd9b3a50f4 100644
+index 5c9e5a5500..f361313d3c 100644
 --- a/src/auto-reply/reply/dispatch-from-config.ts
 +++ b/src/auto-reply/reply/dispatch-from-config.ts
-@@ -21,6 +21,7 @@ import {
+@@ -25,6 +25,7 @@ import {
  } from "../../hooks/message-hook-mappers.js";
  import { isDiagnosticsEnabled } from "../../infra/diagnostic-events.js";
  import { formatErrorMessage } from "../../infra/errors.js";
@@ -54,7 +54,7 @@ index 7370606f2c..fd9b3a50f4 100644
  import {
    logMessageProcessed,
    logMessageQueued,
-@@ -501,11 +502,16 @@ export async function dispatchReplyFromConfig(
+@@ -563,11 +564,16 @@ export async function dispatchReplyFromConfig(
  
    // Trigger plugin hooks (fire-and-forget)
    if (hookRunner?.hasHooks("message_received")) {
@@ -76,18 +76,18 @@ index 7370606f2c..fd9b3a50f4 100644
      );
    }
 diff --git a/src/infra/outbound/deliver.ts b/src/infra/outbound/deliver.ts
-index 1d7f2c633b..9f1b2901c2 100644
+index 1855e738d2..642c4e742d 100644
 --- a/src/infra/outbound/deliver.ts
 +++ b/src/infra/outbound/deliver.ts
-@@ -34,6 +34,7 @@ import { throwIfAborted } from "./abort.js";
+@@ -31,6 +31,7 @@ import { throwIfAborted } from "./abort.js";
  import type { OutboundDeliveryResult } from "./deliver-types.js";
  import { ackDelivery, enqueueDelivery, failDelivery } from "./delivery-queue.js";
  import type { OutboundIdentity } from "./identity.js";
 +import { getCurrentInboundSeq } from "./inbound-turn-context.js";
  import type { DeliveryMirror } from "./mirror.js";
- import type { NormalizedOutboundPayload } from "./payloads.js";
- import { normalizeReplyPayloadsForDelivery } from "./payloads.js";
-@@ -453,6 +454,7 @@ async function applyMessageSendingHook(params: {
+ import {
+   createOutboundPayloadPlan,
+@@ -444,6 +445,7 @@ async function applyMessageSendingHook(params: {
            channel: params.channel,
            accountId: params.accountId,
            mediaUrls: params.payloadSummary.mediaUrls,

@@ -6,9 +6,13 @@
 
 - **默认全局技能重新划分**：`smart-search`、`browser-guide` 从 addon 专属技能迁移至 `skills/`（项目根目录），成为 wiseflow 所有 crew 默认可用的内置技能，无需依赖 official addon 即可生效。
 
-- **新增默认全局技能**：`connections-optimizer`、`email-ops`、`pitch-deck`、`social-graph-ranker` 迁至 `skills/`，作为默认全局技能（对应 crew DENIED 其他 crew 访问）。
-
 - **`apply-addons.sh` 重构**：先应用 `patches/` 下的基础补丁和覆盖，再安装默认全局技能（`skills/`），最后逐 addon 安装额外技能和 Crew 模板。addon 加载流程简化为两层（skills → crew），移除原有的 overrides 和 patches 层。
+
+### 升级 openclaw 至 v2026.4.15
+
+- 同步上游变更（详见 openclaw release notes）
+- patch 001（suppress-stale-reply context）针对 `deliver.ts` 重构（OutboundPayloadPlan 架构调整）重新生成
+- patch 005（codex apiKey）已被上游原生集成，移除
 
 # v5.4
 
