@@ -77,6 +77,8 @@ NEEDS_INSTALL=false
 # ─── 恢复上游到干净状态 ──────────────────────────────────────────
 cd "$OPENCLAW_DIR"
 git reset --hard HEAD 2>/dev/null || true
+# 清理 patches 创建的新文件（reset --hard 不删除 untracked 文件）
+git clean -fd -- src/ extensions/ 2>/dev/null || true
 cd "$PROJECT_ROOT"
 
 # ─── 应用基础依赖覆盖（patches/overrides.sh） ─────────────────────
@@ -246,7 +248,7 @@ if [ -d "$SUPPRESS_STALE_PLUGIN" ] && [ -f "$SUPPRESS_STALE_PLUGIN/openclaw.plug
       if (!Array.isArray(config.plugins.load.paths)) config.plugins.load.paths = [];
       const pluginPath = '$SUPPRESS_STALE_PLUGIN';
       config.plugins.load.paths = config.plugins.load.paths.filter(
-        p => !p.endsWith('plugins/suppress-stale-reply')
+        p => !p.endsWith('patches/suppress-stale-reply') && !p.endsWith('plugins/suppress-stale-reply')
       );
       config.plugins.load.paths.push(pluginPath);
       if (!config.plugins.entries) config.plugins.entries = {};

@@ -18,6 +18,7 @@ import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
 
 type InboundMetadata = {
   originatingInboundSeq?: number;
+  originatingFrom?: string;
 } & Record<string, unknown>;
 
 function peerKey(
@@ -69,7 +70,11 @@ export default definePluginEntry({
       if (turnSeq === undefined) {
         return;
       }
-      const key = peerKey(ctx.channelId, ctx.accountId, event.to);
+      // Use originatingFrom (the inbound sender address) as the peer key so it
+      // matches what was stored during message_received. The event.to field uses
+      // the encoded delivery address which differs in format from event.from.
+      const peer = (event.metadata as InboundMetadata).originatingFrom ?? event.to;
+      const key = peerKey(ctx.channelId, ctx.accountId, peer);
       const latestSeq = latestInboundSeqByPeer.get(key);
       if (latestSeq !== undefined && turnSeq < latestSeq) {
         api.logger.debug(

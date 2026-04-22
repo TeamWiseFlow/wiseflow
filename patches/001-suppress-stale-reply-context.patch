@@ -1,5 +1,5 @@
 diff --git a/src/auto-reply/dispatch.ts b/src/auto-reply/dispatch.ts
-index bfec455570..47ec4b7c2c 100644
+index bfec455570..a4cdc9255a 100644
 --- a/src/auto-reply/dispatch.ts
 +++ b/src/auto-reply/dispatch.ts
 @@ -1,4 +1,8 @@
@@ -26,7 +26,7 @@ index bfec455570..47ec4b7c2c 100644
 -        replyResolver: params.replyResolver,
 -      }),
 -  });
-+  return await runWithInboundTurn(nextInboundSeq(), () =>
++  return await runWithInboundTurn(nextInboundSeq(), finalized.From, () =>
 +    withReplyDispatcher({
 +      dispatcher: params.dispatcher,
 +      run: () =>
@@ -76,22 +76,66 @@ index 5c9e5a5500..f361313d3c 100644
      );
    }
 diff --git a/src/infra/outbound/deliver.ts b/src/infra/outbound/deliver.ts
-index 1855e738d2..642c4e742d 100644
+index 1855e738d2..807092da86 100644
 --- a/src/infra/outbound/deliver.ts
 +++ b/src/infra/outbound/deliver.ts
 @@ -31,6 +31,7 @@ import { throwIfAborted } from "./abort.js";
  import type { OutboundDeliveryResult } from "./deliver-types.js";
  import { ackDelivery, enqueueDelivery, failDelivery } from "./delivery-queue.js";
  import type { OutboundIdentity } from "./identity.js";
-+import { getCurrentInboundSeq } from "./inbound-turn-context.js";
++import { getCurrentInboundFrom, getCurrentInboundSeq } from "./inbound-turn-context.js";
  import type { DeliveryMirror } from "./mirror.js";
  import {
    createOutboundPayloadPlan,
-@@ -444,6 +445,7 @@ async function applyMessageSendingHook(params: {
+@@ -444,6 +445,8 @@ async function applyMessageSendingHook(params: {
            channel: params.channel,
            accountId: params.accountId,
            mediaUrls: params.payloadSummary.mediaUrls,
 +          originatingInboundSeq: getCurrentInboundSeq(),
++          originatingFrom: getCurrentInboundFrom(),
          },
        },
        {
+diff --git a/src/infra/outbound/inbound-turn-context.ts b/src/infra/outbound/inbound-turn-context.ts
+new file mode 100644
+index 0000000000..436c5745d1
+--- /dev/null
++++ b/src/infra/outbound/inbound-turn-context.ts
+@@ -0,0 +1,37 @@
++/**
++ * Inbound turn context (wiseflow patch 001).
++ *
++ * Tracks a monotonic per-process "inbound seq" via AsyncLocalStorage so that
++ * downstream message hooks (`message_received`, `message_sending`) can carry
++ * the originating inbound's sequence number in their metadata payload.
++ *
++ * This is the seam used by the `suppress-stale-reply` plugin to drop replies
++ * for inbounds that have been superseded by newer user messages.
++ */
++
++import { AsyncLocalStorage } from "node:async_hooks";
++
++const storage = new AsyncLocalStorage<{ seq: number; from: string | undefined }>();
++
++let counter = 0;
++
++export function nextInboundSeq(): number {
++  counter += 1;
++  return counter;
++}
++
++export function runWithInboundTurn<T>(
++  seq: number,
++  from: string | undefined,
++  fn: () => Promise<T>,
++): Promise<T> {
++  return storage.run({ seq, from }, fn);
++}
++
++export function getCurrentInboundSeq(): number | undefined {
++  return storage.getStore()?.seq;
++}
++
++export function getCurrentInboundFrom(): string | undefined {
++  return storage.getStore()?.from;
++}
