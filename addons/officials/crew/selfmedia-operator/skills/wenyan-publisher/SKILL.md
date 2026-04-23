@@ -22,17 +22,15 @@ metadata:
 
 ## Step 1：Render Markdown → 平台 HTML
 
-> **重要**：必须使用绝对路径调用 node，**禁止** `cd {baseDir} && node scripts/render.mjs` 这种模式（`cd` 不在权限白名单中会报 exec denied）。
-
 ```bash
-node {baseDir}/scripts/render.mjs -f article.md --platform <platform> -o /tmp/output.html
+node ./skills/wenyan-publisher/scripts/render.mjs -f article.md --platform <platform> -o /tmp/output.html
 ```
 
 | 平台 | 命令示例 |
 |------|---------|
-| 知乎 | `node {baseDir}/scripts/render.mjs -f article.md --platform zhihu -o /tmp/zhihu.html` |
-| 今日头条 / 掘金 | `node {baseDir}/scripts/render.mjs -f article.md --platform toutiao -o /tmp/toutiao.html` |
-| Medium | `node {baseDir}/scripts/render.mjs -f article.md --platform medium -o /tmp/medium.html` |
+| 知乎 | `node ./skills/wenyan-publisher/scripts/render.mjs -f article.md --platform zhihu -o /tmp/zhihu.html` |
+| 今日头条 / 掘金 | `node ./skills/wenyan-publisher/scripts/render.mjs -f article.md --platform toutiao -o /tmp/toutiao.html` |
+| Medium | `node ./skills/wenyan-publisher/scripts/render.mjs -f article.md --platform medium -o /tmp/medium.html` |
 
 ---
 
@@ -80,6 +78,6 @@ node {baseDir}/scripts/render.mjs -f article.md --platform <platform> -o /tmp/ou
 
 | 错误 | 处理方式 |
 |------|---------|
-| `Cannot find module '@wenyan-md/core'` | 在 `{baseDir}` 运行 `npm install` |
+| `Cannot find module '@wenyan-md/core'` | 在 `./skills/wenyan-publisher/` 下运行 `npm install` |
 | `--file (-f) is required` | 提供 Markdown 文件路径 |
 | `unsupported platform` | 使用 `zhihu`、`toutiao`、`medium` 之一（juejin 请用 `toutiao`）|

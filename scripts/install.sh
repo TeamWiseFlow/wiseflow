@@ -253,6 +253,18 @@ NODE
     temp_env_file="$(mktemp "${SYSTEMD_ENV_FILE}.tmp.XXXXXX")"
     chmod 600 "$temp_env_file"
 
+    # 保留现有 daemon.env 中不属于 env_refs 管理的行（用户自定义变量）
+    if [ -f "$SYSTEMD_ENV_FILE" ]; then
+      while IFS= read -r existing_line; do
+        [[ "$existing_line" =~ ^[[:space:]]*# ]] && continue
+        [ -z "$existing_line" ] && continue
+        existing_key="${existing_line%%=*}"
+        if ! grep -qxF "$existing_key" <<< "$env_refs"; then
+          printf "%s\n" "$existing_line" >> "$temp_env_file"
+        fi
+      done < "$SYSTEMD_ENV_FILE"
+    fi
+
     while IFS= read -r var_name; do
       [ -n "$var_name" ] || continue
       default_value="" default_source=""
@@ -276,7 +288,7 @@ NODE
 
     mv "$temp_env_file" "$SYSTEMD_ENV_FILE"
     chmod 600 "$SYSTEMD_ENV_FILE"
-    echo "✅ Wrote systemd env file: $SYSTEMD_ENV_FILE"
+    echo "✅ Merged systemd env file: $SYSTEMD_ENV_FILE"
   fi
 
   # --- 注入 node 路径到 daemon.env ---

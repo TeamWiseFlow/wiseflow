@@ -1,13 +1,13 @@
 # Addon Development Guide
 
-This guide explains how to develop addons for **OpenClaw for Business (OFB)**.
+This guide explains how to develop addons for **wiseflow**.
 
-An addon is an independent Git repository installed to the `addons/` directory. It can extend OFB in up to four ways, applied in this order by `scripts/apply-addons.sh`:
+An addon is an independent Git repository installed to the `addons/` directory. It can extend wiseflow in up to two ways, applied in this order by `scripts/apply-addons.sh`:
 
-1. **`overrides.sh`** — pnpm dependency overrides (most stable, no line-number coupling)
-2. **`patches/*.patch`** — git patches for precise source changes (may need updating after upstream upgrades)
-3. **`skills/`** — global skills visible to all agents
-4. **`crew/`** — Crew templates installed to `crews/` and managed by HRBP
+1. **`skills/`** — global skills visible to all agents
+2. **`crew/`** — Crew templates installed to `crews/` and managed by HRBP
+
+> **Note:** Addons do **not** support patches or dependency overrides. If you need to patch `openclaw/` source code, place the patch file in the project-level `patches/` directory instead (wiseflow core maintainers only). This keeps the addon interface simple and stable across upstream openclaw upgrades.
 
 ---
 
@@ -16,9 +16,6 @@ An addon is an independent Git repository installed to the `addons/` directory. 
 ```
 <addon-name>/
 ├── addon.json              # Required: addon metadata
-├── overrides.sh            # Optional: dependency replacement script
-├── patches/
-│   └── *.patch             # Optional: git patches against openclaw/
 ├── skills/
 │   └── <skill-name>/
 │       ├── SKILL.md        # Skill definition (required)
@@ -48,6 +45,8 @@ An addon is an independent Git repository installed to the `addons/` directory. 
   "name": "my-addon",
   "version": "1.0.0",
   "description": "What this addon does",
+  "openclaw_version": "2026.4.11",        // optional: declare openclaw compatibility
+  "openclaw_commit": "<commit-sha>",      // optional: pin to exact commit
   "internal_crews": ["my-ops-bot"],       // crew templates that are internal (managed by Main Agent)
   "external_crews": ["my-customer-bot"],  // crew templates that are external (managed by HRBP)
   "auto-activate": false                  // set true to auto-instantiate crew templates on apply
@@ -67,36 +66,7 @@ The `crew-type:` field in `SOUL.md` is **not required** for addon templates. If 
 
 ---
 
-## Layer 1 — `overrides.sh`
-
-Receives two environment variables: `ADDON_DIR` and `OPENCLAW_DIR`.
-Use it to inject pnpm overrides or replace packages before the build:
-
-```bash
-#!/bin/bash
-# Example: replace a transitive dependency
-cd "$OPENCLAW_DIR"
-node -e "
-  const pkg = JSON.parse(require('fs').readFileSync('package.json','utf8'));
-  if (!pkg.pnpm) pkg.pnpm = {};
-  if (!pkg.pnpm.overrides) pkg.pnpm.overrides = {};
-  pkg.pnpm.overrides['some-package'] = '^2.0.0';
-  require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2));
-"
-```
-
----
-
-## Layer 2 — `patches/*.patch`
-
-Generate with `git diff` or `git format-patch` against the upstream `openclaw/` source.
-Patches are applied with `--3way --ignore-whitespace --whitespace=fix`.
-
-> **Warning:** Patches are fragile across upstream upgrades. Prefer `overrides.sh` for dependency changes.
-
----
-
-## Layer 3 — Global Skills (`skills/`)
+## Layer 1 — Global Skills (`skills/`)
 
 Skills placed here are installed to `openclaw/skills/` and made available to all agents.
 Each skill requires a `SKILL.md` file at the skill root.
@@ -105,7 +75,7 @@ Global skills are listed in `~/.openclaw/GLOBAL_SHARED_SKILLS` after `apply-addo
 
 ---
 
-## Layer 4 — Crew Templates (`crew/`)
+## Layer 2 — Crew Templates (`crew/`)
 
 ### Required: Declare a Command Tier
 
@@ -203,9 +173,7 @@ To force re-apply (e.g., after updating a crew template that already exists in `
 
 When the upstream `openclaw` version changes:
 
-- **`overrides.sh`** — usually unaffected (package-level override)
-- **`patches/*.patch`** — re-generate against the new upstream commit if they fail to apply
 - **`skills/`** — rarely affected unless openclaw's skill API changes
 - **`crew/` templates** — update if `SOUL.md` references upstream-specific behaviors that changed
 
-Check `openclaw.version` for the pinned upstream commit. When submitting your addon to the community, document which OFB version range it supports.
+Check `openclaw.version` for the pinned upstream commit. When submitting your addon to the community, document which wiseflow version range it supports.

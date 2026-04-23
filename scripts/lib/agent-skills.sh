@@ -287,7 +287,12 @@ console.log(JSON.stringify(Array.from(new Set(lines))));
 #   $2  skills_json     JSON 数组字符串（resolve_agent_skills_json 的输出）
 #   $3  project_root    wiseflow 项目根目录
 #
-# 设计：只处理有执行权限（可执行位）或以 .sh 结尾的文件，跳过 .py/.json 等。
+# 设计：
+#   1. 收集脚本路径：只处理有可执行位或以 .sh/.mjs/.ts/.js 结尾的文件，跳过 .py/.json 等。
+#      .py 脚本不能直接执行，需要 python3 解释器（见下方 bins 注入）。
+#   2. 解析 SKILL.md 的 metadata.openclaw.requires.bins，把解释器命令（如 python3、node）
+#      也输出为 +<bin> 行。frontmatter 容忍 YAML 嵌套 lenient JSON（含 trailing comma），
+#      因此用正则提取而非严格 JSON.parse。
 collect_skill_script_commands() {
   local workspace_dir="$1"
   local skills_json="$2"
@@ -311,6 +316,27 @@ if (Array.isArray(arr)) arr.forEach((s) => { if (s && typeof s === "string") con
 
   while IFS= read -r skill; do
     [ -n "$skill" ] || continue
+
+    # ── SKILL.md → metadata.openclaw.requires.bins → +<bin> ──
+    # 优先 workspace-local 的 SKILL.md，否则回退到全局
+    local skill_md=""
+    if [ -f "$workspace_dir/skills/$skill/SKILL.md" ]; then
+      skill_md="$workspace_dir/skills/$skill/SKILL.md"
+    elif [ -f "$project_root/openclaw/skills/$skill/SKILL.md" ]; then
+      skill_md="$project_root/openclaw/skills/$skill/SKILL.md"
+    fi
+    if [ -n "$skill_md" ]; then
+      SKILL_MD_PATH="$skill_md" node -e '
+const fs = require("fs");
+const src = fs.readFileSync(process.env.SKILL_MD_PATH, "utf8");
+const fmMatch = src.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+if (!fmMatch) process.exit(0);
+const binsMatch = fmMatch[1].match(/"bins"\s*:\s*\[([^\]]*)\]/);
+if (!binsMatch) process.exit(0);
+const tokens = binsMatch[1].match(/"([^"]+)"/g) || [];
+for (const t of tokens) console.log("+" + t.slice(1, -1));
+' 2>/dev/null
+    fi
 
     # ── workspace-local skill ──────────────────────────────
     local ws_scripts_dir="$workspace_dir/skills/$skill/scripts"

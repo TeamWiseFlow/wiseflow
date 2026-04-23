@@ -11,6 +11,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **不要手动修改 `version` 文件**，由 CI 自动维护。
 
+Claude Code 被授权在本仓库中执行任何 git 命令（包括 push、branch、tag 等），无需逐次确认。
+
 ## Crew Template 开发规范
 
 创建或修改 crew template（`crews/` 或 `addons/officials/crew/` 下的任何 crew）时，必须遵循 `docs/workspace-bootstrap-files.md` 中定义的文件职责划分：
@@ -24,11 +26,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **BOOTSTRAP.md**：一次性首次运行引导，完成后删除
 - **USER.md**：服务对象信息
 
-## 创建/更新 skill 时，相关cli 操作直接以指导形式写入 SKILL.md 还是需要创建一个脚本的判断依据：
+## 创建/更新 skill 时，如果涉及到脚本或者 cli 指导内容，必须遵从以下原则：
 - 1、多步骤操作且涉及中间态保存的（下一步操作的某一输入为上一步返回结果），哪怕每一步都只是一条命令，也必须做脚本！
 - 2、涉及多分支选择，且分支选择依靠明确变量的（如环境变量中是否有某个值，或者按某个入参的值判断分支）应该优先用脚本。
 - 3、涉及 python 的，必须制作脚本，最终以 “python /path/to/script.py” 的模式调用。
+- 4、**crew 专属 skill**（`crews/` 或 `addons/officials/crew/` 下的 skill）如果包含脚本，SKILL.md 中对脚本调用的路径必须使用相对路径写法，即 `./skills/<skill-name>/scripts/<file>`，**不得**使用 `{baseDir}/scripts/...`。
 
-skill 需要的常量（如各种 ID、KEY 等），搭配脚本时优先使用环境变量，搭配 SKILL.md 时优先使用同级目录下的 json 配置。
+原因：openclaw exec allowlist 以 workspace 为 CWD 做相对路径匹配；`{baseDir}` 是 claude code 专用变量，在 openclaw 中不会展开。全局 skill（`skills/` 目录下）不受此限制，使用 `{baseDir}` 即可。
 
-Claude Code 被授权在本仓库中执行任何 git 命令（包括 push、branch、tag 等），无需逐次确认。
+- 5、skill 需要的常量（如各种 ID、KEY 等），搭配脚本时优先使用环境变量，搭配 SKILL.md 时优先使用同级目录下的 json 配置。
+
+本代码仓的 skill 是给 openclaw 使用的，以上原则是为了适配 openclaw 的规则。
+
+## addon 开发规则
+
+wiseflow 通过 addon 提供增强能力，包括全局 skill 以及 crew 模板。
+
+务必注意一点：同一个 addon 中所有技能（不管是全局技能还是addon包含的 crew 的专属技能），如果涉及到依赖包（python、node、go）必须整合写到 addon 根目录下。也就是必须把 addon 整体作为一个 python 包或者 node 包，不允许单独把某个 skill 配置成一个包。
+
+这是为了应用 addon 时可以自动完成初始化，降低部署工作和风险。务必遵守！

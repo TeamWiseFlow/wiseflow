@@ -1,3 +1,25 @@
+# v5.5
+
+### 架构调整
+
+- **patches 与 addon 分离**：将代码补丁（`patches/*.patch`）、插件（`patches/suppress-stale-reply`）和依赖覆盖（`patches/overrides.sh`）从 `addons/officials/` 迁移至项目根目录 `patches/`，作为 wiseflow 的共性基础能力，对所有 addon 生效。addon 不再支持 patches 层，仅提供额外全局技能和 Crew 模板。
+
+- **默认全局技能重新划分**：`smart-search`、`browser-guide` 从 addon 专属技能迁移至 `skills/`（项目根目录），成为 wiseflow 所有 crew 默认可用的内置技能，无需依赖 official addon 即可生效。
+
+- **`apply-addons.sh` 重构**：先应用 `patches/` 下的基础补丁和覆盖，再安装默认全局技能（`skills/`），最后逐 addon 安装额外技能和 Crew 模板。addon 加载流程简化为两层（skills → crew），移除原有的 overrides 和 patches 层。
+
+### 升级 openclaw 至 v2026.4.15
+
+- 同步上游变更（详见 openclaw release notes）
+- patch 001（suppress-stale-reply context）针对 `deliver.ts` 重构（OutboundPayloadPlan 架构调整）重新生成
+- patch 005（codex apiKey）已被上游原生集成，移除
+
+# v5.4
+
+### 新增
+
+- **suppress-stale-reply 插件 + patch 001**：用户连续快速发送多条消息时，agent 对被超越消息的回复不再发送给用户，但仍写入对话历史供下一轮上下文使用，最终用户只看到对最新消息的回复。所有走标准 inbound/outbound 路径的 channel（feishu / awada / wecom / cli 等）自动获得该能力。`/`-前缀的指令型回复（如 `/kb`、`/cc`）放行，不参与抑制。可通过 `OPENCLAW_SUPPRESS_STALE_REPLY=0` 关闭
+
 # v5.3
 
 ### 新增

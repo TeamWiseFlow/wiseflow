@@ -1,0 +1,141 @@
+diff --git a/src/auto-reply/dispatch.ts b/src/auto-reply/dispatch.ts
+index bfec455570..a4cdc9255a 100644
+--- a/src/auto-reply/dispatch.ts
++++ b/src/auto-reply/dispatch.ts
+@@ -1,4 +1,8 @@
+ import type { OpenClawConfig } from "../config/types.openclaw.js";
++import {
++  nextInboundSeq,
++  runWithInboundTurn,
++} from "../infra/outbound/inbound-turn-context.js";
+ import { withReplyDispatcher } from "./dispatch-dispatcher.js";
+ import { dispatchReplyFromConfig } from "./reply/dispatch-from-config.js";
+ import type { DispatchFromConfigResult } from "./reply/dispatch-from-config.types.js";
+@@ -25,17 +29,19 @@ export async function dispatchInboundMessage(params: {
+   replyResolver?: GetReplyFromConfig;
+ }): Promise<DispatchInboundResult> {
+   const finalized = finalizeInboundContext(params.ctx);
+-  return await withReplyDispatcher({
+-    dispatcher: params.dispatcher,
+-    run: () =>
+-      dispatchReplyFromConfig({
+-        ctx: finalized,
+-        cfg: params.cfg,
+-        dispatcher: params.dispatcher,
+-        replyOptions: params.replyOptions,
+-        replyResolver: params.replyResolver,
+-      }),
+-  });
++  return await runWithInboundTurn(nextInboundSeq(), finalized.From, () =>
++    withReplyDispatcher({
++      dispatcher: params.dispatcher,
++      run: () =>
++        dispatchReplyFromConfig({
++          ctx: finalized,
++          cfg: params.cfg,
++          dispatcher: params.dispatcher,
++          replyOptions: params.replyOptions,
++          replyResolver: params.replyResolver,
++        }),
++    }),
++  );
+ }
+ 
+ export async function dispatchInboundMessageWithBufferedDispatcher(params: {
+diff --git a/src/auto-reply/reply/dispatch-from-config.ts b/src/auto-reply/reply/dispatch-from-config.ts
+index 5c9e5a5500..f361313d3c 100644
+--- a/src/auto-reply/reply/dispatch-from-config.ts
++++ b/src/auto-reply/reply/dispatch-from-config.ts
+@@ -25,6 +25,7 @@ import {
+ } from "../../hooks/message-hook-mappers.js";
+ import { isDiagnosticsEnabled } from "../../infra/diagnostic-events.js";
+ import { formatErrorMessage } from "../../infra/errors.js";
++import { getCurrentInboundSeq } from "../../infra/outbound/inbound-turn-context.js";
+ import {
+   logMessageProcessed,
+   logMessageQueued,
+@@ -563,11 +564,16 @@ export async function dispatchReplyFromConfig(
+ 
+   // Trigger plugin hooks (fire-and-forget)
+   if (hookRunner?.hasHooks("message_received")) {
++    const baseReceivedEvent = toPluginMessageReceivedEvent(hookContext);
++    const receivedEvent = {
++      ...baseReceivedEvent,
++      metadata: {
++        ...baseReceivedEvent.metadata,
++        originatingInboundSeq: getCurrentInboundSeq(),
++      },
++    };
+     fireAndForgetHook(
+-      hookRunner.runMessageReceived(
+-        toPluginMessageReceivedEvent(hookContext),
+-        toPluginMessageContext(hookContext),
+-      ),
++      hookRunner.runMessageReceived(receivedEvent, toPluginMessageContext(hookContext)),
+       "dispatch-from-config: message_received plugin hook failed",
+     );
+   }
+diff --git a/src/infra/outbound/deliver.ts b/src/infra/outbound/deliver.ts
+index 1855e738d2..807092da86 100644
+--- a/src/infra/outbound/deliver.ts
++++ b/src/infra/outbound/deliver.ts
+@@ -31,6 +31,7 @@ import { throwIfAborted } from "./abort.js";
+ import type { OutboundDeliveryResult } from "./deliver-types.js";
+ import { ackDelivery, enqueueDelivery, failDelivery } from "./delivery-queue.js";
+ import type { OutboundIdentity } from "./identity.js";
++import { getCurrentInboundFrom, getCurrentInboundSeq } from "./inbound-turn-context.js";
+ import type { DeliveryMirror } from "./mirror.js";
+ import {
+   createOutboundPayloadPlan,
+@@ -444,6 +445,8 @@ async function applyMessageSendingHook(params: {
+           channel: params.channel,
+           accountId: params.accountId,
+           mediaUrls: params.payloadSummary.mediaUrls,
++          originatingInboundSeq: getCurrentInboundSeq(),
++          originatingFrom: getCurrentInboundFrom(),
+         },
+       },
+       {
+diff --git a/src/infra/outbound/inbound-turn-context.ts b/src/infra/outbound/inbound-turn-context.ts
+new file mode 100644
+index 0000000000..436c5745d1
+--- /dev/null
++++ b/src/infra/outbound/inbound-turn-context.ts
+@@ -0,0 +1,37 @@
++/**
++ * Inbound turn context (wiseflow patch 001).
++ *
++ * Tracks a monotonic per-process "inbound seq" via AsyncLocalStorage so that
++ * downstream message hooks (`message_received`, `message_sending`) can carry
++ * the originating inbound's sequence number in their metadata payload.
++ *
++ * This is the seam used by the `suppress-stale-reply` plugin to drop replies
++ * for inbounds that have been superseded by newer user messages.
++ */
++
++import { AsyncLocalStorage } from "node:async_hooks";
++
++const storage = new AsyncLocalStorage<{ seq: number; from: string | undefined }>();
++
++let counter = 0;
++
++export function nextInboundSeq(): number {
++  counter += 1;
++  return counter;
++}
++
++export function runWithInboundTurn<T>(
++  seq: number,
++  from: string | undefined,
++  fn: () => Promise<T>,
++): Promise<T> {
++  return storage.run({ seq, from }, fn);
++}
++
++export function getCurrentInboundSeq(): number | undefined {
++  return storage.getStore()?.seq;
++}
++
++export function getCurrentInboundFrom(): string | undefined {
++  return storage.getStore()?.from;
++}

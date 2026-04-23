@@ -19,6 +19,12 @@ description: >
 message(action="sendAttachment", file_name="<文件名>")
 ```
 
+> **错误示例**（禁止使用）：
+> ```
+> message(action="sendAttachment", filename="...", filePath="...")
+> ```
+> 参数名必须是 `file_name`（带下划线），不得传 `filePath` 或 `filename`。`file_name` 对应微信网盘中已存的文件名，不是本地路径。
+
 ## 完整发送流程
 
 1. 直接调用 `message(action="sendAttachment", file_name="...")` 发送文件（**本 turn 不输出任何文字**）
