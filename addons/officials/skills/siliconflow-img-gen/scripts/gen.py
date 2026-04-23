@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""SiliconFlow image generation — stdlib only (no httpx/requests)."""
+"""SiliconFlow image generation — stdlib only (no httpx/requests).
+
+Two modes:
+  text-to-image : default model Qwen/Qwen-Image
+  image-edit    : default model Qwen/Qwen-Image-Edit-2509 (requires --image)
+"""
 
 import argparse
 import json
@@ -9,37 +14,61 @@ import time
 import urllib.request
 import urllib.error
 from pathlib import Path
+from typing import Optional
 
 API_URL = "https://api.siliconflow.cn/v1/images/generations"
 
-# Models that accept guidance_scale and batch_size
-KOLORS_MODELS = {"kwai-kolors/kolors"}
+# Valid image_size values for Qwen/Qwen-Image
+QWEN_SIZES = {
+    "1328x1328",  # 1:1
+    "1664x928",   # 16:9
+    "928x1664",   # 9:16
+    "1472x1140",  # 4:3
+    "1140x1472",  # 3:4
+    "1584x1056",  # 3:2
+    "1056x1584",  # 2:3
+}
 
-def build_payload(args):
-    model = args.model
-    payload = {
+DEFAULT_GEN_MODEL = "Qwen/Qwen-Image"
+DEFAULT_EDIT_MODEL = "Qwen/Qwen-Image-Edit-2509"
+
+
+def build_payload(args: argparse.Namespace) -> dict:
+    is_edit_mode = bool(args.image)
+    model = args.model or (DEFAULT_EDIT_MODEL if is_edit_mode else DEFAULT_GEN_MODEL)
+
+    payload: dict = {
         "model": model,
         "prompt": args.prompt,
-        "image_size": args.image_size,
         "num_inference_steps": args.steps,
-        "batch_size": args.batch_size,
     }
-    # guidance_scale only supported by Kolors
-    if args.guidance is not None:
-        if model.lower() in KOLORS_MODELS:
-            payload["guidance_scale"] = args.guidance
-        else:
-            print(f"[warn] --guidance ignored for model {model}", file=sys.stderr)
-    if args.negative_prompt:
-        payload["negative_prompt"] = args.negative_prompt
+
+    if is_edit_mode:
+        payload["image"] = args.image
+        if args.image2:
+            payload["image2"] = args.image2
+        if args.image3:
+            payload["image3"] = args.image3
+    else:
+        size = args.image_size or "1328x1328"
+        if size not in QWEN_SIZES:
+            print(
+                f"[warn] --image-size {size!r} is not in the Qwen valid size list. "
+                f"Valid options: {sorted(QWEN_SIZES)}",
+                file=sys.stderr,
+            )
+        payload["image_size"] = size
+
+    if args.cfg is not None:
+        payload["cfg"] = args.cfg
+
     if args.seed is not None:
         payload["seed"] = args.seed
-    # Qwen does not accept image_size or batch_size in some variants — keep them
-    # but note the model may ignore them silently
+
     return payload
 
 
-def api_request(payload, api_key):
+def api_request(payload: dict, api_key: str) -> dict:
     data = json.dumps(payload).encode()
     req = urllib.request.Request(
         API_URL,
@@ -59,23 +88,41 @@ def api_request(payload, api_key):
         sys.exit(1)
 
 
-def download_image(url, dest_path):
+def download_image(url: str, dest_path: Path) -> None:
     req = urllib.request.Request(url, headers={"User-Agent": "wiseflow-img-gen/1.0"})
     with urllib.request.urlopen(req, timeout=60) as resp:
         dest_path.write_bytes(resp.read())
 
 
-def main():
-    parser = argparse.ArgumentParser(description="SiliconFlow image generation")
-    parser.add_argument("--prompt", required=True)
-    parser.add_argument("--model", default="Qwen/Qwen-Image-Edit-2509")
-    parser.add_argument("--image-size", default="1024x1024", dest="image_size")
-    parser.add_argument("--batch-size", type=int, default=1, dest="batch_size")
-    parser.add_argument("--steps", type=int, default=20)
-    parser.add_argument("--guidance", type=float, default=None)
-    parser.add_argument("--negative-prompt", default=None, dest="negative_prompt")
-    parser.add_argument("--seed", type=int, default=None)
-    parser.add_argument("--out-dir", default=None, dest="out_dir")
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="SiliconFlow image generation (text-to-image or image-edit)"
+    )
+    parser.add_argument("--prompt", required=True, help="Text description for the image")
+    parser.add_argument("--model", default=None, help="Model ID (auto-selected by mode if omitted)")
+    parser.add_argument(
+        "--image-size",
+        default=None,
+        dest="image_size",
+        help=(
+            "Output resolution for text-to-image mode. "
+            "Qwen valid values: 1328x1328 / 1664x928 / 928x1664 / 1472x1140 / "
+            "1140x1472 / 1584x1056 / 1056x1584"
+        ),
+    )
+    parser.add_argument("--steps", type=int, default=20, help="Inference steps (1–100)")
+    parser.add_argument(
+        "--cfg",
+        type=float,
+        default=None,
+        help="CFG scale (Qwen: 0.1–20, recommended 4.0 for text-in-image)",
+    )
+    parser.add_argument("--seed", type=int, default=None, help="Random seed (0–9999999999)")
+    # image-edit inputs
+    parser.add_argument("--image", default=None, help="Source image URL (enables image-edit mode)")
+    parser.add_argument("--image2", default=None, help="Second source image URL (edit mode only)")
+    parser.add_argument("--image3", default=None, help="Third source image URL (edit mode only)")
+    parser.add_argument("--out-dir", default=None, dest="out_dir", help="Output directory")
     args = parser.parse_args()
 
     api_key = os.environ.get("SILICONFLOW_API_KEY")
@@ -88,7 +135,9 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
 
     payload = build_payload(args)
-    print(f"[info] Generating image with model={args.model} size={args.image_size} …")
+    mode = "image-edit" if args.image else "text-to-image"
+    print(f"[info] Mode={mode} model={payload['model']} …")
+
     result = api_request(payload, api_key)
 
     images = result.get("images", [])
@@ -96,7 +145,7 @@ def main():
         print(f"[error] No images in response: {result}", file=sys.stderr)
         sys.exit(1)
 
-    prompts_map = {}
+    prompts_map: dict = {}
     for i, img in enumerate(images):
         url = img.get("url", "")
         dest = out_dir / f"{i:02d}.png"
@@ -106,7 +155,6 @@ def main():
 
     (out_dir / "prompts.json").write_text(json.dumps(prompts_map, ensure_ascii=False, indent=2))
 
-    # Simple HTML gallery
     gallery_html = ["<!DOCTYPE html><html><body>"]
     for i in range(len(images)):
         gallery_html.append(f'<img src="{i:02d}.png" style="max-width:512px;margin:4px">')

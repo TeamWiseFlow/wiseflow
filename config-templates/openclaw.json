@@ -14,55 +14,44 @@
     "models": {
         "mode": "merge",
         "providers": {
-            "siliconflow": {
+            "volcengine-plan": {
                 "api": "openai-completions",
-                "baseUrl": "https://api.siliconflow.cn/v1",
+                "baseUrl": "https://ark.cn-beijing.volces.com/api/coding/v3",
                 "apiKey": "",
                 "models": [
                     {
-                        "id": "Pro/moonshotai/Kimi-K2.5",
-                        "name": "Kimi K2.5",
+                        "id": "glm-5.1",
+                        "name": "GLM-5.1",
+                        "input": [
+                            "text"
+                        ],
+                        "contextWindow": 200000,
+                        "maxTokens": 128000
+                    }
+                ]
+            },
+            "aihubmix": {
+                "api": "openai-completions",
+                "baseUrl": "https://aihubmix.com/v1",
+                "apiKey": "",
+                "models": [
+                    {
+                        "id": "glm-5.1",
+                        "name": "GLM-5.1 (AiHubMix)",
+                        "input": [
+                            "text"
+                        ],
+                        "contextWindow": 200000,
+                        "maxTokens": 128000
+                    },
+                    {
+                        "id": "qwen3.6-flash",
+                        "name": "Qwen3.6 Flash",
                         "input": [
                             "text",
                             "image"
                         ],
-                        "cost": {
-                            "input": 0.004,
-                            "output": 0.021,
-                            "cacheRead": 0.0007,
-                            "cacheWrite": 0.0007
-                        },
-                        "contextWindow": 256000,
-                        "maxTokens": 8192
-                    },
-                    {
-                        "id": "Pro/MiniMaxAI/MiniMax-M2.5",
-                        "name": "MiniMax M2.5",
-                        "input": [
-                            "text"
-                        ],
-                        "cost": {
-                            "input": 0.0021,
-                            "output": 0.0084,
-                            "cacheRead": 0.00021,
-                            "cacheWrite": 0.00021
-                        },
-                        "contextWindow": 1000000,
-                        "maxTokens": 8192
-                    },
-                    {
-                        "id": "Pro/zai-org/GLM-5",
-                        "name": "GLM-5",
-                        "input": [
-                            "text"
-                        ],
-                        "cost": {
-                            "input": 0.006,
-                            "output": 0.022,
-                            "cacheRead": 0.001,
-                            "cacheWrite": 0.0015
-                        },
-                        "contextWindow": 1000000,
+                        "contextWindow": 128000,
                         "maxTokens": 8192
                     }
                 ]
@@ -72,23 +61,23 @@
     "agents": {
         "defaults": {
             "model": {
-                "primary": "siliconflow/Pro/zai-org/GLM-5",
+                "primary": "volcengine-plan/glm-5.1",
                 "fallbacks": [
-                    "siliconflow/Pro/MiniMaxAI/MiniMax-M2.5"
+                    "aihubmix/glm-5.1"
                 ]
             },
             "imageModel": {
-                "primary": "siliconflow/Pro/moonshotai/Kimi-K2.5"
+                "primary": "aihubmix/qwen3.6-flash"
             },
             "models": {
-                "siliconflow/Pro/zai-org/GLM-5": {
+                "volcengine-plan/glm-5.1": {
                     "alias": "default"
                 },
-                "siliconflow/Pro/MiniMaxAI/MiniMax-M2.5": {
-                    "alias": "minimax"
+                "aihubmix/glm-5.1": {
+                    "alias": "fallback"
                 },
-                "siliconflow/Pro/moonshotai/Kimi-K2.5": {
-                    "alias": "kimi"
+                "aihubmix/qwen3.6-flash": {
+                    "alias": "vision"
                 }
             },
             "compaction": {

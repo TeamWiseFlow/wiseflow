@@ -69,8 +69,13 @@ cd ..
 >
 > wiseflow5.x 底层基于 openclaw，Agent 工作流对 token 消耗有一定要求，建议先准备好大模型 API：
 >
-> - **国内用户（推荐）**：[硅基流动（SiliconFlow）](https://cloud.siliconflow.cn/i/WNLYbBpi) — 注册并实名认证可领取免费全平台模型代金券，覆盖上手阶段所需费用（配置模板中已预置 siliconflow.cn 的最佳实践，可直接使用）。😄 欢迎使用我的[推荐链接](https://cloud.siliconflow.cn/i/WNLYbBpi)注册，你我都会获赠 ¥16 平台奖励
-> - **OpenAI / 海外闭源模型**：推荐 [AiHubMix](https://aihubmix.com?aff=Gp54) — 国内直连无障碍。😄 欢迎使用我的[邀请链接](https://aihubmix.com?aff=Gp54)注册
+> - **国内用户 · 主力模型（强烈推荐）**：[🔥 火山引擎（字节跳动旗下）Code Plan](https://volcengine.com/L/_Zg9lMBvyfU/) — 目前**国内唯一不限购且提供 GLM-5.1 模型**的套餐，首月仅需 **¥36**（Lite 套餐，续费 ¥40/月），非常适合练手阶段。配置模板中已预置最佳实践，填入 API Key 即可直接使用。
+>   
+>   👉 **[立即订阅（9折优惠链接）](https://volcengine.com/L/_Zg9lMBvyfU/)** 邀请码：`5Y5A6L86`
+>   
+>   > 💰 通过以上链接订阅，你享受 9 折优惠，同时 wiseflow 项目也会获得一定返利，这是支持我们持续维护这个免费开源项目的重要方式之一，感谢你的支持！
+>
+> - **Fallback & 视觉理解模型**：[AiHubMix](https://aihubmix.com/?aff=Gp54) — 全兼容 OpenAI 接口格式，国内直连无障碍，按 token 用量计费（**因此仅适合作 fallback，不建议作主力模型**）。配置模板中已预置为 fallback 和图片理解模型。😄 欢迎使用[邀请链接](https://aihubmix.com/?aff=Gp54)注册，同样给 wiseflow 项目带来返利支持
 > - **海外用户**：可直接使用 SiliconFlow 国际版：https://www.siliconflow.com/
 安装后重启 openclaw_for_business 即可生效。
 
@@ -179,6 +184,30 @@ Crew 遇到自己不能解决的问题：
 
 - **配置模板** — 预设国内可用的模型、渠道、技能等配置
 - **工具脚本** — 一键启动、一键部署、一键更新…… 
+
+**🩹 wiseflow 内置补丁与可配置环境变量**
+
+wiseflow 通过 `patches/` 目录对 openclaw 源码打补丁，每次运行 `apply-addons.sh` 时自动应用。以下是当前生效的补丁及其可配置项：
+
+| 补丁 | 说明 | 相关环境变量 |
+|------|------|-------------|
+| `001-suppress-stale-reply-context` | 为 suppress-stale-reply 插件补充 inbound seq 上下文，防止过期消息触发回复 | 无 |
+| `002-disable-web-search-env-var` | 支持通过环境变量禁用 openclaw 内置 web search | `OPENCLAW_DISABLE_WEB_SEARCH=1` |
+| `003-act-field-validation` | 修复浏览器 act 动作的字段验证逻辑 | 无 |
+| `005-browser-timeout-env-var` | 支持通过环境变量自定义浏览器操作默认超时（原默认仅 20 秒，网络慢时容易中断） | `OPENCLAW_BROWSER_TIMEOUT_MS=60000` |
+
+**推荐在 `~/.openclaw/openclaw.json` 的 `gateway` 节点下配置环境变量：**
+
+```json
+{
+  "gateway": {
+    "env": {
+      "OPENCLAW_DISABLE_WEB_SEARCH": "1",
+      "OPENCLAW_BROWSER_TIMEOUT_MS": "60000"
+    }
+  }
+}
+```
 
 #### 浏览器增强
 
