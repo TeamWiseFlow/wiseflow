@@ -1,5 +1,5 @@
 diff --git a/src/auto-reply/dispatch.ts b/src/auto-reply/dispatch.ts
-index bfec455570..a4cdc9255a 100644
+index 3e6b333859..4e2880e04d 100644
 --- a/src/auto-reply/dispatch.ts
 +++ b/src/auto-reply/dispatch.ts
 @@ -1,4 +1,8 @@
@@ -11,7 +11,7 @@ index bfec455570..a4cdc9255a 100644
  import { withReplyDispatcher } from "./dispatch-dispatcher.js";
  import { dispatchReplyFromConfig } from "./reply/dispatch-from-config.js";
  import type { DispatchFromConfigResult } from "./reply/dispatch-from-config.types.js";
-@@ -25,17 +29,19 @@ export async function dispatchInboundMessage(params: {
+@@ -41,17 +45,19 @@ export async function dispatchInboundMessage(params: {
    replyResolver?: GetReplyFromConfig;
  }): Promise<DispatchInboundResult> {
    const finalized = finalizeInboundContext(params.ctx);
@@ -43,7 +43,7 @@ index bfec455570..a4cdc9255a 100644
  
  export async function dispatchInboundMessageWithBufferedDispatcher(params: {
 diff --git a/src/auto-reply/reply/dispatch-from-config.ts b/src/auto-reply/reply/dispatch-from-config.ts
-index 5c9e5a5500..526296eaa8 100644
+index 6dbd3f9e1a..201cc6ecdd 100644
 --- a/src/auto-reply/reply/dispatch-from-config.ts
 +++ b/src/auto-reply/reply/dispatch-from-config.ts
 @@ -25,6 +25,11 @@ import {
@@ -73,7 +73,7 @@ index 5c9e5a5500..526296eaa8 100644
    const { ctx, cfg, dispatcher } = params;
    const diagnosticsEnabled = isDiagnosticsEnabled(cfg);
    const channel = normalizeLowercaseStringOrEmpty(ctx.Surface ?? ctx.Provider ?? "unknown");
-@@ -563,11 +576,16 @@ export async function dispatchReplyFromConfig(
+@@ -567,11 +580,16 @@ export async function dispatchReplyFromConfig(
  
    // Trigger plugin hooks (fire-and-forget)
    if (hookRunner?.hasHooks("message_received")) {
@@ -95,18 +95,18 @@ index 5c9e5a5500..526296eaa8 100644
      );
    }
 diff --git a/src/infra/outbound/deliver.ts b/src/infra/outbound/deliver.ts
-index 1855e738d2..807092da86 100644
+index 26688b3093..c9ae9ec26a 100644
 --- a/src/infra/outbound/deliver.ts
 +++ b/src/infra/outbound/deliver.ts
-@@ -31,6 +31,7 @@ import { throwIfAborted } from "./abort.js";
- import type { OutboundDeliveryResult } from "./deliver-types.js";
- import { ackDelivery, enqueueDelivery, failDelivery } from "./delivery-queue.js";
+@@ -43,6 +43,7 @@ import {
+   withActiveDeliveryClaim,
+ } from "./delivery-queue.js";
  import type { OutboundIdentity } from "./identity.js";
 +import { getCurrentInboundFrom, getCurrentInboundSeq } from "./inbound-turn-context.js";
  import type { DeliveryMirror } from "./mirror.js";
  import {
    createOutboundPayloadPlan,
-@@ -444,6 +445,8 @@ async function applyMessageSendingHook(params: {
+@@ -597,6 +598,8 @@ async function applyMessageSendingHook(params: {
            channel: params.channel,
            accountId: params.accountId,
            mediaUrls: params.payloadSummary.mediaUrls,
