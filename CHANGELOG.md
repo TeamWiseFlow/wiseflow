@@ -1,3 +1,10 @@
+# v5.4.4
+
+### 升级 openclaw 至 v2026.4.22
+
+- 同步上游变更（2298 commits，含 telegram/discord 优化、thinking 模型默认级别修复、session 路由保持、wecom/azure openai 等改进）
+- patch 001（suppress-stale-reply context）针对新版上下文行偏��重新生成，`--check` 直接通过
+
 # v5.5
 
 ### 架构调整

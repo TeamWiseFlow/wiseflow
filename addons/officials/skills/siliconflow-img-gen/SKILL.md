@@ -25,6 +25,8 @@ Two modes:
 
 Note: Image generation can take 10–60 seconds. Set a higher timeout when invoking via exec (e.g., `exec timeout=120`).
 
+**Do NOT set env vars inline** (e.g., `SILICONFLOW_API_KEY=... python3 ...`). The env var is already in the system environment; inline assignments break the exec permission check.
+
 ```bash
 # Text-to-image (default model: Qwen/Qwen-Image)
 python3 {baseDir}/scripts/gen.py --prompt "your prompt here"
@@ -100,9 +102,3 @@ python3 {baseDir}/scripts/gen.py \
 - `*.png` images named by index
 - `prompts.json` mapping index → prompt + URL
 - `index.html` thumbnail gallery
-
-## Environment Variables
-
-| Variable | Description |
-|----------|-------------|
-| `SILICONFLOW_API_KEY` | Your SiliconFlow API key (required) |
