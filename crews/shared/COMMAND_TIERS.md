@@ -102,3 +102,17 @@ command-tier: T2
 |------|------|
 | 2026-03-13 | v2: 权限从纯提示词改为 exec-approvals + tools.exec 自动强制执行 |
 | 2026-03-10 | v1: 初始版本，定义 T0-T3 四层权限 |
+
+---
+
+## Exec 调用规范（所有 Crew 通用）
+
+**以下写法会导致 exec allowlist miss，禁止使用：**
+
+- ❌ `cd /abs/path && bash ./skills/xxx/scripts/yyy.sh` — CWD 已经是 workspace，无需 `cd` 前缀
+- ❌ `KEY=value python3 script.py` — 禁止内联 env 赋值；所有环境变量由系统注入，内联赋值导致 allowlist miss
+
+**正确写法：**
+
+- ✅ `bash ./skills/xxx/scripts/yyy.sh`
+- ✅ `python3 {baseDir}/scripts/gen.py`

@@ -43,18 +43,37 @@ index bfec455570..a4cdc9255a 100644
  
  export async function dispatchInboundMessageWithBufferedDispatcher(params: {
 diff --git a/src/auto-reply/reply/dispatch-from-config.ts b/src/auto-reply/reply/dispatch-from-config.ts
-index 5c9e5a5500..f361313d3c 100644
+index 5c9e5a5500..526296eaa8 100644
 --- a/src/auto-reply/reply/dispatch-from-config.ts
 +++ b/src/auto-reply/reply/dispatch-from-config.ts
-@@ -25,6 +25,7 @@ import {
+@@ -25,6 +25,11 @@ import {
  } from "../../hooks/message-hook-mappers.js";
  import { isDiagnosticsEnabled } from "../../infra/diagnostic-events.js";
  import { formatErrorMessage } from "../../infra/errors.js";
-+import { getCurrentInboundSeq } from "../../infra/outbound/inbound-turn-context.js";
++import {
++  getCurrentInboundSeq,
++  nextInboundSeq,
++  runWithInboundTurn,
++} from "../../infra/outbound/inbound-turn-context.js";
  import {
    logMessageProcessed,
    logMessageQueued,
-@@ -563,11 +564,16 @@ export async function dispatchReplyFromConfig(
+@@ -212,6 +217,14 @@ export type {
+ export async function dispatchReplyFromConfig(
+   params: DispatchFromConfigParams,
+ ): Promise<DispatchFromConfigResult> {
++  // Channels that bypass dispatchInboundMessage (e.g. awada) call us directly
++  // without an inbound turn context. Establish one here so that the
++  // suppress-stale-reply plugin can track seqs correctly.
++  if (getCurrentInboundSeq() === undefined) {
++    return runWithInboundTurn(nextInboundSeq(), params.ctx.From, () =>
++      dispatchReplyFromConfig(params),
++    );
++  }
+   const { ctx, cfg, dispatcher } = params;
+   const diagnosticsEnabled = isDiagnosticsEnabled(cfg);
+   const channel = normalizeLowercaseStringOrEmpty(ctx.Surface ?? ctx.Provider ?? "unknown");
+@@ -563,11 +576,16 @@ export async function dispatchReplyFromConfig(
  
    // Trigger plugin hooks (fire-and-forget)
    if (hookRunner?.hasHooks("message_received")) {
