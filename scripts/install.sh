@@ -18,7 +18,7 @@
 # ⚠️  升级前请确保系统空闲（无 agent 会话正在处理任务）
 set -e
 
-OFB_REPO="https://github.com/TeamWiseFlow/wiseflow.git"
+OFB_REPO="https://gitcode.com/wiseflow/wiseflow.git"
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OPENCLAW_DIR="$PROJECT_ROOT/openclaw"
 VERSION_FILE="$PROJECT_ROOT/openclaw.version"
