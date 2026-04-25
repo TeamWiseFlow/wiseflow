@@ -4,7 +4,7 @@
 # 由 apply-addons.sh 调用，接收环境变量：ADDON_DIR, OPENCLAW_DIR
 set -e
 
-PATCHRIGHT_VERSION="${PATCHRIGHT_VERSION:-1.58.2}"
+PATCHRIGHT_VERSION="${PATCHRIGHT_VERSION:-1.59.4}"
 
 # ─── pnpm overrides（核心，不修改源码） ─────────────────────────
 echo "    → pnpm override: playwright-core → patchright-core@${PATCHRIGHT_VERSION}"
