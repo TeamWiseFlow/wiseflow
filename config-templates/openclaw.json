@@ -207,7 +207,10 @@
         }
     ],
     "messages": {
-        "ackReactionScope": "group-mentions"
+        "ackReactionScope": "group-mentions",
+        "inbound": {
+            "debounceMs": 1500
+        }
     },
     "session": {
         "dmScope": "per-channel-peer",
@@ -374,9 +377,15 @@
         }
     },
     "plugins": {
+        "load": {
+            "paths": []
+        },
         "entries": {
             "feishu": {
                 "enabled": true
+            },
+            "awada": {
+                "enabled": false
             },
             "xai": {
                 "enabled": false
