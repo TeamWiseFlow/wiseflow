@@ -8,7 +8,7 @@
 #
 # 每次运行时：
 #   1. 恢复 openclaw/ 到干净状态
-#   2. 应用基础补丁（patches/*.patch）+ 插件路径注入（patches/suppress-stale-reply）+ 依赖覆盖（patches/overrides.sh）
+#   2. 应用基础补丁（patches/*.patch）+ 依赖覆盖（patches/overrides.sh）
 #   3. 安装默认全局 skills（项目根目录 skills/）
 #   4. 扫描 addons/*/ 目录，对每个 addon 依次执行：
 #      a. skills/*/SKILL.md — 额外全局 skill 安装
@@ -236,30 +236,6 @@ if [ -d "$AWADA_EXT" ] && [ -f "$AWADA_EXT/openclaw.plugin.json" ]; then
   fi
 fi
 
-# ─── 注入 suppress-stale-reply 插件路径（默认开启） ──────────────
-SUPPRESS_STALE_PLUGIN="$PROJECT_ROOT/patches/suppress-stale-reply"
-if [ -d "$SUPPRESS_STALE_PLUGIN" ] && [ -f "$SUPPRESS_STALE_PLUGIN/openclaw.plugin.json" ]; then
-  if [ -f "$CONFIG_PATH" ]; then
-    node -e "
-      const fs = require('fs');
-      const config = JSON.parse(fs.readFileSync('$CONFIG_PATH', 'utf8'));
-      if (!config.plugins) config.plugins = {};
-      if (!config.plugins.load) config.plugins.load = {};
-      if (!Array.isArray(config.plugins.load.paths)) config.plugins.load.paths = [];
-      const pluginPath = '$SUPPRESS_STALE_PLUGIN';
-      config.plugins.load.paths = config.plugins.load.paths.filter(
-        p => !p.endsWith('patches/suppress-stale-reply') && !p.endsWith('plugins/suppress-stale-reply')
-      );
-      config.plugins.load.paths.push(pluginPath);
-      if (!config.plugins.entries) config.plugins.entries = {};
-      if (!config.plugins.entries['suppress-stale-reply']) {
-        config.plugins.entries['suppress-stale-reply'] = { enabled: true };
-      }
-      fs.writeFileSync('$CONFIG_PATH', JSON.stringify(config, null, 2) + '\n');
-    "
-    echo "📝 suppress-stale-reply plugin path injected"
-  fi
-fi
 
 # ─── 安装全局共享技能（项目根目录 skills/） ──────���──────────────
 GLOBAL_SKILL_COUNT=0

@@ -470,11 +470,19 @@ some-cmd > /tmp/out.txt
 # 判断文件是否存在
 [ -f /tmp/file.txt ] && echo "EXISTS" || echo "NOT"
 test -f /tmp/file.txt && echo "EXISTS" || echo "NOT"
-
-# 写文件用 write 工具；读文件用 read 工具
 ```
 
 如果确实需要重定向，请改用 `bash -c "..."` 方式，并确保 `bash` 已在 exec allowlist 中（T2 及以上 tier 默认包含）。
+
+**以下写法同样会导致 allowlist miss，禁止使用：**
+
+- ❌ `cd /abs/path && bash ./skills/xxx/scripts/yyy.sh` — CWD 已经是 workspace，不需要 `cd` 前缀，`cd` 不在 allowlist 中
+- ❌ `KEY=value python3 script.py` — 内联 env 赋值会改变命令前缀导致 allowlist miss；环境变量由系统注入
+
+**正确写法：**
+
+- ✅ `bash ./skills/xxx/scripts/yyy.sh`（直接相对路径调用）
+- ✅ `python3 /abs/path/to/script.py`（无 env 前缀）
 GUIDE
 }
 

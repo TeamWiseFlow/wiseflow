@@ -35,28 +35,37 @@ Navigate to `https://studio.youtube.com` first. Confirm the channel dashboard lo
    (Alternative: click the camcorder "Create" icon in YouTube Studio)
 
 2. Wait for the upload dialog to open
+   - timeout: 15000ms
 
 3. Find the file input element and provide the video file path:
    - Look for the file picker input (hidden input[type=file] inside ytcp-uploads-file-picker)
    - Send the absolute file path to the input
+   - timeout: 10000ms (file path injection itself is fast)
 
-4. Wait for upload progress to complete (watch for the progress indicator)
-   - Large videos may take 1–3 minutes
+4. Wait for upload progress to complete
+   - Poll the progress indicator every 10 seconds using snapshot
+   - Do NOT proceed until progress bar disappears or shows "Processing"
+   - timeout: 300000ms (5 minutes) — large videos can take several minutes
+   - If still uploading after 5 minutes, inform the user and wait for their reply
 
 5. Fill in the Title:
    - Click the title field (first text area, id="textbox")
-   - Clear existing text
-   - Type the video title from metadata JSON (max 100 characters)
+   - Wait 1 second after click before typing
+   - Clear existing text, then type the video title (max 100 characters)
+   - timeout: 10000ms
 
 6. Fill in the Description:
    - Click the description field (last text area)
-   - Clear existing text
-   - Type the description + hashtags from metadata JSON
+   - Wait 1 second after click before typing
+   - Clear existing text, then type the description + hashtags
+   - timeout: 10000ms
 
 7. Set "Made for kids":
    - Select "No, it's not made for kids" unless explicitly required
 
 8. Click "Next" three times (Details → Video elements → Checks → Visibility)
+   - Wait 2 seconds between each "Next" click for the page transition to settle
+   - timeout per click: 15000ms
 
 9. On the Visibility page, set visibility:
    - "Public" — for immediate publishing
@@ -64,9 +73,11 @@ Navigate to `https://studio.youtube.com` first. Confirm the channel dashboard lo
    - "Scheduled" — to set a publish date/time
 
 10. Click the "Publish" (or "Save") button
+    - timeout: 15000ms
 
 11. Wait for confirmation:
-    - The dialog closes or shows "Your video has been published"
+    - Poll every 3 seconds for dialog close or "Your video has been published" message
+    - timeout: 30000ms
 
 12. Retrieve the video URL:
     - Navigate to https://studio.youtube.com/channel/<channel_id>/videos/short

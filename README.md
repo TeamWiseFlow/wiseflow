@@ -191,7 +191,6 @@ wiseflow 通过 `patches/` 目录对 openclaw 源码打补丁，每次运行 `ap
 
 | 补丁 | 说明 | 相关环境变量 |
 |------|------|-------------|
-| `001-suppress-stale-reply-context` | 为 suppress-stale-reply 插件补充 inbound seq 上下文，防止过期消息触发回复 | 无 |
 | `002-disable-web-search-env-var` | 支持通过环境变量禁用 openclaw 内置 web search | `OPENCLAW_DISABLE_WEB_SEARCH=1` |
 | `003-act-field-validation` | 修复浏览器 act 动作的字段验证逻辑 | 无 |
 | `005-browser-timeout-env-var` | 支持通过环境变量自定义浏览器操作默认超时（原默认仅 20 秒，网络慢时容易中断） | `OPENCLAW_BROWSER_TIMEOUT_MS=60000` |
@@ -258,9 +257,8 @@ wiseflow/
 │   └── it-engineer/       # [built-in] IT Engineer（系统运维 + SEO 技术优化）
 │       └── skills/        # IT Engineer 专属技能（seo、session-logs 等）
 ├── skills/                # wiseflow 默认全局技能（smart-search / browser-guide / complex-task 等）
-├── patches/               # wiseflow 基础补丁与插件（对所有 addon 生效）
+├── patches/               # wiseflow 基础补丁（对所有 addon 生效）
 │   ├── *.patch            # git 补丁（按序号顺序应用到 openclaw/）
-│   ├── suppress-stale-reply/  # 抑制过期回复插件
 │   └── overrides.sh       # pnpm 依赖覆盖（如替换 playwright → patchright）
 ├── addons/                # addon 安装目录
 │   ├── officials/         # [official] wiseflow 官方 addon
