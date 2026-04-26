@@ -1,4 +1,32 @@
-# v5.4.4
+# v5.4.5
+
+### 升级 openclaw 至 v2026.4.24
+
+**Browser Extensions 重要变更（v2026.4.22 → v2026.4.24）：**
+
+- **新增坐标点击动作**：`act kind="coordinateClick"` 支持通过 x/y 坐标点击，补充 aria ref 定位之外的场景
+- **默认 act 超时预算**：修复了 act 操作的默认超时时间设定，避免长时间 act 任务意外被截断（与 patch 005 env var 支持互补）
+- **per-profile headless 配置**：每个浏览器 profile 可独立配置 headless/有头模式，不再全局统一
+- **稳定 tab 句柄 + 自动化技能**：新增 tab handle 机制，跨多步操作可稳定引用同一标签页；新增 `automation skill` 供 agent 调用
+- **Doctor 诊断工具**：新增 `browser doctor` 命令，agent 可直接调用浏览器诊断，并向用户展示结构化诊断信息
+- **已有 session 附加修复**：修复 existing-session 附加时的端口冲突、超时判定、WS 状态探测等多个问题（#57245）
+- **Chrome profile 锁恢复**：自动检测并恢复 Chromium profile 锁文件异常，减少需手动清理的情况（#62935）
+- **空闲 tab 自动关闭**：`/new`、`/reset` 或会话归档时自动关闭已跟踪的浏览器标签，防止跨 session 泄漏
+- **Linux 可执行文件路径扩展**：新增 `/opt/google`、`/opt/brave.com`、`/usr/lib/chromium*` 等检测路径（#48563）
+- **Browser Realtime Talk**：Talk/Voice Call/Google Meet 可通过 realtime voice loop 调用完整 agent 能力
+
+**Google Meet 首次作为内置 plugin 发布**（bundled participant plugin，含个人 Google 认证、Chrome/Twilio 实时会话、会议记录/出席名单导出、已开启 Meet 标签的恢复工具）
+
+**其他变更：**
+- DeepSeek V4 Flash/Pro 加入内置 catalog，V4 Flash 成为新用户默认模型
+- 多项安全修复（跨 bot token replay、sandbox browser SSRF、secrets BOM 清理等）
+- Plugin 启动性能优化：静态 model catalog、按需加载 provider 依赖
+
+**patch 状态：**
+- patch 002、005 无需调整，直接通过
+- patch 003（act-field-validation）因 `executeActAction` 函数签名新增 `onTabActivity` 参数导致上下文行号偏移，已重新生成
+
+
 
 ### 升级 openclaw 至 v2026.4.22
 

@@ -1,8 +1,8 @@
 diff --git a/extensions/browser/src/browser-tool.actions.ts b/extensions/browser/src/browser-tool.actions.ts
-index bbd92145c0..d79c3fed84 100644
+index 1bc1565158..880f698fb2 100644
 --- a/extensions/browser/src/browser-tool.actions.ts
 +++ b/extensions/browser/src/browser-tool.actions.ts
-@@ -112,6 +112,41 @@ function formatConsoleToolResult(result: {
+@@ -240,6 +240,41 @@ function formatConsoleToolResult(result: {
    };
  }
  
@@ -44,129 +44,11 @@ index bbd92145c0..d79c3fed84 100644
  function isChromeStaleTargetError(profile: string | undefined, err: unknown): boolean {
    if (!profile) {
      return false;
-@@ -343,6 +378,7 @@ export async function executeActAction(params: {
-   proxyRequest: BrowserProxyRequest | null;
+@@ -504,6 +539,7 @@ export async function executeActAction(params: {
+   onTabActivity?: (targetId: string | undefined) => void;
  }): Promise<AgentToolResult<unknown>> {
    const { request, baseUrl, profile, proxyRequest } = params;
 +  validateActRequest(request);
+   const effectiveRequest = withConfiguredActTimeout(request, profile);
    try {
      const result = proxyRequest
-       ? await proxyRequest({
-diff --git a/extensions/browser/src/browser-tool.test.ts b/extensions/browser/src/browser-tool.test.ts
-index c9d48521a3..a05bc04b42 100644
---- a/extensions/browser/src/browser-tool.test.ts
-+++ b/extensions/browser/src/browser-tool.test.ts
-@@ -818,3 +818,113 @@ describe("browser tool act stale target recovery", () => {
-     expect(browserActionsMocks.browserAct).toHaveBeenCalledTimes(1);
-   });
- });
-+
-+describe("browser tool act field validation", () => {
-+  registerBrowserToolAfterEachReset();
-+
-+  it("rejects click without ref before calling browserAct", async () => {
-+    const tool = createBrowserTool();
-+    await expect(
-+      tool.execute?.("call-1", {
-+        action: "act",
-+        request: { kind: "click", targetId: "t1" },
-+      }),
-+    ).rejects.toThrow(/requires ref.*action=snapshot/i);
-+    expect(browserActionsMocks.browserAct).not.toHaveBeenCalled();
-+  });
-+
-+  it("rejects type without ref before calling browserAct", async () => {
-+    const tool = createBrowserTool();
-+    await expect(
-+      tool.execute?.("call-1", {
-+        action: "act",
-+        request: { kind: "type", text: "hello" },
-+      }),
-+    ).rejects.toThrow(/requires ref.*action=snapshot/i);
-+    expect(browserActionsMocks.browserAct).not.toHaveBeenCalled();
-+  });
-+
-+  it("rejects hover without ref before calling browserAct", async () => {
-+    const tool = createBrowserTool();
-+    await expect(
-+      tool.execute?.("call-1", {
-+        action: "act",
-+        request: { kind: "hover" },
-+      }),
-+    ).rejects.toThrow(/requires ref.*action=snapshot/i);
-+    expect(browserActionsMocks.browserAct).not.toHaveBeenCalled();
-+  });
-+
-+  it("rejects press without key before calling browserAct", async () => {
-+    const tool = createBrowserTool();
-+    await expect(
-+      tool.execute?.("call-1", {
-+        action: "act",
-+        request: { kind: "press" },
-+      }),
-+    ).rejects.toThrow(/requires key/i);
-+    expect(browserActionsMocks.browserAct).not.toHaveBeenCalled();
-+  });
-+
-+  it("rejects fill without fields before calling browserAct", async () => {
-+    const tool = createBrowserTool();
-+    await expect(
-+      tool.execute?.("call-1", {
-+        action: "act",
-+        request: { kind: "fill" },
-+      }),
-+    ).rejects.toThrow(/requires fields/i);
-+    expect(browserActionsMocks.browserAct).not.toHaveBeenCalled();
-+  });
-+
-+  it("rejects fill with empty fields array before calling browserAct", async () => {
-+    const tool = createBrowserTool();
-+    await expect(
-+      tool.execute?.("call-1", {
-+        action: "act",
-+        request: { kind: "fill", fields: [] },
-+      }),
-+    ).rejects.toThrow(/requires fields/i);
-+    expect(browserActionsMocks.browserAct).not.toHaveBeenCalled();
-+  });
-+
-+  it("passes click with valid ref through to browserAct", async () => {
-+    browserActionsMocks.browserAct.mockResolvedValueOnce({ ok: true });
-+    const tool = createBrowserTool();
-+    await tool.execute?.("call-1", {
-+      action: "act",
-+      request: { kind: "click", ref: "e12" },
-+    });
-+    expect(browserActionsMocks.browserAct).toHaveBeenCalledTimes(1);
-+  });
-+
-+  it("passes press with valid key through to browserAct", async () => {
-+    browserActionsMocks.browserAct.mockResolvedValueOnce({ ok: true });
-+    const tool = createBrowserTool();
-+    await tool.execute?.("call-1", {
-+      action: "act",
-+      request: { kind: "press", key: "Enter" },
-+    });
-+    expect(browserActionsMocks.browserAct).toHaveBeenCalledTimes(1);
-+  });
-+
-+  it("passes fill with valid fields through to browserAct", async () => {
-+    browserActionsMocks.browserAct.mockResolvedValueOnce({ ok: true });
-+    const tool = createBrowserTool();
-+    await tool.execute?.("call-1", {
-+      action: "act",
-+      request: { kind: "fill", fields: [{ ref: "e5", value: "test" }] },
-+    });
-+    expect(browserActionsMocks.browserAct).toHaveBeenCalledTimes(1);
-+  });
-+
-+  it("passes wait (no ref required) through to browserAct", async () => {
-+    browserActionsMocks.browserAct.mockResolvedValueOnce({ ok: true });
-+    const tool = createBrowserTool();
-+    await tool.execute?.("call-1", {
-+      action: "act",
-+      request: { kind: "wait", timeMs: 500 },
-+    });
-+    expect(browserActionsMocks.browserAct).toHaveBeenCalledTimes(1);
-+  });
-+});
