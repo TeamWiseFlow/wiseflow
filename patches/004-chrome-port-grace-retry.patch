@@ -1,0 +1,40 @@
+diff --git a/extensions/browser/src/browser/chrome.ts b/extensions/browser/src/browser/chrome.ts
+index 086f460fcb..4cf42a5a23 100644
+--- a/extensions/browser/src/browser/chrome.ts
++++ b/extensions/browser/src/browser/chrome.ts
+@@ -375,6 +375,24 @@ export async function isChromeCdpReady(
+   return diagnostic.ok;
+ }
+ 
++async function ensurePortAvailableWithGrace(port: number): Promise<void> {
++  const maxAttempts = 3;
++  const delayMs = 500;
++  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
++    try {
++      await ensurePortAvailable(port);
++      return;
++    } catch (err) {
++      const isPortInUse = (err as NodeJS.ErrnoException).code === "EADDRINUSE";
++      if (isPortInUse && attempt < maxAttempts) {
++        await new Promise((r) => setTimeout(r, delayMs));
++        continue;
++      }
++      throw err;
++    }
++  }
++}
++
+ export async function launchOpenClawChrome(
+   resolved: ResolvedBrowserConfig,
+   profile: ResolvedBrowserProfile,
+@@ -382,7 +400,9 @@ export async function launchOpenClawChrome(
+   if (!profile.cdpIsLoopback) {
+     throw new Error(`Profile "${profile.name}" is remote; cannot launch local Chrome.`);
+   }
+-  await ensurePortAvailable(profile.cdpPort);
++  // Retry briefly to absorb the race window where a prior Chrome is still releasing the port
++  // (stop → start sequences from agent or internal profile reconcile).
++  await ensurePortAvailableWithGrace(profile.cdpPort);
+ 
+   const exe = resolveBrowserExecutable(resolved, profile);
+   if (!exe) {
