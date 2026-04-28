@@ -2,8 +2,8 @@
 # apply-addons.sh - wiseflow 基础能力安装 + addon 加载器
 #
 # 技能两级体系：
-#   - 默认全局 skills: skills/ (项目根目录) → 安装到 openclaw/skills/
-#   - Addon 额外全局 skills: addons/<name>/skills/ → 安装到 openclaw/skills/
+#   - 默认全局 skills: skills/ (项目根目录) → 安装到 ~/.openclaw/skills/ (managed dir)
+#   - Addon 额外全局 skills: addons/<name>/skills/ → 安装到 ~/.openclaw/skills/ (managed dir)
 #   - Agent 专属 skills: crews/<template>/skills/ → 已由 setup-crew.sh 安装到 workspace
 #
 # 每次运行时：
@@ -237,14 +237,15 @@ if [ -d "$AWADA_EXT" ] && [ -f "$AWADA_EXT/openclaw.plugin.json" ]; then
 fi
 
 
-# ─── 安装全局共享技能（项目根目录 skills/） ──────���──────────────
+# ─── 安装全局共享技能（项目根目录 skills/） ──────────────────────
 GLOBAL_SKILL_COUNT=0
 if [ -d "$PROJECT_ROOT/skills" ]; then
+  mkdir -p "$OPENCLAW_HOME/skills"
   for skill_dir in "$PROJECT_ROOT"/skills/*/; do
     if [ -f "${skill_dir}SKILL.md" ]; then
       skill_name="$(basename "$skill_dir")"
-      rm -rf "$OPENCLAW_DIR/skills/$skill_name"
-      cp -r "${skill_dir%/}" "$OPENCLAW_DIR/skills/$skill_name"
+      rm -rf "$OPENCLAW_HOME/skills/$skill_name"
+      cp -r "${skill_dir%/}" "$OPENCLAW_HOME/skills/$skill_name"
       GLOBAL_SKILL_COUNT=$((GLOBAL_SKILL_COUNT + 1))
       append_global_shared_skill "$skill_name"
     fi
@@ -278,12 +279,13 @@ for addon_dir in "$ADDONS_DIR"/*/; do
   # ─── 第一层：全局 skills 安装 ──────────────────────────────────
   if [ -d "$addon_dir/skills" ]; then
     echo "  📚 Installing global skills..."
+    mkdir -p "$OPENCLAW_HOME/skills"
     for skill_dir in "$addon_dir"/skills/*/; do
       if [ -f "${skill_dir}SKILL.md" ]; then
         skill_name="$(basename "$skill_dir")"
         echo "    → $skill_name (global)"
-        rm -rf "$OPENCLAW_DIR/skills/$skill_name"
-        cp -r "${skill_dir%/}" "$OPENCLAW_DIR/skills/$skill_name"
+        rm -rf "$OPENCLAW_HOME/skills/$skill_name"
+        cp -r "${skill_dir%/}" "$OPENCLAW_HOME/skills/$skill_name"
         append_global_shared_skill "$skill_name"
       fi
     done
