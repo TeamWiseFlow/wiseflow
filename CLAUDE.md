@@ -38,6 +38,33 @@ Claude Code 被授权在本仓库中执行任何 git 命令（包括 push、bran
 
 本代码仓的 skill 是给 openclaw 使用的，以上原则是为了适配 openclaw 的规则。
 
+## SKILL.md frontmatter 书写规范
+
+openclaw 实际识别的 frontmatter 字段（参见 `openclaw/src/agents/skills/frontmatter.ts`）：
+
+- 顶层：`name`、`description`（**必需**）、`user-invocable`（默认 true）、`disable-model-invocation`（默认 false）
+- `metadata.openclaw.*`：`emoji`、`homepage`、`skillKey`、`primaryEnv`、`os`、`requires`、`install`、`always`
+
+其他字段（如 claude code 的 `argument-hint`、`allowed-tools`、`license`）会被静默忽略。
+
+**写法用 YAML block style**，不要用 flow style（嵌套花括号 + 引号）。openclaw bundled 技能和官方文档均采用 block style：
+
+```yaml
+---
+name: browser-guide
+description: Best practices for using the managed browser ...
+metadata:
+  openclaw:
+    emoji: 🌐
+    always: true
+---
+```
+
+**注意事项**：
+
+- `always: true` 的真实语义是"跳过 `requires` 二进制/env 检查直接判定 eligible"（见 `config-eval.ts:124`），**不是**"强制注入整个 SKILL.md"。如果 skill 没声明 `requires`，加 `always: true` 等于无意义，应删除。
+- 加载阶段 openclaw 只把 `name` + `description` + SKILL.md 绝对路径塞进 system prompt 的 `<available_skills>` 块；agent 用到时才主动 read 全文。所以 frontmatter 写得再多也不会污染 system prompt，但反过来也意味着——除上述识别字段外，多余字段不会带来任何运行时收益。
+
 ## addon 开发规则
 
 wiseflow 通过 addon 提供增强能力，包括全局 skill 以及 crew 模板。

@@ -86,7 +86,8 @@
             "maxConcurrent": 4,
             "subagents": {
                 "maxConcurrent": 8,
-                "maxSpawnDepth": 2
+                "maxSpawnDepth": 2,
+                "announceTimeoutMs": 300000
             }
         },
         "list": [

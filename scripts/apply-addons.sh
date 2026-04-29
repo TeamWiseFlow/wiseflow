@@ -462,6 +462,58 @@ for addon_dir in "$ADDONS_DIR"/*/; do
   echo "  ✅ $addon_name loaded"
 done
 
+# ─── 安装全仓统一 Node.js 依赖到 ~/.openclaw/node_modules ──────────
+# 扫描 skills/ 和 addons/ 下所有 package.json，合并 dependencies。
+# 内容哈希守卫：仅当依赖集发生变化（或 node_modules 不存在）时才执行 npm install。
+# Node.js 从 ~/.openclaw/skills/**  或 ~/.openclaw/workspace-**/skills/** 运行脚本时，
+# 向上解析模块会自然命中 ~/.openclaw/node_modules，无需 NODE_PATH 也无需改脚本。
+SKILL_PKG_HASH_FILE="$OPENCLAW_HOME/.skill-pkg-hash"
+
+merged_deps_json="$(node -e "
+  const fs = require('fs');
+  const path = require('path');
+  const deps = {};
+  function scan(dir) {
+    if (!fs.existsSync(dir)) return;
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.name === 'node_modules' || entry.name === '.git') continue;
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        scan(full);
+      } else if (entry.name === 'package.json') {
+        try {
+          const pkg = JSON.parse(fs.readFileSync(full, 'utf8'));
+          Object.assign(deps, pkg.dependencies || {});
+        } catch {}
+      }
+    }
+  }
+  scan('$PROJECT_ROOT/skills');
+  scan('$ADDONS_DIR');
+  const sorted = Object.fromEntries(Object.entries(deps).sort());
+  console.log(JSON.stringify(sorted));
+" 2>/dev/null || echo '{}')"
+
+current_pkg_hash="$(echo "$merged_deps_json" | md5sum | cut -d' ' -f1)"
+stored_pkg_hash="$(cat "$SKILL_PKG_HASH_FILE" 2>/dev/null || echo '')"
+
+if [ "$current_pkg_hash" != "$stored_pkg_hash" ] || [ ! -d "$OPENCLAW_HOME/node_modules" ]; then
+  echo "📦 Installing skill Node.js dependencies to ~/.openclaw/..."
+  MERGED_DEPS="$merged_deps_json" SKILL_OPENCLAW_HOME="$OPENCLAW_HOME" node -e "
+    const deps = JSON.parse(process.env.MERGED_DEPS);
+    const pkg = { name: 'openclaw-skills', version: '1.0.0', private: true, dependencies: deps };
+    require('fs').writeFileSync(
+      require('path').join(process.env.SKILL_OPENCLAW_HOME, 'package.json'),
+      JSON.stringify(pkg, null, 2) + '\n'
+    );
+  "
+  npm install --prefix "$OPENCLAW_HOME" --no-audit --no-fund --loglevel=warn
+  echo "$current_pkg_hash" > "$SKILL_PKG_HASH_FILE"
+  echo "✅ Skill dependencies installed (hash: ${current_pkg_hash:0:8})"
+else
+  echo "✅ Skill dependencies up to date (hash: ${current_pkg_hash:0:8})"
+fi
+
 # 有 overrides 或 patches 时才需要同步依赖
 if [ "$NEEDS_INSTALL" = "true" ]; then
   echo "📦 Syncing dependencies..."
