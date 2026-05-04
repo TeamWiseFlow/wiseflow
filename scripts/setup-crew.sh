@@ -490,12 +490,8 @@ if [ -f "$CONFIG_PATH" ]; then
             allowAgents: [...new Set([...prevAllow, 'it-engineer'])],
           };
         }
-        // 对内 crew 默认思考/推理设置（不覆盖已有配置）
-        if (!agent.thinkingDefault) agent.thinkingDefault = 'high';
         if (!agent.reasoningDefault) agent.reasoningDefault = 'off';
       } else {
-        // 对外 crew 默认思考/推理设置（不覆盖已有配置）
-        if (!agent.thinkingDefault) agent.thinkingDefault = 'medium';
         if (!agent.reasoningDefault) agent.reasoningDefault = 'off';
       }
     }
