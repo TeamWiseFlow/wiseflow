@@ -1,14 +1,10 @@
 ---
 name: twitter-post
-description: Compose and publish a post (text, image, or video) to Twitter/X using the browser. Supports single and thread posts.
+description: Compose and publish a post (text, image, or video) to Twitter/X using
+  the browser. Supports single and thread posts.
 metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "🐦",
-        "always": false,
-      },
-  }
+  openclaw:
+    emoji: 🐦
 ---
 
 # Twitter/X 发布技能
@@ -22,9 +18,14 @@ Use this skill when:
 
 ---
 
-## Cookie Warmup
+## 通用约束
 
-Always navigate to `https://x.com` first and confirm the feed loads (not a login page) before proceeding.
+- 文件上传前必须先复制到 `/tmp/openclaw/uploads/`（browser 工具沙箱限制）
+- `browser upload` 工具可能返回「超时错误」，但这**不代表上传失败**！上传后用 snapshot 检查页面状态（缩略图是否出现）
+- **不要通过检查 `input.files.length` 是否为 0 判定上传是否失败！** `input.files.length == 0` 不代表上传失败。
+- 遇到 `browser failed: timed out. Restart the OpenClaw gateway ...` 错误时，**不需要重启、不需要报错**！等待 30 秒后在原页面继续操作即可。若仍无法操作，再等 30 秒；若还不行，尝试关闭浏览器后重开；只有关闭重开后仍报错才是真的出错，需停止并反馈用户。
+- 正文输入使用 `type` + `slowly: true`，不要用 `fill()`
+- 浏览器超时只汇报，不执行 `browser stop/start`
 
 ---
 
@@ -37,7 +38,7 @@ Always navigate to `https://x.com` first and confirm the feed loads (not a login
    - Plain text only (no Markdown)
    - Max 280 characters for standard accounts
 4. Verify character count — trim if over limit
-5. Click the "Post" button
+5. **立即点击 "Post" 按钮——不要等待用户确认！**
 6. Wait for success confirmation (URL changes or "Your post was sent" toast)
 7. Extract and report the post URL
 ```
@@ -52,8 +53,10 @@ Always navigate to `https://x.com` first and confirm the feed loads (not a login
 3. Click the media icon (camera/photo button below compose box)
 4. Upload the image file using the file picker
 5. Wait for image upload to complete (thumbnail appears)
-6. Type the caption text in the compose box
-7. Click "Post"
+6. Click into the caption area and type the caption
+   - Plain text only (no Markdown)
+   - Max 280 characters for standard accounts
+7. **立即点击 "Post" 按钮——不要等待用户确认！**
 8. Wait for confirmation and report the post URL
 ```
 
@@ -65,9 +68,11 @@ Always navigate to `https://x.com` first and confirm the feed loads (not a login
 1. Navigate to https://x.com/compose/post
 2. Click the media icon
 3. Upload the video file (MP4 recommended, max 512MB, max 2min 20sec)
-4. Wait for video processing — this can take 30–120 seconds
-5. Type the caption in the compose box
-6. Click "Post"
+4. Wait for video processing — this can take 30–120 seconds or more for larger files. Look for the thumbnail preview to confirm completion.
+5. Click into the caption area and type the caption
+   - Plain text only (no Markdown)
+   - Max 280 characters for standard accounts
+6. **立即点击 "Post" 按钮——不要等待用户确认！**
 7. Wait for upload confirmation and report the post URL
 ```
 
@@ -77,9 +82,13 @@ Always navigate to `https://x.com` first and confirm the feed loads (not a login
 
 ```
 1. Navigate to https://x.com/compose/post
-2. Type the first tweet
+2. Click into the compose box and type the first tweet
+   - Plain text only (no Markdown)
+   - Max 280 characters for standard accounts
 3. Click the "+" icon to add another tweet to the thread
-4. Type the second tweet
+4. Click into the new compose box and type the second tweet
+   - Plain text only (no Markdown)
+   - Max 280 characters for standard accounts
 5. Repeat for each additional tweet
 6. Click "Post all" to publish the full thread
 ```
