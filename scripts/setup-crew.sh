@@ -490,12 +490,8 @@ if [ -f "$CONFIG_PATH" ]; then
             allowAgents: [...new Set([...prevAllow, 'it-engineer'])],
           };
         }
-        // 对内 crew 默认思考/推理设置（不覆盖已有配置）
-        if (!agent.thinkingDefault) agent.thinkingDefault = 'high';
         if (!agent.reasoningDefault) agent.reasoningDefault = 'off';
       } else {
-        // 对外 crew 默认思考/推理设置（不覆盖已有配置）
-        if (!agent.thinkingDefault) agent.thinkingDefault = 'medium';
         if (!agent.reasoningDefault) agent.reasoningDefault = 'off';
       }
     }
@@ -690,11 +686,11 @@ cd $PROJECT_ROOT && ./scripts/setup-crew.sh
 # 重新应用 addons
 cd $PROJECT_ROOT && ./scripts/apply-addons.sh
 
-# 生产模式重装后台服务
-cd $PROJECT_ROOT && ./scripts/reinstall-daemon.sh
-
 # 升级 wiseflow 系统（须确认系统空闲）
-cd $PROJECT_ROOT && ./scripts/upgrade.sh
+cd $PROJECT_ROOT && ./scripts/install.sh
+
+# 仅重装后台服务（不更新代码）
+cd $PROJECT_ROOT && ./scripts/install.sh --skip-crew
 
 # 直接调用上游 CLI（如需）
 cd $PROJECT_ROOT/openclaw && pnpm openclaw <subcommand>

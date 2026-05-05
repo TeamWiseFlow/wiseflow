@@ -2,13 +2,13 @@
 # apply-addons.sh - wiseflow 基础能力安装 + addon 加载器
 #
 # 技能两级体系：
-#   - 默认全局 skills: skills/ (项目根目录) → 安装到 openclaw/skills/
-#   - Addon 额外全局 skills: addons/<name>/skills/ → 安装到 openclaw/skills/
+#   - 默认全局 skills: skills/ (项目根目录) → 安装到 ~/.openclaw/skills/ (managed dir)
+#   - Addon 额外全局 skills: addons/<name>/skills/ → 安装到 ~/.openclaw/skills/ (managed dir)
 #   - Agent 专属 skills: crews/<template>/skills/ → 已由 setup-crew.sh 安装到 workspace
 #
 # 每次运行时：
 #   1. 恢复 openclaw/ 到干净状态
-#   2. 应用基础补丁（patches/*.patch）+ 插件路径注入（patches/suppress-stale-reply）+ 依赖覆盖（patches/overrides.sh）
+#   2. 应用基础补丁（patches/*.patch）+ 依赖覆盖（patches/overrides.sh）
 #   3. 安装默认全局 skills（项目根目录 skills/）
 #   4. 扫描 addons/*/ 目录，对每个 addon 依次执行：
 #      a. skills/*/SKILL.md — 额外全局 skill 安装
@@ -236,39 +236,16 @@ if [ -d "$AWADA_EXT" ] && [ -f "$AWADA_EXT/openclaw.plugin.json" ]; then
   fi
 fi
 
-# ─── 注入 suppress-stale-reply 插件路径（默认开启） ──────────────
-SUPPRESS_STALE_PLUGIN="$PROJECT_ROOT/patches/suppress-stale-reply"
-if [ -d "$SUPPRESS_STALE_PLUGIN" ] && [ -f "$SUPPRESS_STALE_PLUGIN/openclaw.plugin.json" ]; then
-  if [ -f "$CONFIG_PATH" ]; then
-    node -e "
-      const fs = require('fs');
-      const config = JSON.parse(fs.readFileSync('$CONFIG_PATH', 'utf8'));
-      if (!config.plugins) config.plugins = {};
-      if (!config.plugins.load) config.plugins.load = {};
-      if (!Array.isArray(config.plugins.load.paths)) config.plugins.load.paths = [];
-      const pluginPath = '$SUPPRESS_STALE_PLUGIN';
-      config.plugins.load.paths = config.plugins.load.paths.filter(
-        p => !p.endsWith('patches/suppress-stale-reply') && !p.endsWith('plugins/suppress-stale-reply')
-      );
-      config.plugins.load.paths.push(pluginPath);
-      if (!config.plugins.entries) config.plugins.entries = {};
-      if (!config.plugins.entries['suppress-stale-reply']) {
-        config.plugins.entries['suppress-stale-reply'] = { enabled: true };
-      }
-      fs.writeFileSync('$CONFIG_PATH', JSON.stringify(config, null, 2) + '\n');
-    "
-    echo "📝 suppress-stale-reply plugin path injected"
-  fi
-fi
 
-# ─── 安装全局共享技能（项目根目录 skills/） ──────���──────────────
+# ─── 安装全局共享技能（项目根目录 skills/） ──────────────────────
 GLOBAL_SKILL_COUNT=0
 if [ -d "$PROJECT_ROOT/skills" ]; then
+  mkdir -p "$OPENCLAW_HOME/skills"
   for skill_dir in "$PROJECT_ROOT"/skills/*/; do
     if [ -f "${skill_dir}SKILL.md" ]; then
       skill_name="$(basename "$skill_dir")"
-      rm -rf "$OPENCLAW_DIR/skills/$skill_name"
-      cp -r "${skill_dir%/}" "$OPENCLAW_DIR/skills/$skill_name"
+      rm -rf "$OPENCLAW_HOME/skills/$skill_name"
+      cp -r "${skill_dir%/}" "$OPENCLAW_HOME/skills/$skill_name"
       GLOBAL_SKILL_COUNT=$((GLOBAL_SKILL_COUNT + 1))
       append_global_shared_skill "$skill_name"
     fi
@@ -302,12 +279,13 @@ for addon_dir in "$ADDONS_DIR"/*/; do
   # ─── 第一层：全局 skills 安装 ──────────────────────────────────
   if [ -d "$addon_dir/skills" ]; then
     echo "  📚 Installing global skills..."
+    mkdir -p "$OPENCLAW_HOME/skills"
     for skill_dir in "$addon_dir"/skills/*/; do
       if [ -f "${skill_dir}SKILL.md" ]; then
         skill_name="$(basename "$skill_dir")"
         echo "    → $skill_name (global)"
-        rm -rf "$OPENCLAW_DIR/skills/$skill_name"
-        cp -r "${skill_dir%/}" "$OPENCLAW_DIR/skills/$skill_name"
+        rm -rf "$OPENCLAW_HOME/skills/$skill_name"
+        cp -r "${skill_dir%/}" "$OPENCLAW_HOME/skills/$skill_name"
         append_global_shared_skill "$skill_name"
       fi
     done
@@ -483,6 +461,58 @@ for addon_dir in "$ADDONS_DIR"/*/; do
   fi
   echo "  ✅ $addon_name loaded"
 done
+
+# ─── 安装全仓统一 Node.js 依赖到 ~/.openclaw/node_modules ──────────
+# 扫描 skills/ 和 addons/ 下所有 package.json，合并 dependencies。
+# 内容哈希守卫：仅当依赖集发生变化（或 node_modules 不存在）时才执行 npm install。
+# Node.js 从 ~/.openclaw/skills/**  或 ~/.openclaw/workspace-**/skills/** 运行脚本时，
+# 向上解析模块会自然命中 ~/.openclaw/node_modules，无需 NODE_PATH 也无需改脚本。
+SKILL_PKG_HASH_FILE="$OPENCLAW_HOME/.skill-pkg-hash"
+
+merged_deps_json="$(node -e "
+  const fs = require('fs');
+  const path = require('path');
+  const deps = {};
+  function scan(dir) {
+    if (!fs.existsSync(dir)) return;
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.name === 'node_modules' || entry.name === '.git') continue;
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        scan(full);
+      } else if (entry.name === 'package.json') {
+        try {
+          const pkg = JSON.parse(fs.readFileSync(full, 'utf8'));
+          Object.assign(deps, pkg.dependencies || {});
+        } catch {}
+      }
+    }
+  }
+  scan('$PROJECT_ROOT/skills');
+  scan('$ADDONS_DIR');
+  const sorted = Object.fromEntries(Object.entries(deps).sort());
+  console.log(JSON.stringify(sorted));
+" 2>/dev/null || echo '{}')"
+
+current_pkg_hash="$(echo "$merged_deps_json" | md5sum | cut -d' ' -f1)"
+stored_pkg_hash="$(cat "$SKILL_PKG_HASH_FILE" 2>/dev/null || echo '')"
+
+if [ "$current_pkg_hash" != "$stored_pkg_hash" ] || [ ! -d "$OPENCLAW_HOME/node_modules" ]; then
+  echo "📦 Installing skill Node.js dependencies to ~/.openclaw/..."
+  MERGED_DEPS="$merged_deps_json" SKILL_OPENCLAW_HOME="$OPENCLAW_HOME" node -e "
+    const deps = JSON.parse(process.env.MERGED_DEPS);
+    const pkg = { name: 'openclaw-skills', version: '1.0.0', private: true, dependencies: deps };
+    require('fs').writeFileSync(
+      require('path').join(process.env.SKILL_OPENCLAW_HOME, 'package.json'),
+      JSON.stringify(pkg, null, 2) + '\n'
+    );
+  "
+  npm install --prefix "$OPENCLAW_HOME" --no-audit --no-fund --loglevel=warn
+  echo "$current_pkg_hash" > "$SKILL_PKG_HASH_FILE"
+  echo "✅ Skill dependencies installed (hash: ${current_pkg_hash:0:8})"
+else
+  echo "✅ Skill dependencies up to date (hash: ${current_pkg_hash:0:8})"
+fi
 
 # 有 overrides 或 patches 时才需要同步依赖
 if [ "$NEEDS_INSTALL" = "true" ]; then

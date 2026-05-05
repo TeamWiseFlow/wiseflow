@@ -12,6 +12,63 @@ import { cacheOutboundTarget } from "./target-cache.js";
 import { getAwadaRuntime } from "./runtime.js";
 import { buildOutboundTarget, encodeAwadaTo, sendTextToAwada } from "./send.js";
 
+type AwadaDebounceEntry = {
+  cfg: ClawdbotConfig;
+  event: InboundEvent;
+  runtime: RuntimeEnv | undefined;
+  accountId: string;
+};
+
+// One debouncer per accountId, created lazily on first message.
+type AnyDebouncer = { enqueue: (item: AwadaDebounceEntry) => Promise<void> };
+const _debouncersByAccount = new Map<string, AnyDebouncer>();
+
+function getOrCreateDebouncer(accountId: string, cfg: ClawdbotConfig): AnyDebouncer {
+  const existing = _debouncersByAccount.get(accountId);
+  if (existing) return existing;
+
+  const core = getAwadaRuntime();
+  const debounceMs = core.channel.debounce.resolveInboundDebounceMs({ cfg, channel: "awada" });
+
+  const debouncer = core.channel.debounce.createInboundDebouncer<AwadaDebounceEntry>({
+    debounceMs,
+    buildKey: (entry) => `awada:${entry.accountId}:${entry.event.meta.user_id_external}`,
+    shouldDebounce: (entry) => {
+      const { payload } = entry.event;
+      const hasNonText = payload.some(
+        (item) => item.type === "image" || item.type === "file" || item.type === "audio",
+      );
+      if (hasNonText) return false;
+      return Boolean(extractTextFromPayload(payload));
+    },
+    onFlush: async (entries) => {
+      const last = entries.at(-1);
+      if (!last) return;
+      if (entries.length === 1) {
+        await _dispatchAwadaEvent(last);
+        return;
+      }
+      const combinedText = entries
+        .map((e) => extractTextFromPayload(e.event.payload))
+        .filter(Boolean)
+        .join("\n");
+      const mergedEvent: InboundEvent = {
+        ...last.event,
+        payload: [{ type: "text", text: combinedText }],
+      };
+      await _dispatchAwadaEvent({ ...last, event: mergedEvent });
+    },
+    onError: (err, entries) => {
+      const id = entries[0]?.accountId ?? "default";
+      const logErr = entries[0]?.runtime?.error ?? console.error;
+      logErr(`awada[${id}]: inbound debounce flush failed: ${String(err)}`);
+    },
+  });
+
+  _debouncersByAccount.set(accountId, debouncer);
+  return debouncer;
+}
+
 /**
  * Extract text from a payload array. Returns the concatenated text of all text objects.
  */
@@ -158,24 +215,14 @@ async function processFiles(
 }
 
 /**
- * Handle a single inbound awada event, dispatching to the OpenClaw agent.
+ * Core dispatch logic for a single (possibly merged) awada event.
  */
-export async function handleAwadaMessage(params: {
-  cfg: ClawdbotConfig;
-  event: InboundEvent;
-  runtime?: RuntimeEnv;
-  accountId?: string;
-}): Promise<void> {
-  const { cfg, event, runtime, accountId = DEFAULT_ACCOUNT_ID } = params;
+async function _dispatchAwadaEvent(entry: AwadaDebounceEntry): Promise<void> {
+  const { cfg, event, runtime, accountId } = entry;
   const log = runtime?.log ?? console.log;
   const error = runtime?.error ?? console.error;
 
   const account = resolveAwadaAccount({ cfg, accountId });
-  if (!account.enabled || !account.configured) {
-    log(`awada[${accountId}]: account not enabled or configured, skipping`);
-    return;
-  }
-
   const { meta, payload, event_id, correlation_id, trace_id } = event;
 
   // ---- Classify payload items ----
@@ -184,7 +231,6 @@ export async function handleAwadaMessage(params: {
   const files = payload.filter((item): item is FileObject => item.type === "file");
   const audios = payload.filter((item): item is AudioObject => item.type === "audio");
 
-  // ---- Build reply target early (needed for audio failure reply) ----
   const target = buildOutboundTarget({
     lane: meta.lane,
     tenant_id: meta.tenant_id,
@@ -193,9 +239,6 @@ export async function handleAwadaMessage(params: {
     platform: meta.platform,
     conversation_id: meta.conversation_id,
   });
-
-  // Cache outbound target so handleAction can reach this peer later
-  cacheOutboundTarget(meta.user_id_external, target);
 
   // ---- Handle audio: transcribe via SiliconFlow, then treat as text ----
   let audioTranscript = "";
@@ -210,7 +253,6 @@ export async function handleAwadaMessage(params: {
         audioTranscript += (audioTranscript ? "\n" : "") + result.text;
       } else {
         error(`awada[${accountId}]: audio transcription failed: ${result.error}`);
-        // Send polite decline and return — do not dispatch to agent
         await sendTextToAwada({
           redisUrl: account.redisUrl!,
           target,
@@ -238,7 +280,6 @@ export async function handleAwadaMessage(params: {
   // ---- Combine text sources ----
   const effectiveText = [textContent, audioTranscript].filter(Boolean).join("\n").trim();
 
-  // Skip if no processable content at all
   if (!effectiveText && images.length === 0 && files.length === 0) {
     log(`awada[${accountId}]: no processable content for event ${event_id}, skipping`);
     return;
@@ -259,7 +300,6 @@ export async function handleAwadaMessage(params: {
     mediaTypes.push(...fileResult.types);
   }
 
-  // Use text or a media placeholder if text is empty but media is present
   const displayText = effectiveText || (mediaPaths.length > 0 ? "<media>" : "");
 
   log(
@@ -268,11 +308,9 @@ export async function handleAwadaMessage(params: {
   );
 
   const core = getAwadaRuntime();
-
   const awadaTo = encodeAwadaTo(target);
   const awadaFrom = `awada:${meta.user_id_external}`;
 
-  // Resolve agent route
   const route = core.channel.routing.resolveAgentRoute({
     cfg,
     channel: "awada",
@@ -280,7 +318,6 @@ export async function handleAwadaMessage(params: {
     peer: { kind: "direct", id: sanitizePeerId(meta.user_id_external) },
   });
 
-  // Build agent envelope
   const envelopeOptions = core.channel.reply.resolveEnvelopeFormatOptions(cfg);
   const messageBody = displayText;
   const body = core.channel.reply.formatAgentEnvelope({
@@ -309,11 +346,9 @@ export async function handleAwadaMessage(params: {
     Timestamp: event.timestamp * 1000,
     OriginatingChannel: "awada" as const,
     OriginatingTo: awadaTo,
-    // Expose customer identity to the agent via UntrustedContext.
     UntrustedContext: [
       `awada_customer_id: ${meta.platform}:${meta.channel_id}:${meta.user_id_external}:${meta.lane}`,
     ],
-    // Media attachments — openclaw generates [media attached: ...] notes automatically
     ...(mediaPaths.length > 0
       ? { MediaPaths: mediaPaths, MediaTypes: mediaTypes }
       : {}),
@@ -346,4 +381,40 @@ export async function handleAwadaMessage(params: {
   } catch (err) {
     error(`awada[${accountId}]: dispatch failed: ${String(err)}`);
   }
+}
+
+/**
+ * Handle a single inbound awada event, dispatching to the OpenClaw agent.
+ * Consecutive text-only messages from the same peer are debounced and merged
+ * before dispatch so the agent sees one combined message instead of many turns.
+ */
+export async function handleAwadaMessage(params: {
+  cfg: ClawdbotConfig;
+  event: InboundEvent;
+  runtime?: RuntimeEnv;
+  accountId?: string;
+}): Promise<void> {
+  const { cfg, event, runtime, accountId = DEFAULT_ACCOUNT_ID } = params;
+  const log = runtime?.log ?? console.log;
+
+  const account = resolveAwadaAccount({ cfg, accountId });
+  if (!account.enabled || !account.configured) {
+    log(`awada[${accountId}]: account not enabled or configured, skipping`);
+    return;
+  }
+
+  // Cache outbound target immediately so handleAction can reach this peer
+  // even before the debounce window expires.
+  const target = buildOutboundTarget({
+    lane: event.meta.lane,
+    tenant_id: event.meta.tenant_id,
+    channel_id: event.meta.channel_id,
+    user_id_external: event.meta.user_id_external,
+    platform: event.meta.platform,
+    conversation_id: event.meta.conversation_id,
+  });
+  cacheOutboundTarget(event.meta.user_id_external, target);
+
+  const debouncer = getOrCreateDebouncer(accountId, cfg);
+  await debouncer.enqueue({ cfg, event, runtime, accountId });
 }

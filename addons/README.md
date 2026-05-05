@@ -7,7 +7,7 @@ This directory's subdirectories are **git-ignored** — third-party addons are n
 
 wiseflow 采用两级扩展机制：
 
-- **Base wiseflow**（`patches/` + `skills/`）：每次 `apply-addons.sh` 运行时无条件应用，对所有 addon 和 crew 生效。包括代码补丁（`patches/*.patch`）、插件（`patches/suppress-stale-reply`）和默认全局技能（`skills/`）。
+- **Base wiseflow**（`patches/` + `skills/`）：每次 `apply-addons.sh` 运行时无条件应用，对所有 addon 和 crew 生效。包括代码补丁（`patches/*.patch`）和默认全局技能（`skills/`）。
 - **Addon**（`addons/*/`）：在 base 之上叠加，提供额外全局技能（`skills/`）和 Crew 模板（`crew/`）。
 
 > **注意**：addon 不包含 patches 层。如需对 openclaw 打补丁，请将 patch 放到项目根目录的 `patches/` 下，而非 addon 内部。
