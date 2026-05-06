@@ -1,16 +1,17 @@
 ---
 name: siliconflow-img-gen
-description: Generate or edit images via SiliconFlow Images API. Text-to-image uses Qwen/Qwen-Image; image-edit uses Qwen/Qwen-Image-Edit-2509.
-homepage: https://docs.siliconflow.cn/cn/api-reference/images/images-generations
+description: Generate or edit images via SiliconFlow Images API. Text-to-image uses
+  Qwen/Qwen-Image; image-edit uses Qwen/Qwen-Image-Edit-2509.
 metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "🖼️",
-        "requires": { "bins": ["python3"], "env": ["SILICONFLOW_API_KEY"] },
-        "primaryEnv": "SILICONFLOW_API_KEY",
-      },
-  }
+  openclaw:
+    emoji: 🖼️
+    requires:
+      bins:
+      - python3
+      env:
+      - SILICONFLOW_API_KEY
+    primaryEnv: SILICONFLOW_API_KEY
+    homepage: https://docs.siliconflow.cn/cn/api-reference/images/images-generations
 ---
 
 # SiliconFlow Image Gen
@@ -18,7 +19,7 @@ metadata:
 Generate or edit images using the SiliconFlow Images API.
 
 Two modes:
-- **Text-to-image** — default model `Qwen/Qwen-Image`
+- **Text-to-image** — default model `Qwen/Qwen-Image`（if rate limit exceeded, falls back to `baidu/ERNIE-Image-Turbo`）
 - **Image-edit** — default model `Qwen/Qwen-Image-Edit-2509`，由 `--image` 参数触发
 
 ## Run
@@ -30,6 +31,10 @@ Note: Image generation can take 10–60 seconds. Set a higher timeout when invok
 ```bash
 # Text-to-image (default model: Qwen/Qwen-Image)
 python3 {baseDir}/scripts/gen.py --prompt "your prompt here"
+
+# if rate limit exceeded, falls back to `baidu/ERNIE-Image-Turbo`
+
+python3 {baseDir}/scripts/gen.py --prompt "your prompt here" --model "baidu/ERNIE-Image-Turbo"
 
 # Image-edit (default model: Qwen/Qwen-Image-Edit-2509)
 python3 {baseDir}/scripts/gen.py --prompt "add a lighthouse" --image "https://example.com/source.jpg"
