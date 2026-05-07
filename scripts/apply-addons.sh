@@ -64,6 +64,8 @@ while [ $# -gt 0 ]; do
   esac
 done
 
+source "$PROJECT_ROOT/scripts/lib/crew-workspaces.sh"
+
 GLOBAL_SHARED_SKILLS_RAW=""
 append_global_shared_skill() {
   local skill_name="$1"
@@ -291,7 +293,7 @@ for addon_dir in "$ADDONS_DIR"/*/; do
     done
   fi
 
-  # ─── 第二层：Crew 模板安装（crew/ → crews/） ─────────────────
+  # ─── 第二层：Crew 模板安装（crew/ → ~/.openclaw runtime dirs） ──
   if [ -d "$addon_dir/crew" ]; then
     echo "  🤖 Installing crew templates..."
 
@@ -333,36 +335,22 @@ for addon_dir in "$ADDONS_DIR"/*/; do
 
       echo "    → $template_id (crew-type: $addon_crew_type)"
 
-      # 安装/更新模板到 crews/（每次覆盖，确保升级时同步最新内容）
-      template_dest="$CREWS_DIR/$template_id"
-      rm -rf "$template_dest"
-      cp -r "${template_ws%/}" "$template_dest"
-      echo "    ✅ template $template_id synced to crews/"
-
-      # 在 crews/ 中的 SOUL.md 上覆盖或注入 crew-type（addon.json 声明为权威来源）
-      # 确保 setup-crew.sh 重扫 crews/ 时能正确路由到 crew_templates/ 或 hrbp_templates/
-      if [ -f "$template_dest/SOUL.md" ]; then
-        if grep -q '^crew-type:' "$template_dest/SOUL.md" 2>/dev/null; then
-          sed -i.bak "s/^crew-type:.*$/crew-type: $addon_crew_type/" "$template_dest/SOUL.md" && rm -f "$template_dest/SOUL.md.bak"
-        else
-          printf '\ncrew-type: %s\n' "$addon_crew_type" >> "$template_dest/SOUL.md"
-        fi
-      fi
-
       # 同步到运行时模板目录（按 crew-type 分路由）
       if [ "$addon_crew_type" = "internal" ]; then
         # 对内 Crew → crew_templates/（Main Agent 访问）
         mkdir -p "$OPENCLAW_HOME/crew_templates"
         runtime_template_dir="$OPENCLAW_HOME/crew_templates/$template_id"
         rm -rf "$runtime_template_dir"
-        cp -r "$template_ws" "$runtime_template_dir"
+        copy_crew_template_contents "$template_ws" "$runtime_template_dir"
+        ensure_soul_crew_type "$runtime_template_dir/SOUL.md" "$addon_crew_type"
         echo "    ✅ synced to crew_templates/ (internal)"
       else
         # 对外 Crew → hrbp_templates/（HRBP 访问）
         mkdir -p "$OPENCLAW_HOME/hrbp_templates"
         runtime_template_dir="$OPENCLAW_HOME/hrbp_templates/$template_id"
         rm -rf "$runtime_template_dir"
-        cp -r "$template_ws" "$runtime_template_dir"
+        copy_crew_template_contents "$template_ws" "$runtime_template_dir"
+        ensure_soul_crew_type "$runtime_template_dir/SOUL.md" "$addon_crew_type"
         echo "    ✅ synced to hrbp_templates/ (external)"
       fi
 
@@ -398,43 +386,15 @@ for addon_dir in "$ADDONS_DIR"/*/; do
             [ "$_added" -gt 0 ] && echo "    📝 DECLARED_SKILLS: synced $_added new skill(s) from template"
           fi
         else
-          mkdir -p "$dest"
-          cp "${template_ws}"*.md "$dest/"
-          # 同步 crew-type 到 workspace 的 SOUL.md（addon.json 声明为准）
-          if [ -f "$dest/SOUL.md" ]; then
-            if grep -q '^crew-type:' "$dest/SOUL.md" 2>/dev/null; then
-              sed -i.bak "s/^crew-type:.*$/crew-type: $addon_crew_type/" "$dest/SOUL.md" && rm -f "$dest/SOUL.md.bak"
-            else
-              printf '\ncrew-type: %s\n' "$addon_crew_type" >> "$dest/SOUL.md"
-            fi
-          fi
-          if [ -f "${template_ws}ALLOWED_COMMANDS" ]; then
-            if [ ! -f "$dest/ALLOWED_COMMANDS" ]; then
-              cp "${template_ws}ALLOWED_COMMANDS" "$dest/"
-            else
-              while IFS= read -r line; do
-                [[ "$line" =~ ^\+ ]] || continue
-                grep -qxF "$line" "$dest/ALLOWED_COMMANDS" || echo "$line" >> "$dest/ALLOWED_COMMANDS"
-              done < "${template_ws}ALLOWED_COMMANDS"
-            fi
-          fi
-          if [ -f "${template_ws}DENIED_SKILLS" ]; then
-            cp "${template_ws}DENIED_SKILLS" "$dest/"
-          fi
+          copy_crew_template_contents "$template_ws" "$dest"
+          ensure_soul_crew_type "$dest/SOUL.md" "$addon_crew_type"
           # 对外 Crew：复制 DECLARED_SKILLS 和创建 feedback/ 目录
           if [ "$addon_crew_type" = "external" ]; then
-            if [ -f "${template_ws}DECLARED_SKILLS" ]; then
-              cp "${template_ws}DECLARED_SKILLS" "$dest/"
-            fi
             mkdir -p "$dest/feedback"
           fi
           # 复制共享协议
           if [ -d "$CREWS_DIR/shared" ]; then
             cp "$CREWS_DIR/shared/"*.md "$dest/"
-          fi
-          # 复制模板专属 skills（如有）
-          if [ -d "${template_ws}skills" ]; then
-            cp -r "${template_ws}skills" "$dest/"
           fi
           echo "    ✅ workspace-$agent_id auto-activated"
 
