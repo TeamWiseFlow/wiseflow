@@ -1,8 +1,8 @@
 diff --git a/extensions/browser/src/browser/chrome.ts b/extensions/browser/src/browser/chrome.ts
-index 086f460fcb..4cf42a5a23 100644
+index b035eb3f37..abfe8d3084 100644
 --- a/extensions/browser/src/browser/chrome.ts
 +++ b/extensions/browser/src/browser/chrome.ts
-@@ -375,6 +375,24 @@ export async function isChromeCdpReady(
+@@ -395,6 +395,24 @@ export async function isChromeCdpReady(
    return diagnostic.ok;
  }
  
@@ -27,9 +27,9 @@ index 086f460fcb..4cf42a5a23 100644
  export async function launchOpenClawChrome(
    resolved: ResolvedBrowserConfig,
    profile: ResolvedBrowserProfile,
-@@ -382,7 +400,9 @@ export async function launchOpenClawChrome(
-   if (!profile.cdpIsLoopback) {
-     throw new Error(`Profile "${profile.name}" is remote; cannot launch local Chrome.`);
+@@ -412,7 +430,9 @@ export async function launchOpenClawChrome(
+   if (missingDisplayError) {
+     throw new BrowserProfileUnavailableError(missingDisplayError);
    }
 -  await ensurePortAvailable(profile.cdpPort);
 +  // Retry briefly to absorb the race window where a prior Chrome is still releasing the port
