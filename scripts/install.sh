@@ -11,17 +11,22 @@
 #   3. git fetch + reset --hard 拉取最新 wiseflow 代码
 #   4. 读取 openclaw.version，按锚定版本检出 openclaw 子目录
 #      - 若已是目标 commit，跳过耗时的 install
-#   5. apply-addons.sh（patches + skills + crew 模板，内含 setup-crew.sh）
-#   6. pnpm build（编译 openclaw dist）
-#   7. 安装 systemd daemon + 写入 daemon.env + 重启
+#   5. 首次初始化内置全局 Crew workspace + openclaw.json
+#   6. apply-addons.sh（patches + skills + crew 模板，内含 setup-crew.sh）
+#   7. pnpm build（编译 openclaw dist）
+#   8. 安装 systemd daemon + 写入 daemon.env + 重启
 #
 # ⚠️  升级前请确保系统空闲（无 agent 会话正在处理任务）
 set -e
 
-OFB_REPO="https://gitcode.com/wiseflow/wiseflow.git"
+OFB_REPO="https://github.com/TeamWiseFlow/wiseflow.git"
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OPENCLAW_DIR="$PROJECT_ROOT/openclaw"
 VERSION_FILE="$PROJECT_ROOT/openclaw.version"
+OPENCLAW_HOME="$HOME/.openclaw"
+OPENCLAW_CONFIG_PATH="${OPENCLAW_CONFIG_PATH:-$OPENCLAW_HOME/openclaw.json}"
+SYSTEMD_ENV_FILE="$OPENCLAW_HOME/daemon.env"
+BUILTIN_CREWS="main hrbp it-engineer"
 FORCE=false
 SKIP_CREW=false
 
@@ -58,6 +63,33 @@ if [ ! -f "$PROJECT_ROOT/scripts/apply-addons.sh" ] || [ ! -d "$OPENCLAW_DIR" ];
   exit 1
 fi
 
+ensure_openclaw_config() {
+  if [ ! -f "$OPENCLAW_CONFIG_PATH" ]; then
+    mkdir -p "$(dirname "$OPENCLAW_CONFIG_PATH")"
+    echo "📝 Creating default config from template..."
+    if [ -f "$PROJECT_ROOT/config-templates/openclaw.json" ]; then
+      cp "$PROJECT_ROOT/config-templates/openclaw.json" "$OPENCLAW_CONFIG_PATH"
+    else
+      echo "{}" > "$OPENCLAW_CONFIG_PATH"
+    fi
+  fi
+
+  # WSL2 环境：注入 noSandbox = true
+  if grep -qi microsoft /proc/version 2>/dev/null; then
+    node -e '
+      const fs = require("fs");
+      const p = process.argv[1];
+      const c = JSON.parse(fs.readFileSync(p, "utf8"));
+      if (!c.browser) c.browser = {};
+      if (!c.browser.noSandbox) {
+        c.browser.noSandbox = true;
+        fs.writeFileSync(p, JSON.stringify(c, null, 2) + "\n");
+        console.log("  WSL2 detected: browser.noSandbox = true");
+      }
+    ' "$OPENCLAW_CONFIG_PATH"
+  fi
+}
+
 # ─── 2. 配置 git remote ────────────────────────────────────────
 if [ ! -d "$PROJECT_ROOT/.git" ]; then
   echo "📦 Initializing git repository..."
@@ -84,15 +116,23 @@ fi
 
 # ─── 3. 拉取最新 wiseflow 代码 ────────────────────────────────────────
 echo "📥 Fetching latest wiseflow code..."
-git fetch origin master
-
-COMMITS_BEHIND="$(git rev-list HEAD..origin/master --count 2>/dev/null || echo "?")"
-if [ "$COMMITS_BEHIND" = "0" ]; then
-  echo "  ✅ wiseflow code is already up to date."
+if git fetch origin master; then
+  COMMITS_BEHIND="$(git rev-list HEAD..origin/master --count 2>/dev/null || echo "?")"
+  if [ "$COMMITS_BEHIND" = "0" ]; then
+    echo "  ✅ wiseflow code is already up to date."
+  elif [ "$COMMITS_BEHIND" = "?" ]; then
+    echo "  ⚠️  Unable to compare with origin/master, continuing with local wiseflow code."
+  else
+    echo "  📊 $COMMITS_BEHIND new commit(s) available"
+    if git reset --hard origin/master; then
+      echo "  ✅ wiseflow code updated"
+    else
+      echo "  ⚠️  Failed to reset to origin/master, continuing with local wiseflow code."
+    fi
+  fi
 else
-  echo "  📊 $COMMITS_BEHIND new commit(s) available"
-  git reset --hard origin/master
-  echo "  ✅ wiseflow code updated"
+  echo "  ⚠️  Failed to fetch latest wiseflow code from origin/master."
+  echo "  ⚠️  Continuing with local wiseflow code."
 fi
 echo ""
 
@@ -120,13 +160,26 @@ else
   echo "  Current commit: ${CURRENT_COMMIT:-"(unknown)"}"
   echo "  Checking out target commit..."
   git -C "$OPENCLAW_DIR" reset --hard HEAD 2>/dev/null || true
-  git -C "$OPENCLAW_DIR" fetch origin --tags
   if ! git -C "$OPENCLAW_DIR" cat-file -e "${OPENCLAW_COMMIT}^{tree}" 2>/dev/null; then
-    echo "  ⚠️  Shallow clone detected, unshallowing..."
-    git -C "$OPENCLAW_DIR" fetch --unshallow origin 2>/dev/null || \
-      git -C "$OPENCLAW_DIR" fetch --deepen=200 origin
+    echo "  📥 Fetching openclaw target commit..."
+    git -C "$OPENCLAW_DIR" fetch origin --tags || \
+      echo "  ⚠️  Failed to fetch openclaw tags from origin."
   fi
-  git -C "$OPENCLAW_DIR" checkout "$OPENCLAW_COMMIT"
+  if ! git -C "$OPENCLAW_DIR" cat-file -e "${OPENCLAW_COMMIT}^{tree}" 2>/dev/null; then
+    echo "  ⚠️  Target commit not found locally; trying shallow-clone recovery..."
+    git -C "$OPENCLAW_DIR" fetch --unshallow origin 2>/dev/null || \
+      git -C "$OPENCLAW_DIR" fetch --deepen=200 origin || \
+      echo "  ⚠️  Failed to deepen openclaw history from origin."
+  fi
+  if ! git -C "$OPENCLAW_DIR" cat-file -e "${OPENCLAW_COMMIT}^{tree}" 2>/dev/null; then
+    echo "❌ Local openclaw commit (${CURRENT_COMMIT:-unknown}) does not match required openclaw.version ($OPENCLAW_COMMIT)."
+    echo "   Network update failed or target commit is not available locally; aborting install."
+    exit 1
+  fi
+  if ! git -C "$OPENCLAW_DIR" checkout "$OPENCLAW_COMMIT"; then
+    echo "❌ Unable to checkout required openclaw commit from openclaw.version: $OPENCLAW_COMMIT"
+    exit 1
+  fi
   echo "  ✅ openclaw checked out at $OPENCLAW_VERSION"
 
   echo "  📦 Installing dependencies..."
@@ -135,7 +188,20 @@ else
 fi
 echo ""
 
-# ─── 5. 应用 addons（patches + skills + crew 模板）──────────────
+# ─── 5. 初始化内置 Crew workspace + 配置文件 ───────────────────
+# shellcheck source=scripts/lib/crew-workspaces.sh
+source "$PROJECT_ROOT/scripts/lib/crew-workspaces.sh"
+
+if [ "$SKIP_CREW" = "true" ]; then
+  echo "⏭️  Skipping built-in crew workspace bootstrap (--skip-crew)"
+else
+  echo "📦 Bootstrapping built-in crew workspaces..."
+  seed_builtin_crew_workspaces "$PROJECT_ROOT/crews" "$OPENCLAW_HOME" "$BUILTIN_CREWS"
+fi
+ensure_openclaw_config
+echo ""
+
+# ─── 6. 应用 addons（patches + skills + crew 模板）──────────────
 # apply-addons 不 build、不 restart（由本脚本统一处理）
 echo "🔄 Applying addons..."
 ADDON_ARGS=(--no-build --no-restart)
@@ -144,7 +210,7 @@ ADDON_ARGS=(--no-build --no-restart)
 "$PROJECT_ROOT/scripts/apply-addons.sh" "${ADDON_ARGS[@]}"
 echo ""
 
-# ─── 6. 编译 openclaw dist ──────────────────────────────────────
+# ─── 7. 编译 openclaw dist ──────────────────────────────────────
 echo "🔨 Building openclaw..."
 (cd "$OPENCLAW_DIR" && pnpm build)
 echo "  ✅ Build complete"
@@ -153,36 +219,6 @@ echo "🎨 Building Control UI assets..."
 (cd "$OPENCLAW_DIR" && pnpm ui:build)
 echo "  ✅ UI build complete"
 echo ""
-
-# ─── 7. 配置文件初始化 ─────────────────────────────────────────
-OPENCLAW_HOME="$HOME/.openclaw"
-OPENCLAW_CONFIG_PATH="${OPENCLAW_CONFIG_PATH:-$OPENCLAW_HOME/openclaw.json}"
-SYSTEMD_ENV_FILE="$OPENCLAW_HOME/daemon.env"
-
-if [ ! -f "$OPENCLAW_CONFIG_PATH" ]; then
-  mkdir -p "$(dirname "$OPENCLAW_CONFIG_PATH")"
-  echo "📝 Creating default config from template..."
-  if [ -f "$PROJECT_ROOT/config-templates/openclaw.json" ]; then
-    cp "$PROJECT_ROOT/config-templates/openclaw.json" "$OPENCLAW_CONFIG_PATH"
-  else
-    echo "{}" > "$OPENCLAW_CONFIG_PATH"
-  fi
-fi
-
-# WSL2 环境：注入 noSandbox = true
-if grep -qi microsoft /proc/version 2>/dev/null; then
-  node -e '
-    const fs = require("fs");
-    const p = process.argv[1];
-    const c = JSON.parse(fs.readFileSync(p, "utf8"));
-    if (!c.browser) c.browser = {};
-    if (!c.browser.noSandbox) {
-      c.browser.noSandbox = true;
-      fs.writeFileSync(p, JSON.stringify(c, null, 2) + "\n");
-      console.log("  WSL2 detected: browser.noSandbox = true");
-    }
-  ' "$OPENCLAW_CONFIG_PATH"
-fi
 
 # ─── 8. 安装 daemon + systemd env ──────────────────────────────
 if [ "$(uname -s)" = "Linux" ]; then

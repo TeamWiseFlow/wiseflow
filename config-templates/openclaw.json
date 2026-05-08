@@ -14,22 +14,6 @@
     "models": {
         "mode": "merge",
         "providers": {
-            "volcengine-plan": {
-                "api": "openai-completions",
-                "baseUrl": "https://ark.cn-beijing.volces.com/api/coding/v3",
-                "apiKey": "",
-                "models": [
-                    {
-                        "id": "glm-5.1",
-                        "name": "GLM-5.1",
-                        "input": [
-                            "text"
-                        ],
-                        "contextWindow": 200000,
-                        "maxTokens": 128000
-                    }
-                ]
-            },
             "aihubmix": {
                 "api": "openai-completions",
                 "baseUrl": "https://aihubmix.com/v1",
@@ -38,6 +22,7 @@
                     {
                         "id": "glm-5.1",
                         "name": "GLM-5.1 (AiHubMix)",
+                        "reasoning": true,
                         "input": [
                             "text"
                         ],
@@ -47,6 +32,7 @@
                     {
                         "id": "qwen3.6-flash",
                         "name": "Qwen3.6 Flash",
+                        "reasoning": true,
                         "input": [
                             "text",
                             "image"
@@ -61,20 +47,14 @@
     "agents": {
         "defaults": {
             "model": {
-                "primary": "volcengine-plan/glm-5.1",
-                "fallbacks": [
-                    "aihubmix/glm-5.1"
-                ]
+                "primary": "aihubmix/glm-5.1"
             },
             "imageModel": {
                 "primary": "aihubmix/qwen3.6-flash"
             },
             "models": {
-                "volcengine-plan/glm-5.1": {
-                    "alias": "default"
-                },
                 "aihubmix/glm-5.1": {
-                    "alias": "fallback"
+                    "alias": "default"
                 },
                 "aihubmix/qwen3.6-flash": {
                     "alias": "vision"
@@ -103,8 +83,7 @@
                     "tmux",
                     "weather",
                     "summarize",
-                    "gifgrep",
-                    "self-improving"
+                    "gifgrep"
                 ],
                 "subagents": {
                     "allowAgents": [
@@ -132,8 +111,7 @@
                     "session-logs",
                     "tmux",
                     "weather",
-                    "summarize",
-                    "self-improving"
+                    "summarize"
                 ],
                 "subagents": {
                     "allowAgents": [
@@ -163,7 +141,6 @@
                     "weather",
                     "summarize",
                     "gifgrep",
-                    "self-improving",
                     "node-connect",
                     "github",
                     "gh-issues",
@@ -248,7 +225,7 @@
             "domain": "feishu",
             "connectionMode": "websocket",
             "requireMention": true,
-            "streaming": true,
+            "streaming": false,
             "tools": {
                 "doc": true,
                 "chat": true,
@@ -384,6 +361,10 @@
         "entries": {
             "feishu": {
                 "enabled": true
+            },
+            "memory-core": {
+                "enabled": true,
+                "dreaming": true
             },
             "awada": {
                 "enabled": false

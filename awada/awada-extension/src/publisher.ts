@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import type { ClawdbotConfig } from "openclaw/plugin-sdk/feishu";
+import type { ClawdbotConfig } from "openclaw/plugin-sdk";
 import { resolveAwadaAccount } from "./accounts.js";
 import { buildOutboundTarget, publishOutboundEvent } from "./send.js";
 import type { OutboundEvent } from "./redis-types.js";

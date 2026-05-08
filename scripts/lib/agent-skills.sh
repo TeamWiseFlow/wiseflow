@@ -72,7 +72,7 @@ list_builtin_skill_names() {
   done | sort
 }
 
-# wiseflow 指定的全局基线技能（对所有对内 Crew 统一开放的 8 个上游内置技能）
+# wiseflow 指定的全局基线技能（对所有对内 Crew 统一开放的 7 个上游内置技能）
 # 变更须同步更新 config-templates/openclaw.json 的 skills.entries 确保这些技能处于 enabled 状态
 #
 # 不在此基线的说明：
@@ -90,7 +90,6 @@ tmux
 weather
 summarize
 gifgrep
-self-improving
 EOF
 }
 
@@ -222,9 +221,9 @@ console.log(JSON.stringify(Array.from(new Set(lines))));
   fi
 
   # ── inherit 模式（对内 Crew）──
-  # 层次：① 11 个基线上游技能  ② addon/项目全局技能  ③ Agent 专属技能（BUILTIN_SKILLS）  ④ -DENIED  ⑤ +workspace
+  # 层次：① 7 个基线上游技能  ② addon/项目全局技能  ③ Agent 专属技能（BUILTIN_SKILLS）  ④ -DENIED  ⑤ +workspace
 
-  # ① wiseflow 指定的 11 个基线技能
+  # ① wiseflow 指定的 7 个基线技能
   local default_builtins=""
   default_builtins="$(list_default_global_skill_names)"
 
@@ -297,6 +296,7 @@ collect_skill_script_commands() {
   local workspace_dir="$1"
   local skills_json="$2"
   local project_root="$3"
+  local openclaw_home="${4:-$HOME/.openclaw}"
 
   [ -n "$workspace_dir" ] || return 0
   [ -n "$skills_json" ] || return 0
@@ -318,10 +318,12 @@ if (Array.isArray(arr)) arr.forEach((s) => { if (s && typeof s === "string") con
     [ -n "$skill" ] || continue
 
     # ── SKILL.md → metadata.openclaw.requires.bins → +<bin> ──
-    # 优先 workspace-local 的 SKILL.md，否则回退到全局
+    # 优先级：workspace-local → ~/.openclaw/skills（apply-addons 同步目标）→ 上游 bundled
     local skill_md=""
     if [ -f "$workspace_dir/skills/$skill/SKILL.md" ]; then
       skill_md="$workspace_dir/skills/$skill/SKILL.md"
+    elif [ -f "$openclaw_home/skills/$skill/SKILL.md" ]; then
+      skill_md="$openclaw_home/skills/$skill/SKILL.md"
     elif [ -f "$project_root/openclaw/skills/$skill/SKILL.md" ]; then
       skill_md="$project_root/openclaw/skills/$skill/SKILL.md"
     fi
@@ -355,8 +357,8 @@ for (const t of tokens) console.log("+" + t.slice(1, -1));
       done < <(find "$ws_scripts_dir" -type f -print0 2>/dev/null)
     fi
 
-    # ── 全局 skill（openclaw/skills/）──────────────────────
-    local global_scripts_dir="$project_root/openclaw/skills/$skill/scripts"
+    # ── 全局 skill（~/.openclaw/skills/，由 apply-addons.sh 同步）──
+    local global_scripts_dir="$openclaw_home/skills/$skill/scripts"
     if [ -d "$global_scripts_dir" ]; then
       while IFS= read -r -d '' f; do
         local fname

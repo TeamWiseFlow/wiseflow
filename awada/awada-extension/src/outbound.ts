@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import type { ChannelOutboundAdapter } from "openclaw/plugin-sdk/feishu";
+import type { ChannelOutboundAdapter } from "openclaw/plugin-sdk/core";
 import { resolveAwadaAccount } from "./accounts.js";
 import { getAwadaRuntime } from "./runtime.js";
 import {

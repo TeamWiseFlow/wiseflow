@@ -33,3 +33,4 @@ crews/selfmedia-operator/
 crews/video-producer/
 scripts/upgrade.sh
 scripts/upgrade_without_git.sh
+.pnpm-store/

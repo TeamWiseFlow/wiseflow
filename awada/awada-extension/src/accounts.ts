@@ -1,5 +1,5 @@
-import { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/feishu";
-import type { ClawdbotConfig } from "openclaw/plugin-sdk/feishu";
+import { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/channel-plugin-common";
+import type { ClawdbotConfig } from "openclaw/plugin-sdk";
 import type { AwadaConfig, ResolvedAwadaAccount } from "./types.js";
 
 const DEFAULT_LANE = "user";

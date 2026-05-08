@@ -39,8 +39,10 @@ def add_inline_runs(paragraph, text: str, base_dir: Path) -> None:
     Inline images inside a paragraph are appended as separate runs."""
     from docx.shared import Pt
 
-    # Strip markdown links → keep label text
-    text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
+    # Strip inline images (can't embed mid-paragraph)
+    text = re.sub(r"!\[([^\]]*)\]\([^)]+\)", r"[\1]", text)
+    # Hyperlinks: preserve URL as "label (url)"
+    text = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r"\1 (\2)", text)
 
     # Split on bold/italic markers (greedy-safe patterns)
     token_re = re.compile(
@@ -87,9 +89,26 @@ def try_add_image(doc, img_path: Path, width_inches: float = 5.5) -> bool:
     try:
         doc.add_picture(str(img_path), width=Inches(width_inches))
         return True
-    except Exception as exc:
-        doc.add_paragraph(f"[图片嵌入失败: {img_path.name} — {exc}]")
-        return False
+    except Exception:
+        # Fallback: convert via Pillow (handles progressive JPEG, RGBA, etc.)
+        try:
+            import os
+            import tempfile
+            from PIL import Image as PILImage
+
+            with PILImage.open(img_path) as im:
+                rgb = im.convert("RGB")
+                with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as fh:
+                    tmp = fh.name
+                rgb.save(tmp, "JPEG", quality=90)
+            try:
+                doc.add_picture(tmp, width=Inches(width_inches))
+                return True
+            finally:
+                os.unlink(tmp)
+        except Exception as exc2:
+            doc.add_paragraph(f"[图片嵌入失败: {img_path.name} — {exc2}]")
+            return False
 
 
 def convert(md_path: Path, out_path: Path) -> None:
@@ -147,7 +166,10 @@ def convert(md_path: Path, out_path: Path) -> None:
         if img_match:
             src = img_match.group(2)
             if not src.startswith("http"):
-                try_add_image(doc, base_dir / src)
+                img_path = base_dir / src
+                if not img_path.exists():
+                    img_path = Path.cwd() / src  # fallback: workspace root
+                try_add_image(doc, img_path)
             else:
                 doc.add_paragraph(f"[远程图片: {src}]")
             i += 1
@@ -182,6 +204,41 @@ def convert(md_path: Path, out_path: Path) -> None:
             add_inline_runs(p, bq_match.group(1), base_dir)
             i += 1
             continue
+
+        # ── Table ─────────────────────────────────────────────────────────────
+        if "|" in line and re.match(r"^\s*\|", line):
+            # Peek ahead to confirm next non-empty line is a separator row
+            j = i + 1
+            while j < len(lines) and not lines[j].strip():
+                j += 1
+            if j < len(lines) and re.match(r"^\s*\|[\s|:\-]+\|?\s*$", lines[j]):
+                rows_data: list[list[str]] = []
+                while i < len(lines):
+                    row_line = lines[i]
+                    if not row_line.strip() or not re.match(r"^\s*\|", row_line):
+                        break
+                    if re.match(r"^\s*\|[\s|:\-]+\|?\s*$", row_line):
+                        i += 1
+                        continue  # skip separator row
+                    cells = [c.strip() for c in row_line.strip().strip("|").split("|")]
+                    rows_data.append(cells)
+                    i += 1
+                if rows_data:
+                    num_cols = max(len(r) for r in rows_data)
+                    tbl = doc.add_table(rows=len(rows_data), cols=num_cols)
+                    tbl.style = "Table Grid"
+                    for r_idx, row_cells in enumerate(rows_data):
+                        for c_idx in range(num_cols):
+                            cell_text = row_cells[c_idx] if c_idx < len(row_cells) else ""
+                            cell = tbl.cell(r_idx, c_idx)
+                            cell.text = ""
+                            para = cell.paragraphs[0]
+                            add_inline_runs(para, cell_text, base_dir)
+                            if r_idx == 0:
+                                for run in para.runs:
+                                    run.bold = True
+                continue
+            # not a table — fall through to normal paragraph
 
         # ── Empty line ────────────────────────────────────────────────────────
         if not line.strip():
@@ -238,11 +295,11 @@ def strip_images_from_docx(docx_path: Path) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Convert Markdown to DOCX")
     parser.add_argument("-f", "--file", required=True, help="Input Markdown file")
-    parser.add_argument("-o", "--output", required=True, help="Output DOCX path")
+    parser.add_argument("-o", "--output", help="Output DOCX path (default: same dir as input)")
     args = parser.parse_args()
 
     md_path = Path(args.file).resolve()
-    out_path = Path(args.output).resolve()
+    out_path = Path(args.output).resolve() if args.output else md_path.with_suffix(".docx")
 
     if not md_path.exists():
         print(f"ERROR: 文件不存在: {md_path}", file=sys.stderr)

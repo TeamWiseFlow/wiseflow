@@ -19,6 +19,7 @@ SYNC_TEAM_DIRECTORY_SCRIPT="$CREWS_DIR/hrbp/skills/hrbp-common/scripts/sync-team
 
 source "$SCRIPT_DIR/lib/agent-skills.sh"
 source "$SCRIPT_DIR/lib/exec-tiers.sh"
+source "$SCRIPT_DIR/lib/crew-workspaces.sh"
 
 DENIED_OVERRIDES=""
 
@@ -110,6 +111,77 @@ resolve_template_crew_type() {
   resolve_crew_type "$template_dir/SOUL.md"
 }
 
+resolve_addon_template_crew_type() {
+  local addon_dir="$1"
+  local template_id="$2"
+  local addon_crew_lists=""
+  local addon_crew_type=""
+
+  addon_crew_lists="$(ADDON_JSON="${addon_dir%/}/addon.json" node -e "
+    try {
+      const fs = require('fs');
+      const addon = JSON.parse(fs.readFileSync(process.env.ADDON_JSON, 'utf8'));
+      const internal = Array.isArray(addon.internal_crews) ? addon.internal_crews : [];
+      const external = Array.isArray(addon.external_crews) ? addon.external_crews : [];
+      console.log(JSON.stringify({ internal, external }));
+    } catch (_) {
+      console.log(JSON.stringify({ internal: [], external: [] }));
+    }
+  " 2>/dev/null || echo '{"internal":[],"external":[]}')"
+
+  addon_crew_type="$(ADDON_CREW_LISTS="$addon_crew_lists" TEMPLATE_ID="$template_id" node -e "
+    const { internal, external } = JSON.parse(process.env.ADDON_CREW_LISTS || '{\"internal\":[],\"external\":[]}');
+    const id = process.env.TEMPLATE_ID;
+    if (internal.includes(id) && external.includes(id)) console.log('CONFLICT');
+    else if (internal.includes(id)) console.log('internal');
+    else if (external.includes(id)) console.log('external');
+    else console.log('');
+  " 2>/dev/null || echo "")"
+
+  if [ "$addon_crew_type" = "CONFLICT" ]; then
+    echo "❌ addon template $template_id listed in both internal_crews and external_crews" >&2
+    return 1
+  fi
+
+  if [ -z "$addon_crew_type" ]; then
+    addon_crew_type="external"
+  fi
+
+  printf '%s\n' "$addon_crew_type"
+}
+
+sync_addon_templates_to_runtime() {
+  local target_type="$1"
+  local dest_root="$2"
+  local addon_dir=""
+  local template_dir=""
+  local template_id=""
+  local addon_crew_type=""
+  local runtime_template_dir=""
+
+  [ -d "$ADDONS_DIR" ] || return 0
+
+  for addon_dir in "$ADDONS_DIR"/*/; do
+    [ -d "$addon_dir" ] || continue
+    [ -f "${addon_dir}addon.json" ] || continue
+    [ -d "${addon_dir}crew" ] || continue
+
+    for template_dir in "$addon_dir"/crew/*/; do
+      [ -d "$template_dir" ] || continue
+      [ -f "${template_dir}SOUL.md" ] || continue
+
+      template_id="$(basename "$template_dir")"
+      addon_crew_type="$(resolve_addon_template_crew_type "$addon_dir" "$template_id")"
+      [ "$addon_crew_type" = "$target_type" ] || continue
+
+      runtime_template_dir="$dest_root/$template_id"
+      rm -rf "$runtime_template_dir"
+      copy_crew_template_contents "$template_dir" "$runtime_template_dir"
+      ensure_soul_crew_type "$runtime_template_dir/SOUL.md" "$addon_crew_type"
+    done
+  done
+}
+
 sync_agent_skill_filter() {
   local agent_id="$1"
   local agent_override=""
@@ -193,47 +265,16 @@ for agent_id in $BUILTIN_CREWS; do
     continue
   fi
 
-  mkdir -p "$dest"
-  cp "$agent_dir"/*.md "$dest/"
-  # 复制 DENIED_SKILLS（如有）
-  if [ -f "$agent_dir/DENIED_SKILLS" ]; then
-    cp "$agent_dir/DENIED_SKILLS" "$dest/"
-  fi
-  # 复制 BUILTIN_SKILLS（如有）
-  if [ -f "$agent_dir/BUILTIN_SKILLS" ]; then
-    cp "$agent_dir/BUILTIN_SKILLS" "$dest/"
-  fi
-  # 幂等同步 ALLOWED_COMMANDS（不覆盖 workspace 已有条目）
-  if [ -f "$agent_dir/ALLOWED_COMMANDS" ]; then
-    if [ ! -f "$dest/ALLOWED_COMMANDS" ]; then
-      cp "$agent_dir/ALLOWED_COMMANDS" "$dest/"
-    else
-      while IFS= read -r line; do
-        [[ "$line" =~ ^\+ ]] || continue
-        grep -qxF "$line" "$dest/ALLOWED_COMMANDS" || echo "$line" >> "$dest/ALLOWED_COMMANDS"
-      done < "$agent_dir/ALLOWED_COMMANDS"
-    fi
-  fi
-  # 复制 EXTERNAL_CREW_REGISTRY.md（如有，hrbp 专用）
-  if [ -f "$agent_dir/EXTERNAL_CREW_REGISTRY.md" ]; then
-    # 仅在首次安装时复制（保留运行时状态）
-    if [ ! -f "$dest/EXTERNAL_CREW_REGISTRY.md" ]; then
-      cp "$agent_dir/EXTERNAL_CREW_REGISTRY.md" "$dest/"
-    fi
-  fi
-  # 复制 Agent 专属 skills（如有）
-  if [ -d "$agent_dir/skills" ]; then
-    cp -r "$agent_dir/skills" "$dest/"
-    # 安装有 package.json 的 skill 的 npm 依赖
-    for skill_pkg in "$dest/skills"/*/package.json; do
-      [ -f "$skill_pkg" ] || continue
-      skill_dir="$(dirname "$skill_pkg")"
-      skill_name="$(basename "$skill_dir")"
-      echo "  📦 installing deps for skill: $skill_name"
-      (cd "$skill_dir" && npm install --production --silent 2>/dev/null) || \
-        echo "  ⚠️  npm install failed for skill: $skill_name" >&2
-    done
-  fi
+  copy_crew_template_contents "$agent_dir" "$dest"
+  # 安装有 package.json 的 skill 的 npm 依赖
+  for skill_pkg in "$dest/skills"/*/package.json; do
+    [ -f "$skill_pkg" ] || continue
+    skill_dir="$(dirname "$skill_pkg")"
+    skill_name="$(basename "$skill_dir")"
+    echo "  📦 installing deps for skill: $skill_name"
+    (cd "$skill_dir" && npm install --production --silent 2>/dev/null) || \
+      echo "  ⚠️  npm install failed for skill: $skill_name" >&2
+  done
   echo "  ✅ workspace-$agent_id installed"
   inject_file_edit_guide "$dest/TOOLS.md"
   inject_exec_guide "$dest/TOOLS.md"
@@ -265,6 +306,7 @@ for template_dir in "$CREWS_DIR"/*/; do
   [ "$crew_type" = "internal" ] || continue
   cp -r "$template_dir" "$CREW_TEMPLATES_DEST/$template_id"
 done
+sync_addon_templates_to_runtime "internal" "$CREW_TEMPLATES_DEST"
 # 同步 shared/ 协议到 crew_templates/
 if [ -d "$CREWS_DIR/shared" ]; then
   cp "$CREWS_DIR/shared/"*.md "$CREW_TEMPLATES_DEST/"
@@ -289,6 +331,7 @@ for template_dir in "$CREWS_DIR"/*/; do
   [ "$crew_type" = "external" ] || continue
   cp -r "$template_dir" "$HRBP_TEMPLATES_DEST/$template_id"
 done
+sync_addon_templates_to_runtime "external" "$HRBP_TEMPLATES_DEST"
 # 同步对外专属索引（hrbp_index.md → index.md，由 HRBP 维护）
 if [ -f "$CREWS_DIR/hrbp_index.md" ]; then
   cp "$CREWS_DIR/hrbp_index.md" "$HRBP_TEMPLATES_DEST/index.md"
@@ -490,12 +533,8 @@ if [ -f "$CONFIG_PATH" ]; then
             allowAgents: [...new Set([...prevAllow, 'it-engineer'])],
           };
         }
-        // 对内 crew 默认思考/推理设置（不覆盖已有配置）
-        if (!agent.thinkingDefault) agent.thinkingDefault = 'high';
         if (!agent.reasoningDefault) agent.reasoningDefault = 'off';
       } else {
-        // 对外 crew 默认思考/推理设置（不覆盖已有配置）
-        if (!agent.thinkingDefault) agent.thinkingDefault = 'medium';
         if (!agent.reasoningDefault) agent.reasoningDefault = 'off';
       }
     }

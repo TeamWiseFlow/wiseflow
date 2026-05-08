@@ -1,16 +1,17 @@
 ---
 name: siliconflow-img-gen
-description: Generate or edit images via SiliconFlow Images API. Text-to-image uses Qwen/Qwen-Image; image-edit uses Qwen/Qwen-Image-Edit-2509.
-homepage: https://docs.siliconflow.cn/cn/api-reference/images/images-generations
+description: Generate or edit images via SiliconFlow Images API. Text-to-image uses
+  Qwen/Qwen-Image; image-edit uses Qwen/Qwen-Image-Edit-2509.
 metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "🖼️",
-        "requires": { "bins": ["python3"], "env": ["SILICONFLOW_API_KEY"] },
-        "primaryEnv": "SILICONFLOW_API_KEY",
-      },
-  }
+  openclaw:
+    emoji: 🖼️
+    requires:
+      bins:
+      - python3
+      env:
+      - SILICONFLOW_API_KEY
+    primaryEnv: SILICONFLOW_API_KEY
+    homepage: https://docs.siliconflow.cn/cn/api-reference/images/images-generations
 ---
 
 # SiliconFlow Image Gen
@@ -18,7 +19,7 @@ metadata:
 Generate or edit images using the SiliconFlow Images API.
 
 Two modes:
-- **Text-to-image** — default model `Qwen/Qwen-Image`
+- **Text-to-image** — default model `Qwen/Qwen-Image`（if rate limit exceeded, falls back to `baidu/ERNIE-Image-Turbo`）
 - **Image-edit** — default model `Qwen/Qwen-Image-Edit-2509`，由 `--image` 参数触发
 
 ## Run
@@ -30,6 +31,9 @@ Note: Image generation can take 10–60 seconds. Set a higher timeout when invok
 ```bash
 # Text-to-image (default model: Qwen/Qwen-Image)
 python3 {baseDir}/scripts/gen.py --prompt "your prompt here"
+
+# if rate limit exceeded, falls back to `baidu/ERNIE-Image-Turbo`
+python3 {baseDir}/scripts/gen.py --prompt "your prompt here" --model "baidu/ERNIE-Image-Turbo"
 
 # Image-edit (default model: Qwen/Qwen-Image-Edit-2509)
 python3 {baseDir}/scripts/gen.py --prompt "add a lighthouse" --image "https://example.com/source.jpg"
@@ -102,3 +106,17 @@ python3 {baseDir}/scripts/gen.py \
 - `*.png` images named by index
 - `prompts.json` mapping index → prompt + URL
 - `index.html` thumbnail gallery
+
+## ⚠️ 生成后必须验证
+
+SiliconFlow 图片生成经常出现异常：返回一张**纯色背景图**（单色无内容），而非 prompt 要求的图像。
+
+**每张图生成后必须执行验证，不得跳过。**
+
+### 验证流程
+
+1. 图片生成后，立即用 `image` 工具查看刚生成的图片
+2. 判断图片是否正常：
+   - ❌ **异常**：整张图是纯色背景（全黑/全白/全灰/全蓝等），没有任何主体内容 → **重新生成**
+   - ✅ **正常**：图片有明确的主体内容，符合 prompt 描述 → 继续下一步
+3. 如果重新生成，最多重试 3 次，仍异常则标记失败并继续后续任务
