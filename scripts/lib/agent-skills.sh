@@ -72,7 +72,7 @@ list_builtin_skill_names() {
   done | sort
 }
 
-# wiseflow 指定的全局基线技能（对所有对内 Crew 统一开放的 8 个上游内置技能）
+# wiseflow 指定的全局基线技能（对所有对内 Crew 统一开放的 7 个上游内置技能）
 # 变更须同步更新 config-templates/openclaw.json 的 skills.entries 确保这些技能处于 enabled 状态
 #
 # 不在此基线的说明：
@@ -90,7 +90,6 @@ tmux
 weather
 summarize
 gifgrep
-self-improving
 EOF
 }
 
@@ -222,9 +221,9 @@ console.log(JSON.stringify(Array.from(new Set(lines))));
   fi
 
   # ── inherit 模式（对内 Crew）──
-  # 层次：① 11 个基线上游技能  ② addon/项目全局技能  ③ Agent 专属技能（BUILTIN_SKILLS）  ④ -DENIED  ⑤ +workspace
+  # 层次：① 7 个基线上游技能  ② addon/项目全局技能  ③ Agent 专属技能（BUILTIN_SKILLS）  ④ -DENIED  ⑤ +workspace
 
-  # ① wiseflow 指定的 11 个基线技能
+  # ① wiseflow 指定的 7 个基线技能
   local default_builtins=""
   default_builtins="$(list_default_global_skill_names)"
 
