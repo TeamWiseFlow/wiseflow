@@ -1,10 +1,11 @@
-import type { ChannelMeta, ChannelPlugin, ClawdbotConfig } from "openclaw/plugin-sdk/feishu";
+import type { ChannelMeta, ChannelPlugin } from "openclaw/plugin-sdk/core";
+import type { ClawdbotConfig } from "openclaw/plugin-sdk";
 import {
   buildProbeChannelStatusSummary,
   buildRuntimeAccountStatusSnapshot,
   createDefaultChannelRuntimeState,
-  DEFAULT_ACCOUNT_ID,
-} from "openclaw/plugin-sdk/feishu";
+} from "openclaw/plugin-sdk/status-helpers";
+import { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/channel-plugin-common";
 import {
   resolveAwadaAccount,
   listAwadaAccountIds,

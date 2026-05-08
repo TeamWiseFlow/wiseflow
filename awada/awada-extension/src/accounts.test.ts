@@ -4,7 +4,7 @@ import {
   resolveAwadaAccount,
   resolveDefaultAwadaAccountId,
 } from "./accounts.js";
-import type { ClawdbotConfig } from "openclaw/plugin-sdk/feishu";
+import type { ClawdbotConfig } from "openclaw/plugin-sdk";
 
 function makeConfig(awada?: Record<string, unknown>): ClawdbotConfig {
   return { channels: awada !== undefined ? { awada } : undefined } as ClawdbotConfig;

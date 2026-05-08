@@ -1,5 +1,12 @@
 # Wiseflow
 
+🚀 **v5.4.8 更新**
+
+- selfmedia-operator skills 大幅更新，能力扩展 & bug 修复（全部经过实战级验证）
+- catchup 了 openclaw 到 2026.5.6 版本（最新稳定版）
+
+---
+
 🚀 **最新更新：official addons 发布！**
 
 wiseflow 正式发布 [official addons](addons/officials/README.md)，内置**自媒体运营**（selfmedia-operator）、**商务拓展**（business-developer）、**销售型客服**（sales-cs）与**平面设计师**（designer）四个生产就绪的 Crew 模板，配合全局"反侦测"浏览器增强、40+ 平台实时搜索等专属技能，开箱即可构建完整的「**自媒体引流 + BD 主动拓客 → sales-cs 销售转化**」自动获客管道。详见 [addons/officials](addons/officials/README.md)。

@@ -1,4 +1,4 @@
-import type { ClawdbotConfig, RuntimeEnv } from "openclaw/plugin-sdk/feishu";
+import type { ClawdbotConfig, RuntimeEnv } from "openclaw/plugin-sdk";
 import { getAwadaRuntime } from "./runtime.js";
 import type { FileObject, OutboundTarget } from "./redis-types.js";
 import { buildMediaContentFromUrl, sendMediaToAwada, sendTextToAwada } from "./send.js";

@@ -1,5 +1,5 @@
 import Redis from "ioredis";
-import type { ClawdbotConfig, RuntimeEnv } from "openclaw/plugin-sdk/feishu";
+import type { ClawdbotConfig, RuntimeEnv } from "openclaw/plugin-sdk";
 import { resolveAwadaAccount } from "./accounts.js";
 import { createConsumerClient } from "./redis-client.js";
 import { handleAwadaMessage } from "./message-handler.js";
