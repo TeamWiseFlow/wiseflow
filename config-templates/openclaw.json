@@ -364,7 +364,11 @@
             },
             "memory-core": {
                 "enabled": true,
-                "dreaming": true
+                "config": {
+                    "dreaming": {
+                        "enabled": true
+                    }
+                }
             },
             "awada": {
                 "enabled": false
