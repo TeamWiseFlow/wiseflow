@@ -6,3 +6,6 @@ social-graph-ranker
 # 生图/生视频技能（IT Engineer 不需要）
 siliconflow-img-gen
 siliconflow-video-gen
+# 内容获取/聚合技能（IT Engineer 不需要）
+rss-reader
+wx-mp-hunter
