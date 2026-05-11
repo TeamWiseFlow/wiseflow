@@ -39,8 +39,6 @@ metadata:
 - `browser upload` 工具可能返回「超时错误」,但这**不代表上传失败**!上传后用 snapshot 检查页面状态(进度条、处理状态文字)
 - **不要通过检查 `input.files.length` 是否为 0 判定上传是否失败!** `input.files.length == 0` 不代表上传失败。
 - 遇到 `browser failed: timed out. Restart the OpenClaw gateway ...` 错误时,**不需要重启、不需要报错**!等待 30 秒后在原页面继续操作即可。若仍无法操作,再等 30 秒;若还不行,尝试关闭浏览器后重开;只有关闭重开后仍报错才是真的出错,需停止并反馈用户。
-- 标题和描述输入使用 `type` + `slowly: true`,不要用 `fill()`
-- 浏览器超时只汇报,不执行 `browser stop/start`
 - 上传进度轮询用 snapshot,不重试 click
 
 ---
@@ -108,22 +106,52 @@ cp /path/to/your/image.jpg /tmp/openclaw/uploads/
 
 ### Step A.3 填写表单
 
-**重要:必须区分标题和正文,分别输入**
+**重要:必须区分标题和正文,分别输入,且不要使用 `type` 指令**
 
-小红书的标题和正文是两个独立的输入框,必须分别操作。
+小红书的标题和正文是两个独立的输入框，浏览器焦点管理会将 type 指令发送到标题输入框而非正文编辑器。
 
-**标题输入**:
+**正确操作方式：全部通过 evaluate 一次性设置**
+
 ```
-1. 点击标题输入框:div.d-input input 或 textbox[placeholder*="标题"]
-2. 使用  `type` + `slowly: true` 输入标题:
-3. 检查是否超长,超长则需精简
+1. 构造一个 evaluate 函数，同时设置标题和正文:
+   browser act kind=evaluate fn="() => {
+     // 设置标题
+     const title = document.querySelector('div.d-input input');
+     if(title) {
+       title.value = '标题(不超过20字)';
+       title.dispatchEvent(new Event('input', {bubbles: true}));
+     }
+     // 设置正文
+     const editor = document.querySelector('div.ql-editor, [contenteditable], [role=textbox] > div');
+     if(editor) {
+       editor.focus();
+       const sel = window.getSelection();
+       const range = document.createRange();
+       range.selectNodeContents(editor);
+       range.collapse(false);
+       sel.removeAllRanges();
+       sel.addRange(range);
+       document.execCommand('insertText', false, '正文字体(单行，用\\n表示换行)');
+     }
+     return 'done';
+   }"
 ```
 
-**正文输入**:
+**💡 关键**：fn 参数中的字符串必须转为单行（实际JS中用 \n 表示换行），因为多行字符串会导致 evaluate 解析错误。
+
+**错误做法（禁止）**:
+- ❌ 用 `type` + `slowly: true` → 字符会跑到标题框
+- ❌ 用 `fill()` → 编辑器不识别
+- ❌ 分两次 separate evaluate → 第二次可能会覆盖第一次
+
+**标签输入**:
 ```
-1. 点击正文编辑器:div.ql-editor(contenteditable 富文本编辑器)
-2. 使用  `type` + `slowly: true` 输入正文:
-3. 不要使用 fill(),会导致编辑器无法识别内容
+在正文末尾回车新起一行,输入 # 然后逐字符输入话题词:
+- 每输入几个字后等待 0.5 秒,观察是否出现联想菜单
+  (selector: #creator-editor-topic-container .item)
+- 联想菜单出现后点击第一个条目
+- 未出现联想则输入空格结束该标签
+- 每个标签之间等待 0.5-1 秒(最多 10 个标签)
 ```
 
 **标签输入**:
@@ -158,6 +186,8 @@ cp /path/to/your/image.jpg /tmp/openclaw/uploads/
 ### Step A.5 确认并发布
 
 直接发布,不要问用户。
+
+**验证步骤**：发布后检查 URL 是否跳转到成功页面（含 `published=true`），确认发布成功。
 
 ---
 
@@ -254,9 +284,7 @@ selector = input.upload-input(或 input[type="file"])
 |------|------|
 | 页面出现登录墙 | 遵循 browser-guide 第 6 节 QR 登录流程,扫码后重试 |
 | 图片上传超时(browser upload 返回超时错误) | **忽略此错误**,等待 60 秒后 snapshot 检查页面是否有缩略图 |
-| 图片上传验证失败(3 次检查均无缩略图) | 提示用户检查文件路径和格式(支持 jpg/png/webp) |
-| 视频处理超时(10 分钟) | 提示用户视频可能过大或格式不兼容(推荐 MP4) |
 | 标题超长 | 自动重新生成符合规范的标题 |
-| 正文超长 | div.edit-container div.length-error 出现时截断正文 |
+| 正文超长 | 自动缩写 |
 | 用户取消发布 | 必须点击"暂存离开"保存草稿,禁止直接关闭 |
 | 标签联想不出现 | 输入空格结束该标签,继续下一个 |

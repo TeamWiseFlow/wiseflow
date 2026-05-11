@@ -112,9 +112,5 @@ document.querySelector('.like-wrapper').classList.contains('like-active') ? '已
 | 情况 | 处理 |
 |------|------|
 | 页面出现登录墙 | 遵循 browser-guide 第 6 节 QR 登录流程，扫码后重试 |
-| 笔记不可访问（.access-wrapper 等） | 告知用户该笔记可能已删除或设为私密 |
-| 评论输入框未出现 | 该帖子可能关闭了评论，告知用户 |
-| 目标评论未找到 | 滚动加载到底部仍未找到，提示用户确认 feed_id 和 comment_id |
-| 评论发送后未出现 | 可能包含敏感词，提示用户修改内容 |
 | 点赞状态未变化 | 重试一次，仍未变化则报告错误 |
 | CDP click 超时 | 改用 JavaScript evaluate 方法：browser act kind=evaluate fn="document.querySelector('.like-wrapper').click()" |

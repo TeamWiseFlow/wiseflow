@@ -16,7 +16,6 @@ metadata:
 - **不要通过检查 `input.files.length` 是否为 0 判定上传是否失败！** `input.files.length == 0` 不代表上传失败。
 - 遇到 `browser failed: timed out. Restart the OpenClaw gateway ...` 错误时，**不需要重启、不需要报错**！等待 30 秒后在原页面继续操作即可。若仍无法操作，再等 30 秒；若还不行，尝试关闭浏览器后重开；只有关闭重开后仍报错才是真的出错，需停止并反馈用户。
 - 标题和描述输入使用 `type` + `slowly: true`，不要用 `fill()`
-- 浏览器超时只汇报，不执行 `browser stop/start`
 - 上传进度轮询用 snapshot，不重试 click
 
 ## Workflow
@@ -65,7 +64,4 @@ Use the `.json` file from `shorts-compose` for title, description, and tags:
 | 问题 | 处理方式 |
 |------|---------|
 | 出现登录页 | 通知用户重新登录浏览器 |
-| 上传 5 分钟未完成 | 告知用户等待，询问是否继续等待 |
-| Copyright claim | 汇报给用户，由用户决定是否继续 |
 | 视频未识别为 Shorts | 检查时长（≤60s）和比例（9:16）是否符合要求 |
-| 浏览器超时 | 汇报超时位置，提示用户在浏览器中继续操作 |

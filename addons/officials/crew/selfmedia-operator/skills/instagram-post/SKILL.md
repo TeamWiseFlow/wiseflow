@@ -25,7 +25,6 @@ Use this skill when:
 - **不要通过检查 `input.files.length` 是否为 0 判定上传是否失败！** `input.files.length == 0` 不代表上传失败。
 - 遇到 `browser failed: timed out. Restart the OpenClaw gateway ...` 错误时，**不需要重启、不需要报错**！等待 30 秒后在原页面继续操作即可。若仍无法操作，再等 30 秒；若还不行，尝试关闭浏览器后重开；只有关闭重开后仍报错才是真的出错，需停止并反馈用户。
 - Caption 输入使用 `type` + `slowly: true`，不要用 `fill()`
-- 浏览器超时只汇报，不执行 `browser stop/start`
 
 ---
 
