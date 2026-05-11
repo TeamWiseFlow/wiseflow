@@ -1,10 +1,6 @@
 ---
 name: xhs-interact
-description: '小红书社交互动技能。发表评论、回复评论、点赞。
-
-  当用户要求评论、回复或点赞小红书帖子时触发。
-
-  '
+description: 小红书社交互动技能。发表评论、回复评论、点赞。当用户要求评论、回复或点赞小红书帖子时触发。
 metadata:
   openclaw:
     emoji: 💬

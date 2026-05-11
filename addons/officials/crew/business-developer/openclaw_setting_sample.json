@@ -1,7 +1,34 @@
 {
-  "skills": ["connections-optimizer", "email-ops", "pitch-deck", "social-graph-ranker", "complex-task", "smart-search", "council"],
+  "skills": [
+    "connections-optimizer",
+    "email-ops",
+    "pitch-deck",
+    "social-graph-ranker",
+    "smart-search",
+    "council",
+    "browser-guide",
+    "rss-reader",
+    "xhs-interact",
+    "lead-hunting",
+    "comment-engagement",
+    "intel-gathering",
+    "bd-record",
+    "info-record",
+    "affiliate-marketing",
+    "cold-outreach"
+  ],
   "subagents": {
     "allowAgents": ["it-engineer", "designer"]
+  },
+  "heartbeat": {
+    "every": "1h",
+    "target": "none",
+    "isolatedSession": true,
+    "activeHours": {
+      "start": "08:00",
+      "end": "24:00",
+      "timezone": "user"
+    }
   },
   "tools": {}
 }
