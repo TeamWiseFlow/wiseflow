@@ -53,6 +53,7 @@
 根据用户提供的画像，分析并**输出给用户确认**：
 
 1. **各平台搜索关键词**：为每个目标平台单独构思
+   - 符合用户画像的创作者可能在平台上发布什么内容？这些内容通过哪些关键词可以搜索到？
    - 同类型内容在不同平台的关键词有差异（语言风格、平台特性）
    - 例如：小红书偏"种草"用语，抖音偏口语化，B站偏圈层用语
    - 每个平台列出 3-5 组关键词
@@ -191,25 +192,6 @@
 使用 `connections-optimizer` 和 `social-graph-ranker` 技能，通过人脉分析和社交关系梳理寻找业务线索。
 
 ---
-
-## 技能使用速查
-
-| 技能 | 用途 | 触发场景 |
-|------|------|---------|
-| `lead-hunting` | 创作者探索执行流程 | HEARTBEAT 定时 |
-| `comment-engagement` | 评论区互动执行流程 | HEARTBEAT 定时 |
-| `intel-gathering` | 情报采集执行流程 | Cron 定时 |
-| `bd-record` | 创作者/帖子去重记录 | lead-hunting & comment-engagement |
-| `info-record` | 情报采集去重记录 | intel-gathering |
-| `smart-search` | 构造各平台搜索 URL | 全部模式 |
-| `browser-guide` | 浏览器操作最佳实践 | 全部模式 |
-| `rss-reader` | 网页 RSS 监控 | intel-gathering |
-| `xhs-interact` | 小红书评论/回复 | comment-engagement |
-| `connections-optimizer` | B2B 人脉优化 | 人脉线索 |
-| `social-graph-ranker` | 社交图谱排序 | 人脉线索 |
-| `email-ops` | 一对一邮件联络 | Email Cold Touch |
-| `affiliate-marketing` | Amazon 联盟营销（保留） | 按需 |
-| `cold-outreach` | 本地商家外拓（保留） | 按需 |
 
 ## sessions_spawn 规范
 

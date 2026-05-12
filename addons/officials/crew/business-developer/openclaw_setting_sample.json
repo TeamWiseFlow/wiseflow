@@ -22,7 +22,7 @@
   },
   "heartbeat": {
     "every": "1h",
-    "target": "none",
+    "target": "last",
     "isolatedSession": true,
     "activeHours": {
       "start": "08:00",
