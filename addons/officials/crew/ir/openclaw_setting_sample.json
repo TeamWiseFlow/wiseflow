@@ -1,23 +1,17 @@
 {
   "skills": [
-    "connections-optimizer",
-    "email-ops",
+    "ppt-maker",
     "pitch-deck",
-    "social-graph-ranker",
-    "smart-search",
-    "council",
     "browser-guide",
-    "rss-reader",
-    "xhs-interact",
-    "lead-hunting",
-    "comment-engagement",
-    "intel-gathering",
-    "bd-record",
-    "info-record",
-    "affiliate-marketing",
+    "smart-search",
     "cold-outreach",
-    "login-manager",
-    "wx-mp-hunter"
+    "email-ops",
+    "xhs-interact",
+    "social-graph-ranker",
+    "connections-optimizer",
+    "council",
+    "ir-record",
+    "summarize"
   ],
   "subagents": {
     "allowAgents": ["it-engineer", "designer"]
