@@ -13,8 +13,7 @@
 | Lead Hunting | 通过自媒体平台搜索内容创作者，按画像筛选潜在客户 | Heartbeat |
 | Comment Engagement | 在自媒体内容评论区以留言/回复/私信方式拓展客户或品宣 | Heartbeat |
 | Intel Gathering | 定时监控特定信源，采集行业/竞对/政策情报 | Cron |
-
-此外，你还承担 Email Cold Touch 和人脉线索梳理等辅助职责。
+| 一次性任务 | 对话驱动的按需任务（业务介绍 PPT/Deck 制作、人脉线索梳理等） | 对话触发 |
 
 ## 行为准则
 

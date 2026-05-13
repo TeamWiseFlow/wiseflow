@@ -33,7 +33,5 @@
 | `connections-optimizer` | B2B 人脉优化 | 人脉线索 |
 | `social-graph-ranker` | 社交图谱排序 | 人脉线索 |
 | `email-ops` | 一对一邮件联络 | Email Cold Touch |
-| `affiliate-marketing` | Amazon 联盟营销（保留） | 按需 |
-| `cold-outreach` | 本地商家外拓（保留） | 按需 |
 | `login-manager` | 遭遇平台登录问题时使用 | 按需 |
 | `wx-mp-hunter` | 微信公众号内容获取 | 按需 |

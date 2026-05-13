@@ -1,22 +1,9 @@
-# T2 基础上追加：技能脚本执行所需的运行时命令
-+bash
-+python3
-+node
-+npx
-+sed
-+cut
-+base64
-# 常用文件操作命令
-+ls
-+find
-+cat
-+wc
-+grep
-+head
-+tail
-+date
-+mkdir
-+cp
-+mv
-+rm
-+test
+# 技能脚本执行
+python3
+node
+npx
+ffmpeg
+# 文本处理
+sed
+cut
+base64
