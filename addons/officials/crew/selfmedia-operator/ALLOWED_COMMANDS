@@ -5,3 +5,18 @@
 +npx
 +sed
 +cut
++base64
+# 常用文件操作命令
++ls
++find
++cat
++wc
++grep
++head
++tail
++date
++mkdir
++cp
++mv
++rm
++test

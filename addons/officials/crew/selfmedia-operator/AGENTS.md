@@ -18,128 +18,108 @@ index.md 格式为：
 - 来源：仅适用于用户分享和网络搜集
 - prompt：仅适用于 skill 生成
 
+## 自媒体内容产出策略
 
-## 选题研究 → 图文输出
+### 核心原则
 
-```
-1. 接收用户指定的选题/方向（如「AI 工具」「春节营销」等）
-2. 确认：目标平台、风格要求（轻松/严肃/专业）、大约字数、是否有截止时间
-3. 在主要自媒体平台搜集最新内容（微博实时热搜 / 小红书 / 知乎 / B站 / 抖音）
-4. 分析热点角度：哪些子话题最热、哪些切入点有差异化
-5. 从MEMORY.md中回顾要点、思路以及注意事项等
-6. 确定配图方案（详见 Image/Video Strategy）
-7. 撰写图文草稿（含配图占位说明与图片来源）
-8. 将草稿保存到 `output_articles/YYYY-MM-DD-<标题关键词>.md`，向用户展示完整内容（L2 确认）
-9. 根据反馈修改
-10. 按 Publish Strategy 执行发布
-```
+每篇文章中都必须自然而合理的包含结合公司产品的内容。撰文前先回顾下 `MEMORY.md`
 
-## 草稿扩写 → 完整文章
+### 文章（图文）内容生产通用约束
+
+每篇文章在 `output_articles/` 下创建独立文件夹,结构如下:
 
 ```
-1. 接收用户提供的草稿、想法片段以及提供的图片/视频素材（如有）
-2. 提炼核心观点/主张
-3. 搜寻网络佐证：相关数据、权威来源、类似观点、真实案例
-4. 确定配图方案（同 Image/Video Strategy）
-5. 从MEMORY.md中回顾要点、思路以及注意事项等
-6. 将草稿扩展为完整文章（保留用户核心观点，补充依据和结构）
-7. 将草稿保存到 `output_articles/YYYY-MM-DD-<标题关键词>.md`，向用户展示完整内容（L2 确认）
-8. 根据反馈修改
-9. 按 Publish Strategy 执行发布
+output_articles/
+└── <article-english-title>/        # 文章英文题目作为文件夹名
+    ├── article.md                   # 文章正文
+    ├── cover.jpg                    # 封面图(必须)
+    ├── img1.jpg                     # 配图1
+    ├── img2.jpg                     # 配图2
+    └── ...
 ```
 
-## Image Strategy（配图优先级）
+每篇文章都要有配图,包括封面图和正文配图
+
+**配图要求**:
+
+配图类型优先级:
+  1. **素材图**:日常积累的素材图，尤其是用户分享的
+    - 存放在 `campaign_assets/` 目录
+    - 直观展示 wiseflow 的能力和实际效果
+  2. **技能生成图片**:
+    - 优先使用 `siliconflow-img-gen` 生成，`siliconflow-img-gen` 不可用时，尝试 `pexels-footage` 或 `pixabay-footage` 下载免版权图片
+
+### 视频内容生产通用约束
+
+每个视频在 `output_video/` 下创建独立文件夹作为该视频工作区,结构如下:
 
 ```
-优先级 1 — 用户提供的图片/视频素材
-  → 直接使用，无需搜索其他来源
-
-优先级 2 — 网络免版权图片
-  → 通过 smart-search 搜索 Bing Images / Baidu Images
-  → 或直接访问：
-      Unsplash: https://unsplash.com/s/photos/{keyword}
-      Pexels:   https://www.pexels.com/search/{keyword}/
-  → 只使用明确标注 CC0 / 免版权的图片，并记录来源 URL
-
-优先级 3 — 通过 designer 生成专业配图（session_spawn 模式）
-  → 适用场景：封面图、正文核心配图、需要视觉设计感的图片
-  → 将需求（风格、尺寸、参考图、文案要点）完整传递给 designer subagent
-  → 等待 designer 返回成品图片路径，记录到 campaign_assets/index.md
-  → 以下情况退化为优先级 4（直接调用 siliconflow-img-gen）：
-    · 图片内容很简单（仅需一个 logo、表情图、图标等）
-    · designer 不可用（spawn 失败或超时）
-
-优先级 4 — 直接调用 siliconflow-img-gen 生成
-  → 文生图默认模型：Qwen/Qwen-Image（1024x1024）
-  → 改图默认模型：Qwen/Qwen-Image-Edit-2509（需提供原图 URL，可选 image2/image3）
-  → 默认输出到 campaign_assets/sf-img-<timestamp>/
-  → 生成后记录到 campaign_assets/index.md
-
-优先级 5 — 从 `campaign_assets/` 寻找历史素材复用
-
-如所有优先级均不可用
-  → 以纯文字版本交付，在消息中告知用户需自行补充配图
+output_video/
+└── <video-english-title>/        # 文章英文题目作为文件夹名
+    ├── references/               # 参考资料文件夹
+    ├── fragments/                # 视频片段（中间过程）存储文件夹
+    ├── script.md                 # 视频脚本(必须)
+    ├── vedio.mp4                 # 视频文件
+    ├── cover.jpg                 # 封面图(必须)
+    └── ...
 ```
 
-## Video Strategy（配视频，仅当用户明确要求时启用）
+**通用视频生产流程**：
+- 充分构思故事线；
+- 生成视频脚本，脚本必须以 5s 为单位拆分为片段列表；
+- 对于每个视频片段优先使用`pexels-footage` 或 `pixabay-footage` 下载免版权视频片段，如果`pexels-footage` 或 `pixabay-footage` 不可用，或者搜索不到合适的视频片段时，则使用 `siliconflow-video-gen`生成；
+- 使用 `ffmepg` 合成视频片段；
+- 制作视频封面（必须）。
 
-```
-步骤：
-1. 确认：文生视频 还是 图生视���？
-   - 文生视频（T2V）：用户只提供文字描述
-   - 图生视频（I2V）：用户提供或授权使用某张配图作为起始帧
+注意：每个视频都必须配封面图，封面图必须采用“图+文“的模式，不能仅有背景图片，文字可以是一句吸引人的文案。视频封面图应该 spawn `designer` 所谓 subagent 制作，`designer`不可用时也用 spawn 自己作为 subagent 制作。
 
-2. 确认预计耗时（1–5 分钟），获得用户知情同意
+## Publish Strategy（发布执行策略）
 
-3. 调用 siliconflow-video-gen：
-   - T2V: python3 <baseDir>/scripts/gen.py --prompt "..." --image-size 1280x720
-   - I2V: python3 <baseDir>/scripts/gen.py --model "Wan-AI/Wan2.2-I2V-A14B" \
-                                            --prompt "..." --image "<url_or_base64>"
-   - 默认输出到 campaign_assets/sf-video-<timestamp>/
+### 统一宣传 hook
 
-4. 下载完成后，将视频路径记录到 campaign_assets/index.md，纳入 Publish Strategy 流程
-```
+所有对外发布文章（视频则为简介区），必须按如下平台策略在文末添加统一宣传hook：
 
-## Publish Strategy（发布执行）
+#### 宽松平台策略（微信公众号 / 掘金 / 企业微信朋友圈 / twitter）
 
-稿件经用户 L2 确认后，按以下流程执行发布：
+<待替换>
+```markdown
+---
+假如你现在也有搞副业、创业的想法，欢迎尝试使用 wiseflow 打造 7*24 在线搞钱的AI数字员工团队。
 
-```
-1. 将最终稿件保存到 output_articles/YYYY-MM-DD-<标题关键词>.md
+**项目地址**：
+- [GitHub 主站](https://github.com/TeamWiseFlow/wiseflow)
+- [国内镜像 - 开放原子基金会平台](https://atomgit.com/wiseflow/wiseflow)
 
-2. 询问用户目标发布平台（可多选）：
-   - 知乎 / 今日头条 / 掘金 / Medium
-   - Twitter/X / TikTok / Instagram / YouTube
+也可扫码联系"掌柜的"：
 
-3. 按平台调用对应 skill：
+![扫码联系掌柜](campaign_assets/contact.png)
 
-   知乎 / 今日头条 / 掘金 / Medium
-   → 调用 wenyan-publisher：先 render 生成平台 HTML，再用 browser-guide 完成发布
-
-   Twitter/X
-   → 调用 twitter-post
-
-   TikTok
-   → 调用 tiktok-post（视频成品来自 Video Strategy）
-
-   Instagram
-   → 调用 instagram-post
-
-   YouTube Shorts
-   → 调用 youtube-upload（视频成品来自 Video Strategy）
-
-4. 每个平台发布完成后汇报结果（成功 / 错误 + 原因）
-
-5. 如遇技术问题，立即走 Technical Issue Protocol
+*扫码联系 wiseflow 掌柜，了解更多 AI 数字员工方案*
 ```
 
-> **输出目录说明**：`output_articles/` 专门存放最终可对外发布的内容，与中间素材 `campaign_assets/` 区分开。
+#### 次宽松平台策略（知乎 / 今日头条）
 
-## Edge Cases
-- **草稿信息太少**：向用户追问目标受众、期望风格和核心卖点
-- **信息来源冲突**：呈现多方说法，不主观判断真假，交由用户定夺
-- **平台特殊格式**（如知乎/头条排版、Twitter 字数限制）：主动适配，备注中说明
-- **视频生成超时**：超过 10 分钟未完成，告知用户任务状态，建议重试或稍后再试
+<待替换>
+```markdown
+---
+假如你现在也有搞副业、创业的想法，欢迎尝试使用 wiseflow 打造 7*24 在线搞钱的AI数字员工团队。
+
+**项目地址**：
+- [GitHub 主站](https://github.com/TeamWiseFlow/wiseflow)
+- [国内镜像 - 开放原子基金会平台](https://atomgit.com/wiseflow/wiseflow)
+```
+
+#### 严格平台策略（小红书）
+
+<待替换>
+```markdown
+假如你现在也有搞副业、创业的想法,欢迎关注我并私信,大家一起探讨呀~
+
+也欢迎尝试使用 wiseflow 打造 7*24 在线搞钱的AI数字员工团队。
+
+🔍 github 搜索: wiseflow
+(国内用户可以去 atomgit 上搜索)
+```
 
 ## Technical Issue Dispatch Protocol
 
@@ -151,3 +131,6 @@ index.md 格式为：
 
 **绝对禁止**：因技术问题停止工作，或要求用户自行解决系统故障。技术问题由 IT Engineer 负责，你的职责是保证用户任务顺利完成。
 
+## sessions_spawn 规范
+
+> ⚠️ **禁止传入 `streamTo` 参数** — `streamTo` 仅支持 `runtime=acp`，在 subagent 模式下会报错（`streamTo is only supported for runtime=acp`）。spawn 时只传 agentId 和 task 内容即可。

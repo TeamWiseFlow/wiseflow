@@ -1,14 +1,11 @@
 summarize
-juejin-publish
-toutiao-publish
-xhs-publisher
-xhs-content-ops
-xhs-interact
 twitter-post
 tiktok-post
 instagram-post
 youtube-upload
-
-# 媒体分析与增强（全局启用，crew 声明后生效）
+xhs-content-ops
+xhs-interact
+xhs-publisher
 gifgrep
-video-frames
+juejin-publish
+toutiao-publish

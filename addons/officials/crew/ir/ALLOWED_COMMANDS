@@ -1,0 +1,8 @@
+python3 ./skills/cold-outreach/scripts/send_email.py
++./skills/ir-record/scripts/init-db.sh
++./skills/ir-record/scripts/check-investor.sh
++./skills/ir-record/scripts/record-investor.sh
++./skills/ir-record/scripts/check-contact.sh
++./skills/ir-record/scripts/record-contact.sh
++./skills/ir-record/scripts/query-progress.sh
++sqlite3

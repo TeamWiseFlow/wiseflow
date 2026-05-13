@@ -8,9 +8,12 @@ complex-task
 connections-optimizer
 email-ops
 pitch-deck
+ppt-maker
 social-graph-ranker
 # 生图/生视频技能（客服场景不需要）
 siliconflow-img-gen
 siliconflow-video-gen
-# 议会决策技能（客服场景不适用）
-council
+rss-reader
+xhs-interact
+pexels-footage
+pixabay-footage
