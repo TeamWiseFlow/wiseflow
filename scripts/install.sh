@@ -14,7 +14,7 @@
 #   5. 首次初始化内置全局 Crew workspace + openclaw.json
 #   6. apply-addons.sh（patches + skills + crew 模板，内含 setup-crew.sh）
 #   7. pnpm build（编译 openclaw dist）
-#   8. 安装 systemd daemon + 写入 daemon.env + 重启
+#   8. 安装 daemon + 环境变量注入 + 重启
 #
 # ⚠️  升级前请确保系统空闲（无 agent 会话正在处理任务）
 set -e
@@ -26,6 +26,7 @@ VERSION_FILE="$PROJECT_ROOT/openclaw.version"
 OPENCLAW_HOME="$HOME/.openclaw"
 OPENCLAW_CONFIG_PATH="${OPENCLAW_CONFIG_PATH:-$OPENCLAW_HOME/openclaw.json}"
 SYSTEMD_ENV_FILE="$OPENCLAW_HOME/daemon.env"
+MACOS_GATEWAY_ENV="$OPENCLAW_HOME/service-env/ai.openclaw.gateway.env"
 BUILTIN_CREWS="main hrbp it-engineer"
 FORCE=false
 SKIP_CREW=false
@@ -220,17 +221,17 @@ echo "🎨 Building Control UI assets..."
 echo "  ✅ UI build complete"
 echo ""
 
-# ─── 8. 安装 daemon + systemd env ──────────────────────────────
-if [ "$(uname -s)" = "Linux" ]; then
-  # --- 准备 daemon.env（收集 openclaw.json 中引用的环境变量）---
-  _env_scan_config="$OPENCLAW_CONFIG_PATH"
-  if [ ! -f "$_env_scan_config" ] && [ -f "$PROJECT_ROOT/config-templates/openclaw.json" ]; then
-    _env_scan_config="$PROJECT_ROOT/config-templates/openclaw.json"
-  fi
+# ─── 8. 环境变量收集 + daemon 安装 ─────────────────────────
 
-  collect_env_refs_from_config() {
-    local config_path="$1"
-    node - "$config_path" <<'NODE'
+# --- 8a. 收集 openclaw.json 中引用的环境变量（Linux + macOS 共享）---
+_env_scan_config="$OPENCLAW_CONFIG_PATH"
+if [ ! -f "$_env_scan_config" ] && [ -f "$PROJECT_ROOT/config-templates/openclaw.json" ]; then
+  _env_scan_config="$PROJECT_ROOT/config-templates/openclaw.json"
+fi
+
+collect_env_refs_from_config() {
+  local config_path="$1"
+  node - "$config_path" <<'NODE'
 const fs = require("node:fs");
 const configPath = process.argv[2];
 if (!configPath) process.exit(1);
@@ -251,81 +252,91 @@ function walk(value) {
 walk(cfg);
 process.stdout.write([...refs].sort().join("\n"));
 NODE
-  }
+}
 
-  get_env_file_value() {
-    local env_file="$1" key="$2" line=""
-    [ -f "$env_file" ] || return 1
-    line="$(grep -E "^${key}=" "$env_file" | tail -n 1 || true)"
-    [ -n "$line" ] || return 1
-    printf "%s" "${line#*=}"
-  }
-
-  prompt_env_value() {
-    local key="$1" default_value="$2" default_source="$3" value="" reuse="" skip_empty=""
-    if [ -n "$default_value" ]; then
-      read -r -p "Use existing ${default_source} value for ${key}? [Y/n] " reuse
-      if [[ ! "$reuse" =~ ^[Nn]$ ]]; then printf "%s" "$default_value"; return 0; fi
-    fi
-    while true; do
-      read -r -s -p "Enter value for ${key}: " value; echo ""
-      value="${value//$'\r'/}"; value="${value//$'\n'/}"
-      if [ -n "$value" ]; then printf "%s" "$value"; return 0; fi
-      read -r -p "Value is empty, skip ${key}? [y/N] " skip_empty
-      if [[ "$skip_empty" =~ ^[Yy]$ ]]; then printf ""; return 0; fi
-    done
-  }
-
-  env_refs="$(collect_env_refs_from_config "$_env_scan_config" 2>/dev/null || true)"
-  if [ -n "$env_refs" ]; then
-    echo "🔐 Detected env vars from config:"
-    while IFS= read -r var_name; do
-      [ -n "$var_name" ] || continue
-      echo "   - ${var_name}"
-    done <<< "$env_refs"
-    echo ""
-
-    mkdir -p "$(dirname "$SYSTEMD_ENV_FILE")"
-    temp_env_file="$(mktemp "${SYSTEMD_ENV_FILE}.tmp.XXXXXX")"
-    chmod 600 "$temp_env_file"
-
-    # 保留现有 daemon.env 中不属于 env_refs 管理的行（用户自定义变量）
-    if [ -f "$SYSTEMD_ENV_FILE" ]; then
-      while IFS= read -r existing_line; do
-        [[ "$existing_line" =~ ^[[:space:]]*# ]] && continue
-        [ -z "$existing_line" ] && continue
-        existing_key="${existing_line%%=*}"
-        if ! grep -qxF "$existing_key" <<< "$env_refs"; then
-          printf "%s\n" "$existing_line" >> "$temp_env_file"
-        fi
-      done < "$SYSTEMD_ENV_FILE"
-    fi
-
-    while IFS= read -r var_name; do
-      [ -n "$var_name" ] || continue
-      default_value="" default_source=""
-      shell_value="${!var_name-}"
-      if [ -n "$shell_value" ]; then
-        default_value="$shell_value"; default_source="shell"
-      else
-        existing_file_value="$(get_env_file_value "$SYSTEMD_ENV_FILE" "$var_name" || true)"
-        if [ -n "$existing_file_value" ]; then
-          default_value="$existing_file_value"; default_source="existing env file"
-        fi
-      fi
-      if [ -t 0 ]; then
-        resolved_value="$(prompt_env_value "$var_name" "$default_value" "$default_source")"
-      else
-        resolved_value="$default_value"
-        [ -z "$resolved_value" ] && echo "⚠️  Missing ${var_name} in non-interactive mode; leaving it unset."
-      fi
-      [ -n "$resolved_value" ] && printf "%s=%s\n" "$var_name" "$resolved_value" >> "$temp_env_file"
-    done <<< "$env_refs"
-
-    mv "$temp_env_file" "$SYSTEMD_ENV_FILE"
-    chmod 600 "$SYSTEMD_ENV_FILE"
-    echo "✅ Merged systemd env file: $SYSTEMD_ENV_FILE"
+get_env_file_value() {
+  local env_file="$1" key="$2" line=""
+  [ -f "$env_file" ] || return 1
+  # Try KEY=value format first (systemd)
+  line="$(grep -E "^${key}=" "$env_file" | tail -n 1 || true)"
+  if [ -z "$line" ]; then
+    # Try export KEY= format (shell / launchd)
+    line="$(grep -E "^export ${key}=" "$env_file" | tail -n 1 || true)"
   fi
+  [ -n "$line" ] || return 1
+  # Extract value: remove leading KEY= or export KEY=, strip single quotes
+  _value="${line#*=}"
+  _value="${_value#\'}"; _value="${_value%\'}"
+  printf "%s" "$_value"
+}
+
+prompt_env_value() {
+  local key="$1" default_value="$2" default_source="$3" value="" reuse="" skip_empty=""
+  if [ -n "$default_value" ]; then
+    read -r -p "Use existing ${default_source} value for ${key}? [Y/n] " reuse
+    if [[ ! "$reuse" =~ ^[Nn]$ ]]; then printf "%s" "$default_value"; return 0; fi
+  fi
+  while true; do
+    read -r -s -p "Enter value for ${key}: " value; echo ""
+    value="${value//$'\r'/}"; value="${value//$'\n'/}"
+    if [ -n "$value" ]; then printf "%s" "$value"; return 0; fi
+    read -r -p "Value is empty, skip ${key}? [y/N] " skip_empty
+    if [[ "$skip_empty" =~ ^[Yy]$ ]]; then printf ""; return 0; fi
+  done
+}
+
+env_refs="$(collect_env_refs_from_config "$_env_scan_config" 2>/dev/null || true)"
+if [ -n "$env_refs" ]; then
+  echo "🔐 Detected env vars from config:"
+  while IFS= read -r var_name; do
+    [ -n "$var_name" ] || continue
+    echo "   - ${var_name}"
+  done <<< "$env_refs"
+  echo ""
+fi
+
+# --- 8b. Linux: 写入 daemon.env（在 daemon install 之前）---
+if [ "$(uname -s)" = "Linux" ] && [ -n "$env_refs" ]; then
+  mkdir -p "$(dirname "$SYSTEMD_ENV_FILE")"
+  temp_env_file="$(mktemp "${SYSTEMD_ENV_FILE}.tmp.XXXXXX")"
+  chmod 600 "$temp_env_file"
+
+  # 保留现有 daemon.env 中不属于 env_refs 管理的行（用户自定义变量）
+  if [ -f "$SYSTEMD_ENV_FILE" ]; then
+    while IFS= read -r existing_line; do
+      [[ "$existing_line" =~ ^[[:space:]]*# ]] && continue
+      [ -z "$existing_line" ] && continue
+      existing_key="${existing_line%%=*}"
+      if ! grep -qxF "$existing_key" <<< "$env_refs"; then
+        printf "%s\n" "$existing_line" >> "$temp_env_file"
+      fi
+    done < "$SYSTEMD_ENV_FILE"
+  fi
+
+  while IFS= read -r var_name; do
+    [ -n "$var_name" ] || continue
+    default_value="" default_source=""
+    shell_value="${!var_name-}"
+    if [ -n "$shell_value" ]; then
+      default_value="$shell_value"; default_source="shell"
+    else
+      existing_file_value="$(get_env_file_value "$SYSTEMD_ENV_FILE" "$var_name" || true)"
+      if [ -n "$existing_file_value" ]; then
+        default_value="$existing_file_value"; default_source="existing env file"
+      fi
+    fi
+    if [ -t 0 ]; then
+      resolved_value="$(prompt_env_value "$var_name" "$default_value" "$default_source")"
+    else
+      resolved_value="$default_value"
+      [ -z "$resolved_value" ] && echo "⚠️  Missing ${var_name} in non-interactive mode; leaving it unset."
+    fi
+    [ -n "$resolved_value" ] && printf "%s=%s\n" "$var_name" "$resolved_value" >> "$temp_env_file"
+  done <<< "$env_refs"
+
+  mv "$temp_env_file" "$SYSTEMD_ENV_FILE"
+  chmod 600 "$SYSTEMD_ENV_FILE"
+  echo "✅ Merged env file: $SYSTEMD_ENV_FILE"
 
   # --- 注入 node 路径到 daemon.env ---
   _node_bin="$(command -v node 2>/dev/null || true)"
@@ -351,12 +362,14 @@ NODE
   fi
 fi
 
-# --- daemon install + restart ---
+# ─── 9. 安装 daemon ──────────────────────────────────────
 cd "$OPENCLAW_DIR"
 pnpm openclaw daemon uninstall 2>/dev/null || true
 pnpm openclaw daemon install
 
+# ─── 10. 平台特定的 post-install ─────────────────────────
 if [ "$(uname -s)" = "Linux" ] && command -v systemctl >/dev/null 2>&1; then
+  # --- systemd drop-in 引用 daemon.env ---
   if systemctl --user show-environment >/dev/null 2>&1; then
     SERVICE_NAME="openclaw-gateway"
     user_systemd_dir="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
@@ -369,6 +382,49 @@ EOF
     systemctl --user daemon-reload
     systemctl --user restart "${SERVICE_NAME}.service"
     echo "✅ Installed systemd drop-in and restarted gateway"
+  fi
+elif [ "$(uname -s)" = "Darwin" ] && [ -n "$env_refs" ]; then
+  # --- 追加 env 到 launchd gateway.env（在 daemon install 之后）---
+  if [ -f "$MACOS_GATEWAY_ENV" ]; then
+    temp_env_file="$(mktemp "${MACOS_GATEWAY_ENV}.tmp.XXXXXX")"
+    chmod 600 "$temp_env_file"
+
+    # 保留 daemon install 写入的内容
+    cat "$MACOS_GATEWAY_ENV" > "$temp_env_file"
+
+    while IFS= read -r var_name; do
+      [ -n "$var_name" ] || continue
+      # 跳过 daemon install 已写入的变量
+      if grep -qE "^export ${var_name}=" "$MACOS_GATEWAY_ENV" 2>/dev/null; then
+        continue
+      fi
+      default_value="" default_source=""
+      shell_value="${!var_name-}"
+      if [ -n "$shell_value" ]; then
+        default_value="$shell_value"; default_source="shell"
+      fi
+      if [ -t 0 ]; then
+        resolved_value="$(prompt_env_value "$var_name" "$default_value" "$default_source")"
+      else
+        resolved_value="$default_value"
+        [ -z "$resolved_value" ] && echo "⚠️  Missing ${var_name} in non-interactive mode; leaving it unset."
+      fi
+      if [ -n "$resolved_value" ]; then
+        # shell export 格式，单引号转义
+        printf "export %s='%s'\n" "$var_name" "${resolved_value//\'/\'\\\'\'}" >> "$temp_env_file"
+      fi
+    done <<< "$env_refs"
+
+    mv "$temp_env_file" "$MACOS_GATEWAY_ENV"
+    chmod 600 "$MACOS_GATEWAY_ENV"
+    echo "✅ Merged env file: $MACOS_GATEWAY_ENV"
+
+    # 重启 gateway 使新环境变量生效
+    cd "$OPENCLAW_DIR"
+    pnpm openclaw gateway restart 2>/dev/null || true
+  else
+    echo "⚠️  macOS gateway env file not found at $MACOS_GATEWAY_ENV"
+    echo "   Skipping env injection. Ensure gateway is installed: openclaw daemon install"
   fi
 fi
 
