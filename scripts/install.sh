@@ -296,7 +296,7 @@ if [ -n "$env_refs" ]; then
 fi
 
 # --- 8b. Linux: 写入 daemon.env（在 daemon install 之前）---
-if [ "$(uname -s)" = "Linux" ] && [ -n "$env_refs" ]; then
+if [ "$(uname -s)" = "Linux" ]; then
   mkdir -p "$(dirname "$SYSTEMD_ENV_FILE")"
   temp_env_file="$(mktemp "${SYSTEMD_ENV_FILE}.tmp.XXXXXX")"
   chmod 600 "$temp_env_file"
@@ -337,6 +337,19 @@ if [ "$(uname -s)" = "Linux" ] && [ -n "$env_refs" ]; then
   mv "$temp_env_file" "$SYSTEMD_ENV_FILE"
   chmod 600 "$SYSTEMD_ENV_FILE"
   echo "✅ Merged env file: $SYSTEMD_ENV_FILE"
+
+  # --- 注入 wiseflow 固定环境变量（不询问，直接写入）---
+  _fixed_env_keys="OPENCLAW_BROWSER_TIMEOUT_MS OPENCLAW_DISABLE_BONJOUR"
+  for _key in $_fixed_env_keys; do
+    if ! grep -qE "^${_key}=" "$SYSTEMD_ENV_FILE" 2>/dev/null; then
+      case "$_key" in
+        OPENCLAW_BROWSER_TIMEOUT_MS) _val="90000" ;;
+        OPENCLAW_DISABLE_BONJOUR) _val="true" ;;
+        *) continue ;;
+      esac
+      printf "%s=%s\n" "$_key" "$_val" >> "$SYSTEMD_ENV_FILE"
+    fi
+  done
 
   # --- 注入 node 路径到 daemon.env ---
   _node_bin="$(command -v node 2>/dev/null || true)"
@@ -383,7 +396,7 @@ EOF
     systemctl --user restart "${SERVICE_NAME}.service"
     echo "✅ Installed systemd drop-in and restarted gateway"
   fi
-elif [ "$(uname -s)" = "Darwin" ] && [ -n "$env_refs" ]; then
+elif [ "$(uname -s)" = "Darwin" ]; then
   # --- 追加 env 到 launchd gateway.env（在 daemon install 之后）---
   if [ -f "$MACOS_GATEWAY_ENV" ]; then
     temp_env_file="$(mktemp "${MACOS_GATEWAY_ENV}.tmp.XXXXXX")"
@@ -392,28 +405,41 @@ elif [ "$(uname -s)" = "Darwin" ] && [ -n "$env_refs" ]; then
     # 保留 daemon install 写入的内容
     cat "$MACOS_GATEWAY_ENV" > "$temp_env_file"
 
-    while IFS= read -r var_name; do
-      [ -n "$var_name" ] || continue
-      # 跳过 daemon install 已写入的变量
-      if grep -qE "^export ${var_name}=" "$MACOS_GATEWAY_ENV" 2>/dev/null; then
-        continue
+    # 注入 wiseflow 固定环境变量（不询问，直接写入）
+    _fixed_env="OPENCLAW_BROWSER_TIMEOUT_MS=90000 OPENCLAW_DISABLE_BONJOUR=true"
+    for _entry in $_fixed_env; do
+      _key="${_entry%%=*}"
+      _val="${_entry#*=}"
+      if ! grep -qE "^export ${_key}=" "$MACOS_GATEWAY_ENV" 2>/dev/null; then
+        printf "export %s='%s'\n" "$_key" "$_val" >> "$temp_env_file"
       fi
-      default_value="" default_source=""
-      shell_value="${!var_name-}"
-      if [ -n "$shell_value" ]; then
-        default_value="$shell_value"; default_source="shell"
-      fi
-      if [ -t 0 ]; then
-        resolved_value="$(prompt_env_value "$var_name" "$default_value" "$default_source")"
-      else
-        resolved_value="$default_value"
-        [ -z "$resolved_value" ] && echo "⚠️  Missing ${var_name} in non-interactive mode; leaving it unset."
-      fi
-      if [ -n "$resolved_value" ]; then
-        # shell export 格式，单引号转义
-        printf "export %s='%s'\n" "$var_name" "${resolved_value//\'/\'\\\'\'}" >> "$temp_env_file"
-      fi
-    done <<< "$env_refs"
+    done
+
+    # 追加 config 中引用的用户自定义变量（需询问）
+    if [ -n "$env_refs" ]; then
+      while IFS= read -r var_name; do
+        [ -n "$var_name" ] || continue
+        # 跳过 daemon install 已写入的变量 + 上面已处理的固定变量
+        if grep -qE "^export ${var_name}=" "$MACOS_GATEWAY_ENV" 2>/dev/null; then
+          continue
+        fi
+        default_value="" default_source=""
+        shell_value="${!var_name-}"
+        if [ -n "$shell_value" ]; then
+          default_value="$shell_value"; default_source="shell"
+        fi
+        if [ -t 0 ]; then
+          resolved_value="$(prompt_env_value "$var_name" "$default_value" "$default_source")"
+        else
+          resolved_value="$default_value"
+          [ -z "$resolved_value" ] && echo "⚠️  Missing ${var_name} in non-interactive mode; leaving it unset."
+        fi
+        if [ -n "$resolved_value" ]; then
+          # shell export 格式，单引号转义
+          printf "export %s='%s'\n" "$var_name" "${resolved_value//\'/\'\\\'\'}" >> "$temp_env_file"
+        fi
+      done <<< "$env_refs"
+    fi
 
     mv "$temp_env_file" "$MACOS_GATEWAY_ENV"
     chmod 600 "$MACOS_GATEWAY_ENV"
