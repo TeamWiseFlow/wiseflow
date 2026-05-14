@@ -123,7 +123,7 @@ Q：<问题2>？A：<答案2>
 ```text
 你：@it-engineer 帮我把系统升级到最新版本
 
-# IT Engineer 会执行 ./scripts/upgrade.sh 并报告结果
+# IT Engineer 会执行 ./scripts/install.sh 并报告结果
 ```
 
 **3.3 排查故障**
@@ -167,36 +167,30 @@ Q：<问题2>？A：<答案2>
 # 生产部署
 
 ```bash
-# 构建 + 安装后台服务（自动启动 + 开机自启 + 崩溃重启）
-cd wiseflow && pnpm build && cd ..
-./scripts/reinstall-daemon.sh
+# 一键安装为系统服务（自动拉取最新代码 + 构建 + 开机自启 + 崩溃重启）
+./scripts/install.sh
 ```
 
-日后升级只需要执行：
+日后升级同样执行：
 
 ```bash
-./scripts/upgrade.sh
+./scripts/install.sh
 ```
 
-> **从自己的 fork 同步**（而非官方仓库）：如果你 fork 了本项目并做了定制，希望 `upgrade.sh` 从自己的 fork 拉取，只需确保 `origin` 指向你的 fork，运行时在提示处输入 `y` 即可：
-> ```bash
-> git remote set-url origin https://github.com/YOUR_ORG/wiseflow.git
-> ./scripts/upgrade.sh   # 提示 "Remote is not the official OFB repo" 时输入 y
-> ```
+> `install.sh` 是幂等的——重复执行只更新有变化的部分，不会覆盖用户数据。
+
+> **从自己的 fork 同步**：如果你 fork 了本项目并做了定制，先确保 `origin` 指向你的 fork，`install.sh` 默认从 origin 拉取。
 
 ## 常用命令
 
 ```bash
 ./scripts/dev.sh gateway              # 开发模式启动
 ./scripts/dev.sh gateway --port 18789 # 指定端口
-./scripts/dev.sh cli config           # CLI 操作
-./scripts/upgrade.sh                  # 升级 OFB + openclaw 引擎
-./scripts/reinstall-daemon.sh         # 生产部署
-
-# Agent 管理
-./scripts/setup-crew.sh               # 手动安装/重装 Agent 系统
+./scripts/install.sh                  # 生产部署 / 升级（幂等）
+./scripts/install.sh --skip-crew      # 仅重装 daemon，跳过 crew 同步
+./scripts/apply-addons.sh             # 重新应用 addons（patches + skills + crew）
+./scripts/setup-crew.sh               # 重新同步 Agent 系统配置
 ./scripts/setup-crew.sh --force       # 覆盖已有 workspace
-./scripts/setup-crew.sh --denied-skills hrbp:slack,github
 ```
 
 ## Addon 开发

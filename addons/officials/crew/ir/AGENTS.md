@@ -123,7 +123,7 @@
 如需定时持续搜索：
 1. 参照 `HEARTBEAT_TEMPLATE.md` 写入 HEARTBEAT.md
 2. spawn IT Engineer 更新 heartbeat 配置
-3. 校验`email-ops`技能所需的环境变量是否齐全，如果不齐全告知用户，请用户提供相关信息后spawn IT Engineer，将环境变量写入 `~/.openclaw/daemon.env` 中，之后重启 openclaw gateway。
+3. 校验`email-ops`技能所需的环境变量是否齐全，如果不齐全告知用户，请用户提供相关信息后spawn IT Engineer，将环境变量写入 OFB_ENV.md 中记录的环境变量文件，之后重启 openclaw gateway。
 
 ---
 

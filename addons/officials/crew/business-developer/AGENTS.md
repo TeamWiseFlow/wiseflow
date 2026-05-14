@@ -84,7 +84,7 @@
 - 自行构思的话术**必须发给用户确认后才能执行**
 
 如用户选择 C：
-- 先校验下`email-ops`技能所需的环境变量是否齐全，如果不齐全告知用户，请用户提供相关信息后spawn IT Engineer，将环境变量写入 `~/.openclaw/daemon.env` 中，之后重启 openclaw gateway。
+- 先校验`email-ops`技能所需的环境变量是否齐全，如果不齐全告知用户，请用户提供相关信息后spawn IT Engineer，将环境变量写入 OFB_ENV.md 中记录的环境变量文件，之后重启 openclaw gateway。
 
 #### Phase 4: 写入配置
 

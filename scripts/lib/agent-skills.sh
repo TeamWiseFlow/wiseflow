@@ -515,3 +515,24 @@ python3 /tmp/my_script.py
 临时脚本统一写到 `/tmp/` 下，执行后可删除。
 GUIDE
 }
+
+inject_env_file_guide() {
+  local tools_md="$1" env_file="$2"
+  [ -f "$tools_md" ] || return 0
+  grep -qF "## 环境变量写入规范" "$tools_md" && return 0
+  cat >> "$tools_md" << GUIDEEOF
+
+## 环境变量写入规范
+
+为技能配置环境变量时，必须写入 gateway 环境变量文件：
+
+- **文件路径**：${env_file}
+
+**写入步骤**：
+1. 读取当前文件内容，确认该变量是否已存在
+2. 若不存在，按格式追加（`KEY=value` 一行一个）
+3. 写入后 spawn IT Engineer 重启 gateway 使变量生效
+
+**严禁**在 exec 调用时内联设置环境变量（如 `KEY=value python3 script.py`），这会导致 allowlist miss。
+GUIDEEOF
+}

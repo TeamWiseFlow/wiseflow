@@ -223,52 +223,11 @@ echo ""
 
 # ─── 8. 环境变量收集 + daemon 安装 ─────────────────────────
 
-# --- 8a. 收集 openclaw.json 中引用的环境变量（Linux + macOS 共享）---
-_env_scan_config="$OPENCLAW_CONFIG_PATH"
-if [ ! -f "$_env_scan_config" ] && [ -f "$PROJECT_ROOT/config-templates/openclaw.json" ]; then
-  _env_scan_config="$PROJECT_ROOT/config-templates/openclaw.json"
-fi
+# 需要询问用户的 API Key（若已在目标文件中存在则跳过）
+_USER_PROMPT_KEYS="DEEPSEEK_API_KEY SILICONFLOW_API_KEY"
 
-collect_env_refs_from_config() {
-  local config_path="$1"
-  node - "$config_path" <<'NODE'
-const fs = require("node:fs");
-const configPath = process.argv[2];
-if (!configPath) process.exit(1);
-let raw = "";
-try { raw = fs.readFileSync(configPath, "utf8"); } catch { process.exit(1); }
-let cfg;
-try { cfg = JSON.parse(raw); } catch { process.exit(2); }
-const refs = new Set();
-const envPattern = /\$\{([A-Z][A-Z0-9_]*)\}/g;
-const envIdPattern = /^[A-Z][A-Z0-9_]*$/;
-function walk(value) {
-  if (typeof value === "string") { for (const m of value.matchAll(envPattern)) { if (m[1]) refs.add(m[1]); } return; }
-  if (Array.isArray(value)) { for (const item of value) walk(item); return; }
-  if (!value || typeof value !== "object") return;
-  if (value.source === "env" && typeof value.id === "string" && envIdPattern.test(value.id)) refs.add(value.id);
-  for (const child of Object.values(value)) walk(child);
-}
-walk(cfg);
-process.stdout.write([...refs].sort().join("\n"));
-NODE
-}
-
-get_env_file_value() {
-  local env_file="$1" key="$2" line=""
-  [ -f "$env_file" ] || return 1
-  # Try KEY=value format first (systemd)
-  line="$(grep -E "^${key}=" "$env_file" | tail -n 1 || true)"
-  if [ -z "$line" ]; then
-    # Try export KEY= format (shell / launchd)
-    line="$(grep -E "^export ${key}=" "$env_file" | tail -n 1 || true)"
-  fi
-  [ -n "$line" ] || return 1
-  # Extract value: remove leading KEY= or export KEY=, strip single quotes
-  _value="${line#*=}"
-  _value="${_value#\'}"; _value="${_value%\'}"
-  printf "%s" "$_value"
-}
+# 固定默认值（硬编码，不询问，已存在则跳过）
+_HARDCODED_DEFAULTS="OPENCLAW_BROWSER_TIMEOUT_MS=90000 OPENCLAW_DISABLE_BONJOUR=true"
 
 prompt_env_value() {
   local key="$1" default_value="$2" default_source="$3" value="" reuse="" skip_empty=""
@@ -285,79 +244,61 @@ prompt_env_value() {
   done
 }
 
-env_refs="$(collect_env_refs_from_config "$_env_scan_config" 2>/dev/null || true)"
-if [ -n "$env_refs" ]; then
-  echo "🔐 Detected env vars from config:"
-  while IFS= read -r var_name; do
-    [ -n "$var_name" ] || continue
-    echo "   - ${var_name}"
-  done <<< "$env_refs"
-  echo ""
-fi
+# 向 env 文件写入缺失的询问 key + 硬编码默认值
+# $1: env 文件路径   $2: 格式 kv（KEY=VALUE）或 export（export KEY='value'）
+_write_missing_env() {
+  local env_file="$1" format="$2" _key="" _val="" _entry="" _sniff="" _sv=""
 
-# --- 8b. Linux: 写入 daemon.env（在 daemon install 之前）---
-if [ "$(uname -s)" = "Linux" ]; then
-  mkdir -p "$(dirname "$SYSTEMD_ENV_FILE")"
-  temp_env_file="$(mktemp "${SYSTEMD_ENV_FILE}.tmp.XXXXXX")"
-  chmod 600 "$temp_env_file"
-
-  # 保留现有 daemon.env 中不属于 env_refs 管理的行（用户自定义变量）
-  if [ -f "$SYSTEMD_ENV_FILE" ]; then
-    while IFS= read -r existing_line; do
-      [[ "$existing_line" =~ ^[[:space:]]*# ]] && continue
-      [ -z "$existing_line" ] && continue
-      existing_key="${existing_line%%=*}"
-      if ! grep -qxF "$existing_key" <<< "$env_refs"; then
-        printf "%s\n" "$existing_line" >> "$temp_env_file"
-      fi
-    done < "$SYSTEMD_ENV_FILE"
-  fi
-
-  while IFS= read -r var_name; do
-    [ -n "$var_name" ] || continue
-    default_value="" default_source=""
-    shell_value="${!var_name-}"
-    if [ -n "$shell_value" ]; then
-      default_value="$shell_value"; default_source="shell"
+  # 询问 key（已存在则跳过）
+  for _key in $_USER_PROMPT_KEYS; do
+    if [ "$format" = "export" ]; then
+      grep -qE "^export ${_key}=" "$env_file" 2>/dev/null && continue
     else
-      existing_file_value="$(get_env_file_value "$SYSTEMD_ENV_FILE" "$var_name" || true)"
-      if [ -n "$existing_file_value" ]; then
-        default_value="$existing_file_value"; default_source="existing env file"
-      fi
+      grep -qE "^${_key}=" "$env_file" 2>/dev/null && continue
     fi
+    _sv="${!_key-}"
     if [ -t 0 ]; then
-      resolved_value="$(prompt_env_value "$var_name" "$default_value" "$default_source")"
+      _val="$(prompt_env_value "$_key" "${_sv:-}" "${_sv:+shell}")"
     else
-      resolved_value="$default_value"
-      [ -z "$resolved_value" ] && echo "⚠️  Missing ${var_name} in non-interactive mode; leaving it unset."
+      _val="${_sv:-}"
+      [ -z "$_val" ] && echo "⚠️  Missing ${_key} in non-interactive mode; leaving it unset."
     fi
-    [ -n "$resolved_value" ] && printf "%s=%s\n" "$var_name" "$resolved_value" >> "$temp_env_file"
-  done <<< "$env_refs"
-
-  mv "$temp_env_file" "$SYSTEMD_ENV_FILE"
-  chmod 600 "$SYSTEMD_ENV_FILE"
-  echo "✅ Merged env file: $SYSTEMD_ENV_FILE"
-
-  # --- 注入 wiseflow 固定环境变量（不询问，直接写入）---
-  _fixed_env_keys="OPENCLAW_BROWSER_TIMEOUT_MS OPENCLAW_DISABLE_BONJOUR"
-  for _key in $_fixed_env_keys; do
-    if ! grep -qE "^${_key}=" "$SYSTEMD_ENV_FILE" 2>/dev/null; then
-      case "$_key" in
-        OPENCLAW_BROWSER_TIMEOUT_MS) _val="90000" ;;
-        OPENCLAW_DISABLE_BONJOUR) _val="true" ;;
-        *) continue ;;
-      esac
-      printf "%s=%s\n" "$_key" "$_val" >> "$SYSTEMD_ENV_FILE"
+    if [ -n "$_val" ]; then
+      if [ "$format" = "export" ]; then
+        printf "export %s='%s'\n" "$_key" "${_val//\'/\'\\\'\'}" >> "$env_file"
+      else
+        printf "%s=%s\n" "$_key" "$_val" >> "$env_file"
+      fi
     fi
   done
+
+  # 硬编码默认值（已存在则跳过）
+  for _entry in $_HARDCODED_DEFAULTS; do
+    _key="${_entry%%=*}"
+    _val="${_entry#*=}"
+    if [ "$format" = "export" ]; then
+      grep -qE "^export ${_key}=" "$env_file" 2>/dev/null && continue
+      printf "export %s='%s'\n" "$_key" "$_val" >> "$env_file"
+    else
+      grep -qE "^${_key}=" "$env_file" 2>/dev/null && continue
+      printf "%s=%s\n" "$_key" "$_val" >> "$env_file"
+    fi
+  done
+}
+
+# --- 8a. Linux: 写入 daemon.env（在 daemon install 之前）---
+if [ "$(uname -s)" = "Linux" ]; then
+  mkdir -p "$(dirname "$SYSTEMD_ENV_FILE")"
+  [ -f "$SYSTEMD_ENV_FILE" ] || touch "$SYSTEMD_ENV_FILE"
+  chmod 600 "$SYSTEMD_ENV_FILE"
+  _write_missing_env "$SYSTEMD_ENV_FILE" kv
 
   # --- 注入 node 路径到 daemon.env ---
   _node_bin="$(command -v node 2>/dev/null || true)"
   if [ -n "$_node_bin" ]; then
     _node_dir="$(dirname "$_node_bin")"
-    mkdir -p "$(dirname "$SYSTEMD_ENV_FILE")"
     {
-      [ -f "$SYSTEMD_ENV_FILE" ] && grep -v "^PATH=" "$SYSTEMD_ENV_FILE" || true
+      grep -v "^PATH=" "$SYSTEMD_ENV_FILE" 2>/dev/null || true
       printf 'PATH=%s:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\n' "$_node_dir"
     } > "${SYSTEMD_ENV_FILE}.new"
     mv "${SYSTEMD_ENV_FILE}.new" "$SYSTEMD_ENV_FILE"
@@ -367,7 +308,7 @@ if [ "$(uname -s)" = "Linux" ]; then
   # --- WSL2 环境：注入 GUI 显示变量 ---
   if grep -qi microsoft /proc/version 2>/dev/null; then
     {
-      [ -f "$SYSTEMD_ENV_FILE" ] && grep -vE "^(DISPLAY|WAYLAND_DISPLAY|XDG_RUNTIME_DIR)=" "$SYSTEMD_ENV_FILE" || true
+      grep -vE "^(DISPLAY|WAYLAND_DISPLAY|XDG_RUNTIME_DIR)=" "$SYSTEMD_ENV_FILE" 2>/dev/null || true
       printf 'DISPLAY=:0\nWAYLAND_DISPLAY=wayland-0\nXDG_RUNTIME_DIR=/mnt/wslg/runtime-dir\n'
     } > "${SYSTEMD_ENV_FILE}.new"
     mv "${SYSTEMD_ENV_FILE}.new" "$SYSTEMD_ENV_FILE"
@@ -399,51 +340,8 @@ EOF
 elif [ "$(uname -s)" = "Darwin" ]; then
   # --- 追加 env 到 launchd gateway.env（在 daemon install 之后）---
   if [ -f "$MACOS_GATEWAY_ENV" ]; then
-    temp_env_file="$(mktemp "${MACOS_GATEWAY_ENV}.tmp.XXXXXX")"
-    chmod 600 "$temp_env_file"
-
-    # 保留 daemon install 写入的内容
-    cat "$MACOS_GATEWAY_ENV" > "$temp_env_file"
-
-    # 注入 wiseflow 固定环境变量（不询问，直接写入）
-    _fixed_env="OPENCLAW_BROWSER_TIMEOUT_MS=90000 OPENCLAW_DISABLE_BONJOUR=true"
-    for _entry in $_fixed_env; do
-      _key="${_entry%%=*}"
-      _val="${_entry#*=}"
-      if ! grep -qE "^export ${_key}=" "$MACOS_GATEWAY_ENV" 2>/dev/null; then
-        printf "export %s='%s'\n" "$_key" "$_val" >> "$temp_env_file"
-      fi
-    done
-
-    # 追加 config 中引用的用户自定义变量（需询问）
-    if [ -n "$env_refs" ]; then
-      while IFS= read -r var_name; do
-        [ -n "$var_name" ] || continue
-        # 跳过 daemon install 已写入的变量 + 上面已处理的固定变量
-        if grep -qE "^export ${var_name}=" "$MACOS_GATEWAY_ENV" 2>/dev/null; then
-          continue
-        fi
-        default_value="" default_source=""
-        shell_value="${!var_name-}"
-        if [ -n "$shell_value" ]; then
-          default_value="$shell_value"; default_source="shell"
-        fi
-        if [ -t 0 ]; then
-          resolved_value="$(prompt_env_value "$var_name" "$default_value" "$default_source")"
-        else
-          resolved_value="$default_value"
-          [ -z "$resolved_value" ] && echo "⚠️  Missing ${var_name} in non-interactive mode; leaving it unset."
-        fi
-        if [ -n "$resolved_value" ]; then
-          # shell export 格式，单引号转义
-          printf "export %s='%s'\n" "$var_name" "${resolved_value//\'/\'\\\'\'}" >> "$temp_env_file"
-        fi
-      done <<< "$env_refs"
-    fi
-
-    mv "$temp_env_file" "$MACOS_GATEWAY_ENV"
+    _write_missing_env "$MACOS_GATEWAY_ENV" export
     chmod 600 "$MACOS_GATEWAY_ENV"
-    echo "✅ Merged env file: $MACOS_GATEWAY_ENV"
 
     # 重启 gateway 使新环境变量生效
     cd "$OPENCLAW_DIR"

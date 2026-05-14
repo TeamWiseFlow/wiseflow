@@ -31,9 +31,16 @@ wiseflow 是基于 [openclaw](https://github.com/openclaw/openclaw) 的一套旨
 
 ## 🌟 快速开始
 
-1. 至本代码仓的 [Releases](https://github.com/TeamWiseFlow/wiseflow/releases) 下载最新版代码压缩包，解压缩到任意位置
+### 0. 准备 API Key
 
-或
+1. 注册 [DeepSeek 官方 API](https://platform.deepseek.com/) 并充值，获得 `DEEPSEEK_API_KEY`
+2. 注册 [SiliconFlow](https://cloud.siliconflow.cn/i/WNLYbBpi)（🎁 邀请链接，双方各得 16 元代金券），获得 `SILICONFLOW_API_KEY`
+
+> 想用 ChatGPT / Gemini / Claude 等海外模型见下方[模型费用说明](#-模型费用说明)中的 AiHubMix 备选方案。
+
+### 1. 获取代码
+
+至 [Releases](https://github.com/TeamWiseFlow/wiseflow/releases) 下载最新版压缩包并解压；或：
 
 ```bash
 git clone https://github.com/TeamWiseFlow/wiseflow.git
@@ -42,35 +49,26 @@ git clone https://github.com/openclaw/openclaw.git
 cd ..
 ```
 
-2. 进入解压缩后的代码目录，根据需求选择启动方式：
+### 2. 一键安装
 
-   **调试模式**（单次启动，适合测试和开发）：
-   ```bash
-   cd openclaw && pnpm build && cd ..
-   ./scripts/dev.sh gateway
-   ```
+```bash
+cd wiseflow
+./scripts/install.sh
+```
 
-   **生产模式**（一键安装为系统服务，适合长期运行）：
-   ```bash
-   ./scripts/install.sh
-   ```
+`install.sh` 会自动完成：
+- 拉取最新代码
+- 初始化 `openclaw.json`（内置最佳模型配置，无需手动编辑）
+- 安装系统 daemon（开机自启 + 崩溃重启）
+- **交互式引导你输入** `DEEPSEEK_API_KEY` 和 `SILICONFLOW_API_KEY`（仅在首次或缺失时询问）
 
-> **系统要求**
-> - 推荐使用 **Ubuntu 22.04** 系统
-> - 支持 **Windows WSL2** 环境
-> - 支持 **macOS**
-> - **不建议**直接在 Windows（原生）下运行
+> **调试模式**（单次启动，适合测试）：`./scripts/dev.sh gateway`
 
-3. 打开 `~\.openclaw\openclaw.json` 输入你的大模型服务端点地址和 api key 
+> **系统要求**：推荐 Ubuntu 22.04；支持 WSL2 / macOS；不建议 Windows 原生
 
 🎉 大功告成！
 
-注意：
-
-- dev.sh 或者 install.sh 脚本会自动初始化一个最佳配置的openclaw.json，基础使用几乎不用改；
-- wiseflow 不改 openclaw 的原始代码，release 包中内置的 openclaw 由 CI/CD 程序自动从官方 github 代码仓抓取，请放心使用。
-
-4. 安装后如何用可以参考 [quick start](docs/quick_start.md)
+安装后如何用参考 [quick start](docs/quick_start.md)。
 
 > **💡 模型费用说明**
 >
@@ -79,6 +77,8 @@ cd ..
 > - **主力模型（强烈推荐）**：[DeepSeek 官方 API](https://platform.deepseek.com/) — 综合性能、速度、性价比最优。高缓存命中机制，实际应用成本可控。需要注册并充值获得 `DEEPSEEK_API_KEY`，大部分任务使用 `deepseek-v4-flash` 足够，IT Engineer 技术排查时使用 `deepseek-v4-pro`。
 > - **替补 & 视觉模型**：[SiliconFlow](https://cloud.siliconflow.cn/i/WNLYbBpi) — 模型丰富，可作为 DeepSeek 的 fallback，同时提供视觉理解模型（`Qwen/Qwen3.6-27B`）和生图/生视频 API。需要注册获得 `SILICONFLOW_API_KEY`。
 >   > 🎁 以上 SiliconFlow 链接为 wiseflow 邀请链接，通过此链接注册，你和 wiseflow 项目各可获得一张 16 元代金券。
+>
+> - **海外模型用户**：如果想使用 ChatGPT / Gemini / Claude 等海外模型，可通过 [AiHubMix](https://aihubmix.com/?aff=Gp54) 统一接入（全兼容 OpenAI 接口，国内直连）。欢迎通过此[邀请链接](https://aihubmix.com/?aff=Gp54)注册。备选配置模板见 `config-templates/openclaw-aihubmix.json`。
 >
 > 配置模板已预置以上最佳实践，`install.sh` 会自动检测所需环境变量并引导你输入。安装后重启 openclaw gateway 即可生效。
 
