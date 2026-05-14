@@ -1,5 +1,10 @@
 # v5.4.5～ 5。4。8
 
+### 升级 openclaw 至 v2026.5.7
+
+- v2026.5.7 被标记为 stable，修复了 v2026.5.6 发现的若干问题
+- 所有 patch 均干净应用，无冲突
+
 ### 升级 openclaw 至 v2026.5.6
 
 - 同步上游 hotfix（OpenAI Codex OAuth 路由修复回滚、plugin/runtime fetch header、debug proxy header replay、web_fetch timeout 后 tool lane 卡住等修复）
