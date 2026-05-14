@@ -76,15 +76,11 @@ cd ..
 >
 > wiseflow5.x 底层基于 openclaw，Agent 工作流对 token 消耗有一定要求，建议先准备好大模型 API：
 >
-> - **国内用户 · 主力模型（强烈推荐）**：[🔥 火山引擎（字节跳动旗下）Code Plan](https://volcengine.com/L/_Zg9lMBvyfU/) — 目前**国内唯一不限购且提供 GLM-5.1 模型**的套餐，首月仅需 **¥36**（Lite 套餐，续费 ¥40/月），非常适合练手阶段。配置模板中已预置最佳实践，填入 API Key 即可直接使用。
->   
->   👉 **[立即订阅（9折优惠链接）](https://volcengine.com/L/_Zg9lMBvyfU/)** 邀请码：`5Y5A6L86`
->   
->   > 💰 通过以上链接订阅，你享受 9 折优惠，同时 wiseflow 项目也会获得一定返利，这是支持我们持续维护这个免费开源项目的重要方式之一，感谢你的支持！
+> - **主力模型（强烈推荐）**：[DeepSeek 官方 API](https://platform.deepseek.com/) — 综合性能、速度、性价比最优。高缓存命中机制，实际应用成本可控。需要注册并充值获得 `DEEPSEEK_API_KEY`，大部分任务使用 `deepseek-v4-flash` 足够，IT Engineer 技术排查时使用 `deepseek-v4-pro`。
+> - **替补 & 视觉模型**：[SiliconFlow](https://cloud.siliconflow.cn/i/WNLYbBpi) — 模型丰富，可作为 DeepSeek 的 fallback，同时提供视觉理解模型（`Qwen/Qwen3.6-27B`）和生图/生视频 API。需要注册获得 `SILICONFLOW_API_KEY`。
+>   > 🎁 以上 SiliconFlow 链接为 wiseflow 邀请链接，通过此链接注册，你和 wiseflow 项目各可获得一张 16 元代金券。
 >
-> - **Fallback & 视觉理解模型**：[AiHubMix](https://aihubmix.com/?aff=Gp54) — 全兼容 OpenAI 接口格式，国内直连无障碍，按 token 用量计费（**因此仅适合作 fallback，不建议作主力模型**）。配置模板中已预置为 fallback 和图片理解模型。😄 欢迎使用[邀请链接](https://aihubmix.com/?aff=Gp54)注册，同样给 wiseflow 项目带来返利支持
-> - **海外用户**：可直接使用 SiliconFlow 国际版：https://www.siliconflow.com/
-安装后重启 openclaw_for_business 即可生效。
+> 配置模板已预置以上最佳实践，`install.sh` 会自动检测所需环境变量并引导你输入。安装后重启 openclaw gateway 即可生效。
 
 🎉 wiseflow 目前提供付费知识库，包含《手把手从零开始安装教程》、《Openclaw自定义配置全案教程》、《Windows 下安装 WSL2 无脑教程》以及各种高阶独门秘籍等，年费仅需¥168，还能加入 **vip微信交流群**
 

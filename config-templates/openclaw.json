@@ -14,30 +14,93 @@
     "models": {
         "mode": "merge",
         "providers": {
-            "aihubmix": {
+            "deepseek": {
+                "baseUrl": "https://api.deepseek.com",
                 "api": "openai-completions",
-                "baseUrl": "https://aihubmix.com/v1",
-                "apiKey": "",
+                "apiKey": "${DEEPSEEK_API_KEY}",
                 "models": [
                     {
-                        "id": "glm-5.1",
-                        "name": "GLM-5.1 (AiHubMix)",
+                        "id": "deepseek-v4-flash",
+                        "name": "DeepSeek V4 Flash",
                         "reasoning": true,
                         "input": [
                             "text"
                         ],
-                        "contextWindow": 200000,
-                        "maxTokens": 128000
+                        "cost": {
+                            "input": 0.14,
+                            "output": 0.28,
+                            "cacheRead": 0.028,
+                            "cacheWrite": 0
+                        },
+                        "contextWindow": 1000000,
+                        "maxTokens": 384000,
+                        "compat": {
+                            "supportsReasoningEffort": true,
+                            "supportsUsageInStreaming": true,
+                            "maxTokensField": "max_tokens"
+                        },
+                        "api": "openai-completions"
                     },
                     {
-                        "id": "qwen3.6-flash",
-                        "name": "Qwen3.6 Flash",
+                        "id": "deepseek-v4-pro",
+                        "name": "DeepSeek V4 Pro",
                         "reasoning": true,
                         "input": [
-                            "text",
-                            "image"
+                            "text"
                         ],
-                        "contextWindow": 128000,
+                        "cost": {
+                            "input": 1.74,
+                            "output": 3.48,
+                            "cacheRead": 0.145,
+                            "cacheWrite": 0
+                        },
+                        "contextWindow": 1000000,
+                        "maxTokens": 384000,
+                        "compat": {
+                            "supportsReasoningEffort": true,
+                            "supportsUsageInStreaming": true,
+                            "maxTokensField": "max_tokens"
+                        },
+                        "api": "openai-completions"
+                    }
+                ]
+            },
+            "siliconflow": {
+                "baseUrl": "https://api.siliconflow.cn/v1",
+                "apiKey": "${SILICONFLOW_API_KEY}",
+                "api": "openai-completions",
+                "models": [
+                    {
+                        "id": "deepseek-ai/DeepSeek-V4-Flash",
+                        "name": "deepseek-ai/DeepSeek-V4-Flash",
+                        "reasoning": false,
+                        "input": [
+                            "text"
+                        ],
+                        "cost": {
+                            "input": 0.001,
+                            "output": 0.002,
+                            "cacheRead": 0,
+                            "cacheWrite": 0
+                        },
+                        "contextWindow": 9000000,
+                        "maxTokens": 384000
+                    },
+                    {
+                        "id": "Qwen/Qwen3.6-27B",
+                        "name": "Qwen/Qwen3.6-27B",
+                        "reasoning": false,
+                        "input": [
+                            "image",
+                            "text"
+                        ],
+                        "cost": {
+                            "input": 0.0018,
+                            "output": 0.0144,
+                            "cacheRead": 0,
+                            "cacheWrite": 0
+                        },
+                        "contextWindow": 256000,
                         "maxTokens": 8192
                     }
                 ]
@@ -47,26 +110,36 @@
     "agents": {
         "defaults": {
             "model": {
-                "primary": "aihubmix/glm-5.1"
+                "primary": "deepseek/deepseek-v4-flash",
+                "fallbacks": [
+                    "siliconflow/deepseek-ai/DeepSeek-V4-Flash",
+                    "siliconflow/Qwen/Qwen3.6-27B"
+                ]
             },
             "imageModel": {
-                "primary": "aihubmix/qwen3.6-flash"
+                "primary": "siliconflow/Qwen/Qwen3.6-27B"
             },
             "models": {
-                "aihubmix/glm-5.1": {
-                    "alias": "default"
+                "deepseek/deepseek-v4-flash": {
+                    "alias": "ds/deepseek-v4-flash"
                 },
-                "aihubmix/qwen3.6-flash": {
-                    "alias": "vision"
+                "deepseek/deepseek-v4-pro": {
+                    "alias": "ds/deepseek-v4-pro"
+                },
+                "siliconflow/deepseek-ai/DeepSeek-V4-Flash": {
+                    "alias": "sf/deepseek-v4-flash"
+                },
+                "siliconflow/Qwen/Qwen3.6-27B": {
+                    "alias": "sf/qwen3.6-27b"
                 }
             },
             "compaction": {
                 "mode": "safeguard"
             },
+            "thinkingDefault": "medium",
             "maxConcurrent": 4,
             "subagents": {
-                "maxConcurrent": 8,
-                "maxSpawnDepth": 2,
+                "maxConcurrent": 1,
                 "announceTimeoutMs": 300000
             }
         },
@@ -132,6 +205,9 @@
                 "id": "it-engineer",
                 "name": "IT Engineer",
                 "workspace": "~/.openclaw/workspace-it-engineer",
+                "model": {
+                    "primary": "deepseek/deepseek-v4-pro"
+                },
                 "skills": [
                     "healthcheck",
                     "nano-pdf",
