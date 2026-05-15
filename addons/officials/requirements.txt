@@ -1,0 +1,5 @@
+# Python dependencies for officials addon skills
+# Install: pip install -r requirements.txt
+python-pptx>=1.0.0
+Pillow>=10.0.0
+requests>=2.28.0

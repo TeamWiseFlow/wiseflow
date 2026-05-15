@@ -1,4 +1,26 @@
-# v5.4.5～ 5。4。8
+# v5.4.9
+
+### 升级 openclaw 至 v2026.5.7
+
+- v2026.5.7 被标记为 stable，是近期最稳版本；所有 4 个 patch 均干净应用，无冲突
+
+### install.sh 大幅优化 & DeepSeek + SiliconFlow 最佳实践落地
+
+- 大幅简化新用户 onboard 流程，交互式引导输入 API Key，同时完整支持 macOS 安装部署
+- 经过对多个 provider、多个主流 LLM 的实战测试，总结最佳实践为 DeepSeek（主力）+ SiliconFlow（替补 & 视觉模型）组合，已内置到 config-template 和 install 脚本中
+- agents.defaults.subagents.announceTimeoutMs 提高至 3600000（1 小时），避免长时间 subagent 任务意外超时
+
+### Bug 修复
+
+- 修复了 v5.4.8 中存在的诸多 bug（涉及 scripts、skills、crew 配置等模块）
+
+### Officials Addon 预发布
+
+- 预发布 **business-developer**（商务拓展）和 **investor-relations**（投资人关系）两个新 crew 模板
+
+---
+
+# v5.4.5～5.4.8
 
 ### 升级 openclaw 至 v2026.5.6
 

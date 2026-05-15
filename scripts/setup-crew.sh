@@ -706,6 +706,17 @@ generate_ofb_env_md() {
   local agent_label="$2"
 
   if [ -d "$workspace_dir" ]; then
+    if [ "$(uname -s)" = "Darwin" ]; then
+      _ENV_FILE_PATH="$HOME/.openclaw/service-env/ai.openclaw.gateway.env"
+      _ENV_FILE_FORMAT="export KEY='value'"
+      _ENV_FILE_FORMAT_DESC="shell export 格式，一行一个"
+      _ENV_FILE_QUOTE_NOTE="4. **单引号转义**：值中含单引号时需转义为 \`'\\''\`"
+    else
+      _ENV_FILE_PATH="$HOME/.openclaw/daemon.env"
+      _ENV_FILE_FORMAT="KEY=value"
+      _ENV_FILE_FORMAT_DESC="systemd EnvironmentFile 格式，一行一个"
+      _ENV_FILE_QUOTE_NOTE=""
+    fi
     cat > "$workspace_dir/OFB_ENV.md" << ENVEOF
 # wiseflow 环境信息（由 setup-crew.sh 自动生成，勿手动编辑）
 
@@ -716,6 +727,35 @@ generate_ofb_env_md() {
 - **对外 Crew 注册表**：$OPENCLAW_HOME/workspace-hrbp/EXTERNAL_CREW_REGISTRY.md
 - **对内 Crew 模板目录**：$OPENCLAW_HOME/crew_templates/
 - **对外 Crew 模板目录**：$OPENCLAW_HOME/hrbp_templates/
+
+## 环境变量文件
+
+### 是什么
+
+gateway 进程启动时从此文件读取环境变量，注入到所有 Agent 的运行时环境中。像 API Key、超时参数这类配置，不能硬编码在代码或 openclaw.json 里，必须放在这里。
+
+### 文件位置
+
+\`$_ENV_FILE_PATH\`
+
+### 写入格式
+
+\`$_ENV_FILE_FORMAT\`（$_ENV_FILE_FORMAT_DESC）
+
+### 何时编辑
+
+当你需要为某个技能添加新的环境变量时（如新的 API Key、新的超时配置）。典型场景：
+
+- 用户要求启用某个需要 API Key 的技能（如 email-ops 需要 SMTP 变量、pexels-footage 需要 PEXELS_API_KEY）
+- IT Engineer 需要调整 gateway 运行时参数
+- 新增 Crew 模板依赖了新的外部服务
+
+### 注意事项
+
+1. **写入前先检查**：grep 确认该 key 是否已存在，避免重复写入
+2. **写入后必须重启**：编辑完成后必须重启 gateway 使新变量生效
+3. **禁止内联**：不要在 exec 调用中写 \`KEY=value python3 script.py\`，这会导致 allowlist miss
+$_ENV_FILE_QUOTE_NOTE
 
 ## 常用操作命令
 
@@ -745,6 +785,16 @@ ENVEOF
 
 generate_ofb_env_md "$OPENCLAW_HOME/workspace-it-engineer" "it-engineer"
 generate_ofb_env_md "$OPENCLAW_HOME/workspace-hrbp" "hrbp"
+
+# --- 注入 env 文件路径指引到 TOOLS.md ---
+_OFB_ENV_FILE=""
+if [ "$(uname -s)" = "Darwin" ]; then
+  _OFB_ENV_FILE="$HOME/.openclaw/service-env/ai.openclaw.gateway.env"
+else
+  _OFB_ENV_FILE="$HOME/.openclaw/daemon.env"
+fi
+inject_env_file_guide "$OPENCLAW_HOME/workspace-it-engineer/TOOLS.md" "$_OFB_ENV_FILE"
+inject_env_file_guide "$OPENCLAW_HOME/workspace-hrbp/TOOLS.md" "$_OFB_ENV_FILE"
 
 # ─── 5b. 拷贝 README.md 为项目背景.md（每次运行都覆盖，保持最新） ──
 copy_project_readme() {

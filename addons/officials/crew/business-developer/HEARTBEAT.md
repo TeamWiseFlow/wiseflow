@@ -1,9 +1,19 @@
-# HEARTBEAT — business-developer 定时任务
+# HEARTBEAT — Business Developer 定时任务
+
+## 执行约束
+
+1. **无时间限制**：HEARTBEAT/cron 触发后必须执行完清单全部内容
+2. **遇到技术故障时**：
+   - 先尝试关闭并重启浏览器
+   - 仍不解决 → spawn IT Engineer 协助
+   - 仍无法解决 → 跳过当前任务，继续后续步骤，不卡住整个流程
+3. **不可呼唤用户协助**（定时任务可能深夜执行）
+4. **浏览器操作必须串行**，不可并行，避免竞态抢夺
+
+---
 
 ## 当前无定时任务
 
-BusinessDeveloper 为按需触发型 crew，暂无定时心跳任务。
-
-如需定时自动化（如每周一自动发送外拓邮件批次），可由 HRBP 在此配置。
+如有任务需求，向用户了解清楚后，参照 `HEARTBEAT_TEMPLATE.md` 的格式写入对应工作模式配置。
 
 当前：回复 `HEARTBEAT_OK`

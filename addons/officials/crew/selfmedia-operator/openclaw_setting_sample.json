@@ -1,16 +1,34 @@
 {
-    "skills": [
-        "siliconflow-img-gen",
-        "siliconflow-video-gen",
-        "smart-search",
-        "complex-task",
-        "council"
-    ],
-    "subagents": {
-        "allowAgents": [
-            "it-engineer",
-            "designer"
-        ]
-    },
-    "tools": {}
+  "skills": [
+    "twitter-post",
+    "tiktok-post",
+    "instagram-post",
+    "youtube-upload",
+    "xhs-content-ops",
+    "xhs-interact",
+    "xhs-publisher",
+    "juejin-publish",
+    "toutiao-publish",
+    "siliconflow-img-gen",
+    "siliconflow-video-gen",
+    "pexels-footage",
+    "pixabay-footage",
+    "smart-search",
+    "browser-guide",
+    "council"
+  ],
+  "subagents": {
+    "allowAgents": ["it-engineer", "designer"]
+  },
+  "heartbeat": {
+    "every": "3h",
+    "target": "last",
+    "isolatedSession": true,
+    "activeHours": {
+      "start": "08:00",
+      "end": "24:00",
+      "timezone": "user"
+    }
+  },
+  "tools": {}
 }

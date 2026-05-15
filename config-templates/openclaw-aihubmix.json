@@ -1,0 +1,398 @@
+{
+    "browser": {
+        "enabled": true,
+        "headless": false,
+        "defaultProfile": "openclaw",
+        "extraArgs": [
+            "--window-size=1920,1080",
+            "--window-position=0,0"
+        ],
+        "ssrfPolicy": {
+            "dangerouslyAllowPrivateNetwork": true
+        }
+    },
+    "models": {
+        "mode": "merge",
+        "providers": {
+            "aihubmix": {
+                "api": "openai-completions",
+                "baseUrl": "https://aihubmix.com/v1",
+                "apiKey": "",
+                "models": [
+                    {
+                        "id": "glm-5.1",
+                        "name": "GLM-5.1 (AiHubMix)",
+                        "reasoning": true,
+                        "input": [
+                            "text"
+                        ],
+                        "contextWindow": 200000,
+                        "maxTokens": 128000
+                    },
+                    {
+                        "id": "qwen3.6-flash",
+                        "name": "Qwen3.6 Flash",
+                        "reasoning": true,
+                        "input": [
+                            "text",
+                            "image"
+                        ],
+                        "contextWindow": 128000,
+                        "maxTokens": 8192
+                    }
+                ]
+            }
+        }
+    },
+    "agents": {
+        "defaults": {
+            "model": {
+                "primary": "aihubmix/glm-5.1"
+            },
+            "imageModel": {
+                "primary": "aihubmix/qwen3.6-flash"
+            },
+            "models": {
+                "aihubmix/glm-5.1": {
+                    "alias": "default"
+                },
+                "aihubmix/qwen3.6-flash": {
+                    "alias": "vision"
+                }
+            },
+            "compaction": {
+                "mode": "safeguard"
+            },
+            "maxConcurrent": 4,
+            "subagents": {
+                "maxConcurrent": 1,
+                "announceTimeoutMs": 3600000
+            }
+        },
+        "list": [
+            {
+                "id": "main",
+                "default": true,
+                "name": "Main Agent",
+                "workspace": "~/.openclaw/workspace-main",
+                "skills": [
+                    "nano-pdf",
+                    "skill-creator",
+                    "session-logs",
+                    "tmux",
+                    "weather",
+                    "summarize",
+                    "gifgrep"
+                ],
+                "subagents": {
+                    "allowAgents": [
+                        "it-engineer"
+                    ]
+                },
+                "tools": {
+                    "exec": {
+                        "host": "gateway",
+                        "security": "allowlist",
+                        "ask": "off"
+                    }
+                },
+                "thinkingDefault": "high",
+                "reasoningDefault": "off"
+            },
+            {
+                "id": "hrbp",
+                "name": "HRBP",
+                "workspace": "~/.openclaw/workspace-hrbp",
+                "skills": [
+                    "model-usage",
+                    "nano-pdf",
+                    "skill-creator",
+                    "session-logs",
+                    "tmux",
+                    "weather",
+                    "summarize"
+                ],
+                "subagents": {
+                    "allowAgents": [
+                        "it-engineer"
+                    ]
+                },
+                "tools": {
+                    "exec": {
+                        "host": "gateway",
+                        "security": "full",
+                        "ask": "off"
+                    }
+                },
+                "thinkingDefault": "high",
+                "reasoningDefault": "off"
+            },
+            {
+                "id": "it-engineer",
+                "name": "IT Engineer",
+                "workspace": "~/.openclaw/workspace-it-engineer",
+                "skills": [
+                    "healthcheck",
+                    "nano-pdf",
+                    "skill-creator",
+                    "session-logs",
+                    "tmux",
+                    "weather",
+                    "summarize",
+                    "gifgrep",
+                    "node-connect",
+                    "github",
+                    "gh-issues",
+                    "coding-agent"
+                ],
+                "tools": {
+                    "exec": {
+                        "host": "gateway",
+                        "security": "full",
+                        "ask": "off"
+                    }
+                },
+                "thinkingDefault": "high",
+                "reasoningDefault": "off"
+            }
+        ]
+    },
+    "bindings": [
+        {
+            "agentId": "main",
+            "comment": "main-bot -> Main Agent",
+            "match": {
+                "channel": "feishu",
+                "accountId": "main-bot"
+            }
+        },
+        {
+            "agentId": "hrbp",
+            "comment": "hrbp-bot -> HRBP Agent",
+            "match": {
+                "channel": "feishu",
+                "accountId": "hrbp-bot"
+            }
+        },
+        {
+            "agentId": "it-engineer",
+            "comment": "it-engineer-bot -> IT Engineer Agent",
+            "match": {
+                "channel": "feishu",
+                "accountId": "it-engineer-bot"
+            }
+        }
+    ],
+    "messages": {
+        "ackReactionScope": "group-mentions",
+        "inbound": {
+            "debounceMs": 1500
+        }
+    },
+    "session": {
+        "dmScope": "per-channel-peer",
+        "reset": {
+            "mode": "idle",
+            "idleMinutes": 2880
+        }
+    },
+    "commands": {
+        "native": "auto",
+        "nativeSkills": "auto",
+        "restart": true,
+        "ownerDisplay": "raw"
+    },
+    "hooks": {
+        "internal": {
+            "enabled": true,
+            "entries": {
+                "boot-md": {
+                    "enabled": false
+                },
+                "command-logger": {
+                    "enabled": true
+                },
+                "session-memory": {
+                    "enabled": true
+                }
+            }
+        }
+    },
+    "channels": {
+        "feishu": {
+            "enabled": true,
+            "domain": "feishu",
+            "connectionMode": "websocket",
+            "requireMention": true,
+            "streaming": false,
+            "tools": {
+                "doc": true,
+                "chat": true,
+                "wiki": true,
+                "drive": true,
+                "perm": false
+            },
+            "accounts": {
+                "main-bot": {
+                    "name": "Main Bot",
+                    "appId": "",
+                    "appSecret": "",
+                    "dmPolicy": "open",
+                    "allowFrom": [
+                        "*"
+                    ],
+                    "groupPolicy": "allowlist"
+                },
+                "hrbp-bot": {
+                    "name": "HRBP Bot",
+                    "appId": "",
+                    "appSecret": "",
+                    "dmPolicy": "open",
+                    "allowFrom": [
+                        "*"
+                    ],
+                    "groupPolicy": "allowlist"
+                },
+                "it-engineer-bot": {
+                    "name": "IT Engineer Bot",
+                    "appId": "",
+                    "appSecret": "",
+                    "dmPolicy": "open",
+                    "allowFrom": [
+                        "*"
+                    ],
+                    "groupPolicy": "allowlist"
+                }
+            }
+        }
+    },
+    "gateway": {
+        "port": 18789,
+        "mode": "local",
+        "bind": "loopback",
+        "auth": {
+            "mode": "token",
+            "token": ""
+        },
+        "tailscale": {
+            "mode": "off",
+            "resetOnExit": false
+        },
+        "nodes": {
+            "denyCommands": [
+                "camera.snap",
+                "camera.clip",
+                "screen.record",
+                "calendar.add",
+                "contacts.add",
+                "reminders.add"
+            ]
+        }
+    },
+    "skills": {
+        "entries": {
+            "ordercli": {
+                "enabled": false
+            },
+            "notion": {
+                "enabled": false
+            },
+            "obsidian": {
+                "enabled": false
+            },
+            "trello": {
+                "enabled": false
+            },
+            "github": {
+                "enabled": true
+            },
+            "gh-issues": {
+                "enabled": true
+            },
+            "coding-agent": {
+                "enabled": true
+            },
+            "slack": {
+                "enabled": false
+            },
+            "wacli": {
+                "enabled": false
+            },
+            "gemini": {
+                "enabled": false
+            },
+            "openai-whisper": {
+                "enabled": false
+            },
+            "openai-whisper-api": {
+                "enabled": false
+            },
+            "voice-call": {
+                "enabled": false
+            },
+            "sherpa-onnx-tts": {
+                "enabled": false
+            },
+            "spotify-player": {
+                "enabled": false
+            },
+            "mcporter": {
+                "enabled": false
+            },
+            "clawhub": {
+                "enabled": false
+            },
+            "alipay-mcp-config": {
+                "enabled": false
+            },
+            "canvas": {
+                "enabled": false
+            },
+            "taskflow-inbox-triage": {
+                "enabled": false
+            }
+        }
+    },
+    "plugins": {
+        "load": {
+            "paths": []
+        },
+        "entries": {
+            "feishu": {
+                "enabled": true
+            },
+            "memory-core": {
+                "enabled": true,
+                "config": {
+                    "dreaming": {
+                        "enabled": true
+                    }
+                }
+            },
+            "awada": {
+                "enabled": false
+            },
+            "xai": {
+                "enabled": false
+            },
+            "phone-control": {
+                "enabled": false
+            }
+        }
+    },
+    "tools": {
+        "exec": {
+            "host": "gateway"
+        },
+        "agentToAgent": {
+            "enabled": false
+        },
+        "web": {
+            "fetch": {
+                "ssrfPolicy": {
+                    "allowRfc2544BenchmarkRange": true
+                }
+            }
+        }
+    }
+}

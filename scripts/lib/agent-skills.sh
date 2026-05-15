@@ -480,11 +480,13 @@ test -f /tmp/file.txt && echo "EXISTS" || echo "NOT"
 
 - ❌ `cd /abs/path && bash ./skills/xxx/scripts/yyy.sh` — CWD 已经是 workspace，不需要 `cd` 前缀，`cd` 不在 allowlist 中
 - ❌ `KEY=value python3 script.py` — 内联 env 赋值会改变命令前缀导致 allowlist miss；环境变量由系统注入
+- ❌ `mkdir -p {notes,images}` — exec 不会展开花括号（brace expansion），会直接创建一个名为 `{notes,images}` 的单个文件夹，而非 `notes` 和 `images` 两个文件夹
 
 **正确写法：**
 
 - ✅ `bash ./skills/xxx/scripts/yyy.sh`（直接相对路径调用）
 - ✅ `python3 /abs/path/to/script.py`（无 env 前缀）
+- ✅ `mkdir -p notes images`（逐一直写目录名，不用花括号展开）
 GUIDE
 }
 
@@ -514,4 +516,25 @@ python3 /tmp/my_script.py
 
 临时脚本统一写到 `/tmp/` 下，执行后可删除。
 GUIDE
+}
+
+inject_env_file_guide() {
+  local tools_md="$1" env_file="$2"
+  [ -f "$tools_md" ] || return 0
+  grep -qF "## 环境变量写入规范" "$tools_md" && return 0
+  cat >> "$tools_md" << GUIDEEOF
+
+## 环境变量写入规范
+
+为技能配置环境变量时，必须写入 gateway 环境变量文件：
+
+- **文件路径**：${env_file}
+
+**写入步骤**：
+1. 读取当前文件内容，确认该变量是否已存在
+2. 若不存在，按格式追加（`KEY=value` 一行一个）
+3. 写入后必须重启 gateway 使变量生效
+
+**严禁**在 exec 调用时内联设置环境变量（如 \`KEY=value python3 script.py\`），这会导致 allowlist miss。
+GUIDEEOF
 }

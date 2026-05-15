@@ -1,10 +1,10 @@
 {
   "name": "wiseflow officials",
-  "version": "0.4.0",
-  "description": "官方 Crew 模板（selfmedia-operator / business-developer / designer / sales-cs）+ 专属全局技能（rss-reader / siliconflow-img-gen / siliconflow-video-gen / connections-optimizer / email-ops / pitch-deck / social-graph-ranker）",
-  "openclaw_version": "2026.5.6",
-  "openclaw_commit": "c97b9f79ec43b531a3472c3219ca51efbf7695a3",
+  "version": "0.4.1",
+  "description": "官方 Crew 模板（selfmedia-operator / business-developer / designer / ir / sales-cs）+ 专属全局技能（rss-reader / siliconflow-img-gen / siliconflow-video-gen / pexels-footage / pixabay-footage / connections-optimizer / email-ops / pitch-deck / ppt-maker / social-graph-ranker / xhs-interact）",
+  "openclaw_version": "2026.5.7",
+  "openclaw_commit": "eeef4864494f859838fec1586bedbab1f8fa5702",
   "auto-activate": false,
-  "internal_crews": ["business-developer", "designer", "selfmedia-operator"],
+  "internal_crews": ["business-developer", "designer", "ir", "selfmedia-operator"],
   "external_crews": ["sales-cs"]
 }
