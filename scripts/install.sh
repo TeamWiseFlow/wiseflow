@@ -247,7 +247,22 @@ prompt_env_value() {
 # 向 env 文件写入缺失的询问 key + 硬编码默认值
 # $1: env 文件路径   $2: 格式 kv（KEY=VALUE）或 export（export KEY='value'）
 _write_missing_env() {
-  local env_file="$1" format="$2" _key="" _val="" _entry="" _sniff="" _sv=""
+  local env_file="$1" format="$2" _key="" _val="" _entry="" _sv="" _missing=""
+
+  # 先扫描缺失的 key，如有则提前展示
+  for _key in $_USER_PROMPT_KEYS; do
+    if [ "$format" = "export" ]; then
+      grep -qE "^export ${_key}=" "$env_file" 2>/dev/null && continue
+    else
+      grep -qE "^${_key}=" "$env_file" 2>/dev/null && continue
+    fi
+    _missing="${_missing}  ${_key}"
+  done
+  if [ -n "$_missing" ]; then
+    echo "🔐 以下 API Key 未在 $(basename "$env_file") 中找到，需要输入："
+    echo "$_missing"
+    echo ""
+  fi
 
   # 询问 key（已存在则跳过）
   for _key in $_USER_PROMPT_KEYS; do

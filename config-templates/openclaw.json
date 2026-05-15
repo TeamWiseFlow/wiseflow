@@ -140,7 +140,7 @@
             "maxConcurrent": 4,
             "subagents": {
                 "maxConcurrent": 1,
-                "announceTimeoutMs": 300000
+                "announceTimeoutMs": 3600000
             }
         },
         "list": [
