@@ -535,6 +535,6 @@ inject_env_file_guide() {
 2. 若不存在，按格式追加（`KEY=value` 一行一个）
 3. 写入后必须重启 gateway 使变量生效
 
-**严禁**在 exec 调用时内联设置环境变量（如 `KEY=value python3 script.py`），这会导致 allowlist miss。
+**严禁**在 exec 调用时内联设置环境变量（如 \`KEY=value python3 script.py\`），这会导致 allowlist miss。
 GUIDEEOF
 }
