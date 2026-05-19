@@ -31,6 +31,5 @@
 | `xhs-interact` | 社交媒体投资人触达 | Investor Hunting |
 | `social-graph-ranker` | 人脉网络中找热心引荐人 | Relationship Tracking |
 | `connections-optimizer` | 发现 warm intro 路径 | Relationship Tracking |
-| `council` | 复杂决策时做多方讨论 | 融资策略决策 |
 | `ir-record` | 投资人数据库与进展跟踪 | 全部模式 |
 | `summarize` | 会议纪要、信息摘要 | Relationship Tracking |

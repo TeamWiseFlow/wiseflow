@@ -14,8 +14,7 @@
     "pexels-footage",
     "pixabay-footage",
     "smart-search",
-    "browser-guide",
-    "council"
+    "browser-guide"
   ],
   "subagents": {
     "allowAgents": ["it-engineer", "designer"]

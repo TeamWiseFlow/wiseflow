@@ -8,13 +8,6 @@ metadata:
       bins:
       - python3
     primaryEnv: SILICONFLOW_API_KEY
-    install:
-    - id: brew
-      kind: brew
-      formula: libreoffice
-      bins:
-      - libreoffice
-      label: Install LibreOffice (brew)
 ---
 
 # PPT Maker
@@ -29,10 +22,10 @@ metadata:
 ## 依赖
 
 ```bash
-pip install python-pptx
+pip install python-pptx pillow
 ```
 
-本脚本依赖 `python-pptx`。若未安装，脚本会提示安装命令。
+本脚本依赖 `python-pptx`；建议安装 `pillow` 以便生成时保持图片比例。若 `python-pptx` 未安装，脚本会提示安装命令。
 
 ## 工作流
 
@@ -66,15 +59,20 @@ pip install python-pptx
 └────────┬──────────┘
          │
          ▼
-┌───────────────────────┐
-│ Step 5: 视觉校验       │  ← 逐页转 PNG，LLM 视觉模型审阅排版
-│  （必须执行）          │  ← 检查字体大小、布局偏移、元素重叠等
-│                       │  ← 发现问题 → 修复 JSON → 重新生成 → 再校验
-└────────┬──────────────┘
-         │
-         ▼
     交付 PPTX 文件
 ```
+
+### 必须先写版式契约
+
+生成前为每页写出最小版式契约，不能只写“左文右图”这种粗略描述：
+
+- `safe_area`：若模板有 logo/活动标题/页眉，正文标题必须从页眉安全区以下开始（通常 `top >= 1.2in`）。
+- `content_grid`：定义每页的列中心、图片高度、标题基线、说明文字基线。
+- `asset_fit`：每张图必须使用 `contain` 或 `cover`，禁止默认拉伸；人物组图优先同高、同 top、同 caption baseline。
+- `reading_order`：先标题，再解释句，再主视觉；不要把补充说明压到图片上。
+- `risk_items`：列出本页最容易错的对象，如二维码、截图、长标题、三列人物图、结束页金句。
+
+**硬规则**：同一页中承担同一角色的图片/卡片/标题，必须共享精确尺寸或精确中心线。不能靠“看起来差不多”。
 
 ### Step 1: 风格分析
 
@@ -171,13 +169,13 @@ python3 {baseDir}/../siliconflow-img-gen/scripts/gen.py \
 
 **生成后必须验证**：检查图片不是纯色白板（siliconflow 偶发异常），异常则重试（最多 3 次）。
 
-#### 使用素材图库（可选，后续集成）
+#### 使用素材图库（可选）
 
 ```
-# pexels-footage（计划中）
+# pexels-footage
 python3 {baseDir}/../pexels-footage/scripts/search.py --query "business meeting" --orientation landscape
 
-# pixabay-footage（计划中）
+# pixabay-footage
 python3 {baseDir}/../pixabay-footage/scripts/search.py --query "technology abstract" --orientation horizontal
 ```
 
@@ -234,68 +232,50 @@ python3 {baseDir}/scripts/generate_pptx.py \
   --template /path/to/template.pptx
 ```
 
-### Step 5: 视觉校验（必须执行）
+#### 版式机械检查（必跑）
 
-PPTX 生成后，**必须逐页转为 PNG 图片**，用视觉模型审阅排版是否正确。这是自动化流程无法保证排版质量的关键环节。
-
-#### 5a. 逐页转 PNG
+生成后立刻运行几何检查，先修机器能确定的问题，再做视觉判断：
 
 ```bash
-python3 {baseDir}/scripts/pptx_to_png.py \
-  --input ./output/presentation.pptx \
-  --outdir ./tmp/ppt-pngs
+python3 {baseDir}/scripts/check_layout.py ./output/presentation.pptx \
+  --header-safe-top-in 1.1
 ```
 
-此脚本依赖系统安装 LibreOffice（`libreoffice-impress`）。若未安装，脚本会给出安装提示。
+检查不通过时不要交付，必须回到 JSON/脚本修正后重新生成。这个脚本会抓：
 
-转换完成后，`./tmp/ppt-pngs/` 目录下会生成 `Slide1.png`、`Slide2.png`... 每个文件对应一页幻灯片。
+- 标题/大字号文本进入页眉安全区
+- 文本框互相重叠或疑似溢出
+- 图片被拉伸变形
+- 三张及以上同组图片 top/height/spacing 不一致
+- 对象超出页面边界或被裁切
 
-#### 5b. 逐页视觉审阅
+若视觉设计确实需要例外，必须在交付说明里写清楚，并确认渲染图没有真实缺陷。
 
-**用 Read 工具打开每一张 PNG 图片**，逐页检查以下项目：
+#### 视觉复查必须输出 defect list
 
-| 检查项 | 关注点 | 判定标准 |
-|--------|--------|---------|
-| **整体偏移** | 所有内容是否整体偏上/偏下/偏左/偏右 | 页边距均匀，内容居中 |
-| **字体大小** | 标题/正文是否过大（撑爆）或过小（看不清） | 标题约 28-44pt，正文约 16-20pt，视觉比例协调 |
-| **文字截断** | 长文本是否超出幻灯片边界被截断 | 文字完整显示，左右留白充足 |
-| **元素重叠** | 文本框/图片/装饰条是否互相遮挡 | 各元素有清晰边界，不重叠 |
-| **图片质量** | 配图是否正常显示、比例是否变形 | 图片清晰，横纵比正确，无占位符裸露 |
-| **配色可读性** | 文字与背景对比度是否足够 | 深底浅字或浅底深字，能轻松阅读 |
-| **整体感** | 各页风格是否统一，排版是否专业 | 风格一致，无突兀差异 |
+不要只写“整体还行/更协调了”。视觉复查必须按页输出缺陷表：
 
-**审阅流程**：
+| slide | defect | fix | status |
+|-------|--------|-----|--------|
+| 02 | 标题压到 logo/页眉线 | 标题下移到 safe area | fixed |
+| 04 | 三张人物图 top 不齐 | 统一图片 top 和 height | fixed |
 
-1. 用 `Read` 工具打开第一张 `Slide1.png`（封面），检查标题位置、背景图、强调线
-2. 依次打开后续每张 PNG，逐页检查
-3. 对每页记录：`PASS` 或 `FAIL（原因：xxx）`
-4. 所有页面 `PASS` 才可进入交付步骤
+视觉复查的硬失败项：
 
-#### 5c. 发现问题时
+- 标题贴到 logo、页眉线、页面边缘
+- 文字与文字、文字与图、字幕与截图互相压住
+- 同组图片不等高、不等宽、列中心不均匀、说明文字 baseline 不齐
+- 图片比例失真、人物被不自然裁切、截图太小无法辨认
+- 二维码贴边、被裁切、或没有足够留白
+- 结束页金句/感谢语/链接层级混在一起
 
-若任意页面 `FAIL`，按以下流程修复：
+### Step 5: 交付
 
-1. **分析根因**：定位是 JSON 配置的问题（字号/位置参数不对）还是脚本渲染逻辑问题
-2. **修复 JSON 配置**：调整对应 slide 的配置参数（字号、位置、颜色等）
-3. **重新生成**：运行 `generate_pptx.py` 重新生成 .pptx
-4. **重新校验**：再次执行 5a → 5b，直到所有页面 `PASS`
-5. **最多重试 3 轮**：若 3 轮后仍有问题，记录具体问题告知用户，不可无限循环
-
-#### 5d. 常见问题速查
-
-| 现象 | 可能原因 | 修复方法 |
-|------|---------|---------|
-| 所有内容整体偏下 | 幻灯片高度设置问题或模板母版偏移 | 检查 slide_height，或在 JSON 中统一调整各元素的 top 值 |
-| 字体超大撑爆页面 | 字号参数过大 | 降低 `font_size`，封面标题不超过 44，正文不超过 20 |
-| 中文显示方框 | 字体不支持中文 | 将 `heading_font`/`body_font` 改为 `"Microsoft YaHei"` 或 `"SimHei"` |
-| 图片遮挡文字 | image_position 与实际布局冲突 | 改用 `"bottom"` 位置或将图片缩小 |
-| 长列表溢出底部 | bullets 条数过多 | 拆分为多页，或缩小字号/行距 |
-
-### Step 6: 交付
-
-1. 确认 `.pptx` 文件已生成，视觉校验全部通过
-2. 告知用户文件路径、幻灯片数量、使用的风格
-3. 清理临时文件（`./tmp/ppt-images/`、`./tmp/ppt-pngs/` 和 `./tmp/slides-config.json`），除非用户要求保留
+1. 确认 `.pptx` 文件已生成且大小合理（非空）
+2. 运行 `scripts/check_layout.py`，结果必须为 `ok`
+3. 渲染或截图全 deck contact sheet，逐页写 defect list，并修到没有硬失败项
+4. 告知用户文件路径
+5. 清理临时文件（`./tmp/ppt-images/` 和 `./tmp/slides-config.json`），除非用户要求保留
 
 ## 幻灯片类型速查
 
@@ -313,9 +293,13 @@ python3 {baseDir}/scripts/pptx_to_png.py \
 
 ## 反模式
 
-- 不要在生成 PPTX 后跳过视觉校验（Step 5），这是最常见的排版质量问题来源
 - 不要在用 `siliconflow-img-gen` 生成图片时设置 inline env var（`SILICONFLOW_API_KEY=... python3 ...`），API key 已在系统环境中
 - 不要跳过图片生成后的验证步骤（纯色白板检查）
+- 不要跳过 `scripts/check_layout.py`
+- 不要用“视觉分析了一遍”替代逐页 defect list
+- 不要把标题放进模板页眉/logo 区域
+- 不要拉伸图片来填满框；人物、截图、二维码都必须保持原始比例
+- 不要让同组图片靠手工拖拽；必须使用统一坐标、尺寸和基线
 - 每页 slides JSON 必须包含 `type` 字段
 - 颜色值不要带 `#` 前缀（python-pptx 要求）
 - 图片路径使用绝对路径或相对于脚本执行目录的正确相对路径
@@ -327,6 +311,8 @@ python3 {baseDir}/scripts/pptx_to_png.py \
 - [ ] 配图已生成并验证（非纯色白板）
 - [ ] JSON 配置已写为临时文件
 - [ ] PPTX 已成功生成且文件非空
-- [ ] **视觉校验已通过（逐页 PNG 审阅，所有页面 PASS）**
+- [ ] 已运行 `scripts/check_layout.py` 且无 error
+- [ ] 已渲染/截图 contact sheet 并逐页记录 defect list
+- [ ] 同组图片、二维码、截图、结束页层级已人工复查
 - [ ] 临时文件已清理（除非用户要求保留）
 - [ ] 交付时说明文件路径、幻灯片数量、使用的模板/风格

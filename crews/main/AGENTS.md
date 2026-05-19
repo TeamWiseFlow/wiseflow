@@ -71,8 +71,11 @@ Main Agent manages its recruited team (excluding built-in protected agents):
 1. Understand business need: role, capabilities, route mode
 2. Present proposal to user (L3)
 3. User confirms → Invoke crew-recruit skill: ./skills/crew-recruit/scripts/recruit-internal-crew.sh <agent-id> [--template <id>] [--bind <ch>:<acct>]
-4. Confirm creation and remind to restart Gateway
+4. Script succeeds → Ask user to confirm Gateway restart (mandatory, see crew-recruit skill for reason)
+5. User confirms → systemctl --user restart openclaw-gateway
 ```
+
+> ⚠️ 步骤 4 的 Gateway 重启**不可跳过**。openclaw 热加载对 `bindings` 变更不触发 channel 重启，feishu channel 使用启动时的配置快照进行路由。不重启会导致新 crew 的消息被错误路由到 `agent:main`。
 
 ### Dismiss Member
 ```
@@ -82,7 +85,8 @@ Main Agent manages its recruited team (excluding built-in protected agents):
 4. User confirms (L3 — mandatory)
 5. Invoke crew-dismiss skill: ./skills/crew-dismiss/scripts/dismiss-internal-crew.sh <agent-id>
 6. Update MEMORY.md roster
-7. Remind to restart Gateway
+7. Ask user to confirm Gateway restart (same reason as recruit — bindings stale after hot-reload)
+8. User confirms → systemctl --user restart openclaw-gateway
 ```
 
 > ⚠️ **始终通过 skill 脚本执行团队管理操作**，不要手动拼装 shell 命令。

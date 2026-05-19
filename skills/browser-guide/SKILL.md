@@ -1,14 +1,10 @@
 ---
 name: browser-guide
-description: Best practices for using the managed browser — handling login walls, CAPTCHAs, lazy-loaded content, paywalls, and tab cleanup.
+description: Best practices for using the managed browser — handling login walls,
+  CAPTCHAs, lazy-loaded content, paywalls, and tab cleanup.
 metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "🌐",
-        "always": true,
-      }
-  }
+  openclaw:
+    emoji: 🌐
 ---
 
 # Browser Best Practices
@@ -95,7 +91,43 @@ When a page uses lazy loading (infinite scroll, "load more" sections, content th
 4. Do NOT scroll too fast, do it as a human would. After 7 times of scrolling, you should stop this turn.
 5. If not relevant, skip scrolling and work with what is already loaded.
 
-## 5. Paywall / Subscription Walls
+## 5. Browser `evaluate` Action — Expression Only
+
+When using the browser tool's `evaluate` (or `act` with `kind: "evaluate"`) to run JavaScript in the page context, the `fn` parameter must be a **single expression**, not a statement block. Declarations (`const`, `let`, `var`), semicolons, `for`/`if` statements, and `function` declarations will all cause `Invalid evaluate function` errors.
+
+**Wrong** (statement block — will fail):
+```js
+const items = document.querySelectorAll('.msg');
+let found = false;
+for (const item of items) {
+  if (item.textContent.includes('target')) { found = true; break; }
+}
+found ? 'ok' : 'no';
+```
+
+**Correct** (wrap in IIFE):
+```js
+(function() {
+  var items = document.querySelectorAll('.msg');
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].textContent.indexOf('target') > -1) { return items[i].innerText; }
+  }
+  return 'not found';
+})()
+```
+
+**Correct** (pure expression, for simple lookups):
+```js
+document.querySelector('.reply-btn') ? 'found' : 'not found'
+```
+
+Rules:
+- Always wrap multi-step logic in an IIFE: `(function(){ ... })()`
+- For DOM queries that only need to click, prefer `click` action on a selector over `evaluate`
+- For reading text, prefer `snapshot` over `evaluate` when possible
+- Never use `const`/`let`/`var` declarations or `;` at the top level of `fn`
+
+## 6. Paywall / Subscription Walls
 
 When a page indicates that content is behind a paywall or requires a specific subscription (e.g., "Subscribe to continue reading", "Continue reading with a WSJ subscription", premium-only banners):
 

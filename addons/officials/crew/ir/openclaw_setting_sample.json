@@ -9,8 +9,10 @@
     "xhs-interact",
     "social-graph-ranker",
     "connections-optimizer",
-    "council",
     "ir-record",
+    "investor-materials",
+    "investor-outreach",
+    "market-research",
     "summarize"
   ],
   "subagents": {
