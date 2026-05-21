@@ -459,22 +459,24 @@ inject_exec_guide() {
 
 ## exec 命令规范
 
-exec allowlist 不支持 shell 重定向符（`>`、`<`、`2>`、`&>`），使用时会导致整条命令被 deny，即使其中每个命令都已在白名单中。
+exec allowlist 会解析管道、`&&`、`||`、`;` 和常见重定向，并逐段检查实际执行的命令是否都在白名单中。
 
-**避免**：
-```
+**允许的常见写法**：
+```bash
 ls -la /tmp/file.txt 2>/dev/null && echo "EXISTS" || echo "NOT"
 some-cmd > /tmp/out.txt
+echo a; echo b
+cat file.txt | grep keyword
 ```
 
-**改用**：
-```bash
-# 判断文件是否存在
-[ -f /tmp/file.txt ] && echo "EXISTS" || echo "NOT"
-test -f /tmp/file.txt && echo "EXISTS" || echo "NOT"
-```
+注意：重定向只支持 POSIX 风格写法（如 `> file`、`2> err.log`、`2>&1`）。不要使用 bash/zsh 专属的 `&>` / `&>>`，这类写法在 `/bin/sh` 下可能被解释为后台执行。重定向只改变当前已批准命令的 stdin/stdout/stderr；命令本身仍必须在 allowlist 中。`echo ok; rm file` 只有在 `echo` 和 `rm` 都被允许时才会通过。
 
-如果确实需要重定向，请改用 `bash -c "..."` 方式，并确保 `bash` 已在 exec allowlist 中（T2 及以上 tier 默认包含）。
+**仍然禁止使用隐式执行子命令的 shell 扩展：**
+
+- ❌ `echo $(whoami)` — 命令替换会额外执行子命令
+- ❌ ``echo `id` `` — 反引号命令替换会额外执行子命令
+- ❌ `cat <(id)` / `tee >(cmd)` — process substitution 会额外执行子命令
+- ❌ `cmd & other-cmd` — 后台执行不受控
 
 **以下写法同样会导致 allowlist miss，禁止使用：**
 
