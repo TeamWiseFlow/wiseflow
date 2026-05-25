@@ -43,10 +43,10 @@
 
 白名单命令（由 setup-crew.sh 自动解析为二进制路径写入 exec-approvals）：
 ```
-cat, ls, grep, find, ps, date, echo, pwd, env, which, head, tail, wc, sort, uniq, diff, curl
+cat, ls, grep, find, ps, date, echo, pwd, env, which, head, tail, wc, sort, uniq, diff, curl, stat, basename, dirname, realpath, readlink, tr, printf, whoami, uname, du, df, file, ffprobe, fc-list
 ```
 
-不在白名单中的命令会被 OpenClaw 自动拒绝。请勿尝试使用 `rm`、`mv`、`cp`、`mkdir`、`chmod` 等修改型命令。
+不在白名单中的命令会被 OpenClaw 自动拒绝。`ffprobe` 仅用于可信本地媒体文件的元数据探测，不用于解析未知来源的大文件或远程 URL。请勿尝试使用 `rm`、`mv`、`cp`、`mkdir`、`chmod` 等修改型命令。
 
 ---
 

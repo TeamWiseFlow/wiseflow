@@ -7,7 +7,6 @@ set -e
 OPENCLAW_HOME="$HOME/.openclaw"
 CONFIG_PATH="$OPENCLAW_HOME/openclaw.json"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SYNC_TEAM_DIRECTORY_SCRIPT="$SCRIPT_DIR/../../hrbp-common/scripts/sync-team-directory.sh"
 
 source "$SCRIPT_DIR/../../hrbp-common/scripts/lib.sh"
 
@@ -107,12 +106,6 @@ if [ -f "$HRBP_REGISTRY" ]; then
     mv "$TMP_REGISTRY" "$HRBP_REGISTRY"
     echo "  ✅ Removed from HRBP EXTERNAL_CREW_REGISTRY.md"
   fi
-fi
-
-if [ -f "$SYNC_TEAM_DIRECTORY_SCRIPT" ]; then
-  OPENCLAW_HOME="$OPENCLAW_HOME" CONFIG_PATH="$CONFIG_PATH" bash "$SYNC_TEAM_DIRECTORY_SCRIPT" >/dev/null 2>&1 || {
-    echo "  ⚠️  Failed to sync TEAM_DIRECTORY.md"
-  }
 fi
 
 echo ""

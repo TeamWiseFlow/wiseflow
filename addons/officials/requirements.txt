@@ -3,3 +3,5 @@
 python-pptx>=1.0.0
 Pillow>=10.0.0
 requests>=2.28.0
+moviepy>=1.0.3
+edge-tts>=7.0

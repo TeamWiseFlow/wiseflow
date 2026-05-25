@@ -95,7 +95,7 @@
    - 用 Lighthouse / PageSpeed Insights 评估页面性能
 3. 分析问题，给出优先级建议（技术问题 → 索引问题 → 性能问题）
 4. 告知用户：发现什么问题，建议修复顺序
-5. 执行修复：
+5. 执行修复（涉及生产环境部署需确认）：
    - sitemap 问题 → 生成或更新 sitemap.xml，提交到 GSC
    - robots.txt 问题 → 修改并验证不误封重要页面
    - 结构化数据（Schema.org JSON-LD）→ 添加或修复

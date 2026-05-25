@@ -9,11 +9,11 @@
 # ── 各 Tier 基线命令 ──────────────────────────────────
 # T0: 无命令（deny）
 # T1: 只读型系统命令
-TIER_T1_COMMANDS="cat ls grep find ps date echo pwd env which head tail wc sort uniq diff curl stat basename dirname realpath readlink tr printf whoami uname du df file"
+TIER_T1_COMMANDS="cat ls grep find ps date echo pwd env which head tail wc sort uniq diff curl stat basename dirname realpath readlink tr printf whoami uname du df file ffprobe fc-list fc-match sed true false"
 # T2: T1 + 开发工具链
 # 注意：bash/sh 的全部常见路径均需列出（/bin 和 /usr/bin 在部分系统上是独立路径，
 # exec 白名单做精确路径匹配，仅靠 command -v 只能解析到其中一条，须全量覆盖）
-TIER_T2_EXTRA="git npm pnpm bun node python python3 pip pip3 cp mv mkdir rmdir rm touch chmod sleep test /bin/bash /bin/sh /usr/bin/bash /usr/bin/sh"
+TIER_T2_EXTRA="git npm npx pnpm bun node python python3 pip pip3 ffmpeg perl cp mv mkdir rmdir rm touch chmod sleep test /bin/bash /bin/sh /usr/bin/bash /usr/bin/sh"
 # T3: full access（无需白名单）
 
 # ── 从 SOUL.md 解析 command-tier ──────────────────────

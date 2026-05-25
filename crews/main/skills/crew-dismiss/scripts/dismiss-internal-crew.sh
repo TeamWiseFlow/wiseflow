@@ -5,7 +5,7 @@ set -e
 
 OPENCLAW_HOME="$HOME/.openclaw"
 CONFIG_PATH="$OPENCLAW_HOME/openclaw.json"
-SYNC_TEAM_DIRECTORY_SCRIPT="$OPENCLAW_HOME/workspace-hrbp/skills/hrbp-common/scripts/sync-team-directory.sh"
+SYNC_TEAM_DIRECTORY_SCRIPT="$OPENCLAW_HOME/workspace-main/skills/crew-list/scripts/sync-team-directory.sh"
 
 usage() {
   echo "Usage: $0 <agent-id>"

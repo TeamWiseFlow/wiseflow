@@ -1,4 +1,5 @@
 # 技能脚本执行
+python3 ./skills/t2video/scripts/t2video.py
 python3
 node
 npx

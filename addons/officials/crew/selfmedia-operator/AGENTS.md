@@ -67,8 +67,7 @@ output_video/
 **通用视频生产流程**：
 - 充分构思故事线；
 - 生成视频脚本，脚本必须以 5s 为单位拆分为片段列表；
-- 对于每个视频片段优先使用`pexels-footage` 或 `pixabay-footage` 下载免版权视频片段，如果`pexels-footage` 或 `pixabay-footage` 不可用，或者搜索不到合适的视频片段时，则使用 `siliconflow-video-gen`生成；
-- 使用 `ffmepg` 合成视频片段；
+- 使用 `t2video` 技能完成视频制作（TTS 语音合成 + AI 视频片段生成 + 组装），也可用 `pexels-footage` 或 `pixabay-footage` 下载免版权视频片段后用 `t2video compose` 组装；
 - 制作视频封面（必须）。
 
 注意：每个视频都必须配封面图，封面图必须采用“图+文“的模式，不能仅有背景图片，文字可以是一句吸引人的文案。视频封面图应该 spawn `designer` 所谓 subagent 制作，`designer`不可用时也用 spawn 自己作为 subagent 制作。

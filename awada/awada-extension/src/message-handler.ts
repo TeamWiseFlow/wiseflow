@@ -90,7 +90,7 @@ function sanitizePeerId(id: string): string {
   if (!id || !id.trim()) {
     return "_anonymous_";
   }
-  return id.replace(/[^\p{L}\p{N}_\-.@+:]/gu, "_");
+  return id.replace(/[^\p{L}\p{N}_\-.@+:~]/gu, "_");
 }
 
 /**
