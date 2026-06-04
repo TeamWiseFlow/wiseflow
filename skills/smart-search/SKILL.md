@@ -1,14 +1,11 @@
 ---
 name: smart-search
-description: Construct optimized search URLs for major platforms and navigate to results with the browser. Replaces the built-in web_search tool for targeted, platform-specific searches.
+description: Construct optimized search URLs for major platforms and navigate to results
+  with the browser. Replaces the built-in web_search tool for targeted, platform-specific
+  searches.
 metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "🔍",
-        "always": true,
-      }
-  }
+  openclaw:
+    emoji: 🔍
 ---
 
 # Smart Search Guide
@@ -409,6 +406,32 @@ Multi-keyword: join with `%20`
    - Modifying the URL's pagination parameter, or
    - Clicking the "Next page" button on the page.
 5. Close the tab immediately after extracting all needed information.
+
+## 浏览器操作最佳实践
+
+### 超时错误处理
+
+遇到 `browser failed: timed out` 或类似超时错误时：
+
+- **不需要重启浏览器**，也不执行 `browser stop/start`
+- 等待 **30 秒**后在原页面继续操作
+- 若仍无法操作，再等 30 秒
+- 只有关闭浏览器后重开仍报错才是真正出错，需停止并反馈用户
+
+### 页面加载等待
+
+导航到搜索结果页后：
+
+- 等待 **3-5 秒**让页面完全加载，再执行 snapshot
+- 对于重度客户端渲染的站点（Twitter/X、小红书、抖音），等待 **5 秒以上**
+- 如果 snapshot 显示内容不完整，再等几秒后重新 snapshot
+
+### 表单输入规范
+
+如果需要在搜索框内输入内容（而非直接导航到搜索 URL）：
+
+- 使用 `browser act` 的 `type` 动作，并设置 `slowly: true`
+- **不要使用 `fill()`**，可能导致搜索框无法正确触发搜索
 
 ---
 

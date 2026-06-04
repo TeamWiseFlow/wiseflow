@@ -163,7 +163,15 @@ export function createAwadaReplyDispatcher(params: CreateAwadaReplyDispatcherPar
       text?: string;
       mediaUrl?: string;
       mediaUrls?: string[];
+      isFallbackNotice?: boolean;
+      isStatusNotice?: boolean;
+      isCompactionNotice?: boolean;
     }): boolean {
+      // Suppress internal status notices (model fallback, compaction, etc.)
+      // from external-facing channels — end users should never see these.
+      if (payload.isFallbackNotice || payload.isStatusNotice || payload.isCompactionNotice) {
+        return true;
+      }
       // Handle media attachments (URL-based)
       if (payload?.mediaUrl) queueMediaSend(payload.mediaUrl);
       if (payload?.mediaUrls) {
@@ -192,6 +200,9 @@ export function createAwadaReplyDispatcher(params: CreateAwadaReplyDispatcherPar
     },
     getQueuedCounts() {
       return { tool: 0, block: 0, final: pendingSends.length };
+    },
+    getFailedCounts() {
+      return { tool: 0, block: 0, final: 0 };
     },
     markComplete() {
       idleResolve?.();

@@ -1,5 +1,7 @@
-# 设计师 — Heartbeat
+# HEARTBEAT.md Template
 
-## Health Check
-- Status: operational
-- Last updated: (auto-maintained)
+```markdown
+# Keep this file empty (or with only comments) to skip heartbeat API calls.
+
+# Add tasks below when you want the agent to check something periodically.
+```

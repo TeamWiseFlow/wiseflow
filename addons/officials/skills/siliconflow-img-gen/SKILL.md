@@ -19,7 +19,7 @@ metadata:
 Generate or edit images using the SiliconFlow Images API.
 
 Two modes:
-- **Text-to-image** — default model `Qwen/Qwen-Image`（if rate limit exceeded, falls back to `baidu/ERNIE-Image-Turbo`）
+- **Text-to-image** — default model `Qwen/Qwen-Image`; on HTTP 403/404/429/500/503/504, automatically retries with `baidu/ERNIE-Image-Turbo`
 - **Image-edit** — default model `Qwen/Qwen-Image-Edit-2509`，由 `--image` 参数触发
 
 ## Run
@@ -30,44 +30,44 @@ Note: Image generation can take 10–60 seconds. Set a higher timeout when invok
 
 ```bash
 # Text-to-image (default model: Qwen/Qwen-Image)
-python3 {baseDir}/scripts/gen.py --prompt "your prompt here"
+python3 ./scripts/gen.py --prompt "your prompt here"
 
-# if rate limit exceeded, falls back to `baidu/ERNIE-Image-Turbo`
-python3 {baseDir}/scripts/gen.py --prompt "your prompt here" --model "baidu/ERNIE-Image-Turbo"
+# Manually specify ERNIE-Image-Turbo (also used as auto-fallback on 403/404/429/500/503/504)
+python3 ./scripts/gen.py --prompt "your prompt here" --model "baidu/ERNIE-Image-Turbo"
 
 # Image-edit (default model: Qwen/Qwen-Image-Edit-2509)
-python3 {baseDir}/scripts/gen.py --prompt "add a lighthouse" --image "https://example.com/source.jpg"
+python3 ./scripts/gen.py --prompt "add a lighthouse" --image "https://example.com/source.jpg"
 ```
 
 ### Text-to-image examples
 
 ```bash
 # Square output (default)
-python3 {baseDir}/scripts/gen.py --prompt "a futuristic city at dusk"
+python3 ./scripts/gen.py --prompt "a futuristic city at dusk"
 
 # Landscape 16:9
-python3 {baseDir}/scripts/gen.py --prompt "mountain lake" --image-size 1664x928
+python3 ./scripts/gen.py --prompt "mountain lake" --image-size 1664x928
 
 # Portrait 9:16
-python3 {baseDir}/scripts/gen.py --prompt "mountain lake" --image-size 928x1664
+python3 ./scripts/gen.py --prompt "mountain lake" --image-size 928x1664
 
 # Enable CFG (useful when prompt contains text to render)
-python3 {baseDir}/scripts/gen.py --prompt "a sign saying HELLO" --cfg 4.0 --steps 50
+python3 ./scripts/gen.py --prompt "a sign saying HELLO" --cfg 4.0 --steps 50
 
 # Save to specific directory
-python3 {baseDir}/scripts/gen.py --prompt "sunset" --out-dir ./out/images
+python3 ./scripts/gen.py --prompt "sunset" --out-dir ./out/images
 ```
 
 ### Image-edit examples
 
 ```bash
 # Edit with a single source image
-python3 {baseDir}/scripts/gen.py \
+python3 ./scripts/gen.py \
   --prompt "make it night time" \
   --image "https://example.com/photo.jpg"
 
 # Edit with up to three source images
-python3 {baseDir}/scripts/gen.py \
+python3 ./scripts/gen.py \
   --prompt "blend these photos" \
   --image  "https://example.com/a.jpg" \
   --image2 "https://example.com/b.jpg" \
@@ -80,7 +80,7 @@ python3 {baseDir}/scripts/gen.py \
 |------|---------|-------------|
 | `--prompt` | required | Text description for the image |
 | `--model` | auto | Model ID; auto-selected by mode if omitted |
-| `--image-size` | `1328x1328` | Resolution (text-to-image only, see valid values below) |
+| `--image-size` | `1328x1328` | Resolution (text-to-image only, **must be one of the valid values below** — invalid values will cause an error with the closest valid suggestion) |
 | `--steps` | `20` | Inference steps (1–100) |
 | `--cfg` | — | CFG scale (0.1–20). Qwen recommends 4.0 when generating text in image; must be >1 for text generation |
 | `--seed` | — | Random seed (0–9999999999) |
@@ -90,6 +90,8 @@ python3 {baseDir}/scripts/gen.py \
 | `--out-dir` | `./tmp/sf-img-<ts>` | Output directory |
 
 ### Valid `--image-size` values (Qwen/Qwen-Image)
+
+> **Invalid sizes are rejected** — the script exits with an error listing all valid options and suggesting the closest match by aspect ratio. Re-run with a valid `--image-size`.
 
 | Value | Ratio |
 |-------|-------|

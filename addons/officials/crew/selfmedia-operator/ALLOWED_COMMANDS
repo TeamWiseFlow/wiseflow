@@ -1,10 +1,3 @@
-# 技能脚本执行
-python3 ./skills/t2video/scripts/t2video.py
-python3
-node
-npx
-ffmpeg
-# 文本处理
-sed
-cut
-base64
+# T2 基线已含 python3/node/npx/ffmpeg/sed/curl，无需重复声明
++cut
++base64

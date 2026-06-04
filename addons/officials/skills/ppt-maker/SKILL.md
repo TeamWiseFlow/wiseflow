@@ -79,7 +79,7 @@ pip install python-pptx pillow
 #### 1a. 用户提供了模板 PPTX
 
 ```bash
-python3 {baseDir}/scripts/generate_pptx.py \
+python3 ./scripts/generate_pptx.py \
   --extract-style \
   --template /path/to/template.pptx
 ```
@@ -155,13 +155,13 @@ N+1. 结束页（ending）
 
 ```bash
 # 封面背景（16:9）
-python3 {baseDir}/../siliconflow-img-gen/scripts/gen.py \
+python3 ../siliconflow-img-gen/scripts/gen.py \
   --prompt "抽象科技背景，{主题描述}，{主色调}渐变，现代简洁，适合PPT封面，16:9横幅" \
   --image-size 1664x928 \
   --out-dir ./tmp/ppt-images
 
 # 内容页插图（16:9）
-python3 {baseDir}/../siliconflow-img-gen/scripts/gen.py \
+python3 ../siliconflow-img-gen/scripts/gen.py \
   --prompt "{页面主题}概念插图，扁平化设计风格，{主色调}主色调，简洁专业" \
   --image-size 1664x928 \
   --out-dir ./tmp/ppt-images
@@ -173,10 +173,10 @@ python3 {baseDir}/../siliconflow-img-gen/scripts/gen.py \
 
 ```
 # pexels-footage
-python3 {baseDir}/../pexels-footage/scripts/search.py --query "business meeting" --orientation landscape
+python3 ../pexels-footage/scripts/search.py --query "business meeting" --orientation landscape
 
 # pixabay-footage
-python3 {baseDir}/../pixabay-footage/scripts/search.py --query "technology abstract" --orientation horizontal
+python3 ../pixabay-footage/scripts/search.py --query "technology abstract" --orientation horizontal
 ```
 
 ### Step 4: PPTX 生成
@@ -221,12 +221,12 @@ python3 {baseDir}/../pixabay-footage/scripts/search.py --query "technology abstr
 #### 运行生成脚本
 
 ```bash
-python3 {baseDir}/scripts/generate_pptx.py \
+python3 ./scripts/generate_pptx.py \
   --config ./tmp/slides-config.json \
   --output ./output/presentation.pptx
 
 # 若有模板 PPTX 需要继承母版/布局
-python3 {baseDir}/scripts/generate_pptx.py \
+python3 ./scripts/generate_pptx.py \
   --config ./tmp/slides-config.json \
   --output ./output/presentation.pptx \
   --template /path/to/template.pptx
@@ -237,7 +237,7 @@ python3 {baseDir}/scripts/generate_pptx.py \
 生成后立刻运行几何检查，先修机器能确定的问题，再做视觉判断：
 
 ```bash
-python3 {baseDir}/scripts/check_layout.py ./output/presentation.pptx \
+python3 ./scripts/check_layout.py ./output/presentation.pptx \
   --header-safe-top-in 1.1
 ```
 

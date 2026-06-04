@@ -1,6 +1,6 @@
 #!/bin/bash
 # add-agent.sh - 注册新 Agent 到 openclaw.json
-# 用法: bash ./skills/hrbp-recruit/scripts/add-agent.sh <agent-id> [--crew-type <internal|external>] [--bind <channel>:<accountId>] [--builtin-skills <skill1,skill2|all>] [--template-id <template-id>] [--note <text>]
+# 用法: ./skills/hrbp-recruit/scripts/add-agent.sh <agent-id> [--crew-type <internal|external>] [--bind <channel>:<accountId>] [--builtin-skills <skill1,skill2|all>] [--template-id <template-id>] [--note <text>]
 #
 # crew-type 决定技能解析模式：
 #   internal（对内 Crew）：inherit 模式 —— 基线技能 + 额外 - 拒绝 + workspace

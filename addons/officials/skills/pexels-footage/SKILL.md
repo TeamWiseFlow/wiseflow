@@ -28,7 +28,7 @@ Use this skill when:
 ### 下载图片
 
 ```bash
-python3 {baseDir}/scripts/pexels_search.py \
+python3 ./scripts/pexels_search.py \
   --type image \
   --terms "sunset ocean,mountain landscape,forest path" \
   --aspect 16:9 \
@@ -39,14 +39,16 @@ python3 {baseDir}/scripts/pexels_search.py \
 ### 下载视频
 
 ```bash
-python3 {baseDir}/scripts/pexels_search.py \
+python3 ./scripts/pexels_search.py \
   --type video \
-  --terms "sunset ocean,mountain landscape,forest path" \
+  --terms "sunset ocean" \
   --aspect 9:16 \
   --output-dir ./video_assets/footage \
-  [--min-duration 5] \
-  [--max-clips 15]
+  --min-duration 5 \
+  --max-duration 30
 ```
+
+**重要**：视频下载**一次只允许下载一个**（脚本已强制 `--max-clips=1`），不允许批量下载。下载时应根据 content-check 报告的时长缺口，通过 `--min-duration` 和 `--max-duration` 精确匹配所需时长，不要下载远超需求的素材。
 
 ### Options
 
@@ -57,7 +59,8 @@ python3 {baseDir}/scripts/pexels_search.py \
 | `--aspect` | `9:16` | `9:16` (portrait) \| `16:9` (landscape) \| `1:1` (square) |
 | `--output-dir` | required | Directory to save downloaded files |
 | `--min-duration` | `5` | Minimum clip duration in seconds (video only) |
-| `--max-clips` | `15` | Maximum total files to download |
+| `--max-duration` | none | Maximum clip duration in seconds (video only). **强烈建议设置**，避免下载过长的素材 |
+| `--max-clips` | `1` (video) / `15` (image) | Maximum total files to download. **视频类型强制为 1** |
 
 ---
 

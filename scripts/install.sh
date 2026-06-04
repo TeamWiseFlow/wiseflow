@@ -159,11 +159,21 @@ install_weixin_channel() {
       exit 1
     fi
   elif [ -n "$cli_version" ]; then
-    if ! npx -y "${cli_pkg}@${cli_version}" install; then
+    # weixin-cli 内部调用 `openclaw` 命令，需要确保它在 PATH 上
+    # 创建临时 wrapper 指向本机 openclaw（pnpm openclaw = node scripts/run-node.mjs）
+    _openclaw_wrapper_dir="$(mktemp -d)"
+    cat > "$_openclaw_wrapper_dir/openclaw" <<WRAPPER
+#!/bin/sh
+cd "$OPENCLAW_DIR" && node scripts/run-node.mjs "\$@"
+WRAPPER
+    chmod +x "$_openclaw_wrapper_dir/openclaw"
+    if ! PATH="$_openclaw_wrapper_dir:$PATH" npx -y "${cli_pkg}@${cli_version}" install; then
+      rm -rf "$_openclaw_wrapper_dir"
       echo "❌ openclaw-weixin online install failed"
       echo "   Fix network/npm access or re-run with --skip-weixin to configure the onboarding channel later."
       exit 1
     fi
+    rm -rf "$_openclaw_wrapper_dir"
   else
     echo "❌ openclaw-weixin CLI version is missing; refusing unpinned online install"
     exit 1
@@ -321,9 +331,6 @@ echo "🎨 Building Control UI assets..."
 echo "  ✅ UI build complete"
 echo ""
 
-install_weixin_channel
-echo ""
-
 # ─── 8. 环境变量收集 + daemon 安装 ─────────────────────────
 
 # 需要询问用户的 API Key（若已在目标文件中存在则跳过）
@@ -434,26 +441,45 @@ if [ "$(uname -s)" = "Linux" ]; then
   fi
 fi
 
+# ─── 8.5 Linux: 提前创建 systemd drop-in 引用 daemon.env ─────
+# 必须在 daemon install 之前，否则 gateway 首次启动时读不到 API keys，
+# 连续失败 5 次后触发 StartLimitBurst，后续 restart 也无效
+if [ "$(uname -s)" = "Linux" ] && command -v systemctl >/dev/null 2>&1; then
+  if systemctl --user show-environment >/dev/null 2>&1; then
+    _SERVICE_NAME="openclaw-gateway"
+    _user_systemd_dir="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
+    _dropin_dir="${_user_systemd_dir}/${_SERVICE_NAME}.service.d"
+    mkdir -p "$_dropin_dir"
+    cat > "${_dropin_dir}/10-env-file.conf" <<EOF
+[Service]
+EnvironmentFile=-${SYSTEMD_ENV_FILE}
+EOF
+    # daemon-reload 在 daemon install 之后统一做一次
+    echo "  ✅ systemd drop-in created (will reload after daemon install)"
+  fi
+fi
+
 # ─── 9. 安装 daemon ──────────────────────────────────────
 cd "$OPENCLAW_DIR"
 pnpm openclaw daemon uninstall 2>/dev/null || true
 pnpm openclaw daemon install
 
+# daemon install 创建了 service 文件，此时 reload 让 drop-in 生效
+if [ "$(uname -s)" = "Linux" ] && command -v systemctl >/dev/null 2>&1; then
+  systemctl --user daemon-reload 2>/dev/null || true
+fi
+
+# ─── 9.5 安装微信渠道插件（需要 openclaw CLI 已就绪）────────
+install_weixin_channel
+echo ""
+
 # ─── 10. 平台特定的 post-install ─────────────────────────
 if [ "$(uname -s)" = "Linux" ] && command -v systemctl >/dev/null 2>&1; then
-  # --- systemd drop-in 引用 daemon.env ---
+  # drop-in 已在 8.5 创建，此处只需 reset + restart
   if systemctl --user show-environment >/dev/null 2>&1; then
-    SERVICE_NAME="openclaw-gateway"
-    user_systemd_dir="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
-    dropin_dir="${user_systemd_dir}/${SERVICE_NAME}.service.d"
-    mkdir -p "$dropin_dir"
-    cat > "${dropin_dir}/10-env-file.conf" <<EOF
-[Service]
-EnvironmentFile=-${SYSTEMD_ENV_FILE}
-EOF
-    systemctl --user daemon-reload
-    systemctl --user restart "${SERVICE_NAME}.service"
-    echo "✅ Installed systemd drop-in and restarted gateway"
+    systemctl --user reset-failed "openclaw-gateway.service" 2>/dev/null || true
+    systemctl --user restart "openclaw-gateway.service"
+    echo "✅ Restarted gateway with daemon.env"
   fi
 elif [ "$(uname -s)" = "Darwin" ]; then
   # --- 追加 env 到 launchd gateway.env（在 daemon install 之后）---

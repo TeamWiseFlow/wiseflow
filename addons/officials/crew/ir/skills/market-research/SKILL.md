@@ -117,4 +117,5 @@ TAM/SAM/SOM 框架：
 | 竞品分析后记录到投资人库 | `ir-record` |
 | 研究结果用于制作路演材料 | `investor-materials` |
 | 研究结果用于撰写触达邮件 | `investor-outreach` |
+| 研究结果触发商业模式讨论 | `council`（研究发现驱动复盘） |
 | 分析人脉网络找暖介绍路径 | `social-graph-ranker`，`connections-optimizer` |

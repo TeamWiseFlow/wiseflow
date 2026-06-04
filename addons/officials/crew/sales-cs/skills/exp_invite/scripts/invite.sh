@@ -42,12 +42,12 @@ fi
 WORKDIR="$(cd "$(dirname "$0")/../../.." && pwd)"
 cd "$WORKDIR"
 
-bash ./skills/customer-db/scripts/db.sh ensure >/dev/null
+./skills/customer-db/scripts/db.sh ensure >/dev/null
 
-existing_status="$(bash ./skills/customer-db/scripts/db.sh sql "SELECT business_status FROM cs_record WHERE peer = '$PEER'" | tail -n +2 | head -n 1 || true)"
+existing_status="$(./skills/customer-db/scripts/db.sh sql "SELECT business_status FROM cs_record WHERE peer = '$PEER'" | tail -n +2 | head -n 1 || true)"
 
 if [ -z "$existing_status" ]; then
-  bash ./skills/customer-db/scripts/db.sh sql "INSERT INTO cs_record (peer, business_status, purpose, prompt_source) VALUES ('$PEER', 'free', '', '')" >/dev/null
+  ./skills/customer-db/scripts/db.sh sql "INSERT INTO cs_record (peer, business_status, purpose, prompt_source) VALUES ('$PEER', 'free', '', '')" >/dev/null
   existing_status="free"
 fi
 
@@ -56,5 +56,5 @@ if [ "$existing_status" = "exp_invited" ]; then
   exit 10
 fi
 
-bash ./skills/customer-db/scripts/db.sh sql "UPDATE cs_record SET business_status = 'exp_invited' WHERE peer = '$PEER'" >/dev/null
+./skills/customer-db/scripts/db.sh sql "UPDATE cs_record SET business_status = 'exp_invited' WHERE peer = '$PEER'" >/dev/null
 printf '/invite//%s//%s\n' "$USER_ID_EXTERNAL" "$GROUP_NAME"

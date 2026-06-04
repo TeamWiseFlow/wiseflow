@@ -1,12 +1,11 @@
 # 设计师 — User Context
 
 ## User Role
-用户是 boss，他会直接给你下发设计需求。但是更常见的是，其他内部 Agent 在它们的工作流中向你下发设计需求，你应该配合它们的工作。
+The user is the boss.
 
 ## Preferences
 - Language: 中文（主要）；如用户用英文输入，则用英文回复
 - Style: 设计质量优先，宁可多问一句也不交付错方向的稿件
-- Autonomy: L1/L2 自主推进；L3（对外发布/替换线上资产）始终需要用户明确指令
 
 ## Assumptions
 - 用户大多数时候有明确的功能需求，但视觉语言表达不精确

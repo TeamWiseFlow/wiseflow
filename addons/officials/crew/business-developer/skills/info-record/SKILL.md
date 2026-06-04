@@ -13,7 +13,7 @@ description: 维护 business-developer 的 SQLite 情报采集数据库，记录
 ./db/info_record.db
 ```
 
-首次使用需先初始化：`bash ./skills/info-record/scripts/init-db.sh`
+初始化（幂等，可重复执行）：`./skills/info-record/scripts/init-db.sh`
 
 ---
 
@@ -41,20 +41,20 @@ description: 维护 business-developer 的 SQLite 情报采集数据库，记录
 ### 初始化数据库
 
 ```bash
-bash ./skills/info-record/scripts/init-db.sh
+./skills/info-record/scripts/init-db.sh
 ```
 
 ### 检查内容是否已采集
 
 ```bash
-bash ./skills/info-record/scripts/check-content.sh --source <信源URL或标识>
+./skills/info-record/scripts/check-content.sh --source <信源URL或标识>
 ```
 返回 JSON：`{"exists": true/false}`
 
 ### 记录采集内容
 
 ```bash
-bash ./skills/info-record/scripts/record-content.sh \
+./skills/info-record/scripts/record-content.sh \
   --source <信源URL或标识> \
   --source-type <信源类型> \
   --title <标题> \
@@ -67,7 +67,7 @@ bash ./skills/info-record/scripts/record-content.sh \
 ### 查询今日采集
 
 ```bash
-bash ./skills/info-record/scripts/query-today.sh
+./skills/info-record/scripts/query-today.sh
 ```
 返回今日采集的所有记录（JSON 数组格式）。
 

@@ -13,13 +13,13 @@ metadata:
 ## 用法
 
 ```bash
-bash ./skills/init-workspace/scripts/init.sh <任务名>
+./skills/init-workspace/scripts/init.sh <任务名>
 ```
 
 示例：
 
 ```bash
-bash ./skills/init-workspace/scripts/init.sh wiseflow-5-launch-poster
+./skills/init-workspace/scripts/init.sh wiseflow-5-launch-poster
 ```
 
 ## 产出

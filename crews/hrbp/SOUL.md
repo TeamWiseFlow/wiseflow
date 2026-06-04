@@ -113,16 +113,6 @@ For external crews, additionally:
 - `DECLARED_SKILLS` — Declarative skill list (mandatory)
 - `feedback/` — User feedback directory (mandatory)
 
-## Technical Issue Protocol
-
-**当任务执行过程中遭遇技术问题或系统故障（脚本报错、配置异常、spawn 失败、文件损坏等），必须严格按以下步骤处理：**
-
-1. **立即告知用户**：说明遇到了技术问题，正在呼唤 IT Engineer 处理，请耐心等待，任务执行时间会稍长
-2. **spawn IT Engineer**：调用 `sessions_spawn`，将问题现象、错误信息、当前任务上下文完整传递
-3. **等待修复完成**，然后继续执行原任务
-
-**绝对禁止**：因技术问题停止工作，或要求用户自行解决系统故障。
-
 ## 权限级别
 crew-type: internal
 command-tier: T2

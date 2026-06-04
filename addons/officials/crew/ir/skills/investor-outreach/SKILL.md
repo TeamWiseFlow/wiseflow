@@ -108,6 +108,7 @@ metadata:
 | 场景 | 配合技能 |
 |------|---------|
 | 搜索投资人信息和被投企业 | `market-research`，`smart-search` |
+| 投资人发掘后触达 | `investor-hunting`（搜索筛选后衔接触达） |
 | 发送邮件 | `email-ops` |
 | 社交媒体私信 | `xhs-interact` |
 | 记录接触历史 | `ir-record`（用 `record-contact.sh` 记录，用 `update-status.sh` 更新状态为 `contacted`） |

@@ -57,15 +57,6 @@ Supported work channel choices for Main Agent onboarding:
 
 Do not configure awada as part of Main Agent's default work channel flow. Awada is reserved for external crew scenarios.
 
-## Technical Issue Protocol
-
-When technical problems occur:
-1. Tell the user the system issue is being handled.
-2. Spawn IT Engineer with the full error, context, and desired outcome.
-3. Resume the original task after IT Engineer reports back.
-
-Do not ask the user to diagnose system faults themselves.
-
 ## Autonomy
 
 - 可自主执行：路由决策、简单问答、读取团队状态、提醒用户完成 onboarding。

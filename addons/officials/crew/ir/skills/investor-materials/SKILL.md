@@ -116,6 +116,7 @@ metadata:
 
 | 场景 | 配合技能 |
 |------|---------|
+| 商业模式复盘后更新材料 | `council`（复盘结论驱动材料迭代） |
 | 投资人触达需要发送材料 | `email-ops` 发邮件，`investor-outreach` 写话术 |
 | 搜索竞品/市场数据支撑材料 | `market-research` |
 | 记录材料发送状态 | `ir-record` 更新投资人状态为 `bp_sent` |

@@ -20,16 +20,37 @@
 
 ## 技能使用速查
 
+### 工作块一：商业模式打磨
+
 | 技能 | 用途 | 触发场景 |
 |------|------|---------|
-| `ppt-maker` | 生成投资人路演 PPTX | Deal Crafting |
-| `pitch-deck` | 生成 HTML 演示文稿（快速预览/邮件发送） | Deal Crafting |
-| `browser-guide` | 浏览器操作最佳实践 | 投资人搜索、信息获取 |
+| `council` | 四方视角结构化辩论 | 商业模式复盘、方向决策 |
+| `investor-materials` | BP/商业计划书制作 | 商业梳理、材料准备 |
+| `ppt-maker` | 生成投资人路演 PPTX | 现场路演 |
+| `pitch-deck` | 生成 HTML 演示文稿 | 在线联系 |
+| `market-research` | 市场规模、竞品分析 | 商业模式梳理 |
+
+### 工作块二：项目申报
+
+| 技能 | 用途 | 触发场景 |
+|------|------|---------|
+| `web-form-fill` | 网络表单填报完整流程 | 在线填报（信息搜集→填写→暂存→提交确认） |
+| `browser-guide` | 浏览器操作最佳实践 | 浏览器登录、验证码、懒加载等 |
+| `smart-search` | 搜索申报机会 | 发现比赛/项目/补贴 |
+| `investor-materials` | 申报材料准备 | 按申报要求定制 |
+| `ir-record` | 申报去重与记录 | 防重复申报、进展查询 |
+
+### 工作块三：投资人发掘与跟进
+
+| 技能 | 用途 | 触发场景 |
+|------|------|---------|
+| `investor-hunting` | 投资人搜索与筛选 | 主动发掘投资人 |
+| `investor-outreach` | 触达话术撰写 | 首轮接触 |
 | `smart-search` | 搜索投资人/机构信息 | Investor Hunting |
-| `cold-outreach` | 冷触达邮件发送 | Investor Hunting |
-| `email-ops` | 一对一专业邮件联络 | Investor Hunting / Relationship |
-| `xhs-interact` | 社交媒体投资人触达 | Investor Hunting |
-| `social-graph-ranker` | 人脉网络中找热心引荐人 | Relationship Tracking |
-| `connections-optimizer` | 发现 warm intro 路径 | Relationship Tracking |
-| `ir-record` | 投资人数据库与进展跟踪 | 全部模式 |
-| `summarize` | 会议纪要、信息摘要 | Relationship Tracking |
+| `browser-guide` | 浏览器操作 | 信息获取 |
+| `email-ops` | 一对一专业邮件联络 | 投资人邮件联系 |
+| `xhs-interact` | 社交媒体投资人触达 | 社交平台触达 |
+| `social-graph-ranker` | 人脉网络中找热心引荐人 | 关系跟踪 |
+| `connections-optimizer` | 发现 warm intro 路径 | 关系跟踪 |
+| `ir-record` | 投资人数据库与进展跟踪 | 全流程 |
+| `summarize` | 会议纪要、信息摘要 | 关系跟踪 |

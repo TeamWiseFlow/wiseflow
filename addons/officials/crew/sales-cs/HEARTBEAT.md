@@ -9,13 +9,13 @@
 1. 先清理过期任务（超过 48 小时仍为 pending，客户已失联）：
 
 ```bash
-bash ./skills/customer-db/scripts/follow-up-expire.sh
+./skills/customer-db/scripts/follow-up-expire.sh
 ```
 
 2. 查询当前到期的跟进任务：
 
 ```bash
-bash ./skills/customer-db/scripts/follow-up-due.sh
+./skills/customer-db/scripts/follow-up-due.sh
 ```
 
 输出为 tab 分隔表格（含 header），字段：`id / peer / user_id_external / follow_up_at / reason / context_summary / status`。
@@ -32,14 +32,14 @@ bash ./skills/customer-db/scripts/follow-up-due.sh
 
       - `status='pending'`（首次发送）→ 标记为 sent_once：
         ```bash
-        bash ./skills/customer-db/scripts/follow-up-mark-sent.sh \
+        ./skills/customer-db/scripts/follow-up-mark-sent.sh \
           --id <id> \
           --sent-text "<发送的消息内容>"
         ```
 
       - `status='sent_once'`（二次发送）→ 标记为 completed：
         ```bash
-        bash ./skills/customer-db/scripts/follow-up-complete.sh \
+        ./skills/customer-db/scripts/follow-up-complete.sh \
           --id <id> \
           --sent-text "<发送的消息内容>"
         ```

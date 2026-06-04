@@ -4,7 +4,8 @@
     "pexels-footage",
     "pixabay-footage",
     "smart-search",
-    "browser-guide"
+    "browser-guide",
+    "design-system-picker"
   ],
   "subagents": {
     "allowAgents": ["it-engineer"]

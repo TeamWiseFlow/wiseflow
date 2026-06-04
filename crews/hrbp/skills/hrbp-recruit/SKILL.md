@@ -46,11 +46,11 @@ After user confirms the proposal:
    - Run the initialization script from the workspace directory:
      ```
      cd ~/.openclaw/workspace-<instance-id>
-     bash ./skills/customer-db/scripts/db.sh init
+     ./skills/customer-db/scripts/db.sh init
      ```
    - Confirm tables were created successfully:
      ```
-     bash ./skills/customer-db/scripts/db.sh tables
+     ./skills/customer-db/scripts/db.sh tables
      ```
    - Record the schema summary in the instance's `MEMORY.md` under a `## Database Schema` section
 
@@ -76,7 +76,7 @@ After user confirms the proposal:
 
 ### Step 5: Register Instance（需用户确认）
 1. Run:
-   - `bash ./skills/hrbp-recruit/scripts/add-agent.sh <instance-id> --crew-type external`
+   - `./skills/hrbp-recruit/scripts/add-agent.sh <instance-id> --crew-type external`
    - Optional bind: `--bind <channel>:<accountId>`
    - Optional bundled skills add-on: `--builtin-skills <skill1,skill2|all>`
    - Optional template metadata: `--template-id <template-id> --note <text>`

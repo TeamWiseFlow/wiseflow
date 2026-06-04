@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # init-workspace — 为 designer 单项任务创建标准目录结构
-# 用法: bash ./skills/init-workspace/scripts/init.sh <任务名>
-# 示例: bash ./skills/init-workspace/scripts/init.sh wiseflow-5-launch-poster
+# 用法: ./skills/init-workspace/scripts/init.sh <任务名>
+# 示例: ./skills/init-workspace/scripts/init.sh wiseflow-official-website
 
 set -euo pipefail
 
@@ -25,14 +25,17 @@ if [ ! -f "${TASK_DIR}/brief.md" ]; then
 ## 需求摘要
 <!-- 简述本次设计任务 -->
 
-## 主题文案
-<!-- 活动名、核心 slogan、时间地点等关键信息 -->
+## 产品类型与目标用户
+<!-- 网站/APP/管理后台... 及目标用户画像 -->
 
-## 目标平台与尺寸
-<!-- 线上/印刷/朋友圈/展架... 及具体尺寸 -->
+## 页面/界面清单
+<!-- 需要设计的页面或界面列表 -->
+
+## 功能范围
+<!-- 纯静态展示/含表单/含轮播/含交互... -->
 
 ## 风格方向
-<!-- 1–3 个参考词，如"科技感+深色系" -->
+<!-- 品牌名参考或风格描述词，如"类似 Stripe 的科技感暗色主题" -->
 
 ## 品牌约束
 <!-- 品牌色、字体、LOGO 等（从 MEMORY.md 获取） -->
@@ -40,11 +43,6 @@ if [ ! -f "${TASK_DIR}/brief.md" ]; then
 ## 参考素材
 <!-- 灵感参考、竞品截图等，附来源 -->
 BRIEF
-fi
-
-# 初始化 prompts.json
-if [ ! -f "${TASK_DIR}/prompts.json" ]; then
-  echo '[]' > "${TASK_DIR}/prompts.json"
 fi
 
 echo "✅ 任务目录已创建: ${TASK_DIR}/"

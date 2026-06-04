@@ -29,7 +29,7 @@ description: 通过自媒体平台按搜集策略探索潜在客户——策略 
 ```
 1. 读取 HEARTBEAT.md 获取当前配置（搜集策略、平台、关键词、判定标准、最大探索量）
 2. 确保浏览器可用（遵循 browser-guide）
-3. 初始化 bd-record 数据库：bash ./skills/bd-record/scripts/init-db.sh
+3. 初始化 bd-record 数据库（幂等）：./skills/bd-record/scripts/init-db.sh
 ```
 
 ### Step 2: 逐平台搜索
@@ -53,7 +53,7 @@ description: 通过自媒体平台按搜集策略探索潜在客户——策略 
 1. 提取创作者标识信息（平台、creator_id、nickname、homepage_url）
 
 2. 去重检查：
-   bash ./skills/bd-record/scripts/check-creator.sh --platform <平台> --creator-id <创作者ID>
+   ./skills/bd-record/scripts/check-creator.sh --platform <平台> --creator-id <创作者ID>
    如果 {"exists": true}，则跳过该创作者，继续下一个
 
 3. 导航到创作者主页，等待加载
@@ -70,7 +70,7 @@ description: 通过自媒体平台按搜集策略探索潜在客户——策略 
    - 判定为潜在客户需给出明确理由
 
 7. 记录到数据库（不管是否符合标准）：
-   bash ./skills/bd-record/scripts/record-creator.sh \
+   ./skills/bd-record/scripts/record-creator.sh \
      --platform <平台> \
      --creator-id <创作者ID> \
      --nickname <昵称> \
@@ -97,11 +97,11 @@ description: 通过自媒体平台按搜集策略探索潜在客户——策略 
 
 5. 对每条符合标准的评论：
    a. 以评论者 user_id 作为 --creator-id 做去重检查：
-      bash ./skills/bd-record/scripts/check-creator.sh --platform <平台> --creator-id <评论者user_id>
+      ./skills/bd-record/scripts/check-creator.sh --platform <平台> --creator-id <评论者user_id>
       如果 {"exists": true}，则跳过该评论者
 
    b. 记录到数据库：
-      bash ./skills/bd-record/scripts/record-creator.sh \
+      ./skills/bd-record/scripts/record-creator.sh \
         --platform <平台> \
         --creator-id <评论者user_id> \
         --nickname <昵称> \

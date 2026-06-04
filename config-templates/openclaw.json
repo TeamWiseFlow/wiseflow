@@ -71,8 +71,8 @@
         "api": "openai-completions",
         "models": [
           {
-            "id": "deepseek-ai/DeepSeek-V4-Flash",
-            "name": "deepseek-ai/DeepSeek-V4-Flash",
+            "id": "deepseek-ai/DeepSeek-V4-Pro",
+            "name": "deepseek-ai/DeepSeek-V4-Pro",
             "reasoning": false,
             "input": [
               "text"
@@ -110,10 +110,9 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "deepseek/deepseek-v4-flash",
+        "primary": "deepseek/deepseek-v4-pro",
         "fallbacks": [
-          "siliconflow/deepseek-ai/DeepSeek-V4-Flash",
-          "siliconflow/Qwen/Qwen3.6-27B"
+          "siliconflow/deepseek-ai/DeepSeek-V4-Pro"
         ]
       },
       "imageModel": {
@@ -126,8 +125,8 @@
         "deepseek/deepseek-v4-pro": {
           "alias": "ds/deepseek-v4-pro"
         },
-        "siliconflow/deepseek-ai/DeepSeek-V4-Flash": {
-          "alias": "sf/deepseek-v4-flash"
+        "siliconflow/deepseek-ai/DeepSeek-V4-Pro": {
+          "alias": "sf/deepseek-v4-pro"
         },
         "siliconflow/Qwen/Qwen3.6-27B": {
           "alias": "sf/qwen3.6-27b"
@@ -139,7 +138,7 @@
       "thinkingDefault": "medium",
       "maxConcurrent": 2,
       "subagents": {
-        "maxConcurrent": 1,
+        "maxConcurrent": 2,
         "announceTimeoutMs": 3600000,
         "maxSpawnDepth": 2
       }
@@ -172,18 +171,12 @@
           }
         },
         "thinkingDefault": "high",
-        "reasoningDefault": "off",
-        "model": {
-          "primary": "deepseek/deepseek-v4-pro"
-        }
+        "reasoningDefault": "off"
       },
       {
         "id": "it-engineer",
         "name": "IT Engineer",
         "workspace": "~/.openclaw/workspace-it-engineer",
-        "model": {
-          "primary": "deepseek/deepseek-v4-pro"
-        },
         "skills": [
           "healthcheck",
           "nano-pdf",
@@ -284,9 +277,6 @@
   },
   "skills": {
     "entries": {
-      "ordercli": {
-        "enabled": false
-      },
       "notion": {
         "enabled": false
       },
@@ -332,7 +322,13 @@
       "mcporter": {
         "enabled": false
       },
+      "xurl": {
+        "enabled": false
+      },
       "clawhub": {
+        "enabled": false
+      },
+      "discord": {
         "enabled": false
       },
       "alipay-mcp-config": {
@@ -343,6 +339,9 @@
       },
       "taskflow-inbox-triage": {
         "enabled": false
+      },
+      "ordercli": {
+        "enabled": false
       }
     }
   },
@@ -351,6 +350,21 @@
       "paths": []
     },
     "entries": {
+      "awada": {
+        "enabled": false
+      },
+      "xai": {
+        "enabled": false
+      },
+      "browser": {
+        "enabled": true
+      },
+      "phone-control": {
+        "enabled": false
+      },
+      "codex": {
+        "enabled": false
+      },
       "memory-core": {
         "enabled": true,
         "config": {
@@ -359,14 +373,8 @@
           }
         }
       },
-      "awada": {
-        "enabled": false
-      },
-      "xai": {
-        "enabled": false
-      },
-      "phone-control": {
-        "enabled": false
+      "deepseek": {
+        "enabled": true
       },
       "openclaw-weixin": {
         "enabled": true
@@ -376,9 +384,6 @@
   "tools": {
     "exec": {
       "host": "gateway"
-    },
-    "agentToAgent": {
-      "enabled": false
     },
     "web": {
       "fetch": {

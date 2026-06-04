@@ -7,6 +7,8 @@
 
 ## 公司与业务背景信息
 
+<!-- 由 BOOTSTRAP 首次收集写入，后续运行中持续更新 -->
+
 ## Core Responsibilities
 
 ### 素材管理

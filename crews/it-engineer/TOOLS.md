@@ -30,25 +30,21 @@ cd <WISEFLOW_PROJECT_ROOT> && ./scripts/apply-addons.sh
 > cd <WISEFLOW_PROJECT_ROOT>/openclaw && pnpm openclaw <subcommand>
 > ```
 
-### 检查系统运行状态
-
-```bash
-# 检查 openclaw 进程是否存活
-ps aux | grep 'dist/index.js gateway' | grep -v grep
-
-# 查看 pm2 管理的进程（生产模式）
-pm2 list
-pm2 logs openclaw --lines 50
-
-# 检查配置文件完整性
-node -e "require('fs').readFileSync(process.env.HOME + '/.openclaw/openclaw.json', 'utf8'); console.log('✅ Config OK')"
-```
-
 ### GitHub / 代码相关（需已启用 github、gh-issues、coding-agent 技能）
 - `github`：读取 WiseFlow 和 OpenClaw 仓库的最新信息（commits、releases、README）
 - `gh-issues`：查看 WiseFlow 和 OpenClaw 的 issue，了解已知问题和修复状态
 - `coding-agent`：用于分析代码问题、生成配置文件、解读报错信息
 
+### 腾讯云管理（需已启用 tccli 技能）
+- `tccli`：腾讯云命令行工具速查，管理 CVM、Lighthouse、VPC、SSL、DNSPod 等云资源
+  - 前置条件：已安装 `tccli`（`pip3 install tccli`）并配置密钥
+  - 用途：查看实例状态、启停服务器、管理域名解析、证书部署、安全组配置等
+
+### 阿里云 Skills 搜索（需已启用 alicloud-find-skills 技能）
+- `alicloud-find-skills`：搜索、发现和安装阿里云官方 Agent Skills
+  - 前置条件：已安装 `aliyun` CLI（>= 3.3.3）并配置认证凭据
+  - 用途：按意图/关键词搜索阿里云 skill、浏览类目、查看 skill 详情、安装 skill
+  - 安全：仅使用只读 API（ListCategories / SearchSkills / GetSkillContent），不暴露 AK/SK
 
 ## 工具使用规则
 

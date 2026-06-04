@@ -240,9 +240,3 @@
 
 ### 人脉优化与社交线索
 使用 `connections-optimizer` 和 `social-graph-ranker` 技能，进行人脉分析和社交关系梳理。
-
----
-
-## sessions_spawn 规范
-
-> 禁止传入 `streamTo` 参数 —— 在 subagent 模式下该参数不支持。spawn 时只传 agentId 和 task 内容即可。

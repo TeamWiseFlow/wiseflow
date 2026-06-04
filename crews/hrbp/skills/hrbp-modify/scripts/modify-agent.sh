@@ -1,6 +1,6 @@
 #!/bin/bash
 # modify-agent.sh - 修改外部 Crew Agent 的渠道绑定
-# 用法: bash ./skills/hrbp-modify/scripts/modify-agent.sh <agent-id> [--bind <channel>:<accountId>] [--unbind <channel>]
+# 用法: ./skills/hrbp-modify/scripts/modify-agent.sh <agent-id> [--bind <channel>:<accountId>] [--unbind <channel>]
 # 注意：此脚本仅适用于对外 Crew（crew-type: external）。内部 Crew 不由 HRBP 管理。
 set -e
 

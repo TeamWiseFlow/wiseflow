@@ -18,19 +18,58 @@ from typing import Optional
 
 API_URL = "https://api.siliconflow.cn/v1/images/generations"
 
-# Valid image_size values for Qwen/Qwen-Image
-QWEN_SIZES = {
-    "1328x1328",  # 1:1
-    "1664x928",   # 16:9
-    "928x1664",   # 9:16
-    "1472x1140",  # 4:3
-    "1140x1472",  # 3:4
-    "1584x1056",  # 3:2
-    "1056x1584",  # 2:3
+VALID_SIZES = {
+    "1328x1328": "1:1",
+    "1664x928": "16:9",
+    "928x1664": "9:16",
+    "1472x1140": "4:3",
+    "1140x1472": "3:4",
+    "1584x1056": "3:2",
+    "1056x1584": "2:3",
 }
 
 DEFAULT_GEN_MODEL = "Qwen/Qwen-Image"
 DEFAULT_EDIT_MODEL = "Qwen/Qwen-Image-Edit-2509"
+FALLBACK_GEN_MODEL = "baidu/ERNIE-Image-Turbo"
+RETRYABLE_STATUS_CODES = {403, 404, 429, 500, 503, 504}
+
+
+def _parse_size(size_str: str) -> tuple[int, int]:
+    w, h = size_str.split("x")
+    return int(w), int(h)
+
+
+def _closest_size(size_str: str) -> str:
+    """Find the valid size closest in aspect ratio."""
+    try:
+        w, h = _parse_size(size_str)
+    except (ValueError, AttributeError):
+        return "1328x1328"
+    target_ratio = w / h if h != 0 else 1.0
+    best, best_diff = "1328x1328", float("inf")
+    for valid in VALID_SIZES:
+        vw, vh = _parse_size(valid)
+        vr = vw / vh if vh != 0 else 1.0
+        diff = abs(target_ratio - vr)
+        if diff < best_diff:
+            best_diff = diff
+            best = valid
+    return best
+
+
+def validate_size(size_str: str) -> str:
+    if size_str in VALID_SIZES:
+        return size_str
+    closest = _closest_size(size_str)
+    lines = [
+        f"[error] --image-size '{size_str}' is not a valid resolution.",
+        "Valid options:",
+    ]
+    for s, ratio in VALID_SIZES.items():
+        lines.append(f"  {s} ({ratio})")
+    lines.append(f"Closest match: {closest} ({VALID_SIZES[closest]})")
+    print("\n".join(lines), file=sys.stderr)
+    sys.exit(1)
 
 
 def build_payload(args: argparse.Namespace) -> dict:
@@ -51,12 +90,7 @@ def build_payload(args: argparse.Namespace) -> dict:
             payload["image3"] = args.image3
     else:
         size = args.image_size or "1328x1328"
-        if size not in QWEN_SIZES:
-            print(
-                f"[warn] --image-size {size!r} is not in the Qwen valid size list. "
-                f"Valid options: {sorted(QWEN_SIZES)}",
-                file=sys.stderr,
-            )
+        size = validate_size(size)
         payload["image_size"] = size
 
     if args.cfg is not None:
@@ -85,6 +119,12 @@ def api_request(payload: dict, api_key: str) -> dict:
     except urllib.error.HTTPError as e:
         body = e.read().decode(errors="replace")
         print(f"[error] HTTP {e.code}: {body}", file=sys.stderr)
+        if e.code in RETRYABLE_STATUS_CODES and payload.get("model") != FALLBACK_GEN_MODEL:
+            print(f"[fallback] HTTP {e.code} → retrying with {FALLBACK_GEN_MODEL}", file=sys.stderr)
+            payload = {**payload, "model": FALLBACK_GEN_MODEL}
+            if "image_size" in payload:
+                payload["image_size"] = "1024x1024"
+            return api_request(payload, api_key)
         sys.exit(1)
 
 

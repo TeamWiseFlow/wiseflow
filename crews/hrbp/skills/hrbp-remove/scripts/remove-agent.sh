@@ -1,6 +1,6 @@
 #!/bin/bash
 # remove-agent.sh - 从 openclaw.json 移除外部 Crew Agent（workspace 归档不删除）
-# 用法: bash ./skills/hrbp-remove/scripts/remove-agent.sh <agent-id>
+# 用法: ./skills/hrbp-remove/scripts/remove-agent.sh <agent-id>
 # 注意：此脚本仅适用于对外 Crew（crew-type: external）。内部 Crew 不由 HRBP 管理。
 set -e
 

@@ -13,6 +13,8 @@
 
 两层取更严格者生效。`setup-crew.sh` 根据各 Crew 声明的 tier 自动生成上述配置。
 
+**重要**：OpenClaw `matchAllowlist` 使用 `resolvedRealPath`（即 `readlink -f` 后的真实路径）匹配 allowlist pattern。因此 `exec-approvals.json` 中的条目必须是 **realpath**，不能是 symlink 路径。例如 `/usr/bin/python3` 是 symlink → 必须写入 `/usr/bin/python3.12`。`setup-crew.sh` 已自动通过 `readlink -f` 解析。
+
 ---
 
 ## 层级概览
@@ -43,7 +45,7 @@
 
 白名单命令（由 setup-crew.sh 自动解析为二进制路径写入 exec-approvals）：
 ```
-cat, ls, grep, find, ps, date, echo, pwd, env, which, head, tail, wc, sort, uniq, diff, curl, stat, basename, dirname, realpath, readlink, tr, printf, whoami, uname, du, df, file, ffprobe, fc-list
+cat, ls, grep, find, xargs, ps, date, echo, pwd, env, which, head, tail, wc, sort, uniq, diff, curl, stat, basename, dirname, realpath, readlink, tr, printf, whoami, uname, du, df, file, ffprobe, fc-list
 ```
 
 不在白名单中的命令会被 OpenClaw 自动拒绝。`ffprobe` 仅用于可信本地媒体文件的元数据探测，不用于解析未知来源的大文件或远程 URL。请勿尝试使用 `rm`、`mv`、`cp`、`mkdir`、`chmod` 等修改型命令。
@@ -100,5 +102,6 @@ command-tier: T2
 
 | 日期 | 变更 |
 |------|------|
+| 2026-06-03 | v3: 修复 symlink 路径导致 allowlist miss（exec-tiers.sh 改用 readlink -f 解析 realpath） |
 | 2026-03-13 | v2: 权限从纯提示词改为 exec-approvals + tools.exec 自动强制执行 |
 | 2026-03-10 | v1: 初始版本，定义 T0-T3 四层权限 |
