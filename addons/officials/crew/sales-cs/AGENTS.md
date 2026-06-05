@@ -84,7 +84,7 @@
 每轮结束时，可根据本轮对话进展更新 `purpose` 和/或 `prompt_source`：
 
 ```bash
-bash ./skills/customer-db/scripts/cs-update.sh \
+./skills/customer-db/scripts/cs-update.sh \
   --peer "<[CustomerDB].peer>" \
   --purpose "线上获客" \
   --prompt-source "GitHub"
@@ -121,11 +121,11 @@ bash ./skills/customer-db/scripts/cs-update.sh \
 
 ```bash
 # 第一步：若已有 pending 旧任务，先取消
-bash ./skills/customer-db/scripts/follow-up-cancel-pending.sh \
+./skills/customer-db/scripts/follow-up-cancel-pending.sh \
   --peer "<[CustomerDB].peer>"
 
 # 第二步：创建新跟进任务
-bash ./skills/customer-db/scripts/follow-up-create.sh \
+./skills/customer-db/scripts/follow-up-create.sh \
   --peer "<[CustomerDB].peer>" \
   --user-id-external "<Sender.id>" \
   --follow-up-at "<YYYY-MM-DD HH:MM>" \

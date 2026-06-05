@@ -38,8 +38,8 @@ After user confirms:
 
 1. **Workspace files**: Edit the relevant .md files in `~/.openclaw/workspace-<instance-id>/`
 2. **Channel bindings**: If binding changes are needed, run:
-   - Add binding: `bash ./skills/hrbp-modify/scripts/modify-agent.sh <instance-id> --bind <channel>:<accountId>`
-   - Remove binding: `bash ./skills/hrbp-modify/scripts/modify-agent.sh <instance-id> --unbind <channel>`
+   - Add binding: `./skills/hrbp-modify/scripts/modify-agent.sh <instance-id> --bind <channel>:<accountId>`
+   - Remove binding: `./skills/hrbp-modify/scripts/modify-agent.sh <instance-id> --unbind <channel>`
 3. **DECLARED_SKILLS**: If skill access changes are needed, edit `~/.openclaw/workspace-<instance-id>/DECLARED_SKILLS`
 4. Update `EXTERNAL_CREW_REGISTRY.md` if specialty or route mode changed
 

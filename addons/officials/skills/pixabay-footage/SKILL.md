@@ -29,7 +29,7 @@ Use this skill when:
 ### 下载图片
 
 ```bash
-python3 {baseDir}/scripts/pixabay_search.py \
+python3 ./scripts/pixabay_search.py \
   --type image \
   --terms "sunset,ocean,forest" \
   --aspect 16:9 \
@@ -40,14 +40,16 @@ python3 {baseDir}/scripts/pixabay_search.py \
 ### 下载视频
 
 ```bash
-python3 {baseDir}/scripts/pixabay_search.py \
+python3 ./scripts/pixabay_search.py \
   --type video \
-  --terms "sunset,ocean,forest" \
+  --terms "sunset,ocean" \
   --aspect 9:16 \
   --output-dir ./video_assets/footage \
-  [--min-duration 5] \
-  [--max-clips 15]
+  --min-duration 5 \
+  --max-duration 30
 ```
+
+**重要**：视频下载**一次只允许下载一个**（脚本已强制 `--max-clips=1`），不允许批量下载。下载时应根据 content-check 报告的时长缺口，通过 `--min-duration` 和 `--max-duration` 精确匹配所需时长，不要下载远超需求的素材。
 
 Same interface as `pexels-footage`. Output format identical.
 
@@ -55,16 +57,16 @@ Same interface as `pexels-footage`. Output format identical.
 
 ## When to Choose Pixabay vs Pexels
 
-| | Pexels | Pixabay |
-|-|--------|---------|
-| Photo quality | High | Good |
-| Photo count | 3M+ | 4M+ |
-| Video quality | Higher (HD/4K) | Good (HD) |
-| Video count | 1M+ | 2M+ |
-| Rate limits | 200 req/hour (free) | 100 req/min (free) |
-| Best for | People, nature, lifestyle | Objects, abstract, concepts |
+| | Pixabay | Pexels |
+|-|---------|--------|
+| Photo quality | Good | High |
+| Photo count | 4M+ | 3M+ |
+| Video quality | Good (HD) | Higher (HD/4K) |
+| Video count | 2M+ | 1M+ |
+| Rate limits | 100 req/min (free) | 200 req/hour (free) |
+| Best for | Objects, abstract, concepts | People, nature, lifestyle |
 
-Use Pexels first; fall back to Pixabay if results are insufficient.
+Pexels is the **primary** footage source (higher quality). Fall back to Pixabay if Pexels results are insufficient or rate-limited.
 
 ---
 
@@ -77,7 +79,8 @@ Use Pexels first; fall back to Pixabay if results are insufficient.
 | `--aspect` | `9:16` | `9:16` (portrait) \| `16:9` (landscape) \| `1:1` (square) |
 | `--output-dir` | required | Directory to save downloaded files |
 | `--min-duration` | `5` | Minimum clip duration in seconds (video only) |
-| `--max-clips` | `15` | Maximum total files to download |
+| `--max-duration` | none | Maximum clip duration in seconds (video only). **强烈建议设置**，避免下载过长的素材 |
+| `--max-clips` | `1` (video) / `15` (image) | Maximum total files to download. **视频类型强制为 1** |
 
 ---
 

@@ -42,6 +42,21 @@ CREATE TABLE IF NOT EXISTS contacts (
   created_at   TEXT DEFAULT (strftime('%Y-%m-%d %H:%M:%S','now','localtime')),
   FOREIGN KEY (investor_id) REFERENCES investors(id)
 );
+
+CREATE TABLE IF NOT EXISTS applications (
+  id             INTEGER PRIMARY KEY AUTOINCREMENT,
+  name           TEXT NOT NULL,
+  type           TEXT NOT NULL,
+  organizer      TEXT,
+  platform_url   TEXT,
+  deadline       TEXT,
+  status         TEXT NOT NULL DEFAULT 'planning',
+  submitted_date TEXT,
+  result         TEXT,
+  notes          TEXT,
+  created_at     TEXT DEFAULT (strftime('%Y-%m-%d %H:%M:%S','now','localtime')),
+  updated_at     TEXT DEFAULT (strftime('%Y-%m-%d %H:%M:%S','now','localtime'))
+);
 SQL
 
 echo '{"ok": true, "message": "ir_record.db initialized"}'

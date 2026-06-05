@@ -153,7 +153,7 @@ agent 应在 `AGENTS.md` 中明确记录此约定：
 
 | Crew | BUILTIN_SKILLS 关键技能 | DENIED_SKILLS 关键技能 |
 |------|------------------------|----------------------|
-| selfmedia-operator | `summarize`, `wenyan-publisher`, `twitter-post`, `tiktok-post`, `instagram-post`, `youtube-upload`, `siliconflow-img-gen`, `siliconflow-video-gen`, `gifgrep`, `video-frames` | `github`, `gh-issues`, `coding-agent`, `connections-optimizer`, `email-ops`, `pitch-deck`, `social-graph-ranker` |
+| selfmedia-operator | `summarize`, `wenyan-publisher`, `twitter-post`, `tiktok-post`, `instagram-post`, `youtube-upload`, `siliconflow-img-gen`, `gifgrep`, `video-frames` | `github`, `gh-issues`, `coding-agent`, `connections-optimizer`, `email-ops`, `pitch-deck`, `social-graph-ranker` |
 | business-developer | `summarize`, `affiliate-marketing`, `cold-outreach`, `twitter-post`, `instagram-post`, `connections-optimizer`, `email-ops`, `pitch-deck`, `social-graph-ranker` | `github`, `gh-issues`, `coding-agent` |
 | designer | `siliconflow-img-gen`, `summarize` | `github`, `gh-issues`, `coding-agent`, `connections-optimizer`, `email-ops`, `pitch-deck`, `social-graph-ranker` |
 

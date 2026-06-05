@@ -95,7 +95,7 @@ def search_pixabay_photos(term: str, aspect: str, api_key: str) -> list[dict]:
     return results
 
 
-def search_pixabay_videos(term: str, aspect: str, min_duration: int, api_key: str) -> list[dict]:
+def search_pixabay_videos(term: str, aspect: str, min_duration: int, max_duration: int | None, api_key: str) -> list[dict]:
     """Search Pixabay for video clips."""
     min_w = ASPECT_MIN_WIDTH[aspect]
     params = {"q": term, "video_type": "all", "per_page": 50, "key": api_key}
@@ -111,17 +111,23 @@ def search_pixabay_videos(term: str, aspect: str, min_duration: int, api_key: st
 
     results = []
     for v in data.get("hits", []):
-        if v.get("duration", 0) < min_duration:
+        dur = v.get("duration", 0)
+        if dur < min_duration:
+            continue
+        if max_duration is not None and dur > max_duration:
             continue
         for quality in ("large", "medium", "small", "tiny"):
             vf = v.get("videos", {}).get(quality, {})
             if int(vf.get("width", 0)) >= min_w:
                 results.append({
                     "url": vf["url"],
-                    "duration": v["duration"],
+                    "duration": dur,
                     "term": term,
                 })
                 break
+    # Sort by closeness to the ideal duration (midpoint of min/max, or just above min)
+    ideal = max_duration if max_duration is not None else min_duration + 10
+    results.sort(key=lambda r: abs(r["duration"] - ideal))
     return results
 
 
@@ -188,13 +194,18 @@ def main() -> None:
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--min-duration", type=int, default=5,
                         help="Minimum video clip duration in seconds (video only, default: 5)")
-    parser.add_argument("--max-clips", type=int, default=15,
-                        help="Maximum total files to download (default: 15)")
+    parser.add_argument("--max-duration", type=int, default=None,
+                        help="Maximum video clip duration in seconds (video only). Clips exceeding this are filtered out.")
+    parser.add_argument("--max-clips", type=int, default=1,
+                        help="Maximum total files to download (default: 1 for video, 15 for image)")
     args = parser.parse_args()
 
     api_key = require_env("PIXABAY_API_KEY")
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    # For video, enforce max-clips=1 to prevent batch downloads
+    effective_max_clips = 1 if args.type == "video" else min(args.max_clips, 15)
 
     terms = [t.strip() for t in args.terms.split(",") if t.strip()]
     media_type: str = args.type
@@ -214,7 +225,7 @@ def main() -> None:
     else:
         for term in terms:
             log(f"Searching Pixabay videos: '{term}' ({args.aspect})")
-            items = search_pixabay_videos(term, args.aspect, args.min_duration, api_key)
+            items = search_pixabay_videos(term, args.aspect, args.min_duration, args.max_duration, api_key)
             log(f"  Found {len(items)} candidate clips")
             for item in items:
                 if item["url"] not in seen_urls:
@@ -224,7 +235,7 @@ def main() -> None:
 
     downloaded: list[str] = []
     for item in all_results:
-        if len(downloaded) >= args.max_clips:
+        if len(downloaded) >= effective_max_clips:
             break
         label = item.get("term", "")
         if media_type == "image":

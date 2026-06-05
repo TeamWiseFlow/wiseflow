@@ -1,39 +1,39 @@
 # Wiseflow
 
-🚀 **v5.4.9 更新**
+🚀 **v5.5.0 更新**
 
-- 升级 openclaw 至 v2026.5.7（近期最稳版本），所有 patch 干净应用
-- install.sh 大幅优化，新用户 onboard 更简单，完整支持 macOS
-- 模型方案锁定 DeepSeek + SiliconFlow 最佳实践，内置 config-template
-- 修复 v5.4.8 诸多 bug；预发布 business-developer / investor-relations 两个新 crew
+- **从安装到出活，全程微信对话完成**：首次部署时自动安装官方微信插件，扫码绑定后，Wiseflow Main Agent 直接在微信上引导你完成业务背景采集、团队组建、渠道配置——不再需要编辑任何配置文件。
+- 如果只是想要一个个人助理、或者使用场景比较简单（crew 数量不超过 3 个），可以一直使用微信渠道，无需额外申请飞书开放平台或企业微信（后续如需扩展，Main Agent 也会给出申请和开通的详细指导）
+- **Designer 升级**：从"出图工具"重新定位为**系统性视觉设计体系构建者**，内置 `design-system-picker` 技能，预置 15 套品牌设计系统（覆盖 fintech / devtools / productivity / consumer / luxury / enterprise 等全品类），一键匹配风格后从零构建完整网页、APP 界面、品牌视觉体系
+- **IT Engineer 升级**：新增SEO、ICP备案辅助、云服务资源管理能力，现在 Designer + IT Engineer 的技能组合可覆盖官网 / Landing Page 的完整流程——**设计 → 开发 → 部署（云计算）→ 备案（ICP）→ SEO**
+- **Selfmedia Operator 增强**：新增微信公众号文章自动排版并推送至草稿箱、简单短视频制作（t2video）、高光时刻视频剪辑（highlight-clipper），现已支持 15 个国内外主流自媒体平台的发布能力（部分为pro版本提供）
+- **商务拓展 + 投资人关系正式发布**：business-developer 继承 4.x 全部核心能力（指定信源监控、行业情报采集、社交媒体潜客挖掘），并新增业务介绍 PPT 制作能力；investor-relationship 预发布
 
 详见 [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
-即刻拥有一只 7×24 在线工作的 AI 员工团队，包括：
+## what's wiseflow
 
-幕僚长、HRBP、IT-Engineer、商务拓展、销售型客服、自媒体运营、平面设计师、投资人关系……（不断增加中）
+Wiseflow 是基于 [openclaw](https://github.com/openclaw/openclaw) 的 Multi-Agent 系统，为 **所有被/或即将为 AI 时代冲击、需要独立拓展收入来源的个体** 打造——被裁员/降薪的职场人、副业探索者、自媒体个体户、小生意人、刚毕业的年轻人……
 
-<img width="960" src="assets/crew-lineup.webp" />
+> **对于 99% 的人来说，人工智能技术带来的其实是灾难**
+>
+> 这不是危言耸听。历史上每一次技术变革——蒸汽机、电力、互联网——无一例外都让会用它的人赚得更多，不会用的人被甩得更远。因为技术本质上是杠杆：有资本、有资源的人能第一时间装备自己，效率翻倍；而普通人连反应的时间都没有，就已经被替代了。AI 时代只会把这个规律放大到极致——99% 的输家，1% 的赢家。这非常不公平、也不合理。然而遗憾的是，这场变革已经无法被停止，那么，我们能做点什么？
+>
+> 本项目的立意是**为普通人提供一支AI搞钱团队**，以对抗AI技术发展带来的日益严峻的贫富差距。我们号召整个开源社区与我们一起为普通人而战，用技术对抗权贵！
+
+我们不贩卖焦虑，也不承诺捷径。挣钱的本质从来是提供价值——你干了那么多年的事、攒下的经验、对某个领域的判断，那才是真有价值的。问题是：一个人有经验、有方法，但时间和精力终究有限。
+
+wiseflow 目前能为你提供的是：
+- AI自动化获客：**商务拓展** 挖客户 → **自媒体运营** 铺声量 → **销售客服** 促转化 → **HRBP** 调策略 → **IT Engineer** 保运行
+- 业务支撑与保障：**设计师** 搭官网/落地页 → **IT Engineer** 搞 ICP 备案、服务器管理、SEO 优化
+
+<img width="960" src="assets/crews.png" />
 
 > 📌 **寻找 4.x 版本？** 原版 v4.32 及之前版本的代码在 [`4.x` 分支](https://github.com/TeamWiseFlow/wiseflow/tree/4.x)中。
 
-```
-“吾生也有涯，而知也无涯。以有涯随无涯，殆已！“ —— 《庄子·内篇·养生主第三》
-```
-
-## what's wiseflow
-
-wiseflow 是基于 [openclaw](https://github.com/openclaw/openclaw) 的一套旨在面向真实营业场景的Multi-Agent（多智能体）系统（MAS），支持部署后对外提供 7*24 营业业务，内置自动化网络推广与销售型客服 Agent.
-
-*wiseflow 又名 openclaw_for_business，简称 ofb*
-
-> openclaw很强，能够帮你收发邮件、写报告、控制智能家居……但是讲真，这是你最需要的吗？
->
-> 让 AI 帮我们 “搞钱”才是王道！
->
-> **本项目的目的不是为你增加一个“个人助理”，而是为你打造一直“云上牛马”团队，可以 7*24 小时给你在线搞钱的那种！**
+---
 
 ## 🌟 快速开始
 
@@ -60,20 +60,45 @@ cd wiseflow
 - 初始化 `openclaw.json`（内置最佳模型配置，无需手动编辑）
 - 安装系统 daemon（开机自启 + 崩溃重启）
 - **交互式引导你输入** `DEEPSEEK_API_KEY` 和 `SILICONFLOW_API_KEY`（仅在首次或缺失时询问）
+- 安装腾讯官方 `openclaw-weixin` extension，并引导扫码绑定
 
 > **调试模式**（单次启动，适合测试）：`./scripts/dev.sh gateway`
 
 > **系统要求**：推荐 Ubuntu 22.04；支持 WSL2 / macOS；不建议 Windows 原生
 
-🎉 大功告成！
+### 3. 微信对话完成 Onboard
 
-安装后如何用参考 [quick start](docs/quick_start.md)。
+安装完成后，打开微信搜索上一步绑定的机器人，直接发消息即可——它会主动引导你完成首次 onboard**：
+
+1. 告诉它你的公司/品牌、产品和目标用户
+2. 它会把这些业务背景存入 `business-context/`，后续招募的 crew 自动继承
+3. 按需招募第一个 crew（如商务拓展、自媒体运营）
+4. 团队扩大后，一条对话即可配置飞书或企业微信工作 channel
+
+**不需要编辑配置文件、不需要手动同步信息——从安装到出活，全程对话完成。**
+
+注：微信官方 openclaw 插件限定一个微信账号只能对应一个机器人，如果您之前已经绑定了其他 Agent（openclaw 或者 hermes 等），这会挤掉已经绑定的 agent。但是在完成 wiseflow 团队配置后，您可以将此 bot 替换回其他 agent，这不影响已经绑定工作渠道的 wiseflow crew team。
+
+> 💡 更详细的操作指引见 [quick start](docs/quick_start.md)
+
+### 系统与环境要求
+
+| 项目 | 最低要求 | 推荐配置 |
+|------|---------|---------|
+| CPU | 2 核 | 4 核 |
+| 内存 | 8 GB | 16 GB |
+| 可用硬盘 | 40 GB | 120 GB |
+| 带宽 | 10 Mbps | — |
+
+- **网络**：需可访问外网；建议使用正常住宅 IP，数据中心 IP 部分平台可能识别限制
+- **部署环境**：支持无头云服务器（ECS）部署，但推荐在有桌面环境的电脑上部署（日常使用中可不插显示器），浏览器自动化类技能在桌面环境下更稳定
+- **操作系统**：推荐 Ubuntu 24.04；支持 Windows WSL2、macOS 15 / 26
 
 > **💡 模型费用说明**
 >
 > wiseflow5.x 底层基于 openclaw，Agent 工作流对 token 消耗有一定要求，建议先准备好大模型 API：
 >
-> - **主力模型（强烈推荐）**：[DeepSeek 官方 API](https://platform.deepseek.com/) — 综合性能、速度、性价比最优。高缓存命中机制，实际应用成本可控。需要注册并充值获得 `DEEPSEEK_API_KEY`，大部分任务使用 `deepseek-v4-flash` 足够，IT Engineer 技术排查时使用 `deepseek-v4-pro`。
+> - **主力模型（强烈推荐）**：[DeepSeek 官方 API](https://platform.deepseek.com/) — 综合性能、速度、性价比最优。高缓存命中机制，实际应用成本可控。需要注册并充值获得 `DEEPSEEK_API_KEY`。
 > - **替补 & 视觉模型**：[SiliconFlow](https://cloud.siliconflow.cn/i/WNLYbBpi) — 模型丰富，可作为 DeepSeek 的 fallback，同时提供视觉理解模型（`Qwen/Qwen3.6-27B`）和生图/生视频 API。需要注册获得 `SILICONFLOW_API_KEY`。
 >   > 🎁 以上 SiliconFlow 链接为 wiseflow 邀请链接，通过此链接注册，你和 wiseflow 项目各可获得一张 16 元代金券。
 >
@@ -81,9 +106,9 @@ cd wiseflow
 >
 > 配置模板已预置以上最佳实践，`install.sh` 会自动检测所需环境变量并引导你输入。安装后重启 openclaw gateway 即可生效。
 
-🎉 wiseflow 目前提供付费知识库，包含《手把手从零开始安装教程》、《安装之后三分钟上手指南》、《Openclaw自定义配置全案教程》、《Windows 下安装 WSL2 无脑教程》以及各种高阶独门秘籍等，年费仅需¥168，还能加入 **vip微信交流群** ，共同探讨交流各种玩法，还有每月一次的闭门分享（腾讯会议），陪伴你从“小白“到“大神“！
+🎉 wiseflow 目前提供付费知识库，包含《手把手从零开始安装教程》、《安装之后三分钟上手指南》、《Openclaw自定义配置全案教程》、《Windows 下安装 WSL2 无脑教程》、《秘籍：云服务器（ECS）部署》以及各种最佳实践分享，年费仅需¥168，还能加入 **vip微信交流群** ，共同探讨交流各种玩法，还有每月一次的闭门分享（腾讯会议），陪伴你从“小白“到“大神“！
 
-欢迎添加”掌柜的“企业微信（这背后接的就是 wiseflow）咨询了解：
+欢迎添加”掌柜的“企业微信（这背后接的就是 wiseflow sales-cs）咨询了解：
 
 <img width="360" height="360" alt="wiseflow掌柜" src="https://github.com/user-attachments/assets/b013b3fd-546e-4176-b418-57bee419e761" />
 
@@ -91,46 +116,60 @@ cd wiseflow
 
 ## ✨ 创新点
 
-原版 openclaw，包括国内各大厂推出的基于 openclaw 的“虾”，它们的定位都是“个人助理”（personal AI assistant），也即适合服务你自己，但并不适合替你服务别人，因此也就没办法替你搞钱。
-
-wiseflow 专为打造可在线 7*24 小时搞钱的目的而生，我们在原版的基础上以补丁、配置模板、专属技能等方式（但不改原版一行代码，以保证完全的兼容性）做了如下改进：
+Wiseflow 在 openclaw 基础上以addon、配置模板、专属技能等方式（不改上游一行代码，保证完全兼容性）做了如下改进：
 
 #### “Crew”的概念
 
-- Crew 是绑定了专属工作指导和技能组合的Agent
+原版 OpenClaw 定位是 **personal AI assistant**——个人助理。但个人助理和工作场景是很不一样的：工作场景的技能不要求丰富，但要求稳定、专业；不同的工作要对应不同的定义约束和技能组合，即不同岗位需要使用不同的 harness。
 
-> 原版openclaw是把所有技能（包括内置和用户自定义安装的）绑定到同一个 Agent 上，Agent Spawn 出的 subagent 也默认继承所有技能。但这会造成两个问题：1、臃肿，代表着每一轮对话都更加耗费 token、模型思考时间也会更长并且更容易出错；2、如果 Agent 是提供对外服务的，那么会很危险，想象外部客户可以通过 Agent 操控你家的的智能家居或者连通你的打印机……当然你可以通过原版的配置禁用这些技能，然而为什么要让一个，比如说客服 Agent 拥有连接智能家居和打印机的技能？
+Wiseflow 的做法是提供 `Crew Template`，针对每个岗位提供专属 skill 和工作指导，并留给用户充分的调教空间。
 
-wiseflow 的做法是提供 `Crew Template`，针对每个 crew 的应用目的（客服、新媒体运营、财务报税）提供专属的 skill（很多是我们定制开发的）和基础的工作指导、人设，并留给用户充分的“调教”空间。
+目前 wiseflow 内置如下 crew，可以按需启用：
 
-- `全局内置 crew` 负责服务你和其他 crew，相当于公司的中后台。这里面有三个是内置且全局唯一的，负责提供最基础的支撑，相当于公司的管理层：
-  - Main Agent，负责管理所有对内 crew 的生命周期，你也可以把它当成唯一对话入口，通过它喊其他 Crew 干活；
-  - IT Engineer，负责帮你搞定 openclaw 繁琐的配置，日常运维（升级、定时心跳检查状态）等，**对，你没看错，只要你完成第一次部署，后面它就可以帮你去做系统配置和运维**
-  - HRBP，负责帮你招募、管理对外服务 crew，还能帮你周期性质的扫描对外服务 crew 的 feedback，不断升级他们……
+| Crew | 职责 | 关键技能 |
+|------|------|---------|
+| Main Agent（微信上的那个，默认启用，全局唯一） | 管理所有 crew 生命周期，唯一对话入口 | crew 招募/管理、渠道配置 |
+| IT Engineer（默认启用，全局唯一，可协助其他 crew 排障） | 系统运维、配置、故障排查 | seo、icp-filing、icp-exemption、tccli、alicloud-find-skills、session-logs |
+| HRBP | 招募管理对外 crew，周期扫描 feedback 升级 | crew-recruit、crew-modify、crew-remove、crew-list、crew-usage |
+| 商务拓展 | 客户挖掘端 | 社交媒体潜客挖掘、竞品监控、行业情报、生成业务介绍 PPT |
+| 自媒体运营 | 内容生产端 | 写稿、生图、15 个平台自动发布、t2video（短视频）、highlight-clipper（高光剪辑） |
+| 设计师 | 视觉设计端 | 15 套品牌设计系统、完整网页/APP/品牌视觉体系构建 |
+| 销售型客服 | 获客转化端 | 自动回复促进成交、调研用户来源、记录客户信息、发起/确认收款 |
+| 投资人关系 | 融资端 | 寻找投资人、冷接触、填报申请表、生成 BP |
+| Video Producer* | 专业视频端 | 专业短视频制作 |
 
-  以上三个内置 crew 我们都已经提供了现成的最佳配置（角色定义文件、SKills、权限等）
+> *\* 标记的 crew 由 Pro 版本提供*
 
-- `addons/officials/crew/` 提供的 crew，是帮你“搞钱”的。
-  - `sales customer service`（销售导向客服）：不是单纯回答客户咨询的客服，以促进成交为目的，会在咨询答疑过程中以用户无感的巧妙话术促进销售、调研用户来源、记录客户信息，并具有发起收款和确认收款的能力；
-  - `selfmedia operator`（自媒体运营）：不仅仅能够帮你写稿、生图，它能够随时记录你的灵感，你无意中看到的素材也可以随手转发给它，它都会记住并应用在后续产出中，并且它还能**自动完成在各个自媒体平台发布**的工作；
-  - `designer`（设计师）：专注视觉创意设计，结合 AI 生图能力提供配图、海报、品牌素材生成服务；
-  - `business developer`（商务拓展）： 主动出击，每日在各自媒体平台寻找潜在客户并主动勾搭，还能监控竞争对手、采集行业情报、生成业务介绍 ppt 等；
-  - `Investor Relations`(投资人关系)：帮你在线寻找并冷接触投资人、在线填报各种申请表、生成精美的 BP……
-  - 更多能够帮你在线搞钱的 crew template 陆续发布中……
+  <details>
+  <summary><strong>自媒体运营 — 支持的社交媒体平台（15 个）</strong></summary>
 
-> 说实话，市面上有很多基于 openclaw 的二开项目都支持多 crew（Agent），甚至还支持让这些 crew（Agent） 自主协同，或者带个办公室界面，你能看到他们在一起“过家家”……我认为这些都太华而不实了! 如果不能搞钱，一个 Agent Team 跟一个 chatbot 一样，只是玩具而已！
+  | 平台 | 发布方式 |
+  |------|---------|
+  | 微信公众号 | API + wenyan-cli 渲染 |
+  | 企业微信朋友圈* | API |
+  | 小红书* | API |
+  | 抖音 | API（OAuth2） |
+  | B站* | Web API |
+  | 快手* | Web API |
+  | 今日头条 | 浏览器 + CDP |
+  | 掘金 | 浏览器 |
+  | Twitter/X | 浏览器 |
+  | YouTube | YouTube Data API v3 |
+  | TikTok | Content Posting API |
+  | Instagram | Meta Graph API |
+  | Facebook | Meta Graph API |
+  | Threads | Meta Graph API |
+  | Pinterest | Pinterest API v5 |
 
-看看基于 wiseflow 免费开源的 sales-cs crew template “调教“出的销售型客服有多智能！
+  > *\* 标记的平台发布技能由 Pro 版本提供，开源版不包含*
 
-<img width="960" src="assets/nb1.jpg" />
-
-注意，我们没有使用FAQ，也没有workflow，这是纯粹的harness工程。
+  </details>
 
 有关”多 crew 机制”设计，详见[CREW TYPE DESIGN](docs/crew-system.md)
 
 #### Crew 之间的自主协作
   
-我们巧妙的利用了 OpenClaw 的 Spawn Subagent 机制实现了 crew 之间的自主互助能力，这意味着：
+我们巧妙的利用了 OpenClaw 的 Spawn Subagent 机制实现了 crew 之间的自主协作能力，这意味着：
 
 Crew 遇到自己不能解决的问题：
   ```text
@@ -166,7 +205,7 @@ Crew 遇到自己不能解决的问题：
 
 原版openclaw的使用和维护并不简单，尤其对于非技术用户而言，充满暗坑，最受诟病的是**安全性**和**安装部署**，为此我们也做了不少改进：
 
-- **安全**
+##### 安全
 
 我们采用三重命令执行机制，**权限由 `exec-approvals.json` + `tools.exec` 自动强制执行**，不单单是角色定义中告知。
 
@@ -176,22 +215,24 @@ Crew 遇到自己不能解决的问题：
 |------|------|----------|-----------|
 | T0 | read-only | `security: deny` — 默认禁止所有 shell 命令 | external crews（默认） |
 | T1 | basic-shell | `security: allowlist` — 仅允许只读命令 | low-risk internal crews |
-| T2 | dev-tools | `security: allowlist` — 开发工具链 + 只读命令 | main |
-| T3 | admin | `security: full` — 完整系统操作 | it-engineer, hrbp |
+| T2 | dev-tools | `security: allowlist` — 开发工具链 + 只读命令 | main, hrbp，selfmedia-operator... |
+| T3 | admin | `security: full` — 完整系统操作 | it-engineer |
 
-**易用性脚本**
+##### 易用性脚本
 
 - **配置模板** — 预设国内可用的模型、渠道、技能等配置
 - **工具脚本** — 一键启动、一键部署、一键更新…… 
 
-**🩹 wiseflow 内置补丁与可配置环境变量**
+##### wiseflow 内置补丁与可配置环境变量
 
 wiseflow 通过 `patches/` 目录对 openclaw 源码打补丁，每次运行 `apply-addons.sh` 时自动应用。以下是当前生效的补丁及其可配置项：
 
 | 补丁 | 说明 | 相关环境变量 |
 |------|------|-------------|
+| `001-relax-exec-allowlist-shell-syntax` | 放宽 exec-approvals 的 shell 语法限制，允许 `$()`、反引号、重定向等常用写法 | 无 |
 | `002-disable-web-search-env-var` | 支持通过环境变量禁用 openclaw 内置 web search | `OPENCLAW_DISABLE_WEB_SEARCH=1` |
 | `003-act-field-validation` | 修复浏览器 act 动作的字段验证逻辑 | 无 |
+| `004-chrome-port-grace-retry` | Chrome CDP 端口占用时优雅重试，避免因端口冲突导致浏览器启动失败 | 无 |
 | `005-browser-timeout-env-var` | 支持通过环境变量自定义浏览器操作默认超时（原默认仅 20 秒，网络慢时容易中断） | `OPENCLAW_BROWSER_TIMEOUT_MS=60000` （执行 install.sh 脚本会自动配置）|
 
 #### 浏览器增强
@@ -219,12 +260,6 @@ https://github.com/user-attachments/assets/8d097b3b-f9ab-42eb-98bb-88af5d28b089
 通过 awada，你可以完全私有化部署自己的 channel，或者是对接第三方消息中转站，实现接入企微 bot 等能力。
 
 详见 [awada readme](awada/README.md)
-
-#### Addon 机制与生态
-
-wiseflow 不改上游（openclaw）代码，一切改造和增强都通过 `addon` 机制完成，这最大化的保障了兼容性，也即是说：wiseflow 无缝支持**从 clawhub.ai安装技能**。
-
-wiseflow 代码仓会不会更新、添加 [official addons](addons/officials), 我们也欢迎社区贡献更多 addon，第三方也可以通过 add-on 向 wiseflow 用户发放 crew template，参见 [Addon 开发](docs/addon_development.md)。
 
 ## 目录结构
 
@@ -288,6 +323,7 @@ wiseflow/
 - opencli（A CLI for social media & web platforms — smart-search skill 借鉴了其搜索 URL 模式与平台适配方案） https://github.com/jackwener/opencli
 - 文颜(Markdown文章排版美化工具，支持微信公众号、今日头条、知乎等平台。) https://github.com/caol64/wenyan
 - Everything Claude Code（Claude Code 全局 skill / rule / agent 集合，wiseflow 的 complex-task 等编排 skill 借鉴了其 blueprint 和 gan-style-harness 的设计思路） https://github.com/affaan-m/everything-claude-code
+- awesome-design-md（A curated collection of design systems in markdown format — Designer 内置设计系统库参考了此项目的设计系统结构） https://github.com/VoltAgent/awesome-design-md
 
 ## Citation
 

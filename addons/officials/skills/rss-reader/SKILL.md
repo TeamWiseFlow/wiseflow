@@ -2,13 +2,12 @@
 name: rss-reader
 description: Discover the RSS/Atom feed URL for a website, then run the fetch-rss.mjs script to retrieve and parse articles from the feed.
 metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "📡",
-        "always": false,
-      }
-  }
+  openclaw:
+    emoji: "📡"
+    always: false
+    requires:
+      bins:
+      - node
 ---
 
 # RSS / Atom Feed Reader

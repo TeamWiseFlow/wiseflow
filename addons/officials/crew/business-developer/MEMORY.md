@@ -1,12 +1,10 @@
 # BusinessDeveloper — Memory
 
-## 用户偏好与配置
+## 公司与业务背景信息
 
-（首次使用后由 Business Developer 在此记录）
+<!-- 由 BOOTSTRAP 首次收集写入，后续运行中持续更新 -->
 
-- 公司/组织信息：（待记录）
-- 产品/业务介绍：（待记录）
-- 默认联系信息：（待记录）
+---
 
 ## 模式一：Lead Hunting 历史
 
@@ -42,5 +40,5 @@
 
 ## 技术环境备注
 
-- SMTP 配置状态：（待记录）
+- SMTP 配置状态：（由 BOOTSTRAP 检测写入）
 - 数据库位置：`./db/bd_record.db`、`./db/info_record.db`

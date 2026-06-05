@@ -474,6 +474,101 @@ else
   echo "✅ Skill dependencies up to date (hash: ${current_pkg_hash:0:8})"
 fi
 
+# ─── 安装全仓统一 Python 依赖（pip --user）──────────────────────
+# 扫描 skills/、addons/、crews/ 下所有 requirements.txt，合并去重。
+# 内容哈希守卫：仅当依赖集发生变化时才执行 pip install。
+# 优先使用 pip install --user；若不可用则回退 --break-system-packages。
+PIP_HASH_FILE="$OPENCLAW_HOME/.skill-pip-hash"
+
+merged_pip_deps="$(node -e "
+  const fs = require('fs');
+  const path = require('path');
+  const lines = new Set();
+  function scan(dir) {
+    if (!fs.existsSync(dir)) return;
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.name === 'node_modules' || entry.name === '.git') continue;
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        scan(full);
+      } else if (entry.name === 'requirements.txt') {
+        try {
+          const content = fs.readFileSync(full, 'utf8');
+          content.split(/\\r?\\n/).forEach(line => {
+            const trimmed = line.trim();
+            if (trimmed && !trimmed.startsWith('#')) lines.add(trimmed);
+          });
+        } catch {}
+      }
+    }
+  }
+  scan('$PROJECT_ROOT/skills');
+  scan('$ADDONS_DIR');
+  scan('$CREWS_DIR');
+  console.log(Array.from(lines).sort().join('\\n'));
+" 2>/dev/null || echo '')"
+
+current_pip_hash="$(echo "$merged_pip_deps" | md5sum | cut -d' ' -f1)"
+stored_pip_hash="$(cat "$PIP_HASH_FILE" 2>/dev/null || echo '')"
+
+if [ -n "$merged_pip_deps" ] && { [ "$current_pip_hash" != "$stored_pip_hash" ] || [ ! -f "$PIP_HASH_FILE" ]; }; then
+  # 查找可用的 pip 命令：pip → pip3 → python3 -m pip
+  PIP_CMD=""
+  if command -v pip &>/dev/null; then
+    PIP_CMD="pip"
+  elif command -v pip3 &>/dev/null; then
+    PIP_CMD="pip3"
+  elif python3 -m pip --version &>/dev/null; then
+    PIP_CMD="python3 -m pip"
+  fi
+
+  if [ -z "$PIP_CMD" ]; then
+    echo "  ⚠️  pip not found. Attempting to bootstrap pip via get-pip.py..." >&2
+    if curl -fsSL https://mirrors.aliyun.com/pypi/simple/pip/ &>/dev/null; then
+      curl -fsSL https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py && \
+      python3 /tmp/get-pip.py --user -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com && \
+      rm -f /tmp/get-pip.py
+      # 重新检测
+      if command -v pip &>/dev/null; then
+        PIP_CMD="pip"
+      elif command -v pip3 &>/dev/null; then
+        PIP_CMD="pip3"
+      elif python3 -m pip --version &>/dev/null; then
+        PIP_CMD="python3 -m pip"
+      fi
+    fi
+  fi
+
+  if [ -z "$PIP_CMD" ]; then
+    echo "  ❌ pip not available. Install it with: sudo apt install python3-pip" >&2
+  else
+    echo "🐍 Installing skill Python dependencies ($PIP_CMD --user)..."
+    # 写入合并后的 requirements 文件
+    pip_req_tmp="$OPENCLAW_HOME/.skill-requirements.txt"
+    echo "$merged_pip_deps" > "$pip_req_tmp"
+
+    pip_install_flags="--user --quiet --no-warn-script-location -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com"
+    if ! $PIP_CMD install $pip_install_flags -r "$pip_req_tmp" 2>/dev/null; then
+      echo "  ⚠️  pip --user failed, retrying with --break-system-packages..."
+      pip_install_flags="--break-system-packages --user --quiet --no-warn-script-location -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com"
+      if ! $PIP_CMD install $pip_install_flags -r "$pip_req_tmp"; then
+        echo "  ❌ pip install failed" >&2
+      else
+        echo "$current_pip_hash" > "$PIP_HASH_FILE"
+        echo "✅ Python dependencies installed (hash: ${current_pip_hash:0:8})"
+      fi
+    else
+      echo "$current_pip_hash" > "$PIP_HASH_FILE"
+      echo "✅ Python dependencies installed (hash: ${current_pip_hash:0:8})"
+    fi
+    rm -f "$pip_req_tmp"
+  fi
+else
+  if [ -n "$merged_pip_deps" ]; then
+    echo "✅ Python dependencies up to date (hash: ${current_pip_hash:0:8})"
+  fi
+fi
+
 # 有 overrides 或 patches 时才需要同步依赖
 if [ "$NEEDS_INSTALL" = "true" ]; then
   echo "📦 Syncing dependencies..."

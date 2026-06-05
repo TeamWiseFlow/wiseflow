@@ -2,6 +2,9 @@
 name: proactive-send
 description: >
   向 awada 客户主动发送消息。在 openclaw 消息处理循环之外直接写入 Redis outbound stream，无需等待客户发起对话。
+metadata:
+  openclaw:
+    emoji: 📤
 ---
 
 # 主动发送（proactive-send）
@@ -13,7 +16,7 @@ description: >
 ## 使用方法
 
 ```bash
-bash ./skills/proactive-send/scripts/send.sh \
+./skills/proactive-send/scripts/send.sh \
   --user-id-external "<user_id_external>" \
   --text "<消息内容>"
 ```

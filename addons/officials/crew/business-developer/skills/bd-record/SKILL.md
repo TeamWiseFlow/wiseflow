@@ -13,7 +13,7 @@ description: 维护 business-developer 的 SQLite 追踪数据库，记录已探
 ./db/bd_record.db
 ```
 
-首次使用需先初始化：`bash ./skills/bd-record/scripts/init-db.sh`
+初始化（幂等，可重复执行）：`./skills/bd-record/scripts/init-db.sh`
 
 ---
 
@@ -55,20 +55,20 @@ description: 维护 business-developer 的 SQLite 追踪数据库，记录已探
 ### 初始化数据库
 
 ```bash
-bash ./skills/bd-record/scripts/init-db.sh
+./skills/bd-record/scripts/init-db.sh
 ```
 
 ### 模式一：创作者记录
 
 **检查创作者是否已记录**：
 ```bash
-bash ./skills/bd-record/scripts/check-creator.sh --platform <平台> --creator-id <创作者ID>
+./skills/bd-record/scripts/check-creator.sh --platform <平台> --creator-id <创作者ID>
 ```
 返回 JSON：`{"exists": true/false}`
 
 **记录创作者**：
 ```bash
-bash ./skills/bd-record/scripts/record-creator.sh \
+./skills/bd-record/scripts/record-creator.sh \
   --platform <平台> \
   --creator-id <创作者ID> \
   --nickname <昵称> \
@@ -82,13 +82,13 @@ bash ./skills/bd-record/scripts/record-creator.sh \
 
 **检查帖子是否已互动**：
 ```bash
-bash ./skills/bd-record/scripts/check-post.sh --platform <平台> --post-url <帖子URL>
+./skills/bd-record/scripts/check-post.sh --platform <平台> --post-url <帖子URL>
 ```
 返回 JSON：`{"exists": true/false, "replied": true/false}`
 
 **记录互动**：
 ```bash
-bash ./skills/bd-record/scripts/record-post.sh \
+./skills/bd-record/scripts/record-post.sh \
   --platform <平台> \
   --post-title <标题> \
   --post-url <帖子URL> \

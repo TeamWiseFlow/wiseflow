@@ -1,8 +1,8 @@
 diff --git a/extensions/browser/src/browser/chrome.ts b/extensions/browser/src/browser/chrome.ts
-index b035eb3f37..abfe8d3084 100644
+index 102da48a71..505cba327f 100644
 --- a/extensions/browser/src/browser/chrome.ts
 +++ b/extensions/browser/src/browser/chrome.ts
-@@ -395,6 +395,24 @@ export async function isChromeCdpReady(
+@@ -422,6 +422,24 @@ export async function isChromeCdpReady(
    return diagnostic.ok;
  }
  
@@ -27,10 +27,10 @@ index b035eb3f37..abfe8d3084 100644
  export async function launchOpenClawChrome(
    resolved: ResolvedBrowserConfig,
    profile: ResolvedBrowserProfile,
-@@ -412,7 +430,9 @@ export async function launchOpenClawChrome(
-   if (missingDisplayError) {
-     throw new BrowserProfileUnavailableError(missingDisplayError);
+@@ -453,7 +471,9 @@ export async function launchOpenClawChrome(
+     );
    }
+ 
 -  await ensurePortAvailable(profile.cdpPort);
 +  // Retry briefly to absorb the race window where a prior Chrome is still releasing the port
 +  // (stop → start sequences from agent or internal profile reconcile).

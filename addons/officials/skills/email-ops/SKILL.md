@@ -2,14 +2,16 @@
 name: email-ops
 description: 邮件操作技能。处理策略性单封邮件：回复询盘、跟进邮件、会议确认、合作提案草稿，以及发送后的状态核实。与 cold-outreach 互补——cold-outreach 负责批量自动化冷邮件，email-ops 负责有具体目标对象的关键邮件。
 metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "📨",
-        "always": false,
-        "requires": { "env": ["SMTP_SERVER", "SMTP_USER", "SMTP_PASSWORD"] },
-      },
-  }
+  openclaw:
+    emoji: 📨
+    always: false
+    requires:
+      bins:
+      - python3
+      env:
+      - SMTP_SERVER
+      - SMTP_USER
+      - SMTP_PASSWORD
 ---
 
 # Email Ops — 邮件操作技能
@@ -266,7 +268,7 @@ Subject: Re: [原主题]
 ## Step 5 — 发送（仅明确要求发送时）
 
 ```bash
-python3 {baseDir}/scripts/send_email.py \
+python3 ./scripts/send_email.py \
   --to "{收件人邮箱}" \
   --subject "{主题}" \
   --body "{正文}"

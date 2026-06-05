@@ -3,7 +3,7 @@
 # 主动向 awada 客户发送消息（在 openclaw 消息处理循环之外）
 #
 # 用法：
-#   bash ./skills/proactive-send/scripts/send.sh \
+#   ./skills/proactive-send/scripts/send.sh \
 #     --awada-customer-id "wechat:ch001:wxid_abc123:default" \
 #     --text "您好，昨天咱们聊过专业版的事，不知道今天方便看看吗？"
 #

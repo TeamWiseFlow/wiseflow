@@ -1,3 +1,69 @@
+# v5.5.0
+
+### 完全重新设计的部署与渠道绑定流程
+
+- 初次安装时默认安装官方微信插件，用户使用个人微信扫码后即可启动第一个crew——main agent，直接在微信上就能使用
+- 后续的设定、更多crew的启用、渠道绑定等均可通过main agent完成（直接在微信上与它对话）
+- 如果仅需要一个“个人助理”，或者不需要更大的AI crew团队（crew数量小于3），可以一直使用微信渠道，无需额外的操作
+- 工作渠道除支持飞书外，额外增加企业微信
+- 新增 WeCom channel 插件自动安装脚本（`install-wecom-channel.sh`），支持 pin 版本 + SHA-512 完整性校验，Main Agent 直接执行无需用户手动运行 `npx`
+- main agent可以完整操作feishu、企业微信的配置（应用创建、凭据获取、权限配置、事件订阅、crew绑定全流程）
+
+### Designer + IT Engineer 全链路升级
+
+**Designer 与 IT Engineer 的技能组合现已覆盖网页（官网 / 产品 Landing Page）的完整开发与生命周期管理：**
+
+> **设计** → **开发**（IT Engineer 通过 coding-agent）→ **部署**（云计算资源）→ **备案**（ICP）→ **SEO**
+
+#### Designer 升级
+
+- Designer 从"配图+海报生成"重新定位为**系统性视觉设计体系构建者**，负责从零构建完整网页、APP 界面、品牌视觉体系
+- 新增 `design-system-picker` 技能：内置 15 套知名品牌设计系统（Stripe / Vercel / Linear / Notion / Apple / Supabase / Shopify / Figma / Spotify / Tesla / Framer / Airbnb / BMW / IBM / Starbucks），覆盖 fintech / devtools / productivity / consumer / luxury / enterprise / ecommerce / creative / media / automotive / lifestyle 全品类
+- 设计系统包含完整的 8 段规范（色彩、字体、组件、布局、层级、响应式等），所有 HTML/CSS 产出严格遵循选定设计系统的 token
+- 支持从 [awesome-design-md](https://github.com/VoltAgent/awesome-design-md) 上游仓库查找并导入更多设计系统
+- Designer 改为纯 binding 模式运行，用户直接使用，其他 crew 不再 spawn Designer
+- 简单出图需求（视频封面、海报等）统一使用 `siliconflow-img-gen`，无需启动 Designer
+- 新增三大工作流：完整网页/落地页设计（A）、APP/产品界面设计（B）、品牌视觉体系构建（C）
+
+#### IT Engineer 升级
+
+- 新增 `seo` 技能：技术 SEO 审计与优化（爬取、索引、结构化数据、Core Web Vitals、关键词映射）
+- 新增 `icp-filing` 技能：ICP 备案全流程指导（材料清单、流程步骤、域名查询、备案号生成）
+- 新增 `icp-exemption` 技能：Apple 国区 ICP 豁免申请附件 PDF 生成
+- 新增 `tccli` 技能：腾讯云 CLI 速查手册（CVM / Lighthouse / DNSPod / SSL / VPC 等 200+ 服务）
+- 新增 `alicloud-find-skills` 技能：阿里云 Agent Skills 搜索、发现与安装
+
+### Selfmedia Operator 增强
+
+- 新增 `wx-mp-publish` 技能：**支持将微信公众号文章自动排版并直接推送至草稿箱**，实现从内容生产到公众号发布的一站式闭环
+- 新增 `t2video`（简单视频制作）技能：一站式短视频生产，整合 TTS 语音合成 + 素材搜集 + FFmpeg 组装
+- 新增 `highlight-clipper`（高光时刻视频制作）技能：支持从给定视频文件（录屏）中按语音自动剪辑高光时刻短视频
+- 大幅完善多平台发布技能，新增/增强支持：小红书（API 方式）、抖音、B站、快手、YouTube、TikTok、Instagram、Facebook、Threads、Pinterest 等
+
+### Officials Addon 新crew 
+
+- **business-developer**（商务拓展）正式发布：4.x版本的功能现在可以完全通过business-developer实现
+- **investor-relationship**（投资人关系）预发布
+
+### crew 机制改进
+
+- 启用 BOOTSTRAP.md 机制，每个crew根据自己职责设定，在启动初期会主动向用户搜集必要信息，如Selfmedia Operator搜集账号矩阵信息、IR和BD主动搜集公司、产品信息
+- skill 路径解析修复与加载机制优化
+
+#### OpenClaw 升级至 v2026.5.28
+
+- 基于 OpenClaw v2026.5.28（从 v2026.5.7 升级，跨越 6424 commits）
+- Patches 004/005 针对 v2026.5.28 新文件结构重新生成，全部 5 个 patch 验证通过
+- awada extension 适配升级
+
+### Bug 修复与改进
+
+- `scripts` 脚本中诸多不当处修复与改进
+- `crew-recruit` / `crew-dismiss` SKILL.md 澄清 TEAM_DIRECTORY.md 由脚本内部自动同步，无需 agent 手动更新
+- HRBP `add-agent.sh` 新增 business-context symlink 和 crew MEMORY.md 背景说明自动注入
+
+---
+
 # v5.4.9
 
 ### 升级 openclaw 至 v2026.5.7
@@ -88,7 +154,7 @@
 
 ### 新增
 
-- **新媒体运营 Crew 模板（selfmedia-operator）**：内置文生图（siliconflow-img-gen）、文生视频（siliconflow-video-gen）技能，提供完整的选题研究→图文输出、草稿扩写→完整文章两套工作流；配图优先策略（用户素材 > 免版权图片 > AI 生成 > 历史复用），素材统一归档至 `campaign_assets/`
+- **新媒体运营 Crew 模板（selfmedia-operator）**：内置文生图（siliconflow-img-gen）技能，文生视频（siliconflow-video-gen）已迁移至 video-producer crew；提供完整的选题研究→图文输出、草稿扩写→完整文章两套工作流；配图优先策略（用户素材 > 免版权图片 > AI 生成 > 历史复用），素材统一归档至 `campaign_assets/`
 
 - **smart-search 新增平台**：百度贴吧（全局搜索 + 指定吧搜索）、Amazon（含分类/排序过滤），YouTube 新增类型过滤（shorts/video/channel）及"最近1小时"时间过滤
 

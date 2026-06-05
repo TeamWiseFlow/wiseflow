@@ -6,29 +6,21 @@
     "youtube-upload",
     "xhs-content-ops",
     "xhs-interact",
-    "xhs-publisher",
     "juejin-publish",
     "toutiao-publish",
     "siliconflow-img-gen",
-    "siliconflow-video-gen",
     "pexels-footage",
     "pixabay-footage",
     "smart-search",
     "browser-guide",
-    "council"
+    "wxwork-moments",
+    "wxwork-drive",
+    "wx-mp-publisher",
+    "complex-task"
   ],
   "subagents": {
-    "allowAgents": ["it-engineer", "designer"]
+    "allowAgents": ["it-engineer", "designer", "video-producer"]
   },
-  "heartbeat": {
-    "every": "3h",
-    "target": "last",
-    "isolatedSession": true,
-    "activeHours": {
-      "start": "08:00",
-      "end": "24:00",
-      "timezone": "user"
-    }
-  },
+  "maxConcurrent": 2,
   "tools": {}
 }

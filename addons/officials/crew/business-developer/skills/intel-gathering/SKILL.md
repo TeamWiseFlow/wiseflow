@@ -27,7 +27,7 @@ description: 定时监控特定信源（自媒体账号/网页），按预设标
 ```
 1. 读取 HEARTBEAT.md 获取当前配置（信源列表、提取标准、交付形式）
 2. 确保浏览器可用（遵循 browser-guide）
-3. 初始化 info-record 数据库：bash ./skills/info-record/scripts/init-db.sh
+3. 初始化 info-record 数据库（幂等）：./skills/info-record/scripts/init-db.sh
 ```
 
 ### Step 2: 逐信源采集
@@ -47,7 +47,7 @@ description: 定时监控特定信源（自媒体账号/网页），按预设标
    a. 提取内容标识（source=平台-账号, title, author, publish_date）
 
    b. 去重检查：
-      bash ./skills/info-record/scripts/check-content.sh --source <内容URL>
+      ./skills/info-record/scripts/check-content.sh --source <内容URL>
       如果 {"exists": true}，跳过该内容
 
    c. 打开内容详情页
@@ -58,7 +58,7 @@ description: 定时监控特定信源（自媒体账号/网页），按预设标
       - 提取与标准相关的关键信息
 
    e. 记录采集结果：
-      bash ./skills/info-record/scripts/record-content.sh \
+      ./skills/info-record/scripts/record-content.sh \
         --source <内容URL> \
         --source-type <平台标识> \
         --title <标题> \
@@ -73,7 +73,7 @@ description: 定时监控特定信源（自媒体账号/网页），按预设标
 
 ```
 1. 对于 RSS 支持的网站：使用 rss-reader 技能获取最新文章
-   node {baseDir}/scripts/fetch-rss.mjs <feed_url> --limit 10
+   node ./skills/intel-gathering/scripts/fetch-rss.mjs <feed_url> --limit 10
 
 2. 对于不支持 RSS 的网站：
    a. 使用 browser 导航到网页
@@ -91,7 +91,7 @@ description: 定时监控特定信源（自媒体账号/网页），按预设标
 
 ```
 1. 查询当日所有采集信息：
-   bash ./skills/info-record/scripts/query-today.sh
+   ./skills/info-record/scripts/query-today.sh
 
 2. 按 HEARTBEAT.md 中预设的交付形式生成交付物：
 

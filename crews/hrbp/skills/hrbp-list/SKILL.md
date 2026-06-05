@@ -16,7 +16,7 @@ Run:
 
 ```bash
 # List all registered external agents with binding/workspace status
-bash ./skills/hrbp-list/scripts/list-agents.sh
+./skills/hrbp-list/scripts/list-agents.sh
 ```
 
 ### Step 2: Summarize for User

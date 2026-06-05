@@ -1,5 +1,12 @@
 {
-  "skills": ["siliconflow-img-gen", "siliconflow-video-gen", "smart-search", "council"],
+  "skills": [
+    "siliconflow-img-gen",
+    "pexels-footage",
+    "pixabay-footage",
+    "smart-search",
+    "browser-guide",
+    "design-system-picker"
+  ],
   "subagents": {
     "allowAgents": ["it-engineer"]
   },

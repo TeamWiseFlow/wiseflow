@@ -16,10 +16,15 @@ metadata:
 
 ## 技能依赖
 
-本技能组合三个底层技能，**全部基于 browser 工具**：
+本技能组合两个底层技能：
 - **browser**（数据采集）：浏览小红书搜索页、笔记详情、用户主页
-- **xhs-publisher**（内容发布）：发布图文/视频/长文
 - **xhs-interact**（社交互动）：评论、点赞、收藏
+
+## ⚙️ 执行方式（强制）
+
+本技能涉及多步骤生产流程，你应该 self-spawn 一个 subagent 来执行，原因：subagent 独立上下文，不会因对话历史积累而降低输出质量。
+
+你只负责跟进subagent的执行，避免它们长时间卡在某个步骤，必要时可以提供提示或调整执行策略。
 
 ---
 
@@ -47,7 +52,6 @@ metadata:
 ## 必做约束
 
 - 复合流程中每一步都应向用户报告进度。
-- 发布类操作使用 xhs-publisher 技能。
 - 评论类操作使用 xhs-interact 技能。
 - **控制整体频率**：分批、间隔执行，不要一次性处理大量任务。
 - 所有数据分析结果使用 markdown 表格结构化呈现。
@@ -99,7 +103,6 @@ metadata:
 2. 打开 2-3 篇参考笔记，读取正文、标签结构
 3. 基于分析生成草稿（标题 ≤20 字，正文 ≤1000 字，加话题标签）
 4. 通过 AskUserQuestion 确认草稿
-5. 按照 xhs-publisher 流程，通过 browser 工具完成发布
 ```
 
 ---
@@ -128,5 +131,24 @@ metadata:
 
 - **搜索页面出现登录墙**：遵循 browser-guide 第 6 节 QR 登录流程，扫码后重试。
 - **笔记无法访问**：该笔记可能已删除或设为私密，跳过。
-- **发布失败**：参考 xhs-publisher 的失败处理。
+- **发布失败**：参考 xhs-publish 的失败处理。
 - **互动失败**：参考 xhs-interact 的失败处理。
+
+## 发布记录（强制）
+
+发布成功后，**必须**立即调用 `published-track` 技能记录发布信息：
+
+```bash
+./skills/published-track/scripts/record.sh \
+  --platform xhs \
+  --title "标题" \
+  --content-type post \
+  --source-folder "<原始文件夹路径>" \
+  --publish-url "<发布URL>" \
+  --publish-date "$(date +%Y-%m-%d)"
+```
+
+`--source-folder` 为原始内容所在的相对路径（如 `output_articles/xxx` 或 `output_videos/xxx`）。
+`--publish-url` 为发布后获得的 URL，若发布失败则留空并在 `--notes` 中注明原因。
+
+执行 `./skills/published-track/scripts/init-db.sh`（幂等，重复执行无副作用）。

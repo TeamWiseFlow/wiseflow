@@ -15,7 +15,7 @@
 4. 说明：workspace 将归档，可恢复
 5. 用户明确确认（必须）
 6. 运行脚本
-7. 更新 MEMORY.md 花名册
+7. 更新 MEMORY.md（TEAM_DIRECTORY.md 由脚本内部自动同步，无需手动操作）
 8. 提醒重启 Gateway
 ```
 

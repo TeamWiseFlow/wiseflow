@@ -1,6 +1,6 @@
 #!/bin/bash
 # list-agents.sh - 列出所有注册的对外 Crew 及其状态
-# 用法: bash ./skills/hrbp-list/scripts/list-agents.sh
+# 用法: ./skills/hrbp-list/scripts/list-agents.sh
 # 数据来源: ~/.openclaw/workspace-hrbp/EXTERNAL_CREW_REGISTRY.md（HRBP 维护）
 set -e
 

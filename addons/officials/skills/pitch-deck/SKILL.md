@@ -2,13 +2,12 @@
 name: pitch-deck
 description: 为商业拓展/投资人关系建立场景创建精美的 HTML 演示文稿——路演 PPT、合作提案、客户 Demo、产品介绍。零依赖单文件输出，可直接通过邮件/微信发送或浏览器演示。
 metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "🎯",
-        "always": false,
-      },
-  }
+  openclaw:
+    emoji: 🎯
+    always: false
+    requires:
+      bins:
+      - python3
 ---
 
 # Pitch Deck 技能
@@ -157,7 +156,7 @@ metadata:
 ## PPT / PPTX 转换
 
 ```bash
-python3 {baseDir}/scripts/extract_pptx.py <file.pptx> [--images-dir /tmp/pptx_images]
+python3 ./scripts/extract_pptx.py <file.pptx> [--images-dir /tmp/pptx_images]
 ```
 
 脚本输出 JSON，包含每张幻灯片的标题、正文、演讲备注和图片路径（若指定了 `--images-dir`）。

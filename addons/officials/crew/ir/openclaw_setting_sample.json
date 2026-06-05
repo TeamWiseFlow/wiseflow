@@ -4,17 +4,20 @@
     "pitch-deck",
     "browser-guide",
     "smart-search",
-    "cold-outreach",
     "email-ops",
     "xhs-interact",
     "social-graph-ranker",
     "connections-optimizer",
-    "council",
     "ir-record",
+    "council",
+    "investor-hunting",
+    "investor-materials",
+    "investor-outreach",
+    "market-research",
     "summarize"
   ],
   "subagents": {
-    "allowAgents": ["it-engineer", "designer"]
+    "allowAgents": ["it-engineer"]
   },
   "heartbeat": {
     "every": "1h",

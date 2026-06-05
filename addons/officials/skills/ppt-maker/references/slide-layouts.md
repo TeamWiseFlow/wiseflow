@@ -62,11 +62,13 @@ ppt-maker 支持的幻灯片布局类型与 JSON 配置示例。
     "客户留存率维持在 92%，高于行业平均"
   ],
   "image": "/path/to/chart.png",
-  "image_position": "right"
+  "image_position": "right",
+  "image_fit": "contain"
 }
 ```
 
 - `image_position`：`"right"`（默认）、`"left"`、`"bottom"`
+- `image_fit`：`"contain"` 保持完整图片且不变形；`"cover"` 允许裁切但不变形；禁止为了填满区域直接拉伸
 - `body` 与 `bullets` 可同时使用，body 在前，bullets 在后
 
 ### 4. two_column — 双栏对比
@@ -135,3 +137,13 @@ ppt-maker 支持的幻灯片布局类型与 JSON 配置示例。
 2. siliconflow-img-gen 16:9 尺寸为 `1664x928`
 3. 生成后必须验证图片不是纯色白板（siliconflow 偶发异常）
 4. 图片文件名与幻灯片索引对应（如 `slide_01_bg.png`）
+
+## 多图排列规则
+
+三张及以上同组图片必须使用固定网格：
+
+- 先定义列中心，例如 16:9 页面三列可用 `2.45in / 6.67in / 10.90in`
+- 同组人物图统一 `top`、`height`，按图片原始比例计算 `width`
+- 同组标题统一 `top`、`height`、字号、对齐方式
+- 同组 caption 统一 baseline，不能一个贴图、一个离图很远
+- 生成后运行 `scripts/check_layout.py`，若报告 `picture-group-*` 必须修正

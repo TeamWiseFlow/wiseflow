@@ -16,7 +16,7 @@ description: >
 此处需要同时传入两个标识符，各自职责不同：
 
 ```bash
-bash ./skills/exp_invite/scripts/invite.sh \
+./skills/exp_invite/scripts/invite.sh \
   --peer "<[CustomerDB].peer>" \
   --user-id-external "<Sender.id>"
 ```

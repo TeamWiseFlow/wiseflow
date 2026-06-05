@@ -6,5 +6,6 @@ connections-optimizer
 email-ops
 pitch-deck
 social-graph-ranker
-ppt-maker
-rss-reader
+# 闲鱼技能（media-operator 不需要）
+xianyu-ops
+council

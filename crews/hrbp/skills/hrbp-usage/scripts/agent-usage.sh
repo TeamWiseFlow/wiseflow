@@ -2,13 +2,13 @@
 # agent-usage.sh - 查询 Agent 模型使用量和成本
 #
 # 用法:
-#   bash ./skills/hrbp-usage/scripts/agent-usage.sh                    # 所有 Agent 累计
-#   bash ./skills/hrbp-usage/scripts/agent-usage.sh --agent hrbp       # 指定 Agent
-#   bash ./skills/hrbp-usage/scripts/agent-usage.sh --period daily     # 按日统计（默认 7 天）
-#   bash ./skills/hrbp-usage/scripts/agent-usage.sh --period weekly    # 按周统计
-#   bash ./skills/hrbp-usage/scripts/agent-usage.sh --period monthly   # 按月统计
-#   bash ./skills/hrbp-usage/scripts/agent-usage.sh --days 30          # 指定天数
-#   bash ./skills/hrbp-usage/scripts/agent-usage.sh --agent all --period daily --days 14
+#   ./skills/hrbp-usage/scripts/agent-usage.sh                    # 所有 Agent 累计
+#   ./skills/hrbp-usage/scripts/agent-usage.sh --agent hrbp       # 指定 Agent
+#   ./skills/hrbp-usage/scripts/agent-usage.sh --period daily     # 按日统计（默认 7 天）
+#   ./skills/hrbp-usage/scripts/agent-usage.sh --period weekly    # 按周统计
+#   ./skills/hrbp-usage/scripts/agent-usage.sh --period monthly   # 按月统计
+#   ./skills/hrbp-usage/scripts/agent-usage.sh --days 30          # 指定天数
+#   ./skills/hrbp-usage/scripts/agent-usage.sh --agent all --period daily --days 14
 set -e
 
 OPENCLAW_HOME="${OPENCLAW_HOME:-$HOME/.openclaw}"

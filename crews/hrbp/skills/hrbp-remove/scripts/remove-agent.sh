@@ -1,13 +1,12 @@
 #!/bin/bash
 # remove-agent.sh - 从 openclaw.json 移除外部 Crew Agent（workspace 归档不删除）
-# 用法: bash ./skills/hrbp-remove/scripts/remove-agent.sh <agent-id>
+# 用法: ./skills/hrbp-remove/scripts/remove-agent.sh <agent-id>
 # 注意：此脚本仅适用于对外 Crew（crew-type: external）。内部 Crew 不由 HRBP 管理。
 set -e
 
 OPENCLAW_HOME="$HOME/.openclaw"
 CONFIG_PATH="$OPENCLAW_HOME/openclaw.json"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SYNC_TEAM_DIRECTORY_SCRIPT="$SCRIPT_DIR/../../hrbp-common/scripts/sync-team-directory.sh"
 
 source "$SCRIPT_DIR/../../hrbp-common/scripts/lib.sh"
 
@@ -107,12 +106,6 @@ if [ -f "$HRBP_REGISTRY" ]; then
     mv "$TMP_REGISTRY" "$HRBP_REGISTRY"
     echo "  ✅ Removed from HRBP EXTERNAL_CREW_REGISTRY.md"
   fi
-fi
-
-if [ -f "$SYNC_TEAM_DIRECTORY_SCRIPT" ]; then
-  OPENCLAW_HOME="$OPENCLAW_HOME" CONFIG_PATH="$CONFIG_PATH" bash "$SYNC_TEAM_DIRECTORY_SCRIPT" >/dev/null 2>&1 || {
-    echo "  ⚠️  Failed to sync TEAM_DIRECTORY.md"
-  }
 fi
 
 echo ""

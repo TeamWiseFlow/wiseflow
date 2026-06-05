@@ -9,7 +9,6 @@ pitch-deck
 social-graph-ranker
 # 生图/生视频技能（HRBP 不需要）
 siliconflow-img-gen
-siliconflow-video-gen
 gifgrep
 # 信息采集技能（HRBP 不需要）
 rss-reader
@@ -18,3 +17,7 @@ ppt-maker
 xhs-interact
 pexels-footage
 pixabay-footage
+xianyu-ops
+login-manager
+wx-mp-hunter
+web-form-fill

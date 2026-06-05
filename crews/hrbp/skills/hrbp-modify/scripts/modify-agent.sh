@@ -1,13 +1,12 @@
 #!/bin/bash
 # modify-agent.sh - 修改外部 Crew Agent 的渠道绑定
-# 用法: bash ./skills/hrbp-modify/scripts/modify-agent.sh <agent-id> [--bind <channel>:<accountId>] [--unbind <channel>]
+# 用法: ./skills/hrbp-modify/scripts/modify-agent.sh <agent-id> [--bind <channel>:<accountId>] [--unbind <channel>]
 # 注意：此脚本仅适用于对外 Crew（crew-type: external）。内部 Crew 不由 HRBP 管理。
 set -e
 
 OPENCLAW_HOME="$HOME/.openclaw"
 CONFIG_PATH="$OPENCLAW_HOME/openclaw.json"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SYNC_TEAM_DIRECTORY_SCRIPT="$SCRIPT_DIR/../../hrbp-common/scripts/sync-team-directory.sh"
 
 source "$SCRIPT_DIR/../../hrbp-common/scripts/lib.sh"
 
@@ -132,12 +131,6 @@ AGENT_ID="$AGENT_ID" CONFIG_PATH="$CONFIG_PATH" UNBIND_CHANNEL="$UNBIND_CHANNEL"
 
   fs.writeFileSync(process.env.CONFIG_PATH, JSON.stringify(c, null, 2) + '\n');
 "
-
-if [ -f "$SYNC_TEAM_DIRECTORY_SCRIPT" ]; then
-  OPENCLAW_HOME="$OPENCLAW_HOME" CONFIG_PATH="$CONFIG_PATH" bash "$SYNC_TEAM_DIRECTORY_SCRIPT" >/dev/null 2>&1 || {
-    echo "  ⚠️  Failed to sync TEAM_DIRECTORY.md"
-  }
-fi
 
 echo ""
 echo "✅ Agent '$AGENT_ID' modified successfully!"

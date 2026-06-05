@@ -36,7 +36,7 @@ Show the user:
 ### Step 4: Execute Removal
 After user confirms:
 
-1. Run: `bash ./skills/hrbp-remove/scripts/remove-agent.sh <instance-id>`
+1. Run: `./skills/hrbp-remove/scripts/remove-agent.sh <instance-id>`
 2. This will:
    - Remove instance from `agents.list` in openclaw.json
    - Remove all related `bindings` entries

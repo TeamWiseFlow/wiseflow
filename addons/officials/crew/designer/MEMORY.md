@@ -2,21 +2,14 @@
 
 ## Brand Assets
 
-> 由 main agent 在招募时填写，或在设计工作中逐步沉淀。
+<!-- 由 BOOTSTRAP 首次收集写入，后续运行中持续更新 -->
 
-- 品牌主色：<HEX 色值，如 #1A73E8>
-- 辅助色：<HEX 色值>
-- 背景色：<HEX 色值>
-- 主要字体：<字体名称，如 PingFang SC / Noto Sans SC / Inter>
-- Logo URL：<可公开访问的 Logo 图片链接>
-- 品牌风格描述：<如"科技感、简洁、专业"或"活泼、年轻、国潮">
+## Design Systems Used
 
-## Approved Style Directions
-
-> 经用户确认可复用的风格/提示词组合
+> 经用户确认采用的设计系统记录
 
 <!-- 格式：
-- <场景>: <风格描述> | 参考提示词: "..."
+- <项目名>: <设计系统名> | 风格关键词: "..."
 -->
 
 ## Design Archive Notes
@@ -28,7 +21,3 @@
 ## Known Assets
 
 > 已知可用的素材、图片 URL、免版权资源
-
-<!-- 格式：
-- <描述>: <URL 或本地路径>
--->

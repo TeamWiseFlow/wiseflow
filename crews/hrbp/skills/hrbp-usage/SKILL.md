@@ -22,22 +22,22 @@ Execute the appropriate command:
 
 ```bash
 # All agents, cumulative (default)
-bash ./skills/hrbp-usage/scripts/agent-usage.sh
+./skills/hrbp-usage/scripts/agent-usage.sh
 
 # Specific agent
-bash ./skills/hrbp-usage/scripts/agent-usage.sh --agent <agent-id>
+./skills/hrbp-usage/scripts/agent-usage.sh --agent <agent-id>
 
 # Daily breakdown (last 7 days)
-bash ./skills/hrbp-usage/scripts/agent-usage.sh --period daily
+./skills/hrbp-usage/scripts/agent-usage.sh --period daily
 
 # Daily breakdown (last N days)
-bash ./skills/hrbp-usage/scripts/agent-usage.sh --period daily --days 14
+./skills/hrbp-usage/scripts/agent-usage.sh --period daily --days 14
 
 # Weekly breakdown
-bash ./skills/hrbp-usage/scripts/agent-usage.sh --period weekly --days 28
+./skills/hrbp-usage/scripts/agent-usage.sh --period weekly --days 28
 
 # Monthly breakdown
-bash ./skills/hrbp-usage/scripts/agent-usage.sh --period monthly --days 90
+./skills/hrbp-usage/scripts/agent-usage.sh --period monthly --days 90
 ```
 
 ### Step 3: Interpret Results

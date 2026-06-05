@@ -9,7 +9,7 @@
 
 ```
 1. 读取 EXTERNAL_CREW_REGISTRY.md 获取所有活跃对外 Crew 实例列表
-2. 对每个实例运行: bash ./skills/hrbp-feedback-review/scripts/scan-feedback.sh <instance-id>
+2. 对每个实例运行: ./skills/hrbp-feedback-review/scripts/scan-feedback.sh <instance-id>
 3. 汇总分析：
    - 反馈总数
    - 未解决问题数量和分类
@@ -22,10 +22,10 @@
 
 ```bash
 # 扫描单个实例的反馈
-bash ./skills/hrbp-feedback-review/scripts/scan-feedback.sh <instance-id>
+./skills/hrbp-feedback-review/scripts/scan-feedback.sh <instance-id>
 
 # 扫描所有实例（需要 EXTERNAL_CREW_REGISTRY 存在）
-bash ./skills/hrbp-feedback-review/scripts/scan-feedback.sh --all
+./skills/hrbp-feedback-review/scripts/scan-feedback.sh --all
 ```
 
 ## 输出格式示例

@@ -85,7 +85,7 @@ Sender (untrusted metadata):
 每轮结束前，根据本轮对话进展更新 `purpose` 和/或 `prompt_source`：
 
 ```bash
-bash ./skills/customer-db/scripts/cs-update.sh \
+./skills/customer-db/scripts/cs-update.sh \
   --peer "<[CustomerDB].peer>" \
   --purpose "线上获客" \
   --prompt-source "GitHub"
@@ -111,11 +111,11 @@ bash ./skills/customer-db/scripts/cs-update.sh \
 
 ```bash
 # 第一步：取消同一客户的旧 pending 任务
-bash ./skills/customer-db/scripts/follow-up-cancel-pending.sh \
+./skills/customer-db/scripts/follow-up-cancel-pending.sh \
   --peer "<[CustomerDB].peer>"
 
 # 第二步：创建新任务
-bash ./skills/customer-db/scripts/follow-up-create.sh \
+./skills/customer-db/scripts/follow-up-create.sh \
   --peer "<[CustomerDB].peer>" \
   --user-id-external "<Sender.id>" \
   --follow-up-at "<YYYY-MM-DD HH:MM>" \
@@ -130,13 +130,13 @@ bash ./skills/customer-db/scripts/follow-up-create.sh \
 超过 48 小时仍为 `pending` 的任务视为客户失联，自动标记完成：
 
 ```bash
-bash ./skills/customer-db/scripts/follow-up-expire.sh
+./skills/customer-db/scripts/follow-up-expire.sh
 ```
 
 ### 查询到期任务
 
 ```bash
-bash ./skills/customer-db/scripts/follow-up-due.sh
+./skills/customer-db/scripts/follow-up-due.sh
 ```
 
 输出为 tab 分隔的表格（含 header），字段：`id / peer / user_id_external / follow_up_at / reason / context_summary / status`。
@@ -144,7 +144,7 @@ bash ./skills/customer-db/scripts/follow-up-due.sh
 ### 标记首次已发送（pending → sent_once）
 
 ```bash
-bash ./skills/customer-db/scripts/follow-up-mark-sent.sh \
+./skills/customer-db/scripts/follow-up-mark-sent.sh \
   --id <id> \
   --sent-text "<发送的消息内容>"
 ```
@@ -152,7 +152,7 @@ bash ./skills/customer-db/scripts/follow-up-mark-sent.sh \
 ### 标记完成（sent_once → completed）
 
 ```bash
-bash ./skills/customer-db/scripts/follow-up-complete.sh \
+./skills/customer-db/scripts/follow-up-complete.sh \
   --id <id> \
   --sent-text "<发送的消息内容>"
 ```

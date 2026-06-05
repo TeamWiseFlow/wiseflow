@@ -333,10 +333,26 @@ const fs = require("fs");
 const src = fs.readFileSync(process.env.SKILL_MD_PATH, "utf8");
 const fmMatch = src.match(/^---\r?\n([\s\S]*?)\r?\n---/);
 if (!fmMatch) process.exit(0);
-const binsMatch = fmMatch[1].match(/"bins"\s*:\s*\[([^\]]*)\]/);
-if (!binsMatch) process.exit(0);
-const tokens = binsMatch[1].match(/"([^"]+)"/g) || [];
-for (const t of tokens) console.log("+" + t.slice(1, -1));
+const fm = fmMatch[1];
+// Extract bins from requires.bins — support both JSON and YAML styles:
+//   JSON: "bins": ["python3", "node"]
+//   YAML: bins:\n      - python3\n      - node
+const bins = [];
+// JSON style: "bins": [...]
+const jsonMatch = fm.match(/"bins"\s*:\s*\[([^\]]*)\]/);
+if (jsonMatch) {
+  const tokens = jsonMatch[1].match(/"([^"]+)"/g) || [];
+  for (const t of tokens) bins.push(t.slice(1, -1));
+}
+// YAML style: bins:\n  - name  (only if JSON style did not match)
+if (bins.length === 0) {
+  const yamlMatch = fm.match(/bins:\s*\n((?:\s+-\s+\S+\s*\n?)+)/);
+  if (yamlMatch) {
+    const items = yamlMatch[1].match(/-\s+(\S+)/g) || [];
+    for (const item of items) bins.push(item.replace(/-\s+/, ""));
+  }
+}
+for (const b of bins) console.log("+" + b);
 ' 2>/dev/null
     fi
 
@@ -346,11 +362,14 @@ for (const t of tokens) console.log("+" + t.slice(1, -1));
       while IFS= read -r -d '' f; do
         local fname
         fname="$(basename "$f")"
-        # 只允许 .sh/.mjs/.ts/.js 文件或有可执行位的文件（排除 .py .json .txt 等）
+        # 跳过需解释器调用的文件：.py/.mjs/.ts/.js 必须通过 python3/node 调用，
+        # 不能直接 exec，加入 ALLOWED_COMMANDS 无意义。
+        # 解释器由 SKILL.md 的 requires.bins 声明注入。
         case "$fname" in
-          *.py|*.json|*.txt|*.md|*.yaml|*.yml) continue ;;
+          *.py|*.mjs|*.ts|*.js|*.json|*.txt|*.md|*.yaml|*.yml) continue ;;
         esac
-        [ -x "$f" ] || [[ "$fname" == *.sh ]] || [[ "$fname" == *.mjs ]] || [[ "$fname" == *.ts ]] || [[ "$fname" == *.js ]] || continue
+        # 只有可执行位的脚本才直接加入 allowlist
+        [ -x "$f" ] || continue
         # 保留相对于 scripts/ 的子目录路径（支持 platforms/、vendor/ 等子目录）
         local relpath="${f#$ws_scripts_dir/}"
         printf '+./skills/%s/scripts/%s\n' "$skill" "$relpath"
@@ -364,9 +383,10 @@ for (const t of tokens) console.log("+" + t.slice(1, -1));
         local fname
         fname="$(basename "$f")"
         case "$fname" in
-          *.py|*.json|*.txt|*.md|*.yaml|*.yml) continue ;;
+          *.py|*.mjs|*.ts|*.js|*.json|*.txt|*.md|*.yaml|*.yml) continue ;;
         esac
-        [ -x "$f" ] || [[ "$fname" == *.sh ]] || [[ "$fname" == *.mjs ]] || [[ "$fname" == *.ts ]] || [[ "$fname" == *.js ]] || continue
+        # 同上：只有可执行位的脚本才直接加入 allowlist
+        [ -x "$f" ] || continue
         printf '+%s\n' "$f"
       done < <(find "$global_scripts_dir" -type f -print0 2>/dev/null)
     fi
@@ -447,7 +467,7 @@ inject_feishu_media_guide() {
 
 ## 发送图片/文件/视频等富媒体（自动注入）
 
-向用户发送图片、文件、视频或其他富媒体内容时，不要在本地打开媒体文件，**必须将文件本体通过对话所在的 channel 直接发送到聊天中**，且不得直接输出文件路径或 base64 内容作为回复。
+向用户发送图片、文件、视频或其他富媒体内容时，不要在本地打开媒体文件，也不得直接输出文件路径或 base64 内容作为回复。**必须将文件本体通过媒体发送插件直接发送到聊天中，且需要提供绝对路径**。
 GUIDE
 }
 
@@ -459,32 +479,35 @@ inject_exec_guide() {
 
 ## exec 命令规范
 
-exec allowlist 不支持 shell 重定向符（`>`、`<`、`2>`、`&>`），使用时会导致整条命令被 deny，即使其中每个命令都已在白名单中。
+exec allowlist 会解析管道、`&&`、`||`、`;` 和常见重定向，并逐段检查实际执行的命令是否都在白名单中。
 
-**避免**：
-```
+**允许的常见写法**：
+```bash
 ls -la /tmp/file.txt 2>/dev/null && echo "EXISTS" || echo "NOT"
 some-cmd > /tmp/out.txt
+echo a; echo b
+cat file.txt | grep keyword
 ```
 
-**改用**：
-```bash
-# 判断文件是否存在
-[ -f /tmp/file.txt ] && echo "EXISTS" || echo "NOT"
-test -f /tmp/file.txt && echo "EXISTS" || echo "NOT"
-```
+注意：重定向只支持 POSIX 风格写法（如 `> file`、`2> err.log`、`2>&1`）。不要使用 bash/zsh 专属的 `&>` / `&>>`，这类写法在 `/bin/sh` 下可能被解释为后台执行。重定向只改变当前已批准命令的 stdin/stdout/stderr；命令本身仍必须在 allowlist 中。`echo ok; rm file` 只有在 `echo` 和 `rm` 都被允许时才会通过。
 
-如果确实需要重定向，请改用 `bash -c "..."` 方式，并确保 `bash` 已在 exec allowlist 中（T2 及以上 tier 默认包含）。
+**仍然禁止使用隐式执行子命令的 shell 扩展：**
+
+- ❌ `echo $(whoami)` — 命令替换会额外执行子命令
+- ❌ ``echo `id` `` — 反引号命令替换会额外执行子命令
+- ❌ `cat <(id)` / `tee >(cmd)` — process substitution 会额外执行子命令
+- ❌ `cmd & other-cmd` — 后台执行不受控
 
 **以下写法同样会导致 allowlist miss，禁止使用：**
 
-- ❌ `cd /abs/path && bash ./skills/xxx/scripts/yyy.sh` — CWD 已经是 workspace，不需要 `cd` 前缀，`cd` 不在 allowlist 中
+- ❌ `cd /abs/path && ./skills/xxx/scripts/yyy.sh` — CWD 已经是 workspace，不需要 `cd` 前缀，`cd` 不在 allowlist 中
+- ❌ `bash ./skills/xxx/scripts/yyy.sh` — setup-crew 已为脚本赋权，不需要 `bash` 前缀；`bash` 会改变命令前缀导致 allowlist miss
 - ❌ `KEY=value python3 script.py` — 内联 env 赋值会改变命令前缀导致 allowlist miss；环境变量由系统注入
 - ❌ `mkdir -p {notes,images}` — exec 不会展开花括号（brace expansion），会直接创建一个名为 `{notes,images}` 的单个文件夹，而非 `notes` 和 `images` 两个文件夹
 
 **正确写法：**
 
-- ✅ `bash ./skills/xxx/scripts/yyy.sh`（直接相对路径调用）
+- ✅ `./skills/xxx/scripts/yyy.sh`（直接相对路径调用，setup-crew 已赋权）
 - ✅ `python3 /abs/path/to/script.py`（无 env 前缀）
 - ✅ `mkdir -p notes images`（逐一直写目录名，不用花括号展开）
 GUIDE

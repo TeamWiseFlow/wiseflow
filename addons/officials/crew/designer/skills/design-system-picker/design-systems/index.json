@@ -1,0 +1,167 @@
+[
+  {
+    "id": "stripe",
+    "name": "Stripe",
+    "category": "fintech",
+    "keywords": ["紫色", "渐变", "优雅", "金融科技", "轻盈"],
+    "description": "紫色渐变 + weight-300 优雅排版 + 信任感金融风格",
+    "colorPrimary": "#635BFF",
+    "darkMode": true,
+    "bestFor": "SaaS 产品页、支付/金融科技落地页",
+    "file": "stripe.md"
+  },
+  {
+    "id": "vercel",
+    "name": "Vercel",
+    "category": "devtools",
+    "keywords": ["黑白", "极简", "精密", "Geist字体", "开发者"],
+    "description": "黑白精密 + Geist 字体 + 开发者工具美学",
+    "colorPrimary": "#000000",
+    "darkMode": true,
+    "bestFor": "开发者工具、技术产品官网",
+    "file": "vercel.md"
+  },
+  {
+    "id": "linear",
+    "name": "Linear",
+    "category": "productivity",
+    "keywords": ["极简", "紫色点缀", "精确", "工程师", "超简洁"],
+    "description": "超极简 + 紫色点缀 + 精确到像素的工程美学",
+    "colorPrimary": "#5E6AD2",
+    "darkMode": true,
+    "bestFor": "项目管理、效率工具、工程师导向产品",
+    "file": "linear.md"
+  },
+  {
+    "id": "notion",
+    "name": "Notion",
+    "category": "productivity",
+    "keywords": ["暖色", "极简", "衬线标题", "柔光", "知识管理"],
+    "description": "温暖极简 + 衬线标题 + 柔和表面 + 知识工作者氛围",
+    "colorPrimary": "#000000",
+    "darkMode": false,
+    "bestFor": "知识管理、内容平台、文档型产品",
+    "file": "notion.md"
+  },
+  {
+    "id": "apple",
+    "name": "Apple",
+    "category": "consumer",
+    "keywords": ["白色", "留白", "SF Pro", "电影感", "高级"],
+    "description": "极致留白 + SF Pro 字体 + 电影级影像 + 高级感",
+    "colorPrimary": "#0071E3",
+    "darkMode": true,
+    "bestFor": "消费电子、高端产品展示、品牌官网",
+    "file": "apple.md"
+  },
+  {
+    "id": "supabase",
+    "name": "Supabase",
+    "category": "devtools",
+    "keywords": ["暗色", "翡翠绿", "代码优先", "数据库", "开发者"],
+    "description": "暗色翡翠绿主题 + 代码优先美学 + 开发者友好",
+    "colorPrimary": "#3ECF8E",
+    "darkMode": true,
+    "bestFor": "数据库/后端即服务、开源开发者工具",
+    "file": "supabase.md"
+  },
+  {
+    "id": "shopify",
+    "name": "Shopify",
+    "category": "ecommerce",
+    "keywords": ["暗色", "霓虹绿", "超轻字体", "电商", "电影感"],
+    "description": "暗色电影感 + 霓虹绿点缀 + 超轻 display 字体",
+    "colorPrimary": "#008060",
+    "darkMode": true,
+    "bestFor": "电商平台、商业服务、SaaS 落地页",
+    "file": "shopify.md"
+  },
+  {
+    "id": "figma",
+    "name": "Figma",
+    "category": "creative",
+    "keywords": ["多彩", "活泼", "专业", "设计工具", "品牌色丰富"],
+    "description": "多彩活泼但专业 + 设计工具品牌美学 + 丰富色彩系统",
+    "colorPrimary": "#F24E1E",
+    "darkMode": true,
+    "bestFor": "创意工具、设计平台、品牌展示",
+    "file": "figma.md"
+  },
+  {
+    "id": "spotify",
+    "name": "Spotify",
+    "category": "media",
+    "keywords": ["绿色", "暗色", "大胆排版", "音乐", "媒体"],
+    "description": "鲜明绿 + 暗色基底 + 大胆排版 + 专辑封面驱动",
+    "colorPrimary": "#1DB954",
+    "darkMode": true,
+    "bestFor": "媒体/娱乐平台、音乐/视频产品",
+    "file": "spotify.md"
+  },
+  {
+    "id": "tesla",
+    "name": "Tesla",
+    "category": "automotive",
+    "keywords": ["极简", "减法", "电影级", "电动汽车", "全屏摄影"],
+    "description": "极致减法 + 全屏电影级摄影 + Universal Sans + 零装饰",
+    "colorPrimary": "#000000",
+    "darkMode": true,
+    "bestFor": "汽车/硬件产品、极简品牌、全屏影像展示",
+    "file": "tesla.md"
+  },
+  {
+    "id": "framer",
+    "name": "Framer",
+    "category": "creative",
+    "keywords": ["黑蓝", "动效优先", "设计感", "交互", "网站构建"],
+    "description": "大胆黑蓝 + 动效优先 + 设计感十足 + 网站构建器美学",
+    "colorPrimary": "#0055FF",
+    "darkMode": true,
+    "bestFor": "网站构建工具、创意代理、交互展示",
+    "file": "framer.md"
+  },
+  {
+    "id": "airbnb",
+    "name": "Airbnb",
+    "category": "ecommerce",
+    "keywords": ["暖色", "珊瑚色", "摄影驱动", "圆角", "旅行"],
+    "description": "温暖珊瑚色 + 摄影驱动 + 圆角 UI + 旅行平台美学",
+    "colorPrimary": "#FF385C",
+    "darkMode": false,
+    "bestFor": "旅游/生活服务、社区平台、温暖亲和型产品",
+    "file": "airbnb.md"
+  },
+  {
+    "id": "bmw",
+    "name": "BMW",
+    "category": "luxury",
+    "keywords": ["蓝色", "奢华", "精密", "汽车", "暗色", "金属感", "巴伐利亚"],
+    "description": "巴伐利亚蓝 + 暗色奢华 + 精密金属质感 + 百年汽车品牌美学",
+    "colorPrimary": "#0066B1",
+    "darkMode": true,
+    "bestFor": "奢侈品牌、高端产品展示、汽车/精密工业品牌官网",
+    "file": "bmw.md"
+  },
+  {
+    "id": "ibm",
+    "name": "IBM",
+    "category": "enterprise",
+    "keywords": ["蓝色", "商业", "企业", "专业", "数据密集", "信任", "Carbon"],
+    "description": "企业蓝 + Carbon 设计系统 + IBM Plex 字体 + 数据密集型专业美学",
+    "colorPrimary": "#0F62FE",
+    "darkMode": true,
+    "bestFor": "企业级产品、B2B 服务、数据平台、商业/金融系统",
+    "file": "ibm.md"
+  },
+  {
+    "id": "starbucks",
+    "name": "Starbucks",
+    "category": "lifestyle",
+    "keywords": ["绿色", "温暖", "社区", "咖啡", "自然", "圆角", "手工艺"],
+    "description": "Siren 绿 + 暖色社区氛围 + 自然质感 + 第三空间生活美学",
+    "colorPrimary": "#00704A",
+    "darkMode": false,
+    "bestFor": "生活品牌、社区平台、餐饮/零售、温暖亲和型产品",
+    "file": "starbucks.md"
+  }
+]

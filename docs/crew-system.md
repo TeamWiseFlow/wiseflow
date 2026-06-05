@@ -172,7 +172,7 @@ Crew 实例有三种创建方式：
 | 脚本 | 用途 |
 |------|------|
 | `scripts/setup-crew.sh` | 安装多 Agent 系统（部署内置 Crew、同步模板库、更新配置，幂等） |
-| `crews/hrbp/skills/hrbp-common/scripts/sync-team-directory.sh` | 生成 `~/.openclaw/TEAM_DIRECTORY.md`（单一信源，所有 agent 直接读取） |
+| `crews/main/skills/crew-list/scripts/sync-team-directory.sh` | 生成 `~/.openclaw/crew_templates/TEAM_DIRECTORY.md`（对内 Crew 通讯录，由 Main Agent 维护） |
 | `crews/hrbp/skills/hrbp-recruit/scripts/add-agent.sh` | HRBP 内部：注册新实例 |
 | `crews/hrbp/skills/hrbp-modify/scripts/modify-agent.sh` | HRBP 内部：修改实例渠道绑定 |
 | `crews/hrbp/skills/hrbp-remove/scripts/remove-agent.sh` | HRBP 内部：移除实例（workspace 归档） |

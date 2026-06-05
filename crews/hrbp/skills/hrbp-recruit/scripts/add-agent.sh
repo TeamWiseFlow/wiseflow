@@ -1,11 +1,12 @@
 #!/bin/bash
 # add-agent.sh - 注册新 Agent 到 openclaw.json
-# 用法: bash ./skills/hrbp-recruit/scripts/add-agent.sh <agent-id> [--crew-type <internal|external>] [--bind <channel>:<accountId>] [--builtin-skills <skill1,skill2|all>] [--template-id <template-id>] [--note <text>]
+# 用法: ./skills/hrbp-recruit/scripts/add-agent.sh <agent-id> [--crew-type <internal|external>] [--bind <channel>:<accountId>] [--builtin-skills <skill1,skill2|all>] [--template-id <template-id>] [--note <text>]
 #
 # crew-type 决定技能解析模式：
 #   internal（对内 Crew）：inherit 模式 —— 基线技能 + 额外 - 拒绝 + workspace
 #                         项目级 / add-on 全局 skills 不自动继承，需在 BUILTIN_SKILLS 显式声明
 #                         加入 Main Agent 的 allowAgents（可通过 spawn 路由）
+#                         默认允许调用 it-engineer subagent
 #   external（对外 Crew）：declare 模式 —— 仅 DECLARED_SKILLS + workspace 技能
 #                         不加入 allowAgents（bind-only，不可通过 Main Agent 路由）
 #
@@ -15,7 +16,6 @@ set -e
 OPENCLAW_HOME="$HOME/.openclaw"
 CONFIG_PATH="$OPENCLAW_HOME/openclaw.json"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SYNC_TEAM_DIRECTORY_SCRIPT="$SCRIPT_DIR/../../hrbp-common/scripts/sync-team-directory.sh"
 
 source "$SCRIPT_DIR/../../hrbp-common/scripts/lib.sh"
 
@@ -424,6 +424,9 @@ AGENT_ID="$AGENT_ID" CREW_TYPE="$CREW_TYPE" BIND_CHANNEL="$BIND_CHANNEL" BIND_AC
     workspace: openclawHome + '/workspace-' + agentId,
     skills: agentSkills,
   };
+  if (crewType === 'internal') {
+    newAgent.subagents = { allowAgents: ['it-engineer'] };
+  }
   c.agents.list.push(newAgent);
 
   // 2. 仅对内 Crew 加入 Main Agent 的 allowAgents
@@ -528,6 +531,32 @@ else
   inject_agents_md_sections "$AGENTS_MD"
   inject_feishu_media_guide "$WORKSPACE/USER.md"
 
+  BUSINESS_CONTEXT_DIR="$OPENCLAW_HOME/workspace-main/business-context"
+  if [ -d "$BUSINESS_CONTEXT_DIR" ]; then
+    ln -sfn "$BUSINESS_CONTEXT_DIR" "$WORKSPACE/business-context"
+    echo "  ✅ Linked business-context/ from Main Agent workspace"
+  else
+    echo "  ⚠️  Main Agent business-context/ not found; skipping symlink"
+  fi
+
+  CREW_MEMORY="$WORKSPACE/MEMORY.md"
+  if [ -f "$CREW_MEMORY" ]; then
+    if ! grep -Fq "## Shared Business Context" "$CREW_MEMORY" 2>/dev/null; then
+      TMP_CREW_MEMORY="$(mktemp "${CREW_MEMORY}.tmp.XXXXXX")"
+      cat "$CREW_MEMORY" > "$TMP_CREW_MEMORY"
+      cat >> "$TMP_CREW_MEMORY" <<'MEMEOF'
+
+## Shared Business Context
+
+- `business-context/` 是 Main Agent 在 onboarding 中维护的共享业务背景目录。
+- 该目录通常包含公司/品牌信息、产品与服务介绍、目标用户、渠道策略、运营偏好和团队协作背景。
+- 执行业务任务前，应优先查阅其中的稳定背景信息；不要在其中写入 secrets。
+MEMEOF
+      mv "$TMP_CREW_MEMORY" "$CREW_MEMORY"
+      echo "  ✅ Added business-context guide to crew MEMORY.md"
+    fi
+  fi
+
   # 内部 Crew：更新 Main Agent 的 MEMORY.md
   MAIN_MEMORY="$OPENCLAW_HOME/workspace-main/MEMORY.md"
   if [ -f "$MAIN_MEMORY" ]; then
@@ -550,15 +579,6 @@ else
       mv "$TMP_MEMORY" "$MAIN_MEMORY"
       echo "  ✅ Updated Main Agent MEMORY.md roster (internal crew)"
     fi
-  fi
-fi
-
-# 同步 TEAM_DIRECTORY（内部 crew 变化时）
-if [ "$CREW_TYPE" = "internal" ]; then
-  if [ -f "$SYNC_TEAM_DIRECTORY_SCRIPT" ]; then
-    OPENCLAW_HOME="$OPENCLAW_HOME" CONFIG_PATH="$CONFIG_PATH" bash "$SYNC_TEAM_DIRECTORY_SCRIPT" >/dev/null 2>&1 || {
-      echo "  ⚠️  Failed to sync TEAM_DIRECTORY.md"
-    }
   fi
 fi
 

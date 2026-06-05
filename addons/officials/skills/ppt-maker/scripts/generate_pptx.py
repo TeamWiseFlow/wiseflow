@@ -3,7 +3,7 @@
 generate_pptx.py — Generate .pptx from a JSON slide configuration.
 
 Dependencies:
-  pip install python-pptx
+  pip install python-pptx pillow
 
 Usage:
   python3 generate_pptx.py --config slides.json --output output.pptx
@@ -195,13 +195,47 @@ def _add_accent_bar(slide, left, top, width, height, color: str):
     return shape
 
 
-def _add_image_safe(slide, image_path: str, left, top, width, height):
-    """Add image if file exists, otherwise add placeholder."""
+def _fit_image_box(image_path: str, left, top, width, height, fit: str = "contain"):
+    """Return a placement box that preserves the source image aspect ratio."""
+    if fit == "stretch":
+        return left, top, width, height
+    try:
+        from PIL import Image
+
+        with Image.open(image_path) as img:
+            src_w, src_h = img.size
+        src_ratio = src_w / src_h
+        box_ratio = width / height
+        if fit == "cover":
+            if src_ratio > box_ratio:
+                fitted_h = height
+                fitted_w = int(height * src_ratio)
+            else:
+                fitted_w = width
+                fitted_h = int(width / src_ratio)
+        else:
+            if src_ratio > box_ratio:
+                fitted_w = width
+                fitted_h = int(width / src_ratio)
+            else:
+                fitted_h = height
+                fitted_w = int(height * src_ratio)
+        fitted_left = left + int((width - fitted_w) / 2)
+        fitted_top = top + int((height - fitted_h) / 2)
+        return fitted_left, fitted_top, fitted_w, fitted_h
+    except Exception:
+        return left, top, width, height
+
+
+def _add_image_safe(slide, image_path: str, left, top, width, height, fit: str = "contain"):
+    """Add image if file exists, preserving aspect ratio by default."""
     from pptx.dml.color import RGBColor
+    from pptx.util import Pt
 
     if image_path and os.path.exists(image_path):
         try:
-            slide.shapes.add_picture(image_path, left, top, width, height)
+            img_left, img_top, img_w, img_h = _fit_image_box(image_path, left, top, width, height, fit)
+            slide.shapes.add_picture(image_path, img_left, img_top, img_w, img_h)
             return
         except Exception:
             pass
@@ -235,7 +269,7 @@ def _build_cover(slide, cfg: dict, theme: dict) -> None:
     # Background image (optional, for AI-generated cover images)
     bg_image = cfg.get("background_image", "")
     if bg_image:
-        _add_image_safe(slide, bg_image, Inches(0), Inches(0), Inches(13.333), Inches(7.5))
+        _add_image_safe(slide, bg_image, Inches(0), Inches(0), Inches(13.333), Inches(7.5), fit="cover")
         # Semi-transparent overlay via dark rectangle with lower opacity would be ideal,
         # but python-pptx has limited opacity support. Use a dark shape as mask.
         overlay = slide.shapes.add_shape(1, Inches(0), Inches(0), Inches(13.333), Inches(7.5))
@@ -393,6 +427,7 @@ def _build_content(slide, cfg: dict, theme: dict) -> None:
     # Image handling
     image = cfg.get("image", "")
     image_position = cfg.get("image_position", "right")
+    image_fit = cfg.get("image_fit", "contain")
     has_image = image and os.path.exists(image)
 
     if has_image:
@@ -441,7 +476,7 @@ def _build_content(slide, cfg: dict, theme: dict) -> None:
 
     # Image
     if has_image:
-        _add_image_safe(slide, image, img_left, img_top, img_w, img_h)
+        _add_image_safe(slide, image, img_left, img_top, img_w, img_h, fit=image_fit)
 
 
 def _build_two_column(slide, cfg: dict, theme: dict) -> None:
@@ -510,7 +545,8 @@ def _build_image_full(slide, cfg: dict, theme: dict) -> None:
     from pptx.util import Inches
 
     image = cfg.get("image", "")
-    _add_image_safe(slide, image, Inches(0), Inches(0), Inches(13.333), Inches(7.5))
+    image_fit = cfg.get("image_fit", "cover")
+    _add_image_safe(slide, image, Inches(0), Inches(0), Inches(13.333), Inches(7.5), fit=image_fit)
 
     # Optional overlay text at bottom
     caption = cfg.get("caption", "")
