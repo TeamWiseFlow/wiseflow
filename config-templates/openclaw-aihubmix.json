@@ -114,6 +114,11 @@
             "ask": "off"
           }
         },
+        "heartbeat": {
+          "every": "1d",
+          "target": "none",
+          "isolatedSession": true
+        },
         "thinkingDefault": "high",
         "reasoningDefault": "off"
       },

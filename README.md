@@ -2,12 +2,13 @@
 
 🚀 **v5.5.0 更新**
 
-- **从安装到出活，全程微信对话完成**：首次部署时自动安装官方微信插件，扫码绑定后，Wiseflow Main Agent 直接在微信上引导你完成业务背景采集、团队组建、渠道配置——不再需要编辑任何配置文件。
+- **从安装到出活，全程微信对话完成**：首次部署时自动安装官方微信插件，扫码绑定后，Wiseflow Main Agent 直接在微信上引导你完成业务背景采集、团队组建、渠道配置——不再需要编辑任何配置文件
 - 如果只是想要一个个人助理、或者使用场景比较简单（crew 数量不超过 3 个），可以一直使用微信渠道，无需额外申请飞书开放平台或企业微信（后续如需扩展，Main Agent 也会给出申请和开通的详细指导）
+- **Selfmedia Operator 增强**：新增微信公众号文章自动排版并推送至草稿箱、简单短视频制作（t2video）、高光时刻视频剪辑（highlight-clipper），现已支持 15 个国内外主流自媒体平台的发布能力（部分为pro版本提供）
 - **Designer 升级**：从"出图工具"重新定位为**系统性视觉设计体系构建者**，内置 `design-system-picker` 技能，预置 15 套品牌设计系统（覆盖 fintech / devtools / productivity / consumer / luxury / enterprise 等全品类），一键匹配风格后从零构建完整网页、APP 界面、品牌视觉体系
 - **IT Engineer 升级**：新增SEO、ICP备案辅助、云服务资源管理能力，现在 Designer + IT Engineer 的技能组合可覆盖官网 / Landing Page 的完整流程——**设计 → 开发 → 部署（云计算）→ 备案（ICP）→ SEO**
-- **Selfmedia Operator 增强**：新增微信公众号文章自动排版并推送至草稿箱、简单短视频制作（t2video）、高光时刻视频剪辑（highlight-clipper），现已支持 15 个国内外主流自媒体平台的发布能力（部分为pro版本提供）
-- **商务拓展 + 投资人关系正式发布**：business-developer 继承 4.x 全部核心能力（指定信源监控、行业情报采集、社交媒体潜客挖掘），并新增业务介绍 PPT 制作能力；investor-relationship 预发布
+- **new crew: business-developer**：business-developer 继承 4.x 全部核心能力（指定信源监控、行业情报采集、社交媒体潜客挖掘），并新增业务介绍 PPT 制作能力
+- **new crew: investor-relationship**（预发布）：软件著作权申报（材料准备、页面填写）、商业模式优化、商业思路记录、BP编写、项目申报、搜索并接触投资人
 
 详见 [CHANGELOG.md](CHANGELOG.md)
 
