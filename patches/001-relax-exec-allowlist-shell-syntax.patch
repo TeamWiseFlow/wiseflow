@@ -1,20 +1,21 @@
 diff --git a/src/infra/exec-approvals-analysis.test.ts b/src/infra/exec-approvals-analysis.test.ts
-index e823b9400c..327511352d 100644
+index e823b9400c..a1b2c3d4e5 100644
 --- a/src/infra/exec-approvals-analysis.test.ts
 +++ b/src/infra/exec-approvals-analysis.test.ts
-@@ -167,11 +167,6 @@ describe("exec approvals shell analysis", () => {
+@@ -167,11 +167,9 @@ describe("exec approvals shell analysis", () => {
      });
  
      it.each([
--      { command: 'echo "output: $(whoami)"', reason: "unsupported shell token: $()" },
--      { command: 'echo "output: `id`"', reason: "unsupported shell token: `" },
--      { command: "echo $(whoami)", reason: "unsupported shell token: $()" },
++      // Command substitution remains blocked for security
+       { command: 'echo "output: $(whoami)"', reason: "unsupported shell token: $()" },
+       { command: 'echo "output: `id`"', reason: "unsupported shell token: `" },
+       { command: "echo $(whoami)", reason: "unsupported shell token: $()" },
 -      { command: "cat < input.txt", reason: "unsupported shell token: <" },
 -      { command: "echo ok > output.txt", reason: "unsupported shell token: >" },
        {
          command: "/usr/bin/echo first line\n/usr/bin/echo second line",
          reason: "unsupported shell token: \n",
-@@ -580,8 +575,8 @@ describe("exec approvals shell analysis", () => {
+@@ -580,8 +578,8 @@ describe("exec approvals shell analysis", () => {
        {
          allowlist: [{ pattern: "/usr/bin/echo" }],
          command: "/usr/bin/echo ok &&",
@@ -26,56 +27,35 @@ index e823b9400c..327511352d 100644
        {
          allowlist: [{ pattern: "/usr/bin/ping" }],
 diff --git a/src/infra/exec-approvals-analysis.ts b/src/infra/exec-approvals-analysis.ts
-index 44900f0bb7..fca09df325 100644
+index 44900f0bb7..b8c9d2e1f3 100644
 --- a/src/infra/exec-approvals-analysis.ts
 +++ b/src/infra/exec-approvals-analysis.ts
-@@ -42,7 +42,7 @@ export type ShellChainPart = {
+@@ -40,9 +40,11 @@ export type ShellChainPart = {
    opToNext: ShellChainOperator | null;
  };
  
 -const DISALLOWED_PIPELINE_TOKENS = new Set([">", "<", "`", "\n", "\r", "(", ")"]);
-+const DISALLOWED_PIPELINE_TOKENS = new Set(["\n", "\r"]);
++// Security: Keep command substitution (` and $()) blocked to prevent arbitrary code execution
++// Allow redirects (< >) for practical shell usage in controlled scenarios
++const DISALLOWED_PIPELINE_TOKENS = new Set(["`", "\n", "\r"]);
  const DOUBLE_QUOTE_ESCAPES = new Set(["\\", '"', "$", "`"]);
  const MAX_UNQUOTED_HEREDOC_CONTINUATION_LINES = 1024;
  const MAX_UNQUOTED_HEREDOC_LOGICAL_LINE_LENGTH = 64 * 1024;
-@@ -296,10 +296,32 @@ function splitShellPipeline(command: string): { ok: boolean; reason?: string; se
+@@ -296,6 +298,8 @@ function splitShellPipeline(command: string): { ok: boolean; reason?: string; se
          continue;
        }
++      // SECURITY: Block command substitution $() - prevents arbitrary code execution
        if (ch === "$" && next === "(") {
--        return { ok: false, reason: "unsupported shell token: $()", segments: [] };
-+        buf += ch;
-+        buf += next;
-+        i += 1;
-+        let depth = 1;
-+        while (i + 1 < command.length && depth > 0) {
-+          i += 1;
-+          const c = command[i];
-+          buf += c;
-+          if (c === "(") depth += 1;
-+          else if (c === ")") depth -= 1;
-+        }
-+        emptySegment = false;
-+        continue;
+         return { ok: false, reason: "unsupported shell token: $()", segments: [] };
        }
++      // SECURITY: Block backtick command substitution - prevents arbitrary code execution
        if (ch === "`") {
--        return { ok: false, reason: "unsupported shell token: `", segments: [] };
-+        buf += ch;
-+        while (i + 1 < command.length && command[i + 1] !== "`") {
-+          i += 1;
-+          buf += command[i];
-+        }
-+        if (i + 1 < command.length) {
-+          i += 1;
-+          buf += command[i];
-+        }
-+        emptySegment = false;
-+        continue;
+         return { ok: false, reason: "unsupported shell token: `", segments: [] };
        }
-       if (ch === "\n" || ch === "\r") {
-         return { ok: false, reason: "unsupported shell token: newline", segments: [] };
-@@ -337,10 +359,18 @@ function splitShellPipeline(command: string): { ok: boolean; reason?: string; se
+@@ -337,10 +341,18 @@ function splitShellPipeline(command: string): { ok: boolean; reason?: string; se
      }
  
++    // Allow || for conditional execution (useful for error handling)
      if (ch === "|" && next === "|") {
 -      return { ok: false, reason: "unsupported shell token: ||", segments: [] };
 +      buf += ch;
@@ -94,9 +74,10 @@ index 44900f0bb7..fca09df325 100644
      }
      if (ch === "|") {
        emptySegment = true;
-@@ -348,7 +378,9 @@ function splitShellPipeline(command: string): { ok: boolean; reason?: string; se
+@@ -348,7 +360,10 @@ function splitShellPipeline(command: string): { ok: boolean; reason?: string; se
        continue;
      }
++    // Allow && and ; for command chaining (common pattern)
      if (ch === "&" || ch === ";") {
 -      return { ok: false, reason: `unsupported shell token: ${ch}`, segments: [] };
 +      buf += ch;
@@ -105,60 +86,13 @@ index 44900f0bb7..fca09df325 100644
      }
      if (ch === "<" && next === "<") {
        buf += "<<";
-@@ -375,7 +407,32 @@ function splitShellPipeline(command: string): { ok: boolean; reason?: string; se
+@@ -373,8 +388,10 @@ function splitShellPipeline(command: string): { ok: boolean; reason?: string; se
+     if (DISALLOWED_PIPELINE_TOKENS.has(ch)) {
        return { ok: false, reason: `unsupported shell token: ${ch}`, segments: [] };
      }
++    // SECURITY: Block command substitution $() - prevents arbitrary code execution
      if (ch === "$" && next === "(") {
--      return { ok: false, reason: "unsupported shell token: $()", segments: [] };
-+      buf += ch;
-+      buf += next;
-+      i += 1;
-+      let depth = 1;
-+      while (i + 1 < command.length && depth > 0) {
-+        i += 1;
-+        const c = command[i];
-+        buf += c;
-+        if (c === "(") depth += 1;
-+        else if (c === ")") depth -= 1;
-+      }
-+      emptySegment = false;
-+      continue;
-+    }
-+    if (ch === "`") {
-+      buf += ch;
-+      while (i + 1 < command.length && command[i + 1] !== "`") {
-+        i += 1;
-+        buf += command[i];
-+      }
-+      if (i + 1 < command.length) {
-+        i += 1;
-+        buf += command[i];
-+      }
-+      emptySegment = false;
-+      continue;
+       return { ok: false, reason: "unsupported shell token: $()", segments: [] };
      }
      buf += ch;
      emptySegment = false;
-@@ -774,13 +831,6 @@ export function splitCommandChainWithOperators(command: string): ShellChainPart[
-       foundChain = true;
-       continue;
-     }
--    if (ch === ";") {
--      if (!pushPart(";")) {
--        invalidChain = true;
--      }
--      foundChain = true;
--      continue;
--    }
- 
-     buf += ch;
-   }
-@@ -1060,6 +1110,8 @@ export function buildEnforcedShellCommand(params: {
- 
- /**
-  * Splits a command string by chain operators (&&, ||, ;) while respecting quotes.
-+ * Note: semicolons inside compound constructs (while/do/done, if/then/fi, etc.) are
-+ * preserved as part of the segment rather than treated as chain separators.
-  * Returns null when no chain is present or when the chain is malformed.
-  */
- export function splitCommandChain(command: string): string[] | null {

@@ -6,10 +6,7 @@
     "extraArgs": [
       "--window-size=1920,1080",
       "--window-position=0,0"
-    ],
-    "ssrfPolicy": {
-      "dangerouslyAllowPrivateNetwork": true
-    }
+    ]
   },
   "models": {
     "mode": "merge",
@@ -199,8 +196,8 @@
         "tools": {
           "exec": {
             "host": "gateway",
-            "security": "full",
-            "ask": "off"
+            "security": "allowlist",
+            "ask": "on-miss"
           }
         },
         "thinkingDefault": "high",
@@ -389,13 +386,6 @@
   "tools": {
     "exec": {
       "host": "gateway"
-    },
-    "web": {
-      "fetch": {
-        "ssrfPolicy": {
-          "allowRfc2544BenchmarkRange": true
-        }
-      }
     }
   }
 }
