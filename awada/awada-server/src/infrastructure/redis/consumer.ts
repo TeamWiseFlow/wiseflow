@@ -21,6 +21,20 @@ import { EventProducer } from './producer';
 
 export type MessageHandler<T> = (message: StreamMessage<T>) => Promise<void>;
 
+/**
+ * 启动时清理僵尸 consumer 的空闲阈值。
+ * consumer 名按 pid 命名（见 services/outbound/index.ts），进程重启后旧 pid 的
+ * consumer 永不复用、也不主动删除，会无限堆积（曾观测到 18 天攒到 160 个）。
+ * 启动时把 pending=0 且 idle 超过此阈值的其它 consumer 删掉，兜底 kill -9 / 崩溃场景。
+ * 1 小时足以避开"正在重启的对端实例"被误删。
+ */
+const STALE_CONSUMER_IDLE_THRESHOLD_MS = 60 * 60 * 1000;
+/**
+ * reclaimLoop 每 10s 一轮，每 PRUNE_EVERY_TICKS 轮触发一次僵尸 consumer 清理。
+ * 360 × 10s = 1h，与 STALE_CONSUMER_IDLE_THRESHOLD_MS 对齐。
+ */
+const PRUNE_EVERY_TICKS = 360;
+
 export interface ConsumerOptions extends Partial<StreamConfig> {
   streamKey: string;
   onMessage: MessageHandler<InboundEvent | OutboundEvent>;
@@ -35,6 +49,8 @@ export class EventConsumer {
   private isRunning: boolean = false;
   private onMessage: MessageHandler<InboundEvent | OutboundEvent>;
   private onError?: (error: Error, message?: StreamMessage<any>) => void;
+  // reclaimLoop 周期性 prune 僵尸 consumer 的节拍计数（每 PRUNE_EVERY_TICKS 轮一次）
+  private pruneTick: number = 0;
 
   constructor(options: ConsumerOptions, redis?: Redis) {
     // Consumer 需要独立的 Redis 连接（因为 XREADGROUP BLOCK 会阻塞）
@@ -57,6 +73,7 @@ export class EventConsumer {
     }
 
     await this.ensureConsumerGroup();
+    await this.pruneStaleConsumers();
     this.isRunning = true;
 
     console.log(
@@ -74,6 +91,23 @@ export class EventConsumer {
   async stop(): Promise<void> {
     this.isRunning = false;
     console.log('Consumer stopping...');
+    // 干净关闭时把自己从消费组里摘掉，避免僵尸 consumer 堆积。
+    // 必须在 sleep 之前执行：pm2 reload 发 SIGTERM 后只等约 1.6s 就 SIGKILL，
+    // 而 sleep(blockTimeMs+1s)≈6s，放后面会被 SIGKILL 打断导致摘除没执行。
+    // consumer 名按 pid 命名，重启后旧 pid 的 consumer 不会被复用。
+    try {
+      await this.redis.xgroup(
+        'DELCONSUMER',
+        this.streamKey,
+        this.config.consumerGroup,
+        this.config.consumerName
+      );
+    } catch (error: any) {
+      // 摘除失败不应阻塞关闭（连接可能已断 / 组已不存在）
+      console.warn(
+        `Failed to DELCONSUMER ${this.config.consumerName} on ${this.streamKey}: ${error?.message ?? error}`
+      );
+    }
     // 等待循环结束（最多等待 blockTimeMs + 1秒）
     await this.sleep(this.config.blockTimeMs + 1000);
     // 关闭 Redis 连接
@@ -106,6 +140,12 @@ export class EventConsumer {
         await this.reclaimPendingMessages();
       } catch (error) {
         console.error('Error in reclaim loop:', error);
+      }
+      // 周期性清理僵尸 consumer，兜底 kill -9 / SIGKILL 遗留的孤儿，
+      // 不用等下次进程重启。每 PRUNE_EVERY_TICKS 轮（≈1h）跑一次。
+      if (++this.pruneTick >= PRUNE_EVERY_TICKS) {
+        this.pruneTick = 0;
+        await this.pruneStaleConsumers();
       }
       // 每 10 秒检查一次
       await this.sleep(10000);
@@ -309,6 +349,59 @@ export class EventConsumer {
       } else {
         throw error;
       }
+    }
+  }
+
+  /**
+   * 清理消费组里遗留的僵尸 consumer。
+   * consumer 名按 pid 命名，进程重启 / 崩溃后旧 pid 的 consumer 不会被复用，
+   * 也不主动删除，会无限堆积。启动时把 pending=0 且 idle 超过阈值的其它
+   * consumer 删掉。pending>0 的保留——其未 ACK 消息由 reclaimLoop (XAUTOCLAIM)
+   * 接管后，下一轮启动再清。
+   */
+  private async pruneStaleConsumers(): Promise<void> {
+    try {
+      const consumers = (await this.redis.xinfo(
+        'CONSUMERS',
+        this.streamKey,
+        this.config.consumerGroup
+      )) as unknown[][];
+
+      for (const info of consumers) {
+        const infoMap = new Map<string, unknown>();
+        for (let i = 0; i < info.length; i += 2) {
+          infoMap.set(info[i] as string, info[i + 1]);
+        }
+        const name = infoMap.get('name') as string;
+        const pending = Number(infoMap.get('pending') ?? 0);
+        const idle = Number(infoMap.get('idle') ?? 0);
+
+        // 不删自己；不删还有未 ACK 消息的；只删空闲超过阈值的僵尸
+        if (name === this.config.consumerName) continue;
+        if (pending > 0) continue;
+        if (idle < STALE_CONSUMER_IDLE_THRESHOLD_MS) continue;
+
+        try {
+          await this.redis.xgroup(
+            'DELCONSUMER',
+            this.streamKey,
+            this.config.consumerGroup,
+            name
+          );
+          console.log(
+            `Pruned stale consumer ${name} (idle=${Math.round(idle / 1000)}s) on ${this.streamKey}`
+          );
+        } catch (error: any) {
+          console.warn(
+            `Failed to DELCONSUMER stale ${name} on ${this.streamKey}: ${error?.message ?? error}`
+          );
+        }
+      }
+    } catch (error: any) {
+      // XINFO 在组 / 流不存在时会报错；启动期不应因此中断
+      console.warn(
+        `pruneStaleConsumers skipped for ${this.streamKey}: ${error?.message ?? error}`
+      );
     }
   }
 

@@ -17,6 +17,8 @@ Use this skill when:
 - The user provides an RSS or Atom feed URL directly
 - You need to efficiently collect multiple articles from one source without visiting each page
 
+> 📍 **全局技能路径提示**：文中所有 `./scripts/` 路径均相对于本技能所在目录（即 `<skill>` 标签 `location` 属性所指目录），**不是**工作区目录。执行时按本技能实际安装路径拼接。
+
 ---
 
 ## Step 1 — Discover the feed URL

@@ -10,3 +10,12 @@
 +./skills/ir-record/scripts/record-application.sh
 +./skills/ir-record/scripts/query-applications.sh
 +sqlite3
++nano-pdf
++jq
++rg
++tmux
++curl
++summarize
++gifgrep
++node
++python3

@@ -163,13 +163,15 @@ export function createAwadaReplyDispatcher(params: CreateAwadaReplyDispatcherPar
       text?: string;
       mediaUrl?: string;
       mediaUrls?: string[];
+      isError?: boolean;
       isFallbackNotice?: boolean;
       isStatusNotice?: boolean;
       isCompactionNotice?: boolean;
     }): boolean {
-      // Suppress internal status notices (model fallback, compaction, etc.)
-      // from external-facing channels — end users should never see these.
-      if (payload.isFallbackNotice || payload.isStatusNotice || payload.isCompactionNotice) {
+      // Suppress internal notices and error warnings (model fallback, compaction,
+      // tool-call failures, etc.) from external-facing channels — end users
+      // should never see these.
+      if (payload.isError || payload.isFallbackNotice || payload.isStatusNotice || payload.isCompactionNotice) {
         return true;
       }
       // Handle media attachments (URL-based)

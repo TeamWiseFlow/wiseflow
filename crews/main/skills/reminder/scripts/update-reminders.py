@@ -96,7 +96,8 @@ def main() -> None:
 
     items: list[dict[str, Any]] = []
     internal_count = len([agent_id for agent_id in agent_ids if agent_id != "main"])
-    if internal_count > 3:
+    any_work_binding = any(has_work_binding(agent_id) for agent_id in agent_ids)
+    if internal_count > 3 and not any_work_binding:
         items.append({
             "id": "work-channel-needed-internal-team",
             "type": "work-channel",
@@ -104,7 +105,7 @@ def main() -> None:
             "status": "open",
             "title": "建议启用工作 channel",
             "message": "内部 crew 数量已经较多，建议为关键成员配置 Feishu 或 WeCom。",
-            "reason": "internal crew count excluding main is greater than 3",
+            "reason": "internal crew count excluding main is greater than 3 and no work channel binding exists",
             "updatedAt": now,
         })
     if not has_work_binding("it-engineer"):

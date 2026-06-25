@@ -281,14 +281,15 @@ def _build_cover(slide, cfg: dict, theme: dict) -> None:
             pass
         overlay.line.fill.background()
         # Set transparency via XML manipulation
+        # python-pptx ≥1.0: overlay.fill._fill is a _SolidFill object, not an XML element.
+        # Access the underlying <a:solidFill> element via the shape's sp element instead.
         from pptx.oxml.ns import qn
-        solidFill = overlay.fill._fill
-        srgb = solidFill.find(qn('a:solidFill'))
-        if srgb is not None:
-            srgbClr = srgb[0]
-            if srgbClr is not None:
-                alpha = srgbClr.makeelement(qn('a:alpha'), {'val': '40000'})
-                srgbClr.append(alpha)
+        solidFills = overlay._element.findall('.//' + qn('a:solidFill'))
+        if solidFills:
+            srgbClrs = solidFills[0].findall(qn('a:srgbClr'))
+            if srgbClrs:
+                alpha = srgbClrs[0].makeelement(qn('a:alpha'), {'val': '40000'})
+                srgbClrs[0].append(alpha)
 
     # Accent line
     _add_accent_bar(

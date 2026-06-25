@@ -4,7 +4,6 @@
     "tiktok-post",
     "instagram-post",
     "youtube-upload",
-    "xhs-content-ops",
     "xhs-interact",
     "juejin-publish",
     "toutiao-publish",
@@ -16,10 +15,10 @@
     "wxwork-moments",
     "wxwork-drive",
     "wx-mp-publisher",
-    "complex-task"
+    "video-product"
   ],
   "subagents": {
-    "allowAgents": ["it-engineer", "designer", "video-producer"]
+    "allowAgents": ["it-engineer", "designer"]
   },
   "maxConcurrent": 2,
   "tools": {}

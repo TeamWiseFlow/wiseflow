@@ -9,11 +9,13 @@
 # ── 各 Tier 基线命令 ──────────────────────────────────
 # T0: 无命令（deny）
 # T1: 只读型系统命令
-TIER_T1_COMMANDS="cat ls grep find xargs ps date echo pwd env which head tail wc sort uniq diff curl stat basename dirname realpath readlink tr printf whoami uname du df file ffprobe fc-list fc-match sed true false"
+TIER_T1_COMMANDS="cat ls grep find xargs ps date echo pwd env which head tail wc sort uniq diff curl stat basename dirname realpath readlink tr printf whoami uname du df file ffprobe fc-list fc-match sed mkdir true false"
 # T2: T1 + 开发工具链
-# 注意：bash/sh 的全部常见路径均需列出（/bin 和 /usr/bin 在部分系统上是独立路径，
-# exec 白名单做精确路径匹配，仅靠 command -v 只能解析到其中一条，须全量覆盖）
-TIER_T2_EXTRA="git npm npx pnpm bun node python python3 pip pip3 ffmpeg perl cp mv mkdir rmdir rm touch chmod sleep test /bin/bash /bin/sh /usr/bin/bash /usr/bin/sh"
+# 注意：不再列入 bash/sh。openclaw exec 审批对 shell wrapper（bash/sh/zsh 等）调用
+# 要求 argPattern 绑定脚本（`bash script.sh`、`bash -c '...'` 都触发 requiresBoundArgPattern），
+# 裸 `/usr/bin/bash` 条目匹配不上这类调用，属于死条目。crew 脚本统一走 shebang 直接执行
+# 或 `python3 /abs/script.py`；`bash -c '...'` 由 inlineChain 拆开按内联命令逐段匹配白名单。
+TIER_T2_EXTRA="git npm npx pnpm bun node python python3 pip pip3 ffmpeg perl cp mv mkdir rmdir rm touch chmod sleep test"
 # T3: full access（无需白名单）
 
 # ── 从 SOUL.md 解析 command-tier ──────────────────────

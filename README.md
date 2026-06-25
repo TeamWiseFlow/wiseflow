@@ -1,14 +1,14 @@
 # Wiseflow
 
-🚀 **v5.5.0 更新**
+🚀 **v5.5.2 更新**
 
-- **从安装到出活，全程微信对话完成**：首次部署时自动安装官方微信插件，扫码绑定后，Wiseflow Main Agent 直接在微信上引导你完成业务背景采集、团队组建、渠道配置——不再需要编辑任何配置文件
-- 如果只是想要一个个人助理、或者使用场景比较简单（crew 数量不超过 3 个），可以一直使用微信渠道，无需额外申请飞书开放平台或企业微信（后续如需扩展，Main Agent 也会给出申请和开通的详细指导）
-- **Selfmedia Operator 增强**：新增微信公众号文章自动排版并推送至草稿箱、简单短视频制作（t2video）、高光时刻视频剪辑（highlight-clipper），现已支持 15 个国内外主流自媒体平台的发布能力（部分为pro版本提供）
-- **Designer 升级**：从"出图工具"重新定位为**系统性视觉设计体系构建者**，内置 `design-system-picker` 技能，预置 15 套品牌设计系统（覆盖 fintech / devtools / productivity / consumer / luxury / enterprise 等全品类），一键匹配风格后从零构建完整网页、APP 界面、品牌视觉体系
-- **IT Engineer 升级**：新增SEO、ICP备案辅助、云服务资源管理能力，现在 Designer + IT Engineer 的技能组合可覆盖官网 / Landing Page 的完整流程——**设计 → 开发 → 部署（云计算）→ 备案（ICP）→ SEO**
-- **new crew: business-developer**：business-developer 继承 4.x 全部核心能力（指定信源监控、行业情报采集、社交媒体潜客挖掘），并新增业务介绍 PPT 制作能力
-- **new crew: investor-relationship**（预发布）：软件著作权申报（材料准备、页面填写）、商业模式优化、商业思路记录、BP编写、项目申报、搜索并接触投资人
+- **Selfmedia Operator 新增视频制作与分发能力**：一站式短视频制作（`video-product`）支持根据一个主题或一篇文章的链接全流程端到端制作短视频：自动生成脚本 → 逐段生成视频素材（声画同出）→ 合成成片
+- Selfmedia Operator 打通微信视频号、小红书、抖音、Twitter/X 等平台分发，形成"制作 → 分发"闭环
+- 为Selfmedia Operator引入科学的评估方案和自动复盘方案（发布前预测打分 -> 每日数据复盘 -> 根据复盘调整打分量表 -> 不断优化预测准确性)。以上已内置到所有平台的发布流程中，让运营工作不再“凭感觉”。
+- **两个剪辑辅助技能**：`de-mouth`（口播视频去口误，自动识别并删除静音、语气词、卡顿词、重复句、残句）、`highlight-clipper`（ASR + 文本分析自动提取高光片段剪成多段短视频）
+- Smart Search技能重构，采用灵活路由机制。
+- **主力模型切换为 GLM-5.2，推荐火山方舟 Coding Plan**：通过 wiseflow 邀请链接订阅叠加 9.5 折，首月低至 9.4 元
+- 适配openclaw 2026-6-10 版本、openclaw-weixin 2.4.6版本
 
 详见 [CHANGELOG.md](CHANGELOG.md)
 
@@ -17,6 +17,8 @@
 ## what's wiseflow
 
 Wiseflow 是基于 [openclaw](https://github.com/openclaw/openclaw) 的 Multi-Agent 系统，为 **所有被/或即将为 AI 时代冲击、需要独立拓展收入来源的个体** 打造——被裁员/降薪的职场人、副业探索者、自媒体个体户、小生意人、刚毕业的年轻人……
+
+**最小安装后全程仅需微信即可使用，无需额外配置其他软件**，零安装负担！
 
 > **对于 99% 的人来说，人工智能技术带来的其实是灾难**
 >
@@ -40,10 +42,12 @@ wiseflow 目前能为你提供的是：
 
 ### 0. 准备 API Key
 
-1. 注册 [DeepSeek 官方 API](https://platform.deepseek.com/) 并充值（前期试水，充个 10 块钱够了），获得 `DEEPSEEK_API_KEY`
-2. 注册 [SiliconFlow](https://cloud.siliconflow.cn/i/WNLYbBpi)（🎁 欢迎使用我的邀请链接，你我均会获得 16 元代金券），获得 `SILICONFLOW_API_KEY`
+1. 注册 [火山引擎方舟 Coding Plan](https://volcengine.com/L/dx-wt80li-I/)（🎁 欢迎使用 wiseflow 邀请链接 / 邀请码 `5Y5A6L86`，订阅叠加 9.5 折，首月尝鲜低至 9.4 元），开通后获得 `AWK_API_KEY`（主力模型 GLM-5.2 走此通道）
+2. 注册 [SiliconFlow](https://cloud.siliconflow.cn/i/WNLYbBpi)（🎁 欢迎使用wiseflow邀请链接，注册认证后获得 16 元代金券），获得 `SILICONFLOW_API_KEY`（视觉/替补模型，必申请）
 
 > 如果习惯使用 ChatGPT / Gemini / Claude 等海外模型见下方[模型费用说明](#-模型费用说明)中的 AiHubMix 备选方案。
+
+> 🎬 **想用 5.5.2 的视频生成能力？** 需额外开通火山方舟 `doubao-seedance-2.0` 系列或阿里云百炼 `happyhorse-1.1` 系列模型，并把对应 key（`AWK_GEN_KEY` 或 `MODELSTUDIO_API_KEY`）配置到 `daemon.env`。详见下方[视频生成模型配置](#-视频生成模型配置)。
 
 ### 1. 获取代码
 
@@ -60,7 +64,7 @@ cd wiseflow
 - 拉取最新代码
 - 初始化 `openclaw.json`（内置最佳模型配置，无需手动编辑）
 - 安装系统 daemon（开机自启 + 崩溃重启）
-- **交互式引导你输入** `DEEPSEEK_API_KEY` 和 `SILICONFLOW_API_KEY`（仅在首次或缺失时询问）
+- **交互式引导你输入** `AWK_API_KEY` 和 `SILICONFLOW_API_KEY`（仅在首次或缺失时询问）
 - 安装腾讯官方 `openclaw-weixin` extension，并引导扫码绑定
 
 > **调试模式**（单次启动，适合测试）：`./scripts/dev.sh gateway`
@@ -99,13 +103,25 @@ cd wiseflow
 >
 > wiseflow5.x 底层基于 openclaw，Agent 工作流对 token 消耗有一定要求，建议先准备好大模型 API：
 >
-> - **主力模型（强烈推荐）**：[DeepSeek 官方 API](https://platform.deepseek.com/) — 综合性能、速度、性价比最优。高缓存命中机制，实际应用成本可控。需要注册并充值获得 `DEEPSEEK_API_KEY`。
-> - **替补 & 视觉模型**：[SiliconFlow](https://cloud.siliconflow.cn/i/WNLYbBpi) — 模型丰富，可作为 DeepSeek 的 fallback，同时提供视觉理解模型（`Qwen/Qwen3.6-27B`）和生图/生视频 API。需要注册获得 `SILICONFLOW_API_KEY`。
+> - **主力模型（强烈推荐）**：[火山引擎方舟 Coding Plan](https://volcengine.com/L/dx-wt80li-I/) — 一个套餐覆盖 GLM-5.2、Kimi-K2.7、MiniMax-M3、DeepSeek-V4 系列、Doubao-Seed-2.0 系列等主流模型，**工具不限**，wiseflow 默认主力模型 GLM-5.2 即走此通道。需要注册并开通 Coding Plan 获得 `AWK_API_KEY`。
+>   > 🎁 **通过 wiseflow 邀请链接** [https://volcengine.com/L/dx-wt80li-I/](https://volcengine.com/L/dx-wt80li-I/) **订阅**（邀请码 `5Y5A6L86`），可叠加 **9.5 折**优惠，首月尝鲜低至 **9.4 元**，订得越多折扣越大。
+> - **替补 & 视觉模型**：[SiliconFlow](https://cloud.siliconflow.cn/i/WNLYbBpi) — 模型丰富，可作为主力模型的 fallback，同时提供视觉理解模型（`Qwen/Qwen3.6-27B`）和生图/生视频 API。需要注册获得 `SILICONFLOW_API_KEY`。
 >   > 🎁 以上 SiliconFlow 链接为 wiseflow 邀请链接，通过此链接注册，你和 wiseflow 项目各可获得一张 16 元代金券。
 >
 > - **海外模型用户**：如果想使用 ChatGPT / Gemini / Claude 等海外模型，可通过 [AiHubMix](https://aihubmix.com/?aff=Gp54) 统一接入（全兼容 OpenAI 接口，国内直连）。欢迎通过此[邀请链接](https://aihubmix.com/?aff=Gp54)注册。备选配置模板见 `config-templates/openclaw-aihubmix.json`。
 >
 > 配置模板已预置以上最佳实践，`install.sh` 会自动检测所需环境变量并引导你输入。安装后重启 openclaw gateway 即可生效。
+
+> **🎬 视频生成模型配置**
+>
+> 5.5.2 的短视频制作（`video-product`）需额外开通视频生成模型，并把对应 key 配置到 `daemon.env`（任选其一，百炼优先）：
+>
+> | 平台 | 环境变量 | 模型 |
+> |------|---------|------|
+> | 阿里云百炼（优先） | `MODELSTUDIO_API_KEY`（或 `DASHSCOPE_API_KEY`） | `happyhorse-1.1-i2v` / `happyhorse-1.1-t2v` / `happyhorse-1.1-r2v` |
+> | 火山引擎方舟 | `AWK_GEN_KEY` | `doubao-seedance-2-0-fast-260128` / `doubao-seedance-2-0-260128` / `doubao-seedance-2-0-mini-260615` |
+>
+> 两个 key 都配了走百炼，只配 `AWK_GEN_KEY` 走火山，都没配则 `video-product` 自动降级为 pexels/pixabay 免费素材模式。注意 `AWK_GEN_KEY` 与主力模型的 `AWK_API_KEY` 是一个 key，但必须在环境变量中以不同变量名称赋值，火山视频生成只认 `AWK_GEN_KEY`。申请成功后可以让系统自带的全局IT Engineer帮你完成配置。
 
 🎉 wiseflow 目前提供付费知识库，包含《手把手从零开始安装教程》、《安装之后三分钟上手指南》、《Openclaw自定义配置全案教程》、《Windows 下安装 WSL2 无脑教程》、《秘籍：云服务器（ECS）部署》以及各种最佳实践分享，年费仅需¥168，还能加入 **vip微信交流群** ，共同探讨交流各种玩法，还有每月一次的闭门分享（腾讯会议），陪伴你从“小白“到“大神“！
 
@@ -133,20 +149,19 @@ Wiseflow 的做法是提供 `Crew Template`，针对每个岗位提供专属 ski
 | IT Engineer（默认启用，全局唯一，可协助其他 crew 排障） | 系统运维、配置、故障排查 | seo、icp-filing、icp-exemption、tccli、alicloud-find-skills、session-logs |
 | HRBP | 招募管理对外 crew，周期扫描 feedback 升级 | crew-recruit、crew-modify、crew-remove、crew-list、crew-usage |
 | 商务拓展 | 客户挖掘端 | 社交媒体潜客挖掘、竞品监控、行业情报、生成业务介绍 PPT |
-| 自媒体运营 | 内容生产端 | 写稿、生图、15 个平台自动发布、t2video（短视频）、highlight-clipper（高光剪辑） |
+| 自媒体运营 | 内容生产端 | 写稿、生图、短视频制作（`video-product`：多输入源 → 自动脚本 → 分段生成 → 合成）、视频分发（微信视频号/小红书/抖音/Twitter 等）、`de-mouth`（去口误）、`highlight-clipper`（高光剪辑）、15 个平台自动发布 |
 | 设计师 | 视觉设计端 | 15 套品牌设计系统、完整网页/APP/品牌视觉体系构建 |
 | 销售型客服 | 获客转化端 | 自动回复促进成交、调研用户来源、记录客户信息、发起/确认收款 |
-| 投资人关系 | 融资端 | 寻找投资人、冷接触、填报申请表、生成 BP |
-| Video Producer* | 专业视频端 | 专业短视频制作 |
+| 投资人关系（预发布） | 融资端 | 寻找投资人、冷接触、填报申请表、生成 BP |
 
-> *\* 标记的 crew 由 Pro 版本提供*
 
   <details>
-  <summary><strong>自媒体运营 — 支持的社交媒体平台（15 个）</strong></summary>
+  <summary><strong>自媒体运营 — 支持的社交媒体平台（16 个）</strong></summary>
 
   | 平台 | 发布方式 |
   |------|---------|
   | 微信公众号 | API + wenyan-cli 渲染 |
+  | 微信视频号* | 浏览器 + CDP（wujie shadow DOM） |
   | 企业微信朋友圈* | API |
   | 小红书* | API |
   | 抖音 | API（OAuth2） |
@@ -230,11 +245,12 @@ wiseflow 通过 `patches/` 目录对 openclaw 源码打补丁，每次运行 `ap
 
 | 补丁 | 说明 | 相关环境变量 |
 |------|------|-------------|
-| `001-relax-exec-allowlist-shell-syntax` | 放宽 exec-approvals 的 shell 语法限制，允许 `$()`、反引号、重定向等常用写法 | 无 |
 | `002-disable-web-search-env-var` | 支持通过环境变量禁用 openclaw 内置 web search | `OPENCLAW_DISABLE_WEB_SEARCH=1` |
 | `003-act-field-validation` | 修复浏览器 act 动作的字段验证逻辑 | 无 |
-| `004-chrome-port-grace-retry` | Chrome CDP 端口占用时优雅重试，避免因端口冲突导致浏览器启动失败 | 无 |
 | `005-browser-timeout-env-var` | 支持通过环境变量自定义浏览器操作默认超时（原默认仅 20 秒，网络慢时容易中断） | `OPENCLAW_BROWSER_TIMEOUT_MS=60000` （执行 install.sh 脚本会自动配置）|
+| `006-connectovercdp-no-defaults` | `connectOverCDP` 启用 `noDefaults: true`，避免 Patchright 修改用户浏览器状态 | 无 |
+
+> 旧补丁 `001-relax-exec-allowlist-shell-syntax`、`004-chrome-port-grace-retry` 已于 v5.5.2 删除：前者上游 exec 审批重构后复合命令已原生支持逐段匹配 allowlist，后者上游新增主动杀陈旧 Chrome 占用进程的恢复逻辑，均被上游吸收。详见 [CHANGELOG.md](CHANGELOG.md)。
 
 #### 浏览器增强
 
@@ -325,6 +341,8 @@ wiseflow/
 - 文颜(Markdown文章排版美化工具，支持微信公众号、今日头条、知乎等平台。) https://github.com/caol64/wenyan
 - Everything Claude Code（Claude Code 全局 skill / rule / agent 集合，wiseflow 的 complex-task 等编排 skill 借鉴了其 blueprint 和 gan-style-harness 的设计思路） https://github.com/affaan-m/everything-claude-code
 - awesome-design-md（A curated collection of design systems in markdown format — Designer 内置设计系统库参考了此项目的设计系统结构） https://github.com/VoltAgent/awesome-design-md
+- videocut-skills（视频去口误/精剪技能集 — `de-mouth` 技能原汁原味借鉴其口误检测与剪映草稿生成能力） https://github.com/Ceeon/videocut-skills
+- cheat-on-content（自媒体打分算法借鉴） https://github.com/XBuilderLAB/cheat-on-content
 
 ## Citation
 

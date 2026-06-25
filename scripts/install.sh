@@ -334,7 +334,7 @@ echo ""
 # ─── 8. 环境变量收集 + daemon 安装 ─────────────────────────
 
 # 需要询问用户的 API Key（若已在目标文件中存在则跳过）
-_USER_PROMPT_KEYS="DEEPSEEK_API_KEY SILICONFLOW_API_KEY"
+_USER_PROMPT_KEYS="AWK_API_KEY SILICONFLOW_API_KEY"
 
 # 固定默认值（硬编码，不询问，已存在则跳过）
 _HARDCODED_DEFAULTS="OPENCLAW_BROWSER_TIMEOUT_MS=90000 OPENCLAW_DISABLE_BONJOUR=true"
@@ -469,8 +469,33 @@ if [ "$(uname -s)" = "Linux" ] && command -v systemctl >/dev/null 2>&1; then
   systemctl --user daemon-reload 2>/dev/null || true
 fi
 
+# ─── 9.4 让外部 CLI 解析 openclaw 时拿到本地构建 ──────────────
+# node_modules/openclaw 原本是 npm 发布的自包（滞后版本，如 2026.5.28）：
+# openclaw 根包是 pnpm workspace 的 self-package，channel 插件声明 dep "openclaw"
+# 时 pnpm 不会把根链给自己，转而从 npm 拉已发布版进 node_modules/openclaw。
+# 构建期已用完（pnpm build 在前），运行期 gateway 跑 dist/index.js 不 import 它。
+# 此处将其指向本地根包，避免 weixin-cli 用 require.resolve('openclaw') spawn 旧版
+# CLI、把 openclaw.json 的 meta.lastTouchedVersion 写成滞后版本。
+NESTED_OC_VER_PRE="$(node -e 'try{console.log(require(process.argv[1]+"/package.json").version)}catch(e){}' "$OPENCLAW_DIR/node_modules/openclaw" 2>/dev/null || true)"
+if [ -n "$NESTED_OC_VER_PRE" ] && [ "$NESTED_OC_VER_PRE" != "$OPENCLAW_VERSION" ]; then
+  echo "  ℹ️  nested openclaw@$NESTED_OC_VER_PRE (published) lags local $OPENCLAW_VERSION — redirecting to local build"
+fi
+if [ -e "$OPENCLAW_DIR/node_modules/openclaw" ] && [ ! -L "$OPENCLAW_DIR/node_modules/openclaw" ]; then
+  rm -rf "$OPENCLAW_DIR/node_modules/openclaw"
+  ln -s "$OPENCLAW_DIR" "$OPENCLAW_DIR/node_modules/openclaw"
+  echo "  🔗 redirected node_modules/openclaw -> local build ($OPENCLAW_VERSION)"
+fi
+
 # ─── 9.5 安装微信渠道插件（需要 openclaw CLI 已就绪）────────
 install_weixin_channel
+
+# weixin-cli 若仍绕过 symlink 写脏 meta，强制回正为本次安装版本（保险）
+node -e '
+  const fs=require("fs"),p=process.argv[1],v=process.argv[2];
+  const c=JSON.parse(fs.readFileSync(p,"utf8"));
+  c.meta=c.meta||{}; c.meta.lastTouchedVersion=v; c.meta.lastTouchedAt=new Date().toISOString();
+  fs.writeFileSync(p,JSON.stringify(c,null,2)+"\n");
+' "$OPENCLAW_CONFIG_PATH" "$OPENCLAW_VERSION"
 echo ""
 
 # ─── 10. 平台特定的 post-install ─────────────────────────

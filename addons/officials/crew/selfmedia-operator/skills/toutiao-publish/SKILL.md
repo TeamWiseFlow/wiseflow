@@ -71,6 +71,14 @@ cp output_articles/<article-folder>/article.docx /tmp/openclaw/uploads/toutiao_a
    Expected output: `OK: 文件已注入 → ...`
    Wait up to 30s for the modal to close automatically and the editor to render the imported content.
 
+   **Patchright 1.60+ 可选方案**：如果文档导入弹窗支持拖拽，可用 `locator.drop()` 直接拖入文件：
+   ```javascript
+   const buf = fs.readFileSync('/tmp/openclaw/uploads/toutiao_article.docx');
+   await page.locator('.doc-import-modal').drop({
+     files: { name: 'article.docx', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', buffer: buf }
+   });
+   ```
+
 4. Verify the title and body content are correctly rendered
 
 5. Upload cover image via CDP script:
@@ -121,22 +129,3 @@ cp output_articles/<article-folder>/article.docx /tmp/openclaw/uploads/toutiao_a
 | CDP 脚本报 `未找到 file input` | 弹窗未打开,先用 browser click 触发 doc-import 按钮再运行脚本 |
 | 封面上传无响应 | 不要用 browser upload,改用 `cdp_cover_upload.py` 脚本注入 |
 | 点击「预览并发布」后无法触发预览弹窗 | 首先检查界面是否有错误提示（如标题超长、内容违规等）。用 snapshot 留意文本框附近是否有红色/黄色提示文字或字数超限标记。如有则按提示修正后重试；如无错误提示则可能是前端行为限制，考虑从草稿箱手动发布 |
-
-## 发布记录（强制）
-
-发布成功后，**必须**立即调用 `published-track` 技能记录发布信息：
-
-```bash
-./skills/published-track/scripts/record.sh \
-  --platform toutiao \
-  --title "标题" \
-  --content-type article \
-  --source-folder "<原始文件夹路径>" \
-  --publish-url "<发布URL>" \
-  --publish-date "$(date +%Y-%m-%d)"
-```
-
-`--source-folder` 为原始内容所在的相对路径（如 `output_articles/xxx` 或 `output_videos/xxx`）。
-`--publish-url` 为发布后获得的 URL，若发布失败则留空并在 `--notes` 中注明原因。
-
-执行 `./skills/published-track/scripts/init-db.sh`（幂等，重复执行无副作用）。

@@ -10,7 +10,7 @@ metadata:
 
 通过 **browser 工具** 代替用户在小红书（xhs）上完成社交互动。
 
-**前提条件**：需要先通过 browser 工具登录小红书（遵循 browser-guide 第 6 节 QR 登录流程），browser 已持有有效 session。
+**前提条件**：需要先通过 browser 工具登录小红书（遵循 browser-guide 第 6 节 QR 登录流程）。
 
 ---
 
@@ -103,6 +103,59 @@ document.querySelector('.like-wrapper').classList.contains('like-active') ? '已
 
 ---
 
+## 关注 / 取关
+
+### 关注用户
+
+1. 导航到用户主页：`https://www.xiaohongshu.com/user/profile/{user_id}`
+2. 等待 3 秒加载
+3. 找到关注按钮（selector: `.user-actions .follow-btn` 或文本为"关注"的按钮）
+4. 点击关注按钮
+5. 等待 1-2 秒确认按钮变为"已关注"
+
+### 取关用户
+
+1. 导航到用户主页
+2. 找到"已关注"按钮
+3. 点击后确认弹出确认框，点击"取消关注"
+4. 等待 1-2 秒确认按钮变为"关注"
+
+---
+
+## Pitfalls
+
+### pitfall: xsec_token_required
+
+- **触发**：手拼 `/explore/{feed_id}` 裸路径，没带 `xsec_token`
+- **症状**：页面 403 或 redirect 到错误页（`error_code=300017` 或 `300031`）
+- **workaround**：feed_id + xsec_token **必须从搜索结果/笔记列表的链接中提取**，不能手拼 URL。如果只有 feed_id，先搜索对应笔记获取 signed URL
+
+### pitfall: like_count_compressed_format
+
+- **触发**：读取点赞数时
+- **症状**：显示 `2.1w`、`1.5万`、`1.2k` 等压缩格式而非数字
+- **workaround**：解析规则：`w` = 万 = ×10000，`万` = ×10000，`k` = ×1000。例：`2.1w` = 21000，`1.5万` = 15000，`1.2k` = 1200
+
+### pitfall: security_block_on_repeated_access
+
+- **触发**：短时间高频互动（连续点赞/评论多个笔记）
+- **症状**：页面显示"安全限制"/"访问链接异常"
+- **workaround**：每次操作间隔 30-60 秒；触发后 60s 内不重试
+
+### pitfall: comment_section_lazy_load
+
+- **触发**：需要找到较早的评论
+- **症状**：评论未出现在 DOM 中
+- **workaround**：逐段向下滚动加载，每次滚动后等待 0.5-1 秒；到达 `.end-container` 说明到底部；最多滚动 7 次
+
+### pitfall: creator_center_is_different_host
+
+- **触发**：在主站 `www.xiaohongshu.com` 找发布/草稿入口
+- **症状**：主站无完整创作者功能
+- **workaround**：创作者相关操作（查看草稿、创作者数据）需访问 `creator.xiaohongshu.com`
+
+---
+
 ## 错误处理
 
 | 情况 | 处理 |
@@ -110,3 +163,5 @@ document.querySelector('.like-wrapper').classList.contains('like-active') ? '已
 | 页面出现登录墙 | 遵循 browser-guide 第 6 节 QR 登录流程，扫码后重试 |
 | 点赞状态未变化 | 重试一次，仍未变化则报告错误 |
 | CDP click 超时 | 改用 JavaScript evaluate 方法：browser act kind=evaluate fn="document.querySelector('.like-wrapper').click()" |
+| xsec_token 缺失/无效 | 从搜索结果链接中重新获取 signed URL，不要手拼 |
+| 安全限制/访问异常 | 停止操作 60 秒后重试，或换笔记操作 |

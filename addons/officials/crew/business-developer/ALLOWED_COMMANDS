@@ -8,3 +8,12 @@
 +./skills/info-record/scripts/record-content.sh
 +./skills/info-record/scripts/query-today.sh
 +sqlite3
++nano-pdf
++jq
++rg
++tmux
++curl
++summarize
++gifgrep
++node
++python3
