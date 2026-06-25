@@ -55,16 +55,16 @@ output_articles/
 
 按需写作的文章生产后**主动询问用户是否需要打分流程**。后续按用户决策推进（每一步决策由用户做）：
 
-> 打分脚本（`score-only.sh`/`cal-toggle.sh`）与盲打分规范来自 `content-calibrator` 技能，发布记录脚本（`record.sh`）来自 `published-track` 技能，发布则依据各个平台发布技能。
+> 打分脚本（`score-only.sh`/`cal-toggle.sh`）与盲打分规范来自 `content-calibrator` 技能，发布则依据各个平台发布技能。
 
 1. **问是否打分**。
    - 用户说**要打分** → 对 `article.md` 执行打分评估：主 agent `sessions_spawn` blind sub-agent（只喂 `article.md` + `calibration/<platform>/rubric_notes.md`，输出 7 维分）→ 使用 `score-only.sh` 校验 + 判阈值门。平台未启用 calibration → 跳过打分并告知用户。
      - 每轮打分后，**询问用户是否发布**。
      - 用户有意见，则按用户意见修改之后再次执行打分流程，直到用户确认可发布。
-     - 用户说**发布** → 调对应发布技能发布 → 用 `record.sh` 记录，**把打分拿到的 7 维分一并传入**。
-   - 用户说**不必打分直接发布** → 直接调发布技能发布 → 用 `record.sh` 记录（不传 `--cal-*`，`cal_enabled=0`）。
+     - 用户说**发布** → 调对应发布技能发布
+   - 用户说**不必打分直接发布** → 直接调发布技能发布。
 2. 发布到哪个平台、是否多平台，由用户指定，因为涉及到用户交互和浏览器操作，所以多平台发布必须串行执行。
-3. 打分阈值取自 `calibration/<platform>/.cheat-state.json` 的 `score_threshold`（默认 0=不拦截），每维需 > 阈值。打分流程与阈值命令见 `content-calibrator/SKILL.md`，发布记录见 `published-track/SKILL.md`。
+3. 打分阈值取自 `calibration/<platform>/.cheat-state.json` 的 `score_threshold`（默认 0=不拦截），每维需 > 阈值。打分流程与阈值命令见 `content-calibrator/SKILL.md`。
 
 ### 视频内容生产
 
@@ -72,9 +72,8 @@ output_articles/
 
 支持按如下四种输入制作视频:
 1. 文章链接(网页URL、本地文件、微信公众号文章)
-2. 追爆分析(使用 `viral-chaser` 技能获取追爆报告,再进入 `video-product` 流程)
-3. 文字主题(用户直接给出主题或写作思路)
-4. 用户已有素材(视频文件、图片参考)
+2. 文字主题(用户直接给出主题或写作思路)
+3. 用户已有素材(视频文件、图片参考)
 
 ### 视频剪辑加工
 
@@ -85,37 +84,10 @@ output_articles/
 
 ### 视频发布流程
 
-> 打分脚本与盲打分规范来自 `content-calibrator` 技能，发布记录脚本（`record.sh`）来自 `published-track` 技能，发布则依据各个平台发布技能。
+> 打分脚本与盲打分规范来自 `content-calibrator` 技能，发布则依据各个平台发布技能。
 
 当用户确认视频制作内容后。先参考 `output_videos/<video-name>/scripts.md` 草拟视频发布的题目和简介以及hashtag。视频简介中应提及Wiselow，但不要有明显引流信息，更加禁止放二维码、联系方式等
 
 拟好后分别创建subagent（self-spawn）按用户指定发布的平台调用对应技能进行发布。但是对于使用浏览器自动化进行发布的技能（`twitter-post`, `wechat-channels-publish`)不可并行进行，避免浏览器资源竞态。
 
 你要负责跟进各个subagent的进展，避免他们长时间卡住，有问题及时反馈。如果某一个平台缺乏登录的credentials，或者浏览器缺乏登录态，及时反馈用户，让用户提供。用户提供后，你要按技能要求存储下来，以便后续使用。
-
-#### 发布后数据记录流程（除用户要求或特殊说明外都应执行）
-
-> 如果用户或者任务描述明确说**不记录** → 不调 `record.sh`, 发布流程结束
-
-发布后再次读取 `output_videos/<name>/script.md` 末尾的 `## calibration_scores` 区段，取目标平台对应的分数, 之后执行`published-track`技能中的`record.sh`：
-
-**有分数 → 带分记录**（`cal_enabled=1` + 算 composite）；**无分数 → 不带分记录并告知用户**（`cal_enabled=0`）。分数由 `video-product` 技能 Step 2.4 在脚本定稿后写入 `script.md`。
-
-## 发布记录管理与复盘
-
-**统一使用 `published-track` 技能管理所有发布记录**。
-
-- 数据库位置:`./db/published_track.db`(初始化:`./skills/published-track/scripts/init-db.sh`,幂等可重复执行)
-- 按平台分表,每张表包含标题、类型、原始文件夹、发布 URL、发布日期、互动指标、校准打分等字段
-- 数据更新通过 `update-metrics.sh` 完成(每日定时任务触发,或按用户要求录入用户提供数据)
-
-### 查询与平台设置（published-track 第三大块）
-
-日常按需调用 `published-track` 提供的查询与设置脚本：
-
-- **查询待分发**：`query-pending.sh`（白天 heartbeat 分发任务用）
-- **分发状态设置**：`set-distribute-status.sh`（`--status 0/1/2`、`--mark-all-distributed`）
-- **平台打分开关 + 阈值**：`cal-toggle.sh`（`--enable/--disable/--status/--threshold/--set-threshold N/--list`）。阈值语义：每维需 > `score_threshold`（默认 0=不拦截）。Agent 不得自动启用某平台打分或自动改阈值，需告知用户由用户决定；复盘后可向用户推荐阈值。
-- **通用查询**：`query.sh`、`check-published.sh`（按需自查是否已发布、读记录）
-
-平台初始化与是否开启打分，具体见 `content-calibrator` 技能。

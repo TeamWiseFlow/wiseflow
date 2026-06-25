@@ -10,7 +10,6 @@
 +gifgrep
 +node
 +python3
-+/home/wukong/.openclaw/skills/wx-mp-hunter/scripts/wx-mp-hunter.sh
 # published-track
 +./skills/published-track/scripts/init-db.sh
 +./skills/published-track/scripts/record.sh
@@ -37,5 +36,3 @@
 +./skills/viral-chaser/scripts/viral_chaser.sh
 # xhs-content-ops
 +./skills/xhs-content-ops/scripts/fetch_note_content.sh
-+/home/wukong/.openclaw/skills/login-manager/scripts/login-manager.sh
-+/home/wukong/.openclaw/skills/login-manager/scripts/export-cookies.sh

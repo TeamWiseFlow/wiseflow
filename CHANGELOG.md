@@ -9,6 +9,9 @@
   - `highlight-clipper`：从本地视频中通过 ASR 转录 + 文本分析自动提取高光片段，剪辑输出多段短视频
 - Selfmedia Operator引入科学的评估方案和自动复盘方案（发布前预测打分 -> 每日数据复盘 -> 根据复盘调整打分量表 -> 不断优化预测准确性)。以上已内置到所有平台的发布流程中，让运营工作不再“凭感觉”。
 
+### Smart Search重构
+- 采用路由模式。
+
 ### 主力模型切换为 GLM-5.2，推荐火山方舟 Coding Plan
 
 - `config-templates/openclaw.json` 主力模型由 DeepSeek V4 Pro 切换为 **GLM-5.2**（经火山引擎方舟 Coding Plan 接入，`awk/glm-latest`），fallback 为 siliconflow provider

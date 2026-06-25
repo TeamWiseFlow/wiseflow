@@ -88,6 +88,41 @@ python3 ./skills/youtube-publish/scripts/publish_youtube.py \
 | 错误 | 原因 | 处理 |
 |------|------|------|
 | AUTH_REQUIRED | 无有效 OAuth2 token | 提示用户完成浏览器授权 |
-| UPLOAD_FAILED | 上传失败 | 重试一次（resumable upload 支持断点续传） |
+| UPLOAD_FAILED | 上传失败 | 脚本内置分片续传，自动从已确认 offset 重试 |
 | TITLE_TOO_LONG | 标题超 100 字 | 截断后重试 |
 | QUOTA_EXCEEDED | API 配额用尽 | 等待次日配额重置 |
+
+---
+
+## 上传韧性（resumable + 自动续传）
+
+脚本采用 256KiB 分片 resumable upload，遇 `SSLEOFError` / 读超时 / 连接重置时，自动用 `Content-Range: bytes */<total>` 查询 YouTube 已持久化的 offset 并从该处继续；`Expect: 100-continue` 已禁用。无需人工干预。
+
+可调环境变量：
+
+| 变量 | 默认 | 说明 |
+|------|------|------|
+| `YOUTUBE_UPLOAD_CHUNK_BYTES` | `262144`（256KiB） | 分片大小，向下取整到 256KiB 整数倍，最小 256KiB |
+| `YOUTUBE_UPLOAD_MAX_ERRORS` | `100` | 连续失败上限，超过即终止；成功一次即归零 |
+| `YOUTUBE_UPLOAD_READ_TIMEOUT` | `300` | 单分片读超时秒数 |
+
+---
+
+## 发布记录（强制）
+
+发布成功后，**必须**立即调用 `published-track` 技能记录发布信息：
+
+```bash
+./skills/published-track/scripts/record.sh \
+  --platform youtube \
+  --title "标题" \
+  --content-type video \
+  --source-folder "<原始文件夹路径>" \
+  --publish-url "<发布URL>" \
+  --publish-date "$(date +%Y-%m-%d)"
+```
+
+`--source-folder` 为原始内容所在的相对路径（如 `output_articles/xxx` 或 `output_videos/xxx`）。
+`--publish-url` 为发布后获得的 URL，若发布失败则留空并在 `--notes` 中注明原因。
+
+执行 `./skills/published-track/scripts/init-db.sh`（幂等，重复执行无副作用）。
