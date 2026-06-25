@@ -472,9 +472,10 @@ GUIDE
 }
 
 inject_exec_guide() {
-  local tools_md="$1"
+  local tools_md="$1" workspace_dir="$2"
   [ -f "$tools_md" ] || return 0
   grep -q "## exec 命令规范" "$tools_md" && return 0
+  local ws="${workspace_dir:-<workspace>}"
   cat >> "$tools_md" << 'GUIDE'
 
 ## exec 命令规范
@@ -500,17 +501,23 @@ cat file.txt | grep keyword
 
 **以下写法同样会导致 allowlist miss，禁止使用：**
 
-- ❌ `cd /abs/path && ./skills/xxx/scripts/yyy.sh` — CWD 已经是 workspace，不需要 `cd` 前缀，`cd` 不在 allowlist 中
-- ❌ `bash ./skills/xxx/scripts/yyy.sh` — setup-crew 已为脚本赋权，不需要 `bash` 前缀；`bash` 会改变命令前缀导致 allowlist miss
+- ❌ `cd /abs/path && python3 ./skills/xxx/scripts/yyy.py` — `cd` 不在 allowlist 中；脚本必须用绝对路径直接调用，禁止 `cd` 前缀
+- ❌ `bash /abs/path/to/script.sh` — setup-crew 已为脚本赋权，直接用绝对路径调用即可。加 `bash` 前缀会触发 openclaw exec 审批的 `requiresBoundArgPattern`（shell wrapper 必须绑定脚本 argPattern），而白名单里没有裸 `bash` 条目，必然 miss。`sh`/`zsh` 同理
+- ❌ `./skills/xxx/scripts/yyy.sh` — 相对路径依赖 CWD 易误拼；一律用绝对路径
+- ❌ `for d in ...; do ls $d; done` — `for`/`while`/`if` 等 shell keyword 不在 allowlist 中；改用逐个调用或 python 脚本
 - ❌ `KEY=value python3 script.py` — 内联 env 赋值会改变命令前缀导致 allowlist miss；环境变量由系统注入
+- ❌ `env | grep -iE "API_KEY|MODEL"` / `printenv PEXELS_API_KEY` — `env`/`printenv` 不在 allowlist 中；检查环境变量写 python 脚本
 - ❌ `mkdir -p {notes,images}` — exec 不会展开花括号（brace expansion），会直接创建一个名为 `{notes,images}` 的单个文件夹，而非 `notes` 和 `images` 两个文件夹
 
 **正确写法：**
 
-- ✅ `./skills/xxx/scripts/yyy.sh`（直接相对路径调用，setup-crew 已赋权）
-- ✅ `python3 /abs/path/to/script.py`（无 env 前缀）
+- ✅ `@@WS@@/skills/xxx/scripts/yyy.sh`（绝对路径直接调用，setup-crew 已赋权）
+- ✅ `python3 @@WS@@/skills/xxx/scripts/yyy.py`（绝对路径，无 env 前缀）
+- ✅ `python3 /tmp/check_env.py`（探查环境变量：脚本内容 `import os; print(bool(os.environ.get("PEXELS_API_KEY")))`）
 - ✅ `mkdir -p notes images`（逐一直写目录名，不用花括号展开）
+- ✅ 逐个调用 `ls dir1/`、`ls dir2/` …（替代 `for` 循环），或写 python 脚本批量处理
 GUIDE
+  sed -i "s|@@WS@@|$ws|g" "$tools_md"
 }
 
 inject_python_exec_guide() {

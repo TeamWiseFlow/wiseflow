@@ -123,6 +123,14 @@ browser evaluate fn="(() => { const ta = document.querySelector('.CodeMirror tex
    b. browser upload /tmp/openclaw/uploads/cover.jpg
    c. 忽略可能的超时提示
 
+	   **Patchright 1.60+ 可选方案**：用 `locator.drop()` 拖拽封面图到上传区域，更稳定：
+	   ```javascript
+	   const buf = fs.readFileSync('/tmp/openclaw/uploads/cover.jpg');
+	   await page.locator('.').drop({
+	     files: { name: 'cover.jpg', mimeType: 'image/jpeg', buffer: buf }
+	   });
+	   ```
+
 4. 填写摘要（必填 *，仅兜底路径需要手动填）：
    evaluate 找到摘要 textarea 并 fill
    摘要内容取文章前 100 字左右的核心描述
@@ -172,22 +180,3 @@ See `references/publish-options.md` for category list, tag suggestions, and cove
 ❌ 兜底路径忘记填摘要（*必填）：
 → 发布按钮无响应，因为摘要为空
 ```
-
-## 发布记录（强制）
-
-发布成功后，**必须**立即调用 `published-track` 技能记录发布信息：
-
-```bash
-./skills/published-track/scripts/record.sh \
-  --platform juejin \
-  --title "标题" \
-  --content-type article \
-  --source-folder "<原始文件夹路径>" \
-  --publish-url "<发布URL>" \
-  --publish-date "$(date +%Y-%m-%d)"
-```
-
-`--source-folder` 为原始内容所在的相对路径（如 `output_articles/xxx` 或 `output_videos/xxx`）。
-`--publish-url` 为发布后获得的 URL，若发布失败则留空并在 `--notes` 中注明原因。
-
-执行 `./skills/published-track/scripts/init-db.sh`（幂等，重复执行无副作用）。

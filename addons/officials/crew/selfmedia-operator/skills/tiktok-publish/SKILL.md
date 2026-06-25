@@ -88,24 +88,3 @@ python3 ./skills/tiktok-publish/scripts/publish_tiktok.py \
 | UPLOAD_FAILED | 上传失败 | 检查文件格式和大小，重试一次 |
 | PUBLISH_PENDING | 视频处理中 | 正常现象，TikTok 服务器处理视频需要时间 |
 | QUOTA_EXCEEDED | API 配额用尽 | 等待配额重置 |
-
----
-
-## 发布记录（强制）
-
-发布成功后，**必须**立即调用 `published-track` 技能记录发布信息：
-
-```bash
-./skills/published-track/scripts/record.sh \
-  --platform tiktok \
-  --title "标题" \
-  --content-type video \
-  --source-folder "<原始文件夹路径>" \
-  --publish-url "<发布URL>" \
-  --publish-date "$(date +%Y-%m-%d)"
-```
-
-`--source-folder` 为原始内容所在的相对路径（如 `output_articles/xxx` 或 `output_videos/xxx`）。
-`--publish-url` 为发布后获得的 URL，若发布失败则留空并在 `--notes` 中注明原因。
-
-执行 `./skills/published-track/scripts/init-db.sh`（幂等，重复执行无副作用）。

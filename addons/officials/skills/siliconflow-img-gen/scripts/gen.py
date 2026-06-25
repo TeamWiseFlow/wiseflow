@@ -99,6 +99,9 @@ def build_payload(args: argparse.Namespace) -> dict:
     if args.seed is not None:
         payload["seed"] = args.seed
 
+    if args.negative_prompt:
+        payload["negative_prompt"] = args.negative_prompt
+
     return payload
 
 
@@ -158,6 +161,12 @@ def main() -> None:
         help="CFG scale (Qwen: 0.1–20, recommended 4.0 for text-in-image)",
     )
     parser.add_argument("--seed", type=int, default=None, help="Random seed (0–9999999999)")
+    parser.add_argument(
+        "--negative-prompt",
+        default=None,
+        dest="negative_prompt",
+        help="Concepts to exclude from the image. Optional.",
+    )
     # image-edit inputs
     parser.add_argument("--image", default=None, help="Source image URL (enables image-edit mode)")
     parser.add_argument("--image2", default=None, help="Second source image URL (edit mode only)")

@@ -128,6 +128,88 @@ cd <PROJECT_ROOT>
 
 ---
 
+## 定时任务（Cron）维护方案
+
+> **v2026.6.6 起**：cron 存储已从 JSON 文件迁移至 SQLite，**禁止再编辑任何 JSON 文件**。
+
+### 存储变更
+
+| 项目 | 旧方案（已废弃） | 新方案（当前） |
+|------|------------------|----------------|
+| Job 定义 | `~/.openclaw/cron/jobs.json` | SQLite 表 `cron_jobs` |
+| 运行时状态 | `~/.openclaw/cron/jobs-state.json` | SQLite 同表内字段 |
+| 运行日志 | `~/.openclaw/cron/runs/*.jsonl` | SQLite 表 `cron_run_logs` |
+| 数据库位置 | — | `~/.openclaw/state/openclaw.sqlite` |
+
+旧文件已被 `openclaw doctor --fix` 重命名为 `.migrated` 后缀，数据已导入 SQLite。`.migrated` 文件可安全删除。
+
+### 日常管理命令
+
+> ⚠️ **禁止直接运行 `openclaw` 命令**（不在系统 PATH 中）。
+> 必须先 `cd` 到 openclaw 子目录，通过 `pnpm openclaw` 调用。
+> 项目路径见同目录 `OFB_ENV.md`，以下用 `<OC>` 代指 `<WISEFLOW_PROJECT_ROOT>/openclaw`。
+
+```bash
+# 查看所有定时任务
+cd <OC> && pnpm openclaw cron list
+
+# 查看某个任务详情（含投递路由预览）
+cd <OC> && pnpm openclaw cron show <job-id>
+
+# 新增定时任务
+cd <OC> && pnpm openclaw cron add "0 8 * * *" "任务描述" --name "任务名" --agent <agent-id>
+
+# 编辑任务（修改调度/投递/模型等）
+cd <OC> && pnpm openclaw cron edit <job-id> --announce --channel feishu --to "user:ou_xxx"
+cd <OC> && pnpm openclaw cron edit <job-id> --model "provider/model"
+
+# 启用/禁用任务
+cd <OC> && pnpm openclaw cron edit <job-id> --enabled    # 启用
+cd <OC> && pnpm openclaw cron edit <job-id> --no-enabled # 禁用
+
+# 删除任务
+cd <OC> && pnpm openclaw cron remove <job-id>
+
+# 手动触发一次
+cd <OC> && pnpm openclaw cron run <job-id>
+
+# 查看运行历史
+cd <OC> && pnpm openclaw cron runs --id <job-id> --limit 20
+```
+
+### 直接查询 SQLite（排查用）
+
+```bash
+# 列出所有 job 及关键字段
+sqlite3 ~/.openclaw/state/openclaw.sqlite \
+  "SELECT job_id, name, schedule_expr, enabled, delivery_mode, delivery_channel, delivery_to FROM cron_jobs;"
+
+# 查看最近运行记录
+sqlite3 ~/.openclaw/state/openclaw.sqlite \
+  "SELECT job_id, seq, datetime(ts/1000, 'unixepoch', 'localtime') as time, status, error FROM cron_run_logs ORDER BY ts DESC LIMIT 20;"
+
+# 修改投递目标（紧急调整时使用，正常应走 openclaw cron edit）
+sqlite3 ~/.openclaw/state/openclaw.sqlite \
+  "UPDATE cron_jobs SET delivery_to = 'user:ou_新ID' WHERE job_id = '目标job-id';"
+```
+
+### 迁移操作（仅升级后首次需要）
+
+```bash
+cd <OC> && pnpm openclaw doctor --fix
+```
+
+该命令会将 `jobs.json`、`jobs-state.json`、`runs/*.jsonl` 导入 SQLite，并将原文件重命名为 `.migrated`。**已迁移过则无需再执行**。
+
+### 重要提醒
+
+1. **禁止手动编辑** `~/.openclaw/cron/` 下的任何 JSON 文件，它们已不再被运行时读取
+2. **禁止直接修改** SQLite 中 `job_json` 列（它是完整 job 定义的冗余快照），应通过 `openclaw cron edit` 修改，CLI 会同时更新结构化列和 `job_json`
+3. `delivery_to` 等结构化列的紧急修改可直接 UPDATE，但后续应通过 CLI 确认一致性
+4. cron 运行在 Gateway 进程内，修改后立即生效，无需重启
+
+---
+
 ## 常见故障与解决方案
 
 （在排查故障后将解决方案记录在此，方便复用）

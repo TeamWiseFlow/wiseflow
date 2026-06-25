@@ -4,6 +4,19 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 DB="$ROOT/db/published_track.db"
 
+# Self-heal stale schema: if a platform table is missing, run idempotent init-db.sh
+# (CREATE TABLE IF NOT EXISTS) and re-check before treating the platform as unknown.
+# Auto-adds tables for platforms introduced into init-db.sh after the DB was first created.
+ensure_platform_table() {
+  local table="pub_$1" found
+  found=$(sqlite3 "$DB" "SELECT name FROM sqlite_master WHERE type='table' AND name='$table';")
+  if [ -z "$found" ]; then
+    bash "$(dirname "$0")/init-db.sh" >/dev/null 2>&1 || true
+    found=$(sqlite3 "$DB" "SELECT name FROM sqlite_master WHERE type='table' AND name='$table';")
+  fi
+  [ -n "$found" ]
+}
+
 if [ ! -f "$DB" ]; then
   echo '[]'
   exit 0
@@ -54,8 +67,7 @@ if [ -z "$PLATFORM" ]; then
 fi
 
 TABLE="pub_${PLATFORM}"
-VALID=$(sqlite3 "$DB" "SELECT name FROM sqlite_master WHERE type='table' AND name='$TABLE';")
-if [ -z "$VALID" ]; then
+if ! ensure_platform_table "$PLATFORM"; then
   echo "{\"ok\":false,\"error\":\"unknown platform: $PLATFORM\"}"
   exit 1
 fi

@@ -1,3 +1,61 @@
+# v5.5.2
+
+### Selfmedia Operator 视频制作与分发能力
+
+- **一站式短视频制作**：`video-product` 技能支持文章链接、追爆报告、文字主题、本地文件等多种输入，自动生成脚本 → 逐段生成视频素材（声画同出）→ FFmpeg 合成成片。直连火山引擎 Seedance（doubao-seedance-2.0 系列）与阿里云百炼 Wan2.7-HappyHorse（happyhorse-1.1 系列）端点，按平台自动 fallback
+- **视频分发**：新增微信视频号发布（`wechat-channels-publish`，处理 wujie shadow DOM），结合既有的小红书、抖音、Twitter/X、B站、快手等平台，实现短视频制作 → 多平台分发的闭环
+- **两个剪辑辅助技能**：
+  - `de-mouth`：口播视频去口误，自动识别并删除静音、语气词、卡顿词、重复句、残句，输出干净视频 + 字幕 + 剪映草稿
+  - `highlight-clipper`：从本地视频中通过 ASR 转录 + 文本分析自动提取高光片段，剪辑输出多段短视频
+- Selfmedia Operator引入科学的评估方案和自动复盘方案（发布前预测打分 -> 每日数据复盘 -> 根据复盘调整打分量表 -> 不断优化预测准确性)。以上已内置到所有平台的发布流程中，让运营工作不再“凭感觉”。
+
+### 主力模型切换为 GLM-5.2，推荐火山方舟 Coding Plan
+
+- `config-templates/openclaw.json` 主力模型由 DeepSeek V4 Pro 切换为 **GLM-5.2**（经火山引擎方舟 Coding Plan 接入，`awk/glm-latest`），fallback 为 siliconflow provider
+- `install.sh` 交互式收集的 key 由 `DEEPSEEK_API_KEY` 改为 `AWK_API_KEY`
+- 大模型推荐主推**火山方舟 Coding Plan**：支持 GLM-5.2、Kimi-K2.7、MiniMax-M3、DeepSeek-V4 系列、Doubao-Seed-2.0 系列等模型，工具不限；通过 wiseflow 邀请链接订阅叠加 9.5 折，首月尝鲜低至 9.4 元。邀请链接 https://volcengine.com/L/dx-wt80li-I/ ，邀请码 `5Y5A6L86`
+- siliconflow、aihubmix 推荐不变（siliconflow 仍需申请，作为视觉/替补模型）
+
+> 想使用 5.5.2 的视频生成能力，需额外开通火山方舟 doubao-seedance-2.0 系列或阿里云百炼 happyhorse-1.1 系列模型，并将对应 key（`AWK_GEN_KEY` 或 `MODELSTUDIO_API_KEY`）配置到 `daemon.env`。
+
+### openclaw 上游同步至 v2026.6.10
+
+- 从 v2026.6.6 升级到 v2026.6.10
+- **删除 patch 001**（relax exec allowlist shell syntax）：上游 exec 审批重构为 risk-based（`command-explainer` + `exec-authorization-plan`），`&&`/`||`/`;` 复合命令已原生逐段匹配 allowlist；`$()`/反引号/重定向上游仍拒但 wiseflow 已改走 `.sh` 脚本。原目标代码 `splitShellPipeline` 已删，无法 re-port
+- **删除 patch 004**（chrome port grace retry）：上游新增 `ensureManagedChromePortAvailable` + `recoverOwnedStaleManagedChromeCdpListener`，命中 EADDRINUSE 时主动杀掉占用端口的陈旧 Chrome 进程并清 singleton lock 再重探，比 3×500ms 轮询更强
+- 保留 patch 002/003/005/006（验证 apply 通过，上游无等价改动）
+
+### 上游关键变更摘要（与 wiseflow 相关）
+
+- **GLM-5.2（6.10）**：暴露 reasoning levels、GLM overload failover、Zai 合成模型回退 manifest baseUrl
+- **心跳（6.9）**：修复 5.20 及所有 5.x 上心跳 scheduler 不触发的回归（#88970）
+- **sessions_yield over MCP（6.9，#90861）**：修复 MCP 下 sessions_yield 保留
+- **安全（6.9）**：secrets redaction、阻断内部 HTTP session overrides、审计 open-DM tool exposure、plugin write owner check
+- **存储（6.9）**：NFS 上禁用 SQLite WAL、reindex temp 清理、setup state 移出 workspace dot-dir
+- **web search（6.9）**：Codex Hosted Search、key-free provider 保持 opt-in
+- **6.10**：fast talks auto mode、channel switch reset 陈旧 origin 字段、hook registry 组合保留 trusted policies
+
+# v5.5.1
+
+### openclaw 上游同步至 v2026.6.6
+
+- 从 v2026.5.28 升级到 v2026.6.6（4253 commits，跨越 6.1→6.2→6.5→6.6 四个稳定版）
+- 重新生成 patch 004（chrome-port-grace-retry）和 patch 005（browser-timeout-env-var）以适配上游文件重构
+- patch 001–003 验证通过，无需修改
+
+### 上游关键变更摘要
+
+- **安全加固**：exec 审批超时默认拒绝（fail-closed）、sandbox binds 收紧、MCP stdio 继承收紧、Codex HTTP 私有目标阻断、loopback tools 权限隔离
+- **OpenRouter 一等公民**：模型设置流程原生支持 OpenRouter OAuth/API-key
+- **Parallel Search (Free)**：零配置内置 web search（无需 API key），作为 DuckDuckGo 之前的默认 fallback
+- **移动端**：iPad 侧边栏 + iPhone Control Hub，Workboard/Skill Workshop 连接 Gateway
+- **Telegram/iMessage**：account-scoped topic 路由、always-on inbound restart、durable echo markers
+- **Browser/MCP**：existing-session CDP 支持、WebSocket validation、Streamable HTTP loopback、OAuth/SSE auth 修正
+- **Provider**：Claude Fable 5 adaptive thinking、Gemma 4 reasoning replay、本地模型跳过 guardian review、gpt-5.3-codex 恢复
+- **Cron**：wake 保留 originating session/agent、impossible cron 表达式拒绝创建
+- **启动提速**：cached model metadata、移除 startup catalog wait、lazy slash-command loading
+- **QoL**：`openclaw update repair` 恢复路径、compaction timeout 默认降至 180s
+
 # v5.5.0
 
 ### 完全重新设计的部署与渠道绑定流程

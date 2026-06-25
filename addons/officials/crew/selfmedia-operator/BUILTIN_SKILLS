@@ -1,5 +1,6 @@
 wx-mp-publisher
 twitter-post
+twitter-interact
 douyin-publish
 youtube-publish
 tiktok-publish
@@ -9,11 +10,18 @@ threads-publish
 pinterest-publish
 kuaishou-publish
 bilibili-publish
+xhs-publish
 wxwork-moments
 xhs-content-ops
 xhs-interact
+login-manager
 juejin-publish
 toutiao-publish
 pexels-footage
 pixabay-footage
+viral-chaser
 highlight-clipper
+published-track
+content-calibrator
+de-mouth
+video-product

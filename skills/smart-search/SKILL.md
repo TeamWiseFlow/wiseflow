@@ -1,526 +1,171 @@
 ---
 name: smart-search
-description: Construct optimized search URLs for major platforms and navigate to results
-  with the browser. Replaces the built-in web_search tool for targeted, platform-specific
-  searches.
+description: 智能搜索路由器。根据用户意图选择最佳搜索源，构造 URL 并导航，获取内容。
+  Replaces the built-in web_search tool for targeted, platform-specific searches.
 metadata:
   openclaw:
     emoji: 🔍
 ---
 
-# Smart Search Guide
-
-Use this skill whenever the user asks you to search for information on the web or a specific platform. **Construct the search URL directly and navigate to it** instead of using the built-in `web_search` tool.
-
-## Keyword Encoding
-
-- **Spaces**: use `+` for Bing, GitHub, Bilibili; use `%20` for Douyin, Twitter, Facebook, Zhihu; either works for Baidu, Quark, YouTube
-- **Special characters**: URL-encode them (e.g., `#` → `%23`, `&` → `%26`, `?` → `%3F`)
-- **Chinese characters**: URL-encode (browsers handle this automatically when you navigate)
-
----
-
-## Cookie Warmup — CRITICAL for Authenticated Platforms
-
-Many platforms will return empty results or redirect to login if you navigate **directly** to a search URL without first visiting the home page. Always warm up the session in two steps:
-
-| Platform | Step 1 (warmup) | Step 2 (search) |
-|----------|-----------------|-----------------|
-| 知乎 | Navigate `https://www.zhihu.com` | Navigate to search URL |
-| Reddit | Navigate `https://www.reddit.com` | Navigate to search URL |
-| 微博 | Navigate `https://weibo.com` | Navigate to search URL |
-| YouTube | Navigate `https://www.youtube.com` | Navigate to search URL |
-| 雪球 | Navigate `https://xueqiu.com` | Navigate to search URL |
-| 路透社 | Navigate `https://www.reuters.com` | Navigate to search URL |
-| Bilibili | Navigate `https://www.bilibili.com` | Navigate to search URL |
-| 小红书 | Navigate `https://www.xiaohongshu.com` | Navigate to search URL |
-| TikTok | Navigate `https://www.tiktok.com` | Navigate to search URL |
-
-**Platforms that do NOT need warmup** (public APIs / no auth required):
-- Google, Bing, Baidu, Quark, GitHub, arXiv, Wikipedia, BBC, HackerNews, V2EX, Tieba, Amazon
-
----
-
-## General Web Search
-
-### Bing (recommended)
-
-```
-https://www.bing.com/search?q={keyword}
-```
-
-Time filters (append to URL):
-- Last 24 hours: `&filters=ex1:"ez1"`
-- Last week: `&filters=ex1:"ez2"`
-- Last month: `&filters=ex1:"ez3"`
-
-Pagination: `&first={offset}` where offset = (page − 1) × 10 + 1
-
-### Bing News
-
-```
-https://www.bing.com/news/search?q={keyword}
-```
-
-### Bing Images
-
-```
-https://www.bing.com/images/search?q={keyword}
-```
-
-Time filters for images: `&qft=filterui:age-lt{minutes}` where minutes = 1440 (day) / 10080 (week) / 44640 (month) / 525600 (year)
-
-### Baidu (backup)
-
-General web search:
-```
-https://www.baidu.com/s?wd={keyword}
-```
-
-Baidu Images:
-```
-https://image.baidu.com/search/index?tn=baiduimage&fm=result&ie=utf-8&word={keyword}
-```
-
-### Quark / 夸克 (fallback)
-
-```
-https://quark.sm.cn/s?q={keyword}
-```
-
----
-
-## Academic & Reference
-
-### arXiv (preprints: CS, Physics, Math, Biology, Economics, etc.)
-
-Browser search:
-```
-https://arxiv.org/search/?searchtype=all&query={keyword}
-```
-
-Search by specific field:
-- Title: `?searchtype=ti&query={keyword}`
-- Author: `?searchtype=au&query={keyword}`
-- Abstract: `?searchtype=abs&query={keyword}`
-- Category (e.g., cs.AI): `?searchtype=all&query={keyword}&searchtype=all&start=0`
-
-Sort by most recent: append `&order=-announced_date_first`
-
-arXiv API (returns structured XML — useful for programmatic access):
-```
-https://export.arxiv.org/api/query?search_query=all:{keyword}&max_results=10
-```
-
-### 百度学术 (Baidu Scholar)
-
-```
-https://xueshu.baidu.com/s?wd={keyword}
-```
-
-Multi-keyword: join with `+`. No warmup needed.
-
-### 万方数据 (Wanfang Data)
-
-```
-https://s.wanfangdata.com.cn/paper?q={keyword}
-```
-
-Chinese academic papers, dissertations, and conference proceedings. No warmup needed.
-
-### Wikipedia
-
-English:
-```
-https://en.wikipedia.org/w/index.php?search={keyword}
-```
-
-Chinese (中文):
-```
-https://zh.wikipedia.org/w/index.php?search={keyword}
-```
-
-Other languages: replace the language code prefix (e.g., `de`, `fr`, `ja`, `ko`, `es`).
-
----
-
-## Video Platforms
-
-### YouTube
-
-```
-https://www.youtube.com/results?search_query={keyword}
-```
-
-Time filters (append to URL):
-- Last hour: `&sp=EgIIAQ%3D%3D`
-- Today: `&sp=EgIIAg%3D%3D`
-- This week: `&sp=EgIIAw%3D%3D`
-- This month: `&sp=EgIIBA%3D%3D`
-- This year: `&sp=EgIIBQ%3D%3D`
-
-Type filters (append to URL, cannot combine with time/sort):
-- Videos only: `&sp=EgIQAQ%3D%3D`
-- Shorts only: `&sp=EgIQCQ%3D%3D`
-- Channels only: `&sp=EgIQAg%3D%3D`
-- Playlists only: `&sp=EgIQAw%3D%3D`
-
-Sort options (append to URL, cannot combine with type filters):
-- By upload date: `&sp=CAI%3D`
-- By view count: `&sp=CAM%3D`
-- By rating: `&sp=CAE%3D`
-
-> **Note**: `sp=` only accepts one value — type, time, and sort filters are mutually exclusive. Use whichever is most relevant.
-
-Multi-keyword: join with `+` (e.g., `wiseflow+AI+搜索`)
-
----
-
-## Chinese Social Media
-
-### 哔哩哔哩 (Bilibili / B站)
-
-```
-https://search.bilibili.com/{channel}?keyword={keyword}
-```
-
-Channels: `all` (综合) | `video` (视频) | `bangumi` (番剧) | `pgc` (影视) | `live` (直播) | `article` (专栏) | `upuser` (UP主)
-
-Sort options for `all` and `video`:
-- Most views: `&order=click`
-- Newest: `&order=pubdate`
-- Most danmaku: `&order=dm`
-- Most favorites: `&order=stow`
-
-Sort options for `live`:
-- Search anchors only: `&search_type=live_user`
-- Search live rooms only: `&search_type=live_room`
-- Live rooms by start time: `&search_type=live_room&order=live_time`
-
-Sort options for `upuser`:
-- Most fans (desc): `&order=fans`
-- Fewest fans (asc): `&order=fans&order_sort=1`
-- Highest level: `&order=level`
-
-Sort options for `article`:
-- Newest: `&order=pubdate`
-- Most clicks: `&order=click`
-- Most popular: `&order=attention`
-- Most comments: `&order=scores`
-
-Multi-keyword: join with `+`
-
-### 抖音 (Douyin / TikTok China)
-
-```
-https://www.douyin.com/search/{keyword}?type={type}
-```
-
-Types: `general` (综合，default) | `video` (视频) | `user` (用户) | `live` (直播)
-
-Multi-keyword: join with `%20` (e.g., `wiseflow%20AI`)
-
-For sort and filter options: interact with the page UI after navigating.
-
-### 微博 (Weibo)
-
-- Comprehensive: `https://s.weibo.com/weibo/{keyword}`
-- Real-time / Latest: `https://s.weibo.com/realtime?q={keyword}`
-- Users: `https://s.weibo.com/user?q={keyword}`
-- Topics: `https://s.weibo.com/topic?q={keyword}`
-
-### 小红书 (Xiaohongshu / RED / 红薯)
-
-```
-https://www.xiaohongshu.com/search_result?keyword={keyword}&source=web_search_result_notes
-```
-
-> **Note**: Use `source=web_search_result_notes` (not `web_explore_feed`) to get search results instead of explore feed.
-> After navigating, wait ~3 seconds and scroll down twice — results use lazy loading.
-
-For channel selection, filter, and sort: interact with the page UI after navigating.
-
-### 知乎 (Zhihu)
-
-```
-https://www.zhihu.com/search?type=content&q={keyword}
-```
-
-Content types: `content` (综合) | `people` (用户) | `scholar` (论文) | `column` (专栏) | `publication` (电子书) | `ring` (圈子) | `topic` (话题) | `zvideo` (视频)
-
-Filters for comprehensive search (`type=content`):
-- Answers only: `&vertical=answer`
-- Articles only: `&vertical=article`
-- Videos only: `&vertical=zvideo`
-
-Sort:
-- Most upvotes: `&sort=upvoted_count`
-- Newest: `&sort=created_time`
-
-Time range:
-- Last day: `&time_interval=a_day`
-- Last week: `&time_interval=a_week`
-- Last month: `&time_interval=a_month`
-- Last 3 months: `&time_interval=three_months`
-- Last 6 months: `&time_interval=half_a_year`
-- Last year: `&time_interval=a_year`
-
-Example — newest articles from the last month:
-```
-https://www.zhihu.com/search?type=content&q={keyword}&vertical=article&sort=created_time&time_interval=a_month
-```
-
-Multi-keyword: join with `%20`
-
----
-
-### 百度贴吧 (Tieba)
-
-```
-https://tieba.baidu.com/f/search/res?qw={keyword}&ie=utf-8
-```
-
-Search within a specific forum (吧):
-```
-https://tieba.baidu.com/f/search/res?qw={keyword}&kw={forum_name}&ie=utf-8
-```
-
-> **Note**: Public content, no warmup needed. Only the first page of results is reliably available. Multi-keyword: URL-encode spaces as `%20`.
-
----
-
-## International Social Media
-
-### Twitter / X
-
-- Top results: `https://x.com/search?q={keyword}`
-- Latest: `https://x.com/search?q={keyword}&f=live`
-- People: `https://x.com/search?q={keyword}&f=user`
-- Media: `https://x.com/search?q={keyword}&f=media`
-- Lists: `https://x.com/search?q={keyword}&f=list`
-
-Add "Near You" filter: append `&lf=on`
-
-> **Note**: Twitter/X uses heavy client-side rendering. After navigating, wait at least **5 seconds** before taking a snapshot to ensure tweet content has loaded.
-
-Multi-keyword: join with `%20`
-
-### Facebook
-
-- All: `https://www.facebook.com/search/top/?q={keyword}`
-- People: `https://www.facebook.com/search/people/?q={keyword}`
-- Pages: `https://www.facebook.com/search/pages?q={keyword}`
-- Groups: `https://www.facebook.com/search/groups?q={keyword}`
-- Events: `https://www.facebook.com/search/events?q={keyword}`
-
-For filter and sort options: interact with the page UI after navigating.
-
-Multi-keyword: join with `%20`
-
-### Reddit
-
-```
-https://www.reddit.com/search/?q={keyword}
-```
-
-Sort options: `&sort=relevance` | `hot` | `top` | `new` | `comments`
-
-Time filter (for `sort=top`): `&t=hour` | `day` | `week` | `month` | `year` | `all`
-
-Search within a specific subreddit:
-```
-https://www.reddit.com/r/{subreddit}/search/?q={keyword}&restrict_sr=on&sort=relevance&t=all
-```
-
-Multi-keyword: join with `+`
-
-### TikTok (international)
-
-```
-https://www.tiktok.com/search?q={keyword}
-```
-
-> **Note**: Cookie warmup required — navigate `https://www.tiktok.com` first. Wait ~3 seconds after navigating to search results for content to load.
-
-Multi-keyword: join with `%20`
-
----
-
-## Developer Platforms
-
-### GitHub
-
-```
-https://github.com/search?q={keyword}&type={type}
-```
-
-Types: `repositories` | `users` | `code` | `issues` | `pullrequests` | `discussions` | `topics` | `wikis`
-
-Sort options for **repositories**:
-- Most stars: `&s=stars&o=desc`
-- Fewest stars: `&s=stars&o=asc`
-- Most forks: `&s=forks&o=desc`
-- Recently updated: `&s=updated&o=desc`
-
-Sort options for **users**:
-- Most followers: `&s=followers&o=desc`
-- Most repositories: `&s=repositories&o=desc`
-- Recently joined: `&s=joined&o=desc`
-
-Language filter (for `repositories` and `users`): `&l={language}` (e.g., `&l=Python`, `&l=TypeScript`, `&l=Go`)
-
-Multi-keyword: join with `+`
-
-Example:
-```
-https://github.com/search?q=wiseflow+addon&type=repositories&s=stars&o=desc&l=Python
-```
-
-### LinkedIn
-
-Job search (cookie warmup required — navigate `https://www.linkedin.com` first):
-```
-https://www.linkedin.com/jobs/search/?keywords={keyword}&location={location}
-```
-
-People search:
-```
-https://www.linkedin.com/search/results/people/?keywords={keyword}
-```
-
-Company search:
-```
-https://www.linkedin.com/search/results/companies/?keywords={keyword}
-```
-
-Multi-keyword: join with `%20`
-
----
-
-## After Navigating
-
-1. Take a snapshot to confirm results have loaded.
-2. If a CAPTCHA, login wall, or verification challenge appears, follow the **browser-guide** skill.
-3. Extract the relevant information from the visible results.
-4. If more results are needed, paginate by:
-   - Modifying the URL's pagination parameter, or
-   - Clicking the "Next page" button on the page.
-5. Close the tab immediately after extracting all needed information.
+# Smart Search 智能搜索路由器
+
+本技能**只负责搜索和阅读**，不负责发布、点赞、关注、回复等互动操作（那些由各平台专属技能处理）。
+
+## 使用流程
+
+1. **确定数据源**：根据用户意图和下方路由规则，选择搜索平台
+2. **读取站点知识**：查看 `./sites/<platform>.md` 获取搜索 URL、分页、pitfalls、fallback
+3. **执行搜索**：Cookie Warmup → 导航到搜索 URL → 等待加载 → 提取内容
+4. **搜索摘要**：每次查询结束必须汇报（格式见下方）
+
+## 路由规则
+
+### 用户明确指定平台时
+
+直接使用对应平台。平台名与站点知识文件对应：
+
+| 用户可能说 | 站点文件 | 搜索类型 |
+|-----------|---------|---------|
+| 百度 / Baidu | `sites/general.md` → Baidu | 通用搜索 |
+| Bing / 必应 | `sites/general.md` → Bing | 通用搜索（推荐） |
+| 夸克 / Quark | `sites/general.md` → Quark | 通用搜索（fallback） |
+| 知乎 | `sites/zhihu.md` | 中文问答 |
+| 小红书 / XHS / 红薯 | `sites/xiaohongshu.md` | 生活方式/真实体验 |
+| 抖音 / Douyin | `sites/douyin.md` | 短视频 |
+| B站 / Bilibili | `sites/bilibili.md` | 视频/番剧 |
+| 微博 / Weibo | `sites/weibo.md` | 热点/舆论 |
+| YouTube / 油管 | `sites/youtube.md` | 视频 |
+| Twitter / X / 推特 | `sites/twitter.md` | 实时讨论 |
+| Reddit | `sites/reddit.md` | 社区讨论 |
+| GitHub | `sites/github.md` | 代码/项目 |
+| LinkedIn / 领英 | `sites/linkedin.md` | 职业/招聘 |
+| 微信视频号 | `sites/wechat-channels.md` | 视频号内容 |
+| 雪球 | `sites/financial.md` → 雪球 | 股票/金融 |
+| arXiv | `sites/academic.md` → arXiv | 学术预印本 |
+| 百度学术 | `sites/academic.md` → 百度学术 | 中文学术 |
+| 万方 | `sites/academic.md` → 万方 | 中文学术 |
+| Wikipedia | `sites/academic.md` → Wikipedia | 百科 |
+| 贴吧 | `sites/tech.md` → 贴吧 | 兴趣社区 |
+| Hacker News | `sites/tech.md` → HN | 科技社区 |
+| V2EX | `sites/tech.md` → V2EX | 技术社区 |
+| 路透社 / Reuters | `sites/news.md` | 国际新闻 |
+| 国务院 | `sites/gov.md` | 政策文件 |
+| Amazon | `sites/shopping.md` | 购物 |
+
+### 用户未指定平台时
+
+按意图优先级自动路由：
+
+| 意图特征 | 首选 | 补充 |
+|---------|------|------|
+| 中文通用/热点 | Bing | — |
+| 中文深度问答 | 知乎 | — |
+| 生活方式/真实体验 | 小红书 | — |
+| 短视频内容 | 抖音 | — |
+| 视频/番剧 | B站 | — |
+| 中文舆论/热搜 | 微博 | — |
+| 英文通用 | Bing | — |
+| 技术/代码 | GitHub | — |
+| 学术/论文 | arXiv | 百度学术 |
+| 股票/金融 | 雪球 | — |
+| 国际新闻 | Reuters | — |
+
+## 频率限制
+
+同一用户问题（同一意图链路，含追问澄清）内：
+
+- **每个站点最多调用 2 次**（第 2 次必须有明确理由：结果过宽需限定、信息不足需补充角度）
+- **不要第 3 次调用**同一站点；若信息仍不足，停止扩搜并说明缺口
+- `browser navigate` 到搜索 URL、`browser snapshot` 读取结果，每次导航计为 1 次调用
+- Cookie Warmup（仅访问首页）不计入调用次数
+- 因报错/超时/验证码/登录墙失败也算 1 次，**不要无限重试**
+
+## Keyword 编码
+
+- **空格**：`+` 用于 Bing、GitHub、Bilibili；`%20` 用于 Douyin、Twitter、Facebook、Zhihu；两者皆可用于 Baidu、Quark、YouTube
+- **特殊字符**：URL-encode（`#` → `%23`，`&` → `%26`，`?` → `%3F`）
+- **中文**：URL-encode（浏览器导航时自动处理）
+
+## Cookie Warmup 速查
+
+以下平台**必须**先访问首页再搜索，否则返回空结果或跳转登录：
+
+| 平台 | Warmup URL |
+|------|-----------|
+| 知乎 | `https://www.zhihu.com` |
+| 微博 | `https://weibo.com` |
+| 小红书 | `https://www.xiaohongshu.com` |
+| 抖音 | `https://www.douyin.com` |
+| YouTube | `https://www.youtube.com` |
+| Twitter/X | `https://x.com` |
+| Reddit | `https://www.reddit.com` |
+| 雪球 | `https://xueqiu.com` |
+| LinkedIn | `https://www.linkedin.com` |
+| TikTok | `https://www.tiktok.com` |
+| 路透社 | `https://www.reuters.com` |
+
+**不需要 Warmup**：Bing、Baidu、Quark、GitHub、arXiv、Wikipedia、HackerNews、V2EX、贴吧、Amazon、百度学术、万方、国务院
 
 ## 浏览器操作最佳实践
 
-### 超时错误处理
-
-遇到 `browser failed: timed out` 或类似超时错误时：
-
-- **不需要重启浏览器**，也不执行 `browser stop/start`
-- 等待 **30 秒**后在原页面继续操作
-- 若仍无法操作，再等 30 秒
-- 只有关闭浏览器后重开仍报错才是真正出错，需停止并反馈用户
-
 ### 页面加载等待
 
-导航到搜索结果页后：
+- 通用站点：等待 **3-5 秒**
+- 重度客户端渲染（Twitter/X、小红书、抖音）：等待 **5 秒以上**
+- snapshot 显示内容不完整时再等几秒重新 snapshot
 
-- 等待 **3-5 秒**让页面完全加载，再执行 snapshot
-- 对于重度客户端渲染的站点（Twitter/X、小红书、抖音），等待 **5 秒以上**
-- 如果 snapshot 显示内容不完整，再等几秒后重新 snapshot
+### 超时错误处理
 
-### 表单输入规范
+- **不重启浏览器**，不执行 `browser stop/start`
+- 等待 **30 秒**后在原页面继续
+- 只有重开浏览器仍报错才是真正出错
 
-如果需要在搜索框内输入内容（而非直接导航到搜索 URL）：
+### 表单输入
 
-- 使用 `browser act` 的 `type` 动作，并设置 `slowly: true`
-- **不要使用 `fill()`**，可能导致搜索框无法正确触发搜索
+- 用 `browser act` 的 `type` 动作 + `slowly: true`
+- **不用 `fill()`**，可能无法正确触发搜索
 
----
+### 登录墙 / CAPTCHA
 
-## Government & Policy
+- 遇到登录墙、验证码、人机验证，遵循 **browser-guide** 技能
+- 不要反复重试，最多 2 次后转其他数据源或告知用户
 
-### 国务院政策搜索 (China State Council Policy Search)
+### Aria Snapshot 辅助结果提取（Patchright 1.59+）
 
-```
-https://sousuo.www.gov.cn/sousuo/search.shtml?code=17da70961a7&dataTypeId=107&searchWord={keyword}
-```
+当 DOM snapshot 噪音过多（大量广告/推荐/脚手架 DOM）时，可用 `page.ariaSnapshot()` 获取页面语义结构，更精准地定位搜索结果区域：
 
-Searches official policy documents published on www.gov.cn. No warmup needed.
-
----
-
-## Financial Platforms
-
-### 雪球 (Xueqiu) — Stocks & Finance
-
-Stock/symbol search (cookie warmup required — navigate `https://xueqiu.com` first):
-```
-https://xueqiu.com/search?q={keyword}
+```javascript
+// 带 bounding box，AI 可判断元素位置
+const aria = await page.ariaSnapshot({ boxes: true });
 ```
 
-Example queries: `茅台`, `AAPL`, `腾讯`, `SH600519`
+Aria snapshot 只包含有语义角色的元素（按钮、链接、标题、文章等），过滤掉装饰性 DOM，适合快速理解搜索结果布局。
 
-For stock detail page: `https://xueqiu.com/S/{symbol}` (e.g., `/S/SH600519`)
+## 搜索后操作
 
----
+1. 确认结果已加载（snapshot）
+2. 遇到登录墙/CAPTCHA → browser-guide
+3. 提取所需信息
+4. 需要更多结果 → 查看 `sites/<platform>.md` 的分页方式
+5. 提取完毕后**立即关闭标签页**
 
-## Tech Communities
+## 搜索摘要
 
-### Hacker News (public, no login required)
+**每次查询结束**，回答末尾必须追加搜索摘要，至少包含：
 
-```
-https://news.ycombinator.com/
-```
+- 使用了什么站点
+- 每个站点搜了什么关键词
+- 每个站点调用了几次
 
-Search via Algolia (unofficial but reliable):
-```
-https://hn.algolia.com/?q={keyword}
-```
+格式：
 
-Sort by date: `&dateRange=pastWeek` | `pastMonth` | `pastYear`
-
-### V2EX (public, no login required)
-
-Search (Google site search approach, most reliable):
-```
-https://www.google.com/search?q=site:v2ex.com+{keyword}
-```
-
-Or navigate directly to V2EX and use the built-in search:
-```
-https://www.v2ex.com/?q={keyword}
+```md
+搜索摘要
+- 站点：<site1> | 关键词：<term1> | 次数：<n>
+- 站点：<site2> | 关键词：<term2>；<term3> | 次数：<n>
+- 已跳过：<site3>，原因：达到频率上限
 ```
 
----
+## 站点详细知识
 
-## News
-
-### Reuters
-
-News search (cookie warmup required — navigate `https://www.reuters.com` first):
-```
-https://www.reuters.com/search/news?blob={keyword}
-```
-
-Multi-keyword: join with `+`
-
----
-
-## Shopping
-
-### Amazon
-
-```
-https://www.amazon.com/s?k={keyword}
-```
-
-Department filter (append to URL): `&i={department}` — common values: `electronics`, `books`, `clothing-shoes-jewelry`, `grocery`, `toys-and-games`
-
-Sort options (append to URL):
-- Relevance (default): `&s=relevance-rank`
-- Price low to high: `&s=price-asc-rank`
-- Price high to low: `&s=price-desc-rank`
-- Avg customer review: `&s=review-rank`
-- Newest arrivals: `&s=date-desc-rank`
-
-> **Anti-bot protection**: Navigate and wait at least 2–3 seconds before taking a snapshot. If you encounter a robot verification page, do not retry immediately — follow the **browser-guide** skill.
-
-Multi-keyword: join with `+`
+各平台搜索的详细参数、分页、pitfalls、fallback、DOM 提取提示，见 `./sites/` 目录下对应文件。**执行搜索前务必先读对应站点文件**，避免踩坑。

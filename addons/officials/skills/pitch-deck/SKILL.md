@@ -14,6 +14,8 @@ metadata:
 
 为 Business Developer/Investor Relationship 场景生成零依赖、动效丰富的 HTML 演示文稿，直接在浏览器中运行。
 
+> 📍 **全局技能路径提示**：文中所有 `./scripts/` 路径均相对于本技能所在目录（即 `<skill>` 标签 `location` 属性所指目录），**不是**工作区目录。执行时按本技能实际安装路径拼接。
+
 ## 激活时机
 
 - 制作投资人路演 PPT / 融资演讲稿
@@ -146,14 +148,83 @@ metadata:
 ### 第七步：交付
 
 交付时：
-- 删除临时预览文件（除非用户要保留）
-- 用适合当前系统的方式打开文件：
-  - macOS：`open file.html`
-  - Linux：`xdg-open file.html`
-  - Windows：`start "" file.html`
-- 汇总：文件路径、使用的预设、幻灯片数量、主题定制方法
+1. **主动生成长图**：用户确认 HTML 后，立即调用 `html_to_longimage.py --save-slides` 将演示文稿转为纵向长图，**同时交付 HTML 文件和长图文件**。`--save-slides` 保存每页独立截图，供后续 PPTX 转换复用。长图适合微信/飞书等移动端直接发送和浏览。
+2. 删除临时预览文件（除非用户要保留）
+3. 用适合当前系统的方式打开文件：
+   - macOS：`open file.html`
+   - Linux：`xdg-open file.html`
+   - Windows：`start "" file.html`
+4. 汇总：HTML 路径、长图路径、使用的预设、幻灯片数量、主题定制方法
 
-## PPT / PPTX 转换
+> **PPT 转换为按需操作**：仅当用户明确要求 `.pptx` 格式时才调用 `html_to_pptx.py`，不要主动转换。
+
+## HTML → 长图转换
+
+用户确认 HTML 演示文稿后，**主动调用**此脚本生成纵向长图，同时交付 HTML 和长图两个文件：
+
+```bash
+python3 ./scripts/html_to_longimage.py <pitch-deck.html> [-o output.png] [--width 1920] [--height 1080] [--format png|jpg] [--quality 95] [--gap 0] [--scale 1.0] [--save-slides] [--slides-dir <dir>]
+```
+
+脚本功能：
+- 在 headless Chromium 中逐页渲染每个 `<section class="slide">`，像素级还原 CSS 效果（自定义属性、clamp()、渐变等）
+- 每页以横屏视口（默认 1920×1080）截图，然后从上到下拼成一张长图
+- 输出 PNG（无损）或 JPEG（更小体积），可设置页间距 `--gap`
+- `--save-slides`：同时保存每页独立截图到 `<name>-slides/` 目录，供后续 PPTX 转换复用（跳过重复渲染）
+- 输出 JSON 结果：`{"ok": true, "image_file": "...", "slide_count": 15, "width": 1920, "height": 16200, "slides_dir": "..."}`
+
+**典型用法**：
+```bash
+# PNG 长图（无损，适合打印/截取细节）
+python3 ./scripts/html_to_longimage.py pitch-deck.html
+
+# JPEG 长图（体积更小，适合微信/飞书发送）
+python3 ./scripts/html_to_longimage.py pitch-deck.html --format jpg --quality 90
+
+# HiDPI 高清渲染（2x 缩放）
+python3 ./scripts/html_to_longimage.py pitch-deck.html --scale 2.0
+
+# 长图 + 保存每页截图（供 PPTX 转换复用）
+python3 ./scripts/html_to_longimage.py pitch-deck.html --save-slides
+```
+
+**依赖**：`playwright`、`Pillow`（若缺失脚本会提示安装命令，首次使用需 `python3 -m playwright install chromium`）
+
+## HTML → PPTX 转换
+
+当用户需要 PPT 格式（如投资人要求 `.pptx` 文件、微信/邮件附件场景），使用内置脚本将已生成的 HTML 演示文稿转为 PPTX。
+
+**核心思路**：截图即幻灯片——在 headless Chromium 中逐页渲染并截图，每页截图作为全幅图片放入一页 PPTX，像素级保真，CSS 效果零损失。
+
+```bash
+# 从 HTML 渲染截图并生成 PPTX
+python3 ./scripts/html_to_pptx.py <pitch-deck.html> [-o output.pptx]
+
+# 复用已有截图（跳过渲染，速度更快）
+python3 ./scripts/html_to_pptx.py <pitch-deck.html> -o output.pptx --screenshots-dir ./pitch-deck-slides/
+
+# 自定义视口 / HiDPI
+python3 ./scripts/html_to_pptx.py <pitch-deck.html> --width 1920 --height 1080 --scale 2.0
+
+# 同时保存每页截图
+python3 ./scripts/html_to_pptx.py <pitch-deck.html> --save-screenshots
+```
+
+脚本功能：
+- 在 headless Chromium 中逐页渲染每个 `<section class="slide">`（与长图流程共用同一渲染管线）
+- 每页截图作为全幅图片放入一页 PPTX，**像素级保真**——CSS 渐变、动画终态、复杂布局全部保留
+- 支持 `--screenshots-dir` 复用已有截图（如长图流程 `--save-slides` 产出的），跳过重复渲染
+- 自动检测截图尺寸设置 PPTX 页面比例（默认 1920×1080 → 16:9）
+- 输出 JSON 结果：`{"ok": true, "pptx_file": "...", "slide_count": 15, "reused_screenshots": false}`
+
+**使用时机**：
+1. 先按正常工作流生成 HTML pitch-deck
+2. 用户要求 PPT 格式时，直接调用此脚本转换
+3. 如果之前已生成长图且用了 `--save-slides`，可用 `--screenshots-dir` 复用截图
+
+**依赖**：`python-pptx`、`Pillow`、`playwright`（与 ppt-maker 共用 python-pptx 依赖，若缺失脚本会提示安装命令）
+
+## PPT / PPTX → HTML 转换
 
 ```bash
 python3 ./scripts/extract_pptx.py <file.pptx> [--images-dir /tmp/pptx_images]
@@ -217,4 +288,5 @@ python3 ./scripts/extract_pptx.py <file.pptx> [--images-dir /tmp/pptx_images]
 - [ ] 风格与目标受众和场景匹配
 - [ ] 动效有意义，不喧宾夺主
 - [ ] 支持 reduced-motion
-- [ ] 交付时说明文件路径、预设选择、幻灯片数量和定制方法
+- [ ] 长图已生成，与 HTML 一同交付
+- [ ] 交付时说明 HTML 路径、长图路径、预设选择、幻灯片数量和定制方法

@@ -91,24 +91,3 @@ python3 ./skills/youtube-publish/scripts/publish_youtube.py \
 | UPLOAD_FAILED | 上传失败 | 重试一次（resumable upload 支持断点续传） |
 | TITLE_TOO_LONG | 标题超 100 字 | 截断后重试 |
 | QUOTA_EXCEEDED | API 配额用尽 | 等待次日配额重置 |
-
----
-
-## 发布记录（强制）
-
-发布成功后，**必须**立即调用 `published-track` 技能记录发布信息：
-
-```bash
-./skills/published-track/scripts/record.sh \
-  --platform youtube \
-  --title "标题" \
-  --content-type video \
-  --source-folder "<原始文件夹路径>" \
-  --publish-url "<发布URL>" \
-  --publish-date "$(date +%Y-%m-%d)"
-```
-
-`--source-folder` 为原始内容所在的相对路径（如 `output_articles/xxx` 或 `output_videos/xxx`）。
-`--publish-url` 为发布后获得的 URL，若发布失败则留空并在 `--notes` 中注明原因。
-
-执行 `./skills/published-track/scripts/init-db.sh`（幂等，重复执行无副作用）。

@@ -1,20 +1,28 @@
 #!/usr/bin/env python3
-"""Publish videos to Douyin via open platform API with OAuth2."""
+"""Publish content to Douyin via H5 Schema (open platform).
+
+Generates a schema URL that opens the Douyin app's publish page.
+The user must open this URL on a device with the Douyin app installed
+to confirm and complete the publishing.
+
+Flow:
+  client_key + client_secret → client_token → ticket + share_id → schema URL
+"""
 
 import argparse
 import hashlib
 import json
-import os
+import random
+import string
 import sys
 import time
-import uuid
 from pathlib import Path
+from urllib.parse import quote, urlencode
 
 import requests
 
 CREDS_DIR = Path.home() / ".openclaw" / "credentials"
 CONFIG_FILE = CREDS_DIR / "douyin_config.json"
-TOKEN_FILE = CREDS_DIR / "douyin_token.json"
 DOUYIN_API = "https://open.douyin.com"
 
 
@@ -30,176 +38,288 @@ def err_exit(msg: str, code: int = 1) -> None:
 
 def load_config() -> dict:
     if not CONFIG_FILE.exists():
-        err_exit("AUTH_REQUIRED: no douyin_config.json", 2)
-    return json.loads(CONFIG_FILE.read_text())
+        err_exit(
+            "CONFIG_MISSING: no douyin_config.json. "
+            "Create ~/.openclaw/credentials/douyin_config.json with client_key and client_secret.",
+            2,
+        )
+    cfg = json.loads(CONFIG_FILE.read_text())
+    if not cfg.get("client_key") or not cfg.get("client_secret"):
+        err_exit("CONFIG_INVALID: douyin_config.json must contain client_key and client_secret", 2)
+    return cfg
 
 
-def load_token() -> dict:
-    if not TOKEN_FILE.exists():
-        err_exit("AUTH_REQUIRED", 2)
-    return json.loads(TOKEN_FILE.read_text())
+def generate_nonce_str(length: int = 32) -> str:
+    chars = string.ascii_letters + string.digits
+    return "".join(random.choices(chars, k=length))
 
 
-def refresh_access_token(config: dict, token_data: dict) -> str:
-    refresh_token = token_data.get("refresh_token", "")
-    if not refresh_token:
-        err_exit("AUTH_REQUIRED: no refresh token", 2)
+def get_client_token(config: dict) -> str:
+    """Get client_token via client_credential grant (no user auth needed).
 
+    client_token is valid for 2 hours. Repeated calls invalidate the previous
+    one (with a 5-minute buffer). Rate limit: 500 calls per 5 minutes.
+    """
     resp = requests.post(
-        f"{DOUYIN_API}/oauth/refresh_token/",
-        data={
+        f"{DOUYIN_API}/oauth/client_token/",
+        json={
             "client_key": config["client_key"],
             "client_secret": config["client_secret"],
-            "grant_type": "refresh_token",
-            "refresh_token": refresh_token,
+            "grant_type": "client_credential",
         },
-        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        headers={"Content-Type": "application/json"},
         timeout=30,
     )
     if resp.status_code != 200:
-        err_exit(f"AUTH_REQUIRED: refresh failed: {resp.text}", 2)
+        err_exit(f"CLIENT_TOKEN_FAILED: HTTP {resp.status_code}: {resp.text[:200]}")
 
     data = resp.json()
-    token_info = data.get("data", {})
-    if token_info.get("error_code") != 0:
-        err_exit(f"AUTH_REQUIRED: {token_info.get('description', data)}", 2)
+    if data.get("message") != "success":
+        desc = data.get("data", {}).get("description", str(data))
+        err_exit(f"CLIENT_TOKEN_FAILED: {desc}")
 
-    new_token = {
-        "access_token": token_info.get("access_token", ""),
-        "refresh_token": token_info.get("refresh_token", refresh_token),
-        "expires_in": token_info.get("expires_in", 0),
-        "open_id": token_info.get("open_id", token_data.get("open_id", "")),
-    }
-    CREDS_DIR.mkdir(parents=True, exist_ok=True)
-    TOKEN_FILE.write_text(json.dumps(new_token, indent=2))
-    return new_token["access_token"]
+    token = data.get("data", {}).get("access_token", "")
+    if not token:
+        err_exit("CLIENT_TOKEN_FAILED: no access_token in response")
+    return token
 
 
-def upload_video(access_token: str, open_id: str, video_path: str) -> str:
-    url = f"{DOUYIN_API}/api/douyin/v1/video/upload_video/"
-    file_size = os.path.getsize(video_path)
-    filename = os.path.basename(video_path)
-
-    with open(video_path, "rb") as f:
-        resp = requests.post(
-            url,
-            headers={"access-token": access_token},
-            params={"open_id": open_id},
-            files={"video": (filename, f, "video/mp4")},
-            timeout=300,
-        )
-
-    if resp.status_code in (401, 403):
-        err_exit("AUTH_REQUIRED", 2)
-    data = resp.json()
-    if data.get("data", {}).get("error_code") != 0:
-        err_exit(f"UPLOAD_FAILED: {data.get('data', {}).get('description', data)}")
-
-    video_id = data.get("data", {}).get("video", {}).get("video_id", "")
-    if not video_id:
-        err_exit(f"UPLOAD_FAILED: no video_id: {data}")
-    return video_id
-
-
-def upload_cover(access_token: str, open_id: str, cover_path: str) -> str:
-    url = f"{DOUYIN_API}/api/douyin/v1/video/upload_cover/"
-    with open(cover_path, "rb") as f:
-        resp = requests.post(
-            url,
-            headers={"access-token": access_token},
-            params={"open_id": open_id},
-            files={"image": ("cover.jpg", f, "image/jpeg")},
-            timeout=60,
-        )
-    data = resp.json()
-    return data.get("data", {}).get("image", {}).get("image_url", "")
-
-
-def create_video(
-    access_token: str, open_id: str,
-    video_id: str, title: str, cover_url: str,
-    tags: list[str], is_private: bool,
-) -> dict:
-    url = f"{DOUYIN_API}/api/douyin/v1/video/create_video/"
-    text = title
-    if tags:
-        text += " " + " ".join(f"#{t}" for t in tags)
-
-    payload = {
-        "video_id": video_id,
-        "text": text[:55],
-    }
-    if cover_url:
-        payload["cover_url"] = cover_url
-    if is_private:
-        payload["private"] = True
-
-    resp = requests.post(
-        url,
+def get_open_ticket(client_token: str) -> str:
+    """Get open ticket for schema signature generation."""
+    resp = requests.get(
+        f"{DOUYIN_API}/open/getticket/",
         headers={
-            "access-token": access_token,
             "Content-Type": "application/json",
+            "access-token": client_token,
         },
-        params={"open_id": open_id},
-        json=payload,
         timeout=30,
     )
+    if resp.status_code != 200:
+        err_exit(f"TICKET_FAILED: HTTP {resp.status_code}: {resp.text[:200]}")
 
-    if resp.status_code in (401, 403):
-        err_exit("AUTH_REQUIRED", 2)
     data = resp.json()
-    if data.get("data", {}).get("error_code") != 0:
-        msg = data.get("data", {}).get("description", str(data))
-        if "login" in msg.lower() or "登录" in msg:
-            err_exit("AUTH_REQUIRED", 2)
-        err_exit(f"PUBLISH_FAILED: {msg}")
+    ticket = data.get("data", {}).get("ticket", "")
+    if not ticket:
+        err_exit("TICKET_FAILED: no ticket in response")
+    return ticket
 
-    item_id = data.get("data", {}).get("item_id", "")
-    return {"ok": True, "item_id": item_id, "url": f"https://www.douyin.com/video/{item_id}"}
+
+def get_share_id(client_token: str) -> str:
+    """Get share_id for tracking publish result via webhook/query."""
+    resp = requests.get(
+        f"{DOUYIN_API}/share-id/",
+        params={"need_callback": "true"},
+        headers={
+            "Content-Type": "application/json",
+            "access-token": client_token,
+        },
+        timeout=30,
+    )
+    if resp.status_code != 200:
+        err_exit(f"SHARE_ID_FAILED: HTTP {resp.status_code}: {resp.text[:200]}")
+
+    data = resp.json()
+    error_code = data.get("extra", {}).get("error_code", -1)
+    if error_code != 0:
+        desc = data.get("extra", {}).get("description", str(data))
+        err_exit(f"SHARE_ID_FAILED: {desc}")
+
+    share_id = data.get("data", {}).get("share_id", "")
+    if not share_id:
+        err_exit("SHARE_ID_FAILED: no share_id in response")
+    return share_id
+
+
+def generate_signature(ticket: str, nonce_str: str, timestamp: str) -> str:
+    """Generate MD5 signature for H5 schema.
+
+    Sign string: nonce_str={nonce_str}&ticket={ticket}&timestamp={timestamp}
+    Result: MD5 hex digest of the sign string.
+    """
+    sign_str = f"nonce_str={nonce_str}&ticket={ticket}&timestamp={timestamp}"
+    return hashlib.md5(sign_str.encode()).hexdigest()
+
+
+def build_schema_url(
+    client_key: str,
+    ticket: str,
+    share_id: str,
+    title: str,
+    video_path: str | None,
+    image_path: str | None,
+    image_list_path: list[str] | None,
+    hashtag_list: list[str] | None,
+    title_hashtag_list: list[dict] | None,
+    short_title: str | None,
+    private_status: int | None,
+    download_type: int | None,
+    share_to_type: int | None,
+    poi_id: str | None,
+    feature: str | None,
+) -> str:
+    """Build the H5 share schema URL.
+
+    Schema format: snssdk1128://openplatform/share?share_type=h5&client_key=xx&...
+    All parameters should be URL-encoded. Spaces encoded as %20 (not +).
+    """
+    nonce_str = generate_nonce_str(32)
+    timestamp = str(int(time.time()))
+    signature = generate_signature(ticket, nonce_str, timestamp)
+
+    params = {
+        "client_key": client_key,
+        "nonce_str": nonce_str,
+        "timestamp": timestamp,
+        "signature": signature,
+        "share_type": "h5",
+    }
+
+    if share_id:
+        params["state"] = share_id
+
+    # Media content
+    if video_path:
+        params["video_path"] = video_path
+        params["share_to_publish"] = "1"
+    if image_path:
+        params["image_path"] = image_path
+    if image_list_path:
+        params["image_list_path"] = json.dumps(image_list_path, ensure_ascii=False)
+
+    # Title
+    if title:
+        params["title"] = title
+    if short_title:
+        params["short_title"] = short_title
+
+    # Hashtags
+    if hashtag_list:
+        params["hashtag_list"] = json.dumps(hashtag_list, ensure_ascii=False)
+    if title_hashtag_list:
+        params["title_hashtag_list"] = json.dumps(title_hashtag_list, ensure_ascii=False)
+
+    # Privacy & download
+    if private_status is not None:
+        params["private_status"] = str(private_status)
+    if download_type is not None:
+        params["download_type"] = str(download_type)
+    if share_to_type is not None:
+        params["share_to_type"] = str(share_to_type)
+
+    # Location
+    if poi_id:
+        params["poi_id"] = poi_id
+
+    # Note mode
+    if feature:
+        params["feature"] = feature
+
+    # Use quote_via=quote so spaces become %20 instead of +
+    return "snssdk1128://openplatform/share?" + urlencode(params, quote_via=quote)
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Publish video to Douyin")
-    parser.add_argument("--title", required=True, help="Video title (max 55 chars)")
-    parser.add_argument("--video", required=True, help="Video file path")
-    parser.add_argument("--cover", help="Cover image path")
-    parser.add_argument("--tags", default="", help="Comma-separated tags")
-    parser.add_argument("--private", action="store_true", help="Set to private")
+    parser = argparse.ArgumentParser(
+        description="Publish content to Douyin via H5 Schema (open platform)"
+    )
+    parser.add_argument("--title", required=True, help="Content title")
+    parser.add_argument(
+        "--video",
+        help="Video URL (publicly accessible, mp4/mov, max 128M)",
+    )
+    parser.add_argument(
+        "--image",
+        help="Single image URL (png/jpg/gif, max 20M)",
+    )
+    parser.add_argument(
+        "--images",
+        help="Comma-separated image URLs for album mode (png/jpg, Douyin 22.2.0+)",
+    )
+    parser.add_argument("--tags", default="", help="Comma-separated hashtags")
+    parser.add_argument(
+        "--short-title", dest="short_title",
+        help="Short title (Douyin 30.0.0+)",
+    )
+    parser.add_argument(
+        "--private-status", dest="private_status", type=int, choices=[0, 1, 2],
+        help="Visibility: 0=public, 1=self-only, 2=friends-only (Douyin 30.0.0+)",
+    )
+    parser.add_argument(
+        "--download-type", dest="download_type", type=int, choices=[1, 2],
+        help="Download: 1=allow, 2=disallow (Douyin 30.0.0+)",
+    )
+    parser.add_argument(
+        "--share-to-type", dest="share_to_type", type=int, choices=[0, 1],
+        help="Publish type: 0=post, 1=forward to daily (Douyin 25.4.0+)",
+    )
+    parser.add_argument(
+        "--poi-id", dest="poi_id",
+        help="Location POI ID (Douyin 22.2.0+)",
+    )
+    parser.add_argument(
+        "--feature", choices=["note"],
+        help="Set to 'note' for note mode with multi-image (Douyin 30.3.0+)",
+    )
     args = parser.parse_args()
 
-    if not os.path.exists(args.video):
-        err_exit(f"UPLOAD_FAILED: video not found: {args.video}")
+    # Validate: at least one media required
+    if not args.video and not args.image and not args.images:
+        err_exit("MISSING_MEDIA: at least one of --video, --image, --images is required")
 
     config = load_config()
-    token_data = load_token()
 
-    try:
-        access_token = refresh_access_token(config, token_data)
-    except SystemExit:
-        raise
-    except Exception as e:
-        err_exit(f"AUTH_REQUIRED: {e}", 2)
+    # Step 1: Get client_token (no user auth needed)
+    sys.stderr.write("[douyin-publish] step 1/4: getting client_token...\n")
+    client_token = get_client_token(config)
 
-    open_id = token_data.get("open_id", "")
-    if not open_id:
-        err_exit("AUTH_REQUIRED: no open_id in token", 2)
+    # Step 2: Get open ticket for signature
+    sys.stderr.write("[douyin-publish] step 2/4: getting open ticket...\n")
+    ticket = get_open_ticket(client_token)
 
-    sys.stderr.write("[douyin-publish] uploading video...\n")
-    video_id = upload_video(access_token, open_id, args.video)
+    # Step 3: Get share_id for result tracking
+    sys.stderr.write("[douyin-publish] step 3/4: getting share_id...\n")
+    share_id = get_share_id(client_token)
 
-    cover_url = ""
-    if args.cover and os.path.exists(args.cover):
-        sys.stderr.write("[douyin-publish] uploading cover...\n")
-        cover_url = upload_cover(access_token, open_id, args.cover)
-
+    # Build hashtag lists
     tags = [t.strip() for t in args.tags.split(",") if t.strip()] if args.tags else []
+    hashtag_list = tags if tags else None
+    title_hashtag_list = None
+    if tags:
+        # Place hashtags at end of title (AiToEarn convention)
+        title_hashtag_list = [{"name": tag, "start": len(args.title)} for tag in tags]
 
-    sys.stderr.write("[douyin-publish] creating video post...\n")
-    result = create_video(
-        access_token, open_id, video_id, args.title, cover_url,
-        tags, args.private,
+    # Build image list
+    image_list_path = None
+    if args.images:
+        image_list_path = [url.strip() for url in args.images.split(",") if url.strip()]
+
+    # Step 4: Generate schema URL
+    sys.stderr.write("[douyin-publish] step 4/4: generating share schema...\n")
+    schema_url = build_schema_url(
+        client_key=config["client_key"],
+        ticket=ticket,
+        share_id=share_id,
+        title=args.title,
+        video_path=args.video,
+        image_path=args.image,
+        image_list_path=image_list_path,
+        hashtag_list=hashtag_list,
+        title_hashtag_list=title_hashtag_list,
+        short_title=args.short_title,
+        private_status=args.private_status,
+        download_type=args.download_type,
+        share_to_type=args.share_to_type,
+        poi_id=args.poi_id,
+        feature=args.feature,
     )
-    output(result)
+
+    sys.stderr.write(f"[douyin-publish] schema generated (share_id={share_id})\n")
+    output({
+        "ok": True,
+        "schema_url": schema_url,
+        "share_id": share_id,
+        "hint": "Open schema_url on a device with Douyin app to complete publishing. Use share_id to query result later.",
+    })
 
 
 if __name__ == "__main__":

@@ -1,8 +1,9 @@
 ---
 name: douyin-publish
-description: Publish videos to Douyin (抖音) via open platform API with OAuth2 authentication.
-  Supports video upload, cover image, hashtags, and privacy settings. Requires Douyin
-  open platform OAuth2 credentials.
+description: Publish content to Douyin (抖音) via open platform H5 Schema.
+  Generates a schema URL to open Douyin app's publish page. Supports video,
+  images, album, hashtags, privacy, note mode, and forward-to-daily. Requires
+  Douyin open platform web app credentials.
 metadata:
   openclaw:
     emoji: 🎤
@@ -11,17 +12,20 @@ metadata:
       - python3
 ---
 
-# 抖音视频发布（douyin-publish）
+# 抖音内容发布（douyin-publish）
 
-通过抖音开放平台 API 发布视频，支持视频上传、封面、话题标签。使用 OAuth2 认证。
+通过抖音开放平台 H5 Schema 发布内容（视频/图片/图集），生成 schema URL 唤起抖音 App 完成发布。
 
 ---
 
 ## 前置条件
 
-1. 抖音开放平台创建应用，获取 client_key / client_secret
-2. 申请「视频管理」权限范围
-3. 首次运行需浏览器授权，后续自动使用 refresh token
+1. 在 [抖音开放平台](https://open.douyin.com) 创建**网页应用**，获取 `client_key` / `client_secret`
+2. 申请 `h5.share` 能力权限（H5 场景分享/发布）
+3. 投稿能力（抖音 30.5.0+）：额外申请 `aweme.share` 权限
+4. 转发到日常能力（抖音 30.5.0+）：额外申请 `aweme.forward` 权限
+
+> **H5 Schema 方式不需要用户 OAuth2 授权**，使用 client_token（client_credential 授予）即可生成 schema。用户在手机端打开 schema 后由抖音 App 处理发布。
 
 ---
 
@@ -32,12 +36,9 @@ metadata:
 ```json
 {
   "client_key": "your_client_key",
-  "client_secret": "your_client_secret",
-  "redirect_uri": "https://localhost:8080/callback"
+  "client_secret": "your_client_secret"
 }
 ```
-
-首次授权后 token 保存到 `~/.openclaw/credentials/douyin_token.json`
 
 ---
 
@@ -46,9 +47,17 @@ metadata:
 ```bash
 python3 ./skills/douyin-publish/scripts/publish_douyin.py \
   --title "视频标题" \
-  --video video.mp4 \
-  --cover cover.jpg \
+  --video "https://example.com/video.mp4" \
   --tags 话题1,话题2
+```
+
+图集模式：
+
+```bash
+python3 ./skills/douyin-publish/scripts/publish_douyin.py \
+  --title "图文标题" \
+  --images "https://example.com/img1.jpg,https://example.com/img2.jpg" \
+  --tags 话题1
 ```
 
 ---
@@ -57,23 +66,36 @@ python3 ./skills/douyin-publish/scripts/publish_douyin.py \
 
 | 参数 | 必填 | 说明 |
 |------|------|------|
-| `--title` | 是 | 视频标题，最多 55 字 |
-| `--video` | 是 | 视频文件路径，支持 mp4，建议 9:16 |
-| `--cover` | 否 | 封面图 URL 或本地路径 |
+| `--title` | 是 | 内容标题 |
+| `--video` | 否* | 视频 URL（公网可访问，mp4/mov，≤128M） |
+| `--image` | 否* | 单张图片 URL（png/jpg/gif，≤20M） |
+| `--images` | 否* | 逗号分隔的图片 URL（图集模式，png/jpg，抖音 22.2.0+） |
 | `--tags` | 否 | 逗号分隔的话题标签 |
-| `--private` | 否 | 设为仅自己可见 |
+| `--short-title` | 否 | 短标题（抖音 30.0.0+） |
+| `--private-status` | 否 | 可见范围：0=公开，1=仅自己，2=好友可见（抖音 30.0.0+） |
+| `--download-type` | 否 | 下载控制：1=允许，2=不允许（抖音 30.0.0+） |
+| `--share-to-type` | 否 | 发布类型：0=投稿，1=转发到日常（抖音 25.4.0+） |
+| `--poi-id` | 否 | 地理位置 POI ID（抖音 22.2.0+） |
+| `--feature` | 否 | 设为 `note` 启用笔记模式（抖音 30.3.0+，仅多图） |
+
+*\*`--video`、`--image`、`--images` 至少提供一个。`--video` 优先于图片参数。*
+
+> **重要**：`--video` / `--image` / `--images` 均为**公网可访问的 URL**，不是本地文件路径。需先将媒体文件上传到可公网访问的位置。
 
 ---
 
 ## Agent 工作流
 
-1. 检查抖音配置和 token
-2. 准备视频 + 标题
+1. 检查抖音配置（`douyin_config.json`）
+2. 确保视频/图片已上传到公网可访问的 URL
 3. 运行 `publish_douyin.py` 脚本
 4. 检查 stdout JSON 输出：
-   - `{"ok": true, "item_id": "xxx", "url": "https://www.douyin.com/video/xxx"}` → 成功
-   - `{"ok": false, "error": "AUTH_REQUIRED"}` → 需要完成 OAuth2 授权
+   - `{"ok": true, "schema_url": "snssdk1128://...", "share_id": "xxx"}` → 成功生成 schema
+   - `{"ok": false, "error": "CONFIG_MISSING"}` → 需要配置凭据
    - `{"ok": false, "error": "..."}` → 其他错误
+5. 将 `schema_url` 提供给用户，用户在手机上打开（扫码或点击链接）
+6. 用户在抖音 App 中确认发布
+7. 可通过 `share_id` 调用「查询视频分享结果」API 获取发布状态
 
 ---
 
@@ -81,26 +103,9 @@ python3 ./skills/douyin-publish/scripts/publish_douyin.py \
 
 | 错误 | 原因 | 处理 |
 |------|------|------|
-| AUTH_REQUIRED | 无有效 OAuth2 token | 提示用户完成授权 |
-| UPLOAD_FAILED | 上传失败 | 检查文件格式，重试一次 |
-| PUBLISH_FAILED | 发布失败 | 检查权限和内容合规性 |
-| QUOTA_EXCEEDED | API 调用频率限制 | 等待后重试 |
-
-## 发布记录（强制）
-
-发布成功后，**必须**立即调用 `published-track` 技能记录发布信息：
-
-```bash
-./skills/published-track/scripts/record.sh \
-  --platform douyin \
-  --title "标题" \
-  --content-type video \
-  --source-folder "<原始文件夹路径>" \
-  --publish-url "<发布URL>" \
-  --publish-date "$(date +%Y-%m-%d)"
-```
-
-`--source-folder` 为原始内容所在的相对路径（如 `output_articles/xxx` 或 `output_videos/xxx`）。
-`--publish-url` 为发布后获得的 URL，若发布失败则留空并在 `--notes` 中注明原因。
-
-执行 `./skills/published-track/scripts/init-db.sh`（幂等，重复执行无副作用）。
+| CONFIG_MISSING | 无 douyin_config.json | 创建配置文件 |
+| CONFIG_INVALID | 缺少 client_key 或 client_secret | 补全配置 |
+| CLIENT_TOKEN_FAILED | 获取 client_token 失败 | 检查凭据是否正确、应用是否审核通过 |
+| TICKET_FAILED | 获取 ticket 失败 | 检查应用是否审核通过、h5.share 权限是否已申请 |
+| SHARE_ID_FAILED | 获取 share_id 失败 | 检查 h5.share 权限 |
+| MISSING_MEDIA | 未提供视频或图片 | 至少提供一种媒体内容 |

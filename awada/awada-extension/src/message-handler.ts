@@ -82,15 +82,18 @@ function extractTextFromPayload(payload: InboundEvent["payload"]): string {
 
 /**
  * Sanitize a peer ID for use in session keys (stored in DB).
- * Allows Unicode letters/numbers (Chinese names, etc.) while replacing
- * control characters and shell-unsafe chars with underscores.
+ * Only strips ASCII control characters (U+0000–U+001F, U+007F) that cannot be
+ * safely written to SQLite TEXT columns or would break tab/line-based sqlite3
+ * CLI output parsing (\t \n \r \0 etc.). All Unicode letters, numbers, and
+ * punctuation — including full-width parens （） in names like 先格物（鸿飞） —
+ * are preserved verbatim, since SQLite stores them without issue.
  * Does NOT modify the original user_id_external — only call this for peer/session routing.
  */
 function sanitizePeerId(id: string): string {
   if (!id || !id.trim()) {
     return "_anonymous_";
   }
-  return id.replace(/[^\p{L}\p{N}_\-.@+:~]/gu, "_");
+  return id.replace(/[\x00-\x1f\x7f]/g, "");
 }
 
 /**

@@ -1,24 +1,38 @@
 ---
 name: xhs-content-ops
-description: '小红书复合内容运营技能。组合浏览器浏览、发布、互动等能力完成运营工作流。
+description: '小红书图文内容调研与对标分析。搜索小红书图文笔记，下载图片和正文进行深度分析。
 
-  当用户要求竞品分析、热点追踪、内容创作发布、互动管理等复合任务时触发。
+  当用户要求小红书竞品分析、对标分析、图文内容调研时触发。
 
-  '
+  视频内容请使用 viral-chaser 技能。'
 metadata:
   openclaw:
     emoji: 📊
+    requires:
+      bins:
+      - python3
+      - node
 ---
 
-# 小红书复合内容运营技能
+# 小红书图文内容调研与对标分析
 
- 用于代替用户在小红书（xhs）平台上完成多步骤组合的运营任务。
+用于搜索小红书图文笔记、下载图片和正文、进行竞品对标分析。
 
-## 技能依赖
+**⚠️ 本技能仅处理图文笔记**。视频笔记请使用 **viral-chaser** 技能。
 
-本技能组合两个底层技能：
-- **browser**（数据采集）：浏览小红书搜索页、笔记详情、用户主页
-- **xhs-interact**（社交互动）：评论、点赞、收藏
+---
+
+## 技能边界
+
+| 能力 | 本技能 | 其他技能 |
+|------|--------|---------|
+| 搜索/浏览小红书 | ✅ browser | — |
+| 图文笔记下载与分析 | ✅ 脚本 | — |
+| 视频笔记下载与分析 | ❌ | → viral-chaser |
+| 发布笔记 | ❌ | → xhs-publish |
+| 评论/点赞/收藏 | ❌ | → xhs-interact |
+
+---
 
 ## ⚙️ 执行方式（强制）
 
@@ -36,119 +50,170 @@ metadata:
 | 笔记详情 | `https://www.xiaohongshu.com/explore/{feed_id}?xsec_token={token}&xsec_source=pc_feed` |
 | 用户主页 | `https://www.xiaohongshu.com/user/profile/{user_id}` |
 
-**提取 feed_id 和 xsec_token**：打开笔记页面后，从浏览器地址栏 URL 中读取：
-- `feed_id` = `/explore/` 后面的路径段（如 `64abc123def456`）
-- `xsec_token` = URL 参数 `xsec_token` 的值
+**提取 feed_id 和 xsec_token**：打开笔记页面后，从浏览器地址栏 URL 中读取。
 
 ---
 
-## 输入判断
+## 使用场景
 
-1. 用户要求"竞品分析 / 分析竞品 / 对比笔记"：执行**竞品分析流程**。
-2. 用户要求"热点追踪 / 热门话题 / 趋势分析"：执行**热点追踪流程**。
-3. 用户要求"创作发布 / 研究话题后发布 / 一键创作"：执行**内容创作流程**。
-4. 用户要求"互动管理 / 批量互动 / 评论策略"：执行**互动管理流程**。
+### 场景 A：用户提供小红书帖子 URL
 
-## 必做约束
+用户直接给出一个或多个小红书图文笔记 URL（含 `xhslink.com/o/xxx` 短链），下载并分析。
 
-- 复合流程中每一步都应向用户报告进度。
-- 评论类操作使用 xhs-interact 技能。
-- **控制整体频率**：分批、间隔执行，不要一次性处理大量任务。
-- 所有数据分析结果使用 markdown 表格结构化呈现。
+```
+1. 直接把 URL 传给脚本，脚本内部解析短链、提取 note_id 和 xsec_token：
+   ./skills/xhs-content-ops/scripts/fetch_note_content.sh --url <url> --output-dir campaign_assets/<slug>/
+2. 读取下载的图片和正文，执行对标分析
+```
 
----
+`--output-dir` 必须是工作区相对路径（如 `campaign_assets/<slug>/`），不要用 `/tmp`——否则后续 image 工具读不到图片。
 
-## 竞品分析
+若已单独拿到 note_id（例如从搜索结果 snapshot 里读的），也可用 `--note-id`，此时如同时有 `xsec_token` 请一并传 `--xsec-token` / `--xsec-source`，否则部分笔记 feed API 会返回 `note_card not found`。
 
-目标：搜索竞品笔记 → 阅读详情 → 整理分析报告。
+### 场景 B：用户要求调研某话题
+
+用户给出关键词，搜索小红书找到代表性图文笔记，下载并分析。
 
 ```
 1. 导航到搜索页，按"最多点赞"排序
    URL: https://www.xiaohongshu.com/search_result?keyword=目标关键词
-2. Snapshot 获取搜索结果列表，记录前 5-10 篇高互动笔记的标题、点赞数、URL
-3. 逐一打开 3-5 篇笔记，snapshot 读取完整正文、标签、评论数、收藏数
-4. 整理分析报告（markdown 表格）：
-   - 标题风格分析
-   - 正文结构（开头/中间/结尾）
-   - 话题标签使用
-   - 互动数据对比（点赞/评论/收藏）
-   - 共性特征和差异化策略
+2. Snapshot 获取搜索结果列表，选取前 3-5 篇高互动图文笔记
+3. 对每篇笔记，提取 note_id，运行图文下载脚本
+4. 汇总所有下载内容，执行竞品对标分析
+```
+
+### 场景 C：用户要求对标分析
+
+用户要求将自己的内容与小红书上的内容做对标。
+
+```
+1. 搜索目标关键词，找到 3-5 篇代表性图文笔记
+2. 下载图片和正文
+3. 与用户提供的内容逐项对标：
+   - 标题风格对比
+   - 正文结构对比
+   - 话题标签使用对比
+   - 图片构图/风格对比
+   - 互动数据对比
+4. 输出对标报告和改进建议
 ```
 
 ---
 
-## 热点追踪
+## 图文下载脚本
 
-目标：搜索热门关键词 → 分析趋势 → 提供选题建议。
+### 前置条件
 
+1. 执行 `login-manager check xhs-browse` 确认登录态有效（exit 0）
+2. 若 exit 2，按 login-manager 流程完成浏览器扫码登录
+3. 确保 `xhshow>=0.2.0` 已安装：`pip install xhshow`
+
+### 运行
+
+```bash
+# 推荐：直接传 URL（支持 xhslink.com 短链和完整 explore 链接，脚本自动解析 note_id + xsec_token）
+./skills/xhs-content-ops/scripts/fetch_note_content.sh \
+  --url <url> \
+  --output-dir <output_dir>
+
+# 或：已拿到 note-id 时（若有 xsec_token 一并传，否则部分笔记会 note_card not found）
+./skills/xhs-content-ops/scripts/fetch_note_content.sh \
+  --note-id <note_id> \
+  --xsec-token <token> \
+  --xsec-source <source> \
+  --output-dir <output_dir>
 ```
-1. 按最新排序，观察近期热度：
-   URL: https://www.xiaohongshu.com/search_result?keyword=关键词（页面切换"最新"Tab）
-2. 按最多点赞，找爆款：
-   URL: https://www.xiaohongshu.com/search_result?keyword=关键词（页面切换"最热"Tab）
-3. Snapshot 读取结果，提炼：
-   - 近期高频话题和关键词
-   - 爆款内容的共同特征
-   - 选题建议
+
+> **⚠️ `--output-dir` 必须用工作区相对路径**（如 `campaign_assets/<slug>/`），**不要用 `/tmp`**。后续要用 image 工具读取下载的图片做视觉分析，而 image 工具只能读允许目录（工作区）下的文件，`/tmp` 下的图片会被拒绝（`Local media path is not under an allowed directory`），导致整轮分析白跑、还要重跑一次。
+
+**参数：**
+
+| 参数 | 必填 | 说明 |
+|------|------|------|
+| `--url` | 二选一 | 笔记 URL（`xhslink.com` 短链或 `xiaohongshu.com/explore/...` 完整链接），脚本自动解析 note_id + xsec_token |
+| `--note-id` | 二选一 | 小红书笔记 ID（与 `--url` 二选一） |
+| `--xsec-token` | 否 | xsec_token（用 `--note-id` 时若同时有 token 建议传；用 `--url` 时脚本自动提取） |
+| `--xsec-source` | 否 | xsec_source，默认 `pc_feed` |
+| `--output-dir` | 是 | 输出目录，**必须工作区相对路径**（如 `campaign_assets/<slug>/`），图片和正文保存到此 |
+
+**输出：** JSON 到 stdout
+
+```json
+{
+  "ok": true,
+  "noteId": "xxx",
+  "noteType": "normal",
+  "title": "笔记标题",
+  "desc": "正文内容",
+  "author": "作者昵称",
+  "stats": { "likeCount": 100, "collectCount": 50, "commentCount": 20, "shareCount": 10 },
+  "images": ["output_dir/img_00.jpg", "output_dir/img_01.jpg"],
+  "coverUrl": "https://...",
+  "tags": ["话题1", "话题2"]
+}
+```
+
+**Exit codes：**
+- `0` — 成功
+- `1` — 一般错误
+- `2` — Cookie 无效 → 触发 login-manager 重新登录
+
+### ⚠️ 视频笔记处理
+
+如果目标笔记是视频类型（`noteType: "video"`），脚本会返回错误并提示使用 viral-chaser：
+
+```json
+{
+  "ok": false,
+  "error": "VIDEO_NOTE",
+  "noteId": "xxx",
+  "noteType": "video",
+  "hint": "请使用 viral-chaser 技能下载和分析视频笔记"
+}
 ```
 
 ---
 
-## 内容创作发布
+## 分析框架
 
-目标：研究话题 → 辅助生成草稿 → 用户确认 → 发布。
+### 竞品对标分析
 
-```
-1. 搜索参考内容（按最多点赞）
-2. 打开 2-3 篇参考笔记，读取正文、标签结构
-3. 基于分析生成草稿（标题 ≤20 字，正文 ≤1000 字，加话题标签）
-4. 通过 AskUserQuestion 确认草稿
-```
+对下载的图文笔记逐项分析：
+
+| 维度 | 分析内容 |
+|------|---------|
+| 标题 | 字数、风格（提问/陈述/数字/痛点）、是否含话题标签 |
+| 正文 | 结构（开头钩子→价值传递→CTA）、字数、段落数、话题标签数 |
+| 图片 | 数量、构图类型（产品展示/场景/文字卡片/对比图）、色调风格 |
+| 互动 | 点赞/收藏/评论/分享比例，收藏率（收藏/点赞）反映内容价值 |
+| 话题 | 标签数量、是否覆盖核心场景词和人群词 |
+
+### 改进建议
+
+基于对标结果，给出 3-5 条可直接落地的改进建议。
 
 ---
 
-## 互动管理
+## 必做约束
 
-目标：浏览目标笔记 → 有策略地评论/点赞/收藏。
-
-```
-1. 搜索目标笔记（按最新排序）
-2. 打开笔记，从地址栏提取 feed_id 和 xsec_token
-3. 按照 xhs-interact 流程，通过 browser 工具完成评论/点赞/收藏
-4. 每次互动之间保持 30-60 秒间隔，每天评论不超过 20 条
-```
+- 复合流程中每一步都应向用户报告进度
+- **控制频率**：搜索翻页间隔 3-5 秒，下载间隔 5-10 秒
+- 所有分析结果使用 markdown 表格结构化呈现
+- **仅处理图文笔记**：遇到视频笔记，提示用户使用 viral-chaser
 
 ---
 
 ## 运营建议
 
-- **竞品分析频率**：每周 1-2 次，跟踪竞品动态。
-- **热点追踪频率**：每天 1 次，抓住时效性内容。
-- **发布时间**：工作日 12:00-13:00、18:00-21:00 为高峰时段。
-- **内容合规**：不得出现引流导流信息，不得搬运他人内容。
+- **调研频率**：每周 1-2 次，跟踪竞品动态
+- **发布时间**：工作日 12:00-13:00、18:00-21:00 为高峰时段
+- **内容合规**：不得出现引流导流信息，不得搬运他人内容
 
 ## 失败处理
 
-- **搜索页面出现登录墙**：遵循 browser-guide 第 6 节 QR 登录流程，扫码后重试。
-- **笔记无法访问**：该笔记可能已删除或设为私密，跳过。
-- **发布失败**：参考 xhs-publish 的失败处理。
-- **互动失败**：参考 xhs-interact 的失败处理。
-
-## 发布记录（强制）
-
-发布成功后，**必须**立即调用 `published-track` 技能记录发布信息：
-
-```bash
-./skills/published-track/scripts/record.sh \
-  --platform xhs \
-  --title "标题" \
-  --content-type post \
-  --source-folder "<原始文件夹路径>" \
-  --publish-url "<发布URL>" \
-  --publish-date "$(date +%Y-%m-%d)"
-```
-
-`--source-folder` 为原始内容所在的相对路径（如 `output_articles/xxx` 或 `output_videos/xxx`）。
-`--publish-url` 为发布后获得的 URL，若发布失败则留空并在 `--notes` 中注明原因。
-
-执行 `./skills/published-track/scripts/init-db.sh`（幂等，重复执行无副作用）。
+| 情况 | 处理 |
+|------|------|
+| 搜索页面出现登录墙 | 遵循 browser-guide QR 登录流程，扫码后重试 |
+| 笔记无法访问 | 该笔记可能已删除或设为私密，跳过 |
+| Cookie 过期 (exit 2) | login-manager 重新登录后重试一次 |
+| 视频笔记 | 提示用户使用 viral-chaser 技能 |

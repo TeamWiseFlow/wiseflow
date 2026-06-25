@@ -26,6 +26,8 @@ metadata:
 
 **主题选择（未指定时按内容匹配）：**
 
+> 自定义主题说明：`generate-wenyan-theme` 生成的用户自定义 CSS 会注册到下表。若用户明确指定参考某个自定义主题，必须优先采用该主题；未指定时才按内容在内置主题和已注册自定义主题中匹配。
+
 | 主题 ID | 风格描述 | 适用场景 |
 |---------|---------|---------|
 | `default` | 简洁经典 | 资讯、通知、简讯 |
@@ -36,6 +38,7 @@ metadata:
 | `maize` | 淡雅玉米黄 | 健康生活、美食、户外 |
 | `rainbow` | 多彩活泼 | 亲子、宠物、娱乐 |
 | `phycat` | 薄荷清爽 | 科普、知识型内容 |
+| `<custom-theme>` | 用户自定义主题占位（由 `generate-wenyan-theme` 生成后更新，文件：`<custom-theme>.css`） | 用户明确指定参考该主题时优先采用；相似内容可优先建议 |
 
 **智能选择决策树**（用户未指定主题时）：
 
@@ -135,22 +138,3 @@ image_list:
 - publish 成功后会输出草稿 `media_id`，可在公众号后台找到对应草稿
 - 本 skill 只负责推送草稿，正式发布仍需在公众号后台手动操作
 - 支持 Mermaid 图表语法，在 Markdown 中使用 mermaid 代码块即可自动渲染为图片
-
-## 发布记录（强制）
-
-发布成功后，**必须**立即调用 `published-track` 技能记录发布信息：
-
-```bash
-./skills/published-track/scripts/record.sh \
-  --platform wx_mp \
-  --title "标题" \
-  --content-type article \
-  --source-folder "<原始文件夹路径>" \
-  --publish-url "<发布URL>" \
-  --publish-date "$(date +%Y-%m-%d)"
-```
-
-`--source-folder` 为原始内容所在的相对路径（如 `output_articles/xxx` 或 `output_videos/xxx`）。
-`--publish-url` 为发布后获得的 URL，若发布失败则留空并在 `--notes` 中注明原因。
-
-执行 `./skills/published-track/scripts/init-db.sh`（幂等，重复执行无副作用）。

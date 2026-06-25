@@ -33,8 +33,9 @@ CHUNK_DURATION = 300  # 5 min per ASR chunk
 DEFAULT_COUNT = 3
 DEFAULT_BUFFER = 3.0
 DEFAULT_CLIP_MIN = 15
-DEFAULT_CLIP_MAX = 60
-MIN_HIGHLIGHT_GAP = 30  # min seconds between highlight starts
+DEFAULT_CLIP_MAX = 58
+MIN_HIGHLIGHT_GAP = 3   # min seconds between highlight starts (just dedup, merging handles proximity)
+MERGE_GAP = 10.0        # merge highlights within this gap (seconds)
 
 SAFE_OUTPUT_DIRS = (Path("output_videos"), Path("tmp"))
 
@@ -299,19 +300,67 @@ def select_highlights(segments: list[dict], count: int) -> list[dict]:
     return selected
 
 
+def merge_nearby_highlights(highlights: list[dict], gap_threshold: float = MERGE_GAP) -> list[dict]:
+    """Merge highlights within gap_threshold of each other. No duration limit on merged clips."""
+    if not highlights:
+        return []
+    sorted_hl = sorted(highlights, key=lambda s: s.get("start", 0))
+    merged: list[dict] = [dict(sorted_hl[0])]
+    for seg in sorted_hl[1:]:
+        prev = merged[-1]
+        prev_end = prev.get("end", 0)
+        curr_start = seg.get("start", 0)
+        if curr_start - prev_end <= gap_threshold:
+            merged[-1] = {
+                "start": prev.get("start", 0),
+                "end": max(prev_end, seg.get("end", 0)),
+                "text": prev.get("text", "") + " " + seg.get("text", ""),
+                "highlight_score": max(prev.get("highlight_score", 0), seg.get("highlight_score", 0)),
+            }
+        else:
+            merged.append(dict(seg))
+    return merged
+
+
 # ── Video clipping ──────────────────────────────────────────────────────
 
 def determine_clip_bounds(seg: dict, video_duration: float,
                           buffer: float, clip_min: float, clip_max: float) -> tuple[float, float]:
+    """Determine clip bounds with expansion for short segments and no truncation for merged long ones.
+
+    - Short segment (duration < clip_max): expand to fill clip_max, centered on segment.
+    - Long/merged segment (duration >= clip_max): use full range + buffer, never truncate.
+    """
     seg_start = seg.get("start", 0)
     seg_end = seg.get("end", 0)
     seg_duration = seg_end - seg_start
-    target = max(seg_duration + buffer * 2, clip_min)
-    target = min(target, clip_max)
-    clip_start = max(seg_start - buffer, 0)
-    clip_end = min(clip_start + target, video_duration)
-    if clip_end - clip_start < clip_min:
-        clip_start = max(clip_end - target, 0)
+
+    if seg_duration >= clip_max:
+        # Merged/long segment — use full range + buffer, never truncate
+        clip_start = max(seg_start - buffer, 0)
+        clip_end = min(seg_end + buffer, video_duration)
+    else:
+        # Short segment — expand to fill clip_max, centered on segment
+        seg_center = (seg_start + seg_end) / 2
+        ideal_start = seg_center - clip_max / 2
+        ideal_end = seg_center + clip_max / 2
+
+        if ideal_start < 0:
+            clip_start = 0.0
+            clip_end = min(clip_max, video_duration)
+        elif ideal_end > video_duration:
+            clip_end = video_duration
+            clip_start = max(video_duration - clip_max, 0.0)
+        else:
+            clip_start = ideal_start
+            clip_end = ideal_end
+
+        # Guarantee the segment is fully inside the clip
+        if clip_start > seg_start:
+            clip_start = seg_start
+        if clip_end < seg_end:
+            clip_end = seg_end
+
     return round(clip_start, 2), round(clip_end, 2)
 
 
@@ -389,7 +438,15 @@ def main() -> None:
         if not highlights:
             die("No suitable highlights found")
 
-        print(f"[info] Selected {len(highlights)} highlights")
+        print(f"[info] Selected {len(highlights)} candidate highlights")
+
+        # Merge nearby highlights into longer clips (no duration limit)
+        pre_merge_count = len(highlights)
+        highlights = merge_nearby_highlights(highlights)
+        if len(highlights) < pre_merge_count:
+            print(f"[info] Merged into {len(highlights)} clips ({pre_merge_count - len(highlights)} merges)")
+        else:
+            print("[info] No merges needed — highlights are well separated")
 
         highlights_info = []
         for i, hl in enumerate(highlights, 1):

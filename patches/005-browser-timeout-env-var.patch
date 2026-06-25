@@ -1,8 +1,8 @@
 diff --git a/extensions/browser/src/browser/act-policy.ts b/extensions/browser/src/browser/act-policy.ts
-index b372d2ff95..81dd1977eb 100644
+index cfc81b4318..e8bffdbd16 100644
 --- a/extensions/browser/src/browser/act-policy.ts
 +++ b/extensions/browser/src/browser/act-policy.ts
-@@ -5,11 +5,18 @@ export const ACT_MAX_WAIT_TIME_MS = 30_000;
+@@ -16,11 +16,18 @@ export const ACT_MAX_WAIT_TIME_MS = 30_000;
  export const ACT_MAX_VIEWPORT_DIMENSION = 8192;
  
  const ACT_MIN_TIMEOUT_MS = 500;
@@ -23,9 +23,9 @@ index b372d2ff95..81dd1977eb 100644
  export function normalizeActBoundedNonNegativeMs(
    value: number | undefined,
    fieldName: string,
-@@ -29,17 +36,19 @@ export function normalizeActBoundedNonNegativeMs(
- }
+@@ -41,18 +48,20 @@ export function normalizeActBoundedNonNegativeMs(
  
+ /** Clamp interaction actions to the supported browser-control timeout window. */
  export function resolveActInteractionTimeoutMs(timeoutMs?: number): number {
 +  const defaultMs = resolveEnvBrowserTimeoutMs() ?? ACT_DEFAULT_INTERACTION_TIMEOUT_MS;
    const normalized =
@@ -36,6 +36,7 @@ index b372d2ff95..81dd1977eb 100644
    return Math.max(ACT_MIN_TIMEOUT_MS, Math.min(ACT_MAX_INTERACTION_TIMEOUT_MS, normalized));
  }
  
+ /** Clamp wait actions to their wider supported browser-control timeout window. */
  export function resolveActWaitTimeoutMs(timeoutMs?: number): number {
 +  const defaultMs = resolveEnvBrowserTimeoutMs() ?? ACT_DEFAULT_WAIT_TIMEOUT_MS;
    const normalized =
@@ -46,10 +47,10 @@ index b372d2ff95..81dd1977eb 100644
    return Math.max(ACT_MIN_TIMEOUT_MS, Math.min(ACT_MAX_WAIT_TIMEOUT_MS, normalized));
  }
 diff --git a/extensions/browser/src/node-host/invoke-browser.ts b/extensions/browser/src/node-host/invoke-browser.ts
-index e2a9567817..496dd2c249 100644
+index ec19f00523..dc54cbee36 100644
 --- a/extensions/browser/src/node-host/invoke-browser.ts
 +++ b/extensions/browser/src/node-host/invoke-browser.ts
-@@ -40,6 +40,13 @@ const BROWSER_PROXY_MAX_FILE_BYTES = 10 * 1024 * 1024;
+@@ -45,6 +45,13 @@ const BROWSER_PROXY_MAX_FILE_BYTES = 10 * 1024 * 1024;
  const DEFAULT_BROWSER_PROXY_TIMEOUT_MS = 20_000;
  const BROWSER_PROXY_STATUS_TIMEOUT_MS = 750;
  
@@ -63,15 +64,13 @@ index e2a9567817..496dd2c249 100644
  function normalizeProfileAllowlist(raw?: string[]): string[] {
    return Array.isArray(raw) ? normalizeStringEntries(raw) : [];
  }
-@@ -136,9 +143,10 @@ function decodeParams<T>(raw?: string | null): T {
+@@ -142,7 +149,8 @@ function decodeParams<T>(raw?: string | null): T {
  }
  
  function resolveBrowserProxyTimeout(timeoutMs?: number): number {
+-  return resolveTimerTimeoutMs(timeoutMs, DEFAULT_BROWSER_PROXY_TIMEOUT_MS);
 +  const defaultMs = resolveEnvBrowserTimeoutMs() ?? DEFAULT_BROWSER_PROXY_TIMEOUT_MS;
-   return typeof timeoutMs === "number" && Number.isFinite(timeoutMs)
-     ? Math.max(1, Math.floor(timeoutMs))
--    : DEFAULT_BROWSER_PROXY_TIMEOUT_MS;
-+    : defaultMs;
++  return resolveTimerTimeoutMs(timeoutMs, defaultMs);
  }
  
  function isBrowserProxyTimeoutError(err: unknown): boolean {
