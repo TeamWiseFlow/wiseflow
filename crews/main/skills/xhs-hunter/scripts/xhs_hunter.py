@@ -198,7 +198,7 @@ def check_login() -> int:
     with session_lock():
         auth = load_auth()
         try:
-            from apis.xhs_pc_apis import XHS_Apis
+            from xhs_utils.xhs_pc.api import XHS_Apis
 
             success, message, response = XHS_Apis(auth).get_user_me()
             if success:
@@ -215,7 +215,7 @@ def check_login() -> int:
 
 
 def _methods() -> dict:
-    from apis.xhs_pc_apis import XHS_Apis
+    from xhs_utils.xhs_pc.api import XHS_Apis
 
     return {
         name: member for name, member in inspect.getmembers(XHS_Apis)
@@ -230,7 +230,7 @@ def call_method(name: str, args: list | None = None, kwargs: dict | None = None)
     with session_lock():
         auth = load_auth()
         try:
-            from apis.xhs_pc_apis import XHS_Apis
+            from xhs_utils.xhs_pc.api import XHS_Apis
 
             result = getattr(XHS_Apis(auth), name)(*(args or []), **(kwargs or {}))
             save_auth(auth)
@@ -260,7 +260,7 @@ def bounded_user_notes(user_url: str, count: int) -> dict:
     with session_lock():
         auth = load_auth()
         try:
-            from apis.xhs_pc_apis import XHS_Apis
+            from xhs_utils.xhs_pc.api import XHS_Apis
 
             api = XHS_Apis(auth)
             for _ in range(min(10, (count + 19) // 20 + 1)):
@@ -286,7 +286,7 @@ def bounded_feed(category: str, count: int) -> dict:
     with session_lock():
         auth = load_auth()
         try:
-            from apis.xhs_pc_apis import XHS_Apis
+            from xhs_utils.xhs_pc.api import XHS_Apis
 
             api = XHS_Apis(auth)
             for _ in range(min(10, (count + 19) // 20 + 1)):
@@ -483,7 +483,7 @@ def collect(source: str, target: str, *, count: int, output_dir: str,
     with session_lock():
         auth = load_auth()
         try:
-            from apis.xhs_pc_apis import XHS_Apis
+            from xhs_utils.xhs_pc.api import XHS_Apis
 
             api = XHS_Apis(auth)
             for index, input_url in enumerate(urls, 1):

@@ -316,7 +316,7 @@ class XHSPcAuth(XHSAuth):
         )
         # Resolve the authenticated user id immediately so every business
         # API can be used without a second manual bootstrap step.
-        from apis.xhs_pc_apis import XHS_Apis
+        from .api import XHS_Apis
         XHS_Apis(auth).bootstrap()
         return auth
 
@@ -333,7 +333,7 @@ class XHSPcAuth(XHSAuth):
         The QR is rendered locally and scanned with the XHS mobile app. No web
         browser, browser Cookie export, or browser JavaScript execution is used.
         """
-        from apis.xhs_pc_login_apis import XHSLoginApi
+        from .login import XHSLoginApi
 
         http_client = http_client or PcHttpClient(proxies=proxies)
         login = XHSLoginApi(
@@ -357,7 +357,7 @@ class XHSPcAuth(XHSAuth):
             profile=login.profile,
             _factory_token=_AUTH_FACTORY_TOKEN,
         )
-        from apis.xhs_pc_apis import XHS_Apis
+        from .api import XHS_Apis
         XHS_Apis(auth).bootstrap()
         return auth
 
@@ -369,7 +369,7 @@ class XHSPcAuth(XHSAuth):
         http_client: Optional[PcHttpClient] = None,
     ) -> 'XHSPcAuth':
         """Login through the local SMS API flow without using a browser."""
-        from apis.xhs_pc_login_apis import XHSLoginApi
+        from .login import XHSLoginApi
 
         http_client = http_client or PcHttpClient(proxies=proxies)
         login = XHSLoginApi(
@@ -391,7 +391,7 @@ class XHSPcAuth(XHSAuth):
             profile=login.profile,
             _factory_token=_AUTH_FACTORY_TOKEN,
         )
-        from apis.xhs_pc_apis import XHS_Apis
+        from .api import XHS_Apis
         XHS_Apis(auth).bootstrap()
         return auth
 
