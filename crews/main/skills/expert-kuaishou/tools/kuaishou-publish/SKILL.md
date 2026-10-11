@@ -11,11 +11,11 @@ description: 快手内容发布：脚本预览、媒体上传、提交结果保�
 `kuaishou-publish methods` 返回支持参数及取值。
 
 ```bash
-kuaishou-publish publish --text "简介" --image /绝对路径/image.jpg --source-folder /绝对路径/kuaishou/outputs/作品 --account default
-kuaishou-publish publish --text "简介" --image /绝对路径/image.jpg --source-folder /绝对路径/kuaishou/outputs/作品 --account default --confirm
+kuaishou-publish publish --text @/绝对路径/body.txt --image /绝对路径/image.jpg --source-folder /绝对路径/kuaishou/outputs/作品 --account default
+kuaishou-publish publish --text @/绝对路径/body.txt --image /绝对路径/image.jpg --source-folder /绝对路径/kuaishou/outputs/作品 --account default --confirm
 ```
 
-默认只预览，不访问平台。`--text @/绝对路径/content.md` 读取正文文件；媒体用真实本地文件。`--record-title` 可指定记录标题。视频与图集二选一；图集 1–31 张、每张不超过 15MB，可见范围 public/private/friends。没有 --cover/--mention/--poi 等选项。私密图集接口有平台验证记录；没有自动删除接口。
+默认只预览，不访问平台。多行正文先保存为 UTF-8 纯正文文件，用 `--text @/绝对路径/body.txt` 由脚本读取；不要用 `$(cat ...)` 或将多行文案拼进命令。路径含空格时给整个 `@路径` 参数加引号；文件只放正文和话题。媒体用真实本地文件。`--record-title` 可指定记录标题。视频与图集二选一；图集 1–31 张、每张不超过 15MB，可见范围 public/private/friends。没有 --cover/--mention/--poi 等选项。私密图集接口有平台验证记录；没有自动删除接口。
 
 视频接口目前仅覆盖空简介、仅自己可见、立即发布的分支，已实号确认可提交并进入审核。审核通过与实际可见仍须分别核查。只在已有私密发布授权时使用：
 

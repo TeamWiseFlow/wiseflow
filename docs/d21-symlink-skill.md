@@ -148,7 +148,7 @@ login-manager check douyin   # wrapper 在 PATH 中
 | icp-filing | scripts/icp.sh | wrapper → sh |
 | exp-invite | scripts/invite.sh | wrapper → sh |
 | proactive-send | scripts/send.sh | wrapper → sh → mjs |
-| douyin-video-publish | scripts/publish_douyin.sh | wrapper → sh → py（scripts 里已有内部 wrapper，顶层只多一跳）|
+| douyin-publish | scripts/douyin_publish.py | wrapper → py；视频/图文与分步操作均由此入口调度 |
 | twitter-interact | scripts/twitter_interact.sh | wrapper → sh → py |
 | wx-mp-engagement | scripts/wx-mp-engagement.sh | wrapper → sh → py |
 | wx-mp-hunter | scripts/wx-mp-hunter.sh | wrapper → sh → ts |
@@ -253,6 +253,8 @@ dev plan §Phase 7 续 写"验收"：
 ## 八、本轮交付（2026-07-14）—— wrapper 去重 + SKILL.md 示例 PATH 化
 
 > 背景：2026-07-12 落地 30 个 B 类薄 wrapper 后，发现两个遗留问题：① 部分 skill 的顶层 wrapper 与 `scripts/` 下的"解释器引导壳"重复转发（多一跳无收益）② 多数已配 wrapper 的 skill 的 SKILL.md 示例仍写旧路径风格（`python3 /abs/path/xxx.py`、`node ./skills/.../xxx.js`），agent 照抄就不用 PATH 上的 wrapper，wrapper 形同虚设。本轮统一治理。
+
+以下保留当时的迁移记录。当前抖音发布工具位于 `crews/main/skills/expert-douyin/tools/douyin-publish/`，只暴露 `douyin-publish`；原视频/图文 wrapper 已移除，安装器会清理其悬挂软链。
 
 ### 8.1 顶层 wrapper 与 scripts 引导壳去重（4 个 skill）
 

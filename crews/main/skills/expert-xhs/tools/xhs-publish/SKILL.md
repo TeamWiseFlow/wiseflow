@@ -23,12 +23,14 @@ description: 通过 Creator 本地 HTTP 会话发布小红书图文和视频笔�
 ## 发布
 
 ```bash
-xhs-publish --mode image --title "标题" --body "正文 #话题" --images /绝对路径/1.png /绝对路径/2.png
-xhs-publish --mode video --title "标题" --body "正文 #话题" --video /绝对路径/video.mp4 --cover /绝对路径/cover.jpg
+xhs-publish --mode image --title "标题" --body @/绝对路径/body.txt --images /绝对路径/1.png /绝对路径/2.png
+xhs-publish --mode video --title "标题" --body @/绝对路径/body.txt --video /绝对路径/video.mp4 --cover /绝对路径/cover.jpg
 # 笔记含 AI 合成内容时，在对应发布命令末尾加 --ai-declaration
 ```
 
-标题 1–20 字，正文 1–1000 字；图文需 1–18 张图片，视频需 `--video`。`--topics` 可补充话题，合计最多 10 个；`--private` 设为仅自己可见。笔记含 AI 合成内容时加 `--ai-declaration`，发布请求会带上创作者端的“笔记含 AI 合成内容”声明；纯实拍内容不加。正文中的 `#话题` 自动整理为 Creator 可识别的内联话题格式。`--body` 传实际文字，多行最好传真实换行；脚本也会把字面量 `\n` 归一化。
+先把已确认的纯正文和话题写入 UTF-8 `body.txt`，使用 `--body @/绝对路径/body.txt`；路径含空格时把整个参数加引号：`--body "@/绝对路径/作品目录/body.txt"`。脚本读取文件后校验长度、整理话题，保留文件中的真实换行和有意写下的 `\n`；文件缺失、不是普通文件或不是 UTF-8 时返回 `BODY_FILE_INVALID`，不提交。不要把含标题、分节说明的 `note.md` 整份作为正文，不用 `$(cat ...)` 或把多行正文拼进命令。短正文仍可直接传文字；仅此模式兼容归一化字面量 `\n`。以 `@` 开头的参数一律按文件路径处理。
+
+标题 1–20 字，正文 1–1000 字；图文需 1–18 张图片，视频需 `--video`。`--topics` 可补充话题，合计最多 10 个；`--private` 设为仅自己可见。笔记含 AI 合成内容时加 `--ai-declaration`，发布请求会带上创作者端的“笔记含 AI 合成内容”声明；纯实拍内容不加。正文中的 `#话题` 自动整理为 Creator 可识别的内联话题格式。
 
 发布前让用户确认标题、正文、图片顺序及可见性。提交成功必须同时有 `ok: true` 和 `note_id`，再记录返回的 `url`。`SUBMISSION_UNKNOWN` 或 `SUBMISSION_UNCONFIRMED` 时先到创作者后台核查，**不要自动重发**。接口明确拒绝时根据错误码处理。操作结果写入 `~/.openclaw/logs/xhs-creator-observe.jsonl`，不含正文或 Cookie。
 

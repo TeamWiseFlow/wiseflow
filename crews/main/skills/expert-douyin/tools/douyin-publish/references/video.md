@@ -1,8 +1,3 @@
----
-name: douyin-video-publish
-description: 通过 Camoufox 持久化 session douyin 上传视频、真实键盘填表、设置横竖双封面、标注 AIGC、发布与短信验证续接，并核查本次作品链接。
----
-
 # 抖音视频发布
 
 前置执行 `douyin-publish check`，未登录用 `douyin-publish login` 完成登录。登录态只留在 Camoufox profile，不使用 login-manager 或 hunter 的 API 会话。
@@ -10,8 +5,10 @@ description: 通过 Camoufox 持久化 session douyin 上传视频、真实键�
 完整流程优先使用统一入口预览，已有发布授权时加 `--confirm`：
 
 ```bash
-douyin-publish video --video /绝对路径/video.mp4 --title "标题" --caption "简介 #话题" --cover-vertical /绝对路径/cover-vertical.jpg --cover-horizontal /绝对路径/cover-horizontal.jpg
+douyin-publish video --video /绝对路径/video.mp4 --title "标题" --caption @/绝对路径/body.txt --cover-vertical /绝对路径/cover-vertical.jpg --cover-horizontal /绝对路径/cover-horizontal.jpg
 ```
+
+统一入口及分步 `fill/run` 的 `--caption` 均支持 `@UTF-8文件路径`。先保存纯正文和话题，再传 `--caption @/绝对路径/body.txt`；文件读取失败时在浏览器操作前停止，不把多行正文拼进命令。
 
 必须提供竖封面和横封面。按 **3:4 竖封面 + 4:3 横封面**制作，两张都要核对；关键文字避开四周 15% 边缘区。比例不符时脚本等比缩放、补浅灰底，保留完整内容；不要居中裁切导致边缘文字缺失。补底不能代替平台的文字安全区检测，出现 `COVER_TEXT_UNSAFE` 时修改封面后再设置。
 
@@ -23,17 +20,17 @@ douyin-publish video --video /绝对路径/video.mp4 --title "标题" --caption 
 
 | 操作 | 命令 |
 |---|---|
-| 打开上传页 | `douyin-video-publish open-page` |
-| 上传视频并等待就绪 | `douyin-video-publish upload --video /绝对路径/video.mp4` |
-| 续编未提交草稿 | `douyin-video-publish edit-draft` |
-| 在当前草稿补传缺失视频 | `douyin-video-publish upload --resume-draft --video /绝对路径/video.mp4` |
-| 填表和声明 | `douyin-video-publish fill --title "标题" --caption "简介 #话题"` |
-| 上传并保存双封面 | `douyin-video-publish cover --cover-vertical /绝对路径/vertical.jpg --cover-horizontal /绝对路径/horizontal.jpg` |
-| 检查当前页面与任务 | `douyin-video-publish status` |
-| 校验后实际提交 | `douyin-video-publish publish` |
-| 核查本次提交结果 | `douyin-video-publish resume` 或 `douyin-video-publish get-link` |
+| 打开上传页 | `douyin-publish video open-page` |
+| 上传视频并等待就绪 | `douyin-publish video upload --video /绝对路径/video.mp4` |
+| 续编未提交草稿 | `douyin-publish video edit-draft` |
+| 在当前草稿补传缺失视频 | `douyin-publish video upload --resume-draft --video /绝对路径/video.mp4` |
+| 填表和声明 | `douyin-publish video fill --title "标题" --caption @/绝对路径/body.txt` |
+| 上传并保存双封面 | `douyin-publish video cover --cover-vertical /绝对路径/vertical.jpg --cover-horizontal /绝对路径/horizontal.jpg` |
+| 检查当前页面与任务 | `douyin-publish video status` |
+| 校验后实际提交 | `douyin-publish video publish --confirm` |
+| 核查本次提交结果 | `douyin-publish video resume` 或 `douyin-publish video get-link` |
 
-`publish` 和 `run` 会实际发布，先核对账号、成片、双封面及文案并取得授权。共享持久化 session `douyin`，不改 session 名，不并行发布或取数。AIGC 声明失败即停，不删除声明绕过。发现旧草稿返回 `DRAFT_PRESENT`，不自动放弃；续编前核对草稿与本次成片。
+`run` 默认只生成本地预览，`publish` 默认只提示核对当前草稿；两者只有加 `--confirm` 才实际发布。先核对账号、成片、双封面及文案；已有发布授权时继续提交。共享持久化 session `douyin`，不改 session 名，不并行发布或取数。AIGC 声明失败即停，不删除声明绕过。发现旧草稿返回 `DRAFT_PRESENT`，不自动放弃；续编前核对草稿与本次成片。
 
 补传视频可能重建表单，清空标题、简介、封面和 AIGC 声明；`upload --resume-draft` 后重新执行 `fill` 和 `cover`，再 `publish`。封面上传超时时直接续编当前页面；脚本为每次上传重新观察预览，不使用上次运行的 localStorage 图像列表。
 
@@ -41,9 +38,9 @@ douyin-publish video --video /绝对路径/video.mp4 --title "标题" --caption 
 
 返回 exit 4 / `SMS_VERIFICATION_REQUIRED` 表示本次提交等待用户验证，**没有确认发布成功**。脚本保留浏览器页面和提交上下文，不重跑 upload/run，不重复点发布，不调用 `douyin-publish check/login` 关闭或重开验证页。
 
-- 用 `douyin-video-publish verify-send` 真实点击「获取验证码」，核对页面倒计时；工具不会自动重复发送。
-- 请用户提供验证码，将其写入当前用户拥有、权限 `0600` 的普通文件；用 `douyin-video-publish verify-code --code-file /绝对路径/私有验证码文件` 真实键盘输入并点击「验证」。验证码不放命令参数、报告、记忆或 Git，使用后删除临时文件。
-- 用户也可在当前窗口完成验证，再执行 `douyin-video-publish resume`。续接只验证与核查原提交，不重新发布。
+- 用 `douyin-publish video verify-send` 真实点击「获取验证码」，核对页面倒计时；工具不会自动重复发送。
+- 请用户提供验证码，将其写入当前用户拥有、权限 `0600` 的普通文件；用 `douyin-publish video verify-code --code-file /绝对路径/私有验证码文件` 真实键盘输入并点击「验证」。验证码不放命令参数、报告、记忆或 Git，使用后删除临时文件。
+- 用户也可在当前窗口完成验证，再执行 `douyin-publish video resume`。续接只验证与核查原提交，不重新发布。
 
 exit 2 表示需要恢复登录；exit 3 / `unconfirmed` 表示结果未确认，先用 `resume/get-link` 核查原任务，再检查管理页和草稿，禁止自动重发。提交过的任务未结案时会阻止新的上传、填表和发布。
 

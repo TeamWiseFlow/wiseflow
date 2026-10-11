@@ -35,7 +35,7 @@ def publish_lock(*, allow_pending_video=False):
                 except (ValueError, OSError) as exc:
                     raise RuntimeError('抖音视频任务状态损坏，先核查原任务；不关闭其浏览器') from exc
                 if state.get('state') in {'submitted', 'awaiting_verification', 'unconfirmed'}:
-                    raise RuntimeError('抖音视频提交尚未结案，先用 douyin-video-publish resume/verify-code 核查或完成验证；保留当前浏览器')
+                    raise RuntimeError('抖音视频提交尚未结案，先用 douyin-publish video resume 或 douyin-publish video verify-code 核查或完成验证；保留当前浏览器')
             yield
         finally:
             fcntl.flock(handle, fcntl.LOCK_UN)

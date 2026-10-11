@@ -257,18 +257,23 @@ def main():
     tags = spec.get("topics", [])
     if not isinstance(tags, list) or len(tags) > 10 or any(not isinstance(t, str) or not t.strip() for t in tags):
         raise ValueError("topics 必须为最多 10 个非空话题")
-    if len(title) > 20 or len(body) + sum(len(t) + 2 for t in tags) > 1000:
+    publish_body = body + '\n'
+    body_has = set(re.findall(r"#([^\s#]+)", body))
+    missing = [t for t in tags if t.lstrip('#') not in body_has]
+    if missing:
+        publish_body += '\n' + ' '.join('#' + t.lstrip('#') for t in missing) + '\n'
+    if len(title) > 20 or len(publish_body) > 1000:
         raise ValueError("标题超过 20 字，或正文加话题超过 1000 字")
     if not isinstance(spec.get("avatar_sources", {}), dict):
         raise ValueError("avatar_sources 必须是路径到来源的对象")
     output = args.output.resolve()
     names = ["page-01"] if form == "group" else ["page-01", "page-02", "page-03"]
     targets = [output / f"{n}.{ext}" for n in names for ext in ("html", "png")]
-    targets += [output / n for n in ("note.md", "dna-meta.json", "assets-manifest.json")]
+    targets += [output / n for n in ("note.md", "body.txt", "dna-meta.json", "assets-manifest.json")]
     # card.json 是输入文件（workflow 要求先写入作品目录），不参与「已有同名作品」判断；
     # 只有真正由本工具生成的产物存在时才需要 --force 覆盖。
     if not args.force and any(p.exists() for p in targets):
-        raise ValueError("输出目录已有本工具生成的产物（page-*.png/html、note.md、dna-meta.json 或 assets-manifest.json）；修订时显式加 --force")
+        raise ValueError("输出目录已有本工具生成的产物（page-*.png/html、note.md、body.txt、dna-meta.json 或 assets-manifest.json）；修订时显式加 --force")
     chrome = find_chrome(allow_camoufox=platform != "douyin")
     session = f"native-ui-card-{os.getpid()}-{uuid.uuid4().hex[:8]}" if chrome is None else None
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -285,14 +290,8 @@ def main():
                     screenshot(chrome, path, stage / f"{name}.png")
                 else:
                     camoufox_render(session, path, stage / f"{name}.png")
-            note = f'# {title}\n\n{body}\n'
-            if tags:
-                # body 已内联话题时不重复追加；只补 body 里缺失的话题（避免 note.md 标签重复两遍）
-                body_has = set(re.findall(r"#([^\s#]+)", body))
-                missing = [t for t in tags if t.lstrip('#') not in body_has]
-                if missing:
-                    note += '\n' + ' '.join('#' + t.lstrip('#') for t in missing) + '\n'
-            (stage / "note.md").write_text(note)
+            (stage / "body.txt").write_text(publish_body, encoding='utf-8')
+            (stage / "note.md").write_text(f'# {title}\n\n{publish_body}', encoding='utf-8')
             (stage / "dna-meta.json").write_text(json.dumps({"platform": platform, "dna_id": required(spec, "dna_id"), "content_type": "post", "form": f"native-ui-{form}"}, ensure_ascii=False, indent=2) + "\n")
             shutil.copyfile(spec_path, stage / "card.json")
             (stage / "assets-manifest.json").write_text(json.dumps(avatars.manifest, ensure_ascii=False, indent=2) + "\n")
@@ -309,7 +308,7 @@ def main():
     finally:
         if session:
             subprocess.run(["camoufox-cli", "--session", session, "--json", "close"], capture_output=True, timeout=15)
-    print(json.dumps({"ok": True, "form": form, "platform": platform, "images": [str(output / f"{n}.png") for n in names], "note": str(output / "note.md")}, ensure_ascii=False))
+    print(json.dumps({"ok": True, "form": form, "platform": platform, "images": [str(output / f"{n}.png") for n in names], "note": str(output / "note.md"), "body_file": str(output / "body.txt")}, ensure_ascii=False))
 
 
 if __name__ == "__main__":

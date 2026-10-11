@@ -102,23 +102,13 @@ camoufox-cli --session wechat-channel --persistent --json upload "input[type=fil
 
 ### Step 6: 填写视频描述 + 短标题（两项都必填）
 
-**视频描述**——描述框是 `div[data-placeholder="添加描述"]`，`contenteditable` 属性为空串，aria snapshot 里**没有独立 textbox ref**（合并进「视频描述 添加描述 #话题 @视频号 短标题」一行 text），`click ref → type` 走不通。全程用 eval，四步：
+**视频描述**——描述框是 `div[data-placeholder="添加描述"]`，`contenteditable` 属性为空串，aria snapshot 里没有独立 textbox ref。先把已确认的正文、署名和话题段保存为 UTF-8 `body.txt`，保留真实换行，用 wrapper 填写：
 
+```bash
+wechat-channels-publish fill --body @/绝对路径/body.txt
 ```
-1. 聚焦（递归穿透 shadow DOM 找描述框 → scrollIntoView + focus + click）：
-   camoufox-cli --session wechat-channel --persistent --json eval "(()=>{let t=null;const walk=(r)=>{if(!r||t)return;if(r.nodeType===1){if(r.getAttribute&&r.getAttribute('data-placeholder')==='添加描述'){t=r;return;}if(r.shadowRoot)walk(r.shadowRoot);}for(const c of r.children||[])walk(c);};walk(document);if(!t)return 'not found';t.scrollIntoView({block:'center'});t.focus();t.click();return 'focused';})()"
-   - 返回 focused 才能继续；not found → 等 2 秒 wujie 初始化后重试
-   - ❌ 不要按 contenteditable='true' 过滤——该属性是空串，按 data-placeholder 定位
-2. 插正文（execCommand 在当前焦点处插入，真实触发 input 事件；话题标签直接写在描述中；约 300 字为建议值，不因字数疑虑截断文案——以页面输入框实际限制为准，插入后第 4 步 eval 校验长度）：
-   camoufox-cli --session wechat-channel --persistent --json eval "(()=>{const ok=document.execCommand('insertText',false,'<正文>');return ok?'inserted':'execCommand failed';})()"
-3. 换行 + 逐段插署名/话题标签（insertParagraph 与 insertText 交替）：
-   camoufox-cli --session wechat-channel --persistent --json eval "(()=>{document.execCommand('insertParagraph');document.execCommand('insertText',false,'<署名段>');document.execCommand('insertParagraph');document.execCommand('insertParagraph');document.execCommand('insertText',false,'<#话题标签段>');return 'done';})()"
-   - ❌ 不要把 \n 塞进 insertText 指望换行——编辑器不一定转成段落，必须 insertParagraph
-   - 引号安全：JS 串用单引号；文案内单引号写成 \'；文案含 $ 或反引号时 shell 双引号会触发替换——发布文案定稿时避免这两类字符
-4. 校验（读 innerText 长度与头尾，对照定稿文案）：
-   camoufox-cli --session wechat-channel --persistent --json eval "(()=>{let t=null;const walk=(r)=>{if(!r||t)return;if(r.nodeType===1){if(r.getAttribute&&r.getAttribute('data-placeholder')==='添加描述'){t=r;return;}if(r.shadowRoot)walk(r.shadowRoot);}for(const c of r.children||[])walk(c);};walk(document);if(!t)return 'not found';const txt=t.innerText||'';return {len:txt.length,head:txt.slice(0,40),tail:txt.slice(-60)};})()"
-   - 校验不过（缺段/串位）：重跑 1 聚焦后 execCommand('selectAll') + execCommand('delete') 清空，再从 2 重插
-```
+
+脚本读取文件后递归穿透 shadow DOM，定位唯一可见描述框，聚焦并清空旧正文，按真实换行逐段执行 `insertText` / `insertParagraph`，最后读回完整正文核验。脚本通过参数数组调用浏览器、用 JSON 编码正文，文案中的引号、`$` 和反引号无需删改，也不要把正文拼进 shell / JS 或使用 `$(cat ...)`。路径含空格时把整个 `@路径` 参数加引号。文件读取失败时不操作浏览器；返回 `ok: true` 才继续短标题和发布，编辑器缺失、不唯一或核验失败时停留在当前页。约 300 字为建议值，不据此截断，以页面实际限制为准。
 
 > **话题标签段格式（硬约束）**：标签段只能是半角 `#` + 空格分隔的 `#标签` 项，整行不得出现任何其他字符——不加前缀或分组标题（如「【三层标签】」）、不加分隔符（／、/、—、顿号）、不用全角 `＃`。混入这些字符会导致**整行标签全部不被视频号识别渲染（失效）**。DNA 的分层/分组标签策略只用于挑标签，结构标记不进正文。
 >

@@ -40,7 +40,7 @@ metadata:
 |------|------|------|
 | `douyin-style-profiler` | 生成单篇作品（视频 / 图文，`--kind`）的 DNA report，并聚合 DNA 文档与 template（视频 = Brief + 口播文案模板；图文 = 写作模板） | `douyin-style-profiler` |
 | `douyin-engagement` | 通过 Camoufox 读取本人已发作品基础与深度指标并更新发布记录 | `douyin-engagement` |
-| `douyin-publish` | Camoufox 持久化会话内的视频/图文发布与取链 | `douyin-publish` |
+| `douyin-publish` | 持久会话登录、视频/图文一键及分步发布、配乐、验证续接与取链 | `douyin-publish` |
 
 跨领域通用技能：`douyin-hunter`（搜索、作品、详情和评论采集）、`viral-chaser`（本地视频转写、关键帧与 DNA 采样）、`smart-search`（跨平台搜索）、`content-calibrator`（DNA 评估）、`published-track`（发布记录与指标库）。内容搜索、详情、评论采集和媒体下载统一调用一级技能 `douyin-hunter`。视频先由 hunter 下载，再按 `viral-chaser` 流程运行本地 analyzer；图文分析在本包 workflow 内完成。发布走 Camoufox 持久化 session `douyin`；本人取数走 HTTP 接口，仅临时复用该 profile 的 cookie/UA，登录用 `douyin-publish login`；hunter 与 expert-bd 互动独立使用 `douyin-login` API 会话。
 

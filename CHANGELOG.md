@@ -1,6 +1,10 @@
+# v5.7.4
+
+- 抖音仅保留 `douyin-publish` 对外发布入口；视频/图文执行器与分步说明收进内部，分步操作统一为 `video` / `note` 子命令。原一键简写继续可用，`run` 与 `publish` 均需 `--confirm` 才提交；一键和分步正文均支持 `--caption @UTF-8文件路径`。
+- 小红书 PC API 与登录客户端统一收敛到 `_shared/xhs_utils/xhs_pc`，hunter、BD 私信/直播及蒲公英/千帆共用一套实现；修复跨技能加载 PC 会话时缺少 API 模块的问题。
+
 # v5.7.3(2026-10-09)
 
-- 小红书 PC API 与登录客户端统一收敛到 `_shared/xhs_utils/xhs_pc`，hunter、BD 私信/直播及蒲公英/千帆共用一套实现；修复跨技能加载 PC 会话时缺少 API 模块的问题。
 - `aigc-video-gen music` 增加百炼业务空间 `fun-music-v1`：支持提示词/歌词、纯音乐、演唱性别及 MP3/WAV，同步生成后下载音频并保存 metadata；新增音乐专用选路，自动优先 MiniMax 再完整百炼业务空间，支持显式 `--platform dashscope`，火山/Agent Plan 视频凭据不触发音乐生成。
 - deck-render、通用视觉片段、片尾和字幕按系统选择默认中文字体：Windows 使用自带微软雅黑且安装器不再下载 Noto；Linux/macOS 保留 Noto Sans CJK SC。旧 Python 动效兼容入口也可读取 Windows 字体文件。
 - `expert-video` 的新视觉片段统一走 `video-producer visual-render`（HyperFrames/GSAP）；片尾改用该渲染器，拼贴 B-roll 改为独立纸片与可控时间轴，并把可选 i2v 批调收进 `video-producer`，删除独立 `collage-broll` 工具。旧 JSON 动效项目暂保留兼容入口。

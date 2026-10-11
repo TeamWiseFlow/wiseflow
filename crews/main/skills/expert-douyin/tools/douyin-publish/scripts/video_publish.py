@@ -2,7 +2,6 @@
 """Persistent creator video publication with validated inputs and resumable SMS."""
 from __future__ import annotations
 
-import argparse
 import json
 import math
 import os
@@ -13,7 +12,6 @@ import sys
 import tempfile
 import time
 import unicodedata
-from typing import Optional
 from urllib.parse import urlparse
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / '_shared'))
@@ -330,7 +328,7 @@ def cmd_upload(*, video, session=SESSION, resume_draft=False):
             raise PublishError('DRAFT_PRESENT', '用 edit-draft 继续编辑已有草稿；核实后再决定是否放弃，不自动清除')
     previous_sources = evaluate(session, "Array.from(document.querySelectorAll('video')).map(v=>v.currentSrc||v.getAttribute('src')).filter(Boolean)") or []
     browser(session).command('upload', 'input[type="file"][accept*="video"]', str(path), timeout=UPLOAD_TIMEOUT_S)
-    sys.stderr.write('[douyin-video-publish] 等待视频可播放且上传/转码结束…\n')
+    sys.stderr.write('[douyin-publish video] 等待视频可播放且上传/转码结束…\n')
     # Require stable readiness; the title form can exist before any media is uploaded.
     ready = 0
     def stable(status):
@@ -776,54 +774,12 @@ def cmd_run(*, video, title, caption='', cover_vertical, cover_horizontal):
                 pass
 
 
-def build_parser():
-    p = argparse.ArgumentParser(prog='douyin-video-publish', description=__doc__)
-    sub = p.add_subparsers(dest='cmd', required=True)
-    for name, function in [('open-page', cmd_open_page),
-                           ('publish', cmd_publish), ('get-link', cmd_get_link), ('resume', cmd_resume),
-                           ('status', cmd_status), ('verify-send', cmd_verify_send)]:
-        command = sub.add_parser(name)
-        command.add_argument('--session', default=SESSION, choices=[SESSION])
-        command.set_defaults(func=lambda a, f=function: f(session=a.session))
-    draft = sub.add_parser('edit-draft')
-    draft.add_argument('--session', default=SESSION, choices=[SESSION])
-    draft.add_argument('--confirm-unpublished', action='store_true', help='仅人工确认原提交未发布后结案并续编草稿')
-    draft.set_defaults(func=lambda a: cmd_edit_draft(session=a.session, confirm_unpublished=a.confirm_unpublished))
-    upload = sub.add_parser('upload')
-    upload.add_argument('--video', required=True)
-    upload.add_argument('--session', default=SESSION, choices=[SESSION])
-    upload.add_argument('--resume-draft', action='store_true', help='保留当前草稿页面并补传视频')
-    upload.set_defaults(func=lambda a: cmd_upload(video=a.video, session=a.session, resume_draft=a.resume_draft))
-    fill = sub.add_parser('fill')
-    fill.add_argument('--session', default=SESSION, choices=[SESSION])
-    fill.add_argument('--title', required=True)
-    fill.add_argument('--caption', default='')
-    fill.set_defaults(func=lambda a: cmd_fill(session=a.session, title=a.title, caption=a.caption))
-    for name in ('cover', 'run'):
-        command = sub.add_parser(name)
-        command.add_argument('--cover-vertical', required=True)
-        command.add_argument('--cover-horizontal', required=True)
-        if name == 'cover':
-            command.add_argument('--session', default=SESSION, choices=[SESSION])
-            command.set_defaults(func=lambda a: cmd_cover(session=a.session, cover_vertical=a.cover_vertical, cover_horizontal=a.cover_horizontal))
-        else:
-            command.add_argument('--video', required=True)
-            command.add_argument('--title', required=True)
-            command.add_argument('--caption', default='')
-            command.set_defaults(func=lambda a: cmd_run(video=a.video, title=a.title, caption=a.caption, cover_vertical=a.cover_vertical, cover_horizontal=a.cover_horizontal))
-    verify = sub.add_parser('verify-code')
-    verify.add_argument('--session', default=SESSION, choices=[SESSION])
-    verify.add_argument('--code-file', required=True)
-    verify.set_defaults(func=lambda a: cmd_verify_code(session=a.session, code_file=a.code_file))
-    return p
-
-
-def main(argv: Optional[list[str]] = None):
-    args = build_parser().parse_args(argv)
+def execute(args):
+    """Execute a validated command from the unified publication entrypoint."""
     try:
         with publish_lock(allow_pending_video=True):
             result = args.func(args)
-            if result.get('state') == 'published' and args.cmd != 'run':
+            if result.get('state') == 'published' and args.action != 'run':
                 try:
                     browser(SESSION).close()
                 except Exception:
@@ -854,6 +810,3 @@ def safe_error_state():
     except PublishError:
         return {'state': 'unconfirmed'}
 
-
-if __name__ == '__main__':
-    sys.exit(main())

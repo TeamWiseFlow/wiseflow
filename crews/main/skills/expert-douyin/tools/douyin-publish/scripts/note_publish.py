@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Publish image notes through the persistent douyin browser session."""
-import argparse
 import json
 from pathlib import Path
 import re
@@ -278,54 +277,33 @@ def publish(b, original_sound=False):
     wait_for(b, lambda: '/content/manage' in (b.eval('window.location.href') or ''), '发布后未跳转管理页，请核实后再操作')
 
 
-def build_parser():
-    p = argparse.ArgumentParser(prog='douyin-note-publish')
-    sub = p.add_subparsers(dest='cmd', required=True)
-    for cmd in ('open-page','upload','music-list','music-select','fill','publish','get-note-link','run'):
-        s = sub.add_parser(cmd)
-        s.add_argument('--headed', action='store_true')
-        if cmd in ('run','upload'):
-            s.add_argument('--images', nargs='+', required=True)
-        if cmd in ('run','fill','get-note-link'):
-            s.add_argument('--title', required=True)
-        if cmd in ('run','fill'):
-            s.add_argument('--caption', default='')
-            s.add_argument('--declaration', choices=('ai','none'), default='ai')
-        if cmd == 'music-select':
-            s.add_argument('--choice', required=True)
-        if cmd in ('publish','run'):
-            s.add_argument('--original-sound', action='store_true', required=cmd == 'run',
-                           help='明确使用原声；有配乐时必须使用分步流程')
-    return p
-
-
-def main(argv=None):
-    a = build_parser().parse_args(argv)
+def execute(a):
+    """Execute a validated command from the unified publication entrypoint."""
     b = Browser(a.headed)
     publish_attempted = False
     try:
-        if a.cmd in ('run','fill','upload'):
+        if a.action in ('run','fill','upload'):
             validate(getattr(a,'images',None), getattr(a,'title','上传'), getattr(a,'caption',''))
         with publish_lock():
             try:
-                if a.cmd == 'open-page':
+                if a.action == 'open-page':
                     b.command('open', UPLOAD_URL)
                     result = {'ok':True,'session':SESSION,'url':b.eval('window.location.href'),
                               'hint':'用页面元素判定登录态，未登录交 douyin-publish login'}
                 else:
                     result = {'ok':True,'session':SESSION}
-                    if a.cmd in ('upload','run'):
+                    if a.action in ('upload','run'):
                         upload(b,a.images)
-                    if a.cmd == 'music-list':
+                    if a.action == 'music-list':
                         result['candidates'] = list_music(b)
-                    if a.cmd == 'music-select':
+                    if a.action == 'music-select':
                         result['music'] = select_music(b,a.choice)
-                    if a.cmd in ('fill','run'):
+                    if a.action in ('fill','run'):
                         fill(b,a.title,a.caption,a.declaration)
-                    if a.cmd in ('publish','run'):
+                    if a.action in ('publish','run'):
                         publish_attempted = True
                         publish(b,a.original_sound)
-                    if a.cmd in ('get-note-link','run'):
+                    if a.action in ('get-link','run'):
                         try:
                             result = get_note_link(b,a.title)
                         except LoginRequired:
@@ -337,7 +315,7 @@ def main(argv=None):
                             return 3
                 print(json.dumps(result,ensure_ascii=False))
             finally:
-                if a.cmd in ('run','get-note-link'):
+                if a.action in ('run','get-link'):
                     try:
                         b.close()
                     except Exception as exc:
@@ -352,6 +330,3 @@ def main(argv=None):
     except Exception as exc:
         print(f'error: {exc}',file=sys.stderr)
         return 1
-
-if __name__ == '__main__':
-    sys.exit(main())

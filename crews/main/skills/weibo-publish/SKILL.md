@@ -17,11 +17,11 @@ metadata:
 `weibo-publish methods` 返回支持参数及取值。
 
 ```bash
-weibo-publish publish --text "正文" --source-folder /绝对路径/weibo/outputs/作品 --account default
-weibo-publish publish --text "正文" --source-folder /绝对路径/weibo/outputs/作品 --account default --confirm
+weibo-publish publish --text @/绝对路径/body.txt --source-folder /绝对路径/weibo/outputs/作品 --account default
+weibo-publish publish --text @/绝对路径/body.txt --source-folder /绝对路径/weibo/outputs/作品 --account default --confirm
 ```
 
-默认只预览，不访问平台。`--text @/绝对路径/content.md` 读取正文文件；媒体用真实本地文件。`--record-title` 可指定记录标题。文字、最多 15 张图片或视频；图像与视频互斥。支持 --visibility public/private/friends/fans、--topic 和 --poi-name。没有自动删除接口。文字、图文与短视频发布已有实号成功记录；更大文件的上传、其他参数组合与审核结果仍须分别核验。
+默认只预览，不访问平台。多行正文先保存为 UTF-8 纯正文文件，用 `--text @/绝对路径/body.txt` 由脚本读取；不要用 `$(cat ...)` 或将多行文案拼进命令。路径含空格时给整个 `@路径` 参数加引号；文件只放正文和话题。媒体用真实本地文件。`--record-title` 可指定记录标题。文字、最多 15 张图片或视频；图像与视频互斥。支持 --visibility public/private/friends/fans、--topic 和 --poi-name。没有自动删除接口。文字、图文与短视频发布已有实号成功记录；更大文件的上传、其他参数组合与审核结果仍须分别核验。
 
 视频发布先上传整份文件、确认上传与等待转码，再提交微博。上传请求默认最多等待 300 秒；预览的 `video_transport` 显示上传与进程总超时。慢速网络可按本次上传需要设置 `PLATFORM_API_WEIBO_VIDEO_UPLOAD_TIMEOUT_SECONDS`，只接受 30–900 的整数秒数；进程总超时为上传超时加 420 秒，默认 720 秒。确认发布时沿用预览的设置；调用工具的执行超时应大于进程总超时，并为前置校验和保存收据留余量。工具返回运行中时继续等待同一进程，不另起发布。
 
