@@ -41,6 +41,6 @@ metadata:
 
 ## 边界
 
-- 找客户 / 评论区获客 / 商业情报 -> `expert-bd`。
+- 商业情报 / 市场研究 -> `expert-osbi`；潜客探索筛选 / 评论区互动 / 客户联络 -> `expert-bd`。
 - 投资人发掘 / 融资跟进 -> `expert-ir`。
 - content-producer 启用与调整 -> AGENTS.md「crew 管理」段（不走本包）。

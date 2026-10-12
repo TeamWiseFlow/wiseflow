@@ -1,6 +1,6 @@
 # 金融
 
-> last_verified: 2026-06-15
+> 来源参考 [OpenCLI](https://github.com/jackwener/OpenCLI/blob/b06ab7780e73d3021e12e0f170086c2d55675776/clis/xueqiu/search.js)。固定 session/profile `default`，带 --persistent。
 
 ## 雪球 (Xueqiu)
 
@@ -19,13 +19,15 @@ https://xueqiu.com/search?q={keyword}
 
 示例查询：`茅台`、`AAPL`、`腾讯`、`SH600519`
 
+上游股票 search 使用 stock/search.json，其结果不等于全站讨论。smart-search 使用浏览器搜索页，按当前页面区分股票、用户或讨论，不能把上游 JSON 端点当网页 URL。保留计数/价格的时间和币种，缺项不补零。
+
 ## Pitfalls
 
 ### pitfall: login_for_advanced_data
 
 - **触发**：访问详细财务数据
 - **症状**：部分数据需登录查看
-- **workaround**：Cookie Warmup 后访问
+- **workaround**：在共享 `default` profile 核对真实登录状态；访问首页不能替代登录，受限数据按 browser-guide 处理
 
 ## Fallback
 

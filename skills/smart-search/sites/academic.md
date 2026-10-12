@@ -1,6 +1,6 @@
 # 学术与百科
 
-> last_verified: 2026-06-15
+> 网页字段参考 [arXiv 搜索页](https://arxiv.org/search/)；其他入口参考 [OpenCLI 万方](https://github.com/jackwener/OpenCLI/blob/b06ab7780e73d3021e12e0f170086c2d55675776/clis/wanfang/search.js)。浏览器操作使用固定 profile `default`，带 --persistent。
 
 ## arXiv（预印本）
 
@@ -11,19 +11,13 @@ https://arxiv.org/search/?searchtype=all&query={keyword}
 ```
 
 按字段搜索：
-- 标题：`?searchtype=ti&query={keyword}`
-- 作者：`?searchtype=au&query={keyword}`
-- 摘要：`?searchtype=abs&query={keyword}`
+- 标题：`?searchtype=title&query={keyword}`
+- 作者：`?searchtype=author&query={keyword}`
+- 摘要：`?searchtype=abstract&query={keyword}`
 
 按最新排序：追加 `&order=-announced_date_first`
 
-### API（结构化 XML）
-
-```
-https://export.arxiv.org/api/query?search_query=all:{keyword}&max_results=10
-```
-
-分页：`&start={offset}`
+网页分页可使用页面下一页链接；arXiv 网页 start 是条目偏移量，size 和 start 以当前结果页的实际链接为准。不要把 API 的 ti/au/abs、search_query 或 Atom/XML 端点用于本浏览器搜索流程。最新排序指初次公告日期，不能据此断言是论文最后更新日期。
 
 ## 百度学术
 
@@ -57,4 +51,4 @@ https://zh.wikipedia.org/w/index.php?search={keyword}
 
 ## Pitfalls
 
-无特殊 pitfalls。学术平台均为公开访问，不需要 Cookie Warmup。
+arXiv/Wikipedia 公开搜索通常不需登录；万方等数据库的全文可能付费或不可得。只交付实际看到的摘要/全文，访问限制按 browser-guide 处理。

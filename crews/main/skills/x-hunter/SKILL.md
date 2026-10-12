@@ -38,4 +38,4 @@ x-hunter call <resource> <action> [平台选项]
 
 只读与写接口仍需真实账号验收。媒体搜索 --type video/image 不支持 --sort latest；推荐流可读，关注流未实现。通知、粉丝/关注列表和收藏列表尚不支持。
 
-视频先下载再交 `viral-chaser` 本地 analyzer，采用返回的实际视频路径；`--video-only` 在下载前拒绝图文。图文和文字采样在 `expert-twitter` 或调用方 workflow 回读原文与图片分析。创作/发布/本人数据走 `expert-twitter`；互动和直播走 expert-bd。下载依赖平台返回的实际可访问媒体 URL，失败不回报下载成功。
+视频先下载再交 `viral-chaser` 本地 analyzer，采用返回的实际视频路径；`--video-only` 在下载前拒绝图文。图文和文字采样在 `expert-twitter` 或调用方 workflow 回读原文与图片分析。创作/发布/本人数据走 `expert-twitter`；互动走 expert-bd，公开商业信息分析走 expert-osbi；X 直播尚无已实现接口。下载依赖平台返回的实际可访问媒体 URL，失败不回报下载成功。

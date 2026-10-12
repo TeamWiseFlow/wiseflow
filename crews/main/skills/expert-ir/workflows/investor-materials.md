@@ -108,5 +108,5 @@
 |------|---------|
 | 商业模式复盘后更新材料 | `council`（复盘结论驱动材料迭代） |
 | 投资人触达需要发送材料 | `email-ops` 发邮件，Investor Outreach Workflow 写话术 |
-| 搜索竞品/市场数据支撑材料 | `market-research` |
+| 搜索竞品/市场数据支撑材料 | `expert-osbi` 的 Market Research workflow |
 | 记录材料发送状态 | `ir-record update-status` 更新投资人状态为 `bp_sent` |

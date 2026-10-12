@@ -1,217 +1,114 @@
 ---
 name: smart-search
-description: 智能搜索路由器。根据用户意图选择最佳搜索源，构造 URL 并导航，获取内容。仅在默认搜索手段效果不佳启用。排除已有专属 hunter 的抖音、小红书、TikTok、快手、X、微博、微信公众号及微信视频号；有 hunter 的平台直接调用，视频号暂无方案。
+description: 通过 Camoufox 浏览器搜索和阅读网页：选择站点、构造搜索 URL、使用默认或平台专用的持久化 session 并提取真实结果。如果已有 douyin-hunter、xhs-hunter、tiktok-hunter、kuaishou-hunter、x-hunter、weibo-hunter 或 wx-mp-hunter 技能，对应平台的内容搜索应该优先调用上面这些技能。
 metadata:
   openclaw:
     emoji: 🔍
+    requires:
+      bins:
+        - camoufox-cli
 ---
 
-# Smart Search 智能搜索路由器
+# Camoufox 浏览器搜索
 
-本技能**只负责搜索和阅读**，不负责发布、点赞、关注、回复等互动操作（那些由各平台专属技能处理）。
+用于需要实际打开网页、登录站内搜索、使用页面筛选条件或读取渲染结果的任务。执行入口为 `camoufox-cli`；浏览器登录、验证码、懒加载与付费墙的操作细节读取公共 `browser-guide`。两项技能独立保留：本技能负责搜索方法与站点规则，browser-guide 负责通用页面操作。
 
-## 不支持的平台（先判断）
+原始搜索结果只作为线索；需要全文、准确日期或具体数字时打开对应原文核实。本技能不发布、不发评论或私信，不把搜索卡片当作原文或完整统计。
 
-本技能不支持 douyin、xhs、tiktok、kuaishou、x/twitter、weibo、wx-mp（微信公众号）和微信视频号，也不为它们构造浏览器搜索 URL 或站内回退。
+## 先检查是否可调用如下技能
 
-| 指定平台或平台链接 | 处理 |
+| 平台 | 优先技能 | 实际登录/会话约定 |
+|---|---|---|
+| 抖音 | `douyin-hunter` | 使用 `douyin-login` 独立 API 会话；浏览器 `douyin` profile 不替代该会话 |
+| 小红书 | `xhs-hunter` | 使用其 PC 扫码/短信会话；浏览器 `xhs-browse` profile 不替代 PC 登录 |
+| TikTok | `tiktok-hunter` | login/export 使用固定 Camoufox session/profile `tiktok` |
+| 快手 | `kuaishou-hunter` | 使用其独立 QR/SMS 登录；不要求从浏览器导出会话 |
+| X/Twitter | `x-hunter` | login/export 使用固定 Camoufox session/profile `twitter`，不是 x |
+| 微博 | `weibo-hunter` | login/export 使用固定 Camoufox session/profile `weibo` |
+| 微信公众号 | `wx-mp-hunter` | fetch 为文章读取，posts-list 依赖微信客户端，homepage 自管临时会话；不代表支持全网关键词搜索 |
+
+- 当前 crew 可用且任务命中接口能力时，先读该技能 SKILL.md，再按其命令执行。不要给 API 命令拼入 `--session` / `--persistent`，也不要自行导出 Cookie。
+- 已配置技能报登录失效、限频或风控时按它的错误规则处理，不自动换浏览器路径重试。
+- 未配置时，已有浏览器规则的平台可按下表搜索；不能调用其他 crew 的命令或更改自身 allowlist。需要超出浏览器规则的采集时，按当前 crew 的委托权限交 main，或报告缺口。
+- TikTok、快手、微信公众号目前未维护专门的站内浏览器关键词搜索规则；缺少相应技能时可用 Bing 搜索公开索引 `site:tiktok.com` / `site:kuaishou.com` / `site:mp.weixin.qq.com`。索引不代表完整作品或发布列表。
+- 微信视频号目前没有搜索与内容获取方案，不将创作者后台当作内容搜索。
+
+## 默认与平台专用 session / profile
+
+**普通站点直接使用 Camoufox 内置 `default` session/profile：省略 `--session`，每条页面操作命令带 `--persistent`。** 未指定路径的 `--persistent` 使用 `~/.camoufox-cli/profiles/default/`；只省略 `--session` 不会自动启用持久化。需要登录的普通站点也在默认 profile 中登录，不另建搜索专用、站点专用或类别专用 profile。
+
+下表列明默认 profile 与平台专用名称，不表示 profile 已创建或已经登录；首次登录与验证按 browser-guide 及平台技能执行。
+
+| 浏览器站点 | session / profile 名 |
 |---|---|
-| 抖音 | `douyin-hunter` |
-| 小红书 | `xhs-hunter` |
-| TikTok | `tiktok-hunter` |
-| 快手 | `kuaishou-hunter` |
-| X/Twitter | `x-hunter` |
-| 微博 | `weibo-hunter` |
-| 微信公众号 / wx-mp / mp.weixin.qq.com | 直接调用一级技能 `wx-mp-hunter` |
-| 微信视频号 / channels / wechat-channels | 明确告知目前没有搜索和内容获取方案，不能宣称支持 |
+| 通用搜索、知乎、B站、YouTube、Reddit、LinkedIn、雪球、GitHub、新闻、商品、学术、技术社区、政策，以及六类新增专业站点 | `default` |
+| 微信公众号已知文章、快手已知公开页面（尚无站内搜索规则） | `default` |
+| 抖音（仅不可使用 douyin-hunter 时） | `douyin` |
+| 小红书（仅不可使用 xhs-hunter 时） | `xhs-browse` |
+| X（仅不可使用 x-hunter 时） | `twitter` |
+| 微博（仅不可使用 weibo-hunter 时） | `weibo` |
+| TikTok（平台登录或已知页面，尚无站内搜索规则） | `tiktok` |
 
-## 使用流程
+新增六类站点的名称、共享 `default` profile 与网页入口集中在 [site-catalog.json](site-catalog.json)。自媒体平台的专用 profile 沿用上表；涉及发布、Cookie 读取/导出或独立 API 登录时按对应技能执行，不能以 `default` 替代其登录会话。不要导入 Cookie、复制指纹文件或把已有 profile 的 Cookie 合并到 `default`。
 
-1. **确定数据源**：根据用户意图和下方路由规则，选择搜索平台
-2. **读取站点知识**：查看 `./sites/<platform>.md` 获取搜索 URL、分页、pitfalls、fallback
-3. **执行搜索**：Cookie Warmup → 导航到搜索 URL → 等待加载 → 提取内容
-4. **搜索摘要**：每次查询结束必须汇报（格式见下方）
+TikTok/X/微博技能可用时，登录必须由 `tiktok-hunter` / `x-hunter` / `weibo-hunter` 发起，不用通用浏览器另开窗口。已有有头登录窗口时保持 `--headed`，不要用无头命令重启它。API 登录成功、profile 中存在 Cookie、文件夹存在均不证明当前浏览器页面已登录。
 
-## 路由规则
-
-### 用户明确指定平台时
-
-先检查上方排除表；支持的平台与站点知识文件对应：
-
-| 用户可能说 | 站点文件 | 搜索类型 |
-|-----------|---------|---------|
-| 百度 / Baidu | `sites/general.md` → Baidu | 通用搜索 |
-| Bing / 必应 | `sites/general.md` → Bing | 通用搜索（推荐） |
-| 夸克 / Quark | `sites/general.md` → Quark | 通用搜索（fallback） |
-| 知乎 | `sites/zhihu.md` | 中文问答 |
-| B站 / Bilibili | `sites/bilibili.md` | 视频/番剧 |
-| YouTube / 油管 | `sites/youtube.md` | 视频 |
-| Reddit | `sites/reddit.md` | 社区讨论 |
-| GitHub | `sites/github.md` | 代码/项目 |
-| LinkedIn / 领英 | `sites/linkedin.md` | 职业/招聘 |
-| 雪球 | `sites/financial.md` → 雪球 | 股票/金融 |
-| arXiv | `sites/academic.md` → arXiv | 学术预印本 |
-| 百度学术 | `sites/academic.md` → 百度学术 | 中文学术 |
-| 万方 | `sites/academic.md` → 万方 | 中文学术 |
-| Wikipedia | `sites/academic.md` → Wikipedia | 百科 |
-| 贴吧 | `sites/tech.md` → 贴吧 | 兴趣社区 |
-| Hacker News | `sites/tech.md` → HN | 科技社区 |
-| V2EX | `sites/tech.md` → V2EX | 技术社区 |
-| 路透社 / Reuters | `sites/news.md` | 国际新闻 |
-| 国务院 | `sites/gov.md` | 政策文件 |
-| Amazon | `sites/shopping.md` | 购物 |
-
-### Per-Category Source Guides
-
-每个分类列出**推荐源** + **典型用途** + **数据特征**：
-
-| 分类 | 推荐源 | 典型用途 | 数据特征 |
-|------|--------|---------|---------|
-| **AI** | openai.com / anthropic.com / huggingface.co / paperswithcode.com / arxiv.org/cs.AI | LLM / 模型 / benchmark / 学术 | 强时效性；英文为主；benchmark 数字多 |
-| **info** | reuters.com / bbc.com / ft.com / 36kr.com / 财新 / 新浪财经 / 澎湃 | 行业新闻 / 公司动态 / 政策 | 时效性强；中文 + 英文混合；财经类需付费墙 |
-| **media** | youtube.com / bilibili.com / pexels-footage / pixabay-footage（本仓 skill）| 视频 / 音乐 / 媒体库 | 视频 metadata 重要；版权注意 |
-| **shopping** | amazon.com / taobao.com / jd.com / pdd.cn | 电商 / 价格 / 评测 | 国内电商需登录；价格波动大 |
-| **social** | 对应平台专属 hunter | 实时讨论 / 社区 | X/微博分别使用 x-hunter/weibo-hunter，不走本技能 |
-| **tech** | github.com / stackoverflow.com / jianshu.com / juejin.cn / segmentfault.com / v2ex.com | 代码 / 开源 / 编程 | 强时效；英文为主；stackoverflow 答案质量高 |
-| **travel** | ctrip.com / booking.com / tripadvisor.com / mafengwo.cn | 旅游 / 交通 | 季节性强；多语种；图片重要 |
-| **other** | duckduckgo.com / startpage.com / kagi.com / sogou.com / yandex.com | 兜底 / 隐私搜索 / 国内外通用 | 隐私优 DDG；国内兜底 sogou；俄罗斯 Yandex |
-
-**快速选择规则**：
-1. 用户**明确指定平台** → 先检查排除表，支持的平台再按站点文件执行
-2. 用户**未指定** → 按"用户未指定平台时"表的意图特征路由
-3. **国内**网络环境下 → DuckDuckGo 可能不稳，**优先** Bing / 夸克
-
-**与路由表配合**：
-- 路由表是"按意图 → 选平台"（平台名 → sites/<name>.md）
-- 源 guides 是"按分类 → 列备选"（**多了** 1 步选平台的灵活性）
-- 推荐组合：先看路由表选定首选 → 源 guides 给备选 → 1 个站不够时切换
-
-本节是"per-category source guides"——最小可行实现。完整 Site Maps Hub（`sitemaps/<site>/` per-site navigation knowledge）超出范围，**不**做。
-
-### 用户未指定平台时
-
-按意图优先级自动路由：
-
-| 意图特征 | 首选 | 补充 |
-|---------|------|------|
-| 中文通用/热点 | Bing | — |
-| 中文深度问答 | 知乎 | — |
-| 生活方式/真实体验 | 转 `xhs-hunter` | — |
-| 短视频内容 | 转 `douyin-hunter` | — |
-| 视频/番剧 | B站 | — |
-| 中文舆论/热搜 | 微博 | — |
-| 英文通用 | Bing | — |
-| 技术/代码 | GitHub | — |
-| 学术/论文 | arXiv | 百度学术 |
-| 股票/金融 | 雪球 | — |
-| 国际新闻 | Reuters | — |
-
-## 频率限制
-
-同一用户问题（同一意图链路，含追问澄清）内：
-
-- **每个站点最多调用 2 次**（第 2 次必须有明确理由：结果过宽需限定、信息不足需补充角度）
-- **不要第 3 次调用**同一站点；若信息仍不足，停止扩搜并说明缺口
-- `camoufox-cli --session <s> --json open <search-url>` 导航到搜索 URL、`snapshot` 读取结果，每次导航计为 1 次调用
-- Cookie Warmup（仅访问首页）不计入调用次数
-- 因报错/超时/验证码/登录墙失败也算 1 次，**不要无限重试**
-
-## Keyword 编码
-
-- **空格**：`+` 用于 Bing、GitHub、Bilibili；`%20` 用于 Twitter、Facebook、Zhihu；两者皆可用于 Baidu、Quark、YouTube
-- **特殊字符**：URL-encode（`#` → `%23`，`&` → `%26`，`?` → `%3F`）
-- **中文**：URL-encode（浏览器导航时自动处理）
-
-## Cookie Warmup 速查
-
-以下平台**必须**先访问首页再搜索，否则返回空结果或跳转登录：
-
-| 平台 | Warmup URL |
-|------|-----------|
-| 知乎 | `https://www.zhihu.com` |
-| YouTube | `https://www.youtube.com` |
-| Reddit | `https://www.reddit.com` |
-| 雪球 | `https://xueqiu.com` |
-| LinkedIn | `https://www.linkedin.com` |
-| 路透社 | `https://www.reuters.com` |
-
-**不需要 Warmup**：Bing、Baidu、Quark、GitHub、arXiv、Wikipedia、HackerNews、V2EX、贴吧、Amazon、百度学术、万方、国务院
-
-## 浏览器操作最佳实践
-
-> **主力后端 = `target=camoufox`**（`camoufox-cli`）。下方命令 / 示例只针对 `target=camoufox`。
-> **`target=host` / `target=node`**：只按本节「流程 + 提示事项」走，不要照搬 `camoufox-cli ...` 命令——用你当前后端自带的浏览器工具语义调用即可。页面加载等待、超时处理、登录墙 / CAPTCHA 处理约定是**后端无关**的，照本节执行。
-
-### 临时性 session（推荐）
-
-搜索 / 浏览 / 取数走 **临时性 session**——不 cp 持久化模板、不带 `--persistent`，每次随机指纹，关闭自清（spec 补充 A，新闻等不登录站点）。
+例如知乎搜索导航：
 
 ```bash
-SESSION="search-$(date +%s)"
-camoufox-cli --session "$SESSION" --json open "<url>"
-# …snapshot / eval / scroll 取数…
-camoufox-cli --session "$SESSION" --json close
+camoufox-cli --persistent --json open '<按 sites/zhihu.md 生成的完整搜索URL>'
 ```
 
-涉及登录的平台搜索（知乎 / 微博 / Twitter / Reddit / 雪球 / LinkedIn 等）走持久化 session。
+后续 snapshot、点击、滚动和原文读取保持同一 session 与模式。共享 `default` 中的搜索与阅读串行执行，先完成当前页面取数再打开下一站；其他任务正在使用时等待。提示 session 正忙时等待当前命令完成，不能 close 占用中的会话或换名并发。
 
-### 页面加载等待
+## 选择站点并读取规则
 
-- 通用站点：`camoufox-cli --session <s> --json wait` 或 `sleep 3-5`
-- 重度客户端渲染（Twitter/X）：**5 秒以上**
-- `snapshot` 显示内容不完整时再等几秒重新 `snapshot`
+| 搜索目标 | 站点规则 |
+|---|---|
+| 通用网页、新闻/图片搜索 | [Bing / 百度 / 夸克](sites/general.md) |
+| 中文问答 | [知乎](sites/zhihu.md) |
+| 视频、UP 主 | [B站](sites/bilibili.md) |
+| 视频、Shorts、频道、播放列表 | [YouTube](sites/youtube.md) |
+| 社区讨论 | [Reddit](sites/reddit.md) |
+| 仓库、代码、issues、用户 | [GitHub](sites/github.md) |
+| 职位、人员、公司 | [LinkedIn](sites/linkedin.md) |
+| 股票与金融讨论 | [雪球](sites/financial.md) |
+| 论文、学术、百科 | [arXiv / 百度学术 / 万方 / Wikipedia](sites/academic.md) |
+| 技术讨论与贴吧 | [HN / V2EX / 贴吧](sites/tech.md) |
+| 国际新闻 | [Reuters / BBC](sites/news.md) |
+| 政策文件 | [国务院](sites/gov.md) |
+| 商品 | [Amazon](sites/shopping.md) |
+| 行业动态、招标、法规、供应链 | [36氪 / 招标剑鱼 / 国家法律法规库 / 1688](sites/business.md) |
+| 技术证据、模型、开源与依赖生态 | [Stack Overflow / MDN / Gitee / Hugging Face / OpenReview / npm / PyPI](sites/tech-ai.md) |
+| 论文、作者、引用与书目信息 | [Google Scholar / Semantic Scholar / OpenAlex / PubMed / DBLP / Crossref / CNKI](sites/academic-extra.md) |
+| 岗位、人才与项目需求 | [BOSS直聘 / 51job / Indeed / 脉脉 / Upwork](sites/recruiting.md) |
+| 商品评价、消费与社区需求 | [豆瓣 / 什么值得买 / 京东 / 淘宝 / 大众点评 / 虎扑 / 即刻](sites/consumer.md) |
+| 图像、设计与作品来源 | [Pinterest / Pixiv / ArtStation / Flickr / Unsplash / Openverse](sites/design.md) |
+| 抖音：先检查 douyin-hunter 是否可用 | [浏览器规则](sites/douyin.md) |
+| 小红书：先检查 xhs-hunter 是否可用 | [浏览器规则](sites/xiaohongshu.md) |
+| X：先检查 x-hunter 是否可用 | [浏览器规则](sites/twitter.md) |
+| 微博：先检查 weibo-hunter 是否可用 | [浏览器规则](sites/weibo.md) |
 
-### 超时错误处理
+用户指定平台时先按其要求选站。未指定时，中文/英文通用搜索先用 Bing；问答用知乎；技术项目用 GitHub；论文用 arXiv；新闻用 Reuters/BBC。生活体验、短视频或微博舆论先检查 `xhs-hunter`、`douyin-hunter`、`weibo-hunter` 是否在当前 crew 可用，否则按已有浏览器规则或公开索引搜索。选择仍需服从用户的地区、语言和来源要求。
 
-- **不重启浏览器**，不 teardown session
-- 等待 **30 秒**后在原页面继续（`sleep 30` + `snapshot` 复核）
-- 只有重开 session（`camoufox-cli --session <s> close` → 重 `open`）仍报错才是真正出错
+按问题选专业来源：采购/供应商用招标剑鱼或 1688；技术定义用 MDN，模型/数据集用 Hugging Face；医学文献用 PubMed，作者/出版记录用 DBLP、Crossref 或 OpenAlex；职位/项目需求用招聘规则，消费评价用口碑规则，设计参考用作品规则。需要获取完整平台资料、进一步研究或联系时交对应采集技能、`expert-osbi` 或 `expert-bd`；仅在当前 crew 已配置时调用。
 
-> 同一 session 已有命令在跑时，新命令会 fail-first（返回 `session <name> 正忙，请等待当前操作完成后再试`）——读到这条文本就等当前操作完成再重试，不要盲试。
+只执行上表维护的规则。通用网页搜索维持 Bing、百度、夸克，不新增 Google、DuckDuckGo、Brave、Startpage、Sogou、Qwant、Mojeek；Google Scholar 仅作为学术来源。上游其他站点不自动启用。
 
-### 表单输入
+## 搜索执行
 
-- 用 `camoufox-cli --session <s> --json type <ref> "<文本>"`（逐字符输入，触发完整事件链）
-- **不用 `fill`**——一次性塞值不触发逐字事件链，受控组件 / mask 字段容易出问题
+1. 读取所选站点规则。有查询模板时用关键词构造完整 URL，关键词按所在参数/路径片段编码一次，保留中文、空格、#、& 等字符。只提供页面入口的站点，打开后从真实搜索控件提交，不猜测查询 URL；额外筛选优先通过页面操作。
+2. 用固定持久化 session 打开页面。需要登录或 Cookie 初始化的站点可先访问原站首页并核对实际页面；访问首页不保证已登录或能够解除验证。
+3. 等待真实结果区出现后 snapshot；按语义 ref 定位搜索卡片与原文链接。客户端页面尚未加载时有界等待，不把空骨架判为无结果。
+4. 保留标题、真实链接、作者/来源、页面实际显示的日期和摘要。字段缺失写明不可得；“3 天前”等相对时间保留原值，精确日期到原文核实。去掉广告、推荐位和重复链接，保留小红书 xsec_token 等访问参数。
+5. 需要补充时按页面当前的分页/筛选控件继续；源码中的 API 游标、接口参数和签名不得当作网页导航参数，也不在 eval 中自行复刻 API 请求。
+6. 原文阅读、登录墙、验证码、付费墙和懒加载遵循 browser-guide。遇到付费/不可见内容只记录实际可访问部分。
+7. 用完关闭自己本轮创建的标签页；本轮已结束且没有其他任务使用该 session 时再 close，保留磁盘 profile。不执行 close --all，不关闭其他任务或正在等待用户登录的窗口。
 
-### snapshot ref 优先
+snapshot ref 优先；必要时用 eval 读取真实 DOM，复杂逻辑包在 IIFE 中。表单输入使用真实页面事件，不盲试随机 CSS 类。延迟或超时先核对同一页面和会话状态，不自动重启全部浏览器。
 
-`camoufox-cli --session <s> --json snapshot` 返回带 ref 的语义快照（`@e1` `@e2` …），后续 `click` / `type` / `scroll` 全部优先传 ref，不要自己 hack CSS selector。找不到元素时**先 snapshot 看真实 DOM 结构**再决定 selector 改写。
+## 范围与搜索记录
 
-### 登录墙 / CAPTCHA
+同一用户意图默认每站最多两次搜索导航/翻页，第二次说明缩小范围或补充角度的理由；失败的搜索导航也计入预算。首页初始化不计搜索次数。预算不足以覆盖研究范围时，先交付已有结果与缺口，不偷偷扩搜。站点规则中的分页方式说明如何操作，不自动授权全量翻页。
 
-- 遇到登录墙、验证码、人机验证，遵循 **browser-guide** 技能
-- 不要反复重试，最多 2 次后转其他数据源或告知用户
-
-### 结果区定位
-
-当 DOM snapshot 噪音过多（大量广告/推荐/脚手架 DOM）时，先 `snapshot` 拿语义结构，按 ref 锚到搜索结果区（`main` / `search-results` / `[role="list"]` 等语义角色），再 `eval` 在该子树内提取。不要在整页 selector 上盲试。
-
-## 搜索后操作
-
-1. 确认结果已加载（snapshot）
-2. 遇到登录墙/CAPTCHA → browser-guide
-3. 提取所需信息
-4. 需要更多结果 → 查看 `sites/<platform>.md` 的分页方式
-5. 提取完毕后**立即关闭标签页**
-
-## 搜索摘要
-
-**每次查询结束**，回答末尾必须追加搜索摘要，至少包含：
-
-- 使用了什么站点
-- 每个站点搜了什么关键词
-- 每个站点调用了几次
-
-格式：
-
-```md
-搜索摘要
-- 站点：<site1> | 关键词：<term1> | 次数：<n>
-- 站点：<site2> | 关键词：<term2>；<term3> | 次数：<n>
-- 已跳过：<site3>，原因：达到频率上限
-```
-
-## 站点详细知识
-
-各平台搜索的详细参数、分页、pitfalls、fallback、DOM 提取提示，见 `./sites/` 目录下对应文件。**执行搜索前务必先读对应站点文件**，避免踩坑。
+查询结束保留并反馈站点、关键词/筛选条件、实际搜索次数、未访问成功的来源和样本缺口。只报告本轮实际取得的信息；不能因上游有接口或规则文件存在就宣称已搜到结果。

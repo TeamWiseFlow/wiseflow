@@ -1,6 +1,6 @@
 # Live Interaction（直播间互动）
 
-适用：用户要求在指定抖音/小红书公开直播间参与讨论、提问、答疑或拓展合作。目标可以是他人的直播间，也可以是自己的直播间；主要使用观众侧互动能力。竞争对手调研走 [Live Research](live-research.md)。
+适用：用户要求在指定抖音/小红书公开直播间参与讨论、提问、答疑或拓展合作。目标可以是他人的直播间，也可以是自己的直播间；主要使用观众侧互动能力。竞争对手调研交 `expert-osbi` 的 Live Research workflow。
 
 ## 1. 明确目标与授权
 
@@ -10,7 +10,7 @@
 
 ## 2. 观察房间语境
 
-读取 `references/interaction-capabilities.md` 与对应 live 工具说明，按其要求检查登录态、核对房间状态与真实目标信息。内容与账号资料用一级 hunter；互动使用本包 live 工具，不混用创作者 profile 登录态。
+读取 `references/interaction-capabilities.md` 与对应 live 工具说明，按其要求检查登录态、核对房间状态与真实目标信息。内容和账号资料使用 `douyin-hunter` / `xhs-hunter` / `tiktok-hunter` / `kuaishou-hunter`；房间资料与事件监听使用 `douyin-hunter live` / `xhs-hunter live` / `tiktok-hunter live` / `kuaishou-hunter live`；发送与点赞使用本包 live 工具，不混用创作者 profile 登录态。
 
 在约定窗口内观察实际评论、话题与房间返回的信息，选择与讨论相关的提问或回复；无依据的价格、库存、优惠和产品事实先核实。直播有访问或发言限制时停止对应动作并报告，不自动换账号或不断重试。
 

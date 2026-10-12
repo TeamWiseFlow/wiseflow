@@ -360,7 +360,7 @@ export async function main(argv = process.argv.slice(2)) {
   let [platform, role, action, ...args] = argv;
   platform = canonical(platform);
   if (!action || ['--help', '-h', 'help'].includes(action)) {
-    emit({ ok: true, platform, role, commands: role === 'hunter' ? ['check', 'methods', 'search', 'user', 'user-posts', 'comments', 'fetch', 'call', 'login', 'login-confirm', ...(platform === 'kuaishou' ? [] : ['login-status', 'export', ...(platform === 'tiktok' ? ['prepare-write'] : [])])] : role === 'engagement' ? ['check', 'list', 'fetch --record-id <行ID>', 'daily'] : role === 'publish' ? ['check', 'publish --source-folder DIR --text TEXT [--image FILE | --video FILE] [--confirm]'] : methods(platform, role), call_syntax: '<resource> <action> [平台选项]；写操作默认预览，加 --confirm 执行' });
+    emit({ ok: true, platform, role, commands: role === 'hunter' ? ['check', 'methods', 'search', 'user', 'user-posts', 'comments', 'fetch', 'call', 'login', 'login-confirm', ...(methods(platform, role).some(key => key.startsWith('live ')) ? ['live'] : []), ...(platform === 'kuaishou' ? [] : ['login-status', 'export', ...(platform === 'tiktok' ? ['prepare-write'] : [])])] : role === 'engagement' ? ['check', 'list', 'fetch --record-id <行ID>', 'daily'] : role === 'publish' ? ['check', 'publish --source-folder DIR --text TEXT [--image FILE | --video FILE] [--confirm]'] : methods(platform, role), call_syntax: '<resource> <action> [平台选项]；写操作默认预览，加 --confirm 执行' });
     return;
   }
   if (action === 'check') {
@@ -388,6 +388,12 @@ export async function main(argv = process.argv.slice(2)) {
   const aliases = { search: ['item', 'search'], user: ['user', 'get'], 'user-search': ['user', 'search'], 'user-posts': ['user', 'items'], comments: ['comment', 'list'] };
   const interactAliases = { retweet: 'repost', unretweet: 'unrepost', bookmark: 'collect', unbookmark: 'uncollect' };
   if (role === 'hunter' && aliases[action]) args = [...aliases[action], ...args];
+  else if (role === 'hunter' && action === 'live') {
+    if (!args.length || ['--help', '-h', 'help'].includes(args[0])) return emit({ ok: true, platform, methods: methods(platform, role).filter(key => key.startsWith('live ')) });
+    if (args[0] !== 'call') args = ['live', args[0] === 'room' ? 'get' : args[0], ...args.slice(1)];
+    else args = args.slice(1);
+    if (args[0] !== 'live') throw new PlatformError('UNSUPPORTED', 'live 子命令仅允许公开直播读取', 4);
+  }
   else if (action === 'call') { /* args 已含 resource action */ }
   else if (role === 'interact' && ['follow', 'unfollow'].includes(action)) args = ['user', action, ...args];
   else if (role === 'interact' && ['comment', 'reply'].includes(action)) args = ['comment', 'add', ...args];

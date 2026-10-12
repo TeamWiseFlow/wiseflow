@@ -5,7 +5,7 @@ description: BD 线索与互动记录数据库（SQLite）：已探索创作者�
 
 # bd-record — BD 记录数据库工具
 
-在 Workspace `db/bd_record.db` 中维护持久化 SQLite 数据库，供 Lead Hunting（创作者探索）与 授权触达（帖子互动）去重使用。
+在 Workspace `db/bd_record.db` 中维护持久化 SQLite 数据库，供 expert-bd 的 Lead Hunting 保存潜客画像，并供本包授权触达去重与记录使用。保存画像不表示已联系。
 
 ## 数据库位置
 

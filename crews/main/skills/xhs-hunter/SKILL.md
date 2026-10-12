@@ -91,3 +91,7 @@ xhs-hunter call <method> --args '[...]' --kwargs '{...}'
 `call` 还暴露搜索历史同步和网页埋点上报等 PC 接口。只有任务确实需要时才调用这些会改变服务端状态的接口。阅读、采集和下载均不发布内容；创作者端发布与自有作品数据仍使用 `xhs-publish`、`xhs-engagement`。
 
 本技能是一级内容采集、互动通知读取与下载入口；私信、评论发布/回复、点赞、收藏、关注等写操作及直播互动走 expert-bd，创作、发布、本人作品数据与创作者服务走 expert-xhs。`fetch --video-only --download-media` 仅接受视频且只下载视频文件，供 viral-chaser 使用；图文默认 fetch 下载有序图片，分析在 expert-xhs workflow 完成。
+
+## 公开直播读取
+
+房间/商品信息、观看状态与有界事件监听通过 `xhs-hunter live`；先读 [直播读取说明](references/live.md)。复用本技能 PC 会话，商业调研交 expert-osbi；直播文字发送仍由 expert-bd 的 xhs-live 执行。hunter 不接受直播发送方法。

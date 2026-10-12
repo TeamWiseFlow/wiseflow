@@ -1,12 +1,12 @@
 # 哔哩哔哩 (Bilibili / B站)
 
-> last_verified: 2026-06-15
+> 搜索类别参考 [OpenCLI](https://github.com/jackwener/OpenCLI/blob/b06ab7780e73d3021e12e0f170086c2d55675776/clis/bilibili/search.js) 与 [SearXNG](https://github.com/searxng/searxng/blob/ad46ebd7d87666edb5f116c5b274b47f689ac6cd/searx/engines/bilibili.py)。固定 session/profile `default`，带 --persistent。
 
 ## 概览
 
 - 域名：`search.bilibili.com`（搜索）、`www.bilibili.com`（主站）
 - 登录要求：搜索可免登录，但部分内容需登录
-- Auth 策略：Cookie Warmup（推荐先访问首页）
+- 可先访问首页核对当前页面与登录状态，不能以首页访问成功认定已登录
 
 ## 搜索
 
@@ -62,11 +62,11 @@ URL 分页：`&page={n}`（从 1 开始）
 
 ## Pitfalls
 
-### pitfall: bangumi_bvid_subtitle
+### 页面结果与媒体内容
 
-- **触发**：对番剧/纪录片/电影/综艺的 bvid 获取字幕
-- **症状**：普通视频字幕接口对 PGC 内容返回不同结构
-- **workaround**：PGC 内容的字幕需走 `https://api.bilibili.com/x/player/v2?bvid={bvid}&cid={cid}` 接口，`cid` 从 `https://api.bilibili.com/x/web-interface/view?bvid={bvid}` 获取
+普通视频、番剧、用户和直播类别以当前搜索页菜单为准；列表中的标题、作者和可见计数先记录实际值，不补零。OpenCLI 当前普通视频搜索使用带签名的 WBI 接口；不要将接口 search_type=bili_user 直接当作浏览器频道名，也不在本技能中构造 WBI 请求。
+
+本技能搜索和阅读页面，不调用字幕/播放接口或拼接 bvid/cid。需要视频或字幕处理时核对现有对应技能能力，不能仅凭浏览器搜索结果承诺下载或转写。
 
 ## Fallback
 

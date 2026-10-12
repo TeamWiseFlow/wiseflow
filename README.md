@@ -48,6 +48,13 @@ xiaobei 由Wiseflow (原AI首席情报官）作者 bigbrother666sh 开发。
 - 新增对快手和tiktok平台的支持，优化 x（twitter）和weibo平台的支持；
 - 音乐生成新增支持百炼平台
 
+## 🚀 **V5.7.4 更新**
+
+- 重构expert-bd技能，专注对外联络，支持xhs、douyin等站内私信能力；
+- 将信息获取能力从expert-bd中分离为expert-osbi;
+- 优化smart-search技能，新增商业、技术/AI、学术、招聘、口碑和设计六类 36 个站点的支持；
+- 修复5.7.3中的bug
+
 详见 [CHANGELOG.md](CHANGELOG.md)
 
 ---

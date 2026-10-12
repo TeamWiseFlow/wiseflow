@@ -1,0 +1,114 @@
+# Competitor Watch（竞争对手 / 重点客户动向监控）
+
+围绕指定**对象**（竞争对手、重点客户或其他关注对象）持续采集公开动态，识别动向信号并按重要程度交付告警或简报。
+
+与 Intel Gathering 的分工：Intel Gathering 以**信源**为中心（账号 / 网页采什么信息）；Competitor Watch 以**对象**为中心——一个对象可能横跨多个信源（社媒账号、官网、博客、招聘页），采集后多一步动向识别与分级。纯信源监控走 Intel Gathering，对象级动向监控走本 workflow。
+
+**依赖**：`douyin-hunter` / `xhs-hunter` / `tiktok-hunter` / `kuaishou-hunter` / `x-hunter` / `weibo-hunter` / `wx-mp-hunter`（对应平台搜索与内容获取）、`smart-search`（其支持的平台及网页信源发现）、`browser-guide`（其他网页浏览）、`rss-reader`（网页 RSS 监控）、`info-record`（采集记录与去重）。公开直播原始资料使用`douyin-hunter live` / `xhs-hunter live` / `tiktok-hunter live` / `kuaishou-hunter live`，编排见 [Live Research](live-research.md)。
+
+---
+
+## 前置条件
+
+执行前需确认以下信息（一次性任务与用户对话确认；定时任务从 HEARTBEAT.md 配置读取）：
+
+- 对象列表，每个对象标注类型：`竞品` / `客户` / 其他
+- 对象已知信源（平台账号、官网、博客、公开直播间等）；未提供的信源首次执行时由 `douyin-hunter` / `xhs-hunter` / `tiktok-hunter` / `kuaishou-hunter` / `x-hunter` / `weibo-hunter` / `wx-mp-hunter` 或 `smart-search` 发现并补录
+- 动向提取标准：什么算动向（如新品 / 定价调整 / 融资 / 招聘扩张 / 营销活动 / 内容策略变化 / 采购或选型信号）
+- 交付形式：重大动向即时告警 + 定期简报（或仅简报 / 仅监控表格）
+
+---
+
+## 执行流程
+
+### Step 1: 准备工作
+
+1. 按信源检查 `douyin-hunter` / `xhs-hunter` / `tiktok-hunter` / `kuaishou-hunter` / `x-hunter` / `weibo-hunter` / `wx-mp-hunter`；公开直播使用 `douyin-hunter live` / `xhs-hunter live` / `tiktok-hunter live` / `kuaishou-hunter live`；需要访问其他网页时检查浏览器（遵循 `browser-guide`）
+2. 初始化 info-record 数据库（幂等）：`info-record init-db`
+3. 对缺少已知信源的对象，用 `douyin-hunter` / `xhs-hunter` / `tiktok-hunter` / `kuaishou-hunter` / `x-hunter` / `weibo-hunter` / `wx-mp-hunter` 或 `smart-search` 发现其活跃信源（官方账号、官网、博客），整理为对象-信源对照表交用户确认后使用。已有目标授权无需重复确认。
+
+### Step 2: 逐对象逐信源采集
+
+采集机制与 Intel Gathering 相同（去重、记录走 `info-record`），差异只在组织方式——按对象遍历其信源：
+
+#### 社媒账号信源
+
+抖音、小红书、TikTok、快手、X、微博、微信公众号分别按 `douyin-hunter` / `xhs-hunter` / `tiktok-hunter` / `kuaishou-hunter` / `x-hunter` / `weibo-hunter` / `wx-mp-hunter` 采集；下述浏览器导航仅用于其他支持的平台。
+
+1. 导航到该账号的内容列表页（主页/作品页）
+2. 收集最新内容（仅上次执行后新发布的；无法精确筛选日期则取前 10 条）
+3. 对每条内容：
+   a. 去重检查：
+      ```bash
+      info-record check-content --source <内容URL>
+      ```
+      如果 `{"exists": true}`，跳过
+   b. 打开内容详情页，阅读标题、正文/简介（视频只分析简介/描述文字，不下载视频）
+   c. 记录采集结果，`--content` 中标注对象名与对象类型：
+      ```bash
+      info-record record-content \
+        --source <内容URL> \
+        --source-type <平台标识> \
+        --title <标题> \
+        --author <对象名> \
+        --publish-date <发布日期> \
+        --content "[<对象类型>:<对象名>] <提取的关键信息>"
+      ```
+   d. 每条内容之间保持 10-30 秒间隔
+
+#### 网页信源
+
+1. RSS 支持的网站用 `rss-reader <feed_url> --limit 10`（feed URL 未知时按 `rss-reader` 说明中的发现方法先找到 feed）
+2. 不支持 RSS 的网站：browser 导航 → 收集最新内容列表
+3. 对每条内容：去重检查 → 打开详情页 → 记录到 info-record（同样标注对象）
+
+#### 公开直播信源
+
+按 [Live Research](live-research.md) 观察指定对象的公开直播间，比较商品与促销、销售话术、观众问题和互动表现。记录对象、房间、观察窗口与实际证据；只做调研，不主动发言、点赞或私信。将发现与该对象的其他信源合并进入 Step 3；用户要求参与讨论时交 `expert-bd` 的 Live Interaction workflow。
+
+### Step 3: 动向识别（agent 推理）
+
+对本批新采集内容逐条判断：
+
+1. 是否构成动向：对照提取标准，内容反映了对象的**新动作**或**意图信号**才算动向；日常内容、无信息增量的宣传不算。
+2. 动向分类：产品 / 定价 / 融资 / 人事 / 市场活动 / 内容策略 / 采购选型 / 其他。
+3. 重要程度：
+   - **重大**：直接影响竞争格局或客户决策（如竞品发布对标产品、重点客户出现更换供应商信号、融资到位）
+   - **常规**：值得记录但不需立刻行动
+4. 证据要求：每条动向必须附原文链接；来源仅为传闻/猜测时标注「传闻/未证实」，不得升级为既成动向。
+
+### Step 4: 交付
+
+1. **重大动向** → 用 message 工具即时告警，格式：对象 + 动向一句话 + 分类 + 证据链接 + 建议动作（可选）。不等定期汇总。
+2. **常规动向** → 汇总为定期简报 / 监控表格：
+
+   | 对象 | 类型 | 日期 | 动向分类 | 内容摘要 | 重要程度 | 原文链接 |
+   |------|------|------|----------|----------|----------|----------|
+
+   简报模式另加一段趋势判断（多个对象在同一方向有动作时点出）。
+3. 无新动向时说明本轮已核验的信源与样本范围，不把无法访问当作没有变化。报告及证据索引保存到 Workspace `osbi/competitors/`，事实、推断与建议分开呈现。
+
+---
+
+## 错误处理
+
+| 情况 | 处理 |
+|------|------|
+| 对象信源无法访问 | 记录并跳过该信源，下次执行时重试 |
+| 内容详情页打不开 | 记录 URL，标注"无法访问"后跳过 |
+| RSS feed 不可用 | 降级为 browser 直接访问网页 |
+| 网页结构变化（提取失败） | 记录对象、信源和错误，不阻塞其他对象 |
+| 浏览器异常 | **不需要重启、不需要报错**！等待 30 秒后在原页面继续操作即可。若仍无法操作，再等 30 秒；若还不行，尝试关闭浏览器后重开；只有关闭重开后仍报错才是真的出错，需停止并反馈用户。 |
+| 持续错误 | spawn IT Engineer 协助排查 |
+
+---
+
+## 注意事项
+
+- 微信公众号内容使用 `wx-mp-hunter` 技能，不要使用浏览器
+- 与 Intel Gathering 共用 `info-record` 库，靠 `--content` 中的对象标注区分；日常查询用 `info-record query-today`。
+- 定时执行时遵守定时任务约束（凌晨不扫码登录等），见 [scheduling.md](../scheduling.md)。
+
+平台路由：抖音、小红书、微信公众号的搜索与内容获取分别使用一级 `douyin-hunter`、`xhs-hunter`、`wx-mp-hunter`，不调用 smart-search 构造这些平台的站内 URL；微信视频号目前没有内容获取方案。
+
+TikTok、快手、X、微博的原始资料分别调用一级 tiktok-hunter、kuaishou-hunter、x-hunter、weibo-hunter。公开直播调用 `douyin-hunter live` / `xhs-hunter live` / `tiktok-hunter live` / `kuaishou-hunter live`；联络由 expert-bd 核对能力与授权，不在监控流程内发送。

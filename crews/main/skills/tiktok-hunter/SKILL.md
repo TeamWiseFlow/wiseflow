@@ -40,4 +40,8 @@ tiktok-hunter call <resource> <action> [平台选项]
 
 读取与写入均需真实账号验收。用户搜索未实现；user get 仅给 secUid 时不能取得完整资料。notice list/count、收藏夹、合集、推荐与关注流可读。本人已发作品指标通过专家 engagement 获取。写操作需要同次 ticket-guard 材料。
 
-视频先下载再交 `viral-chaser` 本地 analyzer，采用返回的实际视频路径；`--video-only` 在下载前拒绝图文。图文和文字采样在 `expert-tiktok` 或调用方 workflow 回读原文与图片分析。创作/发布/本人数据走 `expert-tiktok`；互动和直播走 expert-bd。下载依赖平台返回的实际可访问媒体 URL，失败不回报下载成功。
+视频先下载再交 `viral-chaser` 本地 analyzer，采用返回的实际视频路径；`--video-only` 在下载前拒绝图文。图文和文字采样在 `expert-tiktok` 或调用方 workflow 回读原文与图片分析。创作/发布/本人数据走 `expert-tiktok`；互动写操作走 expert-bd，公开直播读取走本 hunter，调研分析走 expert-osbi。下载依赖平台返回的实际可访问媒体 URL，失败不回报下载成功。
+
+## 公开直播读取
+
+`live get/list/search/categories/history/rank/gifts/media/listen` 只读入口使用 `tiktok-hunter live`；先读 [直播读取说明](references/live.md)。send/like 不在 hunter 白名单中，仍由 expert-bd 的 tiktok-live 执行。
