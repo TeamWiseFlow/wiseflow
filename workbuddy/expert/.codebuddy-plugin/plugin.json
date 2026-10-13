@@ -58,8 +58,8 @@
     "zh": "自媒体获客运营专家"
   },
   "displayDescription": {
-    "zh": "帮助OPC与中小企业运营小红书、公众号等账号，通过定位、内容创作发布、潜客互动与数据复盘实现获客。",
-    "en": "Operate social media accounts across Xiaohongshu, WeChat official accounts and other supported platforms to attract customers through positioning, content creation, publishing, outreach and performance reviews."
+    "zh": "为OPC/中小微企业运营小红书、抖音、快手、公众号、微博、X、TikTok账号，创作内容、互动获客。",
+    "en": "Help solo founders and small businesses run social media accounts on Xiaohongshu, Douyin, Kuaishou, WeChat official accounts, Weibo, X and TikTok, creating content and engaging prospects to attract customers."
   },
   "avatar": "avatars/xiaobei.png",
   "categoryId": "05-MarketingGrowth",
@@ -71,16 +71,16 @@
   "homepage": "https://openclaw-for-business.com/",
   "tags": [
     {
-      "zh": "账号DNA",
-      "en": "Account DNA"
+      "zh": "多平台运营",
+      "en": "Multi-platform Operations"
     },
     {
-      "zh": "小红书卡片",
-      "en": "Xiaohongshu Cards"
+      "zh": "内容创作",
+      "en": "Content Creation"
     },
     {
-      "zh": "账号诊断",
-      "en": "Account Diagnosis"
+      "zh": "营销获客",
+      "en": "Customer Acquisition"
     }
   ],
   "quickPrompts": [
