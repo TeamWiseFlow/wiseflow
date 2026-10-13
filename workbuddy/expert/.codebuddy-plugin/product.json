@@ -1,0 +1,19 @@
+{
+  "name": "xiaobei",
+  "relay_base_url": "https://relay.openclaw-for-business.com",
+  "contact_image": "avatars/ofb_contact.png",
+  "vip_club": {
+    "name": "小贝 VIP Club",
+    "price_cny": 168,
+    "billing_period": "年",
+    "pricing_url": "https://openclaw-for-business.com/pricing",
+    "credential": "OFB_KEY",
+    "benefits": [
+      "知识库：上手指南、配置、高阶玩法与最佳实践",
+      "VIP 微信交流群与专家 DNA 分享",
+      "会员期内免费使用官方中转服务（适用平台签名与固定 IP 服务）",
+      "会员期内增值服务半价（不含 awada lane 租赁）",
+      "可申请服务合作商与定制开发"
+    ]
+  }
+}

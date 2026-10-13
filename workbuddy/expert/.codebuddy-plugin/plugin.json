@@ -1,0 +1,101 @@
+{
+  "name": "xiaobei-growth",
+  "version": "0.3.1",
+  "description": "Operate social media accounts across Xiaohongshu, WeChat official accounts, Douyin, Kuaishou, TikTok, X and Weibo for customer acquisition, with content workflows, asset editing, platform APIs and performance reviews.",
+  "author": {
+    "name": "TeamWiseFlow",
+    "email": "bigbrother666@wiseflow.tech"
+  },
+  "agents": [
+    "./agents/xiaobei-growth.md"
+  ],
+  "skills": [
+    "./skills/xiaobei-runtime",
+    "./skills/xiaobei-video-handoff",
+    "./skills/aigc-video-gen",
+    "./skills/awk-img-gen",
+    "./skills/awk-tts",
+    "./skills/bgm-library",
+    "./skills/content-calibrator",
+    "./skills/council",
+    "./skills/douyin-hunter",
+    "./skills/email-ops",
+    "./skills/expert-bd",
+    "./skills/expert-douyin",
+    "./skills/expert-ir",
+    "./skills/expert-kuaishou",
+    "./skills/expert-tiktok",
+    "./skills/expert-twitter",
+    "./skills/expert-wx-mp",
+    "./skills/expert-xhs",
+    "./skills/kuaishou-hunter",
+    "./skills/native-ui-card",
+    "./skills/pexels-footage",
+    "./skills/pitch-deck",
+    "./skills/pixabay-footage",
+    "./skills/platform-runtime",
+    "./skills/published-track",
+    "./skills/talking-head-cut",
+    "./skills/tiktok-hunter",
+    "./skills/video-edit",
+    "./skills/video-review",
+    "./skills/viral-chaser",
+    "./skills/weibo-hunter",
+    "./skills/weibo-publish",
+    "./skills/wx-mp-hunter",
+    "./skills/wxwork-drive",
+    "./skills/wxwork-moments",
+    "./skills/x-hunter",
+    "./skills/xhs-hunter"
+  ],
+  "expertType": "agent",
+  "agentName": "xiaobei-growth",
+  "displayName": {
+    "en": "Xiaobei",
+    "zh": "小贝"
+  },
+  "profession": {
+    "en": "Social Media Customer Acquisition Expert",
+    "zh": "自媒体获客运营专家"
+  },
+  "displayDescription": {
+    "zh": "帮助OPC与中小企业运营小红书、公众号等账号，通过定位、内容创作发布、潜客互动与数据复盘实现获客。",
+    "en": "Operate social media accounts across Xiaohongshu, WeChat official accounts and other supported platforms to attract customers through positioning, content creation, publishing, outreach and performance reviews."
+  },
+  "avatar": "avatars/xiaobei.png",
+  "categoryId": "05-MarketingGrowth",
+  "defaultInitPrompt": {
+    "zh": "我是做【产品/服务】的，帮我在小红书找10个同赛道账号，逐个提取账号DNA，告诉我该学谁、怎么学。",
+    "en": "My product or service is [describe it]. Find 10 Xiaohongshu accounts in the same niche, extract each account’s content DNA, and tell me whose approach to learn and how."
+  },
+  "plugin": "xiaobei-growth",
+  "homepage": "https://openclaw-for-business.com/",
+  "tags": [
+    {
+      "zh": "账号DNA",
+      "en": "Account DNA"
+    },
+    {
+      "zh": "小红书卡片",
+      "en": "Xiaohongshu Cards"
+    },
+    {
+      "zh": "账号诊断",
+      "en": "Account Diagnosis"
+    }
+  ],
+  "quickPrompts": [
+    {
+      "zh": "我是做【产品/服务】的，帮我在小红书找10个同赛道账号，逐个提取账号DNA，告诉我该学谁、怎么学。",
+      "en": "My product or service is [describe it]. Find 10 Xiaohongshu accounts in the same niche, extract each account’s content DNA, and tell me whose approach to learn and how."
+    },
+    {
+      "zh": "给我的【产品/服务】做一组“问答讨论流”小红书卡片，配好标题、正文和话题，我确认后直接发布。",
+      "en": "Create a Q&A discussion card set for my [product/service] on Xiaohongshu, prepare its title, body and topics, and publish it after I approve."
+    },
+    {
+      "zh": "我的微信公众号是【公众号名/文章链接】，帮我找出定位、内容和获客的问题，给我最该先改的3件事。",
+      "en": "My WeChat official account is [account name/article links]. Diagnose its positioning, content and customer acquisition, and give me the 3 most important fixes."
+    }
+  ]
+}

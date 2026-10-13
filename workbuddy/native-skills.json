@@ -1,0 +1,50 @@
+{
+  "version": "0.3.1",
+  "relay_base_url": "https://relay.openclaw-for-business.com",
+  "exclude_skills": {
+    "expert-osbi": "首版按用户要求不包含 OSBI",
+    "expert-wx-channel": "本版整体移除视频号平台，发布和取数依赖浏览器",
+    "sales-cs-manager": "WorkBuddy 单专家不管理 OpenClaw 客服 crew",
+    "zhihu-publish": "依赖 Camoufox",
+    "ui-demo": "依赖 Camoufox 录屏；使用用户录屏或 WorkBuddy 可用录屏能力",
+    "browser-guide": "专用于 Camoufox",
+    "smart-search": "专用于 Camoufox；检索使用 WorkBuddy 实际可用能力",
+    "web-form-fill": "依赖 Camoufox"
+  },
+  "exclude_paths": {
+    "expert-douyin/tools/douyin-publish": "Camoufox 发布",
+    "expert-douyin/tools/douyin-engagement": "从 Camoufox profile 读取发布凭据",
+    "expert-douyin/tools/_shared/publish_browser.py": "Camoufox 内部运行库",
+    "expert-douyin/tools/_shared/publish-login.md": "已删除的创作者浏览器登录指导",
+    "_shared/aigc_common.py": "原仓空占位文件；真实实现保留在 aigc-video-gen/scripts/aigc_common.py",
+    "expert-wx-mp/tools/wx-mp-engagement": "Camoufox 创作者取数",
+    "platform-runtime/scripts/login.mjs": "Camoufox 登录/导出；API 业务与快手 HTTP 登录保留",
+    "platform-runtime/scripts/browser-snapshot.js": "Camoufox 浏览器登录快照",
+    "_shared/browser_publish_text.py": "仅供已移除的浏览器发布技能使用"
+  },
+  "required_skills": [
+    "published-track",
+    "content-calibrator",
+    "council",
+    "native-ui-card",
+    "viral-chaser",
+    "video-edit",
+    "talking-head-cut",
+    "pitch-deck",
+    "expert-ir",
+    "expert-xhs",
+    "expert-wx-mp",
+    "expert-bd",
+    "douyin-hunter",
+    "xhs-hunter",
+    "bgm-library",
+    "video-review",
+    "email-ops",
+    "awk-img-gen",
+    "awk-tts",
+    "pexels-footage",
+    "pixabay-footage",
+    "aigc-video-gen",
+    "wxwork-drive"
+  ]
+}

@@ -1,0 +1,19 @@
+# WorkBuddy standalone export: central Python dependencies, no OpenClaw install.
+requests
+urllib3
+Pillow
+websockets
+httpx
+zstandard
+curl_cffi>=0.16.2,<0.17
+loguru
+python-dotenv
+qrcode
+numpy>=1.26,<3
+opencv-python-headless>=4.10,<5
+openpyxl>=3.1,<4
+aiohttp>=3.10,<4
+protobuf>=6.31.1,<7
+websocket-client>=1.8,<2
+python-pptx>=1.0,<2
+playwright==1.52.0

@@ -1,0 +1,3411 @@
+{
+  "version": "0.3.1",
+  "skills": [
+    "aigc-video-gen",
+    "awk-img-gen",
+    "awk-tts",
+    "bgm-library",
+    "content-calibrator",
+    "council",
+    "douyin-hunter",
+    "email-ops",
+    "expert-bd",
+    "expert-douyin",
+    "expert-ir",
+    "expert-kuaishou",
+    "expert-tiktok",
+    "expert-twitter",
+    "expert-wx-mp",
+    "expert-xhs",
+    "kuaishou-hunter",
+    "native-ui-card",
+    "pexels-footage",
+    "pitch-deck",
+    "pixabay-footage",
+    "platform-runtime",
+    "published-track",
+    "talking-head-cut",
+    "tiktok-hunter",
+    "video-edit",
+    "video-review",
+    "viral-chaser",
+    "weibo-hunter",
+    "weibo-publish",
+    "wx-mp-hunter",
+    "wxwork-drive",
+    "wxwork-moments",
+    "x-hunter",
+    "xhs-hunter"
+  ],
+  "commands": {
+    "content-calibrator": "content-calibrator/content-calibrator.sh",
+    "douyin-hunter": "douyin-hunter/douyin-hunter.sh",
+    "douyin-login": "douyin-hunter/tools/douyin-login/douyin-login.sh",
+    "bd-record": "expert-bd/tools/bd-record/bd-record.sh",
+    "douyin-im": "expert-bd/tools/douyin-im/douyin-im.sh",
+    "douyin-interact": "expert-bd/tools/douyin-interact/douyin-interact.sh",
+    "douyin-live": "expert-bd/tools/douyin-live/douyin-live.sh",
+    "tiktok-im": "expert-bd/tools/tiktok-im/tiktok-im.sh",
+    "tiktok-interact": "expert-bd/tools/tiktok-interact/tiktok-interact.sh",
+    "tiktok-live": "expert-bd/tools/tiktok-live/tiktok-live.sh",
+    "twitter-im": "expert-bd/tools/twitter-im/twitter-im.sh",
+    "twitter-interact": "expert-bd/tools/twitter-interact/twitter-interact.sh",
+    "xhs-im": "expert-bd/tools/xhs-im/xhs-im.sh",
+    "xhs-live": "expert-bd/tools/xhs-live/xhs-live.sh",
+    "douyin-style-profiler": "expert-douyin/tools/douyin-style-profiler/douyin-style-profiler.sh",
+    "ir-record": "expert-ir/tools/ir-record/ir-record.sh",
+    "kuaishou-engagement": "expert-kuaishou/tools/kuaishou-engagement/kuaishou-engagement.sh",
+    "kuaishou-publish": "expert-kuaishou/tools/kuaishou-publish/kuaishou-publish.sh",
+    "kuaishou-style-profiler": "expert-kuaishou/tools/kuaishou-style-profiler/kuaishou-style-profiler.sh",
+    "tiktok-engagement": "expert-tiktok/tools/tiktok-engagement/tiktok-engagement.sh",
+    "tiktok-publish": "expert-tiktok/tools/tiktok-publish/tiktok-publish.sh",
+    "tiktok-style-profiler": "expert-tiktok/tools/tiktok-style-profiler/tiktok-style-profiler.sh",
+    "twitter-engagement": "expert-twitter/tools/twitter-engagement/twitter-engagement.sh",
+    "twitter-post": "expert-twitter/tools/twitter-post/twitter-post.sh",
+    "twitter-style-profiler": "expert-twitter/tools/twitter-style-profiler/twitter-style-profiler.sh",
+    "generate-wenyan-theme": "expert-wx-mp/tools/generate-wenyan-theme/generate-wenyan-theme.sh",
+    "wechat-style-profiler": "expert-wx-mp/tools/wechat-style-profiler/wechat-style-profiler.sh",
+    "wx-mp-publisher": "expert-wx-mp/tools/wx-mp-publisher/wx-mp-publisher.sh",
+    "xhs-engagement": "expert-xhs/tools/xhs-engagement/xhs-engagement.sh",
+    "xhs-publish": "expert-xhs/tools/xhs-publish/xhs-publish.sh",
+    "xhs-pugongying": "expert-xhs/tools/xhs-pugongying/xhs-pugongying.sh",
+    "xhs-qianfan": "expert-xhs/tools/xhs-qianfan/xhs-qianfan.sh",
+    "xhs-style-profiler": "expert-xhs/tools/xhs-style-profiler/xhs-style-profiler.sh",
+    "kuaishou-hunter": "kuaishou-hunter/kuaishou-hunter.sh",
+    "kuaishou-live": "kuaishou-hunter/tools/kuaishou-live/kuaishou-live.sh",
+    "native-ui-card": "native-ui-card/native-ui-card.sh",
+    "published-track": "published-track/published-track.sh",
+    "talking-head-cut": "talking-head-cut/talking-head-cut.sh",
+    "tiktok-hunter": "tiktok-hunter/tiktok-hunter.sh",
+    "video-edit": "video-edit/video-edit.sh",
+    "viral-chaser": "viral-chaser/viral-chaser.sh",
+    "weibo-hunter": "weibo-hunter/weibo-hunter.sh",
+    "weibo-publish": "weibo-publish/weibo-publish.sh",
+    "wx-mp-hunter": "wx-mp-hunter/wx-mp-hunter.sh",
+    "wxwork-moments": "wxwork-moments/wxwork-moments.sh",
+    "x-hunter": "x-hunter/x-hunter.sh",
+    "xhs-hunter": "xhs-hunter/xhs-hunter.sh",
+    "aigc-video-gen": "aigc-video-gen/aigc-video-gen.sh",
+    "awk-img-gen": "awk-img-gen/awk-img-gen.sh",
+    "awk-tts": "awk-tts/awk-tts.sh",
+    "bgm-library": "bgm-library/bgm-library.sh",
+    "email-ops": "email-ops/email-ops.sh",
+    "pexels-footage": "pexels-footage/pexels-footage.sh",
+    "pixabay-footage": "pixabay-footage/pixabay-footage.sh",
+    "video-review": "video-review/video-review.sh",
+    "wxwork-drive": "wxwork-drive/wxwork-drive.sh",
+    "pitch-deck-longimage": "pitch-deck/scripts/html_to_longimage.py",
+    "pitch-deck-pptx": "pitch-deck/scripts/html_to_pptx.py",
+    "pitch-deck-extract": "pitch-deck/scripts/extract_pptx.py"
+  },
+  "files": [
+    {
+      "source": "crews/main/skills/_shared/douyin_live_cli.py",
+      "target": "_shared/douyin_live_cli.py",
+      "source_sha256": "0cfbed8ffc0831da26a19c3650f606b844f61ecf322e6d4c7b41423ae383dfd0",
+      "sha256": "0cfbed8ffc0831da26a19c3650f606b844f61ecf322e6d4c7b41423ae383dfd0",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/douyin_utils/__init__.py",
+      "target": "_shared/douyin_utils/__init__.py",
+      "source_sha256": "6f56916d2549b4d32c92109481b6e24750e18abfdf2ee959d32a8aa5893487bf",
+      "sha256": "6f56916d2549b4d32c92109481b6e24750e18abfdf2ee959d32a8aa5893487bf",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/douyin_utils/api.py",
+      "target": "_shared/douyin_utils/api.py",
+      "source_sha256": "3632cd5a599236339f730fe71d0ae05778fbecc8b69f14588c911abfb5275815",
+      "sha256": "3632cd5a599236339f730fe71d0ae05778fbecc8b69f14588c911abfb5275815",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/douyin_utils/endpoints.json",
+      "target": "_shared/douyin_utils/endpoints.json",
+      "source_sha256": "125444262af284df7f03f67c61a3279882c8570d5db4f6ad8c197f3cdcf4b267",
+      "sha256": "125444262af284df7f03f67c61a3279882c8570d5db4f6ad8c197f3cdcf4b267",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/douyin_utils/http.py",
+      "target": "_shared/douyin_utils/http.py",
+      "source_sha256": "282616ef48cd48cde82aed8ebad0415a8118bdcd84d666b881f04ac0a16754a9",
+      "sha256": "282616ef48cd48cde82aed8ebad0415a8118bdcd84d666b881f04ac0a16754a9",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/douyin_utils/im_media.py",
+      "target": "_shared/douyin_utils/im_media.py",
+      "source_sha256": "67f7df37663bfcb07c65f3427776decb3040e1496f2283ba1ee8ea9028a77670",
+      "sha256": "67f7df37663bfcb07c65f3427776decb3040e1496f2283ba1ee8ea9028a77670",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/douyin_utils/login.py",
+      "target": "_shared/douyin_utils/login.py",
+      "source_sha256": "ea316ad9efe77cba1a57945a33aea32a7f4127872c82166b07a23c8a45e4bc65",
+      "sha256": "ea316ad9efe77cba1a57945a33aea32a7f4127872c82166b07a23c8a45e4bc65",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/douyin_utils/media.py",
+      "target": "_shared/douyin_utils/media.py",
+      "source_sha256": "ef352a0de02eb7be76c1e1fe0be2ca44696a71af698a5b24094cea3ad673b766",
+      "sha256": "ef352a0de02eb7be76c1e1fe0be2ca44696a71af698a5b24094cea3ad673b766",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/douyin_utils/message.py",
+      "target": "_shared/douyin_utils/message.py",
+      "source_sha256": "62bd857c04312d7bd9de26a728d2ad44434d898b8d8b2fc4bccb61976069ee6b",
+      "sha256": "62bd857c04312d7bd9de26a728d2ad44434d898b8d8b2fc4bccb61976069ee6b",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/douyin_utils/payload.py",
+      "target": "_shared/douyin_utils/payload.py",
+      "source_sha256": "10a62c79e4cf647968dcd508e1f5cb6ad45eb6b50a6ffe3f15342988d7b49336",
+      "sha256": "10a62c79e4cf647968dcd508e1f5cb6ad45eb6b50a6ffe3f15342988d7b49336",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/douyin_utils/pk.py",
+      "target": "_shared/douyin_utils/pk.py",
+      "source_sha256": "b203c363fedc21da47533079c6964e01b620f50c0f066f3ca9562917a558c3b2",
+      "sha256": "b203c363fedc21da47533079c6964e01b620f50c0f066f3ca9562917a558c3b2",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/douyin_utils/proto/Live_pb2.py",
+      "target": "_shared/douyin_utils/proto/Live_pb2.py",
+      "source_sha256": "b51f7bbc803810b3a9068990dfde1ecc143025ba9a1d274dd298ca4e915218a7",
+      "sha256": "b51f7bbc803810b3a9068990dfde1ecc143025ba9a1d274dd298ca4e915218a7",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/douyin_utils/proto/PK_pb2.py",
+      "target": "_shared/douyin_utils/proto/PK_pb2.py",
+      "source_sha256": "643c33b8efff47f477a63a4ba7f123a7a272aa4c651464c6c15cfb071827ac13",
+      "sha256": "643c33b8efff47f477a63a4ba7f123a7a272aa4c651464c6c15cfb071827ac13",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/douyin_utils/proto/Response_pb2.py",
+      "target": "_shared/douyin_utils/proto/Response_pb2.py",
+      "source_sha256": "621ed4326e420905c85c4d82d59b8054bad217a22e07cb0e71396b650bebe82e",
+      "sha256": "621ed4326e420905c85c4d82d59b8054bad217a22e07cb0e71396b650bebe82e",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/douyin_utils/proto/__init__.py",
+      "target": "_shared/douyin_utils/proto/__init__.py",
+      "source_sha256": "edb44bb12480a56510746dcb856a2761c6ea9413e94c07b3fd52b8c47d7ee85e",
+      "sha256": "edb44bb12480a56510746dcb856a2761c6ea9413e94c07b3fd52b8c47d7ee85e",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/douyin_utils/session.py",
+      "target": "_shared/douyin_utils/session.py",
+      "source_sha256": "e9f5989210c85042c998ea324d4d83a63ae203e8b5de8c9e39bb98ba00b47303",
+      "sha256": "be288b3d3163c96c9d86025e9f9364b3634e060b01759fc6199eaac7f9db038c",
+      "adaptations": [
+        "isolated-state-home",
+        "configurable-private-state"
+      ]
+    },
+    {
+      "source": "crews/main/skills/_shared/douyin_utils/verification.py",
+      "target": "_shared/douyin_utils/verification.py",
+      "source_sha256": "4e875deee0112d628b532e0547e634fd702560dd415b98359064be466de8936c",
+      "sha256": "4e875deee0112d628b532e0547e634fd702560dd415b98359064be466de8936c",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/douyin_utils/ws.py",
+      "target": "_shared/douyin_utils/ws.py",
+      "source_sha256": "21c3ae719e150c6ca9183e75fcbe2385ee7783ed8f844fde9d633c9037b6db8f",
+      "sha256": "21c3ae719e150c6ca9183e75fcbe2385ee7783ed8f844fde9d633c9037b6db8f",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/publish_text.py",
+      "target": "_shared/publish_text.py",
+      "source_sha256": "280e09975ed297bad42134f33ca92997fa81a80a4f4663a4da20116b5ced33cc",
+      "sha256": "280e09975ed297bad42134f33ca92997fa81a80a4f4663a4da20116b5ced33cc",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/relay-sign.ts",
+      "target": "_shared/relay-sign.ts",
+      "source_sha256": "ea11d9377feccab29e3c556ff1297f462eff04e4ae6467c82bf5556c65d007b7",
+      "sha256": "ea11d9377feccab29e3c556ff1297f462eff04e4ae6467c82bf5556c65d007b7",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/relay_sign.py",
+      "target": "_shared/relay_sign.py",
+      "source_sha256": "275946bcf972f8bfdbcf48fb5c8060d32a584a091fd0c32f5b70f18cb60049fa",
+      "sha256": "275946bcf972f8bfdbcf48fb5c8060d32a584a091fd0c32f5b70f18cb60049fa",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/runtime_root.py",
+      "target": "_shared/runtime_root.py",
+      "source_sha256": "85a955c3fdcd25c3dfdd2d45c7cbb7bcb8c3df01176bb9c395a18ad25112e563",
+      "sha256": "f8674b823876f6dda6e3971133d44cdd1d4ec9dd5323f1e4eaa50d5dd806e50a",
+      "adaptations": [
+        "isolated-state-home",
+        "configurable-private-state"
+      ]
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_live_cli.py",
+      "target": "_shared/xhs_live_cli.py",
+      "source_sha256": "d8c06471c9b8761a9dc820da3bf68d5d4d99a5867b2e7ec05b757ffdb72c7556",
+      "sha256": "d8c06471c9b8761a9dc820da3bf68d5d4d99a5867b2e7ec05b757ffdb72c7556",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/common_util.py",
+      "target": "_shared/xhs_utils/common_util.py",
+      "source_sha256": "d756d5a91ec97e41799384dd5ec2607cf5f17e52008d68ed9a802142046215c2",
+      "sha256": "d756d5a91ec97e41799384dd5ec2607cf5f17e52008d68ed9a802142046215c2",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/cookie_util.py",
+      "target": "_shared/xhs_utils/cookie_util.py",
+      "source_sha256": "f3225690912797c43bd714f0c13694ca3506b78806d3f34c49199344dfca9be0",
+      "sha256": "f3225690912797c43bd714f0c13694ca3506b78806d3f34c49199344dfca9be0",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/http_util.py",
+      "target": "_shared/xhs_utils/http_util.py",
+      "source_sha256": "47f0b9a4e38928a252ac54c2af4d8b4928625143d03e08668e79b55a48076d2c",
+      "sha256": "47f0b9a4e38928a252ac54c2af4d8b4928625143d03e08668e79b55a48076d2c",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/live.py",
+      "target": "_shared/xhs_utils/live.py",
+      "source_sha256": "8a44a5c1009262e4413c3db5ccd498d4e248d01f89ce30176d7aaace6e3b1d60",
+      "sha256": "8a44a5c1009262e4413c3db5ccd498d4e248d01f89ce30176d7aaace6e3b1d60",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/pc_session.py",
+      "target": "_shared/xhs_utils/pc_session.py",
+      "source_sha256": "0188f75d3ef44680deedb9ed6583a3d592c19544c2502ad3135f395fe47205fe",
+      "sha256": "fa0e9fb1b283ff56a4221e0acd5f43666530c325f9894e57205717fad3778033",
+      "adaptations": [
+        "isolated-state-home",
+        "configurable-private-state"
+      ]
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/relay.py",
+      "target": "_shared/xhs_utils/relay.py",
+      "source_sha256": "dc4d6cda0ae392299ec4032097ff0ac4a3bf47a262693110b118e7c3b2fb1354",
+      "sha256": "dc4d6cda0ae392299ec4032097ff0ac4a3bf47a262693110b118e7c3b2fb1354",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/runtime_logs.py",
+      "target": "_shared/xhs_utils/runtime_logs.py",
+      "source_sha256": "941fbeace498476a3d84658873716ba2e1a6c61dfa49af7c31710e88702d43e4",
+      "sha256": "941fbeace498476a3d84658873716ba2e1a6c61dfa49af7c31710e88702d43e4",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/xhs_core/__init__.py",
+      "target": "_shared/xhs_utils/xhs_core/__init__.py",
+      "source_sha256": "fc044d0043f46cd4ddea2aad83f5a85c8d0131a8159033700f7c405599aab7e8",
+      "sha256": "fc044d0043f46cd4ddea2aad83f5a85c8d0131a8159033700f7c405599aab7e8",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/xhs_core/auth.py",
+      "target": "_shared/xhs_utils/xhs_core/auth.py",
+      "source_sha256": "5a3d5ca97ab5f66d9147336617e554bf53a57f6ada054f026dc62c536eb2e5cb",
+      "sha256": "5a3d5ca97ab5f66d9147336617e554bf53a57f6ada054f026dc62c536eb2e5cb",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/xhs_core/cookies.py",
+      "target": "_shared/xhs_utils/xhs_core/cookies.py",
+      "source_sha256": "a673404f85c662a8edc12fbf3b32ae16f0428433b0b33469192ea6c5419dd9ba",
+      "sha256": "a673404f85c662a8edc12fbf3b32ae16f0428433b0b33469192ea6c5419dd9ba",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/xhs_core/dsl.py",
+      "target": "_shared/xhs_utils/xhs_core/dsl.py",
+      "source_sha256": "d4eebef9bd9d74dd8d6f87bcfa0838814d87ccf12201a1f48a54bbd0fa8532fd",
+      "sha256": "d4eebef9bd9d74dd8d6f87bcfa0838814d87ccf12201a1f48a54bbd0fa8532fd",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/xhs_core/http.py",
+      "target": "_shared/xhs_utils/xhs_core/http.py",
+      "source_sha256": "afeb6ac92e49aee89b436b5360c632722976b9d8871062787dbcdf427a188523",
+      "sha256": "afeb6ac92e49aee89b436b5360c632722976b9d8871062787dbcdf427a188523",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/xhs_core/params.py",
+      "target": "_shared/xhs_utils/xhs_core/params.py",
+      "source_sha256": "118243b0d2a8663d33f5be18d09c43d8b53a5dd1e231faee9ca6f2ddf355f6cc",
+      "sha256": "118243b0d2a8663d33f5be18d09c43d8b53a5dd1e231faee9ca6f2ddf355f6cc",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/xhs_core/runtime.py",
+      "target": "_shared/xhs_utils/xhs_core/runtime.py",
+      "source_sha256": "4faf9067921113757d3f81057399502b0e8a030b9958cc84da8583aca17b0723",
+      "sha256": "4faf9067921113757d3f81057399502b0e8a030b9958cc84da8583aca17b0723",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/xhs_pc/__init__.py",
+      "target": "_shared/xhs_utils/xhs_pc/__init__.py",
+      "source_sha256": "bd5e43b4c30dd21dc43ee1276ee4c8a1994ed78f61a196edc7e1fe7a52427275",
+      "sha256": "bd5e43b4c30dd21dc43ee1276ee4c8a1994ed78f61a196edc7e1fe7a52427275",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/xhs_pc/api.py",
+      "target": "_shared/xhs_utils/xhs_pc/api.py",
+      "source_sha256": "3edcc29d155a60915b46e5fb1f8536fe9cd7677fbe2083187cb080408ffc37be",
+      "sha256": "3edcc29d155a60915b46e5fb1f8536fe9cd7677fbe2083187cb080408ffc37be",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/xhs_pc/auth.py",
+      "target": "_shared/xhs_utils/xhs_pc/auth.py",
+      "source_sha256": "a96fb8519804dd85cf794b2a13e53469de2ae5a9da61506c790ef14129576f4a",
+      "sha256": "a96fb8519804dd85cf794b2a13e53469de2ae5a9da61506c790ef14129576f4a",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/xhs_pc/dsl.py",
+      "target": "_shared/xhs_utils/xhs_pc/dsl.py",
+      "source_sha256": "c28fbd1462d1e01c0789f51b6351a753d8ee1c0e0708f2b16a7803a4877ca5f8",
+      "sha256": "c28fbd1462d1e01c0789f51b6351a753d8ee1c0e0708f2b16a7803a4877ca5f8",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/xhs_pc/http.py",
+      "target": "_shared/xhs_utils/xhs_pc/http.py",
+      "source_sha256": "77a04de74ede37cddb53f8a393a97fccb7421e58ccdbf99c78aaaab165822605",
+      "sha256": "77a04de74ede37cddb53f8a393a97fccb7421e58ccdbf99c78aaaab165822605",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/xhs_pc/login.py",
+      "target": "_shared/xhs_utils/xhs_pc/login.py",
+      "source_sha256": "0a9b41b1ccab1d8401985e6c1f6b77a8fcb53fb1e450640edb950120d382b80e",
+      "sha256": "0a9b41b1ccab1d8401985e6c1f6b77a8fcb53fb1e450640edb950120d382b80e",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/xhs_pc/params.py",
+      "target": "_shared/xhs_utils/xhs_pc/params.py",
+      "source_sha256": "b7e244c5510f9b0b0be0ee0aa5bc2876e6e249666542976ee543c48641563a2b",
+      "sha256": "b7e244c5510f9b0b0be0ee0aa5bc2876e6e249666542976ee543c48641563a2b",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/xhs_pc/runtime.py",
+      "target": "_shared/xhs_utils/xhs_pc/runtime.py",
+      "source_sha256": "c4227fcd35d1a1da1198de58a2f111cd1f81edab25cfa49d1f27f914e7d7eacf",
+      "sha256": "c4227fcd35d1a1da1198de58a2f111cd1f81edab25cfa49d1f27f914e7d7eacf",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/_shared/xhs_utils/xhs_pc/state.py",
+      "target": "_shared/xhs_utils/xhs_pc/state.py",
+      "source_sha256": "ca5be0af86fcfc12368f585da7461058a711fb73b4c89e7336ba2975ccce9423",
+      "sha256": "ca5be0af86fcfc12368f585da7461058a711fb73b4c89e7336ba2975ccce9423",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/content-calibrator/SKILL.md",
+      "target": "content-calibrator/SKILL.md",
+      "source_sha256": "a09792a187cb1af91ac824326555669af0264840b0a11ee73ea687a90792a28e",
+      "sha256": "f428d230c6ead61f6621026823fd014e1a0e16e58240fa635f6b30c7fbc31a72",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/content-calibrator/content-calibrator.sh",
+      "target": "content-calibrator/content-calibrator.sh",
+      "source_sha256": "cb8ec60f70c9f93281afd25822e6f65964c0135b4e9a79a674db3ec5b738276c",
+      "sha256": "38c0dd68cf032ae8848548e3ee4ec7e7a707f7db534089cec842582541ffa95b",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "crews/main/skills/content-calibrator/scripts/dna-eval.py",
+      "target": "content-calibrator/scripts/dna-eval.py",
+      "source_sha256": "7410f27ba80ab506bf630cb95d75e5f12d32323f65c17368c4834630ec8dd2d3",
+      "sha256": "7410f27ba80ab506bf630cb95d75e5f12d32323f65c17368c4834630ec8dd2d3",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/content-calibrator/scripts/dna-eval.sh",
+      "target": "content-calibrator/scripts/dna-eval.sh",
+      "source_sha256": "0e72886ba4108e0d0efa70af0d6c3e2329e14f316aefde94fb099c3831d53a23",
+      "sha256": "0e72886ba4108e0d0efa70af0d6c3e2329e14f316aefde94fb099c3831d53a23",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/content-calibrator/scripts/init.sh",
+      "target": "content-calibrator/scripts/init.sh",
+      "source_sha256": "3b5a40fbaa7f648bd88ec60ccac22986073990cef074092ad7e3791f4f626bc3",
+      "sha256": "92fc59b8d3ff3d5e38d5526b7756fec278d7caf496526df53479a7568168bd4b",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/content-calibrator/scripts/query-metrics.sh",
+      "target": "content-calibrator/scripts/query-metrics.sh",
+      "source_sha256": "52bbc757fbc2891c60ef864a64f385753618ce69de6841f6d0e8ddc1a4760a69",
+      "sha256": "762ef643ce6b64e8e6013b653acf3ae3d52ea9fb856cbb1672065234ed0d26a8",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/council/SKILL.md",
+      "target": "council/SKILL.md",
+      "source_sha256": "39ef7eb8ef6bcdbc79b9d4a63deea786620c263022b7dac1ab1435988cfbe949",
+      "sha256": "6d3a0d0f4aebbc0789abbbd7251394eb955a97ca9e4169818f74c8494854c6df",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/douyin-hunter/SKILL.md",
+      "target": "douyin-hunter/SKILL.md",
+      "source_sha256": "d353ec83b1aa939fa2b260e97a20adc82e9aa703c7f74e30e7eacfe46f69c05c",
+      "sha256": "94e62ceb4e6b283223ea290156eba755af6326d49e5a3b9c6051044a04c785d0",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/douyin-hunter/douyin-hunter.sh",
+      "target": "douyin-hunter/douyin-hunter.sh",
+      "source_sha256": "d7d150c3159104d26611219308b4ef4d8d653f65555c99860bafdc7b76f1746b",
+      "sha256": "d7d150c3159104d26611219308b4ef4d8d653f65555c99860bafdc7b76f1746b",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/douyin-hunter/references/live.md",
+      "target": "douyin-hunter/references/live.md",
+      "source_sha256": "3857b05ef68fbe4804d230949ae6d2f395f9ee2a003fdf68805b44bf7759076d",
+      "sha256": "7f5650ce768aed1e59da84c605636e2b50c3d037a6a0fc7079047ba94daf0596",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/douyin-hunter/scripts/douyin_hunter.py",
+      "target": "douyin-hunter/scripts/douyin_hunter.py",
+      "source_sha256": "69c1964193d530a52316825da8651f4e30d891af9f01e3ff062c231cf057fa38",
+      "sha256": "69c1964193d530a52316825da8651f4e30d891af9f01e3ff062c231cf057fa38",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/douyin-hunter/tools/douyin-login/SKILL.md",
+      "target": "douyin-hunter/tools/douyin-login/SKILL.md",
+      "source_sha256": "74c3abbdd1c770d1b93f936453c0b759025c0b11839f6807562e219823e06653",
+      "sha256": "1b017bf18e834b971afff13e1d5f8f9480a375ab00b04393570ffada9e645dcc",
+      "adaptations": [
+        "isolated-state-home",
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/douyin-hunter/tools/douyin-login/douyin-login.sh",
+      "target": "douyin-hunter/tools/douyin-login/douyin-login.sh",
+      "source_sha256": "aa6988aba8ccb3f333a03dc0bf84f40965f18dc5a61db4fd1d76a543fc4600c1",
+      "sha256": "aa6988aba8ccb3f333a03dc0bf84f40965f18dc5a61db4fd1d76a543fc4600c1",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/douyin-hunter/tools/douyin-login/scripts/douyin_login.py",
+      "target": "douyin-hunter/tools/douyin-login/scripts/douyin_login.py",
+      "source_sha256": "a33813d2abc6ea6da332bea8562ea89b740cc1f03d1328c16b71517b672dc0ee",
+      "sha256": "a33813d2abc6ea6da332bea8562ea89b740cc1f03d1328c16b71517b672dc0ee",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-bd/SKILL.md",
+      "target": "expert-bd/SKILL.md",
+      "source_sha256": "de4ef7dc5ab8431593fb2099acf0627daf0a9c4906f7f598def4bb5bf0fd6dcc",
+      "sha256": "7553c3ae31274d62fa5449c18652126ce5b369d1e55d7ff5b9a6304def31b20e",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/references/interaction-capabilities.md",
+      "target": "expert-bd/references/interaction-capabilities.md",
+      "source_sha256": "8d4f2b8a520bb445ca3dfa035294f725d9ae76989878d0d5e02d6ab982515f36",
+      "sha256": "a7f36d63faed4931ade18add90557d44b0d9b95025d823fa6e34b7b737b42b0a",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/bd-record/SKILL.md",
+      "target": "expert-bd/tools/bd-record/SKILL.md",
+      "source_sha256": "0ffd3639476292b47b38eb807dd2a185d1e2b658ebc69e65a5fcba1ace6bd3fa",
+      "sha256": "9334beb81a590ba0cad7386937a133b632ed95f3dadb5dbf1563f392ebcf0efb",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/bd-record/bd-record.sh",
+      "target": "expert-bd/tools/bd-record/bd-record.sh",
+      "source_sha256": "765b1775bf8bedd60c4fe4b86fe40c259ee14701c37399a205159ff99e510d27",
+      "sha256": "0f88824626c136f9f78124ec3e0d0e30026b98eba5dcdbe8d1b7157ad1bb50cb",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/bd-record/scripts/check-creator.sh",
+      "target": "expert-bd/tools/bd-record/scripts/check-creator.sh",
+      "source_sha256": "8f66b990b9e170d478df9fc8b15ad14cb80ca4487c4d533fe98a0a81111621e4",
+      "sha256": "9f055aac70ff7c4044471b9b721d132a44a2325a39ed44bf79e0c178afd72417",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/bd-record/scripts/check-post.sh",
+      "target": "expert-bd/tools/bd-record/scripts/check-post.sh",
+      "source_sha256": "9471205654bccecc5dcc2d46311545682891d84651ff0ac170e4866d2cb7df05",
+      "sha256": "87ea82d4934985ebde0fd62620e7c5cae1520d10118f901f58cf00c34642e721",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/bd-record/scripts/init-db.sh",
+      "target": "expert-bd/tools/bd-record/scripts/init-db.sh",
+      "source_sha256": "c1fd470ace46afd39b1ed6eded2fdbbfb1d06df4a4f6b1a65fa1772791f92b4b",
+      "sha256": "2cb84ea970227b75bd71428a7d67039780f0e23fe5be5a5dd998ed91e7142ef2",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/bd-record/scripts/record-creator.sh",
+      "target": "expert-bd/tools/bd-record/scripts/record-creator.sh",
+      "source_sha256": "dc63a8b2cbb1db57ce879574d111e9fea542cca235e415fa80390bd9872201ea",
+      "sha256": "bfd4e91ecc30aae8ea37ad2373f38bbb9ae0e53bfda505853f04b8e81d9c7b3f",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/bd-record/scripts/record-post.sh",
+      "target": "expert-bd/tools/bd-record/scripts/record-post.sh",
+      "source_sha256": "a7930bd8a104a3fbd4fc746474d2bdc240e297051768b31de9243daa7e90c4e9",
+      "sha256": "e71a491b61b781ef4aa7d46b701dafdda3926ed6e18e4593a1a7d8d51d4a408a",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/douyin-im/SKILL.md",
+      "target": "expert-bd/tools/douyin-im/SKILL.md",
+      "source_sha256": "793850542dc1b5854fe59da4c78f23da22bcf3b9ba711d2b8c1ce22433215c78",
+      "sha256": "2a18424f64af31ed6967383f7c252ebd355f4eed2d3278df42122233e9799b04",
+      "adaptations": [
+        "isolated-state-home",
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/douyin-im/douyin-im.sh",
+      "target": "expert-bd/tools/douyin-im/douyin-im.sh",
+      "source_sha256": "de5ff223e32850a5dad31c81e27491d13f6da4b65fc1d4aad8b59e3b91b11778",
+      "sha256": "de5ff223e32850a5dad31c81e27491d13f6da4b65fc1d4aad8b59e3b91b11778",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/douyin-im/scripts/douyin_im.py",
+      "target": "expert-bd/tools/douyin-im/scripts/douyin_im.py",
+      "source_sha256": "4f1a26ce1abf9c0d6e2b42c0023ff547c8c26741cdf44ae14ebc9e3d4d738bfb",
+      "sha256": "90d77fef2c9760047809b7831b7df10c980d46c2695e044430e256147d79bc60",
+      "adaptations": [
+        "isolated-state-home",
+        "configurable-private-state"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/douyin-im/scripts/im_wire.py",
+      "target": "expert-bd/tools/douyin-im/scripts/im_wire.py",
+      "source_sha256": "dfd1184f26ea87f1b4f2690568520deed780286a866de13cb4e9e8d7a95d9f3c",
+      "sha256": "dfd1184f26ea87f1b4f2690568520deed780286a866de13cb4e9e8d7a95d9f3c",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/douyin-interact/SKILL.md",
+      "target": "expert-bd/tools/douyin-interact/SKILL.md",
+      "source_sha256": "7839f0be13ebace52c4f1106ad7c7c75c203ee3853fc24e338ebbb3209f4d800",
+      "sha256": "91693d9b94d58421845126354b79b819c9e038bead9e534251c2e74f6d7121e7",
+      "adaptations": [
+        "isolated-state-home",
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/douyin-interact/douyin-interact.sh",
+      "target": "expert-bd/tools/douyin-interact/douyin-interact.sh",
+      "source_sha256": "8d7536eb0aff5f962d2958eef7bf4d9f32a6f23dfc92be3836f64df545470060",
+      "sha256": "8d7536eb0aff5f962d2958eef7bf4d9f32a6f23dfc92be3836f64df545470060",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/douyin-interact/scripts/douyin_interact.py",
+      "target": "expert-bd/tools/douyin-interact/scripts/douyin_interact.py",
+      "source_sha256": "d42876513323584b61f535b79c4b0411c4b906441076401d675b05e7276a67ca",
+      "sha256": "d42876513323584b61f535b79c4b0411c4b906441076401d675b05e7276a67ca",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/douyin-live/SKILL.md",
+      "target": "expert-bd/tools/douyin-live/SKILL.md",
+      "source_sha256": "33d58e5d256ccb3e0ff96e933e31348b282b322799db585f413b6cff1a3e28a1",
+      "sha256": "1346f00d1bf3c498c6523181767cc7582807034ab16848fe2d5fbc624ab6ebb5",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/douyin-live/douyin-live.sh",
+      "target": "expert-bd/tools/douyin-live/douyin-live.sh",
+      "source_sha256": "f08b9f1961071866f4a4eed789ace1ca9317bac004f1bfabfbf6b3a6da5b3dc4",
+      "sha256": "f08b9f1961071866f4a4eed789ace1ca9317bac004f1bfabfbf6b3a6da5b3dc4",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/tiktok-im/SKILL.md",
+      "target": "expert-bd/tools/tiktok-im/SKILL.md",
+      "source_sha256": "75df4f5a5095b087efec99f3cc5e76a2b30e4a74aa1d4829d4239c065d95764f",
+      "sha256": "bb3d8392d2692894df0841f7e97f2a37f2c69a9773e89f3183f50da25fbb0219",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/tiktok-im/tiktok-im.sh",
+      "target": "expert-bd/tools/tiktok-im/tiktok-im.sh",
+      "source_sha256": "f5998e842f21fc4871e05f6ba8cb53435a94efdec92151dcd568fa3d4eb9c4e5",
+      "sha256": "f5998e842f21fc4871e05f6ba8cb53435a94efdec92151dcd568fa3d4eb9c4e5",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/tiktok-interact/SKILL.md",
+      "target": "expert-bd/tools/tiktok-interact/SKILL.md",
+      "source_sha256": "00d5ce35300129bc8d4071f69232dc1d943a36edfd8bedb693520faa03de4c41",
+      "sha256": "529395793d0e19e5f46c48c4ab3c2e65ea724efa285dbf431d55ce262ff0af88",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/tiktok-interact/tiktok-interact.sh",
+      "target": "expert-bd/tools/tiktok-interact/tiktok-interact.sh",
+      "source_sha256": "76ed0a1083b80a35d34d1fefed8478ca602c6dc7bf26174ac520ed1792db1a5c",
+      "sha256": "76ed0a1083b80a35d34d1fefed8478ca602c6dc7bf26174ac520ed1792db1a5c",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/tiktok-live/SKILL.md",
+      "target": "expert-bd/tools/tiktok-live/SKILL.md",
+      "source_sha256": "aed484fc148236d64d44147472ff4962647189ffe5d242b9c0827023af78faf2",
+      "sha256": "7fa899541c690179c6b18bca0b3e805de2479714f304304540ac4fc9318b8fbb",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/tiktok-live/tiktok-live.sh",
+      "target": "expert-bd/tools/tiktok-live/tiktok-live.sh",
+      "source_sha256": "fc5030d22b71c80823187af4064520fc5794ae18f8c7cd1414b4c1b6d0c26d20",
+      "sha256": "fc5030d22b71c80823187af4064520fc5794ae18f8c7cd1414b4c1b6d0c26d20",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/twitter-im/SKILL.md",
+      "target": "expert-bd/tools/twitter-im/SKILL.md",
+      "source_sha256": "542c5e528c13598f68c8a399062005b324ba55965cdcc710f85c6e5f2c6c8925",
+      "sha256": "93058a7cd5a6225055d39022c515dbb886a80593ca18ed5d424a8bf4b5c08e1c",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/twitter-im/twitter-im.sh",
+      "target": "expert-bd/tools/twitter-im/twitter-im.sh",
+      "source_sha256": "53309b60dc4a009a34aec2c05572f064df4a02569dfb3caa482c3b6381baddf3",
+      "sha256": "53309b60dc4a009a34aec2c05572f064df4a02569dfb3caa482c3b6381baddf3",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/twitter-interact/SKILL.md",
+      "target": "expert-bd/tools/twitter-interact/SKILL.md",
+      "source_sha256": "574015a0c447aa1ea2474f5cd87fe2ea09a5a52bad6cf32652369662f0eb1702",
+      "sha256": "a6d8959af11867863e92a4ee7cfc2bfe852e3af55b19ade6a56bf2ec79a7282a",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/twitter-interact/twitter-interact.sh",
+      "target": "expert-bd/tools/twitter-interact/twitter-interact.sh",
+      "source_sha256": "455a7917da2ec37cf064109da451d2d7acfb8e6abf648d532cc23eb33bf9fa2e",
+      "sha256": "455a7917da2ec37cf064109da451d2d7acfb8e6abf648d532cc23eb33bf9fa2e",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/xhs-im/SKILL.md",
+      "target": "expert-bd/tools/xhs-im/SKILL.md",
+      "source_sha256": "fd5e4704986ceba791d7dd6e8b8248246771ac644812631f9a31042e3db4455f",
+      "sha256": "7fc5c1b13944a1da6132c689d54d1909bb1b48f18eb732a3cf8c1497182ffdd2",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/xhs-im/xhs-im.sh",
+      "target": "expert-bd/tools/xhs-im/xhs-im.sh",
+      "source_sha256": "f38fd0848949939464fa9b371d4a438ffe005bf0dd89f439e8504a8fe2359b7c",
+      "sha256": "f38fd0848949939464fa9b371d4a438ffe005bf0dd89f439e8504a8fe2359b7c",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/xhs-live/SKILL.md",
+      "target": "expert-bd/tools/xhs-live/SKILL.md",
+      "source_sha256": "ee55eed192d3ca55ebe0612f86c394aabb8f212f3c38a7bf24790b5aa10e7d3b",
+      "sha256": "e101e2491416de71c24d6e493526a406fafeefa2a90523b097d527e3b7a582c4",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/tools/xhs-live/xhs-live.sh",
+      "target": "expert-bd/tools/xhs-live/xhs-live.sh",
+      "source_sha256": "6922802389e659b63b78bfe2e02ceb593d8fa016a344c3887bf119eb67c9d004",
+      "sha256": "443dd1f5c5868ab4efdfb06ec65520d60ac32e4a45eef9c23d142c567756623e",
+      "adaptations": [
+        "staged-regular-wrapper-path"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/workflows/interaction.md",
+      "target": "expert-bd/workflows/interaction.md",
+      "source_sha256": "fbd49469def43d6389b0edb63fb57913d5a1bd4c4f9b70a06483126c0adbb666",
+      "sha256": "a39a7d5b2ad385727822b4ca2109fb9e1fe294da57f295b28d7f3a3b1a0106c2",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/workflows/lead-hunting.md",
+      "target": "expert-bd/workflows/lead-hunting.md",
+      "source_sha256": "c9975bee85f35df490044c8ae7c443ba403f92ed9cc6909b490f5659676479db",
+      "sha256": "5d9356b6630b45021c1dd959d094ce9061fe1fb0e45aff5eea156eb7198b6ecf",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-bd/workflows/live-interaction.md",
+      "target": "expert-bd/workflows/live-interaction.md",
+      "source_sha256": "4eb2a15bc49c50bd5fd0fc33e01442c49e386c21e34ab36c01534dc6ec2798f5",
+      "sha256": "fd3883b2b9db66c2b29b4c29342e8d39770e8f0d2258de0f95b4017a53e7b213",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-douyin/SKILL.md",
+      "target": "expert-douyin/SKILL.md",
+      "source_sha256": "9d373206cd3e8c01acaa5e097e212fbf6dd8fc835b09c7f3c9870970745d336e",
+      "sha256": "54999fd1caa6f4c797f051f33eb008512aac88344156e57cbb0b50d96b7f31be",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-douyin/references/api-capabilities.md",
+      "target": "expert-douyin/references/api-capabilities.md",
+      "source_sha256": "3da7946213ae71e3bebbf2f85707b9c344980aa2b869633d558617cc0c95567c",
+      "sha256": "955614fbeafe5c5f8f959f75ab17e7b0f22a775420b1ae1a81b04be98c885026",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-douyin/tools/douyin-style-profiler/SKILL.md",
+      "target": "expert-douyin/tools/douyin-style-profiler/SKILL.md",
+      "source_sha256": "ce5b443b8b51d29b29dcc8b75a78d16930873ad07c06cdccf0d531c48004c48d",
+      "sha256": "c2eb39a86a2abd55238c21cbe1f99599fa098d87c542a6fe9c01c73eb390612a",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-douyin/tools/douyin-style-profiler/douyin-style-profiler.sh",
+      "target": "expert-douyin/tools/douyin-style-profiler/douyin-style-profiler.sh",
+      "source_sha256": "1beef93a38fefa24066038de02c1132af64999b22c00692d5875d19608c13dd2",
+      "sha256": "f0ff4712e0047ad5cab683030cce80f0c3a3fc9b5ae1a8886191fad81c2ffc06",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-douyin/tools/douyin-style-profiler/references/note-dna-framework.md",
+      "target": "expert-douyin/tools/douyin-style-profiler/references/note-dna-framework.md",
+      "source_sha256": "d16a5ed4fae242a9dd0cacb06e482561fa10a2f48c2455bd6fc47359922dade9",
+      "sha256": "c308dbe4512395b4e87843f9f9caaecf282d6a6512b55547e5371915d88b093f",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-douyin/tools/douyin-style-profiler/references/video-dna-framework.md",
+      "target": "expert-douyin/tools/douyin-style-profiler/references/video-dna-framework.md",
+      "source_sha256": "f23d826ead8dc637fcaf7fd194b536328e8a6eb320a422b2efa23a37cc6f5443",
+      "sha256": "20e4f63263f43189b4cfb144988c3366d69f7b73486c83f93bce4d8c4151840e",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-douyin/tools/douyin-style-profiler/scripts/build_style_profile.py",
+      "target": "expert-douyin/tools/douyin-style-profiler/scripts/build_style_profile.py",
+      "source_sha256": "d187cbbecab7dddea35c95abc65b0f64381768d83ce295fd1f24274283bf90f1",
+      "sha256": "d187cbbecab7dddea35c95abc65b0f64381768d83ce295fd1f24274283bf90f1",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-douyin/workflows/account-benchmark.md",
+      "target": "expert-douyin/workflows/account-benchmark.md",
+      "source_sha256": "febb6ad5994f269beb418362da96a30fdb6d0311fb82b280f0a50aa57ee1aaff",
+      "sha256": "bcb3cc91f56c88653dbe157226005a4d1b274b7a1d0ab16aaa8c39a123847188",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-douyin/workflows/account-setup.md",
+      "target": "expert-douyin/workflows/account-setup.md",
+      "source_sha256": "d0e438b8e1d6f35b086514a7249e96f1fb7e9b4353d987460c44cd93b12747da",
+      "sha256": "6953224987c9f0494428b08e376fce25104354171c83585d9d6b2eb93d84bd98",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-douyin/workflows/content-production.md",
+      "target": "expert-douyin/workflows/content-production.md",
+      "source_sha256": "7a5a4a49e9121ad55c873f2eae54e5b8d194a1c0970c95a17b6963f5a26731d2",
+      "sha256": "ae50fbefb7e855dd31cd71be1cbb4879069564d1e42ad2292f0a14fa8bcb5a79",
+      "adaptations": [
+        "workbuddy-routing",
+        "single-final-newline"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-douyin/workflows/editing.md",
+      "target": "expert-douyin/workflows/editing.md",
+      "source_sha256": "044136d7c0684a7a6e175ea1388b3240db5b1d5dbcd1269e525e2a722d063300",
+      "sha256": "a3b3ee73607a9d5d94f0dabeeac87f2bcf31a3711e18e2c0a4b2682d5e3d6ca7",
+      "adaptations": [
+        "workbuddy-routing",
+        "single-final-newline"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-douyin/workflows/native-ui-cards.md",
+      "target": "expert-douyin/workflows/native-ui-cards.md",
+      "source_sha256": "2ff8a8fb9418ad8ed6ef685ef567af86e76d8c4a8439fb68dd7d2813a946d953",
+      "sha256": "af39e2fe7bb19b5b20e376a122b2bcffb3cf7f1592cfbc1b90ceff3aa5b36e9b",
+      "adaptations": [
+        "workbuddy-routing",
+        "single-final-newline"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-douyin/workflows/review.md",
+      "target": "expert-douyin/workflows/review.md",
+      "source_sha256": "b468b418cb4faa6bdb7712d48003848a84fe048911e466ed7ca975d5d7316637",
+      "sha256": "7b33eba6017ebf7d7be68ee08e4db9082aee554ccb67206125a614036ee82f61",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-douyin/workflows/style-dna.md",
+      "target": "expert-douyin/workflows/style-dna.md",
+      "source_sha256": "c6474813bd606706f36b637e29177b0fe3668ffab51a136353c05898cd3bc14a",
+      "sha256": "4a949f6ffbde007b278d95d9d70a591136f7f748347ea8b3f45d5a1a60a0a9c7",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-ir/SKILL.md",
+      "target": "expert-ir/SKILL.md",
+      "source_sha256": "9e2572bdae7aeb413d95bd735c7c85b7a7ce44c5cfa0ba97321fbccb10900da8",
+      "sha256": "905a95a385e0115f96811ce78c4d36e33b2d8a76706c183c5df4e1c0a5bfce55",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-ir/scheduling.md",
+      "target": "expert-ir/scheduling.md",
+      "source_sha256": "87c36be92d577cc8dc3d674c9d65dfc2cd04af9c2b9f8e4b32f733f7ef485ca9",
+      "sha256": "021969bb0b1a63b3087d39d61f21b42236e0d596db7e1b159b253dc22a48b961",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-ir/tools/ir-record/SKILL.md",
+      "target": "expert-ir/tools/ir-record/SKILL.md",
+      "source_sha256": "1aea07c11f25ca2638998d5c1cd8fe50cd31d7a36415f879980b301abc7f4e1b",
+      "sha256": "9c0739c72f0735110512f80e50a97b2be7d673ce3174e4db50297f7fdf23dee6",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-ir/tools/ir-record/ir-record.sh",
+      "target": "expert-ir/tools/ir-record/ir-record.sh",
+      "source_sha256": "f28c392a42aaeddeb10a6268939dafb805a7dfd168eb66913c1d2a29ec15cdd3",
+      "sha256": "db7d0dc30824982fda2a382471de602076677a21db705f40eb3d3feaabbfd465",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-ir/tools/ir-record/scripts/check-application.sh",
+      "target": "expert-ir/tools/ir-record/scripts/check-application.sh",
+      "source_sha256": "ffd5bbf8006d51b844fa9b3255b23fcbc75fb7a58434409d822dd2eff68f1da0",
+      "sha256": "89d39270cf6da3e263abaeaa6dbb08b0669f471d7619fceb914aca1a5776cc38",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-ir/tools/ir-record/scripts/check-contact.sh",
+      "target": "expert-ir/tools/ir-record/scripts/check-contact.sh",
+      "source_sha256": "45deebd2a7d32298b2959c21470d4d42798e92066ed99d1a3af0504ba08f6434",
+      "sha256": "438d8427e33bba064b312b28c5da270ab23075ff96e1faf4f4c0dc8c4573187f",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-ir/tools/ir-record/scripts/check-investor.sh",
+      "target": "expert-ir/tools/ir-record/scripts/check-investor.sh",
+      "source_sha256": "9d262488518cda7fb510c672e846941e2ed6ffa53a9e964ba0917b06248d9b4d",
+      "sha256": "c6e2e6da5d142c0e36028e50143004fd9759ee8eed56254059de19e88ccf44df",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-ir/tools/ir-record/scripts/init-db.sh",
+      "target": "expert-ir/tools/ir-record/scripts/init-db.sh",
+      "source_sha256": "9c144009997ad5a30939b9ebd879de6cfdc2ee02161ac522128bfabdfa2390ec",
+      "sha256": "e78a4117d5f52ec87dc011d74a047905141d35e13693305b82f5188fee87114f",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-ir/tools/ir-record/scripts/query-applications.sh",
+      "target": "expert-ir/tools/ir-record/scripts/query-applications.sh",
+      "source_sha256": "94ebd0165e585d9153798428fef40fbd1397f2b4ea9a079293f8ba5b0e130489",
+      "sha256": "0fe7bd32b96be80d0de6cf2f16ae5fc796db7ef2c71ed1ce3c0959dddc3fb85f",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-ir/tools/ir-record/scripts/query-progress.sh",
+      "target": "expert-ir/tools/ir-record/scripts/query-progress.sh",
+      "source_sha256": "301356fe216825f2f6b0f60cc397cfbdbde38bb9c105269506e37fa92712252f",
+      "sha256": "d8fd17ea138aa9641693da74a83bc485f0d1a9de1969dd6b4816135b545faae2",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-ir/tools/ir-record/scripts/query-stale.sh",
+      "target": "expert-ir/tools/ir-record/scripts/query-stale.sh",
+      "source_sha256": "87e9251de82a824c207befe12ae9868de2b179ce4e00abf8a9dcdae4318ee41b",
+      "sha256": "b2a78ea97a0a43d180a39fc752115d228b5e68ecee9b3204e92a9a356c1afa10",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-ir/tools/ir-record/scripts/record-application.sh",
+      "target": "expert-ir/tools/ir-record/scripts/record-application.sh",
+      "source_sha256": "40c5db0f99f997cb4c428e00440c0b631255144c00e2f5eead9ec054eff8214b",
+      "sha256": "38ff2f34dd96cee9eafb478be2cac73fc9f422db3a6659bbbd600059300ed4e9",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-ir/tools/ir-record/scripts/record-contact.sh",
+      "target": "expert-ir/tools/ir-record/scripts/record-contact.sh",
+      "source_sha256": "c66415775a661819bf950498ac160b3e67d8d09d84257a6184755b2f6027fc4b",
+      "sha256": "fbf2e061d93898b9229d1c152e1a4b65becb2f7824d48c456a8af22899645025",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-ir/tools/ir-record/scripts/record-investor.sh",
+      "target": "expert-ir/tools/ir-record/scripts/record-investor.sh",
+      "source_sha256": "7174c4e16494dcf6c11e8b962bd67f779877cf8809dcc96a0acb3320b1cc6c4d",
+      "sha256": "9075411241a463a9216844a15cf668445eef44171ae9c765f812e8431e93d617",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-ir/tools/ir-record/scripts/update-application.sh",
+      "target": "expert-ir/tools/ir-record/scripts/update-application.sh",
+      "source_sha256": "31edb5c3992df8f7d61bc0e2f2a1bf4c8d2dc6e8cef7ebb3819f7760cb60c90e",
+      "sha256": "b2f4852206a5915664cf43ecd9cebaa62cd7dee30637a5c7147368e8040ba6e8",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-ir/tools/ir-record/scripts/update-status.sh",
+      "target": "expert-ir/tools/ir-record/scripts/update-status.sh",
+      "source_sha256": "10fd42ed67917fb720efd01750f389e9bb1d0ac1dd196603e1c3b3d290a2a40c",
+      "sha256": "311b234c02d5592659e6491288d4472688dda3ccf811d0c2ecfca055cee8796f",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-ir/workflows/investor-hunting.md",
+      "target": "expert-ir/workflows/investor-hunting.md",
+      "source_sha256": "581a4162ee9660898e6492de1d81073ed4fe92535045803836294897d1b00c31",
+      "sha256": "150f0efdf06df3d550ccb292cdcd61d479846fa1dd2b79f25e133a58f4e69bb6",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-ir/workflows/investor-materials.md",
+      "target": "expert-ir/workflows/investor-materials.md",
+      "source_sha256": "0904b15a2d0954e64d3f5e48c2f67803138206037fea4a76c33dc287e1eb0353",
+      "sha256": "2971c695168b171912172ff6d82e54fa2d2ba1f4cd5b9776b16200022582beab",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-ir/workflows/investor-outreach.md",
+      "target": "expert-ir/workflows/investor-outreach.md",
+      "source_sha256": "4a44e2d35961328812e3e8168396f04da5b0ea1a012848461e49b0e2fd814a83",
+      "sha256": "a577517686aa5b10e95b0884ac5dc1c3bdacc1ad003a4b2f9e14e4c945601de6",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-ir/workflows/investor-pipeline.md",
+      "target": "expert-ir/workflows/investor-pipeline.md",
+      "source_sha256": "e558b798b808a7008c37cef1f1a1dfd7793ed08f482fbbda1c4487cd0c9d3d40",
+      "sha256": "e558b798b808a7008c37cef1f1a1dfd7793ed08f482fbbda1c4487cd0c9d3d40",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-ir/workflows/project-application.md",
+      "target": "expert-ir/workflows/project-application.md",
+      "source_sha256": "1e403affbdda6c17eff79c60eadffcbd713cb82a687943554a1bc48e451db1ef",
+      "sha256": "03b7fa4b2ef24c7b98d924c69f77f9cbcc6ffb441d6a110bbaa09216b0e3aac1",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-kuaishou/SKILL.md",
+      "target": "expert-kuaishou/SKILL.md",
+      "source_sha256": "68c05c54337b9455e8eeaf97b5ae420bdcf558ead35473eedaa65277ead2e868",
+      "sha256": "b9ac444f0ba746fd34f0051df5097fd6946db5421b247c2cb25d79a12a6dd661",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-kuaishou/tools/kuaishou-engagement/SKILL.md",
+      "target": "expert-kuaishou/tools/kuaishou-engagement/SKILL.md",
+      "source_sha256": "d0b0cc349cd5944da8171a54b0c973bcc52271a829516311730adc0253626db5",
+      "sha256": "e025862b0aad3b1fd69c3747c0da66949a20f4ad08182a4e80d4b239fef4250d",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-kuaishou/tools/kuaishou-engagement/kuaishou-engagement.sh",
+      "target": "expert-kuaishou/tools/kuaishou-engagement/kuaishou-engagement.sh",
+      "source_sha256": "ef6e5defcf1715b376c3cbf822a78fead905a093b792d0e033c53169da77c8f1",
+      "sha256": "ef6e5defcf1715b376c3cbf822a78fead905a093b792d0e033c53169da77c8f1",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-kuaishou/tools/kuaishou-publish/SKILL.md",
+      "target": "expert-kuaishou/tools/kuaishou-publish/SKILL.md",
+      "source_sha256": "cd0f930dd784a175057d05c4adac29fb794e98daf81859f14dab93e00f4d1d06",
+      "sha256": "0abfdb38f810375e85c79ef55393e552f823783699d8c8d1aef46fa9cbf9d135",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-kuaishou/tools/kuaishou-publish/kuaishou-publish.sh",
+      "target": "expert-kuaishou/tools/kuaishou-publish/kuaishou-publish.sh",
+      "source_sha256": "8e2767cb9ab1959f6435cd8d53a3e50ebd9cc1cb176a008095fdb22969f11113",
+      "sha256": "8e2767cb9ab1959f6435cd8d53a3e50ebd9cc1cb176a008095fdb22969f11113",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-kuaishou/tools/kuaishou-style-profiler/SKILL.md",
+      "target": "expert-kuaishou/tools/kuaishou-style-profiler/SKILL.md",
+      "source_sha256": "a53bf916659b9c46b7c1a9807f812ceb9005b88f21a2c06e319cff074268cc44",
+      "sha256": "635233cb22efc7b11bd0e6fbad95c1f722aa8998311b30df8b2f1d0da1bdf6d3",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-kuaishou/tools/kuaishou-style-profiler/kuaishou-style-profiler.sh",
+      "target": "expert-kuaishou/tools/kuaishou-style-profiler/kuaishou-style-profiler.sh",
+      "source_sha256": "932a04c59389ed73d64439a2917e08a79da32880e345f2e1057308e1b7809c6f",
+      "sha256": "932a04c59389ed73d64439a2917e08a79da32880e345f2e1057308e1b7809c6f",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-kuaishou/workflows/account-benchmark.md",
+      "target": "expert-kuaishou/workflows/account-benchmark.md",
+      "source_sha256": "5ad4396f1f0f5ffb43b27c060669747558b08a0f8854b1f2d2528ac3c35d8ca6",
+      "sha256": "5ad4396f1f0f5ffb43b27c060669747558b08a0f8854b1f2d2528ac3c35d8ca6",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-kuaishou/workflows/account-setup.md",
+      "target": "expert-kuaishou/workflows/account-setup.md",
+      "source_sha256": "831da2477550611adedb3e9ed02707b5fadb84454d689371bac99f0bca5bf4ba",
+      "sha256": "831da2477550611adedb3e9ed02707b5fadb84454d689371bac99f0bca5bf4ba",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-kuaishou/workflows/content-production.md",
+      "target": "expert-kuaishou/workflows/content-production.md",
+      "source_sha256": "c2eb1c6f0d9e35ff91bbeb63fa7f464fba28d5615ac03135a8f287ac464e56dc",
+      "sha256": "bba1e9404ad5a35eab6e7887c71c39c59f48aacf838600cf4287a3f2ee2a0442",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-kuaishou/workflows/editing.md",
+      "target": "expert-kuaishou/workflows/editing.md",
+      "source_sha256": "81934dbe35da9bb2944eb76378d0086c715024e08f5d4a1d96c92e92fb863a74",
+      "sha256": "5e8e18777d4a4ca1b42dc1325db2b5736e3f679bd5b9b38c6cf066887e5da704",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-kuaishou/workflows/native-ui-cards.md",
+      "target": "expert-kuaishou/workflows/native-ui-cards.md",
+      "source_sha256": "564dd8ec46cee3e30ac7cd386913318c038420dc9e690e264b07030f52adab8c",
+      "sha256": "564dd8ec46cee3e30ac7cd386913318c038420dc9e690e264b07030f52adab8c",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-kuaishou/workflows/review.md",
+      "target": "expert-kuaishou/workflows/review.md",
+      "source_sha256": "a031e6573bfcb1e68f32fd6435fc077ef92b3dda1505c7f47fdedba3655b2f8c",
+      "sha256": "a031e6573bfcb1e68f32fd6435fc077ef92b3dda1505c7f47fdedba3655b2f8c",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-kuaishou/workflows/style-dna.md",
+      "target": "expert-kuaishou/workflows/style-dna.md",
+      "source_sha256": "8c213a59b3659c408b9d507c2d19cfa7534997a4616ae29ec610386ddc977ba2",
+      "sha256": "8c213a59b3659c408b9d507c2d19cfa7534997a4616ae29ec610386ddc977ba2",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-tiktok/SKILL.md",
+      "target": "expert-tiktok/SKILL.md",
+      "source_sha256": "eaf84cb1ee4aac41ce0eb77c697a7f28f43a7b0e3f9fd519f18c7a38501ecbb8",
+      "sha256": "4b0ecf8e3bf874583cb6bb1a38b995330cc850acfaf4a31b9eb504908568b0cc",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-tiktok/tools/tiktok-engagement/SKILL.md",
+      "target": "expert-tiktok/tools/tiktok-engagement/SKILL.md",
+      "source_sha256": "66e91d053141c4055d91574d393060c3cc300861dd0f900bb90091ce755c6031",
+      "sha256": "71e9e73c1c437489949e4c5ba2d25593b8a74b5bf517720a4676ed621af41063",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-tiktok/tools/tiktok-engagement/tiktok-engagement.sh",
+      "target": "expert-tiktok/tools/tiktok-engagement/tiktok-engagement.sh",
+      "source_sha256": "6a6952ebd0415c18bed2d7c1c42d011537f6e7daa178df947e16b677aa92b168",
+      "sha256": "6a6952ebd0415c18bed2d7c1c42d011537f6e7daa178df947e16b677aa92b168",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-tiktok/tools/tiktok-publish/SKILL.md",
+      "target": "expert-tiktok/tools/tiktok-publish/SKILL.md",
+      "source_sha256": "67f2db5bd7df271269654dfbf9ce56f7a0260925796d4d3ca89950710bf6e365",
+      "sha256": "6d03a9549f7df0935d839ed9b9cee97b991faefde0ae37596913a678452807ca",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-tiktok/tools/tiktok-publish/tiktok-publish.sh",
+      "target": "expert-tiktok/tools/tiktok-publish/tiktok-publish.sh",
+      "source_sha256": "8bce62aba617281ae926fba65ede347ef8e0eba414fa64deef5fd56db7cd9206",
+      "sha256": "8bce62aba617281ae926fba65ede347ef8e0eba414fa64deef5fd56db7cd9206",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-tiktok/tools/tiktok-style-profiler/SKILL.md",
+      "target": "expert-tiktok/tools/tiktok-style-profiler/SKILL.md",
+      "source_sha256": "b9447559ec3eac0265542bd5ca7725fff39c85663b91fb469e2916161e18d4ee",
+      "sha256": "99ae1ed53025831aea68443deed84d0b4ad896b00b27f3217b4c88ffcddfdc17",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-tiktok/tools/tiktok-style-profiler/tiktok-style-profiler.sh",
+      "target": "expert-tiktok/tools/tiktok-style-profiler/tiktok-style-profiler.sh",
+      "source_sha256": "9338c327aa1e8aaa8208489d50ac100cd8f320787867e9e04fdad5797cf55f12",
+      "sha256": "9338c327aa1e8aaa8208489d50ac100cd8f320787867e9e04fdad5797cf55f12",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-tiktok/workflows/account-benchmark.md",
+      "target": "expert-tiktok/workflows/account-benchmark.md",
+      "source_sha256": "bfe4b937772e633354b1526455790599fab416c4480c0a7acf75dcc522c32bc6",
+      "sha256": "bfe4b937772e633354b1526455790599fab416c4480c0a7acf75dcc522c32bc6",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-tiktok/workflows/account-setup.md",
+      "target": "expert-tiktok/workflows/account-setup.md",
+      "source_sha256": "f6e3de7a2154b836f81919d09cc10b1e67fff6175ac7c24d0bbb0b2c387dfe6f",
+      "sha256": "f6e3de7a2154b836f81919d09cc10b1e67fff6175ac7c24d0bbb0b2c387dfe6f",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-tiktok/workflows/content-production.md",
+      "target": "expert-tiktok/workflows/content-production.md",
+      "source_sha256": "49e280277e952b1ea5919c2ce52aef116a01b881d16b4ab89dd3672664f0d8c3",
+      "sha256": "edb6fecf74669ef45669bf216ce3760125d018d07fe4bd3e860fb55c6f230acb",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-tiktok/workflows/editing.md",
+      "target": "expert-tiktok/workflows/editing.md",
+      "source_sha256": "81934dbe35da9bb2944eb76378d0086c715024e08f5d4a1d96c92e92fb863a74",
+      "sha256": "5e8e18777d4a4ca1b42dc1325db2b5736e3f679bd5b9b38c6cf066887e5da704",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-tiktok/workflows/native-ui-cards.md",
+      "target": "expert-tiktok/workflows/native-ui-cards.md",
+      "source_sha256": "9d76643201f2bfc7fb315d0c01fea7301e651f011978f278730013d8dd1538d2",
+      "sha256": "9d76643201f2bfc7fb315d0c01fea7301e651f011978f278730013d8dd1538d2",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-tiktok/workflows/review.md",
+      "target": "expert-tiktok/workflows/review.md",
+      "source_sha256": "a88084b6b4383ccb8e95231c5a7b973f47d9f17bfb213b38d80c08628fc76ab6",
+      "sha256": "a88084b6b4383ccb8e95231c5a7b973f47d9f17bfb213b38d80c08628fc76ab6",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-tiktok/workflows/style-dna.md",
+      "target": "expert-tiktok/workflows/style-dna.md",
+      "source_sha256": "773a6f517f62556ecd881b560b2cf32c65810afeed200ce339933ffd75e61070",
+      "sha256": "773a6f517f62556ecd881b560b2cf32c65810afeed200ce339933ffd75e61070",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-twitter/SKILL.md",
+      "target": "expert-twitter/SKILL.md",
+      "source_sha256": "b11410c1ffb9439ef0005a69a4f45a537dbf46807ecdea5884f79e65edbe8e9b",
+      "sha256": "3741925ee4e3e173f7eef97432931dea2425f638bad042133ebb72206f82aa5e",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-twitter/tools/twitter-engagement/SKILL.md",
+      "target": "expert-twitter/tools/twitter-engagement/SKILL.md",
+      "source_sha256": "e466a5f2d036f47991013bcecfc4e275348ffc0548de70121787e4a5ef58c821",
+      "sha256": "ecfb110273d04f0e751de5c219c3509643ace7fbf512775244a93caf5f1c7923",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-twitter/tools/twitter-engagement/twitter-engagement.sh",
+      "target": "expert-twitter/tools/twitter-engagement/twitter-engagement.sh",
+      "source_sha256": "ceea05779d49a248d9912f5531a556080fc4ad8ba741a1194894ca5131bea577",
+      "sha256": "ceea05779d49a248d9912f5531a556080fc4ad8ba741a1194894ca5131bea577",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-twitter/tools/twitter-post/SKILL.md",
+      "target": "expert-twitter/tools/twitter-post/SKILL.md",
+      "source_sha256": "dc7661e5d95055d43b11721eac96fe662d0bd9dfab60ce2d2264db2744d282e4",
+      "sha256": "a4447d8b4f7e8455b37ea70be73eb53e3ec77603b98b5bd0dbc33ca50d522d29",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-twitter/tools/twitter-post/twitter-post.sh",
+      "target": "expert-twitter/tools/twitter-post/twitter-post.sh",
+      "source_sha256": "87209dbf8ae221656c3c5ce3f7cf3c67b039ccfde2c18557faf5d475db18a9bd",
+      "sha256": "87209dbf8ae221656c3c5ce3f7cf3c67b039ccfde2c18557faf5d475db18a9bd",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-twitter/tools/twitter-style-profiler/SKILL.md",
+      "target": "expert-twitter/tools/twitter-style-profiler/SKILL.md",
+      "source_sha256": "d551964536cceeec49adc4ec77393539254111e93a640aacf19d0fcdee462a98",
+      "sha256": "eb7bce3d4ad58b1a99c7d043d41543fc984c23bd48bd7c7610a2c8d8de2e0838",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-twitter/tools/twitter-style-profiler/twitter-style-profiler.sh",
+      "target": "expert-twitter/tools/twitter-style-profiler/twitter-style-profiler.sh",
+      "source_sha256": "8758e5185975848273004f7f8ad346998c7201e0f5e833f61512f2bd12cd2fc1",
+      "sha256": "8758e5185975848273004f7f8ad346998c7201e0f5e833f61512f2bd12cd2fc1",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-twitter/workflows/account-benchmark.md",
+      "target": "expert-twitter/workflows/account-benchmark.md",
+      "source_sha256": "d5e887bded568d1ee7ac874f4fdc6d262a53a8d864f2219f48c5dfc36892446c",
+      "sha256": "d5e887bded568d1ee7ac874f4fdc6d262a53a8d864f2219f48c5dfc36892446c",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-twitter/workflows/account-setup.md",
+      "target": "expert-twitter/workflows/account-setup.md",
+      "source_sha256": "7339c237a5b6c1e0a08924caf90ee3f35ea69848a111a9d585442ce687e6baa1",
+      "sha256": "7339c237a5b6c1e0a08924caf90ee3f35ea69848a111a9d585442ce687e6baa1",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-twitter/workflows/content-production.md",
+      "target": "expert-twitter/workflows/content-production.md",
+      "source_sha256": "17335194941407a82f9e0e7ac640bae9b98fdcfa81de34dde619e52267273e03",
+      "sha256": "f704498493f873ae97c1e1a519cff63cebbf4b7ccfc81c1c1fabca6908860b60",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-twitter/workflows/editing.md",
+      "target": "expert-twitter/workflows/editing.md",
+      "source_sha256": "81934dbe35da9bb2944eb76378d0086c715024e08f5d4a1d96c92e92fb863a74",
+      "sha256": "5e8e18777d4a4ca1b42dc1325db2b5736e3f679bd5b9b38c6cf066887e5da704",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-twitter/workflows/native-ui-cards.md",
+      "target": "expert-twitter/workflows/native-ui-cards.md",
+      "source_sha256": "3582b36ddcfc7ca9ed62eb8c8774771d060c811d369060baf1333f19d79e63bc",
+      "sha256": "3582b36ddcfc7ca9ed62eb8c8774771d060c811d369060baf1333f19d79e63bc",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-twitter/workflows/review.md",
+      "target": "expert-twitter/workflows/review.md",
+      "source_sha256": "3d5422db2edff92fb5cb914e7ad25bab9ca0fd1782e569352e5e7aa715a1d317",
+      "sha256": "3d5422db2edff92fb5cb914e7ad25bab9ca0fd1782e569352e5e7aa715a1d317",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-twitter/workflows/style-dna.md",
+      "target": "expert-twitter/workflows/style-dna.md",
+      "source_sha256": "e546c1fa7d900b2bda12a7bee59e4ba1c55c09e9a2b0cf35ca5b6988ac39bed7",
+      "sha256": "e546c1fa7d900b2bda12a7bee59e4ba1c55c09e9a2b0cf35ca5b6988ac39bed7",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-wx-mp/SKILL.md",
+      "target": "expert-wx-mp/SKILL.md",
+      "source_sha256": "a66ea2e6771dc3bbaef2778b86c588ecb4797f1616e165056f6dc7969bbb3968",
+      "sha256": "31aaf83f1dbced32fdade2b586e1af8d69b090417d0aa49e24fd6323fc4f2d24",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-wx-mp/tools/generate-wenyan-theme/SKILL.md",
+      "target": "expert-wx-mp/tools/generate-wenyan-theme/SKILL.md",
+      "source_sha256": "ea35e2a3de73ae0fb9772c7c70f153539274b51dc95731b7adda51a099bd09ca",
+      "sha256": "7f3d02f38b0b2f792784271c18d1f15b00a22a69760c03a9426593c08eb5c693",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-wx-mp/tools/generate-wenyan-theme/generate-wenyan-theme.sh",
+      "target": "expert-wx-mp/tools/generate-wenyan-theme/generate-wenyan-theme.sh",
+      "source_sha256": "5a9e0439e54430e4575836faaa66d743261b4b8d11d2814468689420322eaf05",
+      "sha256": "9ebcbb2e86b160226454c59d98d38d9e1e3b0026e056f72c55ac4203e3096806",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-wx-mp/tools/generate-wenyan-theme/scripts/collect-theme-sources.js",
+      "target": "expert-wx-mp/tools/generate-wenyan-theme/scripts/collect-theme-sources.js",
+      "source_sha256": "89909fc6ee0cec0ede41c460403a028bb78d2f46a4d7a778e7784695f6665882",
+      "sha256": "e27edf9a3277598a6e7e6385fdd7293a7bd317dce7fd2fb8d3f2cf5d12bba37c",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-wx-mp/tools/wechat-style-profiler/SKILL.md",
+      "target": "expert-wx-mp/tools/wechat-style-profiler/SKILL.md",
+      "source_sha256": "c6be1c00e0ec25c1852c7e921fdda87b779928914e3a731b1c60c1fc45126a80",
+      "sha256": "8eb00daf1df1dd10958c724c90ae89641d69e7f3ebf04e5d40b41dc5edda27b3",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-wx-mp/tools/wechat-style-profiler/references/style-17d-framework.md",
+      "target": "expert-wx-mp/tools/wechat-style-profiler/references/style-17d-framework.md",
+      "source_sha256": "ce395f0c246b9fead6141f28010a460f5f8769574389af0e70e0d6714558860d",
+      "sha256": "ce395f0c246b9fead6141f28010a460f5f8769574389af0e70e0d6714558860d",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-wx-mp/tools/wechat-style-profiler/scripts/build_style_profile.py",
+      "target": "expert-wx-mp/tools/wechat-style-profiler/scripts/build_style_profile.py",
+      "source_sha256": "c8d253444f11523797deabdde2d77caafb016e739c58c811dcec3842fcdb066e",
+      "sha256": "c8d253444f11523797deabdde2d77caafb016e739c58c811dcec3842fcdb066e",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-wx-mp/tools/wechat-style-profiler/wechat-style-profiler.sh",
+      "target": "expert-wx-mp/tools/wechat-style-profiler/wechat-style-profiler.sh",
+      "source_sha256": "1beef93a38fefa24066038de02c1132af64999b22c00692d5875d19608c13dd2",
+      "sha256": "f0ff4712e0047ad5cab683030cce80f0c3a3fc9b5ae1a8886191fad81c2ffc06",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-wx-mp/tools/wx-mp-publisher/REFERENCE.md",
+      "target": "expert-wx-mp/tools/wx-mp-publisher/REFERENCE.md",
+      "source_sha256": "5b32d5e978a88498835fdbca4b1939ac2bd133063eeba5bc6a3d1f42e2e875a7",
+      "sha256": "f003dc7b3e9cb921702fb2e02b5ad0fb2e47cfb2b92949005e57614ac222164a",
+      "adaptations": [
+        "isolated-state-home",
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-wx-mp/tools/wx-mp-publisher/SKILL.md",
+      "target": "expert-wx-mp/tools/wx-mp-publisher/SKILL.md",
+      "source_sha256": "6619192128c98cd1c04f47967d4deec84eefae1305c747aa38d4f6c0f533f6b0",
+      "sha256": "f57f70794e8484a964b01301eb25aa7b303b6c4b84d3adc6a73022c3fd610e1e",
+      "adaptations": [
+        "isolated-state-home",
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-wx-mp/tools/wx-mp-publisher/accounts.example.json",
+      "target": "expert-wx-mp/tools/wx-mp-publisher/accounts.example.json",
+      "source_sha256": "34d52a059fa6dd7ef8dae7c906fb54f4c5281490e49eb5a7bb8fce40133e5bad",
+      "sha256": "34d52a059fa6dd7ef8dae7c906fb54f4c5281490e49eb5a7bb8fce40133e5bad",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-wx-mp/tools/wx-mp-publisher/scripts/publish_wx_mp.py",
+      "target": "expert-wx-mp/tools/wx-mp-publisher/scripts/publish_wx_mp.py",
+      "source_sha256": "96a70e9f9dc6c25b52bdea0272138dfd83f6682d73aa6797e0d3dab89dd1af00",
+      "sha256": "212cb583cc054fdf554408468d542387126deab4282d4cd378cbd3f323253ec1",
+      "adaptations": [
+        "isolated-state-home",
+        "configurable-private-state",
+        "publisher-theme-workspace"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-wx-mp/tools/wx-mp-publisher/wx-mp-publisher.sh",
+      "target": "expert-wx-mp/tools/wx-mp-publisher/wx-mp-publisher.sh",
+      "source_sha256": "65d830e58fe304fb35e79b2d62115147c710eccd183d877e29050f28aedfa25f",
+      "sha256": "3761d8d22843b3323a26fd2af4b336a44d6538f76dbd4532d5b64c9e49192fa4",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-wx-mp/workflows/account-benchmark.md",
+      "target": "expert-wx-mp/workflows/account-benchmark.md",
+      "source_sha256": "e8f69136d4a9269e12dd342a42361368a2a5840ca6ec2f6410c52f7e159a84fb",
+      "sha256": "d49a40674cbdc1e8f9139c73f10ec36400e31eac807aeee49773a84c4c8742b5",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-wx-mp/workflows/account-setup.md",
+      "target": "expert-wx-mp/workflows/account-setup.md",
+      "source_sha256": "104fe2d3d36cc66c90ebf5521244c261785a4cdd29c25058c0eb61142827017e",
+      "sha256": "45b3bbe73a9e1bbbab9eb76ba4167bfd237dee33a118ac857ad62aa71bc5fef7",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-wx-mp/workflows/content-production.md",
+      "target": "expert-wx-mp/workflows/content-production.md",
+      "source_sha256": "4262bac4c95966b702bc5635143778488963ff73e0b712efabd4c519d3a7e655",
+      "sha256": "3100fe9d59af7b98aec86c146b9857fcb7f3accfc21ac209c12bd5110a74de5d",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-wx-mp/workflows/editing.md",
+      "target": "expert-wx-mp/workflows/editing.md",
+      "source_sha256": "ebd52b66edb92982db97f98314d7a6911f5f3bc4af188e8cac30ff9ae20587a6",
+      "sha256": "ebd52b66edb92982db97f98314d7a6911f5f3bc4af188e8cac30ff9ae20587a6",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-wx-mp/workflows/review.md",
+      "target": "expert-wx-mp/workflows/review.md",
+      "source_sha256": "316038b1ac2e583d024cd32d6464c2f60304fe21c73fd8bc34221b98d3a6d1b5",
+      "sha256": "c421fae32e9aac7f27d06f62f7d6d57e86ff9ee2fcb1e82d3a03eead3f335b02",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-wx-mp/workflows/style-dna.md",
+      "target": "expert-wx-mp/workflows/style-dna.md",
+      "source_sha256": "0178c8550043d3d8aeaf168da0460936803a0c9e9cc4702530b79e474d70bcd9",
+      "sha256": "fc5954bc210617d4ebbca073063b395c1adae4026caf036a3598354017270f3a",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/SKILL.md",
+      "target": "expert-xhs/SKILL.md",
+      "source_sha256": "6ffdbf3b56dccfeb635c8d7bce4b8a99e3cb801bb2e2125af38e02c3c136cceb",
+      "sha256": "16b5bc6572c313dc1d6d602d79eb54638c16ed473989f71ff400f1d90ce23918",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/scripts/apis/__init__.py",
+      "target": "expert-xhs/tools/scripts/apis/__init__.py",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/scripts/apis/xhs_creator_apis.py",
+      "target": "expert-xhs/tools/scripts/apis/xhs_creator_apis.py",
+      "source_sha256": "e26620982e235897d925bb2b5f2f2fb47a3d6f270e0201a7303e01636bc758b5",
+      "sha256": "e26620982e235897d925bb2b5f2f2fb47a3d6f270e0201a7303e01636bc758b5",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/scripts/apis/xhs_creator_login_apis.py",
+      "target": "expert-xhs/tools/scripts/apis/xhs_creator_login_apis.py",
+      "source_sha256": "72c65a64eb6c94c57d40cf21f2b67b3e7390c23e62982b2f8869c2fd97c1ab82",
+      "sha256": "72c65a64eb6c94c57d40cf21f2b67b3e7390c23e62982b2f8869c2fd97c1ab82",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/scripts/apis/xhs_pugongying_apis.py",
+      "target": "expert-xhs/tools/scripts/apis/xhs_pugongying_apis.py",
+      "source_sha256": "c6eca6248afdea7ea71d83952cda06ff7a18b3c97737601cf3550de6e104f886",
+      "sha256": "c6eca6248afdea7ea71d83952cda06ff7a18b3c97737601cf3550de6e104f886",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/scripts/apis/xhs_qianfan_apis.py",
+      "target": "expert-xhs/tools/scripts/apis/xhs_qianfan_apis.py",
+      "source_sha256": "6c5c82f279cd7b87dc9523a1a549b5202ccc2fdf92e175441d3596a2312c2287",
+      "sha256": "6c5c82f279cd7b87dc9523a1a549b5202ccc2fdf92e175441d3596a2312c2287",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/scripts/creator_session.py",
+      "target": "expert-xhs/tools/scripts/creator_session.py",
+      "source_sha256": "00307ab2aa3f6d6a1de2853b6258e45b43bcab091cf256ef963afcefc0fb53fa",
+      "sha256": "18b60ad65cd80e65380bb559798a68b8cc05ee7c3276abf5d42895241cc792af",
+      "adaptations": [
+        "isolated-state-home",
+        "configurable-private-state"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/scripts/xhs_partnership_cli.py",
+      "target": "expert-xhs/tools/scripts/xhs_partnership_cli.py",
+      "source_sha256": "423e5befe5ce8492e464c0d5041ee78fae9a93f76629acc1ae93ffc1ddd37705",
+      "sha256": "b1f04fd5e11a7d453473e8dd8eebf492e8be3e633c31783c414d3adc0e6f090d",
+      "adaptations": [
+        "isolated-state-home",
+        "configurable-private-state"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/scripts/xhs_utils/__init__.py",
+      "target": "expert-xhs/tools/scripts/xhs_utils/__init__.py",
+      "source_sha256": "07221d431c7c64deb7a55fe7484a2c7fd14e5d176b3bbaf2506d1f74fbc5a510",
+      "sha256": "07221d431c7c64deb7a55fe7484a2c7fd14e5d176b3bbaf2506d1f74fbc5a510",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/scripts/xhs_utils/xhs_creator/__init__.py",
+      "target": "expert-xhs/tools/scripts/xhs_utils/xhs_creator/__init__.py",
+      "source_sha256": "47e5a62d931b9047e8772afa1b5dd621ad81102f86d5c403eef37dd10caa9803",
+      "sha256": "47e5a62d931b9047e8772afa1b5dd621ad81102f86d5c403eef37dd10caa9803",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/scripts/xhs_utils/xhs_creator/auth.py",
+      "target": "expert-xhs/tools/scripts/xhs_utils/xhs_creator/auth.py",
+      "source_sha256": "c56539ec8257a0286f40a893144b034af9844bdcadce8333785cabe0e741c5fd",
+      "sha256": "c56539ec8257a0286f40a893144b034af9844bdcadce8333785cabe0e741c5fd",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/scripts/xhs_utils/xhs_creator/dsl.py",
+      "target": "expert-xhs/tools/scripts/xhs_utils/xhs_creator/dsl.py",
+      "source_sha256": "a69ed2d9dac546c8645be10c80b9cf34407c683b68ea9bc8f06dab18fd2f4339",
+      "sha256": "a69ed2d9dac546c8645be10c80b9cf34407c683b68ea9bc8f06dab18fd2f4339",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/scripts/xhs_utils/xhs_creator/http.py",
+      "target": "expert-xhs/tools/scripts/xhs_utils/xhs_creator/http.py",
+      "source_sha256": "ceb7fe7fd8c96f3811e06a073a7c8e8fd87827b9b37abb7442c5f52159b569d3",
+      "sha256": "ceb7fe7fd8c96f3811e06a073a7c8e8fd87827b9b37abb7442c5f52159b569d3",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/scripts/xhs_utils/xhs_creator/params.py",
+      "target": "expert-xhs/tools/scripts/xhs_utils/xhs_creator/params.py",
+      "source_sha256": "8ac14857ac383acb6568c5994a961ee8a59c8cb0e30ddf381aa92fb65febf61a",
+      "sha256": "8ac14857ac383acb6568c5994a961ee8a59c8cb0e30ddf381aa92fb65febf61a",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/scripts/xhs_utils/xhs_creator/runtime.py",
+      "target": "expert-xhs/tools/scripts/xhs_utils/xhs_creator/runtime.py",
+      "source_sha256": "9e1626dc11a67abaf54e4a24d349a8f06cb6e5e0920f69a131a22cb7d39b97b2",
+      "sha256": "9e1626dc11a67abaf54e4a24d349a8f06cb6e5e0920f69a131a22cb7d39b97b2",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/scripts/xhs_utils/xhs_creator/state.py",
+      "target": "expert-xhs/tools/scripts/xhs_utils/xhs_creator/state.py",
+      "source_sha256": "d6b3281d4f206d70c8fc31ea7f4efa04e134c90ac26551f9d021a41f32efab6e",
+      "sha256": "d6b3281d4f206d70c8fc31ea7f4efa04e134c90ac26551f9d021a41f32efab6e",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/scripts/xhs_utils/xhs_creator_util.py",
+      "target": "expert-xhs/tools/scripts/xhs_utils/xhs_creator_util.py",
+      "source_sha256": "f8b559b1c11f65c79f1f468e6242477dc8e0e12fc6a98f806f680c5736e01751",
+      "sha256": "f8b559b1c11f65c79f1f468e6242477dc8e0e12fc6a98f806f680c5736e01751",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/scripts/xhs_utils/xhs_pugongying_util.py",
+      "target": "expert-xhs/tools/scripts/xhs_utils/xhs_pugongying_util.py",
+      "source_sha256": "872e87cea08453b3a1e10b7e9a7c756142081245b98ab160817aee01209b9d90",
+      "sha256": "872e87cea08453b3a1e10b7e9a7c756142081245b98ab160817aee01209b9d90",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/scripts/xhs_utils/xhs_qianfan_util.py",
+      "target": "expert-xhs/tools/scripts/xhs_utils/xhs_qianfan_util.py",
+      "source_sha256": "f2dd0288c7e73f41bfcdb46a81b791c88ecf6774ae2e4f531fc133584dc507ab",
+      "sha256": "f2dd0288c7e73f41bfcdb46a81b791c88ecf6774ae2e4f531fc133584dc507ab",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/xhs-engagement/SKILL.md",
+      "target": "expert-xhs/tools/xhs-engagement/SKILL.md",
+      "source_sha256": "674ff3a1ccdb372b611ac455a6a55c1d1918e2dbf7ba6470f01fd26240d87b53",
+      "sha256": "02f107b99707ed6f4acd6b42195f16a8151be4bd61ffe67d443cd96f8922775f",
+      "adaptations": [
+        "isolated-state-home",
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/xhs-engagement/scripts/xhs_engagement.py",
+      "target": "expert-xhs/tools/xhs-engagement/scripts/xhs_engagement.py",
+      "source_sha256": "735332c63594386d3829e19726a75bc94fab4fc2704f91e891cf857823226cce",
+      "sha256": "a1d7b0c828e14358715ceb1110c170d23e08643321224dfff6a54f3ad446397c",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/xhs-engagement/xhs-engagement.sh",
+      "target": "expert-xhs/tools/xhs-engagement/xhs-engagement.sh",
+      "source_sha256": "a7ac03778ea0f490462be46a6eee26bbe6bc6fac44a55777027512ee2ebb68ee",
+      "sha256": "ed1c6df899ae820a3e8c509c08872ea04184572ed7c6f734a3668461a128f5be",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/xhs-publish/SKILL.md",
+      "target": "expert-xhs/tools/xhs-publish/SKILL.md",
+      "source_sha256": "46bcfaa225842773a27b81c811dc9015f7b0f7efea9ab1047548d26c45474386",
+      "sha256": "fbbe5e8da9b7eef1c2eec31bb12b6cdad88b93cc5007221ffc604f398a027427",
+      "adaptations": [
+        "isolated-state-home",
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/xhs-publish/scripts/creator_local_cli.py",
+      "target": "expert-xhs/tools/xhs-publish/scripts/creator_local_cli.py",
+      "source_sha256": "33209210ce7733c21bcde97259c33f048db886a0338675d5759b173f56e8bd4e",
+      "sha256": "8f83735673afe9166d0a16a05763c9f527ef231c7efbf6aaf7c6c27717d6f2fd",
+      "adaptations": [
+        "isolated-state-home",
+        "configurable-private-state"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/xhs-publish/scripts/publish_xhs.py",
+      "target": "expert-xhs/tools/xhs-publish/scripts/publish_xhs.py",
+      "source_sha256": "ad50eec1bbc16f8cd9b8b2257a90692e20feeb7d1055c4a8762395290744df27",
+      "sha256": "ad50eec1bbc16f8cd9b8b2257a90692e20feeb7d1055c4a8762395290744df27",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/xhs-publish/xhs-publish.sh",
+      "target": "expert-xhs/tools/xhs-publish/xhs-publish.sh",
+      "source_sha256": "80e0bf732d8c5b4189b44fbc191d0b9517d7886d496a3ec23eb410d3f53b0c7c",
+      "sha256": "80e0bf732d8c5b4189b44fbc191d0b9517d7886d496a3ec23eb410d3f53b0c7c",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/xhs-pugongying/SKILL.md",
+      "target": "expert-xhs/tools/xhs-pugongying/SKILL.md",
+      "source_sha256": "3398adeffe12c7bf8b173a8ac10268bf458422fa36b6e8dfbf0e41886d5f6342",
+      "sha256": "b3cc8799c8601d692c4401be32f82707599b85e0d4de9d08634840449b4da480",
+      "adaptations": [
+        "isolated-state-home",
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/xhs-pugongying/xhs-pugongying.sh",
+      "target": "expert-xhs/tools/xhs-pugongying/xhs-pugongying.sh",
+      "source_sha256": "3eb38f0fe15a1e465eb3a2242648399eae5cba037251f07484898fa05ca50441",
+      "sha256": "3eb38f0fe15a1e465eb3a2242648399eae5cba037251f07484898fa05ca50441",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/xhs-qianfan/SKILL.md",
+      "target": "expert-xhs/tools/xhs-qianfan/SKILL.md",
+      "source_sha256": "57d177020ef739173d0a2f24b2de6a082b805db1a9070752dda9f9f9ada70ee9",
+      "sha256": "8e8e0b9bc33545b7058ebfadaaf410f90a8a0ca4b1716c4cb095a0482b887f10",
+      "adaptations": [
+        "isolated-state-home",
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/xhs-qianfan/xhs-qianfan.sh",
+      "target": "expert-xhs/tools/xhs-qianfan/xhs-qianfan.sh",
+      "source_sha256": "8243a920338ae28050f7c1e2c949eafee29a22cd3487a6f1e41b38f54099196e",
+      "sha256": "8243a920338ae28050f7c1e2c949eafee29a22cd3487a6f1e41b38f54099196e",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/xhs-style-profiler/SKILL.md",
+      "target": "expert-xhs/tools/xhs-style-profiler/SKILL.md",
+      "source_sha256": "c6fc41116cdeefffe70d0e3965d787de959ae63d045802bc5010db2981539f90",
+      "sha256": "a3d753da1debe9231de04b0dd0ac46e55e7ebe89768a5db0387f542c0ae48e05",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/xhs-style-profiler/references/note-dna-framework.md",
+      "target": "expert-xhs/tools/xhs-style-profiler/references/note-dna-framework.md",
+      "source_sha256": "a71146b93316940a4f7246daf566a55ff00f7c8b261825038b6a1fd095fd760a",
+      "sha256": "a51c9af657bc79fc0c3d9f006daecd29b3c40ece564fd0728cc6127b0244bd60",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/xhs-style-profiler/references/video-dna-framework.md",
+      "target": "expert-xhs/tools/xhs-style-profiler/references/video-dna-framework.md",
+      "source_sha256": "1cb147097c65ffb466b6d7e5075cca7315ac5e90cd28ceb8c244b1e55fc08d43",
+      "sha256": "dd619f5ef91ce04c87d550610c60761ad09ea5bfee67c3ace674493bea3f8782",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/xhs-style-profiler/scripts/build_style_profile.py",
+      "target": "expert-xhs/tools/xhs-style-profiler/scripts/build_style_profile.py",
+      "source_sha256": "a4a2745613d4772577b027545e380680f1a875329d5c6520db22afd9e1d0b057",
+      "sha256": "a4a2745613d4772577b027545e380680f1a875329d5c6520db22afd9e1d0b057",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/tools/xhs-style-profiler/xhs-style-profiler.sh",
+      "target": "expert-xhs/tools/xhs-style-profiler/xhs-style-profiler.sh",
+      "source_sha256": "1beef93a38fefa24066038de02c1132af64999b22c00692d5875d19608c13dd2",
+      "sha256": "f0ff4712e0047ad5cab683030cce80f0c3a3fc9b5ae1a8886191fad81c2ffc06",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/workflows/account-benchmark.md",
+      "target": "expert-xhs/workflows/account-benchmark.md",
+      "source_sha256": "3704adee16ed19fa46f9dabf8273695a2df4ff1b44866f1e6ed9ee91429817d5",
+      "sha256": "3704adee16ed19fa46f9dabf8273695a2df4ff1b44866f1e6ed9ee91429817d5",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/workflows/account-setup.md",
+      "target": "expert-xhs/workflows/account-setup.md",
+      "source_sha256": "a437ceb27cf3477c5a7f9e0b896cf0b3adea560ec54dc2a1032835f1613adeca",
+      "sha256": "cbaaea6675e3d85f157c063cef9703d1c4615c3436b53743ac31db22d408621d",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/workflows/content-production.md",
+      "target": "expert-xhs/workflows/content-production.md",
+      "source_sha256": "cd00474e53ab19d31c7a95bff6418a9853be8b09a2f9cd16219f6ca9c2931efa",
+      "sha256": "5c7ab3e1412f65beeaf4742190d0e74a6ac566e6448fed8c9a3cc84a764559bd",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/workflows/editing.md",
+      "target": "expert-xhs/workflows/editing.md",
+      "source_sha256": "ee9089bf68b007662e4872523f98c1c35574918840b2e021b18cb051ae2cf1a7",
+      "sha256": "ee9089bf68b007662e4872523f98c1c35574918840b2e021b18cb051ae2cf1a7",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/workflows/native-ui-cards.md",
+      "target": "expert-xhs/workflows/native-ui-cards.md",
+      "source_sha256": "91e6fb64b8f38b94b8936445fee9d9005468dc7dfd768202924e2c1607b6038b",
+      "sha256": "d8e72166819b6fb1d27694eb53646a67823c394dd2a87d0e2c7e3521d2646ccc",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/workflows/pugongying-cooperation.md",
+      "target": "expert-xhs/workflows/pugongying-cooperation.md",
+      "source_sha256": "88f08c60c39f6268219661b1afa1a41ebaf4bf68c81531543cac2d7e91e909d2",
+      "sha256": "88f08c60c39f6268219661b1afa1a41ebaf4bf68c81531543cac2d7e91e909d2",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/workflows/qianfan-cooperation.md",
+      "target": "expert-xhs/workflows/qianfan-cooperation.md",
+      "source_sha256": "3ea13dcbe73436de1858c6ce92e16a6fb1bb7dc666b91b91df591db70391f81b",
+      "sha256": "3ea13dcbe73436de1858c6ce92e16a6fb1bb7dc666b91b91df591db70391f81b",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/workflows/review.md",
+      "target": "expert-xhs/workflows/review.md",
+      "source_sha256": "e8ff326f9d8274a99648426ed5f642d324536da2840cb93046a66a8b0f5fde82",
+      "sha256": "3749123a26533579a65ec2d4760fdf06de3ba96ac985849d89baa1c956ea3b6e",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/expert-xhs/workflows/style-dna.md",
+      "target": "expert-xhs/workflows/style-dna.md",
+      "source_sha256": "c30b163a709d1447307f8f4b70dc6d0d9080ec12179a40e3ac9adc9f19ee4bfc",
+      "sha256": "5a89d23b7f0867d1b4583fd15b3aa8010e702b36ce971acbe520ecbc384a1341",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/kuaishou-hunter/SKILL.md",
+      "target": "kuaishou-hunter/SKILL.md",
+      "source_sha256": "f759386d0b33a06bc277abb3fe3b36966bf99c599376688f4c11a6aaddfbeb6c",
+      "sha256": "442497c16d0315ac345f60053f05f35116eb9699b9642c1e8d9617b96f1e36f3",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/kuaishou-hunter/kuaishou-hunter.sh",
+      "target": "kuaishou-hunter/kuaishou-hunter.sh",
+      "source_sha256": "46dfcf90acdbd3bcd58bb4c83e778771b323524704167344152063e88cf1865a",
+      "sha256": "46dfcf90acdbd3bcd58bb4c83e778771b323524704167344152063e88cf1865a",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/kuaishou-hunter/tools/kuaishou-live/SKILL.md",
+      "target": "kuaishou-hunter/tools/kuaishou-live/SKILL.md",
+      "source_sha256": "ce9cc17d9c39cd10969388997bd94a4ea697e9e01dc912a8dd0807a395597c1f",
+      "sha256": "48d942cd98f1ebca6c42da14b65e05ac31f43619714a04772c716e10c70725ac",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/kuaishou-hunter/tools/kuaishou-live/kuaishou-live.sh",
+      "target": "kuaishou-hunter/tools/kuaishou-live/kuaishou-live.sh",
+      "source_sha256": "755f47ea349cc922ab8f3c09b56d0c8bb6ff5aff073c3e1412de4bc1f7dc8f40",
+      "sha256": "755f47ea349cc922ab8f3c09b56d0c8bb6ff5aff073c3e1412de4bc1f7dc8f40",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/SKILL.md",
+      "target": "native-ui-card/SKILL.md",
+      "source_sha256": "880d96c7f49d14eed1df23cf68b682276b2c697068f2b8bdc26bb5a75f7faeea",
+      "sha256": "8ba160320b9dc0334b7649ad5f7b023de0af2a9245cc75a9c64aadac9b1063e9",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-01.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-01.jpg",
+      "source_sha256": "6b4d23032dc867362d5ed6c07a816b88cb855d871b926f4a55785cbc8ee76a69",
+      "sha256": "6b4d23032dc867362d5ed6c07a816b88cb855d871b926f4a55785cbc8ee76a69",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-02.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-02.jpg",
+      "source_sha256": "0814db0fdf088dc7c4d1e29b9e1238677fe360e839cee04ed9e8d183ca5e0180",
+      "sha256": "0814db0fdf088dc7c4d1e29b9e1238677fe360e839cee04ed9e8d183ca5e0180",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-03.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-03.jpg",
+      "source_sha256": "95261fda1d2b309255a2f2828cce9740fb45345b0fb1786a08269e7a05ac107b",
+      "sha256": "95261fda1d2b309255a2f2828cce9740fb45345b0fb1786a08269e7a05ac107b",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-04.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-04.jpg",
+      "source_sha256": "9320b21d8137bed697e419b60c1fdc57739dce8c97d1842b44d9b8590759a38b",
+      "sha256": "9320b21d8137bed697e419b60c1fdc57739dce8c97d1842b44d9b8590759a38b",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-05.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-05.jpg",
+      "source_sha256": "4c90f227c352eb164a0731aaa25f6427d4b2a479fe73893cf374a5865cce4ee2",
+      "sha256": "4c90f227c352eb164a0731aaa25f6427d4b2a479fe73893cf374a5865cce4ee2",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-06.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-06.jpg",
+      "source_sha256": "cf268f8f924e6358e8c9ea4f13420ac84fd79a866574eb7a6840cc4e27b3ba8f",
+      "sha256": "cf268f8f924e6358e8c9ea4f13420ac84fd79a866574eb7a6840cc4e27b3ba8f",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-07.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-07.jpg",
+      "source_sha256": "9a4521334006c74c8ccdad60c039d9d5044a7f3014a63fe1a3921baa0924d10c",
+      "sha256": "9a4521334006c74c8ccdad60c039d9d5044a7f3014a63fe1a3921baa0924d10c",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-08.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-08.jpg",
+      "source_sha256": "49dd17aa4f0d88e32b916e78667fca9118d5da2d6a6870cd1d7f6b2a4bb8bd29",
+      "sha256": "49dd17aa4f0d88e32b916e78667fca9118d5da2d6a6870cd1d7f6b2a4bb8bd29",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-09.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-09.jpg",
+      "source_sha256": "482973c112ba504c9f2c2046cf2e340238445f7f9ad0db2093bf9322fed8dcf2",
+      "sha256": "482973c112ba504c9f2c2046cf2e340238445f7f9ad0db2093bf9322fed8dcf2",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-10.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-10.jpg",
+      "source_sha256": "8d7bfbd2166ba38f2fd8c486b3a3b5d49e9c0f5bf8a7324213c4d010d0d93aef",
+      "sha256": "8d7bfbd2166ba38f2fd8c486b3a3b5d49e9c0f5bf8a7324213c4d010d0d93aef",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-11.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-11.jpg",
+      "source_sha256": "e26a8f291a529e9c131d9af699fb1eaaa8f6579f12b236a704e6b7ac68c932a5",
+      "sha256": "e26a8f291a529e9c131d9af699fb1eaaa8f6579f12b236a704e6b7ac68c932a5",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-12.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-12.jpg",
+      "source_sha256": "18ca08e638c514cba62bf5cdcfc79cd0d24c9bd617033c93685ad2730b47049f",
+      "sha256": "18ca08e638c514cba62bf5cdcfc79cd0d24c9bd617033c93685ad2730b47049f",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-13.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-13.jpg",
+      "source_sha256": "de87a8eb9f7e7c4454142064243c63da3a82aee77b506432ffed402e8c923d8b",
+      "sha256": "de87a8eb9f7e7c4454142064243c63da3a82aee77b506432ffed402e8c923d8b",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-14.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-14.jpg",
+      "source_sha256": "4bcee7cbbb1b0f90a0eb604e36eef0526c6de91e6dd8b0d37938c21e6351f66a",
+      "sha256": "4bcee7cbbb1b0f90a0eb604e36eef0526c6de91e6dd8b0d37938c21e6351f66a",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-15.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-15.jpg",
+      "source_sha256": "cff151dcba5cfcc190cfceecb80360731181e9acf0b2e5bf5f4d19d87c892de4",
+      "sha256": "cff151dcba5cfcc190cfceecb80360731181e9acf0b2e5bf5f4d19d87c892de4",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-16.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-16.jpg",
+      "source_sha256": "aca71e2824cefb03068f3d88919e98cfbb7ae62a74bccae7025775e1c3ab381d",
+      "sha256": "aca71e2824cefb03068f3d88919e98cfbb7ae62a74bccae7025775e1c3ab381d",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-17.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-17.jpg",
+      "source_sha256": "e93499c5cb47d64bb9172139527b9fafd24fa37e7fd238710b3bf2fe3a7fd46b",
+      "sha256": "e93499c5cb47d64bb9172139527b9fafd24fa37e7fd238710b3bf2fe3a7fd46b",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-18.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-18.jpg",
+      "source_sha256": "0afe3354251b3fc95dfb7354e9783972a010d838cc2f713be5804a8fc83e0c4a",
+      "sha256": "0afe3354251b3fc95dfb7354e9783972a010d838cc2f713be5804a8fc83e0c4a",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-19.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-19.jpg",
+      "source_sha256": "c91b86b945bd379687eadca5fbf001f17091b319f28bc40c5e77dc370d219685",
+      "sha256": "c91b86b945bd379687eadca5fbf001f17091b319f28bc40c5e77dc370d219685",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-20.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-20.jpg",
+      "source_sha256": "0c12ff8465f158610333e79a5dfed1bc6a1c2e82dd2e90812b501e4a0788e731",
+      "sha256": "0c12ff8465f158610333e79a5dfed1bc6a1c2e82dd2e90812b501e4a0788e731",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-21.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-21.jpg",
+      "source_sha256": "9054f700fef58f46e57430f6f9e467b0a32998b486c7f7319c77ac8130bf76a8",
+      "sha256": "9054f700fef58f46e57430f6f9e467b0a32998b486c7f7319c77ac8130bf76a8",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-22.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-22.jpg",
+      "source_sha256": "74c6a27f862b8d4e53076a489117b160e30c79276be018114705540516484650",
+      "sha256": "74c6a27f862b8d4e53076a489117b160e30c79276be018114705540516484650",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-23.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-23.jpg",
+      "source_sha256": "9e160f2a6ffb35a7cfb471c8f0010a2313ff2ac8a6d6cda69f51e480a255dbd7",
+      "sha256": "9e160f2a6ffb35a7cfb471c8f0010a2313ff2ac8a6d6cda69f51e480a255dbd7",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-24.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-24.jpg",
+      "source_sha256": "066f5d6fff94f66482ee742a49a704fedb20ad16fce234c2bc263e51249bd743",
+      "sha256": "066f5d6fff94f66482ee742a49a704fedb20ad16fce234c2bc263e51249bd743",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-25.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-25.jpg",
+      "source_sha256": "c87d483626bb5db80d6fe603dd599d93bb9a91db5ac98a6582578f5ede237cc7",
+      "sha256": "c87d483626bb5db80d6fe603dd599d93bb9a91db5ac98a6582578f5ede237cc7",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-26.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-26.jpg",
+      "source_sha256": "84cc8b077494ef2fe6de0a3938df256ecb310c8faeeaa8091598548e002ea5f7",
+      "sha256": "84cc8b077494ef2fe6de0a3938df256ecb310c8faeeaa8091598548e002ea5f7",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-27.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-27.jpg",
+      "source_sha256": "d5512084f659b2c209c098b2ba3039552f584499a66d3bbfd940e9b0bbe57baf",
+      "sha256": "d5512084f659b2c209c098b2ba3039552f584499a66d3bbfd940e9b0bbe57baf",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-28.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-28.jpg",
+      "source_sha256": "8cdb67b4a4b3e60c819f80e704ddf95cf0a7baeddb1dafb023541bb2bcd5e3db",
+      "sha256": "8cdb67b4a4b3e60c819f80e704ddf95cf0a7baeddb1dafb023541bb2bcd5e3db",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-29.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-29.jpg",
+      "source_sha256": "03a29610a7b2260e67a3940d2adf9a02acb60ef5245e90123521848dda0b0d39",
+      "sha256": "03a29610a7b2260e67a3940d2adf9a02acb60ef5245e90123521848dda0b0d39",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/avatars/square/avatar-30.jpg",
+      "target": "native-ui-card/assets/avatars/square/avatar-30.jpg",
+      "source_sha256": "26af5cc6162b8fd776564f59e66f795ea388fe7b57b73cff0ae1f22ec6253f37",
+      "sha256": "26af5cc6162b8fd776564f59e66f795ea388fe7b57b73cff0ae1f22ec6253f37",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/group.css",
+      "target": "native-ui-card/assets/group.css",
+      "source_sha256": "e26c74dd8ec2550262f7671d65896f9e44857d02c3b1fc6ec3a937e46dc0443b",
+      "sha256": "e26c74dd8ec2550262f7671d65896f9e44857d02c3b1fc6ec3a937e46dc0443b",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/assets/qa.css",
+      "target": "native-ui-card/assets/qa.css",
+      "source_sha256": "4fd071dac6ce80c368485483c151de1305215d8fae34159671a0a258f960db41",
+      "sha256": "4fd071dac6ce80c368485483c151de1305215d8fae34159671a0a258f960db41",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/examples/group.json",
+      "target": "native-ui-card/examples/group.json",
+      "source_sha256": "0e3f7c4b59194e4b1dc6b71130459a8a0cd69297ec6bb6cd7b57eea7fce0eef7",
+      "sha256": "0e3f7c4b59194e4b1dc6b71130459a8a0cd69297ec6bb6cd7b57eea7fce0eef7",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/examples/qa.json",
+      "target": "native-ui-card/examples/qa.json",
+      "source_sha256": "54fd2bdd3e65c227eb3e2d2bfba79f5b2e328c650a09ab8576d302b20ef02b70",
+      "sha256": "54fd2bdd3e65c227eb3e2d2bfba79f5b2e328c650a09ab8576d302b20ef02b70",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/native-ui-card.sh",
+      "target": "native-ui-card/native-ui-card.sh",
+      "source_sha256": "9b34c82543abe5c1d3d670781bacd88f6d3130e166209913fdd3662449fd084d",
+      "sha256": "9b34c82543abe5c1d3d670781bacd88f6d3130e166209913fdd3662449fd084d",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/native-ui-card/scripts/render.py",
+      "target": "native-ui-card/scripts/render.py",
+      "source_sha256": "a729326723619bc44d9e7a29e4e846fcc1beab29f6ce0a00504daa592710ee90",
+      "sha256": "b9fc6670fafe3a730216e483af3788ed1e8179062457e65fe798c73c29fb3e30",
+      "adaptations": [
+        "chromium-only-rendering"
+      ]
+    },
+    {
+      "source": "crews/main/skills/pitch-deck/SKILL.md",
+      "target": "pitch-deck/SKILL.md",
+      "source_sha256": "2aed3ac8ba813ebc137007d5d8f8b79407aca88ab08af381a487e80249d8ca49",
+      "sha256": "351f5dc9f8f4431eb363e149918069c19a5cc6106f4cb2bac6c7978451ede9a6",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/pitch-deck/STYLE_PRESETS.md",
+      "target": "pitch-deck/STYLE_PRESETS.md",
+      "source_sha256": "8e584d8376251943b1e61dff91bef50aa7428351bfad960a2000d7a175161bd5",
+      "sha256": "8e584d8376251943b1e61dff91bef50aa7428351bfad960a2000d7a175161bd5",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/pitch-deck/scripts/extract_pptx.py",
+      "target": "pitch-deck/scripts/extract_pptx.py",
+      "source_sha256": "b305edffb95047f52b46e2cfe98f638ea7d294534b8f947873185572bb865dbe",
+      "sha256": "b305edffb95047f52b46e2cfe98f638ea7d294534b8f947873185572bb865dbe",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/pitch-deck/scripts/html_to_longimage.py",
+      "target": "pitch-deck/scripts/html_to_longimage.py",
+      "source_sha256": "125ff5abd9a46a0ad1b26e82e1ea4b12e75198d2fc9d3736d84dbf6181761745",
+      "sha256": "5586680b7c53a8131300b020a210ee981993d5e8fabfa89bd01bf4dd4e608d84",
+      "adaptations": [
+        "runtime-chromium-path"
+      ]
+    },
+    {
+      "source": "crews/main/skills/pitch-deck/scripts/html_to_pptx.py",
+      "target": "pitch-deck/scripts/html_to_pptx.py",
+      "source_sha256": "5d2e02f1b0d77c1b9e07f65626187093e6ef7ff2fd1b3a91d192def86f0439d1",
+      "sha256": "12505e2548d0fddb39efc436e5bd93480c63c75f5f4371f05ed45c5c8f05f7d8",
+      "adaptations": [
+        "runtime-chromium-path"
+      ]
+    },
+    {
+      "source": "crews/main/skills/platform-runtime/SKILL.md",
+      "target": "platform-runtime/SKILL.md",
+      "source_sha256": "c335b1cacc4117d460ed961c8d74706ee903cfb3124ed609ffbdad5616abf894",
+      "sha256": "c1bee5c6a06f60dea63d22432c151860a144bdf733c18fcfaefd7c98ee88b066",
+      "adaptations": [
+        "isolated-state-home",
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/platform-runtime/package.json",
+      "target": "platform-runtime/package.json",
+      "source_sha256": "488a05f3035f62c0af70e4b4b85720ad9c7050695e8c76e53eee8845b58e1dd6",
+      "sha256": "488a05f3035f62c0af70e4b4b85720ad9c7050695e8c76e53eee8845b58e1dd6",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/platform-runtime/platforms.json",
+      "target": "platform-runtime/platforms.json",
+      "source_sha256": "8d876e4a3dfd01748427086c0af1b0a85839ebeed72292e911340b7eaa000767",
+      "sha256": "8d876e4a3dfd01748427086c0af1b0a85839ebeed72292e911340b7eaa000767",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/platform-runtime/references/login.md",
+      "target": "platform-runtime/references/login.md",
+      "source_sha256": "bcd9985365560db70b4fdb584fbfa68e17fb45000e24a44cbc858fcb4c6484bd",
+      "sha256": "eac5e919ec12aebc2de341725a083549db9a241f9e69de03686ecfd697a86fee",
+      "adaptations": [
+        "isolated-state-home",
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/platform-runtime/runtime-profile.json",
+      "target": "platform-runtime/runtime-profile.json",
+      "source_sha256": "d7f38e1e6183ff7cacea6f883b180cb2d53e3b5efbc11c8250cb8f65d8df2d4b",
+      "sha256": "d7f38e1e6183ff7cacea6f883b180cb2d53e3b5efbc11c8250cb8f65d8df2d4b",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/platform-runtime/scripts/api-runner.mjs",
+      "target": "platform-runtime/scripts/api-runner.mjs",
+      "source_sha256": "3b35537bf6ff80a1b02b112c04e41c8cdfdf74a7ba794ac63e7197fac8b998a0",
+      "sha256": "3b35537bf6ff80a1b02b112c04e41c8cdfdf74a7ba794ac63e7197fac8b998a0",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/platform-runtime/scripts/backend.mjs",
+      "target": "platform-runtime/scripts/backend.mjs",
+      "source_sha256": "6ef32545a368588465f47e442c5bb761f861cb43c1d4bdbeb4427d200bcec8fc",
+      "sha256": "dc415a5de5ab639d666b8a3807a1d6f98936d09a34d4570c1da512e34a3f90d7",
+      "adaptations": [
+        "isolated-state-home",
+        "explicit-api-proxy-only"
+      ]
+    },
+    {
+      "source": "crews/main/skills/platform-runtime/scripts/cli.mjs",
+      "target": "platform-runtime/scripts/cli.mjs",
+      "source_sha256": "a4e77516c2aa76a2d8969204aba35b872b9be485ec5d9c82fe66ef0e8e4b1ac6",
+      "sha256": "f4f429b2ed9b62c327f2580a52b25079fe1505eb1720ab3913488199ad9a3461",
+      "adaptations": [
+        "no-browser-login"
+      ]
+    },
+    {
+      "source": "crews/main/skills/platform-runtime/scripts/diagnostics.mjs",
+      "target": "platform-runtime/scripts/diagnostics.mjs",
+      "source_sha256": "7e3fc5c1f7b465d0da260bb5fda19cf9ab0b4865cca39575bb722a184026fb2c",
+      "sha256": "7e3fc5c1f7b465d0da260bb5fda19cf9ab0b4865cca39575bb722a184026fb2c",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/platform-runtime/scripts/install-runtime.mjs",
+      "target": "platform-runtime/scripts/install-runtime.mjs",
+      "source_sha256": "9c8679a668184ef73d06a2ef167370dbfa7eb17b957e3f0363cdfeb158823867",
+      "sha256": "9c8679a668184ef73d06a2ef167370dbfa7eb17b957e3f0363cdfeb158823867",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/platform-runtime/scripts/kuaishou-login-worker.mjs",
+      "target": "platform-runtime/scripts/kuaishou-login-worker.mjs",
+      "source_sha256": "ea12dffd02139c85dc50904a06b7e26007a00fce31988807fafd054ad2d5fc00",
+      "sha256": "ea12dffd02139c85dc50904a06b7e26007a00fce31988807fafd054ad2d5fc00",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/platform-runtime/scripts/kuaishou-login.mjs",
+      "target": "platform-runtime/scripts/kuaishou-login.mjs",
+      "source_sha256": "0f6a9f34d859847de0430460b2d96edf0462be7f191f98c9a6e384ef704708b9",
+      "sha256": "0f6a9f34d859847de0430460b2d96edf0462be7f191f98c9a6e384ef704708b9",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/platform-runtime/scripts/metadata.mjs",
+      "target": "platform-runtime/scripts/metadata.mjs",
+      "source_sha256": "9b45ea366b6209c3bc1bae3e05f954f755070809778b868c77ceefd8177636b2",
+      "sha256": "9b45ea366b6209c3bc1bae3e05f954f755070809778b868c77ceefd8177636b2",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/platform-runtime/scripts/publication.mjs",
+      "target": "platform-runtime/scripts/publication.mjs",
+      "source_sha256": "c06ead1e2340c06a1f19323c7c0091cce786d5b416808c9b6ef168a68461e271",
+      "sha256": "c06ead1e2340c06a1f19323c7c0091cce786d5b416808c9b6ef168a68461e271",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/platform-runtime/scripts/style-profile.py",
+      "target": "platform-runtime/scripts/style-profile.py",
+      "source_sha256": "974dbcbee0fc76e02a3e0a878e3ebb7e72c07ecb0f7481b70a73a96c79e01298",
+      "sha256": "974dbcbee0fc76e02a3e0a878e3ebb7e72c07ecb0f7481b70a73a96c79e01298",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/platform-runtime/scripts/weibo-video.mjs",
+      "target": "platform-runtime/scripts/weibo-video.mjs",
+      "source_sha256": "107452c91db1665311d73084cfbe965f0c20695e5b73f1c3360b76dcdcec94f1",
+      "sha256": "107452c91db1665311d73084cfbe965f0c20695e5b73f1c3360b76dcdcec94f1",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/published-track/SKILL.md",
+      "target": "published-track/SKILL.md",
+      "source_sha256": "91c21e365e2b6c0c31be7a94967117587cc613b9bbff14caaa94dcf3af207130",
+      "sha256": "4cb1058f906b2e379b2f69009167efcaa12f18e92ca50aae720b1836aedf5a6c",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry",
+        "single-final-newline"
+      ]
+    },
+    {
+      "source": "crews/main/skills/published-track/published-track.sh",
+      "target": "published-track/published-track.sh",
+      "source_sha256": "63cf0842f0107688c15a6351b3b249aa0cf59a13ee782400d2dcd56d5b2642ef",
+      "sha256": "7ff8fb1687fad603cb3f997e6bfb187e696d937dbaaeb498dadf78195304ab8d",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "crews/main/skills/published-track/references/platform-constraints.md",
+      "target": "published-track/references/platform-constraints.md",
+      "source_sha256": "384c4749e6311a37763f7296c24c7a186b15dd8fcbf8d96f428016e014ff8c79",
+      "sha256": "32950047c47987dd420ca7bc86525f42dca1a9a226d73ba8b27c6da33cdd6e94",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/published-track/scripts/check-published.sh",
+      "target": "published-track/scripts/check-published.sh",
+      "source_sha256": "8c039498bb419631964141750fc5cc8c5196146fa49aa0a735cbed83e9165481",
+      "sha256": "d187e3139516b9c475bf004f9bfb1aa445ec6bbf014cff3eb56385f9b6b4c548",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/published-track/scripts/init-db.sh",
+      "target": "published-track/scripts/init-db.sh",
+      "source_sha256": "f75a5be689fbc568ea1c7bb27bf09cccb3e0c64b9a83893ed87bbe4f8ed16d9a",
+      "sha256": "da6f2010e5c8999941b59c5fa2aa19bf14b685e861d6fd6bec3b476853adace9",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/published-track/scripts/migrate-v2.sh",
+      "target": "published-track/scripts/migrate-v2.sh",
+      "source_sha256": "7681bf9772f1f369598fef764388266f8e136c38748289dcfdc9945e7551da6b",
+      "sha256": "6a7cd4ea230fb147b72d71d51038b1e3778612e67663d87206c47655c109528c",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/published-track/scripts/migrate-v3.sh",
+      "target": "published-track/scripts/migrate-v3.sh",
+      "source_sha256": "e58c66445b07006504b8ad24c89e6fbf31510e3eeb7e16d90fcb585dcf10ec59",
+      "sha256": "bdad3b621fb10197cd15176cca3fbb1f99e23ea504aed53e70187316f4eb2d7f",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/published-track/scripts/platform-status.py",
+      "target": "published-track/scripts/platform-status.py",
+      "source_sha256": "9485149459a9c91efc29083b6e97d39e401e6368fe2c51f0fb9e47e88e8f541c",
+      "sha256": "056c71cb54501bc2ea315677f28a8b2a8fd205ef6401192d17182b016e0f7886",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/published-track/scripts/query-pending.sh",
+      "target": "published-track/scripts/query-pending.sh",
+      "source_sha256": "1a872b40ab079fbb3c6aa6d192642ed098cdfa5765e58d1854f5e6ed5016a9d7",
+      "sha256": "ce2b3c349ace002e0302ae692957091bfa46afac401d7f9f8b416da8650ec1bd",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/published-track/scripts/query.sh",
+      "target": "published-track/scripts/query.sh",
+      "source_sha256": "b63121d49582bfacdc862259bc35ddac0385a300be6462749b28f2f3fe5e3274",
+      "sha256": "1b0e8a6390d89db325a98df0e716e45ba732552d641c33e7ca3edd94e3d96f2d",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/published-track/scripts/record.sh",
+      "target": "published-track/scripts/record.sh",
+      "source_sha256": "e76e51811c095524bbac7251c4b50ab1bc2f9e28d27c100f3104ee8ae06a913d",
+      "sha256": "c4f637f5ee48e7c79c59f33274f1d48e7edd61afe04fb352087f75475c068961",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/published-track/scripts/set-distribute-status.sh",
+      "target": "published-track/scripts/set-distribute-status.sh",
+      "source_sha256": "55300346dae6efa02825255eac64588542267bf43a6884731661205491bb9ba8",
+      "sha256": "0baed475a2df40c475589a0a7464f7b284e1c5a9fa8ad704d551c6437271404c",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/published-track/scripts/update-metrics.sh",
+      "target": "published-track/scripts/update-metrics.sh",
+      "source_sha256": "15d64f17aa4efba3a27bf58f2986cebed4a7dd99e6a2f86cf79bb3c795255a3a",
+      "sha256": "9c7d93968f6b81007c952054465369d2e7bb0e951ef06b125e4ca8b89f91b6f7",
+      "adaptations": [
+        "workspace-environment"
+      ]
+    },
+    {
+      "source": "crews/main/skills/published-track/scripts/validate_content.py",
+      "target": "published-track/scripts/validate_content.py",
+      "source_sha256": "13e8a645fee4062819621d0c4fe05626b3a34e00f657dfea0626145195a60abd",
+      "sha256": "13e8a645fee4062819621d0c4fe05626b3a34e00f657dfea0626145195a60abd",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/talking-head-cut/SKILL.md",
+      "target": "talking-head-cut/SKILL.md",
+      "source_sha256": "9f2b04675246d16a665b628610223a75f40beab474916bd586071007ab59becd",
+      "sha256": "073746c255655f8e96d0dc4278a0de73bdeda6d6602fa8a571e5598c25380888",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/talking-head-cut/scripts/cut_plan.py",
+      "target": "talking-head-cut/scripts/cut_plan.py",
+      "source_sha256": "e294e385499d357d4251485d62b756ef91c791bd79b4d2e71acb0364baeb0c93",
+      "sha256": "7e1554a336ec62b4e55a4f9cd3e292af3eabf41cb76bad38d4b164cfee1a7def",
+      "adaptations": [
+        "isolated-state-home",
+        "packaged-shared-asr"
+      ]
+    },
+    {
+      "source": "crews/main/skills/talking-head-cut/talking-head-cut.sh",
+      "target": "talking-head-cut/talking-head-cut.sh",
+      "source_sha256": "b88413823da5c0223a81a72a3347b4a496ce27755b33ac47720638d6aa39f093",
+      "sha256": "a7a304021327378b6551bd07c162dea8f372f65a02cafe4f8133aaa9a83c4c7b",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "crews/main/skills/tiktok-hunter/SKILL.md",
+      "target": "tiktok-hunter/SKILL.md",
+      "source_sha256": "6c16895e811d9c420994983007832f84359db4cb4ceb8b8aab9029a8a1f0df46",
+      "sha256": "00a975bbd370ce8e5f96b07f273fb87c8c8c70677638602709f705bf16c19226",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/tiktok-hunter/references/live.md",
+      "target": "tiktok-hunter/references/live.md",
+      "source_sha256": "1fc9b9ea9677432b050bb59269733caacf770d6652ec444a5ca6a5402ce8139c",
+      "sha256": "bb7dc597834a2c90121618678d5df55dff1dcaf03ea01aa6c69009f7b1a41b12",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/tiktok-hunter/tiktok-hunter.sh",
+      "target": "tiktok-hunter/tiktok-hunter.sh",
+      "source_sha256": "16f9af06d0401ad12425f5299783e4752008b5900360c7f646d321644365b47d",
+      "sha256": "16f9af06d0401ad12425f5299783e4752008b5900360c7f646d321644365b47d",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/video-edit/SKILL.md",
+      "target": "video-edit/SKILL.md",
+      "source_sha256": "43179727fab2f83e0a10c6640b76f21dd9e94ceb51b5516394c087caf5d1ca14",
+      "sha256": "0954bc19d9d67f1320b03dba4dd112ac7410b4870f76ad663dea52ed917da985",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/video-edit/scripts/apply_cut.py",
+      "target": "video-edit/scripts/apply_cut.py",
+      "source_sha256": "cce1ab7180a5378693571ca5f94e7c95156b52756aae945cf80578462c25c320",
+      "sha256": "cce1ab7180a5378693571ca5f94e7c95156b52756aae945cf80578462c25c320",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/video-edit/scripts/assemble.py",
+      "target": "video-edit/scripts/assemble.py",
+      "source_sha256": "5738137018a77f4bf5b72455a1d01bafb659fa37278c9b3ac9f4334617447a0f",
+      "sha256": "5738137018a77f4bf5b72455a1d01bafb659fa37278c9b3ac9f4334617447a0f",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/video-edit/scripts/audio_mix.py",
+      "target": "video-edit/scripts/audio_mix.py",
+      "source_sha256": "026bc70b3df99a16ffa475a165693439675a383090ff4f283dd0835ae4a69747",
+      "sha256": "026bc70b3df99a16ffa475a165693439675a383090ff4f283dd0835ae4a69747",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/video-edit/scripts/burn_subtitles.py",
+      "target": "video-edit/scripts/burn_subtitles.py",
+      "source_sha256": "efcf288aece378e669344b11ee60002896339e91eed52c359f3c91aa5bed1e3e",
+      "sha256": "efcf288aece378e669344b11ee60002896339e91eed52c359f3c91aa5bed1e3e",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/video-edit/scripts/compress_preview.py",
+      "target": "video-edit/scripts/compress_preview.py",
+      "source_sha256": "4459efd4d4074cb428a1fb8b607f97e898859896d7248377cf705cb3108fd2b6",
+      "sha256": "4459efd4d4074cb428a1fb8b607f97e898859896d7248377cf705cb3108fd2b6",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/video-edit/scripts/extract_and_concat.py",
+      "target": "video-edit/scripts/extract_and_concat.py",
+      "source_sha256": "848a38635f0a5b978ffcc4976c359e6ee8d855f2d42b3f242d0819065047b358",
+      "sha256": "848a38635f0a5b978ffcc4976c359e6ee8d855f2d42b3f242d0819065047b358",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/video-edit/scripts/sample_frames.py",
+      "target": "video-edit/scripts/sample_frames.py",
+      "source_sha256": "bfb0c99b8697d2951c3b92f436f24566daf4fbf6465a810f326a3ac04e5c9c96",
+      "sha256": "bfb0c99b8697d2951c3b92f436f24566daf4fbf6465a810f326a3ac04e5c9c96",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/video-edit/video-edit.sh",
+      "target": "video-edit/video-edit.sh",
+      "source_sha256": "f998248811cb642885debca54a002305fee2d68e8fa59453209b5ca1e3ce14f4",
+      "sha256": "b3deaa3f5b9fc889f08ab8d2007ebe9eaf791f38b77637f3281884d04cb5396c",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "crews/main/skills/viral-chaser/SKILL.md",
+      "target": "viral-chaser/SKILL.md",
+      "source_sha256": "1ef6239b4d4a1e0397a7a7a8b7772620ad68a291d8710d0ea58a0099b153437e",
+      "sha256": "7e01c5d9b16200ecdbf4834ce34a5d06f9580d23ebcfbeea815c5387895db2b5",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/viral-chaser/scripts/analyzer.ts",
+      "target": "viral-chaser/scripts/analyzer.ts",
+      "source_sha256": "a2cbf896ce1e3408dc45d1aa2c8367c38dc5b9af8da22f4fd3eda5c1938d763f",
+      "sha256": "a2cbf896ce1e3408dc45d1aa2c8367c38dc5b9af8da22f4fd3eda5c1938d763f",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/viral-chaser/scripts/audio_extractor.ts",
+      "target": "viral-chaser/scripts/audio_extractor.ts",
+      "source_sha256": "9fb7956495588b450e52a9d8d9d46bba9e66686ae2d2a569ad33442c709bffe9",
+      "sha256": "9fb7956495588b450e52a9d8d9d46bba9e66686ae2d2a569ad33442c709bffe9",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/viral-chaser/scripts/transcriber.ts",
+      "target": "viral-chaser/scripts/transcriber.ts",
+      "source_sha256": "297360f44eae651abb978de7bc93e7f90364cd8d1d15ab7d93c23ad347e3c973",
+      "sha256": "1735e07f5f5dab0122a9235266e4aa5a32f8b18dc945f56ea46a79fe82458cc1",
+      "adaptations": [
+        "isolated-state-home",
+        "packaged-shared-asr"
+      ]
+    },
+    {
+      "source": "crews/main/skills/viral-chaser/scripts/viral_chaser.sh",
+      "target": "viral-chaser/scripts/viral_chaser.sh",
+      "source_sha256": "a68ab920e176748d94590e5d7baa3befe17080fb9c15b35bd3b7ffaa2ae457c8",
+      "sha256": "a68ab920e176748d94590e5d7baa3befe17080fb9c15b35bd3b7ffaa2ae457c8",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/viral-chaser/viral-chaser.sh",
+      "target": "viral-chaser/viral-chaser.sh",
+      "source_sha256": "b1796677034f38f0088c5e052359e9842bb909ca54269b8d59b0b511f49be0eb",
+      "sha256": "ad278962262f5a5d40091aad581a17d51186204c5c00f76b3d673ebf295b8abc",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "crews/main/skills/weibo-hunter/SKILL.md",
+      "target": "weibo-hunter/SKILL.md",
+      "source_sha256": "8aab46c6a33674d7a5680ba854e110bfea539091414a521a7ecb3eb6e4e705df",
+      "sha256": "fa63d55b665667bc21a0d1ffd84679d5d6a57dcd61c760696a6f2636f42dc372",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/weibo-hunter/weibo-hunter.sh",
+      "target": "weibo-hunter/weibo-hunter.sh",
+      "source_sha256": "714a3dc23ba87a34fb45069b02854de5aecd17fea773dbd46c7ecaffb2a69f92",
+      "sha256": "714a3dc23ba87a34fb45069b02854de5aecd17fea773dbd46c7ecaffb2a69f92",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/weibo-publish/SKILL.md",
+      "target": "weibo-publish/SKILL.md",
+      "source_sha256": "8befbe7d54b54c23140445c880987955e8edda33ed29f105978759de0d075429",
+      "sha256": "83806438a07a8c2b87a35b9387cb497d421beb41c5c448c8208e5ae09ecde722",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/weibo-publish/weibo-publish.sh",
+      "target": "weibo-publish/weibo-publish.sh",
+      "source_sha256": "150d8e88108ff7ea65192a3e4fc41b0c293563412df67a8aec75da6c42f027b7",
+      "sha256": "150d8e88108ff7ea65192a3e4fc41b0c293563412df67a8aec75da6c42f027b7",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/wx-mp-hunter/SKILL.md",
+      "target": "wx-mp-hunter/SKILL.md",
+      "source_sha256": "2f0479c06d3484a686b74945ebcec33b70b4e3ed28525d007cd5b670f8bc9153",
+      "sha256": "22af9507c17dcb566f7d4cd561f92aea112701b95aba48bf906c121f2ea74e86",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/wx-mp-hunter/scripts/wx_mp_hunter.py",
+      "target": "wx-mp-hunter/scripts/wx_mp_hunter.py",
+      "source_sha256": "37217b7d1f5bb5ede192a641000d2a5f2390ad8264b33fae24f3ace92c2c8798",
+      "sha256": "15bb3eae93faee3b69b22cc452a6188741a7cbd6358b96a58b8ad6267e2825f9",
+      "adaptations": [
+        "article-http-fetch-only-no-client-database"
+      ]
+    },
+    {
+      "source": "crews/main/skills/wx-mp-hunter/wx-mp-hunter.sh",
+      "target": "wx-mp-hunter/wx-mp-hunter.sh",
+      "source_sha256": "6b817e8bab717e91ed9d012dadd98dbaf2d276bddbbed033de1ccf6f6b5008bc",
+      "sha256": "38495a8323a110a210259f5fee6e6002a73f308249fab2e08586c57634c8cd6d",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "crews/main/skills/wxwork-moments/REFERENCE.md",
+      "target": "wxwork-moments/REFERENCE.md",
+      "source_sha256": "862da7c70da88d8844dc5cad15adc4b61fd3d799debfc73563a803a40bf15bba",
+      "sha256": "862da7c70da88d8844dc5cad15adc4b61fd3d799debfc73563a803a40bf15bba",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/wxwork-moments/SKILL.md",
+      "target": "wxwork-moments/SKILL.md",
+      "source_sha256": "e2a52d697bd26fc16ee0b606c6b66eaf858f2cb99a1e1ff8827470d5fcda1678",
+      "sha256": "1bccb8aae374565281de92d5a9a8e3679c48ed86eae674117a32f8100bbe6d71",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/wxwork-moments/scripts/post_moments.py",
+      "target": "wxwork-moments/scripts/post_moments.py",
+      "source_sha256": "f9a950bf9a0bcd5d2f9922082ca5ecffd21623ff78cd2551cd53755584e5376f",
+      "sha256": "f9a950bf9a0bcd5d2f9922082ca5ecffd21623ff78cd2551cd53755584e5376f",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/wxwork-moments/wxwork-moments.sh",
+      "target": "wxwork-moments/wxwork-moments.sh",
+      "source_sha256": "9003019e2ddeada88de1726eea4ea96ac62611adbbf6ae10b87499e96a6f38cb",
+      "sha256": "c0358c731e14ce2babc393a54e6bcc8f5684b03eab9dff53a35098d583c8a1b4",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "crews/main/skills/x-hunter/SKILL.md",
+      "target": "x-hunter/SKILL.md",
+      "source_sha256": "246399eb8bd5706a45de29215871ef4933dd03cfe656e31d9a82c3290b32821b",
+      "sha256": "4ee86f21585fe9e2da5364de07c7f1c219b312d2420ec88e94a20a9efa6b34b0",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/x-hunter/x-hunter.sh",
+      "target": "x-hunter/x-hunter.sh",
+      "source_sha256": "9355b0a4a3484bf5fe8e927a111ceadf0943f314ee1b17f6a2fbbcf52b3b3daa",
+      "sha256": "9355b0a4a3484bf5fe8e927a111ceadf0943f314ee1b17f6a2fbbcf52b3b3daa",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/xhs-hunter/SKILL.md",
+      "target": "xhs-hunter/SKILL.md",
+      "source_sha256": "afa74e7ac3a74625158c499db5669cb103fa78f35e46787d1925e8f4238c0042",
+      "sha256": "1ec1648220c53ca3ce3c1f3031aacb43b69bc633a71e952d2cf04580f59e7e7b",
+      "adaptations": [
+        "isolated-state-home",
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "crews/main/skills/xhs-hunter/references/live.md",
+      "target": "xhs-hunter/references/live.md",
+      "source_sha256": "84b938cf09dbe8fd02f0c75a661c3feb4af635bbaf76c760e353bfcf0f1dff83",
+      "sha256": "7f53311652c8d3c9dd5de009d871a33b77bd2d6652fd33e9c0477c819428d3f5",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "crews/main/skills/xhs-hunter/scripts/xhs_hunter.py",
+      "target": "xhs-hunter/scripts/xhs_hunter.py",
+      "source_sha256": "565690365c4926041211250be488f90b8c70d36d038b8e842e1a80045836da13",
+      "sha256": "b27dd23a6b699f3a29f3fa8d36329eecb9d34ac099440b82bed2cd2288519647",
+      "adaptations": [
+        "isolated-state-home",
+        "configurable-private-state"
+      ]
+    },
+    {
+      "source": "crews/main/skills/xhs-hunter/scripts/xhs_utils/__init__.py",
+      "target": "xhs-hunter/scripts/xhs_utils/__init__.py",
+      "source_sha256": "07221d431c7c64deb7a55fe7484a2c7fd14e5d176b3bbaf2506d1f74fbc5a510",
+      "sha256": "07221d431c7c64deb7a55fe7484a2c7fd14e5d176b3bbaf2506d1f74fbc5a510",
+      "adaptations": []
+    },
+    {
+      "source": "crews/main/skills/xhs-hunter/xhs-hunter.sh",
+      "target": "xhs-hunter/xhs-hunter.sh",
+      "source_sha256": "415150c833e62057c021266a2b51fb102ca7295f8d1812ab9979a0daa4790b37",
+      "sha256": "b2d645c99c828c72065ca07aad83f0f64ff30876c1582b39758c1875fa566836",
+      "adaptations": [
+        "staged-regular-wrapper-path"
+      ]
+    },
+    {
+      "source": "skills/_shared/asr.py",
+      "target": "_shared/asr.py",
+      "source_sha256": "793f6b9d7a742f7f14f9bb0ae95827ea7786814b2d8f55ff433f305fc2ed1755",
+      "sha256": "793f6b9d7a742f7f14f9bb0ae95827ea7786814b2d8f55ff433f305fc2ed1755",
+      "adaptations": []
+    },
+    {
+      "source": "skills/_shared/bailian_asr.py",
+      "target": "_shared/bailian_asr.py",
+      "source_sha256": "c2250cf1cf2baa19253d14265853f2e644639893cf10db8352237896b3c164ce",
+      "sha256": "c2250cf1cf2baa19253d14265853f2e644639893cf10db8352237896b3c164ce",
+      "adaptations": []
+    },
+    {
+      "source": "skills/_shared/bailian_media.py",
+      "target": "_shared/bailian_media.py",
+      "source_sha256": "ed0b127c7bd2805c5856fc29963949414bf63c666b58447a1264014c4d0821a0",
+      "sha256": "ed0b127c7bd2805c5856fc29963949414bf63c666b58447a1264014c4d0821a0",
+      "adaptations": []
+    },
+    {
+      "source": "skills/_shared/volc_asr.py",
+      "target": "_shared/volc_asr.py",
+      "source_sha256": "c1f3361759c6fb1dcf992365743b2d3af8ba1c689b3aee00662dc48d4c6e30c9",
+      "sha256": "787e4a5a6dd2ec17d5c4e9d4941bfa8b44d2046535bf2ba3c48af8d6afedd9ee",
+      "adaptations": [
+        "isolated-state-home",
+        "configurable-private-env-file"
+      ]
+    },
+    {
+      "source": "skills/aigc-video-gen/SKILL.md",
+      "target": "aigc-video-gen/SKILL.md",
+      "source_sha256": "55735632dd5b8049260e1fa8e352d1efd3efa08e5b0d0bcbc4534daad51dfacf",
+      "sha256": "2a754968981b8a311a71a2673ea3244771904e298e8b17a7090ee3d591bc628b",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "skills/aigc-video-gen/aigc-video-gen.sh",
+      "target": "aigc-video-gen/aigc-video-gen.sh",
+      "source_sha256": "3c92a84dcf7558d0551ae80b4767ef1fb01079e8048dc2aa53f3b034a4e8e183",
+      "sha256": "b52cc04ba8dfa31f16adc55a81f5945252c150d04ba341717f8a19a448079c75",
+      "adaptations": [
+        "isolated-state-home",
+        "bash-3-compatible-argv"
+      ]
+    },
+    {
+      "source": "skills/aigc-video-gen/scripts/aigc_common.py",
+      "target": "aigc-video-gen/scripts/aigc_common.py",
+      "source_sha256": "8ce238280f4a2f7be4af139efa37a4276e0a2300c07c5df029e586c59b1860af",
+      "sha256": "8ce238280f4a2f7be4af139efa37a4276e0a2300c07c5df029e586c59b1860af",
+      "adaptations": []
+    },
+    {
+      "source": "skills/aigc-video-gen/scripts/gen.py",
+      "target": "aigc-video-gen/scripts/gen.py",
+      "source_sha256": "259395679f50db46fdd9194ec995ed7e84f10d8d05ed245e86e3e837c9945255",
+      "sha256": "259395679f50db46fdd9194ec995ed7e84f10d8d05ed245e86e3e837c9945255",
+      "adaptations": []
+    },
+    {
+      "source": "skills/aigc-video-gen/scripts/gen_dashscope.py",
+      "target": "aigc-video-gen/scripts/gen_dashscope.py",
+      "source_sha256": "bc34c38e1be3cdb9252986af66aa3e542827ed1168fdb88cb1d14d5eb3ad252d",
+      "sha256": "bc34c38e1be3cdb9252986af66aa3e542827ed1168fdb88cb1d14d5eb3ad252d",
+      "adaptations": []
+    },
+    {
+      "source": "skills/aigc-video-gen/scripts/gen_minimax.py",
+      "target": "aigc-video-gen/scripts/gen_minimax.py",
+      "source_sha256": "dd51a11da1c6df46e91cfa53ccce6fee8341cc7ee2d219b29b675bdfdbf860da",
+      "sha256": "dd51a11da1c6df46e91cfa53ccce6fee8341cc7ee2d219b29b675bdfdbf860da",
+      "adaptations": []
+    },
+    {
+      "source": "skills/aigc-video-gen/scripts/gen_volc.py",
+      "target": "aigc-video-gen/scripts/gen_volc.py",
+      "source_sha256": "f199c9ee05e4794625bb199555b22dd0ac02f4179d3a398e7acf06f721d09e72",
+      "sha256": "f199c9ee05e4794625bb199555b22dd0ac02f4179d3a398e7acf06f721d09e72",
+      "adaptations": []
+    },
+    {
+      "source": "skills/awk-img-gen/SKILL.md",
+      "target": "awk-img-gen/SKILL.md",
+      "source_sha256": "0b7d3d6fb49748a335a3f9151a4263d66e695770fc585cb9dd3832e57e1a3f23",
+      "sha256": "54e159f881cfab5f9d4ffd0776b88d03fbb3e4bd37443741115ea8a0ab1b020d",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "skills/awk-img-gen/awk-img-gen.sh",
+      "target": "awk-img-gen/awk-img-gen.sh",
+      "source_sha256": "05c86d15cccee254fe7d6d034b2a5ce813d052ed18045da017b3ca3b5bce43c1",
+      "sha256": "a46cb0c26db3bcdbc35e7ff763b283af2e0000660e2b736761d4b30dde2bdc39",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "skills/awk-img-gen/scripts/gen.py",
+      "target": "awk-img-gen/scripts/gen.py",
+      "source_sha256": "c06c5af5d323c56a7e7fd93582daeb2ce156c43097e5403b1091e37c18479472",
+      "sha256": "c06c5af5d323c56a7e7fd93582daeb2ce156c43097e5403b1091e37c18479472",
+      "adaptations": []
+    },
+    {
+      "source": "skills/awk-tts/SKILL.md",
+      "target": "awk-tts/SKILL.md",
+      "source_sha256": "34fcad1ee0076025364f2c573cdd37feaf053ee3168d24386eff0d8e1a0ef60f",
+      "sha256": "cd628e816cb620b0754880b4c22faa49365fe6c9c21a16465967719907bfced6",
+      "adaptations": [
+        "isolated-state-home",
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "skills/awk-tts/awk-tts.sh",
+      "target": "awk-tts/awk-tts.sh",
+      "source_sha256": "0347c5af6b4121d5c879517774c7a8efdf5fe4385e16d75d57e5791d2c3b3511",
+      "sha256": "3c2c15209b9960dfc6286ada5a6e2734048b4509705f6bcacab118e8596eaa64",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "skills/awk-tts/scripts/tts.py",
+      "target": "awk-tts/scripts/tts.py",
+      "source_sha256": "4086a95745920f2ee15e8294d964ce2cf61fb91988ee113b19106ad482715255",
+      "sha256": "4086a95745920f2ee15e8294d964ce2cf61fb91988ee113b19106ad482715255",
+      "adaptations": []
+    },
+    {
+      "source": "skills/awk-tts/scripts/voice_customization.py",
+      "target": "awk-tts/scripts/voice_customization.py",
+      "source_sha256": "91ff19526b48346e50b7fd656057e87b7e9544f0ad8c85d10976c6c046bdd23e",
+      "sha256": "91ff19526b48346e50b7fd656057e87b7e9544f0ad8c85d10976c6c046bdd23e",
+      "adaptations": []
+    },
+    {
+      "source": "skills/awk-tts/scripts/volc_voice.py",
+      "target": "awk-tts/scripts/volc_voice.py",
+      "source_sha256": "23bd4a122bed5f2036e7699e1de8e64316be0e6d2fb6ceb902fe1d436e365a7a",
+      "sha256": "23bd4a122bed5f2036e7699e1de8e64316be0e6d2fb6ceb902fe1d436e365a7a",
+      "adaptations": []
+    },
+    {
+      "source": "skills/bgm-library/SKILL.md",
+      "target": "bgm-library/SKILL.md",
+      "source_sha256": "e0e5029d1d7b9a08e34c4341a6e196ecdc53471d8892317e57d245a7b1703651",
+      "sha256": "3504950fb288e5e6c5274b4e895cf46431a6d2383dabfc14ea09edec8d81440d",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "skills/bgm-library/bgm-library.sh",
+      "target": "bgm-library/bgm-library.sh",
+      "source_sha256": "0343ca9773883c5ba57ac12f38af81e43a0952f471f8f9cde086928630de811e",
+      "sha256": "a63d798a5447fa1645b3f030635e7f056be4174e90b7c7b14a119e45c9138a3d",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "skills/bgm-library/package.json",
+      "target": "bgm-library/package.json",
+      "source_sha256": "e997a861952f5c7f661996de0f9b8f860d4611050f75bede0cd4d7cc105180e3",
+      "sha256": "e997a861952f5c7f661996de0f9b8f860d4611050f75bede0cd4d7cc105180e3",
+      "adaptations": []
+    },
+    {
+      "source": "skills/bgm-library/scripts/bgm.js",
+      "target": "bgm-library/scripts/bgm.js",
+      "source_sha256": "9420472696c1a06101845d2a9e7b91cf74dce91c0c97ee16a194abb3a3753092",
+      "sha256": "9420472696c1a06101845d2a9e7b91cf74dce91c0c97ee16a194abb3a3753092",
+      "adaptations": []
+    },
+    {
+      "source": "skills/bgm-library/scripts/downloader.js",
+      "target": "bgm-library/scripts/downloader.js",
+      "source_sha256": "cc69bf9b82cde65294d47e25fad4a0189cab34a6c4a4a7e9023d7830a3b48d3b",
+      "sha256": "cc69bf9b82cde65294d47e25fad4a0189cab34a6c4a4a7e9023d7830a3b48d3b",
+      "adaptations": []
+    },
+    {
+      "source": "skills/email-ops/SKILL.md",
+      "target": "email-ops/SKILL.md",
+      "source_sha256": "b3b1e5e1ffa35ec7f74c0cc6b30ee5e275628c9f4c4fd624572b46055203192c",
+      "sha256": "8b38160d59eaa3879f07fc68260f0a39c18810ff0e6d729d344e77bad4e109dd",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "skills/email-ops/email-ops.sh",
+      "target": "email-ops/email-ops.sh",
+      "source_sha256": "8dbe4659512679cf681f73674278eca6be3eee6128fc92318e5a5f123ea4c2ae",
+      "sha256": "742061ac7922f9567621875650005af001293cd9f941d2446cfcba07f51351c4",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "skills/email-ops/scripts/send_email.py",
+      "target": "email-ops/scripts/send_email.py",
+      "source_sha256": "aec1603daf2f0f6fd1f1ba7a0815285c08c4e5aecd7bfe4aeae9248a6d49bb6f",
+      "sha256": "aec1603daf2f0f6fd1f1ba7a0815285c08c4e5aecd7bfe4aeae9248a6d49bb6f",
+      "adaptations": []
+    },
+    {
+      "source": "skills/pexels-footage/SKILL.md",
+      "target": "pexels-footage/SKILL.md",
+      "source_sha256": "86168c020f84f094cd383665ff6cc887cc048057cc96b4a27910eff77e5aa921",
+      "sha256": "7b90ff83616acc76efc862a4ea817fd56656ff540a96c9178f8746ff9027c456",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "skills/pexels-footage/pexels-footage.sh",
+      "target": "pexels-footage/pexels-footage.sh",
+      "source_sha256": "f3f0b169c02d39aaf2649264041cf8debca9111e3a84c42a04e3f9661bae9f5f",
+      "sha256": "6325c774075cf27d89bcdb176cd446a0abe800ac61f90eb3913f2234c34921af",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "skills/pexels-footage/scripts/pexels_search.py",
+      "target": "pexels-footage/scripts/pexels_search.py",
+      "source_sha256": "769eb8e59941baa8a8334b029ad1da3391b74308350f5571f26008234101bc7d",
+      "sha256": "769eb8e59941baa8a8334b029ad1da3391b74308350f5571f26008234101bc7d",
+      "adaptations": []
+    },
+    {
+      "source": "skills/pixabay-footage/SKILL.md",
+      "target": "pixabay-footage/SKILL.md",
+      "source_sha256": "969adad33acef1b5ee5ae213cbbfa75622fe2cb5fbe1f52465aebbcb7637fbbe",
+      "sha256": "aeb93f86343ae64e1fe15a737e72cacb19b1233c63c7475adf88810b8320af44",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "skills/pixabay-footage/pixabay-footage.sh",
+      "target": "pixabay-footage/pixabay-footage.sh",
+      "source_sha256": "764cb2177d565513124958b5908ee87d8b94b9d299c8edcf5c6d608f13c09e78",
+      "sha256": "fee0f56eefc9c985e61af474be65dd3eebe7e68674bfd2f9d73af244b084bd14",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "skills/pixabay-footage/scripts/pixabay_search.py",
+      "target": "pixabay-footage/scripts/pixabay_search.py",
+      "source_sha256": "185e6e207b15d715e08430eebecdb183a6b4bbea8a81aff337240885c830707a",
+      "sha256": "185e6e207b15d715e08430eebecdb183a6b4bbea8a81aff337240885c830707a",
+      "adaptations": []
+    },
+    {
+      "source": "skills/video-review/SKILL.md",
+      "target": "video-review/SKILL.md",
+      "source_sha256": "50bc2966d94629f96c41fd4538424bf0be6050671466c2d1f31c0264d35fabf5",
+      "sha256": "9ce36b830ea259a95217f3d861179efe70bb1e5ea659bfd6dac5a39ee4e9666b",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "skills/video-review/scripts/review.py",
+      "target": "video-review/scripts/review.py",
+      "source_sha256": "53e717355db7d8c07c51bc5a44fdc62b24877728976cd49c3ef30b7ce764ea79",
+      "sha256": "53e717355db7d8c07c51bc5a44fdc62b24877728976cd49c3ef30b7ce764ea79",
+      "adaptations": []
+    },
+    {
+      "source": "skills/video-review/video-review.sh",
+      "target": "video-review/video-review.sh",
+      "source_sha256": "1fe85edb82bdf216cd8442c1b7725c709c536222b26dc33e659bd3a6bdd436b3",
+      "sha256": "830beda5b58285abaa4cdaafe69ab172448b3b67bcc5814c6828b0558e13a3ce",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "skills/wxwork-drive/REFERENCE.md",
+      "target": "wxwork-drive/REFERENCE.md",
+      "source_sha256": "862da7c70da88d8844dc5cad15adc4b61fd3d799debfc73563a803a40bf15bba",
+      "sha256": "862da7c70da88d8844dc5cad15adc4b61fd3d799debfc73563a803a40bf15bba",
+      "adaptations": [
+        "workbuddy-routing"
+      ]
+    },
+    {
+      "source": "skills/wxwork-drive/SKILL.md",
+      "target": "wxwork-drive/SKILL.md",
+      "source_sha256": "20be7a93413c3922d1b32e32b84163fc389f8ad99c341464ac1ea2642d38c0c2",
+      "sha256": "647a62b0a1927b2c9d551d6c415c79d1dbef990ef1a267750d8b7cfd69b4a874",
+      "adaptations": [
+        "workbuddy-routing",
+        "workbuddy-frontmatter-and-entry"
+      ]
+    },
+    {
+      "source": "skills/wxwork-drive/scripts/drive.py",
+      "target": "wxwork-drive/scripts/drive.py",
+      "source_sha256": "5abe5307bcc3daf8274bd647874704a14f020aaef1c7a4b41d88775c0201f0a9",
+      "sha256": "5abe5307bcc3daf8274bd647874704a14f020aaef1c7a4b41d88775c0201f0a9",
+      "adaptations": []
+    },
+    {
+      "source": "skills/wxwork-drive/spaces.example.json",
+      "target": "wxwork-drive/spaces.example.json",
+      "source_sha256": "04db908e73cf71f9586d9c53bcc84aa6efce09358f48576d81f52a43f859c0d1",
+      "sha256": "04db908e73cf71f9586d9c53bcc84aa6efce09358f48576d81f52a43f859c0d1",
+      "adaptations": []
+    },
+    {
+      "source": "skills/wxwork-drive/wxwork-drive.sh",
+      "target": "wxwork-drive/wxwork-drive.sh",
+      "source_sha256": "3bc14100e47f1c4e90af27dde41ed061d9ca0188f1f58f30e72bf0bcf18772eb",
+      "sha256": "11cf6339bd351ca216adcfd23471e5c6f2ee9a557da797da3be10876c05faaed",
+      "adaptations": [
+        "isolated-state-home"
+      ]
+    },
+    {
+      "source": "workbuddy/extensions/expert-wx-mp/workflows/account-diagnosis.md",
+      "target": "expert-wx-mp/workflows/account-diagnosis.md",
+      "source_sha256": "0c23b3e5d3740dc1de0a94ab864483f7d9258571aabae92fd4d8e146ede06c4f",
+      "sha256": "0c23b3e5d3740dc1de0a94ab864483f7d9258571aabae92fd4d8e146ede06c4f",
+      "adaptations": [
+        "workbuddy-task-workflow"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "source": "crews/main/ofb_contact.png",
+      "target": "avatars/ofb_contact.png",
+      "sha256": "83b168b8fd11ae8679c6f60894178cefa982ac7bb7ad037fdee71bc26bfcc5b2"
+    }
+  ],
+  "persona": {
+    "target": "agents/xiaobei-growth.md",
+    "sha256": "fae35029aa8fba21c03281f856bbb2bb7a77d54c163423aae75ce29ba40dfc12",
+    "sources": [
+      {
+        "source": "crews/main/SOUL.md",
+        "sha256": "462ec0c0c0f9132f94ed9fda3a9a1deb38931ba5e278cc0facda41bc866fcb35"
+      },
+      {
+        "source": "crews/main/IDENTITY.md",
+        "sha256": "4122bea854f68eda69ea8194b3b736ce2933836667e3e2d883f477536235d879"
+      }
+    ]
+  },
+  "relay_base_url": "https://relay.openclaw-for-business.com",
+  "excluded_skills": {
+    "expert-osbi": "首版按用户要求不包含 OSBI",
+    "expert-wx-channel": "本版整体移除视频号平台，发布和取数依赖浏览器",
+    "sales-cs-manager": "WorkBuddy 单专家不管理 OpenClaw 客服 crew",
+    "zhihu-publish": "依赖 Camoufox",
+    "ui-demo": "依赖 Camoufox 录屏；使用用户录屏或 WorkBuddy 可用录屏能力",
+    "browser-guide": "专用于 Camoufox",
+    "smart-search": "专用于 Camoufox；检索使用 WorkBuddy 实际可用能力",
+    "web-form-fill": "依赖 Camoufox"
+  },
+  "excluded_paths": {
+    "expert-douyin/tools/douyin-publish": "Camoufox 发布",
+    "expert-douyin/tools/douyin-engagement": "从 Camoufox profile 读取发布凭据",
+    "expert-douyin/tools/_shared/publish_browser.py": "Camoufox 内部运行库",
+    "expert-douyin/tools/_shared/publish-login.md": "已删除的创作者浏览器登录指导",
+    "_shared/aigc_common.py": "原仓空占位文件；真实实现保留在 aigc-video-gen/scripts/aigc_common.py",
+    "expert-wx-mp/tools/wx-mp-engagement": "Camoufox 创作者取数",
+    "platform-runtime/scripts/login.mjs": "Camoufox 登录/导出；API 业务与快手 HTTP 登录保留",
+    "platform-runtime/scripts/browser-snapshot.js": "Camoufox 浏览器登录快照",
+    "_shared/browser_publish_text.py": "仅供已移除的浏览器发布技能使用"
+  }
+}

@@ -1,0 +1,225 @@
+---
+name: "douyin-style-profiler"
+description: "提取抖音作品 DNA：单篇作品（视频 / 图文）生成 report，按 dna-id 聚合选题、标题与封面、内容创意、业务植入套路、互动引导与 CTA 套路、视频形态与制作指向、制作规格、口播文案子模块与账号运营子模块，推导 main agent 的 Brief / 图文生产 template。"
+description_zh: "提取抖音作品 DNA：单篇作品（视频 / 图文）生成 report，按 dna-id 聚合选题、标题与封面、内容创意、业务植入套路、互动引导与 CTA 套路、视频形态与制作指向、制作规格、口播文案子模块与账号运营子模块，推导 main agent 的 Brief / 图文生产 template。"
+description_en: "douyin-style-profiler: native Xiaobei workflows, tools and reusable resources."
+version: "0.3.1"
+author: "TeamWiseFlow"
+---
+
+## WorkBuddy 执行入口
+
+本文的 wrapper 名称表示本包逻辑命令。执行前读取 `xiaobei-runtime`，通过其统一入口运行命令；不假设全局 PATH 已安装小贝。业务数据写用户当前工作空间，登录态和依赖由该运行层隔离管理。能力以运行层 `list` 返回为准；未包含的浏览器发布/取数步骤使用用户资料或当前 WorkBuddy 实际可用工具，不调用原 OpenClaw 安装或 crew。
+
+
+# douyin-style-profiler
+
+抖音作品 DNA 提取与聚合工具。输入是**视频转录文本**（口播全文 + 标题 / 描述 / 时长 / 互动线索）或**图文文本**（标题 + 正文 + 话题标签），由 Agent 先整理成 `.md` / `.txt`；可选封面 / 首帧 / 配图作为视觉证据。不接受视频文件或链接作为直接输入（取数走 `viral-chaser` 或平台工具）。
+
+DNA 的用途是指导 main agent 选题、包装、出内容或出视频制作 Brief；**不指导成片制作**——创作细节、脚本结构、镜头与编码参数归 WorkBuddy 视频制作专家。
+
+## 作品类型（`--kind`）
+
+抖音有两套维度框架，用 `--kind` 选择；**一个 `dna-id` 只承载一种作品类型**：
+
+| kind | 作品 | 维度框架 | 默认 dna-id |
+|------|------|----------|-------------|
+| `video` | 视频 | `references/video-dna-framework.md` | `dna-0` |
+| `note` | 图文 | `references/note-dna-framework.md` | `dna-0-note` |
+
+- 不传 `--kind` 时默认 `video`（抖音的主作品类型）。
+- `build` / `update` 会校验同一 DNA 目录下 report 的 kind 一致，混型直接报错——另一种类型请另建 dna-id。
+- 默认 dna-id 只是约定：用户可以指定任意 dna-id，脚本不强制命名。
+
+## 产物模型
+
+```text
+单篇作品 -> DNA report
+同一 dna-id 下全部 report + 权重 / focus + 用户输入转译 -> DNA 文档
+DNA 文档 -> DNA template
+```
+
+- **DNA report**：单篇作品的样本观测 + 维度提取结果；跨篇共性与生产规则由聚合阶段给出，report 本身不是模板。
+- **DNA 文档**：聚合后的生产规则、样本覆盖度、子模块结论与用户输入转译区。
+- **DNA template**：main agent 的生产输入模板（视频 = Brief 正文 + 口播文案；图文 = 写作模板）。
+
+## 存储结构
+
+```text
+douyin/dna/{dna-id}/
+  reports/
+    {sample-id}.report.md
+  covers/
+    {sample-id}.{ext}
+  {dna-id}.dna.md
+  {dna-id}.template.md
+```
+
+原始转录 / 正文文本可临时放在 `douyin/ref/{dna-id}/transcripts/`；生成后的 report 必须进入目标 DNA 的 `reports/` 目录。
+
+## 职责边界
+
+- 抖音视频与图文都常见：先判作品类型再选框架，不要把图文笔记塞进视频 DNA。
+- 单篇 report 只提供候选信号，不判断跨篇稳定性；共性、偏好、孤例由聚合阶段判断。
+- 视觉维度必须有图片 / 关键帧证据，由视觉模型读取；缺失写「未提供」，不得凭文本想象补齐。
+- 口播文案子模块只在口播类作品启用；样本不足写「未启用」。
+- 账号运营子模块（简介写法、内容形式比例、发布习惯）只在样本来自对标账号批量提取时填写，且**不进 template**。
+- 不输出风格评分或账号权重；合规只记「必须避免项」（虚假承诺、利益诱导互动、隐藏站外联系方式、谐音绕检测），不出具合规审查结论。
+
+## Report — 单篇提取
+
+```bash
+# 视频样本（不传 --kind，默认 video）
+douyin-style-profiler report \
+  --input path/to/transcript.md \
+  --dna-id {dna-id} \
+  --sample-id {sample-id} \
+  --duration 36 \
+  --cover-image path/to/cover.jpg \
+  --source-url "https://www.douyin.com/video/..." \
+  --output-dir douyin/dna/{dna-id}/reports
+
+# 图文样本
+douyin-style-profiler report \
+  --input path/to/note.md \
+  --kind note \
+  --dna-id {dna-id}-note \
+  --sample-id {sample-id} \
+  --cover-image path/to/cover.jpg \
+  --output-dir douyin/dna/{dna-id}-note/reports
+```
+
+- `--kind`：作品类型（见上）；不传走默认。
+- `--cover-image`：封面 / 首帧 / 首图本地文件，作为视觉证据（自动拷进 `covers/`）。
+- `--source-url`：原作品链接；本地素材无链接时省略。
+- `--duration`：视频时长（秒），用于口播密度统计；图文忽略。
+- `--weight`：样本权重，默认 1。
+- `--focus`：限制该样本只影响指定维度 ID，可重复传入。
+
+Agent 生成 scaffold 后必须：
+
+1. 补齐「样本观测」：作品类型、样本来源、账号与简介、发布时间、数据线索、素材来源与授权。
+2. 回读原文，补齐各维度的单篇结论、原文证据与可复用信号。
+3. 视频形态必须给出**制作指向**（WorkBuddy 视频制作专家 `expert-video` 的某个 workflow，或 main 的某个素材加工技能），只写真实存在的资源名。
+4. 账号运营子模块无法从单篇观测时写「未观测」。
+5. 高数据样本必须回读创意与形态再归因，不得只凭播放 / 阅读量下结论。
+
+## Build — 聚合 DNA 文档与模板
+
+```bash
+douyin-style-profiler build --dna-id {dna-id}                     # 视频 DNA（默认 kind=video）
+douyin-style-profiler build --dna-id {dna-id}-note --kind note     # 图文 DNA
+```
+
+默认读取 `douyin/dna/{dna-id}/reports/`，输出 `{dna-id}.dna.md` 与 `{dna-id}.template.md`。也可显式传 report 文件 / 目录：
+
+```bash
+douyin-style-profiler build --input path/to/reports --dna-id {dna-id}
+```
+
+Agent 聚合时必须：
+
+1. 读取全部 DNA report，不能只看统计表。
+2. 按 `weight` 与 `focus` 判断影响范围。
+3. 区分高覆盖共性、高权重偏好、局部借鉴、孤例与例外。
+4. 标注样本覆盖度；少量样本不得称为稳定结论。
+5. 为每个维度写聚合结论、报告依据与可执行创作规则。
+6. 确保 DNA 文档能完整推导 template（template 不得引入 DNA 文档未确认的规则）。
+
+## Update — 增量聚合
+
+```bash
+douyin-style-profiler update \
+  --input douyin/dna/{dna-id}/reports/{new-sample}.report.md \
+  --dna douyin/dna/{dna-id}/{dna-id}.dna.md \
+  --template douyin/dna/{dna-id}/{dna-id}.template.md
+```
+
+脚本合并历史 report 与新 report、重算统计并保留 Agent 已写内容；kind 从 DNA 文档 frontmatter 继承（也可用 `--kind` 显式指定，冲突时报错）。Agent 仍需重新审视聚合结论并同步修订 template。
+
+`--input` 可省略，用于只融合用户输入或另一个 DNA 的局部规则；此时必须传 `--user-input`。
+
+## DNA Template
+
+**视频作品 template（= Brief 正文模板 + 口播文案模板）**
+
+1. 选题
+2. 标题与封面
+3. 内容创意
+4. 业务植入与 CTA
+5. 视频形态与制作指向
+6. 制作规格
+7. 口播文案
+
+**图文作品 template（= 图文写作模板）**
+
+1. 选题
+2. 标题与封面
+3. 内容创意与结构
+4. 正文表达
+5. 图组
+6. 业务植入与 CTA
+
+- 开头两段（**选题**、**标题与封面**）跨平台通用。
+- 视频 template 的各段直接对应 Brief 正文字段；**Brief 不含 DNA 信息**（WorkBuddy 视频制作专家 看不到 main 的 DNA），素材清单与授权、验收标准、闸门批准人按平台 Content Production Workflow 填。
+- 账号运营子模块不进 template，只留在 DNA 文档。
+
+## 用户输入转译
+
+用户输入是参考信息，不是可直接入库的 DNA 规则：
+
+```bash
+--user-input "以后多做实拍拼接，少用纯动画"
+```
+
+Agent 必须映射到具体维度并转译为可执行规则，例如：
+
+```text
+video-form：主形态为影视解说 + 反转植入，制作指向 expert-video 的 Reversal Ad workflow
+production-spec：竖屏 9:16、时长带 30-45s、画面偏冷暗解说段 + 明亮植入段
+narration-script：口播保持第三人称解说体，句长 10-15 字
+```
+
+处理要求：
+
+1. 在 DNA 文档「用户输入转译区」记录 raw_input、affected dimensions、DNA 修改、template 修改与状态。
+2. 原话必须转译为可执行规则，不得直接抄进 template。
+3. 与样本证据冲突时保留冲突说明，由用户选择优先级。
+
+## Focus ID
+
+### video（视频）
+
+| ID | 维度 |
+|---|---|
+| `topic-angle` | 选题与观看理由 |
+| `title-cover` | 标题与封面 |
+| `content-idea` | 内容创意 |
+| `video-form` | 视频内容形态与制作指向 |
+| `production-spec` | 制作规格与视听倾向 |
+| `biz-implant` | 业务植入套路 |
+| `interaction-cta` | 互动引导与 CTA 套路 |
+| `narration-script` | 口播文案子DNA |
+| `account-bio` | 账号简介写法 |
+| `content-mix-cadence` | 内容形式比例与发布习惯 |
+
+### note（图文）
+
+| ID | 维度 |
+|---|---|
+| `topic-angle` | 选题与观看理由 |
+| `title-cover` | 标题与封面图组 |
+| `content-idea` | 内容创意 |
+| `body-voice` | 正文表达与语气 |
+| `imageset-visual` | 图组视觉风格 |
+| `biz-implant` | 业务植入套路 |
+| `interaction-cta` | 互动引导与 CTA 套路 |
+| `account-bio` | 账号简介写法 |
+| `content-mix-cadence` | 内容形式比例与发布习惯 |
+
+`--focus` 按作品类型校验：视频 report 不接受图文维度 ID，反之亦然。
+
+## 参考资料
+
+- `references/video-dna-framework.md`（抖音视频作品 DNA 框架 v2：维度定义、制作指向映射、聚合边界与 Focus ID）
+- `references/note-dna-framework.md`（抖音图文作品 DNA 框架 v2：维度定义、制作指向映射、聚合边界与 Focus ID）
