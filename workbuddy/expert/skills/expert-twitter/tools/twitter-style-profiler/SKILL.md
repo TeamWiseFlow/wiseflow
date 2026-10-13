@@ -3,7 +3,7 @@ name: "twitter-style-profiler"
 description: "X/Twitter定性内容 DNA 的样本报告、聚合模板和增量更新。"
 description_zh: "X/Twitter定性内容 DNA 的样本报告、聚合模板和增量更新。"
 description_en: "twitter-style-profiler: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

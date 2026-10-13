@@ -3,7 +3,7 @@ name: "xhs-qianfan"
 description: "小红书千帆合作原子操作：分销商类目、候选列表、总览、合作品类、合作店铺、商品及粉丝数据查询。"
 description_zh: "小红书千帆合作原子操作：分销商类目、候选列表、总览、合作品类、合作店铺、商品及粉丝数据查询。"
 description_en: "xhs-qianfan: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

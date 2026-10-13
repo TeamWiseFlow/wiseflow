@@ -3,7 +3,7 @@ name: "tiktok-style-profiler"
 description: "TikTok定性内容 DNA 的样本报告、聚合模板和增量更新。"
 description_zh: "TikTok定性内容 DNA 的样本报告、聚合模板和增量更新。"
 description_en: "tiktok-style-profiler: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

@@ -1,6 +1,6 @@
 # 平台互动能力
 
-内容搜索、用户资料、作品与评论采集、评论/@提醒、点赞收藏提醒及新增关注通知按平台调用 `douyin-hunter` / `xhs-hunter` / `tiktok-hunter` / `kuaishou-hunter` / `x-hunter` / `weibo-hunter` / `wx-mp-hunter`；私信和互动写操作在 expert-bd 内执行。创作、发布、本人已发作品数据和创作者服务仍转平台专家包。表内尚不支持的能力保留为空缺。
+内容搜索、用户资料、作品与评论采集、评论/@提醒、点赞收藏提醒及新增关注通知按平台调用 `douyin-hunter` / `xhs-hunter` / `tiktok-hunter` / `kuaishou-hunter` / `x-hunter` / `weibo-hunter`；私信和互动写操作在 expert-bd 内执行。创作、发布、本人已发作品数据和创作者服务仍转平台专家包。表内尚不支持的能力保留为空缺。
 
 | 能力 | 抖音 | 小红书 |
 |---|---|---|

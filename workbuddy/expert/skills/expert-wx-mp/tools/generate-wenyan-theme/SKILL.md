@@ -1,9 +1,9 @@
 ---
 name: "generate-wenyan-theme"
-description: "从自然语言描述或对标公众号文章生成自定义排版 CSS 主题，产出可直接给 wx-mp-publisher 使用的 wenyan 格式主题。"
-description_zh: "从自然语言描述或对标公众号文章生成自定义排版 CSS 主题，产出可直接给 wx-mp-publisher 使用的 wenyan 格式主题。"
+description: "从自然语言描述或用户提供的排版样本生成自定义排版 CSS 主题，产出可直接给 wx-mp-publisher 使用的 wenyan 格式主题。"
+description_zh: "从自然语言描述或用户提供的排版样本生成自定义排版 CSS 主题，产出可直接给 wx-mp-publisher 使用的 wenyan 格式主题。"
 description_en: "generate-wenyan-theme: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 
@@ -25,8 +25,8 @@ author: "TeamWiseFlow"
 ## 核心能力
 
 - **自然语言转 CSS**：理解视觉需求（如"赛博朋克风"、"深色代码块"、"带装饰的引用块"），转换为精确的 CSS 代码
-- **微信文章仿样式生成**：当用户提供 `https://mp.weixin.qq.com` 文章链接时，调用 `wx-mp-hunter fetch <url> --html` 获取正文 HTML，分析原文排版特征后生成 wenyan CSS
-- **公众号近期文章归纳生成**：当用户提供公众号账号时，调用 `wx-mp-hunter search` + `account-posts` + `fetch --html` 采集近期文章 HTML，抽取共性后生成模板
+- **样式参考生成**：分析用户提供的本地 HTML、封面或排版截图，生成 wenyan CSS；只有链接时请补充材料
+- **多篇排版归纳**：读取用户提供的多篇 HTML 或截图，提炼真实出现的排版共性；不自动按账号采集
 - **主题注册到 index.json**：生成自定义 CSS 后，把主题信息写入工作区 `wx_mp/wenyan-theme/index.json`，`wx-mp-publisher` 会从这里读自定义主题
 - **微信排版规范适配**：严格遵循 `#wenyan` 命名空间约束，确保样式能完美注入微信公众号 DOM 结构
 - **高级排版特效**：支持伪元素 (`::before`/`::after`)、渐变背景 (`linear-gradient`)、内联 SVG/Base64 图片等高级 CSS 特性
@@ -35,54 +35,21 @@ author: "TeamWiseFlow"
 
 ## 输入模式识别
 
-本工具支持三种模式，按以下优先级判断：
+1. 用户提供本地 HTML：运行本地整理入口，将内容保存为样本 JSON 后分析。
+2. 用户提供多篇 HTML 或排版截图：逐篇分析，提炼共性；截图不能证明未显示的字号或 CSS 实现。
+3. 用户只描述视觉需求：按自然语言模式生成。
+4. 只有公众号名或文章链接：先请用户提供 HTML 或截图；链接只记出处。
 
-1. **单篇文章 URL 模式**：用户输入包含 `https://mp.weixin.qq.com` 开头的链接。
-2. **公众号账号模式**：用户明确提供微信公众号账号名、别名或要求“参考某公众号/抓取某公众号最近文章”。
-3. **自然语言模式**：没有微信文章链接或公众号账号时，按普通视觉需求生成。
+## 用户 HTML 整理脚本
 
----
-
-## 文章采集脚本
-
-通过 PATH 调用 wrapper：`generate-wenyan-theme <cmd>`，无需拼接脚本路径。
-
-调用方式：`generate-wenyan-theme ...`
-
-该脚本会调用全局 `wx-mp-hunter` wrapper：
-
-- URL 模式：`wx-mp-hunter fetch <url> --html`
-- 账号模式：`wx-mp-hunter search <account>` → `account-posts <fakeid>` → 对候选文章逐篇 `fetch --html`
-
-### URL 模式
+通过 xiaobei-runtime 调用逻辑命令 generate-wenyan-theme；脚本只读用户本地文件，不访问网络。
 
 ```bash
-generate-wenyan-theme --url <mp.weixin.qq.com-url> --output wx_mp/wenyan-theme/sources.json
+generate-wenyan-theme --input-html wx_mp/ref/article.html --output wx_mp/wenyan-theme/sources.json
+generate-wenyan-theme --input-html wx_mp/ref/one.html --input-html wx_mp/ref/two.html --output wx_mp/wenyan-theme/sources.json
 ```
 
-输出 JSON 中 `articles[0].content_html` 为文章正文 HTML。
-
-### 公众号账号模式
-
-```bash
-generate-wenyan-theme --account <公众号名> --count 10 --output wx_mp/wenyan-theme/sources.json
-```
-
-如果用户同时给出关键词或筛选信息，传入 `--keywords`：
-
-```bash
-generate-wenyan-theme --account <公众号名> --keywords "关键词1,关键词2" --count 10 --scan-batch 20 --max-scan 100 --output wx_mp/wenyan-theme/sources.json
-```
-
-筛选规则：
-
-- 无关键词：默认取最近 10 篇。
-- 有关键词：先抓最近 20 篇，按标题、摘要、作者匹配关键词；不足目标数量时继续抓下一批 20 篇，直到满足数量、无更多文章或达到 `--max-scan`。
-- 每篇文章会通过 `fetch --html` 获取 `content_html`。
-
-> 若 `wx-mp-hunter` 返回 `SESSION_EXPIRED`，按 `wx-mp-hunter` 技能的扫码登录流程处理后重试原命令。
-
----
+输入路径可为用户授权的绝对路径或工作空间相对路径；输出必须是工作空间内的相对 .json 路径。结果 articles[].content_html 为实际文件内容，source_file 标明出处。工具不支持 URL 或账号采集参数。用户仅提供截图时直接使用当前可用的视觉能力分析，不伪造 HTML。
 
 ## HTML 样式分析要点
 
@@ -135,9 +102,9 @@ generate-wenyan-theme --account <公众号名> --keywords "关键词1,关键词2
 
 ### 5. 输出文件路径约束
 
-**所有产物（采集 JSON + 生成的 CSS）统一放工作区下专用子目录 `wx_mp/wenyan-theme/`，不要散落工作区根。** 脚本会自动 `mkdir -p` 该子目录。
+**所有产物（用户样本 JSON + 生成的 CSS）统一放工作区下专用子目录 `wx_mp/wenyan-theme/`，不要散落工作区根。** 脚本会自动 `mkdir -p` 该子目录。
 
-- 采集输出 JSON：工作区内相对 `.json` 路径，可含子目录（如 `wx_mp/wenyan-theme/sources.json`）；禁止绝对路径和 `..` 上跳。
+- 样本输出 JSON：工作区内相对 `.json` 路径，可含子目录（如 `wx_mp/wenyan-theme/sources.json`）；禁止绝对路径和 `..` 上跳。
 - 生成的 CSS：写入同一 `wx_mp/wenyan-theme/` 子目录下的相对 `.css` 路径（如 `wx_mp/wenyan-theme/custom-theme.css`）；禁止绝对路径、`..` 上跳、隐藏目录和非 `.css` 后缀。
 
 ---
@@ -270,51 +237,25 @@ generate-wenyan-theme --account <公众号名> --keywords "关键词1,关键词2
 4. **注册主题**：按「生成主题注册规则」更新工作区 `wx_mp/wenyan-theme/index.json`
 5. **后续引导**：提示使用 `wx-mp-publisher` 技能的第二个位置参数传入注册的 `theme-id` 发布
 
-### B. 单篇文章 URL 模式
+### B. 用户提供单篇样本
 
-1. **识别链接**：确认用户输入包含 `https://mp.weixin.qq.com` 开头的文章 URL。
-2. **采集 HTML**：运行采集脚本：
-   ```bash
-   generate-wenyan-theme --url <url> --output wx_mp/wenyan-theme/sources.json
-   ```
-3. **分析样式**：读取输出 JSON，基于 `articles[0].content_html` 分析标题、段落、引用、分割线、强调、图片周边等样式特征。
-4. **生成 CSS**：将可迁移特征映射到 `#wenyan` 选择器体系，不复制无效的微信原始 class 或 inline style。
-5. **保存文件、注册主题并引导发布**。
+1. 读取用户提供的 HTML 或排版截图；只有链接时请补充材料。
+2. HTML 运行 generate-wenyan-theme --input-html <本地文件> --output wx_mp/wenyan-theme/sources.json，读取真实样本 JSON。
+3. 分析实际可见的标题、段落、引用、分割线、强调与图片布局；截图不支持的细节明确标注。
+4. 按 #wenyan 命名空间把可迁移特征生成 CSS，不复制无效 class。
+5. 按原主题规则保存、注册，再交 wx-mp-publisher 使用。
 
-### C. 公众号账号模式
+### C. 用户提供多篇样本
 
-1. **识别账号与筛选意图**：提取公众号账号名；如果用户提供关键词、主题、人群或文章类型，将其整理为 `--keywords`。
-2. **采集样本**：
-   - 无筛选信息：抓最近 10 篇。
-   - 有筛选信息：从最近 20 篇开始筛选，不足则继续下一批 20 篇。
-   ```bash
-   generate-wenyan-theme --account <公众号名> --count 10 --output wx_mp/wenyan-theme/sources.json
-   ```
-   或：
-   ```bash
-   generate-wenyan-theme --account <公众号名> --keywords "关键词1,关键词2" --count 10 --scan-batch 20 --max-scan 100 --output wx_mp/wenyan-theme/sources.json
-   ```
-3. **向用户确认**：生成 CSS 前，必须向用户展示拟参考的文章列表（标题、发布时间/链接、匹配关键词），并询问是否继续。用户确认后再生成。
-4. **抽取共性**：优先使用多篇文章共同出现的视觉规律；冲突样式按出现频次和标题层级一致性取舍。
-5. **生成 CSS**：输出一个适合该账号整体调性的 wenyan 主题，而不是拼贴单篇文章的局部样式。
-6. **保存文件、注册主题并引导发布**。
-
-
----
+1. 核对用户提供的样本、账号标识和筛选要求；多个 HTML 以重复 --input-html 参数整理。
+2. 逐篇阅读真实内容，列出实际参考的标题或文件路径；不宣称读取了未提供的账号文章。
+3. 用户已指定样本并要求生成时直接执行；需要自行取舍样本或有风格冲突时，先展示拟采用的样本与取舍。
+4. 优先抽取多篇共同的视觉规则，单篇偶发特征作可选细节。
+5. 生成 CSS，保存并注册主题。
 
 ## 生成前确认要求
 
-仅公众号账号模式需要生成前确认。确认消息应包含：
-
-- 公众号名称/别名
-- 实际采集文章数量
-- 文章标题列表
-- 如有关键词：说明命中的关键词或筛选依据
-- 输出主题文件名建议
-
-用户确认“继续/可以/确认”后，才能写 CSS 文件。
-
----
+仅在需要用户选择样本或解决冲突时补问；说明样本数量、标题或文件名、筛选依据和主题方向。用户已明确提供样本与生成要求时沿用授权，不重复索取确认。
 
 ## 生成主题注册规则
 

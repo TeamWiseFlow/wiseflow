@@ -3,7 +3,7 @@ name: "weibo-hunter"
 description: "微博登录、内容搜索与采集：作品、账号、评论、媒体下载。内容发布走 weibo-publish，互动能力以 expert-bd 能力表为准。"
 description_zh: "微博登录、内容搜索与采集：作品、账号、评论、媒体下载。内容发布走 weibo-publish，互动能力以 expert-bd 能力表为准。"
 description_en: "weibo-hunter: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

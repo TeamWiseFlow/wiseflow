@@ -1,9 +1,9 @@
 ---
 name: "expert-wx-mp"
-description: "微信公众号账号诊断、内容 DNA、选题写作、排版与 API 草稿上传。后台指标由用户导出后复盘。"
-description_zh: "微信公众号账号诊断、内容 DNA、选题写作、排版与 API 草稿上传。后台指标由用户导出后复盘。"
+description: "基于用户提供的文章、封面和后台数据，完成微信公众号账号诊断、内容 DNA、选题写作、排版与 API 草稿上传。"
+description_zh: "基于用户提供的文章、封面和后台数据，完成微信公众号账号诊断、内容 DNA、选题写作、排版与 API 草稿上传。"
 description_en: "expert-wx-mp: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 
@@ -11,7 +11,7 @@ author: "TeamWiseFlow"
 
 本文的 wrapper 名称表示本包逻辑命令。执行前读取 `xiaobei-runtime`，通过其统一入口运行命令；不假设全局 PATH 已安装小贝。业务数据写用户当前工作空间，登录态和依赖由该运行层隔离管理。能力以运行层 `list` 返回为准；未包含的浏览器发布/取数步骤使用用户资料或当前 WorkBuddy 实际可用工具，不调用原 OpenClaw 安装或 crew。
 
-本版保留文章采集、账号诊断、DNA、写作排版与 API 草稿上传；本人后台指标从用户导出资料获取，不调用浏览器创作者取数。
+本版使用用户提供的文章正文、封面、排版样本和后台数据，完成账号诊断、DNA、写作排版与 API 草稿上传；不提供公众号自动采集或后台取数。
 
 
 # 微信公众号运营专家
@@ -38,7 +38,7 @@ author: "TeamWiseFlow"
 - 其他文档中出现的 `wx_mp/dna/`、`wx_mp/ref/`、`wx_mp/outputs/`、`wx_mp/wenyan-theme/`、`wx_mp/calibration/` 才是 Workspace 相对路径，统一从 Workspace 根目录解析。
 - 只有命令清单中明确列出的 wrapper 名称可以直接作为 shell 命令调用；其余 Tool 名称仅用于定位对应说明。
 
-零散操作（只想发个稿、只想抓个数据、只想生成个主题）直接用下面的工具。
+零散操作（只想发个稿、只想整理用户数据、只想生成个主题）直接用下面的工具。
 
 ## 工具清单
 
@@ -50,7 +50,7 @@ author: "TeamWiseFlow"
 | `generate-wenyan-theme` | 自然语言 / 对标文章 → 排版 CSS 主题 | `generate-wenyan-theme` |
 | `wx-mp-publisher` | Markdown → 草稿箱（relay 发布） | `wx-mp-publisher` |
 
-跨领域通用技能：`wx-mp-hunter`（用户文章链接的正文、图片与封面获取）、本次 WorkBuddy 实际可用的检索工具（跨平台搜索，选题调研优先走小红书 / 知乎 / 微博等社交平台，不用通用搜索引擎）、`content-calibrator`（DNA 表现评估）、`published-track`（发布记录与指标库）。
+公众号正文、封面、截图和后台数据由用户提供。跨领域通用技能：本次 WorkBuddy 实际可用的检索工具（跨平台搜索，选题调研优先走小红书 / 知乎 / 微博等社交平台，不用通用搜索引擎）、`content-calibrator`（DNA 表现评估）、`published-track`（发布记录与指标库）。
 
 ## 风格与 DNA
 

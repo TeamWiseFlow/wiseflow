@@ -3,7 +3,7 @@ name: "douyin-live"
 description: "抖音公开直播间互动：已授权的弹幕与点赞。房间读取和事件监听使用 douyin-hunter live。"
 description_zh: "抖音公开直播间互动：已授权的弹幕与点赞。房间读取和事件监听使用 douyin-hunter live。"
 description_en: "douyin-live: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

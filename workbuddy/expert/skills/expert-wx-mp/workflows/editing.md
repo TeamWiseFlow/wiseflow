@@ -42,10 +42,10 @@
 用户说"换个排版"、"换个主题"、"照着这篇的排版来"：
 
 1. **用户直接指定了主题名** -> 内置 id 直接用；自定义主题先从 `wx_mp/wenyan-theme/index.json` 解析 `theme-id`
-2. **用户给了微信文章链接**（`mp.weixin.qq.com` 开头）-> 调 `generate-wenyan-theme` 提取参考文章的排版风格，生成自定义主题
+2. **用户提供参考 HTML 或排版截图** -> 调 `generate-wenyan-theme` 分析实际样本，生成自定义主题；只有公众号文章链接时请补充 HTML 或截图，不自动读取链接
    - 生成后保存到 `wx_mp/wenyan-theme/<theme-id>.css`，并登记 `wx_mp/wenyan-theme/index.json`
 3. **用户说"换个好看的"** -> agent 根据内容类型和阅读场景推荐 2-3 个主题
-4. **对标某个账号的排版** -> 先抓几篇那个号的文章 -> 调 `generate-wenyan-theme` 提取，并登记到 `wx_mp/wenyan-theme/index.json`
+4. **对标某个账号的排版** -> 使用用户提供的多篇 HTML 或截图 -> 调 `generate-wenyan-theme` 分析并生成主题，登记到 `wx_mp/wenyan-theme/index.json`
 
 换完排版重新生成预览，让用户看效果再确认；发布时把自定义 `theme-id` 传给 `wx-mp-publisher`。
 

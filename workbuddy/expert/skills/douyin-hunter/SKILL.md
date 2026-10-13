@@ -3,7 +3,7 @@ name: "douyin-hunter"
 description: "抖音内容搜索与采集。读取作品、用户、评论与回复、搜索、收藏、关注关系、推荐流和通知，并下载视频或图文素材。"
 description_zh: "抖音内容搜索与采集。读取作品、用户、评论与回复、搜索、收藏、关注关系、推荐流和通知，并下载视频或图文素材。"
 description_en: "douyin-hunter: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

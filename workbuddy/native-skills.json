@@ -1,7 +1,8 @@
 {
-  "version": "0.3.1",
+  "version": "0.3.2",
   "relay_base_url": "https://relay.openclaw-for-business.com",
   "exclude_skills": {
+    "wx-mp-hunter": "WorkBuddy 版整体移除公众号自动采集，文章正文、封面与排版参考由用户提供",
     "expert-osbi": "首版按用户要求不包含 OSBI",
     "expert-wx-channel": "本版整体移除视频号平台，发布和取数依赖浏览器",
     "sales-cs-manager": "WorkBuddy 单专家不管理 OpenClaw 客服 crew",
@@ -12,6 +13,7 @@
     "web-form-fill": "依赖 Camoufox"
   },
   "exclude_paths": {
+    "expert-wx-mp/tools/generate-wenyan-theme/scripts/collect-theme-sources.js": "移除依赖公众号采集的脚本，替换为用户本地 HTML 整理入口",
     "expert-douyin/tools/douyin-publish": "Camoufox 发布",
     "expert-douyin/tools/douyin-engagement": "从 Camoufox profile 读取发布凭据",
     "expert-douyin/tools/_shared/publish_browser.py": "Camoufox 内部运行库",

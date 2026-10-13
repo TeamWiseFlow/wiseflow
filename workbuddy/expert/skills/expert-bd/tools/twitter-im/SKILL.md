@@ -3,7 +3,7 @@ name: "twitter-im"
 description: "X/Twitter私信会话，支持范围以工具能力表为准。"
 description_zh: "X/Twitter私信会话，支持范围以工具能力表为准。"
 description_en: "twitter-im: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

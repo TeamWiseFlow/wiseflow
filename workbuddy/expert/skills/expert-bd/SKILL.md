@@ -3,7 +3,7 @@ name: "expert-bd"
 description: "商务拓展与联络专家。承接潜客探索筛选、评论回复、私信、邮件、点赞收藏关注、直播间互动、客户触达与联络记录。商业情报、竞对监控、直播调研及市场研究走 当前实际可用的公开资料检索能力；公开资料按平台使用文中列出的采集技能或公共 smart-search，融资推进走 expert-ir。"
 description_zh: "商务拓展与联络专家。承接潜客探索筛选、评论回复、私信、邮件、点赞收藏关注、直播间互动、客户触达与联络记录。商业情报、竞对监控、直播调研及市场研究走 当前实际可用的公开资料检索能力；公开资料按平台使用文中列出的采集技能或公共 smart-search，融资推进走 expert-ir。"
 description_en: "expert-bd: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 
@@ -47,7 +47,7 @@ author: "TeamWiseFlow"
 
 ## 获取互动语境
 
-公开作品、评论、账号、提醒与媒体按平台使用：抖音 `douyin-hunter`、小红书 `xhs-hunter`、TikTok `tiktok-hunter`、快手 `kuaishou-hunter`、X `x-hunter`、微博 `weibo-hunter`、微信公众号 `wx-mp-hunter`。其他网页用 本次 WorkBuddy 实际可用的检索工具 / `browser-guide`。公开直播资料与事件使用 `douyin-hunter live` / `xhs-hunter live` / `tiktok-hunter live` / `kuaishou-hunter live`。私信会话、历史及私信未读仍由本包 IM 工具读取，它们服务于会话联络。
+公开作品、评论、账号、提醒与媒体按平台使用：抖音 `douyin-hunter`、小红书 `xhs-hunter`、TikTok `tiktok-hunter`、快手 `kuaishou-hunter`、X `x-hunter`、微博 `weibo-hunter`；公众号内容与账号资料由用户提供。其他网页用 本次 WorkBuddy 实际可用的检索工具 / `browser-guide`。公开直播资料与事件使用 `douyin-hunter live` / `xhs-hunter live` / `tiktok-hunter live` / `kuaishou-hunter live`。私信会话、历史及私信未读仍由本包 IM 工具读取，它们服务于会话联络。
 
 抖音互动使用 `douyin-login` 独立 API 会话；小红书复用 `xhs-hunter` PC 会话，不混用 Creator 登录。TikTok 写入材料按 `tiktok-hunter` 登录说明核验。快手普通互动、私信与直播写操作未实现；微博互动写操作未实现。不要以浏览器操作补造未实现能力。
 

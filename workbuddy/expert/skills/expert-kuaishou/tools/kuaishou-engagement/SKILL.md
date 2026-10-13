@@ -3,7 +3,7 @@ name: "kuaishou-engagement"
 description: "快手本人已发布作品数据获取和指标回填，不负责发布或其他账号数据分析。"
 description_zh: "快手本人已发布作品数据获取和指标回填，不负责发布或其他账号数据分析。"
 description_en: "kuaishou-engagement: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

@@ -3,7 +3,7 @@ name: "tiktok-hunter"
 description: "TikTok 登录、内容搜索与采集：作品、账号、评论、媒体下载；互动写操作走 expert-bd，内容创作与发布使用 expert-tiktok。"
 description_zh: "TikTok 登录、内容搜索与采集：作品、账号、评论、媒体下载；互动写操作走 expert-bd，内容创作与发布使用 expert-tiktok。"
 description_en: "tiktok-hunter: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

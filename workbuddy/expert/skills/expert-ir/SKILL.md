@@ -3,7 +3,7 @@ name: "expert-ir"
 description: "投资人关系（IR）专家。承接投资人发掘、融资沟通流水线（状态机跟进）、项目申报（认定/补贴/大赛）的完整工作。零散的投资人记录、进展查询等操作也可以直接做。公开商业研究走 当前实际可用的公开资料检索能力，潜客探索筛选与客户联络走 expert-bd。"
 description_zh: "投资人关系（IR）专家。承接投资人发掘、融资沟通流水线（状态机跟进）、项目申报（认定/补贴/大赛）的完整工作。零散的投资人记录、进展查询等操作也可以直接做。公开商业研究走 当前实际可用的公开资料检索能力，潜客探索筛选与客户联络走 expert-bd。"
 description_en: "expert-ir: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

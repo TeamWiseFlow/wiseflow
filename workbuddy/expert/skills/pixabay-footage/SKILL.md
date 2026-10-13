@@ -3,7 +3,7 @@ name: "pixabay-footage"
 description: "Search and download copyright-free images and video clips from Pixabay"
 description_zh: "Search and download copyright-free images and video clips from Pixabay"
 description_en: "pixabay-footage: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

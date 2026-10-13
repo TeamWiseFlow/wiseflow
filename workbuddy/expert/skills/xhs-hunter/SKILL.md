@@ -3,7 +3,7 @@ name: "xhs-hunter"
 description: "小红书(xhs)内容采集与搜索。用于搜索笔记和用户、查看推荐流与频道、获取用户主页和作品、读取笔记正文/图片/视频/评论、评论与@提醒、点赞收藏提醒、新增关注通知、批量下载媒体及导出表格。"
 description_zh: "小红书(xhs)内容采集与搜索。用于搜索笔记和用户、查看推荐流与频道、获取用户主页和作品、读取笔记正文/图片/视频/评论、评论与@提醒、点赞收藏提醒、新增关注通知、批量下载媒体及导出表格。"
 description_en: "xhs-hunter: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

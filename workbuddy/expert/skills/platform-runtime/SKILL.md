@@ -3,7 +3,7 @@ name: "platform-runtime"
 description: "TikTok、快手、X 和微博平台工具的内部运行库，统一管理登录和会话，由各 hunter、发布、engagement 与 BD wrapper 调用。"
 description_zh: "TikTok、快手、X 和微博平台工具的内部运行库，统一管理登录和会话，由各 hunter、发布、engagement 与 BD wrapper 调用。"
 description_en: "platform-runtime: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 user-invocable: false
 disable-model-invocation: true

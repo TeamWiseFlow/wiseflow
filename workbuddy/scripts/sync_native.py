@@ -9,7 +9,6 @@ import shutil
 import subprocess
 
 from adapt_workflows import adapt_workflow
-from export_wx_mp_fetch import export_fetch_manual, export_fetch_module
 
 ROOT = Path(__file__).resolve().parents[2]
 PRODUCT = ROOT / 'workbuddy'
@@ -109,13 +108,9 @@ def adapt(path, text):
         text = replace_once(text, "    const { main: login } = await import('./login.mjs');\n    return login([action === 'login-confirm' ? 'export' : action, '--platform', platform, ...args]);",
                             "    throw new PlatformError('UNSUPPORTED', '本版不包含浏览器登录/导出。通过 xiaobei-runtime import-session 导入已授权 API 会话；快手保留 HTTP 扫码/短信登录。', 4);")
         changes.append('no-browser-login')
-    if path == 'wx-mp-hunter/scripts/wx_mp_hunter.py':
-        text = export_fetch_module(text)
-        changes.append('article-http-fetch-only-no-client-database')
-    if path == 'wx-mp-hunter/SKILL.md':
-        text = export_fetch_manual(text)
-    if path == 'wx-mp-hunter/wx-mp-hunter.sh':
-        text = text.replace('Python 3 stdlib + camoufox-cli', 'Python 3 + httpx')
+    if path == 'expert-wx-mp/tools/generate-wenyan-theme/generate-wenyan-theme.sh':
+        text = text.replace('collect-theme-sources.js', 'collect-theme-sources.mjs')
+        changes.append('user-provided-local-html-only')
     if path in ('xhs-hunter/xhs-hunter.sh', 'expert-bd/tools/xhs-live/xhs-live.sh'):
         text = replace_once(text, 'SELF="$(readlink -f "${BASH_SOURCE[0]}")"', 'SELF="${BASH_SOURCE[0]}"')
         changes.append('staged-regular-wrapper-path')
@@ -166,8 +161,6 @@ def skill_manual(text):
     name = re.search(r'^name:\s*(.+)$', header, re.M).group(1).strip().strip('"\'')
     match = re.search(r'^description:\s*(.+)$', header, re.M)
     description = match.group(1).strip().strip('"\'') if match else name
-    if name == 'wx-mp-hunter':
-        description = '根据微信公众号文章链接，通过 HTTP 获取全文、正文图片与封面，供账号诊断、DNA 提取与内容创作使用。'
     english = f'{name}: native Xiaobei workflows, tools and reusable resources.'
     fields = {'name': name, 'description': description, 'description_zh': description,
               'description_en': english, 'version': VERSION, 'author': 'TeamWiseFlow'}
@@ -197,7 +190,7 @@ def skill_manual(text):
         if name == 'expert-douyin':
             prelude += '\n本版不提供抖音自动发布与本人后台取数。按已适配的工作流交付发布材料、接收用户后台数据，再做记录与 DNA 复盘。\n'
         else:
-            prelude += '\n本版保留文章采集、账号诊断、DNA、写作排版与 API 草稿上传；本人后台指标从用户导出资料获取，不调用浏览器创作者取数。\n'
+            prelude += '\n本版使用用户提供的文章正文、封面、排版样本和后台数据，完成账号诊断、DNA、写作排版与 API 草稿上传；不提供公众号自动采集或后台取数。\n'
         body = '\n'.join(line for line in body.split('\n') if not (line.startswith('|') and any(f'`{item}`' in line for item in unavailable)))
     return '---\n' + front + '\n---\n' + prelude + '\n' + body
 
@@ -329,7 +322,7 @@ def sync():
     inventory += ['', '## 混合技能中删除的工具与资源', '', '| 路径 | 原因 |', '| --- | --- |']
     inventory += [f'| `{name}` | {reason} |' for name, reason in SPEC['exclude_paths'].items()]
     inventory += ['', '## 保留但改变入口的能力', '', '- native-ui-card 保留渲染、模板、头像及样式，仅用 Chromium，不包含 Camoufox 回退。',
-                  '- wx-mp-hunter 仅保留用户文章链接的 HTTP fetch、正文图片与封面下载，不包含客户端、发布列表、消息库或数据库密钥相关代码。',
+                  '- 公众号文章正文、封面、排版参考和后台数据由用户提供；主题工具仅整理用户本地 HTML，不采集链接或账号。',
                   '- X/TikTok/微博保留 API 与原写操作检查，通过私有文件 import-session 在线核验后导入；不含浏览器登录/导出。快手 HTTP 登录保留。',
                   '- Council 保留四声分析。有实际子任务工具才并行委托；没有时明确标注同会话角色分析。',
                   '- 完整视频制作不打包 content-producer，已有素材加工由 video-edit、talking-head-cut、video-review 执行。',

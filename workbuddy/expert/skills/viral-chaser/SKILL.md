@@ -3,7 +3,7 @@ name: "viral-chaser"
 description: "视频追爆与 DNA 样本分析。产出结构、声画风格与制作指向的拆解报告。也可分析用户提供的本地视频。只处理视频，制作另交 当前实际可用的 WorkBuddy 视频制作专家。"
 description_zh: "视频追爆与 DNA 样本分析。产出结构、声画风格与制作指向的拆解报告。也可分析用户提供的本地视频。只处理视频，制作另交 当前实际可用的 WorkBuddy 视频制作专家。"
 description_en: "viral-chaser: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

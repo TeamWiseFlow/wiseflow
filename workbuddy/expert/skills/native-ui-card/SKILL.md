@@ -3,7 +3,7 @@ name: "native-ui-card"
 description: "将已定稿的内容渲染为群聊误发式单图或问答式三图连续讨论卡片，适用于不同领域的图文选题。"
 description_zh: "将已定稿的内容渲染为群聊误发式单图或问答式三图连续讨论卡片，适用于不同领域的图文选题。"
 description_en: "native-ui-card: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

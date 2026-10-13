@@ -3,7 +3,7 @@ name: xiaobei-runtime
 description: Run the bundled Xiaobei skills, prepare dependencies and keep workspace data separate from credentials and application files.
 description_zh: 小贝原生技能统一运行入口：依赖准备、命令调度与工作空间隔离。
 description_en: Execute bundled Xiaobei commands with dependency preparation and isolated workspace state.
-version: 0.3.1
+version: 0.3.2
 author: TeamWiseFlow
 user-invocable: false
 ---

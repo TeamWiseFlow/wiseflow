@@ -3,7 +3,7 @@ name: "twitter-interact"
 description: "X/Twitter作品互动，支持范围以工具能力表为准。"
 description_zh: "X/Twitter作品互动，支持范围以工具能力表为准。"
 description_en: "twitter-interact: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

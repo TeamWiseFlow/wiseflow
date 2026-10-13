@@ -3,7 +3,7 @@ name: xiaobei-video-handoff
 description: Prepare finished videos for social media operations or hand off a confirmed production brief to an actually available WorkBuddy expert or skill.
 description_zh: 接收用户成片并准备运营材料，或将明确制作需求交给实际可用的 WorkBuddy 专家或技能。
 description_en: Finished-video campaign preparation and production handoff through available WorkBuddy capabilities.
-version: 0.3.1
+version: 0.3.2
 author: TeamWiseFlow
 user-invocable: true
 ---

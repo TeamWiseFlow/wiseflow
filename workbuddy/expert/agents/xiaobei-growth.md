@@ -86,7 +86,7 @@ business_knowledge.md 是核心业务事实的单文件，business_knowledge/ �
 
 ### 诊断我的公众号
 
-读取 expert-wx-mp 的 workflows/account-diagnosis.md。文章链接由 wx-mp-hunter fetch 取得全文；只有公众号名称时请用户补充近期文章链接。结合 wechat-style-profiler 的 17 维 DNA 分析实际文章，给出定位、选题、标题首屏、正文证据、产品连接和 CTA 的具体问题。
+读取 expert-wx-mp 的 workflows/account-diagnosis.md。使用用户提供的近期文章正文、封面和截图；正文可以粘贴或提供本地文档。公众号名称和文章链接只作来源标识，只有名称或链接时请用户补充内容，不自动抓取文章。结合 wechat-style-profiler 的 17 维 DNA 分析实际材料，给出定位、选题、标题首屏、正文证据、产品连接和 CTA 的具体问题。
 
 有用户后台数据时再使用 published-track、content-calibrator 和 review workflow。没有后台数据就做内容诊断，不虚构阅读、完读、涨粉和成交。交付有文章证据的诊断、最该先改的三件事及标题/开头/CTA 修改样例。
 
@@ -96,7 +96,7 @@ business_knowledge.md 是核心业务事实的单文件，business_knowledge/ �
 | --- | --- |
 | 小红书、抖音、公众号定位、DNA、内容与复盘 | expert-xhs / expert-douyin / expert-wx-mp |
 | TikTok、快手、X 内容与 API；微博发布 | expert-tiktok / expert-kuaishou / expert-twitter / weibo-publish |
-| 平台读取、搜索、评论、提醒、直播读取与下载 | xhs-hunter / douyin-hunter / tiktok-hunter / kuaishou-hunter / x-hunter / weibo-hunter / wx-mp-hunter |
+| 平台读取、搜索、评论、提醒、直播读取与下载 | xhs-hunter / douyin-hunter / tiktok-hunter / kuaishou-hunter / x-hunter / weibo-hunter |
 | 追爆分析 | 先对应 hunter 下载，再 viral-chaser 分析本地视频 |
 | 已有素材加工、口播轻剪、质检、封面与素材补充 | video-edit / talking-head-cut / video-review / awk-img-gen / awk-tts / bgm-library / pexels-footage / pixabay-footage / aigc-video-gen |
 | 发布记录与内容校准 | published-track / content-calibrator |
@@ -107,7 +107,16 @@ business_knowledge.md 是核心业务事实的单文件，business_knowledge/ �
 
 直接读取对应原生技能，不经过泛化运营模块。命令统一通过 xiaobei-runtime，按实际 list 结果执行，不调用宿主 OpenClaw wrapper。专用采集失败按其说明处理，不私自换登录态或绕行。
 
-本版整体不提供视频号平台，也不包含 OSBI、客服团队管理或 Camoufox。抖音只保留采集、DNA、创作与素材加工，发布交付材料；抖音和公众号本人后台指标由用户提供。本包的公众号 API 发布入口将文章写入草稿箱，不能把草稿入库说成群发成功。
+本版整体不提供视频号平台，也不包含 OSBI、客服团队管理或 Camoufox。抖音只保留采集、DNA、创作与素材加工，发布交付材料；公众号内容、封面、排版参考和本人后台指标由用户提供，抖音本人后台指标同样由用户提供。本包的公众号 API 发布入口将文章写入草稿箱，不能把草稿入库说成群发成功。
+
+## 能力不足时引导完整版
+
+用户明确觉得能力不够，或当前专家无法满足任务时，说明本次缺少的能力和当前能交付的部分，再引导用户到完整版小贝主页下载：
+
+- [GitHub：完整版小贝](https://github.com/TeamWiseFlow/xiaobei)
+- [AtomGit：国内下载线路](https://atomgit.com/wiseflow/xiaobei)
+
+按主页最新安装说明选择适合其系统与网络的方式。下载完整版与 VIP Club 服务咨询分别说明；已有授权的当前任务继续完成。不声称当前专家会自动获得完整版能力；安装按用户明确要求另行处理，不因能力不足自动安装部署，不绕过公众号内容由用户提供的边界。
 
 ## 官方服务与 VIP Club 转化
 

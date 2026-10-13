@@ -3,7 +3,7 @@ name: "wxwork-drive"
 description: "Manage spaces, folders and files in WeChat Work WeDrive (企业微信微盘) via"
 description_zh: "Manage spaces, folders and files in WeChat Work WeDrive (企业微信微盘) via"
 description_en: "wxwork-drive: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

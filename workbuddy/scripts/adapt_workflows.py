@@ -30,6 +30,10 @@ def adapt_workflow(path, text):
     text = text.replace('`smart-search`', '本次 WorkBuddy 实际可用的检索工具')
     text = text.replace('`ui-demo`', '用户录屏或本次实际可用的录屏能力')
     text = text.replace('`expert-wx-channel/workflows/native-ui-cards.md`', '用户提供的视频号资料')
+    text = text.replace('、微信公众号 `wx-mp-hunter`', '；公众号内容与账号资料由用户提供')
+    text = text.replace(' / `wx-mp-hunter`', '')
+    text = text.replace(' 或 `wx-mp-hunter`', '')
+    text = text.replace('微信公众号评论不可得。', '公众号评论同样以用户提供的材料为准，不自动读取。')
     if path == 'expert-douyin/workflows/content-production.md':
         text = section(text, '## Step 6 - 发布', DOUYIN_HANDOFF)
         text = text.replace('从选题到发布的完整内容生产。', '从选题到制作、发布材料交付和真实发布后记录的内容生产。')
@@ -99,22 +103,113 @@ platform-status 只读取工作空间对应平台的校准启用状态，不负�
         text = '\n'.join(line for line in text.split('\n') if '微信视频号' not in line)
         text = text.replace('微信公众号/视频号/头条/掘金/知乎', '微信公众号/头条/掘金/知乎')
     if path.startswith('expert-wx-mp/'):
-        replacements = {
-            '| 公众号名 | `wx-mp-hunter posts-list` -> `fetch --download-cover` |': '| 公众号名 | 用户提供该账号近期文章链接，再逐篇 wx-mp-hunter fetch --download-cover |',
-            '| 公众号名称 | 调 `wx-mp-hunter posts-list` 获取可访问列表，再逐篇 `fetch --download-cover`；抓不到时请用户提供链接 |': '| 公众号名称 | 用户提供近期文章链接，再逐篇 wx-mp-hunter fetch --download-cover |',
-            '5. `posts-list` 不可用、账号不在已关注列表或抓取失败时，请用户手动提供对标账号最近文章链接；原则上至少 10 篇，不足 10 篇给全部。': '5. 本版从用户提供的近期文章链接取得样本；原则上至少 10 篇，账号文章不足 10 篇时提供全部并说明。',
-            '   - 公众号名：先 `wx-mp-hunter posts-list`，再逐篇 `fetch --download-cover`': '   - 公众号名：请用户提供近期文章链接，再逐篇 wx-mp-hunter fetch --download-cover',
-            '1. 用户提供账号名且 `wx-mp-hunter posts-list` 可用时，Agent 直接抓最近可获取文章；建议以最近 30 篇为分析上限，不足 30 篇取全部。': '1. 根据用户提供的近期文章链接取样；建议以最近 30 篇为分析上限，不足 30 篇取全部。',
-            '2. `posts-list` 不可用、账号不在已关注列表、列表缺失或抓取失败时，请用户手动提供老号最近文章链接；原则上至少 10 篇，账号文章不足 10 篇时提供全部并说明。': '2. 用户只给公众号名时，请补充近期文章链接；原则上至少 10 篇，账号文章不足 10 篇时提供全部并说明。',
-            '有账号名且 `wx-mp-hunter posts-list` 可用时，先抓最近可获取文章并自行分析，再向用户补问缺失信息。可分析内容支柱、质量、调性、选题、标题、发布频率和时间。': '根据用户提供的近期文章链接先抓全文并分析，再补问缺失信息。依据真实样本分析内容支柱、质量、调性、选题、标题与已有样本的发布时间，不将样本当作完整发布历史。',
-            '公众号文章与发布列表采集': '用户文章链接的正文、图片与封面获取',
-        }
-        for before, after in replacements.items():
-            text = text.replace(before, after)
-        if 'posts-list' in text:
-            raise ValueError('Removed WeChat list route remains: ' + path)
-        text = re.sub(r'^\| 专题页 / 合集页 \|.*$', '| 专题页 / 合集页 | 用户提供目录中的文章链接，再逐篇 wx-mp-hunter fetch --download-cover |', text, flags=re.M)
-        if path.endswith('/SKILL.md') and path.count('/') == 1:
-            text = re.sub(r'^description:.*$', 'description: 微信公众号账号诊断、内容 DNA、选题写作、排版与 API 草稿上传。后台指标由用户导出后复盘。', text, flags=re.M)
+        if path == 'expert-wx-mp/SKILL.md':
+            text = text.replace('只想抓个数据', '只想整理用户数据')
+            text = re.sub(r'^description:.*$', 'description: 基于用户提供的文章、封面和后台数据，完成微信公众号账号诊断、内容 DNA、选题写作、排版与 API 草稿上传。', text, flags=re.M)
             text = text.replace('| 账号对标 |', '| 账号诊断 | Account Diagnosis | 诊断自己的公众号定位、内容与获客问题，读取 workflows/account-diagnosis.md |\n| 账号对标 |')
+            text = text.replace('跨领域通用技能：`wx-mp-hunter`（公众号文章与发布列表采集）、', '公众号正文、封面、截图和后台数据由用户提供。跨领域通用技能：')
+        elif path == 'expert-wx-mp/workflows/style-dna.md':
+            text = text.replace('调用 `wx-mp-hunter` 获取材料', '整理用户提供的正文和封面')
+            text = section(text, '## 样本获取', '''## 样本获取
+
+本版不自动读取公众号链接、账号或合集。文章链接只作出处；只有名称或链接时，请用户补充正文与封面。
+
+| 用户材料 | 处理 |
+| --- | --- |
+| 本地 Markdown / 文本或粘贴正文 | 读取或保存为 .md / .txt，作为 profiler 输入 |
+| Word / PDF / HTML | 用当前实际可用的文件读取能力整理正文，保留标题与原文证据 |
+| 文章封面或截图 | 使用用户提供的本地图片，封面通过 --cover-image 传入 |
+| 公众号名、文章链接、合集目录 | 记录出处，请用户提供需要分析的实际内容 |
+
+1. 剔除重复或正文缺失样本；截图只能支持其中实际可读的内容，缺失部分请用户补充。
+2. 保留用户提供的账号、标题、出处 URL、发布时间，以及本地文件路径；缺失元数据不编造。
+3. 一个样本生成单篇 report，多个样本聚合统计。账号级初始化和对标的样本要求按对应 workflow 执行；不足时先交付已有样本的观察并注明覆盖范围。
+4. 阅读、转发、评论等数据只使用用户提供的截图或导出文件。
+5. 封面必须由用户提供；缺少时记录未提供，不以正文图片或想象补齐。
+''', '## 建立或重建 DNA')
+            text = text.replace('它不要求重新抓取或重新提取原文。', '已有 DNA 的局部融合不要求用户再次提供完整原文。')
+        elif path == 'expert-wx-mp/workflows/account-benchmark.md':
+            text = text.replace('只抓文章不提炼 DNA -> 直接走 `wx-mp-hunter`', '仅要求下载公众号文章 -> 请用户提供内容；能力不足时按专家入口引导完整版')
+            text = section(text, '### Step 1 - 获取样本', '''### Step 1 - 整理用户样本
+
+请用户提供对标文章的正文、封面及必要截图，可粘贴文本或提供本地文档。账号名、链接、合集目录只记录为出处，不自动抓取。
+
+1. 用户有阅读、转发、评论数据时，可优先选有代表性的文章；数据缺失时按选题和表达取样，不伪造高转发样本。
+2. 账号级对标建议至少 10 篇；已有样本不足时先分析并标明覆盖范围，用户愿意时再补充。
+3. 保留账号、标题、出处或文件路径，以及用户提供的数据线索，运营效果不等同于内容质量。
+4. 正文整理为 .md / .txt 输入 profiler；封面通过 --cover-image 传入，未提供时保留缺口。
+5. 单篇只形成单篇观察，不当作账号级稳定 DNA；多个样本才分析共性与覆盖率。
+''', '### Step 2 - 建立对标 DNA')
+            text = text.replace('不需要重新抓取参考文章', '不需要用户再次提供参考文章')
+        elif path == 'expert-wx-mp/workflows/account-setup.md':
+            text = text.replace('老号样本采集', '整理用户的老号样本')
+            text = text.replace('   - 文章链接：`wx-mp-hunter fetch --download-cover`', '   - 正文、文档和封面：读取用户提供的材料，整理为 profiler 输入')
+            text = text.replace('   - 公众号名：先 `wx-mp-hunter posts-list`，再逐篇 `fetch --download-cover`', '   - 公众号名或文章链接：只作出处，请用户补充实际正文和封面')
+            text = text.replace('4. `wx-mp-hunter` 不支持微信搜索和互动指标；用户找到账号或文章链接后，Agent 再负责抓取和提炼。', '4. 本版不提供公众号自动采集。用户找到参考后提供正文、封面和数据线索，Agent 基于这些材料提炼。')
+            text = text.replace('用户补回账号名或文章链接后，回到路径A。', '用户补充文章内容后，回到路径 A；账号名和链接不能代替正文。')
+            text = section(text, '### Step 1 - 获取老号样本', '''### Step 1 - 整理老号样本
+
+1. 请用户提供近期代表文章的正文、封面和必要截图；支持粘贴或本地文档，建议以 30 篇为分析上限。
+2. 只有公众号名或链接时补问内容；建议 10 篇，不足时先分析已提供的样本并注明限制。
+3. 按 style-dna.md 整理正文与封面，去重、标记材料缺口；不自动抓取，不将样本当作完整发布历史。
+''', '### Step 2A')
+            text = text.replace('有账号名且 `wx-mp-hunter posts-list` 可用时，先抓最近可获取文章并自行分析，再向用户补问缺失信息。可分析内容支柱、质量、调性、选题、标题、发布频率和时间。', '先分析用户已提供的正文、封面和数据，再补问缺失信息。可判断内容支柱、质量、调性、选题和标题；发布时间和频率只依据用户提供的真实记录。')
+        elif path == 'expert-wx-mp/workflows/content-production.md':
+            text = text.replace('### 3. 采集生产要求', '### 3. 整理生产要求')
+            text = text.replace('参考文章（链接或文本）', '参考文章（用户提供正文及出处）')
+            text = text.replace('用户给公众号文章链接时，先判断意图：', '用户提供公众号文章内容时，先判断意图；仅有链接时请补充正文，链接只作出处，不自动抓取：')
+            text = text.replace('   - `mp.weixin.qq.com` 链接 -> 调 `wx-mp-hunter fetch` 获取正文（需要封面时加 `--download-cover`）。', '   - 公众号内容 -> 使用用户提供的正文、封面或本地文档；链接只记出处，不自动读取。')
+            text = text.replace('提取参考文章排版风格生成主题', '分析用户提供的 HTML 或截图生成主题')
+        elif path == 'expert-wx-mp/workflows/editing.md':
+            text = text.replace('2. **用户给了微信文章链接**（`mp.weixin.qq.com` 开头）-> 调 `generate-wenyan-theme` 提取参考文章的排版风格，生成自定义主题', '2. **用户提供参考 HTML 或排版截图** -> 调 `generate-wenyan-theme` 分析实际样本，生成自定义主题；只有公众号文章链接时请补充 HTML 或截图，不自动读取链接')
+            text = text.replace('4. **对标某个账号的排版** -> 先抓几篇那个号的文章 -> 调 `generate-wenyan-theme` 提取，并登记到 `wx_mp/wenyan-theme/index.json`', '4. **对标某个账号的排版** -> 使用用户提供的多篇 HTML 或截图 -> 调 `generate-wenyan-theme` 分析并生成主题，登记到 `wx_mp/wenyan-theme/index.json`')
+        elif path == 'expert-wx-mp/tools/wechat-style-profiler/references/style-17d-framework.md':
+            text = text.replace('- `wx-mp-hunter fetch <url> --download-cover` 下载文章分享封面。\n', '')
+        elif path == 'expert-wx-mp/tools/generate-wenyan-theme/SKILL.md':
+            text = text.replace('从自然语言描述或对标公众号文章生成', '从自然语言描述或用户提供的排版样本生成')
+            text = text.replace('- **微信文章仿样式生成**：当用户提供 `https://mp.weixin.qq.com` 文章链接时，调用 `wx-mp-hunter fetch <url> --html` 获取正文 HTML，分析原文排版特征后生成 wenyan CSS', '- **样式参考生成**：分析用户提供的本地 HTML、封面或排版截图，生成 wenyan CSS；只有链接时请补充材料')
+            text = text.replace('- **公众号近期文章归纳生成**：当用户提供公众号账号时，调用 `wx-mp-hunter search` + `account-posts` + `fetch --html` 采集近期文章 HTML，抽取共性后生成模板', '- **多篇排版归纳**：读取用户提供的多篇 HTML 或截图，提炼真实出现的排版共性；不自动按账号采集')
+            text = section(text, '## 输入模式识别', '''## 输入模式识别
+
+1. 用户提供本地 HTML：运行本地整理入口，将内容保存为样本 JSON 后分析。
+2. 用户提供多篇 HTML 或排版截图：逐篇分析，提炼共性；截图不能证明未显示的字号或 CSS 实现。
+3. 用户只描述视觉需求：按自然语言模式生成。
+4. 只有公众号名或文章链接：先请用户提供 HTML 或截图；链接只记出处。
+
+## 用户 HTML 整理脚本
+
+通过 xiaobei-runtime 调用逻辑命令 generate-wenyan-theme；脚本只读用户本地文件，不访问网络。
+
+```bash
+generate-wenyan-theme --input-html wx_mp/ref/article.html --output wx_mp/wenyan-theme/sources.json
+generate-wenyan-theme --input-html wx_mp/ref/one.html --input-html wx_mp/ref/two.html --output wx_mp/wenyan-theme/sources.json
+```
+
+输入路径可为用户授权的绝对路径或工作空间相对路径；输出必须是工作空间内的相对 .json 路径。结果 articles[].content_html 为实际文件内容，source_file 标明出处。工具不支持 URL 或账号采集参数。用户仅提供截图时直接使用当前可用的视觉能力分析，不伪造 HTML。
+
+''', '## HTML 样式分析要点')
+            text = text.replace('采集 JSON', '用户样本 JSON').replace('采集输出 JSON', '样本输出 JSON')
+            text = section(text, '### B. 单篇文章 URL 模式', '''### B. 用户提供单篇样本
+
+1. 读取用户提供的 HTML 或排版截图；只有链接时请补充材料。
+2. HTML 运行 generate-wenyan-theme --input-html <本地文件> --output wx_mp/wenyan-theme/sources.json，读取真实样本 JSON。
+3. 分析实际可见的标题、段落、引用、分割线、强调与图片布局；截图不支持的细节明确标注。
+4. 按 #wenyan 命名空间把可迁移特征生成 CSS，不复制无效 class。
+5. 按原主题规则保存、注册，再交 wx-mp-publisher 使用。
+
+### C. 用户提供多篇样本
+
+1. 核对用户提供的样本、账号标识和筛选要求；多个 HTML 以重复 --input-html 参数整理。
+2. 逐篇阅读真实内容，列出实际参考的标题或文件路径；不宣称读取了未提供的账号文章。
+3. 用户已指定样本并要求生成时直接执行；需要自行取舍样本或有风格冲突时，先展示拟采用的样本与取舍。
+4. 优先抽取多篇共同的视觉规则，单篇偶发特征作可选细节。
+5. 生成 CSS，保存并注册主题。
+
+## 生成前确认要求
+
+仅在需要用户选择样本或解决冲突时补问；说明样本数量、标题或文件名、筛选依据和主题方向。用户已明确提供样本与生成要求时沿用授权，不重复索取确认。
+
+''', '## 生成主题注册规则')
+        if 'wx-mp-hunter' in text or 'posts-list' in text:
+            raise ValueError('Removed WeChat collection route remains: ' + path)
     return text

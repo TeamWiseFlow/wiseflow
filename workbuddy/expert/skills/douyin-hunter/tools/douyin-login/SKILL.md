@@ -3,7 +3,7 @@ name: "douyin-login"
 description: "抖音独立 API 会话初始化与重新登录、扫码和短信登录、登录 MFA 验证及有效期检查。"
 description_zh: "抖音独立 API 会话初始化与重新登录、扫码和短信登录、登录 MFA 验证及有效期检查。"
 description_en: "douyin-login: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

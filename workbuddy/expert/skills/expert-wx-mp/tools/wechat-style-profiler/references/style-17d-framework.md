@@ -33,7 +33,6 @@ DNA 文档 -> DNA template
 
 封面图来源：
 
-- `wx-mp-hunter fetch <url> --download-cover` 下载文章分享封面。
 - 用户手动提供本地图片文件。
 - 无法获取封面图时记录“未提供”，不得根据正文图片或标题想象补齐。
 

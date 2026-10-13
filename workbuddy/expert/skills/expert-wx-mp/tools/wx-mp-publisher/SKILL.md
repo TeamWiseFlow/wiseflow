@@ -3,7 +3,7 @@ name: "wx-mp-publisher"
 description: "通过 relay 将 Markdown 排版并推送到微信公众号草稿箱。支持多账号和小绿书，凭据存在 accounts.json。"
 description_zh: "通过 relay 将 Markdown 排版并推送到微信公众号草稿箱。支持多账号和小绿书，凭据存在 accounts.json。"
 description_en: "wx-mp-publisher: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

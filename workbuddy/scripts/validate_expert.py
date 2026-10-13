@@ -189,10 +189,12 @@ def validate(root):
             for record in persona['sources']:
                 require(hashlib.sha256((DEFAULT_SOURCE.parents[1] / record['source']).read_bytes()).hexdigest() == record['sha256'], 'native persona changed; run sync_native.py')
         require('expert-wx-channel' not in names and 'xiaobei-operations' not in names, 'removed platform or generic skill still declared')
+        require('wx-mp-hunter' not in names and not (root / 'skills/wx-mp-hunter').exists(), 'removed WeChat hunter cannot be packaged')
         banned = re.compile(r'\b(?:douyin-publish|douyin-engagement|wx-mp-engagement|wx-channel-engagement|wechat-channels-publish|wx-channel-style-profiler|wx-mp-hunter homepage)\s+(?:check|login|video|note|fetch|fetch-all|daily|get-link|report|build)\b')
         for file in files:
             if file.suffix in {'.md', '.py', '.mjs', '.ts', '.sh', '.js'}:
                 text = file.read_text()
+                require('wx-mp-hunter' not in text and 'wx_mp_hunter' not in text, 'removed WeChat hunter still referenced: ' + str(file.relative_to(root)))
                 require('relay.xiaobei-workbuddy-for-business.com' not in text, 'relay domain was rewritten: ' + str(file.relative_to(root)))
                 if file.suffix == '.md':
                     require(not banned.search(text), 'removed command still instructed: ' + str(file.relative_to(root)))

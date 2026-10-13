@@ -8,7 +8,7 @@
 
 ## 2. 获取候选
 
-按平台读取并调用具体采集技能：抖音 `douyin-hunter`、小红书 `xhs-hunter`、TikTok `tiktok-hunter`、快手 `kuaishou-hunter`、X `x-hunter`、微博 `weibo-hunter`、微信公众号 `wx-mp-hunter`。搜索、账号/作品及评论读取使用各技能实际支持的命令；微信公众号评论不可得。其他支持的网站用 本次 WorkBuddy 实际可用的检索工具 搜索和 `browser-guide` 浏览，微信视频号目前无内容获取方案。
+按平台读取并调用具体采集技能：抖音 `douyin-hunter`、小红书 `xhs-hunter`、TikTok `tiktok-hunter`、快手 `kuaishou-hunter`、X `x-hunter`、微博 `weibo-hunter`；公众号内容与账号资料由用户提供。搜索、账号/作品及评论读取使用各技能实际支持的命令；公众号评论同样以用户提供的材料为准，不自动读取。其他支持的网站用 本次 WorkBuddy 实际可用的检索工具 搜索和 `browser-guide` 浏览，微信视频号目前无内容获取方案。
 
 保留完整账号 ID、内容/主页链接、评论 ID、发布日期和本次取证时间。排序以实际返回为准，不能把默认排序写成“由新到旧”。API 平台不改走浏览器采集。
 
@@ -19,7 +19,7 @@
 - **策略 A**：读取公开简介与最多前 10 个作品的标题/简介，分析定位、业务、实际需求和合作适配度；排除同行与不符合标准的对象。只分析简介时写明未分析视频正文。
 - **策略 B**：按约定数量读取评论，提取需求原文、公开评论者 ID/昵称、评论时间和来源；只有明确需求证据才列为潜客，个别评论不代表整体市场。缺少稳定 ID 时列为待核实，不猜测账号。
 - 用 `bd-record record-creator` 保存完整平台 ID、昵称、主页 URL、qualified 和 notes（来源链接、需求证据、判定理由）。评论来源放 notes；record-creator 要求真实主页 URL，无法取得时保留在本轮待核实报告，不调用该写入命令、不把原帖当成主页。
-- 批量上限与间隔遵循本轮使用的 `douyin-hunter`、`xhs-hunter`、`tiktok-hunter`、`kuaishou-hunter`、`x-hunter`、`weibo-hunter` 或 `wx-mp-hunter` 说明；限频、不可访问与采样不足分别报告，不当作无潜客。
+- 批量上限与间隔遵循本轮使用的 `douyin-hunter`、`xhs-hunter`、`tiktok-hunter`、`kuaishou-hunter`、`x-hunter`、`weibo-hunter` 说明；限频、不可访问与采样不足分别报告，不当作无潜客。
 
 ## 4. 交付与联络
 

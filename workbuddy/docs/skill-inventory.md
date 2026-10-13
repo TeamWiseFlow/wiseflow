@@ -1,6 +1,6 @@
 # 技能保留与裁剪范围
 
-原生技能 35 个，WorkBuddy 适配技能 2 个；原生资源与扩展流程 392 个、逻辑命令 59 个。由 sync_native.py 生成。
+原生技能 34 个，WorkBuddy 适配技能 2 个；原生资源与扩展流程 389 个、逻辑命令 58 个。由 sync_native.py 生成。
 
 保留 main 与公共技能的原工作流、脚本、模板、素材和共享运行库。操作只走 xiaobei-runtime 统一入口；下表没有 wrapper 的技能按其手册执行内容工作。脚本存在不等于平台账号已连接或实号验收通过。
 
@@ -36,7 +36,6 @@
 | `viral-chaser` | `viral-chaser` |
 | `weibo-hunter` | `weibo-hunter` |
 | `weibo-publish` | `weibo-publish` |
-| `wx-mp-hunter` | `wx-mp-hunter` |
 | `wxwork-drive` | `wxwork-drive` |
 | `wxwork-moments` | `wxwork-moments` |
 | `x-hunter` | `x-hunter` |
@@ -46,6 +45,7 @@
 
 | 技能 | 原因 |
 | --- | --- |
+| `wx-mp-hunter` | WorkBuddy 版整体移除公众号自动采集，文章正文、封面与排版参考由用户提供 |
 | `expert-osbi` | 首版按用户要求不包含 OSBI |
 | `expert-wx-channel` | 本版整体移除视频号平台，发布和取数依赖浏览器 |
 | `sales-cs-manager` | WorkBuddy 单专家不管理 OpenClaw 客服 crew |
@@ -59,6 +59,7 @@
 
 | 路径 | 原因 |
 | --- | --- |
+| `expert-wx-mp/tools/generate-wenyan-theme/scripts/collect-theme-sources.js` | 移除依赖公众号采集的脚本，替换为用户本地 HTML 整理入口 |
 | `expert-douyin/tools/douyin-publish` | Camoufox 发布 |
 | `expert-douyin/tools/douyin-engagement` | 从 Camoufox profile 读取发布凭据 |
 | `expert-douyin/tools/_shared/publish_browser.py` | Camoufox 内部运行库 |
@@ -72,7 +73,7 @@
 ## 保留但改变入口的能力
 
 - native-ui-card 保留渲染、模板、头像及样式，仅用 Chromium，不包含 Camoufox 回退。
-- wx-mp-hunter 仅保留用户文章链接的 HTTP fetch、正文图片与封面下载，不包含客户端、发布列表、消息库或数据库密钥相关代码。
+- 公众号文章正文、封面、排版参考和后台数据由用户提供；主题工具仅整理用户本地 HTML，不采集链接或账号。
 - X/TikTok/微博保留 API 与原写操作检查，通过私有文件 import-session 在线核验后导入；不含浏览器登录/导出。快手 HTTP 登录保留。
 - Council 保留四声分析。有实际子任务工具才并行委托；没有时明确标注同会话角色分析。
 - 完整视频制作不打包 content-producer，已有素材加工由 video-edit、talking-head-cut、video-review 执行。

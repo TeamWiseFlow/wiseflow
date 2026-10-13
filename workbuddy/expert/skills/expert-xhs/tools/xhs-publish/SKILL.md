@@ -3,7 +3,7 @@ name: "xhs-publish"
 description: "通过 Creator 本地 HTTP 会话发布小红书图文和视频笔记，并管理 Creator 扫码登录。"
 description_zh: "通过 Creator 本地 HTTP 会话发布小红书图文和视频笔记，并管理 Creator 扫码登录。"
 description_en: "xhs-publish: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

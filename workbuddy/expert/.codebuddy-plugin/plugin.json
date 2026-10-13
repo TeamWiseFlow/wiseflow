@@ -1,6 +1,6 @@
 {
   "name": "xiaobei-growth",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Operate social media accounts across Xiaohongshu, WeChat official accounts, Douyin, Kuaishou, TikTok, X and Weibo for customer acquisition, with content workflows, asset editing, platform APIs and performance reviews.",
   "author": {
     "name": "TeamWiseFlow",
@@ -42,7 +42,6 @@
     "./skills/viral-chaser",
     "./skills/weibo-hunter",
     "./skills/weibo-publish",
-    "./skills/wx-mp-hunter",
     "./skills/wxwork-drive",
     "./skills/wxwork-moments",
     "./skills/x-hunter",
@@ -94,8 +93,8 @@
       "en": "Create a Q&A discussion card set for my [product/service] on Xiaohongshu, prepare its title, body and topics, and publish it after I approve."
     },
     {
-      "zh": "我的微信公众号是【公众号名/文章链接】，帮我找出定位、内容和获客的问题，给我最该先改的3件事。",
-      "en": "My WeChat official account is [account name/article links]. Diagnose its positioning, content and customer acquisition, and give me the 3 most important fixes."
+      "zh": "这是我的公众号近期文章正文和封面，帮我找出定位、内容和获客的问题，给我最该先改的3件事。",
+      "en": "Here are the texts and covers of my recent WeChat official account articles. Diagnose their positioning, content and customer acquisition, and give me the 3 most important fixes."
     }
   ]
 }

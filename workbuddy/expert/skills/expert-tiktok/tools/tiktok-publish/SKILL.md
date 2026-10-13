@@ -3,7 +3,7 @@ name: "tiktok-publish"
 description: "TikTok内容发布：脚本预览、媒体上传、提交结果保存和 published-track 入库。"
 description_zh: "TikTok内容发布：脚本预览、媒体上传、提交结果保存和 published-track 入库。"
 description_en: "tiktok-publish: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

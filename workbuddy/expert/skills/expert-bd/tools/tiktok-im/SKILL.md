@@ -3,7 +3,7 @@ name: "tiktok-im"
 description: "TikTok私信会话，支持范围以工具能力表为准。"
 description_zh: "TikTok私信会话，支持范围以工具能力表为准。"
 description_en: "tiktok-im: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

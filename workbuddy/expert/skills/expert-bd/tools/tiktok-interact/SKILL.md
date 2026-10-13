@@ -3,7 +3,7 @@ name: "tiktok-interact"
 description: "TikTok作品互动，支持范围以工具能力表为准。"
 description_zh: "TikTok作品互动，支持范围以工具能力表为准。"
 description_en: "tiktok-interact: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

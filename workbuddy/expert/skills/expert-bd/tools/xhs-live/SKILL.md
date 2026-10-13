@@ -3,7 +3,7 @@ name: "xhs-live"
 description: "小红书公开直播文字评论与文字帧发送；房间、商品和事件监听使用 xhs-hunter live。"
 description_zh: "小红书公开直播文字评论与文字帧发送；房间、商品和事件监听使用 xhs-hunter live。"
 description_en: "xhs-live: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

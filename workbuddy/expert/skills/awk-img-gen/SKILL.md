@@ -3,7 +3,7 @@ name: "awk-img-gen"
 description: "阿里云百炼图像生成与编辑。支持显式选择 DashScope 业务空间或 Agent Plan；默认优先业务空间，两种模式均默认 qwen-image-3.0-pro，Agent Plan 可回退 wan2.7-image。文生图默认，1-3 张参考图触发编辑/多图融合。直出带字封面海报。"
 description_zh: "阿里云百炼图像生成与编辑。支持显式选择 DashScope 业务空间或 Agent Plan；默认优先业务空间，两种模式均默认 qwen-image-3.0-pro，Agent Plan 可回退 wan2.7-image。文生图默认，1-3 张参考图触发编辑/多图融合。直出带字封面海报。"
 description_en: "awk-img-gen: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

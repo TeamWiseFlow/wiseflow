@@ -3,7 +3,7 @@ name: "kuaishou-live"
 description: "快手公开直播资料、回放与有界事件监听；不支持发言或点赞。"
 description_zh: "快手公开直播资料、回放与有界事件监听；不支持发言或点赞。"
 description_en: "kuaishou-live: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 

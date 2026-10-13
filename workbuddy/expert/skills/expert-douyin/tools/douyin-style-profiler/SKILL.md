@@ -3,7 +3,7 @@ name: "douyin-style-profiler"
 description: "提取抖音作品 DNA：单篇作品（视频 / 图文）生成 report，按 dna-id 聚合选题、标题与封面、内容创意、业务植入套路、互动引导与 CTA 套路、视频形态与制作指向、制作规格、口播文案子模块与账号运营子模块，推导 main agent 的 Brief / 图文生产 template。"
 description_zh: "提取抖音作品 DNA：单篇作品（视频 / 图文）生成 report，按 dna-id 聚合选题、标题与封面、内容创意、业务植入套路、互动引导与 CTA 套路、视频形态与制作指向、制作规格、口播文案子模块与账号运营子模块，推导 main agent 的 Brief / 图文生产 template。"
 description_en: "douyin-style-profiler: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.1"
+version: "0.3.2"
 author: "TeamWiseFlow"
 ---
 
