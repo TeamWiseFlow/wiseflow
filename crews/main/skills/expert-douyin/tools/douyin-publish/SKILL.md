@@ -31,7 +31,13 @@ douyin-publish note run --images /绝对路径/1.png /绝对路径/2.png --title
 
 视频入口保留浏览器 AIGC 声明流程，不支持 `--declaration none`。图文默认声明 AI，可按实际来源传 `--declaration none`；原声图文必须明确传 `--original-sound`。视频分步操作、草稿修复与短信续接先读 [视频操作说明](references/video.md)；图文配乐和分步操作先读 [图文操作说明](references/note.md)。
 
-视频提交必须有 3:4 竖封面与 4:3 横封面。比例不符时等比补底保留完整内容，不裁掉边缘文字；两张封面都要通过页面检测。缺视频、标题或双封面即停止，不点击发布。
+视频提交必须有 3:4 竖封面与 4:3 横封面。比例不符时等比补底保留完整内容，不裁掉边缘文字；补底过宽也可能被平台拒绝，两张封面都要通过页面检测。`COVER_BORDER_TOO_LARGE` / `COVER_QUALITY_REJECTED` 时按目标比例重新构图或更换封面，不反复加宽补底或跳过检测。缺视频、标题或双封面即停止，不点击发布。
+
+封面与 AIGC 声明必须在唯一可见的目标弹窗内保存；支持 dialog/modal/Semi Modal，不能只看 `role="dialog"` 或页面文字就判断已完成。已有声明弹窗时用 `video fill` / `cover` 续编，脚本先完成声明再操作正文/封面；同类弹窗不唯一或设置未保存时停止并保留草稿。浏览器异常的安全定位字段见 `references/video.md`。
+
+封面预览检测须确认本次选择的文件，并重新查找当前弹窗；相同图片可能复用缓存而没有新 load 事件，弹窗也可能重建。`COVER_UPLOAD_TIMEOUT` 不代表上传一定失败，先用 `video status` 核查并续编当前草稿，不重传整段视频或点击发布。
+
+封面入口按「竖封面」/「横封面」名称定位，不按排列顺序选。上传前须确认当前编辑器标题或内部激活选项卡与目标类型一致；`COVER_EDITOR_MISMATCH` 时停止并保留草稿。上传框只从当前编辑器内选择，首次上传/替换输入框不代表两个封面方向；不能通过放宽图片比例检测掩盖传错槽位。
 
 视频 exit 4 / `awaiting_verification` 表示等待用户短信验证，页面保持打开；读视频操作说明，用 `douyin-publish video verify-send`、`douyin-publish video verify-code --code-file`，或由用户在当前窗口验证后 `douyin-publish video resume`。不要重跑发布或用 check/login 关闭验证页。
 

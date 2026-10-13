@@ -1,5 +1,6 @@
 # v5.7.4
 
+- 修复抖音视频发布的 Semi Modal 弹窗识别与封面预览误超时：按名称选择入口、激活页面预览方向并校验编辑器类型，支持悬停编辑入口和当前编辑器内的上传/替换框；预览确认本次文件，兼容缓存、JPEG 重编码、Canvas、输入清空与弹窗重建，拒绝旧图与错误槽位。续编先完成已有 AIGC 声明，未保存弹窗不算成功，封面质量拒绝单独报错并停止；浏览器异常提供脱敏栈帧定位。
 - 小红书运行态日志增加容量限制：Creator 每日防重复标记只保留近 30 天；Creator/PC 后台登录日志与 Creator 观察日志各按 5 MiB 轮转、保留 3 份备份。后台登录输出持续捕获并轮转，保持登录状态与二维码交接流程。
 - `smart-search`：搜索入口明确仅指导 Camoufox 浏览器操作，按当前 crew 配置优先使用七个平台采集技能；普通站点统一共享持久化 `default` profile，自媒体保留专用 profile，API 登录按平台技能管理。对照 OpenCLI/SearXNG 更新现有站点规则，修正 arXiv 字段、GitHub 代码搜索登录要求和参数/页面混用；按用户选择接入商业、技术/AI、学术、招聘合作、产品口碑和设计参考六类 36 个站点，集中配置网页入口和共享 profile，通用搜索维持 Bing/百度/夸克。同步 browser-guide 的共享会话与收尾规则。
 - 新增 `expert-osbi`：迁入情报提取、竞对监控和直播调研 workflow，市场研究收为包内 workflow；`info-record` / `rss-reader` 随包迁移，数据库路径保持不变。`expert-bd` 保留 Lead Hunting，承接潜客筛选、互动、联络与记录，工具清单包含公共 `email-ops`；公开直播读取/监听使用 `douyin-hunter` / `xhs-hunter` / `tiktok-hunter` / `kuaishou-hunter`，直播发送仍归 BD；小红书/抖音直播执行器收敛到内部共享库。
