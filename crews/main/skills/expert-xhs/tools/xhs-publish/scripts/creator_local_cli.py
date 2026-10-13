@@ -14,6 +14,7 @@ from uuid import uuid4
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 from creator_session import CreatorSessionMissing, SESSION_FILE, creator_api, login_local, observe  # noqa: E402
+from xhs_utils.runtime_logs import logged_worker_command  # noqa: E402
 
 LOGIN_DIR = SESSION_FILE.parent
 STATUS_FILE = LOGIN_DIR / "xhs-creator-login-status.json"
@@ -75,16 +76,12 @@ def login() -> int:
             }
             save_status(current)
             WORKER_LOG.parent.mkdir(parents=True, exist_ok=True)
-            log_fd = os.open(WORKER_LOG, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
-            try:
-                worker = subprocess.Popen(
-                    [sys.executable, __file__, "worker", run_id],
-                    stdin=subprocess.DEVNULL, stdout=log_fd, stderr=log_fd,
-                    start_new_session=True,
-                    env={**os.environ, "XHS_CREATOR_QR_IMAGE": str(QR_FILE)},
-                )
-            finally:
-                os.close(log_fd)
+            worker = subprocess.Popen(
+                logged_worker_command(WORKER_LOG, [sys.executable, __file__, "worker", run_id]),
+                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                start_new_session=True,
+                env={**os.environ, "XHS_CREATOR_QR_IMAGE": str(QR_FILE)},
+            )
             current = status()
             if current.get("run_id") == run_id and current.get("state") == "pending":
                 current["pid"] = worker.pid
