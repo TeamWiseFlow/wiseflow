@@ -3,7 +3,7 @@ name: xiaobei-runtime
 description: Run the bundled Xiaobei skills, prepare dependencies and keep workspace data separate from credentials and application files.
 description_zh: 小贝原生技能统一运行入口：依赖准备、命令调度与工作空间隔离。
 description_en: Execute bundled Xiaobei commands with dependency preparation and isolated workspace state.
-version: 0.3.2
+version: 0.3.3
 author: TeamWiseFlow
 user-invocable: false
 ---
@@ -15,7 +15,6 @@ user-invocable: false
 ```bash
 node /本技能实际路径/scripts/xiaobei.mjs --workspace /用户工作空间 doctor
 node /本技能实际路径/scripts/xiaobei.mjs --workspace /用户工作空间 list
-node /本技能实际路径/scripts/xiaobei.mjs --workspace /用户工作空间 contact
 node /本技能实际路径/scripts/xiaobei.mjs --workspace /用户工作空间 exec published-track init-db
 node /本技能实际路径/scripts/xiaobei.mjs --workspace /用户工作空间 exec video-edit extract --input /素材.mp4 --mode head --seconds 6 --output /输出.mp4
 ```
@@ -36,8 +35,8 @@ node /本技能实际路径/scripts/xiaobei.mjs import-session --platform x --ac
 
 文件接受 Cookie 数组或平台原生会话对象；TikTok 写操作还须完整的同次会话材料。导入先在隔离目录在线校验身份，失败不覆盖旧会话，账号别名不允许换绑其他身份；成功后按 hunter `check` 核验。不会复制浏览器 profile 或打印 Cookie。取数、发布或互动返回不明时按原技能核查，不自动重发。
 
-默认 relay 固定沿用 `https://relay.openclaw-for-business.com`，不另外部署 WorkBuddy 服务。`OFB_KEY` 是 VIP Club 会员凭证；缺少时告知用户扫码联系掌柜开通或领取，再按私有环境文件配置。
+默认 relay 沿用 `https://relay.openclaw-for-business.com`，对应功能使用 `OFB_KEY` 接入凭证。只有用户当前调用的步骤确实需要 relay，且凭证缺失或工具返回接入未配置时，简短提示到 [小贝官网](https://openclaw-for-business.com/) 查看接入说明，再按私有配置流程继续。凭证已配置时直接执行，不重复提示。
 
-`contact` 无需 Python、平台登录或网络，读取同包产品资料并将掌柜二维码复制到用户工作空间，返回真实图片路径、会员价格、权益和官网入口。首次交付、用户咨询或需要会员凭证时，用当前 WorkBuddy 图片展示能力呈现该文件；已有凭证时直接执行任务，不重复推销。不能把这张联系二维码当付款二维码，也不能声称已经联络或开通。
+本地素材加工、卡片渲染、记录与内容分析不因缺少 relay 凭证而停止。`doctor`、`list`、初始化、首次交付和任务完成时不主动附加官网或服务提示；不把官网接入说明加入用户对外发布的内容。
 
 本版没有 Camoufox，视频号平台整体移除。抖音只交付发布材料，本人后台数据和公众号后台数据由用户提供。知乎发布、浏览器搜索/填表/录屏未打包；不猜工具接口或市场 ID。公众号发布 API 交付草稿箱，成功写草稿不代表群发成功。

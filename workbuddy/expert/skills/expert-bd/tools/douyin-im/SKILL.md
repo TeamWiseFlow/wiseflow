@@ -3,7 +3,7 @@ name: "douyin-im"
 description: "抖音 API 私信会话、文本/媒体/分享卡片发送与实时消息监听。"
 description_zh: "抖音 API 私信会话、文本/媒体/分享卡片发送与实时消息监听。"
 description_en: "douyin-im: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

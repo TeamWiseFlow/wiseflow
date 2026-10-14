@@ -12,7 +12,7 @@ from typing import Any
 
 import requests
 
-# 默认指向官方中转 relay（VIP Club 会员默认走我们中转，零配置起手）。
+# 默认指向现有官方 relay，接入凭证由运行层配置。
 # 仅当用户自建 relay 时才需要在 daemon.env 覆盖 RELAY_BASE_URL。
 RELAY_BASE_URL = os.environ.get(
     "RELAY_BASE_URL", "https://relay.openclaw-for-business.com"
@@ -31,8 +31,7 @@ def _ofb_key() -> str:
     key = os.environ.get("OFB_KEY")
     if not key:
         raise RuntimeError(
-            "OFB_KEY 未配置。OFB_KEY 是 VIP Club 会员凭证，由 ofb 掌柜签发——"
-            "请向 ofb 掌柜索取该 key，交由 IT engineer 写入 daemon.env 后重启实例。"
+            "当前功能需要 relay 服务，OFB_KEY 尚未配置。请到 https://openclaw-for-business.com/ 查看接入说明，再通过 xiaobei-runtime 的私有配置流程继续。"
         )
     return key
 

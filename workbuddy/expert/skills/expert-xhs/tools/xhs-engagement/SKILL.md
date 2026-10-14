@@ -3,7 +3,7 @@ name: "xhs-engagement"
 description: "通过 Creator HTTP 接口读取小红书已发笔记的互动和数据分析指标，并更新 published-track。"
 description_zh: "通过 Creator HTTP 接口读取小红书已发笔记的互动和数据分析指标，并更新 published-track。"
 description_en: "xhs-engagement: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

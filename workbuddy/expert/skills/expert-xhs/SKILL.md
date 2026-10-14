@@ -3,7 +3,7 @@ name: "expert-xhs"
 description: "小红书账号运营专家。承接定位起号、内容 DNA（图文 / 视频两套框架）、图文笔记生产、已有素材轻加工、视频全案 Brief 与口播文案、发布与数据复盘；全片制作委托 当前实际可用的 WorkBuddy 视频制作专家。"
 description_zh: "小红书账号运营专家。承接定位起号、内容 DNA（图文 / 视频两套框架）、图文笔记生产、已有素材轻加工、视频全案 Brief 与口播文案、发布与数据复盘；全片制作委托 当前实际可用的 WorkBuddy 视频制作专家。"
 description_en: "expert-xhs: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

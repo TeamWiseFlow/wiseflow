@@ -83,5 +83,5 @@
 
 - 默认 relay：https://relay.openclaw-for-business.com，沿用现有官方服务，不另建 WorkBuddy relay。
 - 小贝 SOUL.md / IDENTITY.md 嵌入 agents/xiaobei-growth.md 系统提示词；不依赖平台自动加载这些文件。
-- 掌柜二维码随 avatars/ofb_contact.png 打包，xiaobei-runtime contact 可复制到用户工作空间用于展示。
+- 接入未配置时仅针对当前确实需要 relay 的步骤提示官网说明；不包含联系图片、服务价格或任务完成后的推广。
 - 已删除 xiaobei-operations 的泛化重复指导，入口直接路由原生专家与具体任务 workflow。

@@ -3,7 +3,7 @@ name: "expert-bd"
 description: "商务拓展与联络专家。承接潜客探索筛选、评论回复、私信、邮件、点赞收藏关注、直播间互动、客户触达与联络记录。商业情报、竞对监控、直播调研及市场研究走 当前实际可用的公开资料检索能力；公开资料按平台使用文中列出的采集技能或公共 smart-search，融资推进走 expert-ir。"
 description_zh: "商务拓展与联络专家。承接潜客探索筛选、评论回复、私信、邮件、点赞收藏关注、直播间互动、客户触达与联络记录。商业情报、竞对监控、直播调研及市场研究走 当前实际可用的公开资料检索能力；公开资料按平台使用文中列出的采集技能或公共 smart-search，融资推进走 expert-ir。"
 description_en: "expert-bd: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

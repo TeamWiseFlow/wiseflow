@@ -3,7 +3,7 @@ name: "x-hunter"
 description: "X/Twitter 登录、内容搜索与采集：作品、账号、评论、媒体下载；互动写操作走 expert-bd，创作/发布/本人数据走 expert-twitter。"
 description_zh: "X/Twitter 登录、内容搜索与采集：作品、账号、评论、媒体下载；互动写操作走 expert-bd，创作/发布/本人数据走 expert-twitter。"
 description_en: "x-hunter: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

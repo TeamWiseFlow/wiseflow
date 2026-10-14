@@ -9,7 +9,7 @@
  *   POST /api/v1/sign/bilibili/wbi  → 算 WBI 签名 {wts, w_rid}（client 合并到原参数）
  */
 
-// 默认指向官方中转 relay（VIP Club 会员默认走我们中转，零配置起手）。
+// 默认指向现有官方 relay，接入凭证由运行层配置。
 // 仅当用户自建 relay 时才需要在 daemon.env 覆盖 RELAY_BASE_URL。
 const RELAY_BASE_URL =
   process.env.RELAY_BASE_URL ?? "https://relay.openclaw-for-business.com";
@@ -18,7 +18,7 @@ const OFB_KEY = process.env.OFB_KEY;
 function assertOfbKey(): string {
   if (!OFB_KEY) {
     throw new Error(
-      "OFB_KEY 未配置。OFB_KEY 是 VIP Club 会员凭证，由 ofb 掌柜签发——请向 ofb 掌柜索取该 key，交由 IT engineer 写入 daemon.env 后重启实例。",
+      "当前功能需要 relay 服务，OFB_KEY 尚未配置。请到 https://openclaw-for-business.com/ 查看接入说明，再通过 xiaobei-runtime 的私有配置流程继续。",
     );
   }
   return OFB_KEY;

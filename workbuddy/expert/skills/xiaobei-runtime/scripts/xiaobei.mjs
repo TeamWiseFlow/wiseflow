@@ -145,17 +145,6 @@ async function chromiumDependencies(root, env) {
 try {
   if (action === 'list') output({ ok: true, version: index.version, skills: index.skills, commands: index.commands, excluded: index.excluded_paths });
   else if (action === 'doctor') output({ ok: Number(process.versions.node.split('.')[0]) >= 22 && !!python && !!bash, node: process.versions.node, python: python || null, bash: bash || null, workspace, state_home: state, skills: index.skills.length, commands: Object.keys(index.commands).length, default_relay_base_url: settings.relay_base_url });
-  else if (action === 'contact') {
-    const asset = index.assets.find(record => record.target === settings.contact_image);
-    const bytes = await fs.readFile(join(product, settings.contact_image));
-    if (!asset || sha(bytes) !== asset.sha256) throw new Error('CONTACT_ASSET_CHANGED');
-    const directory = join(workspace,'xiaobei/contact');
-    await fs.mkdir(directory,{recursive:true});
-    let target = join(directory,'ofb_contact.png');
-    if (existsSync(target) && sha(await fs.readFile(target)) !== sha(bytes)) target = join(directory,'ofb_contact-'+sha(bytes).slice(0,12)+'.png');
-    if (!existsSync(target)) await fs.writeFile(target,bytes,{flag:'wx'});
-    output({ok:true,contact_image:target,vip_club:settings.vip_club,relay_base_url:settings.relay_base_url});
-  }
   else if (action === 'configure') {
     if (args.shift() !== '--env-file' || !args[0]) throw new Error('PRIVATE_ENV_FILE_REQUIRED');
     const file = resolve(args[0]), stat = await fs.lstat(file);

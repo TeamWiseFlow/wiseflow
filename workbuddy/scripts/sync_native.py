@@ -16,6 +16,7 @@ EXPERT = PRODUCT / 'expert'
 SKILLS = EXPERT / 'skills'
 SPEC = json.loads((PRODUCT / 'native-skills.json').read_text())
 VERSION = SPEC['version']
+RELAY_SETUP_MESSAGE = '当前功能需要 relay 服务，OFB_KEY 尚未配置。请到 https://openclaw-for-business.com/ 查看接入说明，再通过 xiaobei-runtime 的私有配置流程继续。'
 
 
 def remove_functions(text, names):
@@ -36,6 +37,18 @@ def replace_once(text, before, after):
 
 def adapt(path, text):
     changes = []
+    if path.endswith('.py'):
+        original = text
+        for node in ast.walk(ast.parse(original)):
+            if isinstance(node, ast.Constant) and isinstance(node.value, str) and 'OFB_KEY 未配置。OFB_KEY 是 VIP Club' in node.value:
+                text = text.replace(ast.get_source_segment(original, node), json.dumps(RELAY_SETUP_MESSAGE, ensure_ascii=False))
+                changes.append('relay-setup-on-demand')
+    elif path.endswith(('.ts', '.js', '.mjs')):
+        old = 'OFB_KEY 未配置。OFB_KEY 是 VIP Club 会员凭证，由 ofb 掌柜签发——请向 ofb 掌柜索取该 key，交由 IT engineer 写入 daemon.env 后重启实例。'
+        if old in text:
+            text = text.replace(old, RELAY_SETUP_MESSAGE)
+            changes.append('relay-setup-on-demand')
+    text = text.replace('默认指向官方中转 relay（VIP Club 会员默认走我们中转，零配置起手）。', '默认指向现有官方 relay，接入凭证由运行层配置。')
     text, changed = re.subn(r'(?<![A-Za-z0-9_.-])\.openclaw(?![A-Za-z0-9_-])', '.xiaobei-workbuddy', text)
     if changed:
         changes.append('isolated-state-home')
@@ -288,11 +301,8 @@ def sync():
                 stale.unlink(missing_ok=True)
     for name in set(previous.get('skills', [])) - roots:
         shutil.rmtree(SKILLS / name, ignore_errors=True)
-    contact_source = ROOT / 'crews/main/ofb_contact.png'
-    contact_target = EXPERT / 'avatars/ofb_contact.png'
-    contact_target.write_bytes(contact_source.read_bytes())
-    assets = [{'source': 'crews/main/ofb_contact.png', 'target': 'avatars/ofb_contact.png',
-               'sha256': hashlib.sha256(contact_source.read_bytes()).hexdigest()}]
+    (EXPERT / 'avatars/ofb_contact.png').unlink(missing_ok=True)
+    assets = []
     persona = sync_persona()
     index_path.write_text(json.dumps(
         {'version': VERSION, 'skills': sorted(roots), 'commands': commands, 'files': records,
@@ -329,7 +339,7 @@ def sync():
                   '- HTTP/API 与已有 relay 客户端保留，不预置凭据。Camoufox 发布与取数缺失步骤接受用户资料或 WorkBuddy 当前真实可用的工具。', '']
     inventory += ['## 官方服务与角色', '', f'- 默认 relay：{SPEC["relay_base_url"]}，沿用现有官方服务，不另建 WorkBuddy relay。',
                   '- 小贝 SOUL.md / IDENTITY.md 嵌入 agents/xiaobei-growth.md 系统提示词；不依赖平台自动加载这些文件。',
-                  '- 掌柜二维码随 avatars/ofb_contact.png 打包，xiaobei-runtime contact 可复制到用户工作空间用于展示。',
+                  '- 接入未配置时仅针对当前确实需要 relay 的步骤提示官网说明；不包含联系图片、服务价格或任务完成后的推广。',
                   '- 已删除 xiaobei-operations 的泛化重复指导，入口直接路由原生专家与具体任务 workflow。', '']
     (PRODUCT / 'docs/skill-inventory.md').write_text('\n'.join(inventory))
     print(json.dumps({'native_skills': len(roots), 'files': len(records), 'commands': len(commands)}, ensure_ascii=False))

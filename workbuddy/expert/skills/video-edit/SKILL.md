@@ -3,7 +3,7 @@ name: "video-edit"
 description: "对已有视频素材做加工与拼接——抽段/合并、补片头片尾、加背景音乐/旁白、烧字幕、按画面精彩程度剪集锦、按编号合成成片。素材不足可经 AIGC 或免费素材库补充。仅做已有素材的后处理，不从零生产完整视频（出脚本、端到端制作找 当前实际可用的 WorkBuddy 视频制作专家）。"
 description_zh: "对已有视频素材做加工与拼接——抽段/合并、补片头片尾、加背景音乐/旁白、烧字幕、按画面精彩程度剪集锦、按编号合成成片。素材不足可经 AIGC 或免费素材库补充。仅做已有素材的后处理，不从零生产完整视频（出脚本、端到端制作找 当前实际可用的 WorkBuddy 视频制作专家）。"
 description_en: "video-edit: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

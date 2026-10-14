@@ -3,7 +3,7 @@ name: "kuaishou-hunter"
 description: "快手内容搜索与采集：作品、账号、评论、媒体下载；支持范围以 methods 为准，互动写操作走 expert-bd。"
 description_zh: "快手内容搜索与采集：作品、账号、评论、媒体下载；支持范围以 methods 为准，互动写操作走 expert-bd。"
 description_en: "kuaishou-hunter: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

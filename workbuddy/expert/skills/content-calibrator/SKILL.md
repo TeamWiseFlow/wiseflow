@@ -3,7 +3,7 @@ name: "content-calibrator"
 description: "DNA 表现评估引擎——消费 published-track 的发布与互动数据，按量触发（每平台每 DNA 累积 ≥5 条成熟记录）评估 DNA 好坏，趋势优先（账号基线归一化 + 走向判定），产出评估报告与优化建议，经用户确认后回写 DNA。平台特有的归因方法由各平台专家包 review workflow 提供。发布记录与数据采集由 published-track 统一管理。"
 description_zh: "DNA 表现评估引擎——消费 published-track 的发布与互动数据，按量触发（每平台每 DNA 累积 ≥5 条成熟记录）评估 DNA 好坏，趋势优先（账号基线归一化 + 走向判定），产出评估报告与优化建议，经用户确认后回写 DNA。平台特有的归因方法由各平台专家包 review workflow 提供。发布记录与数据采集由 published-track 统一管理。"
 description_en: "content-calibrator: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

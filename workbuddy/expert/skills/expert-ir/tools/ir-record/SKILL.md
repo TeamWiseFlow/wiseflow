@@ -3,7 +3,7 @@ name: "ir-record"
 description: "IR 投资人关系数据库（SQLite）：投资人档案、接触历史、项目申报三张表，含状态机推进与过期查询。"
 description_zh: "IR 投资人关系数据库（SQLite）：投资人档案、接触历史、项目申报三张表，含状态机推进与过期查询。"
 description_en: "ir-record: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

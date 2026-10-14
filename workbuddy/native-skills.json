@@ -1,5 +1,5 @@
 {
-  "version": "0.3.2",
+  "version": "0.3.3",
   "relay_base_url": "https://relay.openclaw-for-business.com",
   "exclude_skills": {
     "wx-mp-hunter": "WorkBuddy 版整体移除公众号自动采集，文章正文、封面与排版参考由用户提供",

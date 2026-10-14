@@ -3,7 +3,7 @@ name: "xhs-im"
 description: "小红书私信会话、单聊与群聊历史、未读、文本收发、标记已读、撤回消息及删除会话；复用 xhs-hunter PC 会话。"
 description_zh: "小红书私信会话、单聊与群聊历史、未读、文本收发、标记已读、撤回消息及删除会话；复用 xhs-hunter PC 会话。"
 description_en: "xhs-im: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

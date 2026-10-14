@@ -3,7 +3,7 @@ name: "xhs-pugongying"
 description: "小红书蒲公英合作原子操作：品牌身份检查、达人类目与筛选、达人详情及粉丝数据、合作邀约预览和一次性提交。"
 description_zh: "小红书蒲公英合作原子操作：品牌身份检查、达人类目与筛选、达人详情及粉丝数据、合作邀约预览和一次性提交。"
 description_en: "xhs-pugongying: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

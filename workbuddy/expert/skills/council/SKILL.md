@@ -3,7 +3,7 @@ name: "council"
 description: "召集四方视角对商业模式、融资策略、业务方向等关键决策进行结构化辩论。适用于模糊的商业判断、多路径权衡、go/no-go 决策。"
 description_zh: "召集四方视角对商业模式、融资策略、业务方向等关键决策进行结构化辩论。适用于模糊的商业判断、多路径权衡、go/no-go 决策。"
 description_en: "council: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

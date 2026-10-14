@@ -3,7 +3,7 @@ name: "wechat-style-profiler"
 description: "为单篇文章提取 17 维 DNA report，按 DNA ID 聚合历史 report 生成 DNA 文档，并推导完整的 DNA template。"
 description_zh: "为单篇文章提取 17 维 DNA report，按 DNA ID 聚合历史 report 生成 DNA 文档，并推导完整的 DNA template。"
 description_en: "wechat-style-profiler: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

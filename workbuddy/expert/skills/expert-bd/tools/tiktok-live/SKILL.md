@@ -3,7 +3,7 @@ name: "tiktok-live"
 description: "TikTok公开直播互动：已授权文字发送与点赞；公开房间和事件读取使用 tiktok-hunter live。"
 description_zh: "TikTok公开直播互动：已授权文字发送与点赞；公开房间和事件读取使用 tiktok-hunter live。"
 description_en: "tiktok-live: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

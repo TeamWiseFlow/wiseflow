@@ -3,7 +3,7 @@ name: "published-track"
 description: "发布记录与指标数据库管理，负责记录入库、指标回填、查询和设置；具体平台取数由专家包的 engagement tool 完成，DNA 表现评估由 content-calibrator 消费。"
 description_zh: "发布记录与指标数据库管理，负责记录入库、指标回填、查询和设置；具体平台取数由专家包的 engagement tool 完成，DNA 表现评估由 content-calibrator 消费。"
 description_en: "published-track: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

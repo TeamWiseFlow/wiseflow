@@ -3,7 +3,7 @@ name: "bd-record"
 description: "BD 线索与互动记录数据库（SQLite）：已探索创作者去重、已互动帖子去重。"
 description_zh: "BD 线索与互动记录数据库（SQLite）：已探索创作者去重、已互动帖子去重。"
 description_en: "bd-record: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

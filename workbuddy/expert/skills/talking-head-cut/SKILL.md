@@ -3,7 +3,7 @@ name: "talking-head-cut"
 description: "口播类视频（口播/演讲/访谈/直播）的轻剪辑——ASR 转写拿逐字时间戳，去口气词/结巴/静音，或识别高光段剪成集锦。仅做基于人声的轻剪辑，不出脚本不烧字幕；纯画面类素材的集锦剪辑走 video-edit。"
 description_zh: "口播类视频（口播/演讲/访谈/直播）的轻剪辑——ASR 转写拿逐字时间戳，去口气词/结巴/静音，或识别高光段剪成集锦。仅做基于人声的轻剪辑，不出脚本不烧字幕；纯画面类素材的集锦剪辑走 video-edit。"
 description_en: "talking-head-cut: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

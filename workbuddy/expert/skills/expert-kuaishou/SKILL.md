@@ -3,7 +3,7 @@ name: "expert-kuaishou"
 description: "快手账号运营、起号定位、视频/图文内容 DNA、制作 Brief、发布与本人作品复盘；采集走 hunter，互动走 expert-bd。"
 description_zh: "快手账号运营、起号定位、视频/图文内容 DNA、制作 Brief、发布与本人作品复盘；采集走 hunter，互动走 expert-bd。"
 description_en: "expert-kuaishou: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

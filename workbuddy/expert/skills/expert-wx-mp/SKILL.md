@@ -3,7 +3,7 @@ name: "expert-wx-mp"
 description: "基于用户提供的文章、封面和后台数据，完成微信公众号账号诊断、内容 DNA、选题写作、排版与 API 草稿上传。"
 description_zh: "基于用户提供的文章、封面和后台数据，完成微信公众号账号诊断、内容 DNA、选题写作、排版与 API 草稿上传。"
 description_en: "expert-wx-mp: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

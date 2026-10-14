@@ -3,7 +3,7 @@ name: "video-review"
 description: "成片自检闸门——ffprobe 校验 + 5 位抽帧黑帧扫 + 音频电平 + 时长/分辨率一致性，verdict pass/fail/warn。各视频生产技能合成后、交付前必跑。"
 description_zh: "成片自检闸门——ffprobe 校验 + 5 位抽帧黑帧扫 + 音频电平 + 时长/分辨率一致性，verdict pass/fail/warn。各视频生产技能合成后、交付前必跑。"
 description_en: "video-review: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

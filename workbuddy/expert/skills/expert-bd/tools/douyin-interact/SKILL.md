@@ -3,7 +3,7 @@ name: "douyin-interact"
 description: "对抖音作品点赞、收藏、评论或回复评论；先预览目标与文字，再执行已确认的操作。"
 description_zh: "对抖音作品点赞、收藏、评论或回复评论；先预览目标与文字，再执行已确认的操作。"
 description_en: "douyin-interact: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

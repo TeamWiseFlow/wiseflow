@@ -3,7 +3,7 @@ name: "twitter-engagement"
 description: "X/Twitter本人已发布作品数据获取和指标回填，不负责发布或其他账号数据分析。"
 description_zh: "X/Twitter本人已发布作品数据获取和指标回填，不负责发布或其他账号数据分析。"
 description_en: "twitter-engagement: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

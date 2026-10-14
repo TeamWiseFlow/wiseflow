@@ -3,7 +3,7 @@ name: "email-ops"
 description: "邮件操作技能。代替用户起草并发送邮件。"
 description_zh: "邮件操作技能。代替用户起草并发送邮件。"
 description_en: "email-ops: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

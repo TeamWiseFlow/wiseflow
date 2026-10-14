@@ -3,7 +3,7 @@ name: "pitch-deck"
 description: "当执行 BD/IR 任务需要对外演示材料时创建精美的 HTML 演示文稿——路演 PPT、合作提案、客户 Demo、产品介绍。零依赖单文件输出，可直接通过邮件/微信发送或浏览器演示。"
 description_zh: "当执行 BD/IR 任务需要对外演示材料时创建精美的 HTML 演示文稿——路演 PPT、合作提案、客户 Demo、产品介绍。零依赖单文件输出，可直接通过邮件/微信发送或浏览器演示。"
 description_en: "pitch-deck: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

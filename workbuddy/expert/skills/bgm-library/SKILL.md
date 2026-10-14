@@ -3,7 +3,7 @@ name: "bgm-library"
 description: "搜索、筛选并下载 ccMixter 免版税背景音乐（仅 CC BY / CC BY-SA，商用安全），"
 description_zh: "搜索、筛选并下载 ccMixter 免版税背景音乐（仅 CC BY / CC BY-SA，商用安全），"
 description_en: "bgm-library: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

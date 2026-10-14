@@ -3,7 +3,7 @@ name: "awk-tts"
 description: "声音复刻、音色设计和多供应商配音，支持绑定音色档案，多供应商旁白 TTS。生成 MP3/PCM/WAV/OPUS 旁白，可选字级时间戳，合成后自动 ASR 自检。"
 description_zh: "声音复刻、音色设计和多供应商配音，支持绑定音色档案，多供应商旁白 TTS。生成 MP3/PCM/WAV/OPUS 旁白，可选字级时间戳，合成后自动 ASR 自检。"
 description_en: "awk-tts: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

@@ -3,7 +3,7 @@ name: "aigc-video-gen"
 description: "AIGC 视频片段生成（声画同出）。支持文生、图生和参考生视频，时长按模型限定。music 子命令支持音乐生成。"
 description_zh: "AIGC 视频片段生成（声画同出）。支持文生、图生和参考生视频，时长按模型限定。music 子命令支持音乐生成。"
 description_en: "aigc-video-gen: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

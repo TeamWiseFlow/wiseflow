@@ -88,7 +88,7 @@ def load_env() -> tuple[str, str, str, str]:
             "    再由 IT engineer 写入 daemon.env 并重启实例。"
         )
     if not ofb_key:
-        die("OFB_KEY 未配置。OFB_KEY 是 VIP Club 会员凭证，由 ofb 掌柜签发——请向 ofb 掌柜索取该 key，交由 IT engineer 写入 daemon.env 后重启实例。")
+        die("当前功能需要 relay 服务，OFB_KEY 尚未配置。请到 https://openclaw-for-business.com/ 查看接入说明，再通过 xiaobei-runtime 的私有配置流程继续。")
     return corp_id, corp_secret, relay, ofb_key
 
 

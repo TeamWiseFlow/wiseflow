@@ -3,7 +3,7 @@ name: "expert-douyin"
 description: "抖音内容定位、DNA 提取、对标、图文创作、已有视频加工与用户数据复盘。发布交付材料，账号采集走 douyin-hunter。"
 description_zh: "抖音内容定位、DNA 提取、对标、图文创作、已有视频加工与用户数据复盘。发布交付材料，账号采集走 douyin-hunter。"
 description_en: "expert-douyin: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

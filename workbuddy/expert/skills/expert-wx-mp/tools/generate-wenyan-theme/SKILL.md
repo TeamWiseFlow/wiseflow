@@ -3,7 +3,7 @@ name: "generate-wenyan-theme"
 description: "从自然语言描述或用户提供的排版样本生成自定义排版 CSS 主题，产出可直接给 wx-mp-publisher 使用的 wenyan 格式主题。"
 description_zh: "从自然语言描述或用户提供的排版样本生成自定义排版 CSS 主题，产出可直接给 wx-mp-publisher 使用的 wenyan 格式主题。"
 description_en: "generate-wenyan-theme: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

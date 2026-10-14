@@ -3,7 +3,7 @@ name: "wxwork-moments"
 description: "Publish content (text + images/video/link) to WeChat Work (企业微信) customer"
 description_zh: "Publish content (text + images/video/link) to WeChat Work (企业微信) customer"
 description_en: "wxwork-moments: native Xiaobei workflows, tools and reusable resources."
-version: "0.3.2"
+version: "0.3.3"
 author: "TeamWiseFlow"
 ---
 

@@ -175,8 +175,9 @@ def validate(root):
             require(local_path(root, 'skills/' + path) in files, f"missing native wrapper: {command}")
         product = json.loads(local_path(root, '.codebuddy-plugin/product.json').read_text())
         require(product['relay_base_url'] == index['relay_base_url'] == 'https://relay.openclaw-for-business.com', 'default official relay changed')
-        contact = local_path(root, product['contact_image'])
-        require(contact in files, 'contact QR image must be packaged')
+        require(set(product) == {'name', 'homepage', 'relay_base_url', 'relay_credential_env'}, 'only service connection settings may be packaged')
+        require(product['homepage'] == 'https://openclaw-for-business.com/' and product['relay_credential_env'] == 'OFB_KEY', 'service connection settings changed')
+        require(not (root / 'avatars/ofb_contact.png').exists(), 'contact QR image cannot be packaged')
         for record in index['assets']:
             path = local_path(root, record['target'])
             require(path in files and hashlib.sha256(path.read_bytes()).hexdigest() == record['sha256'], 'brand asset changed: ' + record['target'])
@@ -192,6 +193,10 @@ def validate(root):
         require('wx-mp-hunter' not in names and not (root / 'skills/wx-mp-hunter').exists(), 'removed WeChat hunter cannot be packaged')
         banned = re.compile(r'\b(?:douyin-publish|douyin-engagement|wx-mp-engagement|wx-channel-engagement|wechat-channels-publish|wx-channel-style-profiler|wx-mp-hunter homepage)\s+(?:check|login|video|note|fetch|fetch-all|daily|get-link|report|build)\b')
         for file in files:
+            require('ofb_contact' not in file.relative_to(root).as_posix(), 'contact image cannot be packaged')
+            if file.suffix in {'.md', '.py', '.mjs', '.ts', '.sh', '.js', '.json'}:
+                text = file.read_text()
+                require(not re.search(r'VIP\s*Club|vip_club|掌柜|price_cny|pricing_url|openclaw-for-business\.com/pricing', text, re.I), 'service promotion or pricing cannot be packaged: ' + str(file.relative_to(root)))
             if file.suffix in {'.md', '.py', '.mjs', '.ts', '.sh', '.js'}:
                 text = file.read_text()
                 require('wx-mp-hunter' not in text and 'wx_mp_hunter' not in text, 'removed WeChat hunter still referenced: ' + str(file.relative_to(root)))

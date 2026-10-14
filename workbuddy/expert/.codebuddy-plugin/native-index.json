@@ -1,5 +1,5 @@
 {
-  "version": "0.3.2",
+  "version": "0.3.3",
   "skills": [
     "aigc-video-gen",
     "awk-img-gen",
@@ -237,15 +237,19 @@
       "source": "crews/main/skills/_shared/relay-sign.ts",
       "target": "_shared/relay-sign.ts",
       "source_sha256": "ea11d9377feccab29e3c556ff1297f462eff04e4ae6467c82bf5556c65d007b7",
-      "sha256": "ea11d9377feccab29e3c556ff1297f462eff04e4ae6467c82bf5556c65d007b7",
-      "adaptations": []
+      "sha256": "941c46d8da84c11a116adfa08a484cc2d0696b010c990fc08fcf3da606ca6f46",
+      "adaptations": [
+        "relay-setup-on-demand"
+      ]
     },
     {
       "source": "crews/main/skills/_shared/relay_sign.py",
       "target": "_shared/relay_sign.py",
       "source_sha256": "275946bcf972f8bfdbcf48fb5c8060d32a584a091fd0c32f5b70f18cb60049fa",
-      "sha256": "275946bcf972f8bfdbcf48fb5c8060d32a584a091fd0c32f5b70f18cb60049fa",
-      "adaptations": []
+      "sha256": "414529c700b1268464174e99e0c9f15665639e8fb3403b54992fba92366c3d93",
+      "adaptations": [
+        "relay-setup-on-demand"
+      ]
     },
     {
       "source": "crews/main/skills/_shared/runtime_root.py",
@@ -432,7 +436,7 @@
       "source": "crews/main/skills/content-calibrator/SKILL.md",
       "target": "content-calibrator/SKILL.md",
       "source_sha256": "a09792a187cb1af91ac824326555669af0264840b0a11ee73ea687a90792a28e",
-      "sha256": "d761d8014fa5b94d53d37d7b849753cf20f947cbf88f3cf1cb94a4147717def8",
+      "sha256": "aed83f7b731e5c78625dca257be2936fa9c1402cf6647e6fc5390c9c75a81a5e",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -483,7 +487,7 @@
       "source": "crews/main/skills/council/SKILL.md",
       "target": "council/SKILL.md",
       "source_sha256": "39ef7eb8ef6bcdbc79b9d4a63deea786620c263022b7dac1ab1435988cfbe949",
-      "sha256": "d4d5a6ec53d5acfcac8e7707c4f2ba58390f0b200551cef0e989afa39292cd7d",
+      "sha256": "6ce988cd0a715a6c17cf36976ea967238995d69de97abc7ea30e1da0fce7b801",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -493,7 +497,7 @@
       "source": "crews/main/skills/douyin-hunter/SKILL.md",
       "target": "douyin-hunter/SKILL.md",
       "source_sha256": "d353ec83b1aa939fa2b260e97a20adc82e9aa703c7f74e30e7eacfe46f69c05c",
-      "sha256": "e6ca73f501909c45395e3d93eb5a9d9d3df4b4a624389dd06cc43e72a02f3f8d",
+      "sha256": "77e5bcbd99f09e60a67a282cb9630f4e720cc62aef720950f43df861e1f7300e",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -526,7 +530,7 @@
       "source": "crews/main/skills/douyin-hunter/tools/douyin-login/SKILL.md",
       "target": "douyin-hunter/tools/douyin-login/SKILL.md",
       "source_sha256": "74c3abbdd1c770d1b93f936453c0b759025c0b11839f6807562e219823e06653",
-      "sha256": "9cb18a48b7c752a325b4193398a9dbff7d45b95150d418d189dc04ad07e40fe9",
+      "sha256": "c117082a6af1f6c7f1108d127904bdeb701f96df9049aa48afd33c6df5b53ffe",
       "adaptations": [
         "isolated-state-home",
         "workbuddy-routing",
@@ -551,7 +555,7 @@
       "source": "crews/main/skills/expert-bd/SKILL.md",
       "target": "expert-bd/SKILL.md",
       "source_sha256": "de4ef7dc5ab8431593fb2099acf0627daf0a9c4906f7f598def4bb5bf0fd6dcc",
-      "sha256": "7377b0b2533b9bb7c5b0fbeaae2999dff33d2e01acb88f1d7b7a44859663fd0e",
+      "sha256": "dad5e346dc6387d7f72f246e209df2f0be03dec6aabb37c60cda458307f01223",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -570,7 +574,7 @@
       "source": "crews/main/skills/expert-bd/tools/bd-record/SKILL.md",
       "target": "expert-bd/tools/bd-record/SKILL.md",
       "source_sha256": "0ffd3639476292b47b38eb807dd2a185d1e2b658ebc69e65a5fcba1ace6bd3fa",
-      "sha256": "499cd08a5d7f5a8a6213e0b95ab6b214e3114d876accb76be34f936f31b15a64",
+      "sha256": "dc7dc83e82f238e0b647d94719d0a814ca140749df1ce81da73f239e70a8fbff",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -634,7 +638,7 @@
       "source": "crews/main/skills/expert-bd/tools/douyin-im/SKILL.md",
       "target": "expert-bd/tools/douyin-im/SKILL.md",
       "source_sha256": "793850542dc1b5854fe59da4c78f23da22bcf3b9ba711d2b8c1ce22433215c78",
-      "sha256": "cacc6fd064603718818b9eb2477ab3a9b3c9d8c9ceb0881869b39b4c9e3abe41",
+      "sha256": "401ea3e3debe135e9de29544226564b3b931cc54bf441807b06c7cd364d6a435",
       "adaptations": [
         "isolated-state-home",
         "workbuddy-routing",
@@ -669,7 +673,7 @@
       "source": "crews/main/skills/expert-bd/tools/douyin-interact/SKILL.md",
       "target": "expert-bd/tools/douyin-interact/SKILL.md",
       "source_sha256": "7839f0be13ebace52c4f1106ad7c7c75c203ee3853fc24e338ebbb3209f4d800",
-      "sha256": "63b95e2fa35ad9bedc2420e4f8a1cacb51ee9227a173556dcdc1859ad58cb742",
+      "sha256": "b73187f4de815b4cb51be68948b0521a9fadb94be103561eae4f0e24704a50a9",
       "adaptations": [
         "isolated-state-home",
         "workbuddy-routing",
@@ -694,7 +698,7 @@
       "source": "crews/main/skills/expert-bd/tools/douyin-live/SKILL.md",
       "target": "expert-bd/tools/douyin-live/SKILL.md",
       "source_sha256": "33d58e5d256ccb3e0ff96e933e31348b282b322799db585f413b6cff1a3e28a1",
-      "sha256": "67cc9c2daae8fe2986fd885a7963c866a22f6b460a4453b12e90a39968e0cac6",
+      "sha256": "4558665975bdb6e01946d52374469689337a7b28a105f55b1c326f019696691c",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -711,7 +715,7 @@
       "source": "crews/main/skills/expert-bd/tools/tiktok-im/SKILL.md",
       "target": "expert-bd/tools/tiktok-im/SKILL.md",
       "source_sha256": "75df4f5a5095b087efec99f3cc5e76a2b30e4a74aa1d4829d4239c065d95764f",
-      "sha256": "98a57bc3da5fe5dbae355117e322075611fae93e8899a9c594b5f9792d7e5ee6",
+      "sha256": "621a90c92fc393d2594b2be05f52942c43f625f118bb229dde4dde8115220e48",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -728,7 +732,7 @@
       "source": "crews/main/skills/expert-bd/tools/tiktok-interact/SKILL.md",
       "target": "expert-bd/tools/tiktok-interact/SKILL.md",
       "source_sha256": "00d5ce35300129bc8d4071f69232dc1d943a36edfd8bedb693520faa03de4c41",
-      "sha256": "b4719c8e464c27b816c8c692bee21ce6ce4f60ea336b0a6b17b5758d3e6a0aa2",
+      "sha256": "036a5b63e15516213f858f82adb4805149442e58033585d7bd06c0dabe52b4a3",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -745,7 +749,7 @@
       "source": "crews/main/skills/expert-bd/tools/tiktok-live/SKILL.md",
       "target": "expert-bd/tools/tiktok-live/SKILL.md",
       "source_sha256": "aed484fc148236d64d44147472ff4962647189ffe5d242b9c0827023af78faf2",
-      "sha256": "5711e27756f71b8addbc6ef5d055a7dda54d5f442ab3a206640a21a65aed1100",
+      "sha256": "428b55677572e92c12ccf6a73ee4f408f9d3b8b2839dbcb810098d5b02cdf746",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -762,7 +766,7 @@
       "source": "crews/main/skills/expert-bd/tools/twitter-im/SKILL.md",
       "target": "expert-bd/tools/twitter-im/SKILL.md",
       "source_sha256": "542c5e528c13598f68c8a399062005b324ba55965cdcc710f85c6e5f2c6c8925",
-      "sha256": "5fe429af7e321a563d1385861227c0b7711da88219170b10b66d424a93561089",
+      "sha256": "5a754d4ec836267707236802bebf8f5748c889d8b9ee0faaa9c867c3f69334d9",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -779,7 +783,7 @@
       "source": "crews/main/skills/expert-bd/tools/twitter-interact/SKILL.md",
       "target": "expert-bd/tools/twitter-interact/SKILL.md",
       "source_sha256": "574015a0c447aa1ea2474f5cd87fe2ea09a5a52bad6cf32652369662f0eb1702",
-      "sha256": "7860f2d819c1f4d60b4d843547c59a6c259480eaeaa2836f60fefb5ff774fb50",
+      "sha256": "81c63f1d756899eb7b55ebf93387b23dec34dc12354868b2395507d7b6a6436e",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -796,7 +800,7 @@
       "source": "crews/main/skills/expert-bd/tools/xhs-im/SKILL.md",
       "target": "expert-bd/tools/xhs-im/SKILL.md",
       "source_sha256": "fd5e4704986ceba791d7dd6e8b8248246771ac644812631f9a31042e3db4455f",
-      "sha256": "78d0188a8b3d51299f74851a2a6c145317bbd6445c51eada0d104417ca3a9928",
+      "sha256": "838c77234e73fe4bd9a14b97da429f14ce67fa60473715aa952350feb6c080b1",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -813,7 +817,7 @@
       "source": "crews/main/skills/expert-bd/tools/xhs-live/SKILL.md",
       "target": "expert-bd/tools/xhs-live/SKILL.md",
       "source_sha256": "ee55eed192d3ca55ebe0612f86c394aabb8f212f3c38a7bf24790b5aa10e7d3b",
-      "sha256": "a5b7baf059abfc5bf7bf6b3331223b7deedee56495967e2011353ebbc77299a9",
+      "sha256": "96833c5a345b1a70f4822cec0628d9efcbb09e0b500b00754480e1dbbc992c8b",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -859,7 +863,7 @@
       "source": "crews/main/skills/expert-douyin/SKILL.md",
       "target": "expert-douyin/SKILL.md",
       "source_sha256": "9d373206cd3e8c01acaa5e097e212fbf6dd8fc835b09c7f3c9870970745d336e",
-      "sha256": "4020de54c67c825cacae840cbfaa70c36465800b59074507074e86c8e17c1c38",
+      "sha256": "64844add36024cc5b8fa6a3005ffa35a4d229ee514bf1ae065c7e78fea132d68",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -878,7 +882,7 @@
       "source": "crews/main/skills/expert-douyin/tools/douyin-style-profiler/SKILL.md",
       "target": "expert-douyin/tools/douyin-style-profiler/SKILL.md",
       "source_sha256": "ce5b443b8b51d29b29dcc8b75a78d16930873ad07c06cdccf0d531c48004c48d",
-      "sha256": "5ce7b230e8b4fbc0c9a0d9f357a617ec67ff0b793fb8e4d70ef7f01643d83224",
+      "sha256": "d12dd697b500be1b904fd557a09d80a03e869baa7bdda9fc7b2efd5ff7ebcc6f",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -988,7 +992,7 @@
       "source": "crews/main/skills/expert-ir/SKILL.md",
       "target": "expert-ir/SKILL.md",
       "source_sha256": "9e2572bdae7aeb413d95bd735c7c85b7a7ce44c5cfa0ba97321fbccb10900da8",
-      "sha256": "3b9751e40213b185ad1469e8f4c63a1579eab96e6cbf88ce2e3ac29d345776c4",
+      "sha256": "9ed4d98a3710f5284dee754b4821f2db387565a29baf6cb0d8f51fbe9b2dbff2",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -1007,7 +1011,7 @@
       "source": "crews/main/skills/expert-ir/tools/ir-record/SKILL.md",
       "target": "expert-ir/tools/ir-record/SKILL.md",
       "source_sha256": "1aea07c11f25ca2638998d5c1cd8fe50cd31d7a36415f879980b301abc7f4e1b",
-      "sha256": "b8170bf1789a2f33b9e64f7c925942975880e8fc4108fdcb4e1ed51308b4aa3a",
+      "sha256": "d1a29bd4451062aefe0a256c9c5faa17e1cbee8de850037b75559e561174edf8",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -1179,7 +1183,7 @@
       "source": "crews/main/skills/expert-kuaishou/SKILL.md",
       "target": "expert-kuaishou/SKILL.md",
       "source_sha256": "68c05c54337b9455e8eeaf97b5ae420bdcf558ead35473eedaa65277ead2e868",
-      "sha256": "93259190719ed19f99d697583ad88cb9b5766f396b37cf24ca857bc23e07f4cf",
+      "sha256": "20fe6acf87f5a53b187cdbb63944067bd9d1609a1c0392b198c796894e1775ca",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -1189,7 +1193,7 @@
       "source": "crews/main/skills/expert-kuaishou/tools/kuaishou-engagement/SKILL.md",
       "target": "expert-kuaishou/tools/kuaishou-engagement/SKILL.md",
       "source_sha256": "d0b0cc349cd5944da8171a54b0c973bcc52271a829516311730adc0253626db5",
-      "sha256": "820adf4e5396914a6b05becbf5d9af067caf3043b42c2d2f0e4ddf704868e97e",
+      "sha256": "ad63c5c640a2cbae1ed82e8f698a5702e010bac962a560869cadcfe3a6603e9c",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -1206,7 +1210,7 @@
       "source": "crews/main/skills/expert-kuaishou/tools/kuaishou-publish/SKILL.md",
       "target": "expert-kuaishou/tools/kuaishou-publish/SKILL.md",
       "source_sha256": "cd0f930dd784a175057d05c4adac29fb794e98daf81859f14dab93e00f4d1d06",
-      "sha256": "986e657f588df343a5e1b69131da3e4f06c86a5be0afcb74a5f3c10231d38283",
+      "sha256": "03f30ff26a598491f33517c1b9dc92a8110e94f9809cf8914da82fc6a66a0d08",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -1223,7 +1227,7 @@
       "source": "crews/main/skills/expert-kuaishou/tools/kuaishou-style-profiler/SKILL.md",
       "target": "expert-kuaishou/tools/kuaishou-style-profiler/SKILL.md",
       "source_sha256": "a53bf916659b9c46b7c1a9807f812ceb9005b88f21a2c06e319cff074268cc44",
-      "sha256": "2164dee0de9233f0ceab679c8516f1a57cb7814c8c49e2deb39c3508c3a32847",
+      "sha256": "36b9614d0ac44842aafb2ed399767227ec49ef8d12e4f9bf0db4b1fb4702c14c",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -1303,7 +1307,7 @@
       "source": "crews/main/skills/expert-tiktok/SKILL.md",
       "target": "expert-tiktok/SKILL.md",
       "source_sha256": "eaf84cb1ee4aac41ce0eb77c697a7f28f43a7b0e3f9fd519f18c7a38501ecbb8",
-      "sha256": "40a6025366e091362f7be4f68e99b50c95c3d37a72a84695edfda8b7afd22fae",
+      "sha256": "f8419fa9a95e0e0550d49d62bc6f7e687db810a26dbd1178e5a2aa1297e05ecc",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -1313,7 +1317,7 @@
       "source": "crews/main/skills/expert-tiktok/tools/tiktok-engagement/SKILL.md",
       "target": "expert-tiktok/tools/tiktok-engagement/SKILL.md",
       "source_sha256": "66e91d053141c4055d91574d393060c3cc300861dd0f900bb90091ce755c6031",
-      "sha256": "b7eceec66d1b89cb6554413828d1e9568d7c029abc71bcd41ea5437a993e95df",
+      "sha256": "aeb95e31de2fb8d0e545809a539ae78c889f78815611205fcbc810a89cb3d5d3",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -1330,7 +1334,7 @@
       "source": "crews/main/skills/expert-tiktok/tools/tiktok-publish/SKILL.md",
       "target": "expert-tiktok/tools/tiktok-publish/SKILL.md",
       "source_sha256": "67f2db5bd7df271269654dfbf9ce56f7a0260925796d4d3ca89950710bf6e365",
-      "sha256": "5afcd03dd494e56fee1782a1b1c7c609b0f28ad384cf5a63a2600c77eddbdef1",
+      "sha256": "23e6061d22de7997566c196b976e517a5b9202025682d60cfe36d24c7fcb477a",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -1347,7 +1351,7 @@
       "source": "crews/main/skills/expert-tiktok/tools/tiktok-style-profiler/SKILL.md",
       "target": "expert-tiktok/tools/tiktok-style-profiler/SKILL.md",
       "source_sha256": "b9447559ec3eac0265542bd5ca7725fff39c85663b91fb469e2916161e18d4ee",
-      "sha256": "79867e70dabf5a6d8cd4942cdb7b0fe851a01fe1492effb008a642fc0424528d",
+      "sha256": "df7124031c727f08eba0987a0011aba34339c4f1cc08bc1862b6ed5b7ca8331d",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -1427,7 +1431,7 @@
       "source": "crews/main/skills/expert-twitter/SKILL.md",
       "target": "expert-twitter/SKILL.md",
       "source_sha256": "b11410c1ffb9439ef0005a69a4f45a537dbf46807ecdea5884f79e65edbe8e9b",
-      "sha256": "d7e4628483bccf8cee4599c11c93dc139d5e95908bd6c584df0afb6d1792670d",
+      "sha256": "f2bca5937af08b6321b7c963870c2e4550be7b8c27534ab3d6b7ffdf76df22ac",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -1437,7 +1441,7 @@
       "source": "crews/main/skills/expert-twitter/tools/twitter-engagement/SKILL.md",
       "target": "expert-twitter/tools/twitter-engagement/SKILL.md",
       "source_sha256": "e466a5f2d036f47991013bcecfc4e275348ffc0548de70121787e4a5ef58c821",
-      "sha256": "3e0dab7800f870668f97cef7738be798ce4352b9774cd000b891f096254c10fc",
+      "sha256": "25bf48e7c2832cb686f54aeaaf8bffca4b47eea382c8be8e5390bbee4bb88537",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -1454,7 +1458,7 @@
       "source": "crews/main/skills/expert-twitter/tools/twitter-post/SKILL.md",
       "target": "expert-twitter/tools/twitter-post/SKILL.md",
       "source_sha256": "dc7661e5d95055d43b11721eac96fe662d0bd9dfab60ce2d2264db2744d282e4",
-      "sha256": "a70235eb0855f2f92b42b10d481eb9b4014b64ef601dc6d371fd6d2ed5adeb20",
+      "sha256": "7dfe1d1a7f64284ace6b744c24811d4a04da3f39c2b505cc9a703d95286cec1b",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -1471,7 +1475,7 @@
       "source": "crews/main/skills/expert-twitter/tools/twitter-style-profiler/SKILL.md",
       "target": "expert-twitter/tools/twitter-style-profiler/SKILL.md",
       "source_sha256": "d551964536cceeec49adc4ec77393539254111e93a640aacf19d0fcdee462a98",
-      "sha256": "010a6093f549121a77e11c943d94e936359247868b44592558cc4c866688a493",
+      "sha256": "5f3c7f3ffb44b43504d04640650b0b4be2344e6c04772fa4bb93e43aa3bf1891",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -1551,7 +1555,7 @@
       "source": "crews/main/skills/expert-wx-mp/SKILL.md",
       "target": "expert-wx-mp/SKILL.md",
       "source_sha256": "a66ea2e6771dc3bbaef2778b86c588ecb4797f1616e165056f6dc7969bbb3968",
-      "sha256": "6b30550fc5b88851afde3349546369f25811e942dd76059d1aa02bd6f5cd53f1",
+      "sha256": "207960d8d29a1b17cbdefa053fb433864e518171b6d91fb1c103bab2cd837380",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -1561,7 +1565,7 @@
       "source": "crews/main/skills/expert-wx-mp/tools/generate-wenyan-theme/SKILL.md",
       "target": "expert-wx-mp/tools/generate-wenyan-theme/SKILL.md",
       "source_sha256": "ea35e2a3de73ae0fb9772c7c70f153539274b51dc95731b7adda51a099bd09ca",
-      "sha256": "773838a79e90e3156df3120a188c167f7575aef25fa8cb5668e5299b6a3346f9",
+      "sha256": "177e1554f30e2ec259b54fabf085a2f1eea585f3fe6f7df703f74ab82f39ada0",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -1581,7 +1585,7 @@
       "source": "crews/main/skills/expert-wx-mp/tools/wechat-style-profiler/SKILL.md",
       "target": "expert-wx-mp/tools/wechat-style-profiler/SKILL.md",
       "source_sha256": "c6be1c00e0ec25c1852c7e921fdda87b779928914e3a731b1c60c1fc45126a80",
-      "sha256": "991e6ff123101cc9ef54241749ca1ee5d732141986a6f7d4eabc310ce7ce505a",
+      "sha256": "94b838748bbaffbcb81990f37adfe9c9352d509b49de9cc181233294fd9a5d1d",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -1626,7 +1630,7 @@
       "source": "crews/main/skills/expert-wx-mp/tools/wx-mp-publisher/SKILL.md",
       "target": "expert-wx-mp/tools/wx-mp-publisher/SKILL.md",
       "source_sha256": "6619192128c98cd1c04f47967d4deec84eefae1305c747aa38d4f6c0f533f6b0",
-      "sha256": "bcdcd81996aebc91d6d534bbafad7fb740ef230b7661c6f99b38ccc6d8381065",
+      "sha256": "03335ad9f0f7ddea26ca3e5938be528bd15eb999b3ba4440ad028d7208d74cd7",
       "adaptations": [
         "isolated-state-home",
         "workbuddy-routing",
@@ -1644,8 +1648,9 @@
       "source": "crews/main/skills/expert-wx-mp/tools/wx-mp-publisher/scripts/publish_wx_mp.py",
       "target": "expert-wx-mp/tools/wx-mp-publisher/scripts/publish_wx_mp.py",
       "source_sha256": "96a70e9f9dc6c25b52bdea0272138dfd83f6682d73aa6797e0d3dab89dd1af00",
-      "sha256": "212cb583cc054fdf554408468d542387126deab4282d4cd378cbd3f323253ec1",
+      "sha256": "3958e0d21f3979dec55eec3261df9488bfb8c3369877e8f94f3ec87786bf744d",
       "adaptations": [
+        "relay-setup-on-demand",
         "isolated-state-home",
         "configurable-private-state",
         "publisher-theme-workspace"
@@ -1718,7 +1723,7 @@
       "source": "crews/main/skills/expert-xhs/SKILL.md",
       "target": "expert-xhs/SKILL.md",
       "source_sha256": "6ffdbf3b56dccfeb635c8d7bce4b8a99e3cb801bb2e2125af38e02c3c136cceb",
-      "sha256": "79c3ca3c9b716150249d88debf52fd9f5e6a855262642e3713c08a922a4adb01",
+      "sha256": "33c9897d64d72d68e09074ce280f7c42f3cb56edec16631c5a3511531dff302b",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -1860,7 +1865,7 @@
       "source": "crews/main/skills/expert-xhs/tools/xhs-engagement/SKILL.md",
       "target": "expert-xhs/tools/xhs-engagement/SKILL.md",
       "source_sha256": "674ff3a1ccdb372b611ac455a6a55c1d1918e2dbf7ba6470f01fd26240d87b53",
-      "sha256": "bd54bd0c88e994a174dd489ccc312ea27b6ed7fb7e4c8a3a6d02f962912a8e7c",
+      "sha256": "7ef3c2ae9b0a21467265b22736fc580fae9b1246944331f4fbb77aca6282c73d",
       "adaptations": [
         "isolated-state-home",
         "workbuddy-routing",
@@ -1889,7 +1894,7 @@
       "source": "crews/main/skills/expert-xhs/tools/xhs-publish/SKILL.md",
       "target": "expert-xhs/tools/xhs-publish/SKILL.md",
       "source_sha256": "46bcfaa225842773a27b81c811dc9015f7b0f7efea9ab1047548d26c45474386",
-      "sha256": "c4f38d8060fe833721bb6c6540498f6e47da3bfae55681701cc6b64a0cc2be7b",
+      "sha256": "86803e59c660cfffa7f0d43a25abf6483c496eb9a97217c5715c33e87fefbf54",
       "adaptations": [
         "isolated-state-home",
         "workbuddy-routing",
@@ -1924,7 +1929,7 @@
       "source": "crews/main/skills/expert-xhs/tools/xhs-pugongying/SKILL.md",
       "target": "expert-xhs/tools/xhs-pugongying/SKILL.md",
       "source_sha256": "3398adeffe12c7bf8b173a8ac10268bf458422fa36b6e8dfbf0e41886d5f6342",
-      "sha256": "5fddf4f63c1da546ec639577400f159626211739f39ef763fad7498a3f1cf465",
+      "sha256": "9a57fa2a69b4c86678b394fb73cfb5f8dbdddb3337ee6ebc066ac4eefef497c1",
       "adaptations": [
         "isolated-state-home",
         "workbuddy-routing",
@@ -1942,7 +1947,7 @@
       "source": "crews/main/skills/expert-xhs/tools/xhs-qianfan/SKILL.md",
       "target": "expert-xhs/tools/xhs-qianfan/SKILL.md",
       "source_sha256": "57d177020ef739173d0a2f24b2de6a082b805db1a9070752dda9f9f9ada70ee9",
-      "sha256": "aa4d2858e653577ff98eeb612324a74530de1441a73e33867bd4727e64a3797c",
+      "sha256": "dcee9536ab03a64099faaa55176d1486e76b5c60f18a87987c7eed207e54a9c0",
       "adaptations": [
         "isolated-state-home",
         "workbuddy-routing",
@@ -1960,7 +1965,7 @@
       "source": "crews/main/skills/expert-xhs/tools/xhs-style-profiler/SKILL.md",
       "target": "expert-xhs/tools/xhs-style-profiler/SKILL.md",
       "source_sha256": "c6fc41116cdeefffe70d0e3965d787de959ae63d045802bc5010db2981539f90",
-      "sha256": "d26ac016fe907ff986fd814d1db15a9e62a38ecacea109c24282ebbc03c53df8",
+      "sha256": "4f63f6685b66c7e315fbbacc59e46fb432766b76bae5d324bfcb8e94572a7bdf",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -2085,7 +2090,7 @@
       "source": "crews/main/skills/kuaishou-hunter/SKILL.md",
       "target": "kuaishou-hunter/SKILL.md",
       "source_sha256": "f759386d0b33a06bc277abb3fe3b36966bf99c599376688f4c11a6aaddfbeb6c",
-      "sha256": "3d765b3cfbeb929334eb2e07e708f105e289cb3709cf63eb959415c2d0690397",
+      "sha256": "284cc1e9c25da1cdb2fefbd7c829e780a4aac0940baa6393374138d0972a18ca",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -2102,7 +2107,7 @@
       "source": "crews/main/skills/kuaishou-hunter/tools/kuaishou-live/SKILL.md",
       "target": "kuaishou-hunter/tools/kuaishou-live/SKILL.md",
       "source_sha256": "ce9cc17d9c39cd10969388997bd94a4ea697e9e01dc912a8dd0807a395597c1f",
-      "sha256": "f8c6b0ea11e5b83683bdaa2cfbe2736cfac9a2daaaa02ade6dda653440cfd0c2",
+      "sha256": "0ae4cb7ec02bbbcba07ba175ba096b6584014ba25c09a888b4b6e7337da4b150",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -2119,7 +2124,7 @@
       "source": "crews/main/skills/native-ui-card/SKILL.md",
       "target": "native-ui-card/SKILL.md",
       "source_sha256": "880d96c7f49d14eed1df23cf68b682276b2c697068f2b8bdc26bb5a75f7faeea",
-      "sha256": "e096d89eaec094dcc90b51cbd1f4b49ffb91bbd28b66eb40f0dc99aa26fc714a",
+      "sha256": "268f9204a0f447cbc78c83c9aed34d8e088be2ea0b3a2464427c1a3cffa883e5",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -2383,7 +2388,7 @@
       "source": "crews/main/skills/pitch-deck/SKILL.md",
       "target": "pitch-deck/SKILL.md",
       "source_sha256": "2aed3ac8ba813ebc137007d5d8f8b79407aca88ab08af381a487e80249d8ca49",
-      "sha256": "afe6da53687f3b5e6404c1d8b4072b4e60ebe0029297567df28b6d1fcb89b2e3",
+      "sha256": "bd16958f198d701c0055df481af7e2221eac85f0869907dad28b952df8df8644",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -2427,7 +2432,7 @@
       "source": "crews/main/skills/platform-runtime/SKILL.md",
       "target": "platform-runtime/SKILL.md",
       "source_sha256": "c335b1cacc4117d460ed961c8d74706ee903cfb3124ed609ffbdad5616abf894",
-      "sha256": "757be30f3ce7475262f665c896815908e07b654f39237b881db954e9969a951e",
+      "sha256": "045d8cc6a9b5bc4d83bd7062cead672479a1a3ce26b8c1f89de330249a23700b",
       "adaptations": [
         "isolated-state-home",
         "workbuddy-routing",
@@ -2551,7 +2556,7 @@
       "source": "crews/main/skills/published-track/SKILL.md",
       "target": "published-track/SKILL.md",
       "source_sha256": "91c21e365e2b6c0c31be7a94967117587cc613b9bbff14caaa94dcf3af207130",
-      "sha256": "70ee3fc750eabf71bb3353f141289f5528046e83651e6d9333c6504589450b2b",
+      "sha256": "b22f8f7554d37216aa372579a8fb67899d74aff9e5114f77224c639ac3ac65c4",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry",
@@ -2677,7 +2682,7 @@
       "source": "crews/main/skills/talking-head-cut/SKILL.md",
       "target": "talking-head-cut/SKILL.md",
       "source_sha256": "9f2b04675246d16a665b628610223a75f40beab474916bd586071007ab59becd",
-      "sha256": "07c0c774bd381840a3e2a0b47c39d53ee9ae009ad08e0448146b76de9b189b81",
+      "sha256": "a887badd63a627b7c9bf99408a6048cfc80c3b1b2fd07cd63795a6012f116bab",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -2706,7 +2711,7 @@
       "source": "crews/main/skills/tiktok-hunter/SKILL.md",
       "target": "tiktok-hunter/SKILL.md",
       "source_sha256": "6c16895e811d9c420994983007832f84359db4cb4ceb8b8aab9029a8a1f0df46",
-      "sha256": "7675bb1f634d2ef9447f242f2b63b56e342387690d9f449dbf864955d32e041b",
+      "sha256": "cb4df4a9945ffb9b723ca136366f1b1a8d89ba4f425a69ce748f2fdd077751b8",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -2732,7 +2737,7 @@
       "source": "crews/main/skills/video-edit/SKILL.md",
       "target": "video-edit/SKILL.md",
       "source_sha256": "43179727fab2f83e0a10c6640b76f21dd9e94ceb51b5516394c087caf5d1ca14",
-      "sha256": "ee99e5f288c2f32b257787d347ff3d08125cedfd24920648254f94be2b7c3ffb",
+      "sha256": "deac94385912d24145c576734957f9ad4c4ad63ce1b652eec18f1fdd432fdf3c",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -2800,7 +2805,7 @@
       "source": "crews/main/skills/viral-chaser/SKILL.md",
       "target": "viral-chaser/SKILL.md",
       "source_sha256": "1ef6239b4d4a1e0397a7a7a8b7772620ad68a291d8710d0ea58a0099b153437e",
-      "sha256": "47bcdba84f9dc89c5295ae0fe709cdc69fa8221a77e1c78f43ceacba5cea9807",
+      "sha256": "07d97c2c6579d8f707e91a24e7fc6e7184f09eae39241182d928d16ebf5d0ee9",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -2850,7 +2855,7 @@
       "source": "crews/main/skills/weibo-hunter/SKILL.md",
       "target": "weibo-hunter/SKILL.md",
       "source_sha256": "8aab46c6a33674d7a5680ba854e110bfea539091414a521a7ecb3eb6e4e705df",
-      "sha256": "a6ff62b0e7360c0a51ff4c72649d3827e62dc181a5138069845a3d7b730d0288",
+      "sha256": "729d2ffe5fb1e38fea30917629d2979f311d5af3d8ed19af1271f938c8d10a76",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -2867,7 +2872,7 @@
       "source": "crews/main/skills/weibo-publish/SKILL.md",
       "target": "weibo-publish/SKILL.md",
       "source_sha256": "8befbe7d54b54c23140445c880987955e8edda33ed29f105978759de0d075429",
-      "sha256": "99ea9109f5c4456c0484b61b0dd1fb6c01eade0f0eac6ace6d613372ce38caa6",
+      "sha256": "93a42eb35691a8c3059496ae6d21cc04c8e11ca97be6994fbd570a2d85b46981",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -2893,7 +2898,7 @@
       "source": "crews/main/skills/wxwork-moments/SKILL.md",
       "target": "wxwork-moments/SKILL.md",
       "source_sha256": "e2a52d697bd26fc16ee0b606c6b66eaf858f2cb99a1e1ff8827470d5fcda1678",
-      "sha256": "b659a8aaccb9cc9689db2a71e2ed408a62c5da2ba5083e4560a0ecaddcf3c118",
+      "sha256": "579db0d21e8d752e1c1e9fcf07656f9434336aad8bfd3f9232c67f4c8bd448de",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -2903,8 +2908,10 @@
       "source": "crews/main/skills/wxwork-moments/scripts/post_moments.py",
       "target": "wxwork-moments/scripts/post_moments.py",
       "source_sha256": "f9a950bf9a0bcd5d2f9922082ca5ecffd21623ff78cd2551cd53755584e5376f",
-      "sha256": "f9a950bf9a0bcd5d2f9922082ca5ecffd21623ff78cd2551cd53755584e5376f",
-      "adaptations": []
+      "sha256": "50e10835c25d55885a215fddda1f0b9fb1573c9f38ae635db1a673177f0c34f9",
+      "adaptations": [
+        "relay-setup-on-demand"
+      ]
     },
     {
       "source": "crews/main/skills/wxwork-moments/wxwork-moments.sh",
@@ -2919,7 +2926,7 @@
       "source": "crews/main/skills/x-hunter/SKILL.md",
       "target": "x-hunter/SKILL.md",
       "source_sha256": "246399eb8bd5706a45de29215871ef4933dd03cfe656e31d9a82c3290b32821b",
-      "sha256": "358e3c602bcea2650d2691915bbe5743e129c824b7f0f5c6e38dde9a9d1fd8fc",
+      "sha256": "8de2ab1218c4ce17f20ea8e5c2dd84a011d63d15b0b57fdc45826f2d1d2fbe3c",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -2936,7 +2943,7 @@
       "source": "crews/main/skills/xhs-hunter/SKILL.md",
       "target": "xhs-hunter/SKILL.md",
       "source_sha256": "afa74e7ac3a74625158c499db5669cb103fa78f35e46787d1925e8f4238c0042",
-      "sha256": "6da1c853fdfc572d71d1c0b03b501db70bf8418531dada5b2df6ebd2e8e316ef",
+      "sha256": "12496e0816600e5e720c357821e63f86b1a56448a3cfbdbea709500af1946893",
       "adaptations": [
         "isolated-state-home",
         "workbuddy-routing",
@@ -3013,7 +3020,7 @@
       "source": "skills/aigc-video-gen/SKILL.md",
       "target": "aigc-video-gen/SKILL.md",
       "source_sha256": "55735632dd5b8049260e1fa8e352d1efd3efa08e5b0d0bcbc4534daad51dfacf",
-      "sha256": "645903e8fa8c03cac1bf021362c3cf8b72008f57effe8ffb7d60d4c5bb370462",
+      "sha256": "f45c9bf344e3422612f30e7f34f800288c2b703d1b3dcda6461baa03f89ccf93",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -3068,7 +3075,7 @@
       "source": "skills/awk-img-gen/SKILL.md",
       "target": "awk-img-gen/SKILL.md",
       "source_sha256": "0b7d3d6fb49748a335a3f9151a4263d66e695770fc585cb9dd3832e57e1a3f23",
-      "sha256": "5cb69ff4b425f4375dfde5bfc56887bf418b0589ab42169882041e2756d74e1c",
+      "sha256": "18b11726af3a4fd27d897a5a5482b61c0bf91c6e7c821e0b1cac72219286189b",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -3094,7 +3101,7 @@
       "source": "skills/awk-tts/SKILL.md",
       "target": "awk-tts/SKILL.md",
       "source_sha256": "34fcad1ee0076025364f2c573cdd37feaf053ee3168d24386eff0d8e1a0ef60f",
-      "sha256": "7d73be35911a3db1d3ef10488e21d0b32f8a452b695f88a7681891066b7cae21",
+      "sha256": "ebe3531d962d15c29a5c9d0c8c573e7c6c944813a69b6c72b53f9f5a5e67850a",
       "adaptations": [
         "isolated-state-home",
         "workbuddy-routing",
@@ -3135,7 +3142,7 @@
       "source": "skills/bgm-library/SKILL.md",
       "target": "bgm-library/SKILL.md",
       "source_sha256": "e0e5029d1d7b9a08e34c4341a6e196ecdc53471d8892317e57d245a7b1703651",
-      "sha256": "733f21d5314868700dd015bf30c4d6f00758bbd1810a1d67b7fc9ca3b3734b68",
+      "sha256": "30bf53f09c4c39cb21c445bb19aec6c3780db6f5cf7e3b13bd4d5ed73b702d73",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -3175,7 +3182,7 @@
       "source": "skills/email-ops/SKILL.md",
       "target": "email-ops/SKILL.md",
       "source_sha256": "b3b1e5e1ffa35ec7f74c0cc6b30ee5e275628c9f4c4fd624572b46055203192c",
-      "sha256": "e1e8c656a8a0c7ea94876b052f04bccf2279f1e54360c3add844cee64072bb78",
+      "sha256": "08aaec0dd8399209ab40b46e5848f6e9c0412b29dfc28e7b2a252bc5b0a7973e",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -3201,7 +3208,7 @@
       "source": "skills/pexels-footage/SKILL.md",
       "target": "pexels-footage/SKILL.md",
       "source_sha256": "86168c020f84f094cd383665ff6cc887cc048057cc96b4a27910eff77e5aa921",
-      "sha256": "c00bf3066df8c1537e92ec33e28e1cd42342343bd9eb490acb7eeeda6a21baf3",
+      "sha256": "7c22e29dfea2088a2c1d79d49d3870ff2ae69e8125c4025050b331de5c36b5d1",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -3227,7 +3234,7 @@
       "source": "skills/pixabay-footage/SKILL.md",
       "target": "pixabay-footage/SKILL.md",
       "source_sha256": "969adad33acef1b5ee5ae213cbbfa75622fe2cb5fbe1f52465aebbcb7637fbbe",
-      "sha256": "c507bb5f3b532390f8a6cddd41f32860611862e24a430ca4a625305831a9be29",
+      "sha256": "34c058c446d9195ccb8560603aec76793f6505d325f60c630373ff433371cc25",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -3253,7 +3260,7 @@
       "source": "skills/video-review/SKILL.md",
       "target": "video-review/SKILL.md",
       "source_sha256": "50bc2966d94629f96c41fd4538424bf0be6050671466c2d1f31c0264d35fabf5",
-      "sha256": "f5d37b9278904083c1ca5c406556b327f19954182a6eab3f52b01f0680aa773d",
+      "sha256": "4eb456776cdda40d19b0963982095a576cfe577da13db949fc6d0bc40188f611",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -3288,7 +3295,7 @@
       "source": "skills/wxwork-drive/SKILL.md",
       "target": "wxwork-drive/SKILL.md",
       "source_sha256": "20be7a93413c3922d1b32e32b84163fc389f8ad99c341464ac1ea2642d38c0c2",
-      "sha256": "6863008dda4857645d3b5a10e7b1e5d9880730bd66cda073505827d5993bbfa7",
+      "sha256": "b00d9da2cface932018ee08a7d8590d9108598093037f5bd3ec2fb3240f1f00a",
       "adaptations": [
         "workbuddy-routing",
         "workbuddy-frontmatter-and-entry"
@@ -3298,8 +3305,10 @@
       "source": "skills/wxwork-drive/scripts/drive.py",
       "target": "wxwork-drive/scripts/drive.py",
       "source_sha256": "5abe5307bcc3daf8274bd647874704a14f020aaef1c7a4b41d88775c0201f0a9",
-      "sha256": "5abe5307bcc3daf8274bd647874704a14f020aaef1c7a4b41d88775c0201f0a9",
-      "adaptations": []
+      "sha256": "55fee2d7159cf24299d941f9b376d3237fe62d87e8df22ed18209cc3b8f084c9",
+      "adaptations": [
+        "relay-setup-on-demand"
+      ]
     },
     {
       "source": "skills/wxwork-drive/spaces.example.json",
@@ -3336,16 +3345,10 @@
       ]
     }
   ],
-  "assets": [
-    {
-      "source": "crews/main/ofb_contact.png",
-      "target": "avatars/ofb_contact.png",
-      "sha256": "83b168b8fd11ae8679c6f60894178cefa982ac7bb7ad037fdee71bc26bfcc5b2"
-    }
-  ],
+  "assets": [],
   "persona": {
     "target": "agents/xiaobei-growth.md",
-    "sha256": "5fd5e27cf8371f5cc75bca1742fb3b0155288f3288ced485b0d3329c9e4b181a",
+    "sha256": "3100d336e57318d0b8dc9e5887c19690fca3adca80daff54a33d2d74f2c4237e",
     "sources": [
       {
         "source": "crews/main/SOUL.md",
