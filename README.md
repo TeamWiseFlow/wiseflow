@@ -280,7 +280,7 @@ Crew 遇到自己不能解决的问题：
 
 ## 🔧 全新的浏览器栈
 
-v5.6.0 中我们几乎重构了 OpenClaw 原版的浏览器自动化方案（详见 `docs/browser-stack-replacement-spec-2026-07.md`），v5.6.3 沿用此双线栈并按 OpenClaw v2026.7.1 重新对齐 patch：
+v5.6.0 重构了 OpenClaw 原版浏览器自动化方案，v5.6.3 沿用双线栈并按 OpenClaw v2026.7.1 重新对齐 patch。历史背景与正在规划的 5.8 自有 CLI 方案见 [浏览器架构文档](docs/browser-architecture.md)；下表描述现有实现，5.8 重构尚未实施：
 
 | 项 | 说明 |
 |----|------|

@@ -317,9 +317,9 @@
 
 # v5.6.0 (2026-07-12)
 
-### 浏览器栈整体替换（双线栈，spec `docs/browser-stack-replacement-spec-2026-07.md`）
+### 浏览器栈整体替换（双线栈）
 
-> 2026-07-11 ~ 07-12 落地。调研结论见 `docs/browser-extension-replacement-research.md` §12（架构转向，优先级最高）。
+> 2026-07-11 ~ 07-12 落地。旧调研已归入 [浏览器架构文档](docs/browser-architecture.md) 的历史背景与追溯；以下保留当时的发布记录。
 
 **双线浏览器栈**（替代原"整体替换 extension"路线）：
 
