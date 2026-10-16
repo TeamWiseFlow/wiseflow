@@ -14,6 +14,8 @@ from typing import Iterator
 from uuid import uuid4
 from zoneinfo import ZoneInfo
 
+from xhs_utils.runtime_logs import append_log, prune_daily_markers
+
 
 CREATOR_SCRIPTS = Path(__file__).resolve().parent
 SESSION_FILE = Path(
@@ -45,7 +47,9 @@ def claim_daily_run() -> bool:
     """Allow one Creator daily list attempt per Shanghai calendar day."""
     _read_session()
     DAILY_STATE_DIR.mkdir(parents=True, exist_ok=True)
-    date = datetime.now(ZoneInfo("Asia/Shanghai")).date().isoformat()
+    today = datetime.now(ZoneInfo("Asia/Shanghai")).date()
+    prune_daily_markers(DAILY_STATE_DIR, today)
+    date = today.isoformat()
     path = DAILY_STATE_DIR / f"{date}.json"
     try:
         fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
@@ -132,11 +136,7 @@ def observe(operation: str, outcome: str, **details) -> None:
         "outcome": outcome,
         **details,
     }
-    fd = os.open(
-        OBSERVATION_FILE, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600,
-    )
-    with os.fdopen(fd, "w", encoding="utf-8") as stream:
-        stream.write(json.dumps(event, ensure_ascii=False) + "\n")
+    append_log(OBSERVATION_FILE, (json.dumps(event, ensure_ascii=False) + "\n").encode('utf-8'))
 
 
 @contextmanager

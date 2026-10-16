@@ -19,7 +19,7 @@ metadata:
 | 已有作品修改与再制作 | [Editing](workflows/editing.md) |
 | 本人作品指标与复盘 | [Review](workflows/review.md) |
 
-工具：`kuaishou-publish` 发布，`kuaishou-engagement` 本人取数回填，`kuaishou-style-profiler` 定性 DNA。读取本包 tools 下对应说明，通过 wrapper 调用，不拼工作区技能路径。内容搜索、账号与作品/评论读取、通知和媒体下载使用一级 `kuaishou-hunter`。私信、评论、点赞、收藏、关注与直播统一走 expert-bd；未实现的动作明确说明缺口。
+工具：`kuaishou-publish` 发布，`kuaishou-engagement` 本人取数回填，`kuaishou-style-profiler` 定性 DNA。读取本包 tools 下对应说明，通过 wrapper 调用，不拼工作区技能路径。内容搜索、账号与作品/评论读取、通知和媒体下载使用一级 `kuaishou-hunter`。私信、评论、点赞、收藏、关注及直播互动走 expert-bd；公开直播读取走 kuaishou-hunter live，调研分析走 expert-osbi；未实现的动作明确说明缺口。
 
 视频接口仅覆盖空简介、私密、立即发布的测试分支，仍需本机实号验收；正式公开视频或带标题/正文/话题的视频交用户在原平台完成。图集可按发布工具的参数与授权执行。发布错误先看脱敏诊断，不能把裸 UPSTREAM 直接归因于新号风控或建议删除 unknown 收据重发。
 

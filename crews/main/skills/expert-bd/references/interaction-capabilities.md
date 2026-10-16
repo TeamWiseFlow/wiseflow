@@ -1,6 +1,6 @@
 # 平台互动能力
 
-内容搜索、用户资料、作品与评论采集、评论/@提醒、点赞收藏提醒及新增关注通知调用一级 hunter；私信和互动写操作在 expert-bd 内执行。创作、发布、本人已发作品数据和创作者服务仍转平台专家包。表内尚不支持的能力保留为空缺。
+内容搜索、用户资料、作品与评论采集、评论/@提醒、点赞收藏提醒及新增关注通知按平台调用 `douyin-hunter` / `xhs-hunter` / `tiktok-hunter` / `kuaishou-hunter` / `x-hunter` / `weibo-hunter` / `wx-mp-hunter`；私信和互动写操作在 expert-bd 内执行。创作、发布、本人已发作品数据和创作者服务仍转平台专家包。表内尚不支持的能力保留为空缺。
 
 | 能力 | 抖音 | 小红书 |
 |---|---|---|
@@ -14,14 +14,14 @@
 | 标记已读 | 可监听已读通知，主动标记尚不支持 | `xhs-im read`：从真实会话列表取得 store_id/未读数，缺字段即停 |
 | 撤回/删除会话 | 尚不支持 | `xhs-im revoke/delete`，预览后加 `--confirm` |
 | 直播文字互动 | `douyin-live chat/like` | `xhs-live send`；不支持直播点赞 |
-| 直播事件 | `douyin-live listen`，含礼物、PK 与 ACK | `xhs-live listen` |
-| 最近直播消息 | `douyin-live history`，只到进房快照最近 15 条 | 尚不支持历史查询 |
-| 直播资料与商品 | `douyin-live room/products/media`，PK/榜单能力保留 | `xhs-live call` 房间/频道/广场/礼物与商品信息 |
+| 直播事件（采集技能读取） | `douyin-hunter live listen`，含礼物、PK 与 ACK | `xhs-hunter live listen` |
+| 最近直播消息 | `douyin-hunter live history`，只到进房快照最近 15 条 | 尚不支持历史查询 |
+| 直播资料与商品 | `douyin-hunter live room/products/media`，PK/榜单能力保留 | `xhs-hunter live call` 房间/频道/广场/礼物与商品信息 |
 | 礼物支付、主播后台开关播、禁言/踢人 | 不提供 | 不提供 |
 
 小红书的「获取笔记评论」「获取点赞/收藏提醒」「获取新增关注」均为读取能力，可通过 xhs-hunter 调用现有 PC 方法；这些方法不能发布笔记评论、点赞、收藏或关注。直播 `send_comment` 只发直播弹幕，也不能用于笔记评论。
 
-直播工具面向指定的公开直播间，不限自有房间，按实际访问与发言权限工作。主要场景为竞争对手直播调研（`workflows/live-research.md`）与直播间互动（`workflows/live-interaction.md`）；仅调研时不自动发送。小红书 host_id 指目标主播，抖音 web_rid 是网页房间号，均不表示必须使用主播账号。当前能力不包括主播后台管理。
+直播资料与事件由`douyin-hunter live` / `xhs-hunter live` / `tiktok-hunter live` / `kuaishou-hunter live` 获取，本包 live 仅负责已实现的互动写操作。直播工具面向指定的公开直播间，不限自有房间，按实际访问与发言权限工作。主要场景为expert-osbi 的竞争对手直播调研与本包直播间互动（`workflows/live-interaction.md`）；仅调研时不自动发送。小红书 host_id 指目标主播，抖音 web_rid 是网页房间号，均不表示必须使用主播账号。当前能力不包括主播后台管理。
 
 ## 使用条件与验收范围
 
@@ -43,6 +43,6 @@
 | 收藏夹管理 | call folder create/update/add；先收藏再加入 | 未实现 | 未实现 |
 | 私信查询 | tiktok-im list/history | 未实现 | twitter-im list/history：仅20个会话首页、加密占位消息 |
 | 私信发送/监听 | tiktok-im send/listen；仅已有会话文本 | 未实现 | 未实现 |
-| 公开直播观察 | tiktok-live | kuaishou-live；回放使用主页ID | 未实现 |
+| 公开直播观察（采集技能读取） | tiktok-hunter live | kuaishou-hunter live；回放使用主页ID | 未实现 |
 | 直播发言/点赞 | tiktok-live send/like；需同次写材料 | 未实现 | 未实现 |
 | 送礼支付、主播后台 | 不提供 | 不提供 | 不提供 |

@@ -22,4 +22,4 @@ twitter-interact --help
 
 登录使用 `x-hunter login/export`。只执行真实接口已支持的动作，仍须本地实号验证响应、送达与权限。超时/断连先核对结果，不换通道重发；风控不当作登出。
 
-内容搜索、作品、用户和评论采集使用 `x-hunter`。直播工具按 expert-bd 的 live-research/live-interaction workflow 操作，观察竞对公开房间，不执行主播后台管理。记录真实目标、动作、时间和结果，区分已提交与已核实送达。
+内容搜索、作品、用户和评论采集使用 `x-hunter`。公开资料使用 `x-hunter`，X 直播读取尚无已实现接口，调研分析交 expert-osbi；已授权互动按 expert-bd 的 Interaction/Live Interaction workflow 执行。记录真实目标、动作、时间和结果，不将预览当作已送达。

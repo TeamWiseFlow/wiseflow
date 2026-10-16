@@ -4,7 +4,7 @@
 
 软著 / 商标 / 专利等知识产权申报不在本 workflow 范围，不承接。
 
-**依赖**：`market-research`（行业数据 / 竞品分析）、Investor Materials Workflow（BP / One-Pager）、`ir-record`（applications 表状态跟踪）。
+**依赖**：`expert-osbi` 的 Market Research workflow（行业数据 / 竞品分析）、Investor Materials Workflow（BP / One-Pager）、`ir-record`（applications 表状态跟踪）。
 
 ## 适用场景
 
@@ -19,10 +19,10 @@
 
 | 类型 | 典型材料 | 材料协作 |
 |------|---------|---------|
-| 高新技术企业认定 | 知识产权 + 研发费用 + 人员名单 + 财务审计 | `market-research` |
+| 高新技术企业认定 | 知识产权 + 研发费用 + 人员名单 + 财务审计 | `expert-osbi` 的 Market Research workflow |
 | 加速器申请 | BP + One-Pager + 团队介绍 + 牵引数据 | Investor Materials Workflow（包内） |
-| 政府补贴 | 申报书 + 财务报表 + 项目实施方案 | `market-research`（行业数据）|
-| 行业奖项 | 案例描述 + 客户证言 + 量化数据 | `market-research`（行业 baseline）|
+| 政府补贴 | 申报书 + 财务报表 + 项目实施方案 | `expert-osbi` 的 Market Research workflow（行业数据）|
+| 行业奖项 | 案例描述 + 客户证言 + 量化数据 | `expert-osbi` 的 Market Research workflow（行业 baseline）|
 
 ---
 
@@ -43,7 +43,7 @@
 
 | 材料 | 委派给 |
 |------|--------|
-| 行业市场数据 / 竞品分析 | `market-research` |
+| 行业市场数据 / 竞品分析 | `expert-osbi` 的 Market Research workflow |
 | BP / One-Pager | Investor Materials Workflow（包内） |
 
 各部分输出后，整合成"申报书完整版"。
@@ -81,7 +81,7 @@ ir-record update-application --id <rowid> --status <new>
 
 ## 与其他环节的关系
 
-- **`market-research`**（顶层技能）：行业数据（多个申报类型需要）
+- **`expert-osbi` 的 Market Research workflow**（顶层技能）：行业数据（多个申报类型需要）
 - **Investor Materials Workflow**（包内）：加速器申请等需要 BP / One-Pager
 - **商业模式打磨**（IR 模式 1）：申报前先打磨商业模式（很多申报材料要先有清晰的商业故事）
 

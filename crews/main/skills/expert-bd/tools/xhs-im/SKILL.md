@@ -12,7 +12,7 @@ metadata:
 
 # 小红书私信
 
-先运行 `xhs-hunter check`，会话缺失或失效走 `xhs-hunter login`。本工具归 expert-bd，复用 hunter 保存的 PC 会话，不混用 Creator Cookie。
+先运行 `xhs-hunter check`，会话缺失或失效走 `xhs-hunter login`。本工具归 expert-bd，复用 `xhs-hunter` 保存的 PC 会话，不混用 Creator Cookie。
 
 ## 读取
 

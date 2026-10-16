@@ -1,0 +1,130 @@
+# Intel Gathering（商业情报采集）
+
+监控特定信源（自媒体账号或网页），按预设提取标准采集商业情报，生成简报/报告交付用户。默认一次性采集；定时监控是用户可选项（见 [scheduling.md](../scheduling.md)）。
+
+**依赖**：`douyin-hunter` / `xhs-hunter` / `tiktok-hunter` / `kuaishou-hunter` / `x-hunter` / `weibo-hunter` / `wx-mp-hunter`（平台原始资料）、公共 `smart-search`（其他站点搜索）/`browser-guide`（页面操作）、本包 `rss-reader`（公开订阅解析）和 `info-record`（情报记录与去重）。
+
+---
+
+## 前置条件
+
+执行前需确认以下信息（一次性任务与用户对话确认；定时任务从 HEARTBEAT.md 配置读取）：
+- 监控信源列表（平台+账号 或 网页 URL）
+- 提取标准（要采集什么信息）
+- 交付形式（简报 / 报告 / 表格）
+
+---
+
+## 执行流程
+
+### Step 1: 准备工作
+
+1. 先检查信源所属平台的 `douyin-hunter` / `xhs-hunter` / `tiktok-hunter` / `kuaishou-hunter` / `x-hunter` / `weibo-hunter` / `wx-mp-hunter`；仅其他网页需要浏览器，按 `browser-guide` 操作
+2. 初始化 info-record 数据库（幂等）：`info-record init-db`
+
+### Step 2: 逐信源采集
+
+对配置的每个信源，按顺序执行：
+
+#### 自媒体平台账号
+
+1. 用 `douyin-hunter` / `xhs-hunter` / `tiktok-hunter` / `kuaishou-hunter` / `x-hunter` / `weibo-hunter` / `wx-mp-hunter` 中对应平台的技能读取账号作品列表；其他支持的站点才浏览主页/作品页
+
+2. 收集最新内容列表（按由新到旧排序）：
+   - 仅分析发布日期为当日的内容（或上次执行后新发布的内容）
+   - 如无法精确筛选日期，则取前 10 条内容
+
+3. 对每条内容：
+   a. 提取内容标识（平台, title, author, publish_date）
+
+   b. 去重检查：
+      ```bash
+      info-record check-content --source <内容URL>
+      ```
+      如果 `{"exists": true}`，跳过该内容
+
+   c. 通过本轮使用的 `douyin-hunter` / `xhs-hunter` / `tiktok-hunter` / `kuaishou-hunter` / `x-hunter` / `weibo-hunter` / `wx-mp-hunter` 获取详情；其他网页按 browser-guide 阅读
+
+   d. 按预设的提取标准采集信息：
+      - 阅读内容标题、正文/简介
+      - 视频内容只需分析视频简介/描述文字，不下载视频
+      - 提取与标准相关的关键信息
+
+   e. 记录采集结果：
+      ```bash
+      info-record record-content \
+        --source <内容URL or 平台-账号> \
+        --source-type <平台标识> \
+        --title <标题> \
+        --author <作者> \
+        --publish-date <发布日期> \
+        --content <提取的关键信息>
+      ```
+
+   f. 每条内容之间保持适当间隔（10-30 秒）
+
+#### 网页信源
+
+1. 对于 RSS 支持的网站：使用 `rss-reader` 获取最新文章：
+   ```bash
+   rss-reader <feed_url> --limit 10
+   ```
+   （feed URL 未知时先按 `rss-reader` 说明中的发现方法找到 feed）
+
+2. 对于不支持 RSS 的网站：
+   a. 按 browser-guide 导航到网页
+   b. 等待加载完成
+   c. 收集最新内容列表（按页面显示的新到旧排序）
+
+3. 对每条内容：
+   a. 去重检查（同上）
+   b. 按 browser-guide 阅读内容详情页
+   c. 按提取标准采集信息
+   d. 记录到 info-record
+
+### Step 3: 生成交付物
+
+1. 查询当日采集信息，仅保留本次配置对象与信源；跨日执行同时保留本轮实际记录列表，不能用今日查询代替本轮结果：
+   ```bash
+   info-record query-today
+   ```
+
+2. 按预设的交付形式生成交付物：
+
+   简报模式：
+   - 每条信息：一句话摘要 + 原文链接
+   - 按信源分组
+
+   报告模式：
+   - 概述 + 按信源分章节 + 每节包含关键发现和分析
+   - 标注信息来源链接
+
+   监控表格模式：
+   - Markdown 表格：日期 | 信源 | 标题 | 关键信息 | 原文链接
+
+3. 将报告和来源索引保存到 Workspace `osbi/intel/`；交付本轮提取结果、证据、事实/推断及缺项，按已有渠道约定反馈用户
+
+---
+
+## 错误处理
+
+| 情况 | 处理 |
+|------|------|
+| 账号/页面无法访问 | 记录并跳过该信源，下次执行时重试 |
+| 内容详情页打不开 | 记录 URL，标注"无法访问"后跳过 |
+| RSS feed 不可用 | 降级为 browser 直接访问网页 |
+| 网页结构变化（提取失败） | 记录信源和错误，不阻塞其他信源 |
+| 浏览器异常 | **不需要重启、不需要报错**！等待 30 秒后在原页面继续操作即可。若仍无法操作，再等 30 秒；若还不行，尝试关闭浏览器后重开；只有关闭重开后仍报错才是真的出错，需停止并反馈用户。 |
+| 持续错误 | spawn IT Engineer 协助排查 |
+
+---
+
+## 注意事项
+
+- 视频内容通过视频简介/描述文字分析，不下载视频
+- 微信公众号内容使用 `wx-mp-hunter` 技能，不要使用浏览器
+- 部分平台可能需要登录才能查看完整内容（遵循 `browser-guide`）
+
+平台路由：抖音、小红书、微信公众号的搜索与内容获取分别使用一级 `douyin-hunter`、`xhs-hunter`、`wx-mp-hunter`，不调用 smart-search 构造这些平台的站内 URL；微信视频号目前没有内容获取方案。
+
+TikTok、快手、X、微博原始资料分别由一级 tiktok-hunter、kuaishou-hunter、x-hunter、weibo-hunter 获取。公开直播按本包 Live Research 调用 `douyin-hunter live` / `xhs-hunter live` / `tiktok-hunter live` / `kuaishou-hunter live`；需要触达时把研究结论交 expert-bd，不在情报流程中发送。

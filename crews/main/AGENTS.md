@@ -16,19 +16,20 @@
 | 小红书创作、发布、本人作品数据与创作者服务 | `expert-xhs` |
 | 抖音创作、发布、本人作品数据与创作者服务 | `expert-douyin` |
 | 小红书/抖音内容搜索、详情、评论读取、点赞收藏提醒、新增关注通知、媒体下载 | 一级技能 `xhs-hunter` / `douyin-hunter` |
-| 小红书/抖音私信、评论发布/回复、点赞、收藏、关注等写操作，竞争对手直播调研与直播间互动 | `expert-bd` |
+| 小红书/抖音私信、评论发布/回复、点赞、收藏、关注等写操作与直播间互动 | `expert-bd` |
 | 微信视频号运营相关 | `expert-wx-channel` |
 | TikTok 创作、发布与本人作品复盘 | `expert-tiktok` |
 | 快手创作、发布与本人作品复盘 | `expert-kuaishou` |
 | X/Twitter 创作、发布与本人作品复盘 | `expert-twitter` |
 | TikTok/快手/X/微博内容搜索、账号、作品、评论与下载 | 一级 `tiktok-hunter` / `kuaishou-hunter` / `x-hunter` / `weibo-hunter` |
 | 微博发布 | `weibo-publish` |
-| TikTok/快手/X互动与公开直播调研 | `expert-bd`，按能力表执行已有接口 |
-| 商务拓展 BD（找客户、评论区拓展（“截流”）、商业情报采集、竞对动向监控，及推特/小红书互动、闲鱼操作等配套操作） | `expert-bd` |
+| TikTok/快手/X互动与联络 | `expert-bd`，按能力表执行已有接口 |
+| 商业情报、竞对动向、公开直播调研、市场/基金/技术研究 | `expert-osbi`，按其工具表获取原始资料 |
+| 潜客探索/筛选、评论、私信、邮件、点赞收藏关注与客户联络 | `expert-bd` |
 | 投资人关系 IR（项目申报、投资人发掘与跟进） | `expert-ir` |
 | sales-cs crew 的启用与复盘升级 | `sales-cs-manager` |
 
-- 专家包按任务路由，互不越界：推特/小红书评论区获客 / 截流等 BD 场景走 `expert-bd`，不走平台运营包。
+- 专家包按任务路由，互不越界：公开商业信息分析走 `expert-osbi`，潜客探索/筛选、评论区回复、私信与邮件联络走 `expert-bd`；原始资料获取按平台使用 `douyin-hunter` / `xhs-hunter` / `tiktok-hunter` / `kuaishou-hunter` / `x-hunter` / `weibo-hunter` / `wx-mp-hunter` 或公共 `smart-search`。
 - 商业模式打磨（接触投资人前的前置环节）不属于任何专家包：结合 `business_knowledge.md` 直接与用户对话完成（多路径权衡用 `council`），结论落 `MEMORY.md`。
 - **零星工作兜底**：未被专家包覆盖的任务，可直接调用手头的工具完成（skill 清单会话时会自动加载，此处不列出）；更适合其他 crew 承担的工作，以 spawn subagent 的方式委托（如视频全案出具brief后交 content-producer，技术问题、系统排障与环境配置交 IT engineer）。找不到匹配的专家包或工具时，先询问用户或保守处理，不猜测平台规则与 DNA。
 - crew 生命周期管理（启用/停用/调整其他 crew）是你的固有职责，不经专家包路由，见下文「crew 管理」段。
@@ -42,7 +43,9 @@
 | DNA 运行资产（report / DNA 文档 / template / 评估报告） | `<platform>/dna/<dna-id>/` | 对应平台的 style-profiler 工具 |
 | 复盘校准数据（账号基线、受众画像、对标记录、平台状态） | `<platform>/calibration/` | `content-calibrator` 技能 |
 | 发布记录与互动指标 | `db/published_track.db` | `published-track` 技能 |
-| BD 线索/互动、情报条目 | `db/bd_record.db`、`db/info_record.db` | `expert-bd` 包内工具 `bd-record` / `info-record` |
+| BD 线索/互动 | `db/bd_record.db` | `expert-bd` 的 `bd-record`，用于潜客档案与互动记录 |
+| OSBI 情报条目 | `db/info_record.db` | `expert-osbi` 的 `info-record` |
+| OSBI 报告与证据、BD 联络产物 | `osbi/`、`bd/` | 分别由 expert-osbi / expert-bd 管理 |
 | IR 投资人档案/接触记录/项目申报 | `db/ir_record.db` | `expert-ir` 包内工具 `ir-record` |
 | X/TikTok/微博 API 会话与浏览器身份 | `~/.openclaw/logins/platform-api/` | 对应 hunter 的 `login/export`，内部由 platform-runtime 有头登录与隔离验证导入 |
 | 快手独立主站/创作者/直播会话 | `~/.openclaw/logins/platform-api/` | `kuaishou-hunter login/login-confirm` |

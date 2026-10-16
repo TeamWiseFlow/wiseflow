@@ -43,7 +43,7 @@ metadata:
 | 需求 | 改用 |
 |------|------|
 | 制作投资人材料 | `expert-ir` 的 Investor Materials Workflow |
-| 搜索/筛选投资人 | `market-research` + `expert-ir` 的 Investor Hunting Workflow |
+| 搜索/筛选投资人 | `expert-osbi` 的 Market Research workflow + `expert-ir` 的 Investor Hunting Workflow |
 | 记录投资人进展 | `expert-ir` 包内 `ir-record` 工具 |
 | 明确的执行任务 | 直接执行 |
 | 纯事实性问题 | 直接回答 |

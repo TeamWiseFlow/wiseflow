@@ -4,6 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Claude Code 被授权在本仓库中执行任何 git 命令（包括 push、branch、tag 等），无需逐次确认。
 
+- main 的 `expert-osbi` 负责公开信息提取、跟踪、分析与市场研究，`expert-bd` 保留 Lead Hunting，负责潜客探索筛选、互动和联络；邮件联络使用公共 `email-ops`。原始资料获取按平台调用 `douyin-hunter` / `xhs-hunter` / `tiktok-hunter` / `kuaishou-hunter` / `x-hunter` / `weibo-hunter` / `wx-mp-hunter` 或公共 `smart-search`；公开直播读取与监听使用 `douyin-hunter live` / `xhs-hunter live` / `tiktok-hunter live` / `kuaishou-hunter live`，直播写操作归 BD；通用 RSS/Atom 解析和情报记录工具归 OSBI。技能操作指导必须写出具体技能名，不用“使用一级 hunter”等泛称代替。
+- `smart-search` 与 `browser-guide` 暂不合并：前者专用于 Camoufox 浏览器搜索，普通站点统一共享持久化 `default` session/profile，自媒体专用 profile 沿用对应技能约定；后者提供通用页面操作指导。七项平台采集技能目前仅 main 配置；当前 crew 可用且接口匹配时优先该技能，未配置时按已有浏览器规则或公开索引执行，不借用其他 crew 的命令或更改 allowlist。
+
 ## Docker 部署规范
 
 - 用户态镜像、Compose service 和持久卷统一使用 **xiaobei** 命名；不得新增 `wiseflow-*` 镜像或卷名。

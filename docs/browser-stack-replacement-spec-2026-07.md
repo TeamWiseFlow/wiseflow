@@ -54,7 +54,7 @@
 
 | 项 | 说明 |
 |----|------|
-| **upload 命令** | 上游无 upload 命令（命令集：open/back/forward/reload/url/title/close/snapshot/click/fill/type/select/check/hover/press/text/eval/screenshot/pdf/scroll/wait/tabs/switch/close-tab/sessions/cookies/install）。fork 补 `upload <selector> <filepath>`，走 Playwright `setInputFiles`。发布类技能（douyin-video-publish / xhs-publish / weibo-publish / zhihu-publish / wechat-channels-publish / youtube-publish）依赖此 |
+| **upload 命令** | 上游无 upload 命令（命令集：open/back/forward/reload/url/title/close/snapshot/click/fill/type/select/check/hover/press/text/eval/screenshot/pdf/scroll/wait/tabs/switch/close-tab/sessions/cookies/install）。fork 补 `upload <selector> <filepath>`，走 Playwright `setInputFiles`。发布类技能（douyin-publish / xhs-publish / weibo-publish / zhihu-publish / wechat-channels-publish / youtube-publish）依赖此 |
 | **fail-first 队列** | 同 session 并发不是良性失败而是互相踩（`server.js:71` 无锁 + `commands.js:24` 共享 page.goto）。fork 内置 **fail-first 队列**：同 session 已有命令在跑时，新命令直接 fail，**失败返回文本写清原因和指导**（"session <name> 正忙，请等待当前操作完成后再试"）。agent 读到 fail 文本知道发生了什么、该干什么（等待重试）。不自动排队、不自动等待——避免隐藏排队语义 |
 | **identity export 命令** | fork 加 `identity export` 命令，导出当前 session 的 UA / 指纹摘要（供脚本侧导入 UA，对应原则 4）。与 `cookies export` 对称使用 |
 
@@ -155,7 +155,7 @@ spike 文档 L30-33 已设计：
 | `xhs-content-ops` | 适配修改后的login-manager中央cookie格式（`xhs-browse`），尤其是导入Cookie的时候，要同时导入UA。|
 | `xhs-publish` | 适配修改后的login-manager中央cookie格式（`xhs-publish`），尤其是导入Cookie的时候，要同时导入UA。 |
 | `xhs-interact` | forked cli 持久化 session `xhs` + upload；有头登录 |
-| `douyin-video-publish` | 由脚本方案改为浏览器自动化方案：forked cli 持久化 session `douyin` + upload；有头登录 |
+| `douyin-publish video` | 由脚本方案改为浏览器自动化方案：forked cli 持久化 session `douyin` + upload；有头登录 |
 | `weibo-publish` | forked cli 持久化 session `weibo` + upload；有头登录 |
 | `zhihu-publish` | forked cli 持久化 session `zhihu` + upload；有头登录 |
 | `wechat-channels-publish` | forked cli 持久化 session `wechat-channel` + upload；无头截图扫码登录（截 QR PNG 发用户扫码，渲染失败才 `--headed` 兜底） |

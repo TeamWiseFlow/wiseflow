@@ -10,6 +10,8 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 from creator_session import CreatorSessionMissing, creator_api, observe  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "_shared"))
+from publish_text import PublishTextError, read_publish_text  # noqa: E402
 
 def _note_id(response: dict) -> str:
     data = response.get("data") or {}
@@ -116,7 +118,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="发布小红书 Creator 笔记")
     parser.add_argument("--mode", required=True, choices=["image", "video"])
     parser.add_argument("--title", required=True)
-    parser.add_argument("--body", required=True)
+    parser.add_argument("--body", required=True, help="正文文字或 @UTF-8正文文件路径")
     parser.add_argument("--images", nargs="+")
     parser.add_argument("--video")
     parser.add_argument("--cover")
@@ -125,7 +127,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--ai-declaration", action="store_true",
                         help="声明笔记含 AI 合成内容")
     args = parser.parse_args(argv)
-    body = normalize_body_newlines(args.body)
+    try:
+        body = read_publish_text(args.body)
+    except PublishTextError as exc:
+        emit({"ok": False, "error": "BODY_FILE_INVALID", "message": str(exc)})
+        return 1
+    if not args.body.startswith('@'):
+        body = normalize_body_newlines(body)
     if not args.title.strip() or len(args.title) > 20:
         emit({"ok": False, "error": "TITLE_INVALID", "message": "标题须为 1–20 字"})
         return 1

@@ -15,6 +15,8 @@ metadata:
 
 ---
 
+正文先保存为 UTF-8 纯文本 `body.txt`，通过 `zhihu-publish fill --ref @<编辑器-ref> --body @/绝对路径/body.txt` 填写。wrapper 只负责读取文件、清空当前正文、填入和读回核验；文件读取失败时不操作浏览器。不要把多行正文拼进 shell，不用 `$(cat ...)`；标题仍用页面输入框填写。路径含空格时给整个 `@路径` 参数加引号。
+
 ## 前置条件
 
 1. 持久化 session `zhihu` 已登录（登录态存 session profile 里）。本 skill 与 login-manager **完全无关**--自管探活 + 登录，**不导出 cookie/UA 落中央存储**。
@@ -39,9 +41,9 @@ metadata:
    - 最长 100 字符
 5. snapshot 拿到正文编辑器 ref：.ProseMirror 或 .public-DraftEditor-root 或 [contenteditable="true"]
 6. camoufox-cli --session zhihu --persistent --json click <正文-ref> 聚焦编辑器
-7. camoufox-cli --session zhihu --persistent --json type <正文-ref> "正文内容"
+7. zhihu-publish fill --ref @<正文-ref> --body @/绝对路径/body.txt
    - 知乎使用富文本编辑器（ProseMirror / Draft.js），不支持直接输入 Markdown
-   - Markdown 内容需先转换为纯文本或手动分段输入
+   - 正文文件只放待发布纯文本；Markdown 内容先转换为纯文本
 8. （可选）添加话题：snapshot 找"添加话题"按钮 ref -> click -> type 话题名称 -> 从下拉选
 9. snapshot 找"发布"按钮 ref -> camoufox-cli --session zhihu --persistent --json click <发布-ref>
 10. sleep 3，snapshot 确认发布成功（URL 变为文章详情页）
@@ -72,19 +74,13 @@ metadata:
 
 ### 填写正文
 
-知乎编辑器是 Draft.js（`[contenteditable=true]`），填写正文用 `fill` 命令：
+知乎编辑器是 Draft.js（`[contenteditable=true]`），正文用文件填写 wrapper：
 
 ```
-camoufox-cli --session zhihu --persistent --json fill @<编辑器-ref> "正文纯文本"
+zhihu-publish fill --ref @<编辑器-ref> --body @/绝对路径/body.txt
 ```
 
-⚠️ **fill 不会自动清空旧内容**--如果编辑器已有内容（如之前填过或导入了内容），必须先清空：
-
-```
-camoufox-cli --session zhihu --persistent --json eval "var e=document.querySelector('[contenteditable=true]');e.focus();document.execCommand('selectAll',false,null);document.execCommand('delete',false,null);'CLEARED'"
-```
-
-清空后再 fill，否则两段内容会拼在一起。
+wrapper 聚焦指定编辑器，先清空旧正文再填入文件，并读回完整正文核对。返回 `ok: true` 才继续设置声明和发布；清空、填写或核验失败时停留在编辑页，不点击发布。
 
 ### 导入公众号文章（可选）
 
@@ -184,9 +180,9 @@ camoufox-cli --session zhihu --persistent --json eval "var e=document.querySelec
 
 ### pitfall: fill_not_clearing
 
-- **触发**：编辑器已有内容时直接 `fill` 新内容
+- **触发**：绕过正文 wrapper，在已有正文上直接输入
 - **症状**：新旧内容拼接在一起
-- **workaround**：fill 前先 `eval` 执行 `selectAll` + `delete` 清空编辑器
+- **workaround**：使用 `zhihu-publish fill --ref @<编辑器-ref> --body @/绝对路径/body.txt`，由脚本清空、填入和核验
 
 ### pitfall: import_link_blocked
 

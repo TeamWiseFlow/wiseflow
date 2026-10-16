@@ -3,8 +3,8 @@
 | 业务 | 调用 |
 |---|---|
 | 创作者登录、发布前检查 | `douyin-publish login/check`，Camoufox 持久化 session `douyin` |
-| 视频发布、分步取链 | `douyin-publish video`；分步工具 `douyin-video-publish` |
-| 图文发布、配乐、取链 | `douyin-publish note`；分步工具 `douyin-note-publish` |
+| 视频发布、草稿、验证续接与取链 | `douyin-publish video`，分步操作见发布工具的 `references/video.md` |
+| 图文发布、配乐与取链 | `douyin-publish note`，分步操作见发布工具的 `references/note.md` |
 | 本人已发作品基础与深度指标 | `douyin-engagement check/list/fetch/daily`，HTTP 接口取数，临时复用发布 profile 的 cookie/UA |
 | 内容 DNA、创作、对标、图文分析 | 本包对应 workflow |
 | 账号、作品、评论、搜索、媒体下载 | 一级技能 `douyin-hunter` |

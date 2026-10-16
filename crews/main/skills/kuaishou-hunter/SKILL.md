@@ -34,4 +34,8 @@ kuaishou-hunter call <resource> <action> [平台选项]
 
 作品搜索不支持 --sort/--type/--time。关注流只有首屏，user likes/followers/following 只支持 me。二级评论参数覆盖有限；notice count 只有总数。400002、验证码或风控应停止并报告，不能当空数据或登录失效。
 
-视频先下载再交 `viral-chaser` 本地 analyzer，采用返回的实际视频路径；`--video-only` 在下载前拒绝图文。图文和文字采样在 `expert-kuaishou` 或调用方 workflow 回读原文与图片分析。创作/发布/本人数据走 `expert-kuaishou`；互动和直播走 expert-bd。下载依赖平台返回的实际可访问媒体 URL，失败不回报下载成功。
+视频先下载再交 `viral-chaser` 本地 analyzer，采用返回的实际视频路径；`--video-only` 在下载前拒绝图文。图文和文字采样在 `expert-kuaishou` 或调用方 workflow 回读原文与图片分析。创作/发布/本人数据走 `expert-kuaishou`；互动写接口目前未实现，公开直播读取走本 hunter，调研分析走 expert-osbi。下载依赖平台返回的实际可访问媒体 URL，失败不回报下载成功。
+
+## 公开直播读取
+
+房间、列表、分类、礼物、回放与有界监听使用 `kuaishou-hunter live`；[读取说明](tools/kuaishou-live/SKILL.md)。原 kuaishou-live wrapper 保留在 hunter 内，调用同一只读入口。竞对调研交 expert-osbi，快手互动写接口保持未实现。

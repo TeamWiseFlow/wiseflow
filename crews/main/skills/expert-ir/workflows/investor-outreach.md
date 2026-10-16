@@ -97,8 +97,8 @@
 
 | 场景 | 配合 |
 |------|---------|
-| 搜索投资人信息和被投企业 | `market-research`、`smart-search` |
+| 搜索投资人信息和被投企业 | `expert-osbi` 的 Market Research workflow、`smart-search` |
 | 投资人发掘后触达 | Investor Hunting Workflow（搜索筛选后衔接触达） |
 | 发送邮件 | `email-ops`（文案经用户确认后发送） |
 | 记录接触历史 | `ir-record record-contact` 记录，`ir-record update-status` 更新状态为 `contacted` |
-| 投前调研基金策略 | `market-research`（基金尽调模式） |
+| 投前调研基金策略 | `expert-osbi` 的 Market Research workflow（基金尽调模式） |

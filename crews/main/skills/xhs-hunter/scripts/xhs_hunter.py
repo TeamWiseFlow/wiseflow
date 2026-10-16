@@ -19,6 +19,7 @@ from urllib.parse import quote, urlparse, urlunparse
 from uuid import uuid4
 
 from xhs_utils.pc_session import LOGIN_DIR, SESSION_FILE, SessionMissing, load_auth, save_auth, session_lock
+from xhs_utils.runtime_logs import logged_worker_command
 
 
 STATUS_FILE = LOGIN_DIR / 'xhs-pc-login-status.json'
@@ -116,16 +117,12 @@ def start_login() -> int:
                        'started_at': datetime.now(timezone.utc).isoformat()}
             _atomic_json(STATUS_FILE, current)
             WORKER_LOG.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-            log_fd = os.open(WORKER_LOG, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
-            try:
-                worker = subprocess.Popen(
-                    [sys.executable, __file__, '_login-worker', run_id],
-                    stdin=subprocess.DEVNULL, stdout=log_fd, stderr=log_fd,
-                    start_new_session=True,
-                    env={**os.environ, 'XHS_PC_QR_IMAGE': str(QR_FILE)},
-                )
-            finally:
-                os.close(log_fd)
+            worker = subprocess.Popen(
+                logged_worker_command(WORKER_LOG, [sys.executable, __file__, '_login-worker', run_id]),
+                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                start_new_session=True,
+                env={**os.environ, 'XHS_PC_QR_IMAGE': str(QR_FILE)},
+            )
             current['pid'] = worker.pid
             _atomic_json(STATUS_FILE, current)
     finally:
@@ -198,7 +195,7 @@ def check_login() -> int:
     with session_lock():
         auth = load_auth()
         try:
-            from apis.xhs_pc_apis import XHS_Apis
+            from xhs_utils.xhs_pc.api import XHS_Apis
 
             success, message, response = XHS_Apis(auth).get_user_me()
             if success:
@@ -215,7 +212,7 @@ def check_login() -> int:
 
 
 def _methods() -> dict:
-    from apis.xhs_pc_apis import XHS_Apis
+    from xhs_utils.xhs_pc.api import XHS_Apis
 
     return {
         name: member for name, member in inspect.getmembers(XHS_Apis)
@@ -230,7 +227,7 @@ def call_method(name: str, args: list | None = None, kwargs: dict | None = None)
     with session_lock():
         auth = load_auth()
         try:
-            from apis.xhs_pc_apis import XHS_Apis
+            from xhs_utils.xhs_pc.api import XHS_Apis
 
             result = getattr(XHS_Apis(auth), name)(*(args or []), **(kwargs or {}))
             save_auth(auth)
@@ -260,7 +257,7 @@ def bounded_user_notes(user_url: str, count: int) -> dict:
     with session_lock():
         auth = load_auth()
         try:
-            from apis.xhs_pc_apis import XHS_Apis
+            from xhs_utils.xhs_pc.api import XHS_Apis
 
             api = XHS_Apis(auth)
             for _ in range(min(10, (count + 19) // 20 + 1)):
@@ -286,7 +283,7 @@ def bounded_feed(category: str, count: int) -> dict:
     with session_lock():
         auth = load_auth()
         try:
-            from apis.xhs_pc_apis import XHS_Apis
+            from xhs_utils.xhs_pc.api import XHS_Apis
 
             api = XHS_Apis(auth)
             for _ in range(min(10, (count + 19) // 20 + 1)):
@@ -483,7 +480,7 @@ def collect(source: str, target: str, *, count: int, output_dir: str,
     with session_lock():
         auth = load_auth()
         try:
-            from apis.xhs_pc_apis import XHS_Apis
+            from xhs_utils.xhs_pc.api import XHS_Apis
 
             api = XHS_Apis(auth)
             for index, input_url in enumerate(urls, 1):

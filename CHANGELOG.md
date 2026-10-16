@@ -1,3 +1,12 @@
+# v5.7.4
+
+- 修复抖音视频发布的 Semi Modal 弹窗识别与封面预览误超时：按名称选择入口、激活页面预览方向并校验编辑器类型，支持悬停编辑入口和当前编辑器内的上传/替换框；预览确认本次文件，兼容缓存、JPEG 重编码、Canvas、输入清空与弹窗重建，拒绝旧图与错误槽位。续编先完成已有 AIGC 声明，未保存弹窗不算成功，封面质量拒绝单独报错并停止；浏览器异常提供脱敏栈帧定位。
+- 小红书运行态日志增加容量限制：Creator 每日防重复标记只保留近 30 天；Creator/PC 后台登录日志与 Creator 观察日志各按 5 MiB 轮转、保留 3 份备份。后台登录输出持续捕获并轮转，保持登录状态与二维码交接流程。
+- `smart-search`：搜索入口明确仅指导 Camoufox 浏览器操作，按当前 crew 配置优先使用七个平台采集技能；普通站点统一共享持久化 `default` profile，自媒体保留专用 profile，API 登录按平台技能管理。对照 OpenCLI/SearXNG 更新现有站点规则，修正 arXiv 字段、GitHub 代码搜索登录要求和参数/页面混用；按用户选择接入商业、技术/AI、学术、招聘合作、产品口碑和设计参考六类 36 个站点，集中配置网页入口和共享 profile，通用搜索维持 Bing/百度/夸克。同步 browser-guide 的共享会话与收尾规则。
+- 新增 `expert-osbi`：迁入情报提取、竞对监控和直播调研 workflow，市场研究收为包内 workflow；`info-record` / `rss-reader` 随包迁移，数据库路径保持不变。`expert-bd` 保留 Lead Hunting，承接潜客筛选、互动、联络与记录，工具清单包含公共 `email-ops`；公开直播读取/监听使用 `douyin-hunter` / `xhs-hunter` / `tiktok-hunter` / `kuaishou-hunter`，直播发送仍归 BD；小红书/抖音直播执行器收敛到内部共享库。
+- 抖音仅保留 `douyin-publish` 对外发布入口；视频/图文执行器与分步说明收进内部，分步操作统一为 `video` / `note` 子命令。原一键简写继续可用，`run` 与 `publish` 均需 `--confirm` 才提交；一键和分步正文均支持 `--caption @UTF-8文件路径`。
+- 小红书 PC API 与登录客户端统一收敛到 `_shared/xhs_utils/xhs_pc`，hunter、BD 私信/直播及蒲公英/千帆共用一套实现；修复跨技能加载 PC 会话时缺少 API 模块的问题。
+
 # v5.7.3(2026-10-09)
 
 - `aigc-video-gen music` 增加百炼业务空间 `fun-music-v1`：支持提示词/歌词、纯音乐、演唱性别及 MP3/WAV，同步生成后下载音频并保存 metadata；新增音乐专用选路，自动优先 MiniMax 再完整百炼业务空间，支持显式 `--platform dashscope`，火山/Agent Plan 视频凭据不触发音乐生成。
@@ -308,9 +317,9 @@
 
 # v5.6.0 (2026-07-12)
 
-### 浏览器栈整体替换（双线栈，spec `docs/browser-stack-replacement-spec-2026-07.md`）
+### 浏览器栈整体替换（双线栈）
 
-> 2026-07-11 ~ 07-12 落地。调研结论见 `docs/browser-extension-replacement-research.md` §12（架构转向，优先级最高）。
+> 2026-07-11 ~ 07-12 落地。旧调研已归入 [浏览器架构文档](docs/browser-architecture.md) 的历史背景与追溯；以下保留当时的发布记录。
 
 **双线浏览器栈**（替代原"整体替换 extension"路线）：
 

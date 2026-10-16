@@ -9,10 +9,12 @@
 - `expert-douyin` / `expert-xhs` / `expert-tiktok` / `expert-kuaishou` / `expert-twitter` 仅保留创作、发布、本人已发布作品数据获取和创作者服务；私信、评论发布/回复、点赞、收藏、关注等写操作及直播互动统一放在 `expert-bd`。
 - 内容搜索、账号与作品获取、评论读取、评论/@提醒、点赞收藏提醒、新增关注通知和媒体下载使用一级技能 `douyin-hunter` / `xhs-hunter` / `tiktok-hunter` / `kuaishou-hunter` / `x-hunter` / `weibo-hunter`，不要收纳进平台专家包。缺少已实现接口的互动写能力保留为不支持，待后续有可复用方案再补齐。
 - `viral-chaser` 只编排视频分析：先调用对应 hunter 获取资料与下载，再运行本地 analyzer 做转写和关键帧提取。analyzer 不集成探活、登录、链接解析或下载；快手、TikTok、X 和微博同样通过各自 hunter 执行；不支持 B 站链接。图文下载调用 hunter，分析由对应平台专家 workflow 完成。
-- 公共 `smart-search` 不支持抖音、小红书、TikTok、快手、X、微博、微信公众号、微信视频号；前七者直接路由到对应 hunter，视频号目前没有搜索与取内容方案。
+- 公共 `smart-search` 专用于 Camoufox 浏览器搜索。当前 crew 已配置 `douyin-hunter` / `xhs-hunter` / `tiktok-hunter` / `kuaishou-hunter` / `x-hunter` / `weibo-hunter` / `wx-mp-hunter` 且任务命中其能力时优先使用；这些技能目前仅 main 配置，未配置的 crew 按已有站点浏览器规则或公开索引搜索，不调用不可用技能，不因采集技能失败就自动绕行。普通站点统一复用持久化 `default` session/profile，不按站点或类别另建 profile；自媒体专用 profile 和 API 会话按各技能实际登录约定执行；微信视频号仍没有搜索与取内容方案。
 - `published-track` 只管理发布记录、查询和指标入库，不负责平台取数；具体取数全部放在对应专家包的 engagement tool，工具采集后调用 `published-track update-metrics`。
 - 后续能力移植和新增平台均按此划分。抖音发布使用 Camoufox 持久化 session `douyin`；本人取数走 HTTP 接口，仅临时从同一 profile 读取 cookie/UA，不另存登录态、不走 login-manager。hunter 和 expert-bd 互动使用独立 API 登录态。
 - TikTok、快手、X、微博共用 `platform-runtime` 内部运行库；登录与会话管理归运行库，由各自 hunter 暴露登录命令，不另设 `login-manager` 技能。安装时按固定四平台配置裁剪其他平台及专属依赖，不改保留平台的业务或签名代码；上游版本、包校验值、注册结构变化必须复核后再升级。
+
+- main 的 `expert-osbi` 负责公开信息提取、跟踪、分析与市场研究，`expert-bd` 保留 Lead Hunting，负责潜客探索筛选、互动和联络；邮件联络使用公共 `email-ops`。原始资料获取按平台调用 `douyin-hunter` / `xhs-hunter` / `tiktok-hunter` / `kuaishou-hunter` / `x-hunter` / `weibo-hunter` / `wx-mp-hunter` 或公共 `smart-search`；公开直播读取与监听使用 `douyin-hunter live` / `xhs-hunter live` / `tiktok-hunter live` / `kuaishou-hunter live`，直播写操作归 BD；通用 RSS/Atom 解析和情报记录工具归 OSBI。技能操作指导必须写出具体技能名，不用“使用一级 hunter”等泛称代替。
 
 ## Docker 部署规范
 

@@ -24,11 +24,11 @@ Follow these rules whenever you drive a browser against web pages.
 ### 0.1 camoufox-cli 基本用法
 
 ```
-camoufox-cli --session <name> [--persistent] [--headed] [--json] <command> [args...]
+camoufox-cli [--session <name>] [--persistent] [--headed] [--json] <command> [args...]
 ```
 
-- **`--session <name>`**：会话隔离单元，同名 session 共享一个 profile 目录。**涉及登录的平台用一个且只用一个持久化 session 名**。
-- **`--persistent`**：冻结指纹到 `~/.camoufox-cli/profiles/<name>/camoufox-cli.json`（首次生成后冻结）。持久化平台 session 必带；临时性 session（新闻等不登录站点）**不带**——走默认临时 profile，每次随机指纹，关闭自清。
+- **`--session <name>`**：省略时使用内置 `default`；同名 session 共享一个 profile 目录。`smart-search` 的普通站点省略该参数，直接复用默认 profile，需要登录也沿用；自媒体平台的专用会话按对应技能约定执行。
+- **`--persistent`**：冻结指纹到 `~/.camoufox-cli/profiles/<name>/camoufox-cli.json`（首次生成后冻结）。`smart-search` 搜索与平台持久化 session 必带；其他技能明确要求的临时性 session 不带，关闭后自清。
 - **`--headed`**：有头模式。**需要用户配合过验证码、收短信的，或者填表场景，必须 `--headed`**。例外：**微信公众号 wx_mp 与微信视频号 wechat-channel** 可无头截图二维码发用户远程扫码（按各自专家包约定：截 QR PNG 发用户聊天窗口 → 用户手机扫码 → 轮询 URL 确认登录就位）；无头下二维码渲染失败（等 10s 仍无 QR img、截图空白或「加载失败」）才 teardown 换 `--headed` 弹窗兜底。**微博 / 闲鱼等扫码登录页维持必须 `--headed`** 弹窗让用户在浏览器里手动扫码。其他场景，包括探活，都可以使用默认的无头模式。
 - **`--viewport <WxH>`**：固定窗口尺寸，如 `1920x1080`。camoufox 默认按指纹给**移动端窗口比例**，导致有头登录时二维码看不全；`--headed` 兜底扫码登录（微博 / 闲鱼等）或窗口内容看不全时加 `--viewport 1920x1080` 强制桌面比例。业务无头操作无需此 flag。
 - **`--json`**：命令输出走 JSON 信封（`{ok, ...}` / `{error, ...}`），agent 解析稳定，推荐常带。
@@ -41,7 +41,7 @@ camoufox-cli --session <name> [--persistent] [--headed] [--json] <command> [args
 session <name> 正忙，请等待当前操作完成后再试
 ```
 
-读到这条 fail 文本说明有其他进程在使用同名session，你应该等待一段时间后再重试，卡死用 `camoufox-cli close --all` 兜底 teardown。
+读到这条 fail 文本说明有其他进程在使用同名 session，等待当前操作完成后再重试；不要 close 占用中的会话或换名并发。需要恢复时，只处理已确认属于本轮且不再被使用的 session。
 
 ### 0.2 snapshot ref 优先
 
@@ -53,9 +53,9 @@ camoufox-cli 的 `snapshot` 返回带 ref 的语义快照（`@e1` `@e2` …）�
 
 铁律：
 
-- **临时性 session（搜索 / 抓取 / 不登录站点）**：用完**立即** `camoufox-cli --session <s> --json close`。哪怕后面还要搜，也先 close 再开下一个，或干脆**复用同一个 session 名**（不要每次 `search-$(date +%s)` 起新名）——同名 session 复用同一个 daemon，不堆积。
+- **临时性 session（技能明确要求的临时抓取）**：用完**立即** `camoufox-cli --session <s> --json close`。不要每次操作起随机 session 名；`smart-search` 普通搜索使用持久化 `default`，不套用临时抓取规则。
 - **持久化 session（登录态平台）**：登录/取数结束后也 close。登录态存在 profile 目录里（`~/.camoufox-cli/profiles/<name>/`），**daemon 退出不丢登录**，下次 `open` 自动加载。持久化 ≠ 一直开着。
-- **批量收尾**：一个任务结束前，`camoufox-cli --json close --all` 兜底清掉所有自己开的 session。
+- **共享 session 收尾**：先关闭自己本轮创建的标签页，本轮结束且没有其他任务使用该 session 时再 close；不要用 `close --all` 影响其他任务或等待用户登录的窗口。
 - **不要**每条搜索一个唯一 session 名还不 close。这是已确认的死机模式。
 
 > 源头已有兜底：全局并发 daemon 上限 6（超了驱逐最老的）。但 skill 侧仍必须自觉 close——兜底是最后防线，不是不关的理由。

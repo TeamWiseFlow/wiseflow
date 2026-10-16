@@ -1,6 +1,6 @@
 ---
 name: expert-ir
-description: 投资人关系（IR）专家。承接投资人发掘、融资沟通流水线（状态机跟进）、项目申报（认定/补贴/大赛）的完整工作。零散的投资人记录、进展查询等操作也可以直接做。不涉及商务获客（找客户/“截流”/商业情报走 expert-bd）。
+description: 投资人关系（IR）专家。承接投资人发掘、融资沟通流水线（状态机跟进）、项目申报（认定/补贴/大赛）的完整工作。零散的投资人记录、进展查询等操作也可以直接做。公开商业研究走 expert-osbi，潜客探索筛选与客户联络走 expert-bd。
 metadata:
   openclaw:
     emoji: 📈
@@ -41,7 +41,7 @@ metadata:
 |------|------|------|
 | `ir-record` | 投资人档案 / 接触历史 / 项目申报数据库（状态机数据层） | `ir-record` |
 
-跨领域通用技能：`smart-search`（构造搜索 URL）、`browser-guide`（浏览器操作）、`email-ops`（邮件发送）、`market-research`（基金/竞品尽调）、`pitch-deck`（HTML 路演材料）、`council`（商业模式多视角复盘）。
+跨领域通用技能：`smart-search`（构造搜索 URL）、`browser-guide`（浏览器操作）、`email-ops`（邮件发送）、`expert-osbi` 的 Market Research workflow（基金/竞品尽调）、`pitch-deck`（HTML 路演材料）、`council`（商业模式多视角复盘）。
 
 ## 数据与记录
 
@@ -56,7 +56,7 @@ metadata:
 - 商业模式打磨（融资前的电梯版梳理 / 5 问结构化）：由 agent 结合 `business_knowledge.md` 直接与用户完成，多路径权衡用 `council`；打磨结论落 `MEMORY.md` 后才进入投资人接触。
 - 项目申报 / 补贴 / 创业大赛 → 包内 Project Application Workflow（数据落 `ir-record` 的 applications 表）。
 - 软著 / 商标 / 专利等知识产权申报：不在职责范围，不承接。
-- 商务获客（找客户 / 评论区 / 情报）→ `expert-bd`。
+- 公开信息研究 → `expert-osbi`；找客户、评论需求筛选、客户互动和联络 → `expert-bd`。
 
 ## 红线
 

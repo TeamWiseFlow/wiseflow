@@ -1,6 +1,6 @@
 # GitHub
 
-> last_verified: 2026-06-15
+> 规则参考 [GitHub 代码搜索文档](https://docs.github.com/en/search-github/github-code-search/about-github-code-search)。固定 session/profile `default`，带 --persistent。
 
 ## 搜索
 
@@ -25,7 +25,7 @@ https://github.com/search?q={keyword}&type={type}
 
 ### 语言过滤
 
-`&l={language}`（如 `&l=Python`、`&l=TypeScript`）
+优先把 `language:Python` / `language:TypeScript` 写入 q 搜索式；传统仓库搜索的 &l 参数仅在当前页面实际采用时使用。代码搜索与仓库搜索的筛选/排序不是同一套规则，不把仓库的 s/o 参数套到代码结果上。
 
 ### 多关键词
 
@@ -39,4 +39,4 @@ https://github.com/search?q=wiseflow+addon&type=repositories&s=stars&o=desc&l=Py
 
 ## Pitfalls
 
-无特殊 pitfalls。GitHub 搜索公开可用，不需要 Cookie Warmup。
+仓库等公开页面通常可读；**代码搜索包括公开仓库也要求登录**。按 browser-guide 在共享 `default` 持久化 profile 完成登录；新代码搜索不支持自定义排序，最多返回 100 个结果，不能宣称穷尽仓库。查询条件与原文链接需记录。

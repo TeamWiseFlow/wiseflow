@@ -231,8 +231,8 @@ Brief 硬性规则：
 
 `xhs/outputs/<note-name>/`：
 
-- 图文：`note.md`、封面与图组图片、`materials/`、`dna-meta.json`
-- 视频：`brief.md`、`voiceover.md`（如启用）、`note.md`（标题 + 发布正文）、`video.mp4`、`cover.jpg`、`materials/`、`dna-meta.json`
+- 图文：`note.md`、`body.txt`（仅已确认的发布正文和话题）、封面与图组图片、`materials/`、`dna-meta.json`
+- 视频：`brief.md`、`voiceover.md`（如启用）、`note.md`（标题 + 发布正文）、`body.txt`（仅已确认的发布正文和话题）、`video.mp4`、`cover.jpg`、`materials/`、`dna-meta.json`
 - `dna-meta.json`：`{"platform":"xhs","dna_id":"<dna-id>"}`
 
 ## Step 8 - 发布
@@ -245,13 +245,13 @@ xhs-publish check
 # exit 0 = 有效；exit 2 = 无会话或认证失效 -> xhs-publish login，发送返回的二维码图片，等用户确认后 xhs-publish login-confirm，再探活一次
 
 # 2. 图文发布
-xhs-publish --mode image --title "标题" --body "正文（含 #话题1 #话题2）" --images img1.jpg img2.jpg img3.jpg
+xhs-publish --mode image --title "标题" --body @/绝对路径/body.txt --images img1.jpg img2.jpg img3.jpg
 
 # 2'. 视频发布
-xhs-publish --mode video --title "标题" --body "正文" --video video.mp4 --cover cover.jpg
+xhs-publish --mode video --title "标题" --body @/绝对路径/body.txt --video video.mp4 --cover cover.jpg
 ```
 
-- `--body` 必须传实际文字，不能传文件路径或 `$(cat file)`；从 `note.md` 读出后硬编码进命令。
+- `--body @/绝对路径/body.txt` 由脚本读取 UTF-8 正文文件，读取失败即停止。文件只放发布正文和话题，不含标题或分节说明；不要硬编码多行正文或用 `$(cat file)` 展开。
 - 笔记含 AI 合成内容时，在对应 `xhs-publish` 命令末尾加 `--ai-declaration`，发布时一并提交平台侧声明；纯实拍素材不加。
 - 返回 `{"ok": true, "note_id": ..., "url": ...}` 才算成功；`AUTH_EXPIRED` 重登后重试一次；`RATE_LIMIT` 等 30 分钟后重试。
 - 单账号每天 ≤ 1-3 篇；触发风控立即降级，30 分钟内不重试。
